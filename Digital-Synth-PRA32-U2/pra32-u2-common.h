@@ -30,27 +30,19 @@ static INLINE int8_t hhigh_sbyte(__int24 x) {
 }
 
 static INLINE int32_t mul_s32_s16_h32(int32_t x, int16_t y) {
-  int32_t  x1 = x >> 16;
-  uint32_t x0 = x & 0xFFFF;
-  return (static_cast<int32_t>(x0 * y) >> 16) + (x1 * y);
+  return (static_cast<int64_t>(x) * y) >> 16;
 }
 
 static INLINE int32_t mul_s32_u16_h32(int32_t x, uint16_t y) {
-  int32_t  x1 = x >> 16;
-  uint32_t x0 = x & 0xFFFF;
-  return (static_cast<uint32_t>(x0 * y) >> 16) + (x1 * y);
+  return (static_cast<int64_t>(x) * y) >> 16;
 }
 
 static INLINE int32_t mul_u32_s16_h32(uint32_t x, int16_t y) {
-  uint32_t x1 = x >> 16;
-  uint32_t x0 = x & 0xFFFF;
-  return (static_cast<int32_t>(x0 * y) >> 16) + (x1 * y);
+  return (static_cast<int64_t>(x) * y) >> 16;
 }
 
 static INLINE uint32_t mul_u32_u16_h32(uint32_t x, uint16_t y) {
-  uint32_t x1 = x >> 16;
-  uint32_t x0 = x & 0xFFFF;
-  return (static_cast<uint32_t>(x0 * y) >> 16) + (x1 * y);
+  return (static_cast<uint64_t>(x) * y) >> 16;
 }
 
 static INLINE int32_t mul_s32_s32_h32(int32_t x, int32_t y) {
