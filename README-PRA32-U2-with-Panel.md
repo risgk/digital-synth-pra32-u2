@@ -79,6 +79,7 @@
 
 - This image was created with Fritzing.
     - Actually, it is necessary to use Raspberry Pi Pico 2 (instead of Raspberry Pi Pico)
+- NOTE: Unlike Digital Synth PRA32-U v3.1.0, the switches are low active and RP2350 uses internal pull-up to avoid RP2350-E9 Erratum
 
 
 ### An Example of Construction by a Breadboard
