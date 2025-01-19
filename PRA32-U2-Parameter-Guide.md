@@ -1,0 +1,219 @@
+# Digital Synth PRA32-U2 Parameter Guide v0.0.1
+
+- 2025-01-19 ISGK Instruments
+- <https://github.com/risgk/digital-synth-pra32-u2>
+
+## Control Change Parameters
+
+- Notes
+    - $1 : Disabled in Paraphonic Mode
+    - $2 : Disabled if Osc 1 Wave is not Pls (Pulse)
+- Osc 1 Wave [Saw|Sin|-|Tri|-|Pls]
+    - 0, 6-12: Saw Wave
+    - 1, 25 (13-38): Sine Wave
+    - 2, 50 (39-63): Triangle Wave
+    - 3, 75 (64-88): Triangle Wave
+    - 4, 100 (89-114): Pulse Wave (Shape adjustable)
+    - 5, 127 (115-127): Pulse Wave (Shape adjustable)
+- Osc 1 Shape $2
+    - Sine Wave (Phase Modulation): Modulation Depth
+    - Pulse Wave (= 1st Saw + Phase Shifted 2nd Saw)
+        - 0: Pulse Width 50%, or 2nd Saw Phase 50% (min)
+        - 64: Pulse Width 25%, or 2nd Saw Phase 25%
+        - 96: Pulse Width 12.5%, or 2nd Saw Phase 12.5%
+        - 127: Pulse Width 0.4%, or 2nd Saw Phase 99.6% (max)
+- Osc 1 Morph $2
+    - Sine Wave (Phase Modulation): Frequency Ratio of Modulator
+        - 0 (0-1): Ratio 0.5 (min)
+        - 4 (2-5): Ratio 1.0
+        - 8 (6-9): Ratio 1.5
+        - 12 (10-13): Ratio 2.0
+        - 20 (18-21): Ratio 3.0
+        - 28 (26-29): Ratio 3.5
+        - 108 (106-109): Ratio 14.0
+        - 124 (122-125): Ratio 16.0
+        - 127 (126-127): Ratio 16.5 (max)
+    - Pulse Wave
+        - 0: Pulse 100% = Saw 100% + Reverse Saw 100% (min)
+        - 32: Pulse 50% + Saw 50% = Saw 100% + Reverse Saw 50%
+        - 64: Saw 100%
+        - 96: Saw 100% + Saw 50%
+        - 127: Saw 100% + Saw 100% (max)
+- Mixer Noise/Sub Osc [N|S]
+    - -64 (0): Noise 100%
+    - -63 (1): Noise 98.4%
+    - -62 (2): Noise 96.9%
+    - -1 (63): Noise 1.6%
+    - +0 (64): 0%
+    - +1 (65): Sub Osc 1.6%
+    - +62 (126): Sub Osc 96.9%
+    - +63 (127): Sub Osc 100%
+- Osc 2 Wave [Saw|Sin|-|Tri|Nos|Sqr]
+    - 0, 6-12: Saw Wave
+    - 1, 25 (13-38): Sine Wave
+    - 2, 50 (39-63): Triangle Wave
+    - 3, 75 (64-88): Triangle Wave
+    - 4, 100 (89-114): White Noise
+    - 5, 127 (115-127): Square Wave
+- Osc 2 Coarse [-|+]
+    - -60 (4): -60 semitone (min)
+    - +60 (124): +60 semitone (max)
+- Osc 2 Pitch [-|+]
+    - -55 (9): -12 semitone (min)
+    - -41 (23): -5 semitone
+    - -33 (31): -1 semitone
+    - -32 (32): -50 cent
+    - +0 (64): +0 cent
+    - +32 (96): +50 cent
+    - +33 (97): +1 semitone
+    - +45 (109): +7 semitone
+    - +55 (119): +12 semitone (max)
+- Mixer Osc Mix [1|2]
+- Filter Cutoff
+    - 0: f = 13.0 Hz (min)
+    - 61: f = 440 Hz
+    - 64: f = 523.3 Hz
+    - 121: f = 14080 kHz
+    - 127: f = 19912.1 Hz (max)
+- Filter Resonance
+    - 16 (0-19): Q = 0.7 (min)
+    - 24 (20-27): Q = 0.8
+    - 32 (28-35): Q = 1.0
+    - 40 (36-43): Q = 1.2
+    - 48 (44-51): Q = 1.4
+    - 56 (52-59): Q = 1.7
+    - 64 (60-67): Q = 2.0
+    - 72 (68-75): Q = 2.4
+    - 80 (76-83): Q = 2.8
+    - 88 (84-91): Q = 3.4
+    - 96 (92-99): Q = 4.0
+    - 104 (100-107): Q = 4.8
+    - 112 (108-115): Q = 5.6
+    - 120 (116-123): Q = 6.7
+    - 127 (124-127): Q = 8.0 (max)
+- Filter EG Amt [-|+], LFO Filter Amt [-|+]
+    - -60 (4): -60 (min)
+    - +60 (124): +60 (max)
+- Filter Key Track [0.0|0.5|1.0] $1
+    - 0 (0-31): 0.0
+    - 64 (32-95): 0.5
+    - 127 (96-127): 1.0
+- EG Attack, Amp Attack
+    - 0: 0.7 ms
+    - 64: 63.2 ms
+    - 127: 5.9 s
+- EG Decay, Amp Decay
+    - 0: 2 ms
+    - 64: 200 ms
+    - 126: 17.3 s
+    - 127: No Decay
+- EG Release, Amp Release
+    - 0: 2 ms
+    - 64: 200 ms
+    - 127: 18.6 s
+- EG Osc Amt [-|+], LFO Osc Amt [-|+]
+    - Pitch
+        - -61 (3): -30 semitone (min)
+        - -55 (9): -24 semitone
+        - -43 (21): -12 semitone
+        - -33 (31): -2 semitone
+        - -32 (32): -100 cent
+        - +0 (64): +0 cent
+        - +32 (96): +100 cent
+        - +33 (97): +2 semitone
+        - +43 (107): +12 semitone
+        - +55 (119): +24 semitone
+        - +61 (125): +30 semitone (max)
+    - Shape
+        - -63 (1): Shape -252 (min)
+        - +63 (127): Shape +252 (max)
+- EG Osc Dst [P|2P|1S], LFO Osc Dst [P|2P|1S]
+    - 0, 3-31: Osc 1 & 2 Pitch
+    - 1, 64 (32-95): Osc 2 Pitch
+    - 2, 127 (96-127): Osc 1 Shape
+- Voice Mode [Pol|Par|-|Mon|LP|Lgt]
+    - 0, 6-12: Polyphonic (LFO Single Trigger)
+    - 1, 25 (13-38): Paraphonic (LFO Single Trigger)
+    - 2, 50 (39-63): Monophonic (EG & LFO Multi Trigger)
+    - 3, 75 (64-88): Monophonic (EG & LFO Multi Trigger)
+    - 4, 100 (89-114): Legato Portamento (Monophonic, EG & LFO Single Trigger, Auto Portamento)
+    - 5, 127 (115-127): Legato (Monophonic, EG & LFO Single Trigger)
+- Portamento
+    - 0: Portamento Time 0 ms
+    - 1: Portamento Time 1.1 ms
+    - 64: Portamento Time 100 ms
+    - 127: Portamento Time 9.3 s
+- LFO Wave [Tri|Sin|-|Saw|SH|Sqr]
+    - 0, 6-12: Triangle Wave (Key Trigger Off, -0.5 to +0.5)
+    - 1, 25 (13-38): Sine Wave (Key Trigger Off, -0.5 to +0.5)
+    - 2, 50 (39-63): Saw Wave (Key Trigger On, -0.5 to +0.5)
+    - 3, 75 (64-88): Saw Wave (Key Trigger On, -0.5 to +0.5)
+    - 4, 100 (89-114): Sample & Hold (Key Trigger On, -0.5 to +0.5)
+    - 5, 127 (115-127): Square Wave (Key Trigger On, 0.0 to 1.0)
+- LFO Rate
+    - 0: 0.068 Hz (min)
+    - 64: 2.7 Hz
+    - 80: 6.9 Hz
+    - 127: 103.8Hz (max)
+- LFO Depth
+    - The actual LFO depth is the "LFO Depth" value plus the "Modulation" value
+- LFO Fade Time
+    - 0: 0 ms (min)
+    - 1: 9.6 ms
+    - 64: 1.0 s
+    - 127: 9.6 s (max)
+- Filter Mode [LP|HP]
+    - 0, 2-63: Low Pass
+    - 1, 127 (64-127): High Pass
+- EG Amp Mod [Off|On]
+    - 0, 2-63: Off
+    - 1, 127 (64-127): On, Amp ADSR = EG ADSR
+- Release = Decay [Off|On]
+    - 0, 2-63: Off
+    - 1, 127 (64-127): On, EG Release = EG Decay and Amp Release = Amp Decay
+        - **NOTE**: EG Velocity Sensitivity and Amp Velocity Sensitivity works independently
+- Pitch Bend Range
+    - 0: 0 semitone (min)
+    - 60: 60 semitone (max)
+- Breath Filter Amt [-|+]
+    - -60 (4): -60 (min)
+    - +60 (124): +60 (max)
+- Breath Amp Mod [Off|Qad|Lin]
+    - 0, 3-31: Off
+    - 1, 64 (32-95): Quadratic Curve
+    - 2, 127 (96-127): Liniear Curve
+- Voice Assign Mode [1|2]
+    - 0, 2-63: Mode 1, Free voice with next number has priority in Polyphonic/Paraphonic Mode, Release is effective
+    - 1, 127 (64-127): Mode 2, Free voice with small number has priority in Polyphonic/Paraphonic Mode, Portamento is effective
+- Chorus Rate
+    - 0: LFO Frequency 0.012 Hz (min)
+    - 64: LFO Frequency 0.48 Hz
+    - 127: LFO Frequency 18.4 Hz (max)
+- Chorus Depth
+    - 0: Delay Time +/- 0 ms (min)
+    - 32: Delay Time +/- 1.3 ms
+    - 64: Delay Time +/- 2.7 ms
+    - 126: Delay Time +/- 5.3 ms (max)
+- Delay Feedback
+    - 0: Feedback 0% (min)
+    - 64: Feedback 25%
+    - 127: Feedback 49.6% (max)
+- Delay Time
+    - 0: 1 ms (min)
+    - 5: 6 ms
+    - 6: 8 ms
+    - 7: 10 ms
+    - 12: 20 ms
+    - 27: 50 ms
+    - 42: 100 ms = eighth note time at 300 BPM
+    - 57: 150 ms = eighth note time at 200 BPM
+    - 62: 166.7 ms = eighth note time at 180 BPM
+    - 64: 173.3 ms
+    - 72: 200 ms = eighth note time at 150 BPM
+    - 87: 250 ms = eighth note time at 120 BPM
+    - 93: 270 ms
+    - 102: 300 ms = eighth note time at 100 BPM
+    - 112: 333.3 ms (max)
+- Delay Mode [S|P]
+    - 0, 2-63: Stereo Delay
+    - 1, 127 (64-127): Ping Pong Delay
