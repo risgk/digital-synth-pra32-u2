@@ -242,11 +242,8 @@ graph LR
 ![Circuit Diagram](./pra32-u2-pwm-audio-circuit-diagram.png)
 
 - This image was created with Fritzing.
-- Actually, it is necessary to use Raspberry Pi Pico 2 (instead of Raspberry Pi Pico)
-
-- Adding 10 uF electrolytic capacitors (AC coupling capacitors) will cut
-  the DC components of the audio outputs.
-
+    - Actually, it is necessary to use Raspberry Pi Pico 2 (instead of Raspberry Pi Pico)
+- Adding 10 uF electrolytic capacitors (AC coupling capacitors) will cut the DC components of the audio outputs.
 - NOTE: Connect an amplifier or an active speaker to the audio jack.
   Connecting a headphone or a passive speaker may cause a large current to flow and damage the devices.
 
@@ -256,7 +253,7 @@ graph LR
 ![Actual Wiring Diagram](./pra32-u2-pwm-audio-bread-board.png)
 
 - This image was created with Fritzing.
-- Actually, it is necessary to use Raspberry Pi Pico 2 (instead of Raspberry Pi Pico)
+    - Actually, it is necessary to use Raspberry Pi Pico 2 (instead of Raspberry Pi Pico)
 
 
 ## [PRA32-U2 with Panel](./README-PRA32-U2-with-Panel.md) (Optional)
