@@ -14,7 +14,7 @@
     - Built-in monophonic 8-step sequencer
     - Panel and Step Sequencer Parameters
 - This option requires 3 SWs (tactile switches), 3 VRs (ADCs), and a monochrome 128x64 OLED Display based on SSD1306 series drivers
-    - Tested with Pimoroni Pico Audio Pack, necobit電子 MIDI Unit for GROVE (optional), Long Leg 2x20 Pin Socket * 2, Seeed Studio's Grove Shield for Pi Pico, Buttons * 3, Rotary Angle Sensors * 3, and an OLED Display 0.96 inch
+    - Tested with Pimoroni Pico Audio Pack, M5Stack Midi Unit (optional), Long Leg 2x20 Pin Socket * 2, Seeed Studio's Grove Shield for Pi Pico, Buttons * 3, Rotary Angle Sensors * 3, and an OLED Display 0.96 inch
 - Uncomment out `//#define PRA32_U_USE_CONTROL_PANEL` in "Digital-Synth-PRA32-U2.ino" and modify the constants
 - Inputs
     - SW0: Prev Key (Push to the previous page, Long press to the previous group)
@@ -86,3 +86,5 @@
     - An connection between RP2040's Mute Off Pin and GY-PCM5102's XSMT is omitted
 
 ![PRA32-U2 with Panel (Bread Board)](./pra32-u2-with-panel-breadboard.jpg)
+
+- This picture is old. Actually, it is necessary to modify the circuit so that the switches become low active.
