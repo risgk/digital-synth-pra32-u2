@@ -6,7 +6,7 @@
 
 ## Overview
 
-- 4 Voice Polyphonic/Paraphonic Synthesizer for Raspberry Pi Pico/RP2040
+- 4 Voice Polyphonic/Paraphonic Synthesizer for Raspberry Pi Pico 2/RP2350
     - Built-in Chorus and Delay FX
     - Controlled by MIDI -- PRA32-U2 is a MIDI sound module
     - Having the function of writing the parameters to the user programs and the flash
@@ -242,6 +242,7 @@ graph LR
 ![Circuit Diagram](./pra32-u2-pwm-audio-circuit-diagram.png)
 
 - This image was created with Fritzing.
+- Actually, it is necessary to use Raspberry Pi Pico 2 (instead of Raspberry Pi Pico)
 
 - Adding 10 uF electrolytic capacitors (AC coupling capacitors) will cut
   the DC components of the audio outputs.
@@ -255,6 +256,7 @@ graph LR
 ![Actual Wiring Diagram](./pra32-u2-pwm-audio-bread-board.png)
 
 - This image was created with Fritzing.
+- Actually, it is necessary to use Raspberry Pi Pico 2 (instead of Raspberry Pi Pico)
 
 
 ## [PRA32-U2 with Panel](./README-PRA32-U2-with-Panel.md) (Optional)
