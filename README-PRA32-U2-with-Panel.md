@@ -1,4 +1,4 @@
-# Digital Synth PRA32-U2 with Panel v0.0.1
+# Digital Synth PRA32-U2 with Panel v0.1.0
 
 - 2025-01-19 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
@@ -78,14 +78,13 @@
 ![Circuit Diagram](./pra32-u2-with-panel-circuit-diagram.png)
 
 - This image was created with Fritzing.
-- Actually, it is necessary to use Raspberry Pi Pico 2 (instead of Raspberry Pi Pico)
+    - Actually, it is necessary to use Raspberry Pi Pico 2 (instead of Raspberry Pi Pico)
+- NOTE: Unlike Digital Synth PRA32-U v3.1.0, the switches are low active and RP2350 uses internal pull-up to avoid RP2350-E9 Erratum
 
 
 ### An Example of Construction by a Breadboard
 
 - Tested with a breadboard, GY-PCM5102 (PCM5102A I2S DAC Module), 3 SWs, 3 VRs, and a OLED Display
-    - An connection between RP2040's Mute Off Pin and GY-PCM5102's XSMT is omitted
+    - An connection between Raspberry Pico 2's Mute Off Pin and GY-PCM5102's XSMT is omitted
 
 ![PRA32-U2 with Panel (Bread Board)](./pra32-u2-with-panel-breadboard.jpg)
-
-- This picture is old. Actually, it is necessary to modify the circuit so that the switches become low active.
