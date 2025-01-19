@@ -78,6 +78,7 @@
 ![Circuit Diagram](./pra32-u2-with-panel-circuit-diagram.png)
 
 - This image was created with Fritzing.
+- Actually, it is necessary to use Raspberry Pi Pico 2 (instead of Raspberry Pi Pico)
 
 
 ### An Example of Construction by a Breadboard
