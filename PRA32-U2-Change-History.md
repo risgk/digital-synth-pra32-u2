@@ -3,7 +3,7 @@
 - v0.0.2 (2025-01-19):
     - Specification is similar to PRA32-U2 v3.1.0
     - Optimize processing for Raspberry Pi Pico 2/RP2350
-    - Other improvements
+    - Improve documentation
     - Tested with Arduino-Pico version 4.4.1
 - v0.0.1 (2025-01-19):
     - Specification is similar to PRA32-U2 v3.1.0
