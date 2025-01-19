@@ -30,7 +30,7 @@
 #define PRA32_U_I2S_BUFFERS                   (4)
 #define PRA32_U_I2S_BUFFER_WORDS              (64)
 
-//#define PRA32_U_USE_PWM_AUDIO_INSTEAD_OF_I2S  // Select CPU Speed: "150 MHz (Overclock)" in the Arduino IDE "Tools" menu
+//#define PRA32_U_USE_PWM_AUDIO_INSTEAD_OF_I2S  // Select CPU Speed: "150 MHz" in the Arduino IDE "Tools" menu
 
 // for Pimoroni Pico VGA Demo Base (PIM553)
 #define PRA32_U_PWM_AUDIO_L_PIN               (28)
