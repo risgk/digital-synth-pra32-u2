@@ -86,7 +86,5 @@
 
 - Tested with a breadboard, GY-PCM5102 (PCM5102A I2S DAC Module), 3 SWs, 3 VRs, and a OLED Display
     - An connection between Raspberry Pico 2's Mute Off Pin and GY-PCM5102's XSMT is omitted
-    - NOTE: The following picture is old
-        - Actually, it is necessary to use Raspberry Pi Pico 2 and modify the circuit so that the switches become low active
 
 ![PRA32-U2 with Panel (Bread Board)](./pra32-u2-with-panel-breadboard.jpg)
