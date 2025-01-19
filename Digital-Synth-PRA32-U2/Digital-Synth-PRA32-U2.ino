@@ -45,8 +45,8 @@
 //#define PRA32_U_USE_CONTROL_PANEL               // PRA32-U2 with Panel
 
 #define PRA32_U_USE_CONTROL_PANEL_KEY_INPUT     // Use tactile switches
-#define PRA32_U_KEY_INPUT_ACTIVE_LEVEL          (HIGH)
-#define PRA32_U_KEY_INPUT_PIN_MODE              (INPUT_PULLDOWN)
+#define PRA32_U_KEY_INPUT_ACTIVE_LEVEL          (LOW)
+#define PRA32_U_KEY_INPUT_PIN_MODE              (INPUT_PULLUP)
 #define PRA32_U_KEY_INPUT_PREV_KEY_PIN          (16)
 #define PRA32_U_KEY_INPUT_NEXT_KEY_PIN          (18)
 #define PRA32_U_KEY_INPUT_PLAY_KEY_PIN          (20)
