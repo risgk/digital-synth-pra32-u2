@@ -1,8 +1,8 @@
 #pragma once
 
-#include "pra32-u-common.h"
-#include "pra32-u-lfo-table.h"
-#include "pra32-u-osc-table.h"
+#include "pra32-u2-common.h"
+#include "pra32-u2-lfo-table.h"
+#include "pra32-u2-osc-table.h"
 
 class PRA32_U_LFO {
   static const uint8_t LFO_WAVEFORM_TRIANGLE  = 0;

@@ -1,12 +1,12 @@
-# Digital Synth PRA32-U with Panel v3.1.0
+# Digital Synth PRA32-U2 with Panel v3.1.0
 
 - 2025-01-19 ISGK Instruments
-- <https://github.com/risgk/digital-synth-pra32-u>
+- <https://github.com/risgk/digital-synth-pra32-u2>
 
 
-## PRA32-U with Panel (Optional)
+## PRA32-U2 with Panel (Optional)
 
-![PRA32-U with Panel (Grove System)](./pra32-u-with-panel-grove-system.jpg)
+![PRA32-U2 with Panel (Grove System)](./pra32-u2-with-panel-grove-system.jpg)
 
 - Features
     - Edit and display parameters by panel operation
@@ -15,7 +15,7 @@
     - Panel and Step Sequencer Parameters
 - This option requires 3 SWs (tactile switches), 3 VRs (ADCs), and a monochrome 128x64 OLED Display based on SSD1306 series drivers
     - Tested with Pimoroni Pico Audio Pack, necobit電子 MIDI Unit for GROVE (optional), Long Leg 2x20 Pin Socket * 2, Seeed Studio's Grove Shield for Pi Pico, Buttons * 3, Rotary Angle Sensors * 3, and an OLED Display 0.96 inch
-- Uncomment out `//#define PRA32_U_USE_CONTROL_PANEL` in "Digital-Synth-PRA32-U.ino" and modify the constants
+- Uncomment out `//#define PRA32_U_USE_CONTROL_PANEL` in "Digital-Synth-PRA32-U2.ino" and modify the constants
 - Inputs
     - SW0: Prev Key (Push to the previous page, Long press to the previous group)
     - SW1: Next Key (Push to the next page, Long press to the next group)
@@ -75,7 +75,7 @@
 
 ### Circuit Diagram
 
-![Circuit Diagram](./pra32-u-with-panel-circuit-diagram.png)
+![Circuit Diagram](./pra32-u2-with-panel-circuit-diagram.png)
 
 - This image was created with Fritzing.
 
@@ -85,4 +85,4 @@
 - Tested with a breadboard, GY-PCM5102 (PCM5102A I2S DAC Module), 3 SWs, 3 VRs, and a OLED Display
     - An connection between RP2040's Mute Off Pin and GY-PCM5102's XSMT is omitted
 
-![PRA32-U with Panel (Bread Board)](./pra32-u-with-panel-breadboard.jpg)
+![PRA32-U2 with Panel (Bread Board)](./pra32-u2-with-panel-breadboard.jpg)

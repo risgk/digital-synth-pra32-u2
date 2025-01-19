@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "pra32-u-common.h"
+#include "pra32-u2-common.h"
 
 class PRA32_U_NoiseGen {
   uint32_t m_state_a;

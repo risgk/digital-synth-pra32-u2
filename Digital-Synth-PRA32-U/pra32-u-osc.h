@@ -1,7 +1,7 @@
 #pragma once
 
-#include "pra32-u-common.h"
-#include "pra32-u-osc-table.h"
+#include "pra32-u2-common.h"
+#include "pra32-u2-osc-table.h"
 #include <math.h>
 
 

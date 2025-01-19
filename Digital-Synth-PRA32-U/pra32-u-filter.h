@@ -2,8 +2,8 @@
 
 // refs https://webaudio.github.io/Audio-EQ-Cookbook/Audio-EQ-Cookbook.txt
 
-#include "pra32-u-common.h"
-#include "pra32-u-filter-table.h"
+#include "pra32-u2-common.h"
+#include "pra32-u2-filter-table.h"
 
 class PRA32_U_Filter {
   int32_t         m_lpf_b_2_over_a_0;

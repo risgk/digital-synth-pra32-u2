@@ -1,24 +1,24 @@
-# Digital Synth PRA32-U v3.1.0
+# Digital Synth PRA32-U2 v3.1.0
 
 - 2025-01-19 ISGK Instruments
-- <https://github.com/risgk/digital-synth-pra32-u>
+- <https://github.com/risgk/digital-synth-pra32-u2>
 
 
 ## Overview
 
 - 4 Voice Polyphonic/Paraphonic Synthesizer for Raspberry Pi Pico/RP2040
     - Built-in Chorus and Delay FX
-    - Controlled by MIDI -- PRA32-U is a MIDI sound module
+    - Controlled by MIDI -- PRA32-U2 is a MIDI sound module
     - Having the function of writing the parameters to the user programs and the flash
 - Modifiable with Arduino IDE and Arduino-Pico (by Earle F. Philhower, III)
 - An **I2S DAC** hardware (e.g. Pimoroni Pico Audio Pack) is required
     - PWM Audio can also be used instead of I2S (PWM Audio does not require an I2S DAC hardware)
 - Prebuilt UF2 files ("bin")
-    - "Digital-Synth-PRA32-U-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico and Pimoroni Pico Audio Pack
-    - "Digital-Synth-PRA32-U-PWM-Audio.uf2" is for Raspberry Pi Pico and PWM Audio
+    - "Digital-Synth-PRA32-U2-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico and Pimoroni Pico Audio Pack
+    - "Digital-Synth-PRA32-U2-PWM-Audio.uf2" is for Raspberry Pi Pico and PWM Audio
 
 
-## [Change History](/PRA32-U-Change-History.md)
+## [Change History](/PRA32-U2-Change-History.md)
 
 
 ## Preparation for modification
@@ -41,7 +41,7 @@
 
 #### USB MIDI Device (Default)
 
-- MIDI Device Name: "Digital Synth PRA32-U"
+- MIDI Device Name: "Digital Synth PRA32-U2"
 - NOTE: Select USB Stack: "Adafruit TinyUSB" in the Arduino IDE "Tools" menu
 
 
@@ -49,7 +49,7 @@
 
 - UART MIDI can also be used
     - Noise caused by USB communication can be avoided
-- Uncomment out `//#define PRA32_U_USE_UART_MIDI` in "Digital-Synth-PRA32-U.ino"
+- Uncomment out `//#define PRA32_U_USE_UART_MIDI` in "Digital-Synth-PRA32-U2.ino"
   and modify `PRA32_U_UART_MIDI_SPEED`, `PRA32_U_UART_MIDI_TX_PIN`, and `PRA32_U_UART_MIDI_RX_PIN`
     - Speed: 31250 bps (default, for DIN/TRS MIDI) or 38400 bps (for PC)
     - GP4 and GP5 pins are used by UART1 TX and UART1 RX by default
@@ -71,7 +71,7 @@
 - NOTE: The RP2040 system clock (sysclk) changes to overclocked 153.6 MHz by I2S Audio Library setSysClk()
 - Modify `PRA32_U_I2S_DAC_MUTE_OFF_PIN`, `PRA32_U_I2S_DATA_PIN`, `PRA32_U_I2S_MCLK_PIN`, `PRA32_U_I2S_MCLK_MULT`,
   `PRA32_U_I2S_BCLK_PIN`, `PRA32_U_I2S_SWAP_BCLK_AND_LRCLK_PINS`, and `PRA32_U_I2S_SWAP_LEFT_AND_RIGHT`
-  in "Digital-Synth-PRA32-U.ino" to match the hardware configuration
+  in "Digital-Synth-PRA32-U2.ino" to match the hardware configuration
 - The default setting is for Pimoroni [Pico Audio Pack](https://shop.pimoroni.com/products/pico-audio-pack) (PIM544)
     - GY-PCM5102 (PCM5102A I2S DAC Module) can also be used
 ```
@@ -116,7 +116,7 @@
       for details on PWM audio
 - NOTE: Select CPU Speed: "150 MHz (Overclock)" in the Arduino IDE "Tools" menu
 - Uncomment out `//#define PRA32_U_USE_PWM_AUDIO_INSTEAD_OF_I2S`
-  in "Digital-Synth-PRA32-U.ino" and modify `PRA32_U_PWM_AUDIO_L_PIN` and `PRA32_U_PWM_AUDIO_R_PIN`
+  in "Digital-Synth-PRA32-U2.ino" and modify `PRA32_U_PWM_AUDIO_L_PIN` and `PRA32_U_PWM_AUDIO_R_PIN`
 - The following is setting is for Pimoroni Pico VGA Demo Base (PIM553)
 ```
 #define PRA32_U_PWM_AUDIO_L_PIN               (28)
@@ -126,49 +126,49 @@
 
 ## Files
 
-- "Digital-Synth-PRA32-U.ino" is a Arduino sketch for Raspberry Pi Pico/RP2040 core
+- "Digital-Synth-PRA32-U2.ino" is a Arduino sketch for Raspberry Pi Pico/RP2040 core
     - Modify `PRA32_U_MIDI_CH` to change the MIDI Channel
-- "pra32-u-make-sample-wav-file.cc" is for debugging on PC
+- "pra32-u2-make-sample-wav-file.cc" is for debugging on PC
     - GCC (g++) for PC is required
-    - "pra32-u-make-sample-wav-file-cc.bat" makes a sample WAV file (working on Windows)
-- "pra32-u-generate-*.rb" generates source or header files
+    - "pra32-u2-make-sample-wav-file-cc.bat" makes a sample WAV file (working on Windows)
+- "pra32-u2-generate-*.rb" generates source or header files
     - A Ruby execution environment is required
 
 
-## PRA32-U Editor
+## PRA32-U2 Editor
 
-- "pra32-u-editor.html": Editor (MIDI Controller) Application for PRA32-U, HTML App (Web App)
+- "pra32-u2-editor.html": Editor (MIDI Controller) Application for PRA32-U2, HTML App (Web App)
     - Modify `PRA32_U_MIDI_CH` to change the MIDI Channel
 - We recommend using Google Chrome, which implements Web MIDI API
-- Select "Digital Synth PRA32-U" in the list "MIDI Out"
+- Select "Digital Synth PRA32-U2" in the list "MIDI Out"
 - Functions
-    - PRA32-U Editor converts Program Changes (#0-7 for Preset programs, #8-15 for user programs) into Control Changes
+    - PRA32-U2 Editor converts Program Changes (#0-7 for Preset programs, #8-15 for user programs) into Control Changes
     - When Program Change #127 is entered or Control Change #111 is changed from Off (63 or lower) to On (64 or higher), "Rand Ctrl" is processed
-    - PRA32-U Editor stores the current control values and the user programs (#8-15) in a Web browser (localStorage)
+    - PRA32-U2 Editor stores the current control values and the user programs (#8-15) in a Web browser (localStorage)
     - Current parameter values and user programs (#8-15) can be imported/exported from/to JSON files
-- When not using PRA32-U Editor
-    - PRA32-U can also be controlled by MIDI without using PRA32-U Editor
-    - Refer to "PRA32-U-MIDI-Implementation-Chart.txt" for the supported functions
+- When not using PRA32-U2 Editor
+    - PRA32-U2 can also be controlled by MIDI without using PRA32-U2 Editor
+    - Refer to "PRA32-U2-MIDI-Implementation-Chart.txt" for the supported functions
     - The default program is #8
-    - Programs #0-15 can be modified by editing "pra32-u-program-table.h"
-    - PRA32-U Editor functions related to parameter writing
-        - Write: Write the current parameters to PRA32-U (Program #8-15 and the flash)
-        - Program Change: Send Program Change to PRA32-U directry
-          (NOTE: The current parameters of PRA32-U will not be updated)
+    - Programs #0-15 can be modified by editing "pra32-u2-program-table.h"
+    - PRA32-U2 Editor functions related to parameter writing
+        - Write: Write the current parameters to PRA32-U2 (Program #8-15 and the flash)
+        - Program Change: Send Program Change to PRA32-U2 directry
+          (NOTE: The current parameters of PRA32-U2 will not be updated)
 
 
 ## Examples of Option Combinations
 
-- PRA32-U (USB MIDI Device, I2S), Default
-- PRA32-U (USB MIDI Device, UART MIDI, I2S)
-- PRA32-U (USB MIDI Device, PWM Audio)
-- PRA32-U with Panel (USB MIDI Device, UART MIDI, I2S, Control Panel)
+- PRA32-U2 (USB MIDI Device, I2S), Default
+- PRA32-U2 (USB MIDI Device, UART MIDI, I2S)
+- PRA32-U2 (USB MIDI Device, PWM Audio)
+- PRA32-U2 with Panel (USB MIDI Device, UART MIDI, I2S, Control Panel)
 
 
-## [Parameter Guide](/PRA32-U-Parameter-Guide.md)
+## [Parameter Guide](/PRA32-U2-Parameter-Guide.md)
 
 
-## [MIDI Implementation Chart](/PRA32-U-MIDI-Implementation-Chart.md)
+## [MIDI Implementation Chart](/PRA32-U2-MIDI-Implementation-Chart.md)
 
 
 ## Synthesizer Block Diagram
@@ -239,7 +239,7 @@ graph LR
 
 ### Circuit Diagram (Simple Circuit for PWM Audio)
 
-![Circuit Diagram](./pra32-u-pwm-audio-circuit-diagram.png)
+![Circuit Diagram](./pra32-u2-pwm-audio-circuit-diagram.png)
 
 - This image was created with Fritzing.
 
@@ -252,23 +252,23 @@ graph LR
 
 ### Actual Wiring Diagram (Simple Circuit for PWM Audio)
 
-![Actual Wiring Diagram](./pra32-u-pwm-audio-bread-board.png)
+![Actual Wiring Diagram](./pra32-u2-pwm-audio-bread-board.png)
 
 - This image was created with Fritzing.
 
 
-## [PRA32-U with Panel](./README-PRA32-U-with-Panel.md) (Optional)
+## [PRA32-U2 with Panel](./README-PRA32-U2-with-Panel.md) (Optional)
 
 
 ## License
 
 ![CC0](http://i.creativecommons.org/p/zero/1.0/88x31.png)
 
-**Digital Synth PRA32-U v3.1.0 by ISGK Instruments (Ryo Ishigaki)**
+**Digital Synth PRA32-U2 v3.1.0 by ISGK Instruments (Ryo Ishigaki)**
 
 To the extent possible under law, ISGK Instruments (Ryo Ishigaki)
 has waived all copyright and related or neighboring rights
-to Digital Synth PRA32-U v3.1.0.
+to Digital Synth PRA32-U2 v3.1.0.
 
 You should have received a copy of the CC0 legalcode along with this
 work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
@@ -276,8 +276,8 @@ work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 ### For Your Information
 
-If PRA32-U is to be embedded in instruments or others, it would be nice
+If PRA32-U2 is to be embedded in instruments or others, it would be nice
 (but not required) to display the following:
 
-- Powered by ISGK Instruments PRA32-U
-- Powered by PRA32-U
+- Powered by ISGK Instruments PRA32-U2
+- Powered by PRA32-U2

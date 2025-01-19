@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "pra32-u-common.h"
-#include "pra32-u-eg-table.h"
+#include "pra32-u2-common.h"
+#include "pra32-u2-eg-table.h"
 
 class PRA32_U_EG {
   static const uint8_t STATE_ATTACK  = 0;

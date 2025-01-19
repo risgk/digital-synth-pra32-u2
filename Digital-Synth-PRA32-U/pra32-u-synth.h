@@ -1,15 +1,15 @@
 #pragma once
 
-#include "pra32-u-common.h"
-#include "pra32-u-osc.h"
-#include "pra32-u-filter.h"
-#include "pra32-u-amp.h"
-#include "pra32-u-lfo.h"
-#include "pra32-u-noise-gen.h"
-#include "pra32-u-eg.h"
-#include "pra32-u-chorus-fx.h"
-#include "pra32-u-delay-fx.h"
-#include "pra32-u-program-table.h"
+#include "pra32-u2-common.h"
+#include "pra32-u2-osc.h"
+#include "pra32-u2-filter.h"
+#include "pra32-u2-amp.h"
+#include "pra32-u2-lfo.h"
+#include "pra32-u2-noise-gen.h"
+#include "pra32-u2-eg.h"
+#include "pra32-u2-chorus-fx.h"
+#include "pra32-u2-delay-fx.h"
+#include "pra32-u2-program-table.h"
 
 #if defined(ARDUINO_ARCH_RP2040)
 #include <EEPROM.h>

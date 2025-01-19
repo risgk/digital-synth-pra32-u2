@@ -10,10 +10,10 @@ typedef signed char boolean;
 
 uint8_t g_midi_ch = PRA32_U_MIDI_CH;
 
-#include "./Digital-Synth-PRA32-U/pra32-u-common.h"
-#include "./Digital-Synth-PRA32-U/pra32-u-synth.h"
-#include "./pra32-u-midi-in.h"
-#include "./pra32-u-wav-file-out.h"
+#include "./Digital-Synth-PRA32-U2/pra32-u2-common.h"
+#include "./Digital-Synth-PRA32-U2/pra32-u2-synth.h"
+#include "./pra32-u2-midi-in.h"
+#include "./pra32-u2-wav-file-out.h"
 
 PRA32_U_Synth      g_synth;
 PRA32_U_MIDIIn     g_midi_in;

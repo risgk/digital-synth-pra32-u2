@@ -1,6 +1,6 @@
 #pragma once
 
-#include "pra32-u-common.h"
+#include "pra32-u2-common.h"
 
 class PRA32_U_Amp {
   int16_t m_gain_control;

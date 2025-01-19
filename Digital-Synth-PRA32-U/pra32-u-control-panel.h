@@ -1,8 +1,8 @@
 #pragma once
 
-#include "pra32-u-common.h"
-#include "pra32-u-control-panel-font-table.h"
-#include "pra32-u-control-panel-page-table.h"
+#include "pra32-u2-common.h"
+#include "pra32-u2-control-panel-font-table.h"
+#include "pra32-u2-control-panel-page-table.h"
 
 #include "hardware/i2c.h"
 

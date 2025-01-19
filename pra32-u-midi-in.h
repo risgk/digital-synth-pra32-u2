@@ -3,8 +3,8 @@
 
 #pragma once
 
-#include "./Digital-Synth-PRA32-U/pra32-u-common.h"
-#include "./Digital-Synth-PRA32-U/pra32-u-synth.h"
+#include "./Digital-Synth-PRA32-U2/pra32-u2-common.h"
+#include "./Digital-Synth-PRA32-U2/pra32-u2-synth.h"
 
 class PRA32_U_MIDIIn {
   PRA32_U_Synth* m_synth;

@@ -1,4 +1,4 @@
-## Digital Synth PRA32-U Change History
+## Digital Synth PRA32-U2 Change History
 
 - v3.1.0 (2025-01-19):
     - Add the Voice Assign Mode [1|2] parameter
@@ -7,11 +7,11 @@
     - Sine Wave (Phase Modulation): Improve Frequency Ratio to change smoothly
     - Extend Osc 2 Pitch range (-5 to +7 -> -12 to +12 semitone)
     - Extend Pitch modulation range by EG Osc Amt and LFO Osc Amt (-24 to +24 -> -30 to +30 semitone)
-    - PRA32-U with Panel: Change MIDI clock and commands not to be transmitted via USB MIDI
+    - PRA32-U2 with Panel: Change MIDI clock and commands not to be transmitted via USB MIDI
         - To avoid freeze problem when transmitting and receiving USB MIDI at the same time
-    - PRA32-U with Panel: Add the Filter EG Amt parameter to the EG pages as well
-    - PRA32-U with Panel: Rename the parameter name Seq Pattern to Seq Mode
-    - PRA32-U with Panel: Reduce memory usage
+    - PRA32-U2 with Panel: Add the Filter EG Amt parameter to the EG pages as well
+    - PRA32-U2 with Panel: Rename the parameter name Seq Pattern to Seq Mode
+    - PRA32-U2 with Panel: Reduce memory usage
         - Fix an issue where emulated EEPROM would not work with some compilation options
     - Other improvements
     - Tested with Arduino-Pico version 4.4.1
@@ -20,8 +20,8 @@
     - Change Control Numbers: Osc 1 Wave 102 to 14, Voice Mode 14 to 102
     - Mixer Noise is not disabled even if Osc 2 Wave is Nos (Noise)
     - Change Preset programs: Change Delay Mode to S (Stereo Delay)
-    - Rename PRA32-U CTRL to PRA32-U Editor
-    - Officially support the option PRA32-U with Panel
+    - Rename PRA32-U2 CTRL to PRA32-U2 Editor
+    - Officially support the option PRA32-U2 with Panel
         - Faster OLED display updates
         - Change the page layout and the default pages
         - Change the specification of Panel Scale parameter
@@ -37,40 +37,40 @@
     - Other improvements
 - v2.6.0 (2024-09-15):
     - Extend "Delay Time" range (20-300 to 1-333.3 ms)
-    - Update the option PRA32-U with Panel to Prototype 3 (experimental)
+    - Update the option PRA32-U2 with Panel to Prototype 3 (experimental)
         - Add the parameter "Seq Step Note" (Quarter Note, Eighth Note, Sixteenth Note)
         - "Panel Play Pitch" and "Seq Pitch 0-7" displays reflect "Panel Transpose" (but not "Seq Transpose")
         - Fix "Panel Scale", "Panel Transpose", and "Seq Transpose" update timing in "Seq Pattern" Reverse and Bounce
         - Fix a problem with "Seq Pattern" displaying incorrectly when the value is 1
-    - PRA32-U CTRL, PRA32-U with Panel: Add ms display of "Delay Time"
+    - PRA32-U2 CTRL, PRA32-U2 with Panel: Add ms display of "Delay Time"
     - Fix MIDI Implementation Chart
     - Other improvements
     - Tested with Arduino-Pico version 4.0.2
 - v2.5.1 (2024-09-08):
-    - Fix a problem with noise in PRA32-U CTRL Recall operation when PWM Audio is used
+    - Fix a problem with noise in PRA32-U2 CTRL Recall operation when PWM Audio is used
         - This problem occurred when 3 or 4 notes were playing in Poly Mode and PRA32_U_USE_DEBUG_PRINT was commented out (default)
     - Add description to Delay Time in Parameter Guide
 - v2.5.0 (2024-09-04):
-    - PRA32-U with Panel: Support MIDI Clock and Start/Stop Commands transmission
-    - Fix "pra32-u-make-sample-wav-file.cc"
+    - PRA32-U2 with Panel: Support MIDI Clock and Start/Stop Commands transmission
+    - Fix "pra32-u2-make-sample-wav-file.cc"
     - Other changes
     - Tested with Arduino-Pico version 4.0.1
 - v2.4.1 (2024-09-01):
-    - PRA32-U with Panel: Fix a problem with MIDI clock being processed even when sequencer is stopped
-    - PRA32-U with Panel: Fix a problem where Start/Stop MIDI commands are processed even when Seq Clock Src is Internal
+    - PRA32-U2 with Panel: Fix a problem with MIDI clock being processed even when sequencer is stopped
+    - PRA32-U2 with Panel: Fix a problem where Start/Stop MIDI commands are processed even when Seq Clock Src is Internal
     - Fix MIDI Implementation Chart
     - Tested with Arduino-Pico version 4.0.1
 - v2.4.0 (2024-08-25):
     - Increase the output level using Extra Amp and Limiter
     - For safety, change the mode of the PWM audio output pins to OUTPUT_12MA
-    - Update the option PRA32-U with Panel to Prototype 2 (experimental)
+    - Update the option PRA32-U2 with Panel to Prototype 2 (experimental)
         - Change the page structure (Add the page groups A, B, C, and D)
         - Change the specification of "Panel Scale"
         - Add the parameter "Panel MIDI Ch" (Basic Channel)
         - Add Step Sequencer Mode ("Seq") to "Panel Play Mode"
         - Add the option PRA32_U_KEY_INPUT_PIN_MODE (default: INPUT_PULLDOWN)
         - Add the functions "Write Panel Prms", "Read Panel Prms", and "Init Panel Prms"
-    - PRA32-U CTRL: Change the Note ON velocity to 64
+    - PRA32-U2 CTRL: Change the Note ON velocity to 64
     - Other changes
     - Tested with Arduino-Pico version 3.9.5
 - v2.3.1 (2024-04-21):
@@ -80,7 +80,7 @@
     - Allow user programs to be written to the flash when using I2S DAC without mute-off pin
     - Add the option to write user programs to the flash when using PWM audio (for Raspberry Pi Pico/H/W/WH)
     - Add the option PRA32_U_I2S_SWAP_LEFT_AND_RIGHT
-    - Add the option PRA32-U with Panel, Prototype 1 (experimental)
+    - Add the option PRA32-U2 with Panel, Prototype 1 (experimental)
     - Change the default program #0 to #8
     - Use core 1 for Debug Print
     - Other changes
@@ -93,7 +93,7 @@
 - v2.2.0 (2024-01-26):
     - Use error diffusion for PWM audio output by default
     - Eliminate noise when PWM audio output is silent
-    - Change the display of PRA32-U CTRL
+    - Change the display of PRA32-U2 CTRL
     - Modify Presets;
     - Tested with Adafruit TinyUSB Library version 2.3.3
 - v2.1.0 (2024-01-14):
@@ -101,7 +101,7 @@
     - Support Osc 1 Sine Wave Phase Modulation (Osc 1 Shape and Osc 1 Morph);
     - Add the function of writing the parameters to Program #8-15 and the flash;
     - Modify Presets;
-    - Add JSON files for PRA32-U CTRL;
+    - Add JSON files for PRA32-U2 CTRL;
     - Use core 0 for main processing;
     - Rename constant macros;
     - Officially support PWM audio output option;
@@ -132,7 +132,7 @@
   Delete the code for Waveshare Pico-Audio Rev2.1
 - v1.0.3: Fix a problem with received MIDI messages being dropped; Improve README; Fix UF2 files
 - v1.0.2: Turn MIDI Thru Off
-- v1.0.1: Fix unstable PRA32-U CTRL operation when using Serial MIDI (DIN/TRS MIDI); Fix README
+- v1.0.1: Fix unstable PRA32-U2 CTRL operation when using Serial MIDI (DIN/TRS MIDI); Fix README
 - v1.0.0: Change Control Numbers of Control Changes;
   Change the meanings of the values of Osc 1/2 Wave, Voice Mode, and LFO Wave; Add Sine Wave to Osc 1 and 2;
   Limit the change range and the change rate of Osc 1 Shape; Change Noise specifications;

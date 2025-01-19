@@ -1,5 +1,5 @@
 /*
- * Digital Synth PRA32-U
+ * Digital Synth PRA32-U2
  */
 
 #define PRA32_U_VERSION                       "v3.1.0    "
@@ -42,7 +42,7 @@
 
 ////////////////////////////////////////////////////////////////
 
-//#define PRA32_U_USE_CONTROL_PANEL               // PRA32-U with Panel
+//#define PRA32_U_USE_CONTROL_PANEL               // PRA32-U2 with Panel
 
 #define PRA32_U_USE_CONTROL_PANEL_KEY_INPUT     // Use tactile switches
 #define PRA32_U_KEY_INPUT_ACTIVE_LEVEL          (HIGH)
@@ -82,8 +82,8 @@ extern void PRA32_U_ControlPanel_on_start();
 extern void PRA32_U_ControlPanel_on_stop();
 #endif  // defined(PRA32_U_USE_CONTROL_PANEL_ANALOG_INPUT)
 
-#include "pra32-u-common.h"
-#include "pra32-u-synth.h"
+#include "pra32-u2-common.h"
+#include "pra32-u2-synth.h"
 
 PRA32_U_Synth g_synth;
 
@@ -98,7 +98,7 @@ MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usbd_midi, USB_MIDI);
 MIDI_CREATE_INSTANCE(HardwareSerial, Serial2, UART_MIDI);
 #endif
 
-#include "pra32-u-control-panel.h"
+#include "pra32-u2-control-panel.h"
 
 #if defined(PRA32_U_USE_PWM_AUDIO_INSTEAD_OF_I2S)
 #include <PWMAudio.h>
@@ -215,7 +215,7 @@ void __not_in_flash_func(setup)() {
 #if defined(PRA32_U_USE_USB_MIDI)
   TinyUSB_Device_Init(0);
   USBDevice.setManufacturerDescriptor("ISGK Instruments");
-  USBDevice.setProductDescriptor("Digital Synth PRA32-U");
+  USBDevice.setProductDescriptor("Digital Synth PRA32-U2");
   USB_MIDI.setHandleNoteOn(handleNoteOn);
   USB_MIDI.setHandleNoteOff(handleNoteOff);
   USB_MIDI.setHandleControlChange(handleControlChange);
