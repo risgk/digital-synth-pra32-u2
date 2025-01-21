@@ -430,7 +430,7 @@ public:
 
 private:
   INLINE const int16_t* get_wave_table(uint8_t waveform, uint8_t note_number) {
-    static int16_t** wave_table_table[6] = {
+    static int16_t** wave_table_table[7] = {
       g_osc_saw_wave_tables,       // WAVEFORM_SAW           = 0
       g_osc_square_wave_tables,    // WAVEFORM_SQUARE        = 1
       g_osc_triangle_wave_tables,  // WAVEFORM_TRIANGLE      = 2
