@@ -501,7 +501,9 @@ private:
       int32_t wave_0_2 = get_wave_level(m_wave_table[N], m_phase[N] + m_phase_shape_morph[N]);
       int32_t wave_0_3 = get_wave_level(m_wave_table[N], m_phase[N] - m_phase_shape_morph[N] * 2);
       int32_t wave_0_4 = get_wave_level(m_wave_table[N], m_phase[N] + m_phase_shape_morph[N] * 2);
-      result += (((wave_0_0 + wave_0_1 + wave_0_2 + wave_0_3 + wave_0_4) >> 1) * osc1_gain * m_osc_gain_effective[N]) >> 10;
+      int32_t wave_0_5 = get_wave_level(m_wave_table[N], m_phase[N] - m_phase_shape_morph[N] * 3);
+      int32_t wave_0_6 = get_wave_level(m_wave_table[N], m_phase[N] + m_phase_shape_morph[N] * 4);
+      result += (((wave_0_0 + wave_0_1 + wave_0_2 + wave_0_3 + wave_0_4 + wave_0_5 + wave_0_6) >> 2) * osc1_gain * m_osc_gain_effective[N]) >> 10;
     } else {
       int32_t wave_0 = get_wave_level(m_wave_table[N], m_phase[N]);
       result += (wave_0 * osc1_gain * m_osc_gain_effective[N]) >> 10;
