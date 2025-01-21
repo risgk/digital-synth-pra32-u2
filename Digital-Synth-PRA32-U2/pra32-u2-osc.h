@@ -34,6 +34,7 @@ class PRA32_U_Osc {
   uint32_t       m_freq_base[4 * 2];
   int16_t        m_freq_offset[4 * 2];
   uint32_t       m_phase[4 * 2];
+  uint32_t       m_phase_shape_morph[4];
   boolean        m_osc_on[4];
   int8_t         m_osc_gain_effective[4];
   int8_t         m_osc_level;
@@ -77,6 +78,7 @@ public:
   , m_freq_base()
   , m_freq_offset()
   , m_phase()
+  , m_phase_shape_morph()
   , m_osc_on()
   , m_osc_gain_effective()
   , m_osc_level()
@@ -457,6 +459,12 @@ private:
   INLINE int32_t process_osc(int16_t noise_int15) {
     int32_t result = 0;
 
+    uint32_t freq_shape_morph =
+      ((static_cast<int32_t>((m_freq[N] >> 1) * g_osc_tune_table[(16 + 128) >> (8 - OSC_TUNE_TABLE_STEPS_BITS)]) >>
+        OSC_TUNE_DENOMINATOR_BITS) >> 0) << 1;
+    freq_shape_morph += 2;
+    m_phase_shape_morph[N] += freq_shape_morph;
+
     int16_t osc1_gain = m_mix_table[(OSC_MIX_TABLE_LENGTH - 1) - (m_mixer_osc_mix_control_effective >> 1)];
     int16_t osc2_gain = m_mix_table[                             (m_mixer_osc_mix_control_effective >> 1)];
 
@@ -487,6 +495,13 @@ private:
       uint32_t phase_0 = m_phase[N] + ((wave_3 * m_osc1_phase_modulation_depth[N]) >> 4);
       int32_t wave_0 = get_wave_level(wave_table_sine, phase_0);
       result += (wave_0 * osc1_gain * m_osc_gain_effective[N]) >> 10;
+    } else if (m_waveform[0] == WAVEFORM_1_MULTI_SAW) {
+      int32_t wave_0_0 = get_wave_level(m_wave_table[N], m_phase[N]);
+      int32_t wave_0_1 = get_wave_level(m_wave_table[N], m_phase[N] - m_phase_shape_morph[N]);
+      int32_t wave_0_2 = get_wave_level(m_wave_table[N], m_phase[N] + m_phase_shape_morph[N]);
+      int32_t wave_0_3 = get_wave_level(m_wave_table[N], m_phase[N] - m_phase_shape_morph[N] * 2);
+      int32_t wave_0_4 = get_wave_level(m_wave_table[N], m_phase[N] + m_phase_shape_morph[N] * 2);
+      result += (((wave_0_0 + wave_0_1 + wave_0_2 + wave_0_3 + wave_0_4) >> 2) * osc1_gain * m_osc_gain_effective[N]) >> 10;
     } else {
       int32_t wave_0 = get_wave_level(m_wave_table[N], m_phase[N]);
       result += (wave_0 * osc1_gain * m_osc_gain_effective[N]) >> 10;
