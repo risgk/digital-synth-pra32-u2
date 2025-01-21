@@ -16,6 +16,7 @@ class PRA32_U_Osc {
   static const uint8_t WAVEFORM_SINE          = 3;
   static const uint8_t WAVEFORM_1_PULSE       = 4;
   static const uint8_t WAVEFORM_2_NOISE       = 5;
+  static const uint8_t WAVEFORM_1_MULTI_SAW   = 6;
 
   uint32_t       m_portamento_coef[4];
   int16_t        m_pitch_eg_amt[2];
@@ -190,7 +191,7 @@ public:
       {
         WAVEFORM_SAW,
         WAVEFORM_SINE,
-        WAVEFORM_TRIANGLE,
+        WAVEFORM_1_MULTI_SAW,
         WAVEFORM_TRIANGLE,
         WAVEFORM_1_PULSE,
         WAVEFORM_1_PULSE,
@@ -436,6 +437,7 @@ private:
       g_osc_sine_wave_tables,      // WAVEFORM_SINE          = 3
       g_osc_saw_wave_tables,       // WAVEFORM_1_PULSE       = 4
       g_osc_square_wave_tables,    // WAVEFORM_2_NOISE       = 5
+      g_osc_saw_wave_tables,       // WAVEFORM_1_MULTI_SAW   = 6
     };
 
     return wave_table_table[waveform][note_number - NOTE_NUMBER_MIN];
