@@ -460,9 +460,9 @@ private:
     int32_t result = 0;
 
     uint32_t freq_shape_morph =
-      ((static_cast<int32_t>((m_freq[N] >> 1) * g_osc_tune_table[((m_osc1_shape_effective[N] >> 11) + 128) >> (8 - OSC_TUNE_TABLE_STEPS_BITS)]) >>
+      ((static_cast<int32_t>((m_freq[N] >> 1) * g_osc_tune_table[(((m_osc1_shape_effective[N] - (128 << 8)) >> 10) + 128) >> (8 - OSC_TUNE_TABLE_STEPS_BITS)]) >>
         OSC_TUNE_DENOMINATOR_BITS) >> 0) << 1;
-    freq_shape_morph += 2;
+    freq_shape_morph += (N + 16);
     m_phase_shape_morph[N] += freq_shape_morph;
 
     int16_t osc1_gain = m_mix_table[(OSC_MIX_TABLE_LENGTH - 1) - (m_mixer_osc_mix_control_effective >> 1)];
