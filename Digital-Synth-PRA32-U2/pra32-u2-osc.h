@@ -459,12 +459,6 @@ private:
   INLINE int32_t process_osc(int16_t noise_int15) {
     int32_t result = 0;
 
-    uint32_t freq_shape_morph =
-      ((static_cast<int32_t>((m_freq[N] >> 1) * g_osc_tune_table[(((m_osc1_shape_effective[N] - (128 << 8)) >> 10) + 1 + 128) >> (8 - OSC_TUNE_TABLE_STEPS_BITS)]) >>
-        OSC_TUNE_DENOMINATOR_BITS) >> 0) << 1;
-    freq_shape_morph += N;
-    m_phase_shape_morph[N] += freq_shape_morph;
-
     int16_t osc1_gain = m_mix_table[(OSC_MIX_TABLE_LENGTH - 1) - (m_mixer_osc_mix_control_effective >> 1)];
     int16_t osc2_gain = m_mix_table[                             (m_mixer_osc_mix_control_effective >> 1)];
 
@@ -496,6 +490,16 @@ private:
       int32_t wave_0 = get_wave_level(wave_table_sine, phase_0);
       result += (wave_0 * osc1_gain * m_osc_gain_effective[N]) >> 10;
     } else if (m_waveform[0] == WAVEFORM_1_MULTI_SAW) {
+      // phase_modulation_depth_candidate = max(m_osc1_shape_effective[N] - (128 << 8), 0)
+      volatile int32_t phase_modulation_depth_candidate = m_osc1_shape_effective[N] - (128 << 8);
+      phase_modulation_depth_candidate = (phase_modulation_depth_candidate > 0) * phase_modulation_depth_candidate;
+
+      uint32_t freq_shape_morph =
+        ((static_cast<int32_t>((m_freq[N] >> 1) * g_osc_tune_table[((phase_modulation_depth_candidate >> 10) + 4 + 128) >> (8 - OSC_TUNE_TABLE_STEPS_BITS)]) >>
+          OSC_TUNE_DENOMINATOR_BITS) >> 0) << 1;
+      freq_shape_morph += (N + 4);
+      m_phase_shape_morph[N] += freq_shape_morph;
+
       int32_t wave_0_0 = get_wave_level(m_wave_table[N], m_phase[N]);
       int32_t wave_0_1 = get_wave_level(m_wave_table[N], m_phase[N] - m_phase_shape_morph[N]);
       int32_t wave_0_2 = get_wave_level(m_wave_table[N], m_phase[N] + m_phase_shape_morph[N]);
