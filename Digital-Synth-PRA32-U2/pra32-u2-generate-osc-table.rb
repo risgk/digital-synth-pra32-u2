@@ -84,7 +84,7 @@ $osc_harmonics_restriction_table = []
   $osc_harmonics_restriction_table << freq
 end
 
-OSC_DETUNE_CORRECRION = 1030  # Approx. 51 cents
+OSC_DETUNE_CORRECRION = 1060  # Approx. 101 cents
 
 def last_harmonic(freq)
   last = (freq != 0) ? ((FREQUENCY_MAX * (1 << OSC_PHASE_RESOLUTION_BITS)) /
