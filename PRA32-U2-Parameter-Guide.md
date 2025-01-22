@@ -8,15 +8,16 @@
 - Notes
     - $1 : Disabled in Paraphonic Mode
     - $2 : Disabled if Osc 1 Wave is not Pls (Pulse)
-- Osc 1 Wave [Saw|Sin|-|Tri|-|Pls]
+- Osc 1 Wave [Saw|Sin|Mul|Tri|-|Pls]
     - 0, 6-12: Saw Wave
-    - 1, 25 (13-38): Sine Wave
-    - 2, 50 (39-63): Triangle Wave
+    - 1, 25 (13-38): Sine Wave (Shape adjustable)
+    - 2, 50 (39-63): Multi Saw (Shape adjustable)
     - 3, 75 (64-88): Triangle Wave
     - 4, 100 (89-114): Pulse Wave (Shape adjustable)
     - 5, 127 (115-127): Pulse Wave (Shape adjustable)
 - Osc 1 Shape $2
     - Sine Wave (Phase Modulation): Modulation Depth
+    - Multi Saw: Detune
     - Pulse Wave (= 1st Saw + Phase Shifted 2nd Saw)
         - 0: Pulse Width 50%, or 2nd Saw Phase 50% (min)
         - 64: Pulse Width 25%, or 2nd Saw Phase 25%
