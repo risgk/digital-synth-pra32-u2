@@ -495,7 +495,7 @@ private:
       phase_modulation_depth_candidate = (phase_modulation_depth_candidate > 0) * phase_modulation_depth_candidate;
 
       uint32_t freq_shape_morph =
-        ((static_cast<int32_t>((m_freq[N] >> 1) * g_osc_tune_table[((phase_modulation_depth_candidate >> 10) + 4 + 128) >> (8 - OSC_TUNE_TABLE_STEPS_BITS)]) >>
+        ((static_cast<int32_t>((m_freq[N] >> 1) * g_osc_tune_table[(((phase_modulation_depth_candidate + 512) >> 10) + 1 + 128) >> (8 - OSC_TUNE_TABLE_STEPS_BITS)]) >>
           OSC_TUNE_DENOMINATOR_BITS) >> 0) << 1;
       freq_shape_morph += (N + 4);
       m_phase_shape_morph[N] += freq_shape_morph;
