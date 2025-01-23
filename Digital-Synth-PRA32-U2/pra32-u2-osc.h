@@ -500,7 +500,7 @@ private:
       freq_shape_morph += (N + 4);
       m_phase_shape_morph[N] += freq_shape_morph;
 
-      uint32_t phase_shift_base = 127 << 21;
+      uint32_t phase_shift_base = (127 * (4 - N)) << (5 + 16 - 2);
 
       int32_t wave_0_0 = get_wave_level(m_wave_table[N], m_phase[N]);
       int32_t wave_0_1 = get_wave_level(m_wave_table[N], m_phase[N] - (m_phase_shape_morph[N] * 1) - (phase_shift_base * 3));
