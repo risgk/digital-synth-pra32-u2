@@ -7,7 +7,8 @@
 
 - Notes
     - $1 : Disabled in Paraphonic Mode
-    - $2 : Disabled if Osc 1 Wave is not Pls (Pulse)
+    - $2 : Disabled if Osc 1 Wave is not Sin, Mul, or Pls
+    - $3 : Disabled if Osc 1 Wave is not Sin or Pls
 - Osc 1 Wave [Saw|Sin|Mul|Tri|-|Pls]
     - 0, 6-12: Saw Wave
     - 1, 25 (13-38): Sine Wave (Shape adjustable)
@@ -23,7 +24,7 @@
         - 64: Pulse Width 25%, or 2nd Saw Phase 25%
         - 96: Pulse Width 12.5%, or 2nd Saw Phase 12.5%
         - 127: Pulse Width 0.4%, or 2nd Saw Phase 99.6% (max)
-- Osc 1 Morph $2
+- Osc 1 Morph $3
     - Sine Wave (Phase Modulation): Frequency Ratio of Modulator
         - 0 (0-1): Ratio 0.5 (min)
         - 4 (2-5): Ratio 1.0
