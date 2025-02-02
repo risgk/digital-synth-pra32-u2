@@ -17,7 +17,7 @@
     - 102 (89-114): Pulse Wave (Shape adjustable)
     - 127 (115-127): Pulse Wave (Shape adjustable)
 - Osc 1 Shape $2
-    - Sine Wave (Phase Modulation): Modulation Depth
+    - Sine Wave (Frequency Modulation or Phase Modulation): Modulation Depth
     - Multi Saw: Detune
     - Pulse Wave (= 1st Saw + Phase Shifted 2nd Saw)
         - 0: Pulse Width 50%, or 2nd Saw Phase 50% (min)
@@ -25,7 +25,7 @@
         - 96: Pulse Width 12.5%, or 2nd Saw Phase 12.5%
         - 127: Pulse Width 0.4%, or 2nd Saw Phase 99.6% (max)
 - Osc 1 Morph $3
-    - Sine Wave (Phase Modulation): Frequency Ratio of Modulator
+    - Sine Wave (Frequency Modulation or Phase Modulation): Frequency Ratio of Modulator
         - 0 (0-1): Ratio 0.5 (min)
         - 4 (2-5): Ratio 1.0
         - 8 (6-9): Ratio 1.5
