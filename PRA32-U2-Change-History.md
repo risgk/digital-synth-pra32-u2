@@ -3,6 +3,7 @@
 - v0.2.0 (2025-**-**):
     - Change the Preset programs
     - Change the control numbers of Control Changes
+    - PRA32-U Editor: Add Editor Only Preset programs
     - Simplify the meanings of the values of Control Changes
     - Improve documentation
     - Tested with Arduino-Pico version 4.4.2
