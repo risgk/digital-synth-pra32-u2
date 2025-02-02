@@ -26,7 +26,7 @@
 | Change                      2 | x             | o             | Breath Controller                   |
 |                            64 | x             | o             | Sustain Pedal [Off|On]              |
 |                               |               |               |                                     |
-|                            14 | x             | o             | Osc 1 Wave [Saw|Sin|Mul|Tri|-|Pls]  |
+|                           102 | x             | o             | Osc 1 Wave [Saw|Sin|Mul|Tri|-|Pls]  |
 |                            19 | x             | o             | Osc 1 Shape $2                      |
 |                            20 | x             | o             | Osc 1 Morph $3                      |
 |                            23 | x             | o             | Mixer Noise/Sub Osc [N|S]           |
@@ -39,19 +39,19 @@
 |                            74 | x             | o             | Filter Cutoff                       |
 |                            71 | x             | o             | Filter Resonance                    |
 |                            24 | x             | o             | Filter EG Amt [-|+]                 |
-|                            26 | x             | o             | Filter Key Track [0.0|0.5|1.0] $1   |
+|                             9 | x             | o             | Filter Key Track [0.0|0.5|1.0] $1   |
 |                               |               |               |                                     |
 |                            73 | x             | o             | EG Attack                           |
 |                            75 | x             | o             | EG Decay                            |
 |                            30 | x             | o             | EG Sustain                          |
-|                            72 | x             | o             | EG Release                          |
+|                           105 | x             | o             | EG Release                          |
 |                               |               |               |                                     |
-|                            91 | x             | o             | EG Osc Amt [-|+]                    |
-|                            89 | x             | o             | EG Osc Dst [P|2P|1S]                |
-|                           102 | x             | o             | Voice Mode [Pol|Par|-|Mon|LP|Lgt]   |
+|                            89 | x             | o             | EG Osc Amt [-|+]                    |
+|                             8 | x             | o             | EG Osc Dst [P|2P|1S]                |
+|                            18 | x             | o             | Voice Mode [Pol|Par|-|Mon|LP|Lgt]   |
 |                             5 | x             | o             | Portamento                          |
 |                               |               |               |                                     |
-|                            12 | x             | o             | LFO Wave [Tri|Sin|-|Saw|SH|Sqr]     |
+|                            33 | x             | o             | LFO Wave [Tri|Sin|-|Saw|SH|Sqr]     |
 |                             3 | x             | o             | LFO Rate                            |
 |                            17 | x             | o             | LFO Depth                           |
 |                            56 | x             | o             | LFO Fade Time                       |
@@ -66,9 +66,9 @@
 |                            54 | x             | o             | Amp Sustain                         |
 |                            55 | x             | o             | Amp Release                         |
 |                               |               |               |                                     |
-|                            78 | x             | o             | Filter Mode [LP|HP]                 |
-|                            28 | x             | o             | EG Amp Mod [Off|On]                 |
-|                            29 | x             | o             | Release = Decay [Off|On]            |
+|                            39 | x             | o             | Filter Mode [LP|HP]                 |
+|                            36 | x             | o             | EG Amp Mod [Off|On]                 |
+|                            72 | x             | o             | Release = Decay [Off|On]            |
 |                            57 | x             | o             | Pitch Bend Range                    |
 |                               |               |               |                                     |
 |                            60 | x             | o             | Breath Filter Amt [-|+]             |
@@ -76,12 +76,12 @@
 |                            62 | x             | o             | EG Velocity Sensitivity             |
 |                            63 | x             | o             | Amp Velocity Sensitivity            |
 |                               |               |               |                                     |
-|                           108 | x             | o             | Voice Assign Mode [1|2]             |
+|                           110 | x             | o             | Voice Assign Mode [1|2]             |
 |                               |               |               |                                     |
 |                               |               |               |                                     |
 |                               |               |               |                                     |
 |                               |               |               |                                     |
-|                            27 | x             | o             | Chorus Mix [Dry|Wet]                |
+|                            34 | x             | o             | Chorus Mix [Dry|Wet]                |
 |                            58 | x             | o             | Chorus Rate                         |
 |                            59 | x             | o             | Chorus Depth                        |
 |                               |               |               |                                     |
