@@ -1,7 +1,8 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v0.2.0 (2025-**-**):
-    - Change the control numbers
+    - Change the control numbers of Control Changes
+    - Simplify the meanings of the values of Control Changes
     - Improve documentation
     - Tested with Arduino-Pico version 4.4.2
 - v0.1.0 (2025-01-19):
