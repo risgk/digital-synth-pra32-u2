@@ -468,20 +468,16 @@ function afterChangeOsc1Or2WaveOrMixerSubOscOrVoiceModeOrEGAmpModOrRelEqDecay() 
 
   var valueOsc1Wave = localStorage.getItem("keyOSC_1_WAVE     ");
   var indexOsc1Wave = Math.floor(((valueOsc1Wave * 10) + 127) / 254);
-  if ((valueOsc1Wave == 1) || (valueOsc1Wave == 4) || (valueOsc1Wave == 5) || (indexOsc1Wave == 1) || (indexOsc1Wave == 4) || (indexOsc1Wave == 5)) {
-//  if ((indexOsc1Wave == 1) || (indexOsc1Wave == 4) || (indexOsc1Wave == 5)) {
+  if ((indexOsc1Wave == 1) || (indexOsc1Wave == 4) || (indexOsc1Wave == 5)) {
     document.getElementById( "spanOSC_1_SHAPE    ").style.color = 'black';
     document.getElementById("span2OSC_1_SHAPE    ").style.color = 'black';
     document.getElementById( "spanOSC_1_MORPH    ").style.color = 'black';
     document.getElementById("span2OSC_1_MORPH    ").style.color = 'black';
-  } else if ((valueOsc1Wave == 2) || (indexOsc1Wave == 2)) {
-//  if ((indexOsc1Wave == 2)) {
+  } else if ((indexOsc1Wave == 2)) {
     document.getElementById( "spanOSC_1_SHAPE    ").style.color = 'black';
     document.getElementById("span2OSC_1_SHAPE    ").style.color = 'black';
     document.getElementById( "spanOSC_1_MORPH    ").style.color = 'lightgray';
     document.getElementById("span2OSC_1_MORPH    ").style.color = 'lightgray';
-
-
   } else {
     document.getElementById( "spanOSC_1_SHAPE    ").style.color = 'lightgray';
     document.getElementById("span2OSC_1_SHAPE    ").style.color = 'lightgray';
@@ -490,8 +486,7 @@ function afterChangeOsc1Or2WaveOrMixerSubOscOrVoiceModeOrEGAmpModOrRelEqDecay() 
   }
 
   var valueEGAmpMod = localStorage.getItem("keyEG_AMP_MOD     ");
-  if (valueEGAmpMod == 1 || valueEGAmpMod >= 64) {
-//  if (valueEGAmpMod >= 64) {
+  if (valueEGAmpMod >= 64) {
     document.getElementById( "spanAMP_ATTACK     ").style.color = 'lightgray';
     document.getElementById("span2AMP_ATTACK     ").style.color = 'lightgray';
     document.getElementById( "spanAMP_DECAY      ").style.color = 'lightgray';
@@ -502,8 +497,7 @@ function afterChangeOsc1Or2WaveOrMixerSubOscOrVoiceModeOrEGAmpModOrRelEqDecay() 
     document.getElementById("span2AMP_RELEASE    ").style.color = 'lightgray';
 
     var valueRelEqDecay = localStorage.getItem("keyREL_EQ_DECAY   ");
-    if (valueRelEqDecay == 1 || valueRelEqDecay >= 64) {
-//    if (valueRelEqDecay >= 64) {
+    if (valueRelEqDecay >= 64) {
       document.getElementById( "spanEG_RELEASE     ").style.color = 'lightgray';
       document.getElementById("span2EG_RELEASE     ").style.color = 'lightgray';
     } else {
@@ -519,8 +513,7 @@ function afterChangeOsc1Or2WaveOrMixerSubOscOrVoiceModeOrEGAmpModOrRelEqDecay() 
     document.getElementById("span2AMP_SUSTAIN    ").style.color = 'black';
 
     var valueRelEqDecay = localStorage.getItem("keyREL_EQ_DECAY   ");
-    if (valueRelEqDecay == 1 || valueRelEqDecay >= 64) {
-//    if (valueRelEqDecay >= 64) {
+    if (valueRelEqDecay >= 64) {
       document.getElementById( "spanEG_RELEASE     ").style.color = 'lightgray';
       document.getElementById("span2EG_RELEASE     ").style.color = 'lightgray';
       document.getElementById( "spanAMP_RELEASE    ").style.color = 'lightgray';
@@ -745,7 +738,6 @@ function updateDisplayOfControl(number, value) {
     {
       var ary = ["Saw","Sin","Mul","Tri","-","Pls"];
       var index = Math.floor(((value * 10) + 127) / 254);
-      if (value < 6) { index = value; }
       dispValue = ary[index];
     }
     break;
@@ -753,7 +745,6 @@ function updateDisplayOfControl(number, value) {
     {
       var ary = ["Saw","Sin","-","Tri","Nos","Sqr"];
       var index = Math.floor(((value * 10) + 127) / 254);
-      if (value < 6) { index = value; }
       dispValue = ary[index];
     }
     break;
@@ -769,7 +760,6 @@ function updateDisplayOfControl(number, value) {
     {
       var ary = ["P","2P","1S"];
       var index = Math.floor(((value * 4) + 127) / 254);
-      if (value < 3) { index = value; }
       dispValue = ary[index];
     }
     break;
@@ -777,7 +767,6 @@ function updateDisplayOfControl(number, value) {
     {
       var ary = ["Pol","Par","-","Mon","LP","Lgt"];
       var index = Math.floor(((value * 10) + 127) / 254);
-      if (value < 6) { index = value; }
       dispValue = ary[index];
     }
     break;
@@ -785,7 +774,6 @@ function updateDisplayOfControl(number, value) {
     {
       var ary = ["Tri","Sin","-","Saw","SH","Sqr"];
       var index = Math.floor(((value * 10) + 127) / 254);
-      if (value < 6) { index = value; }
       dispValue = ary[index];
     }
     break;
@@ -793,7 +781,6 @@ function updateDisplayOfControl(number, value) {
     {
       var ary = ["LP","HP"];
       var index = Math.floor(((value * 2) + 127) / 254);
-      if (value < 2) { index = value; }
       dispValue = ary[index];
     }
     break;
@@ -802,7 +789,6 @@ function updateDisplayOfControl(number, value) {
     {
       var ary = ["Off","On"];
       var index = Math.floor(((value * 2) + 127) / 254);
-      if (value < 2) { index = value; }
       dispValue = ary[index];
     }
     break;
@@ -810,7 +796,6 @@ function updateDisplayOfControl(number, value) {
     {
       var ary = ["Off","Qad","Lin"];
       var index = Math.floor(((value * 4) + 127) / 254);
-      if (value < 3) { index = value; }
       dispValue = ary[index];
     }
     break;
@@ -818,7 +803,6 @@ function updateDisplayOfControl(number, value) {
     {
       var ary = ["1","2"];
       var index = Math.floor(((value * 2) + 127) / 254);
-      if (value < 2) { index = value; }
       dispValue = ary[index];
     }
     break;
@@ -826,7 +810,6 @@ function updateDisplayOfControl(number, value) {
     {
       var ary = ["S","P"];
       var index = Math.floor(((value * 2) + 127) / 254);
-      if (value < 2) { index = value; }
       dispValue = ary[index];
     }
     break;
