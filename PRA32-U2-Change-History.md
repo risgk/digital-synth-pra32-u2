@@ -1,5 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v0.2.0 (2025-**-**):
+    - Change the control numbers
 - v0.1.0 (2025-01-19):
     - Specification is similar to PRA32-U v3.1.0
     - Optimize processing for Raspberry Pi Pico 2/RP2350
