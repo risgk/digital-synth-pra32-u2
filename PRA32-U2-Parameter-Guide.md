@@ -12,9 +12,9 @@
 - Osc 1 Wave [Saw|Sin|Mul|Tri|-|Pls]
     - 0 (0-12): Saw Wave
     - 25 (13-38): Sine Wave (Shape adjustable)
-    - 50 (39-63): Multi Saw (Shape adjustable)
-    - 75 (64-88): Triangle Wave
-    - 100 (89-114): Pulse Wave (Shape adjustable)
+    - 51 (39-63): Multi Saw (Shape adjustable)
+    - 76 (64-88): Triangle Wave
+    - 102 (89-114): Pulse Wave (Shape adjustable)
     - 127 (115-127): Pulse Wave (Shape adjustable)
 - Osc 1 Shape $2
     - Sine Wave (Phase Modulation): Modulation Depth
@@ -53,9 +53,9 @@
 - Osc 2 Wave [Saw|Sin|-|Tri|Nos|Sqr]
     - 0 (0-12): Saw Wave
     - 25 (13-38): Sine Wave
-    - 50 (39-63): Triangle Wave
-    - 75 (64-88): Triangle Wave
-    - 100 (89-114): White Noise
+    - 51 (39-63): Triangle Wave
+    - 76 (64-88): Triangle Wave
+    - 102 (89-114): White Noise
     - 127 (115-127): Square Wave
 - Osc 2 Coarse [-|+]
     - -60 (4): -60 semitone (min)
@@ -136,9 +136,9 @@
 - Voice Mode [Pol|Par|-|Mon|LP|Lgt]
     - 0 (0-12): Polyphonic (LFO Single Trigger)
     - 25 (13-38): Paraphonic (LFO Single Trigger)
-    - 50 (39-63): Monophonic (EG & LFO Multi Trigger)
-    - 75 (64-88): Monophonic (EG & LFO Multi Trigger)
-    - 100 (89-114): Legato Portamento (Monophonic, EG & LFO Single Trigger, Auto Portamento)
+    - 51 (39-63): Monophonic (EG & LFO Multi Trigger)
+    - 76 (64-88): Monophonic (EG & LFO Multi Trigger)
+    - 102 (89-114): Legato Portamento (Monophonic, EG & LFO Single Trigger, Auto Portamento)
     - 127 (115-127): Legato (Monophonic, EG & LFO Single Trigger)
 - Portamento
     - 0: Portamento Time 0 ms
@@ -148,9 +148,9 @@
 - LFO Wave [Tri|Sin|-|Saw|SH|Sqr]
     - 0 (0-12): Triangle Wave (Key Trigger Off, -0.5 to +0.5)
     - 25 (13-38): Sine Wave (Key Trigger Off, -0.5 to +0.5)
-    - 50 (39-63): Saw Wave (Key Trigger On, -0.5 to +0.5)
-    - 75 (64-88): Saw Wave (Key Trigger On, -0.5 to +0.5)
-    - 100 (89-114): Sample & Hold (Key Trigger On, -0.5 to +0.5)
+    - 51 (39-63): Saw Wave (Key Trigger On, -0.5 to +0.5)
+    - 76 (64-88): Saw Wave (Key Trigger On, -0.5 to +0.5)
+    - 102 (89-114): Sample & Hold (Key Trigger On, -0.5 to +0.5)
     - 127 (115-127): Square Wave (Key Trigger On, 0.0 to 1.0)
 - LFO Rate
     - 0: 0.068 Hz (min)

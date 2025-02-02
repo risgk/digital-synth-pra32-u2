@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v0.2.0 (2025-**-**):
+    - Change the Preset programs
     - Change the control numbers of Control Changes
     - Simplify the meanings of the values of Control Changes
     - Improve documentation
