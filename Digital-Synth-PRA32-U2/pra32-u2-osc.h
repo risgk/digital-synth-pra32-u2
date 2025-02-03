@@ -195,7 +195,7 @@ public:
         WAVEFORM_SINE,
         WAVEFORM_1_MULTI_SAW,
         WAVEFORM_TRIANGLE,
-        WAVEFORM_1_PULSE,
+        WAVEFORM_SQUARE,
         WAVEFORM_1_PULSE,
       },
       {
@@ -203,8 +203,8 @@ public:
         WAVEFORM_SINE,
         WAVEFORM_TRIANGLE,
         WAVEFORM_TRIANGLE,
-        WAVEFORM_2_NOISE,
         WAVEFORM_SQUARE,
+        WAVEFORM_2_NOISE,
       },
     };
 

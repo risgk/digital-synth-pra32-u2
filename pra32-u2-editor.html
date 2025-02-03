@@ -291,11 +291,11 @@ presetControllers[MIXER_SUB_OSC  ] = [127, 64 , 127, 64 , 127, 64 , 64 , 64 ];
 
 presetControllers[OSC_2_WAVE     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 presetControllers[OSC_2_COARSE   ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
-presetControllers[OSC_2_PITCH    ] = [109, 72 , 72 , 64 , 72 , 72 , 72 , 64 ];
+presetControllers[OSC_2_PITCH    ] = [109, 72 , 72 , 72 , 72 , 72 , 72 , 64 ];
 presetControllers[MIXER_OSC_MIX  ] = [64 , 64 , 64 , 0  , 64 , 64 , 0  , 0  ];
 
 presetControllers[FILTER_CUTOFF  ] = [115, 103, 115, 103, 55 , 79 , 127, 127];
-presetControllers[FILTER_RESO    ] = [64 , 32 , 64 , 32 , 64 , 32 , 0  , 0  ];
+presetControllers[FILTER_RESO    ] = [64 , 32 , 64 , 64 , 64 , 32 , 0  , 0  ];
 presetControllers[FILTER_EG_AMT  ] = [64 , 16 , 64 , 64 , 112, 64 , 64 , 64 ];
 presetControllers[FILTER_KEY_TRK ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 0  ];
 
@@ -536,7 +536,7 @@ function afterChangeOsc1Or2WaveOrMixerSubOscOrVoiceModeOrEGAmpModOrRelEqDecay() 
 
   var valueOsc1Wave = localStorage.getItem("keyOSC_1_WAVE     ");
   var indexOsc1Wave = Math.floor(((valueOsc1Wave * 10) + 127) / 254);
-  if ((indexOsc1Wave == 1) || (indexOsc1Wave == 4) || (indexOsc1Wave == 5)) {
+  if ((indexOsc1Wave == 1) || (indexOsc1Wave == 5)) {
     document.getElementById( "spanOSC_1_SHAPE    ").style.color = 'black';
     document.getElementById("span2OSC_1_SHAPE    ").style.color = 'black';
     document.getElementById( "spanOSC_1_MORPH    ").style.color = 'black';
@@ -807,14 +807,14 @@ function updateDisplayOfControl(number, value) {
     break;
   case OSC_1_WAVE      :
     {
-      var ary = ["Saw","Sin","Mul","Tri","-","Pls"];
+      var ary = ["Saw","Sin","Mul","Tri","Sqr","Pls"];
       var index = Math.floor(((value * 10) + 127) / 254);
       dispValue = ary[index];
     }
     break;
   case OSC_2_WAVE      :
     {
-      var ary = ["Saw","Sin","-","Tri","Nos","Sqr"];
+      var ary = ["Saw","Sin","-","Tri","Sqr","Nos"];
       var index = Math.floor(((value * 10) + 127) / 254);
       dispValue = ary[index];
     }
@@ -1454,7 +1454,7 @@ function getStoredCCValueString(index, number) {
 <td colspan="12"><hr></td>
 </tr>
 <tr>
-<td colspan="3"><b>Osc 1</b> Wave [Saw|Sin|Mul|Tri|-|Pls]</td>
+<td colspan="3"><b>Osc 1</b> Wave [Saw|Sin|Mul|Tri|Sqr|Pls]</td>
 <td colspan="3"><b>Osc 1</b> Shape                     </td>
 <td colspan="3"><b>Osc 1</b> Morph                     </td>
 <td colspan="3"><b>Mixer</b> Noise/Sub Osc [N|S]       </td>
@@ -1473,7 +1473,7 @@ function getStoredCCValueString(index, number) {
 <td><span    id="spanMIXER_SUB_OSC  " >-</span></td>
 <td><span   id="span2MIXER_SUB_OSC  " >-</span></td>
 <tr>
-<td colspan="3"><b>Osc 2</b> Wave [Saw|Sin|-|Tri|Nos|Sqr]</td>
+<td colspan="3"><b>Osc 2</b> Wave [Saw|Sin|-|Tri|Sqr|Nos]</td>
 <td colspan="3"><b>Osc 2</b> Coarse [-|+]              </td>
 <td colspan="3"><b>Osc 2</b> Pitch [-|+]               </td>
 <td colspan="3"><b>Mixer</b> Osc Mix [1|2]             </td>

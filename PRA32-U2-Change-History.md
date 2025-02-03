@@ -3,8 +3,9 @@
 - v0.2.0 (2025-**-**):
     - Change the Preset programs
     - Change the control numbers of Control Changes
-    - PRA32-U Editor: Add Editor Only Preset programs
+    - Change the meanings of the values of Osc 2 Wave
     - Simplify the meanings of the values of Control Changes
+    - PRA32-U Editor: Add Editor Only Preset programs
     - Improve documentation
     - Tested with Arduino-Pico version 4.4.2
 - v0.1.0 (2025-01-19):
