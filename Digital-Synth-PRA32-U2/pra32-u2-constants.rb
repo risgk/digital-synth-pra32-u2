@@ -72,7 +72,7 @@ FILTER_KEY_TRK  = 9
 EG_ATTACK       = 73
 EG_DECAY        = 75
 EG_SUSTAIN      = 30
-EG_RELEASE      = 105
+EG_RELEASE      = 72
 
 EG_OSC_AMT      = 89
 EG_OSC_DST      = 8
@@ -96,7 +96,7 @@ AMP_RELEASE     = 55
 
 FILTER_MODE     = 39
 EG_AMP_MOD      = 36
-REL_EQ_DECAY    = 72
+REL_EQ_DECAY    = 105
 P_BEND_RANGE    = 57
 
 BTH_FILTER_AMT  = 60
