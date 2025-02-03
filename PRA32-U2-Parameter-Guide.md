@@ -9,12 +9,12 @@
     - $1 : Disabled in Paraphonic Mode
     - $2 : Disabled if Osc 1 Wave is not Sin, Mul, or Pls
     - $3 : Disabled if Osc 1 Wave is not Sin or Pls
-- Osc 1 Wave [Saw|Sin|Mul|Tri|Sqr|Pls]
+- Osc 1 Wave [Saw|Sin|Mul|Sqr|Tri|Pls]
     - 0 (0-12): Saw Wave
     - 25 (13-38): Sine Wave (Shape adjustable)
     - 51 (39-63): Multi Saw (Shape adjustable)
-    - 76 (64-88): Triangle Wave
-    - 102 (89-114): Square Wave
+    - 76 (64-88): Square Wave
+    - 102 (89-114): Triangle Wave
     - 127 (115-127): Pulse Wave (Shape adjustable)
 - Osc 1 Shape $2
     - Sine Wave (Frequency Modulation or Phase Modulation): Modulation Depth
@@ -50,12 +50,12 @@
     - +1 (65): Sub Osc 1.6%
     - +62 (126): Sub Osc 96.9%
     - +63 (127): Sub Osc 100%
-- Osc 2 Wave [Saw|Sin|-|Tri|Sqr|Nos]
+- Osc 2 Wave [Saw|Sin|-|Sqr|Tri|Nos]
     - 0 (0-12): Saw Wave
     - 25 (13-38): Sine Wave
-    - 51 (39-63): Triangle Wave
-    - 76 (64-88): Triangle Wave
-    - 102 (89-114): Square Wave
+    - 51 (39-63): Square Wave
+    - 76 (64-88): Square Wave
+    - 102 (89-114): Triangle Wave
     - 127 (115-127): White Noise
 - Osc 2 Coarse [-|+]
     - -60 (4): -60 semitone (min)
