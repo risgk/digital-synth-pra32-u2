@@ -192,18 +192,18 @@ public:
     static uint8_t waveform_tables[2][6] = {
       {
         WAVEFORM_SAW,
-        WAVEFORM_SINE,
-        WAVEFORM_1_MULTI_SAW,
         WAVEFORM_SQUARE,
         WAVEFORM_TRIANGLE,
+        WAVEFORM_SINE,
+        WAVEFORM_1_MULTI_SAW,
         WAVEFORM_1_PULSE,
       },
       {
         WAVEFORM_SAW,
-        WAVEFORM_SINE,
-        WAVEFORM_SQUARE,
         WAVEFORM_SQUARE,
         WAVEFORM_TRIANGLE,
+        WAVEFORM_SINE,
+        WAVEFORM_SINE,
         WAVEFORM_2_NOISE,
       },
     };

@@ -26,12 +26,12 @@
 | Change                      2 | x             | o             | Breath Controller                    |
 |                            64 | x             | o             | Sustain Pedal [Off|On]               |
 |                               |               |               |                                      |
-|                           102 | x             | o             | Osc 1 Wave [Saw|Sin|Mul|Sqr|Tri|Pls] |
+|                           102 | x             | o             | Osc 1 Wave [Saw|Sqr|Tri|Sin|Mul|Pls] |
 |                            19 | x             | o             | Osc 1 Shape $2                       |
 |                            20 | x             | o             | Osc 1 Morph $3                       |
 |                            23 | x             | o             | Mixer Noise/Sub Osc [N|S]            |
 |                               |               |               |                                      |
-|                           104 | x             | o             | Osc 2 Wave [Saw|Sin|-|Sqr|Tri|Nos]   |
+|                           104 | x             | o             | Osc 2 Wave [Saw|Sqr|Tri|Sin|-|Nos]   |
 |                            85 | x             | o             | Osc 2 Coarse [-|+]                   |
 |                            76 | x             | o             | Osc 2 Pitch [-|+]                    |
 |                            21 | x             | o             | Mixer Osc Mix [1|2]                  |
