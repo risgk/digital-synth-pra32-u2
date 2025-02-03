@@ -44,7 +44,7 @@
 |                            73 | x             | o             | EG Attack                           |
 |                            75 | x             | o             | EG Decay                            |
 |                            30 | x             | o             | EG Sustain                          |
-|                           105 | x             | o             | EG Release                          |
+|                            72 | x             | o             | EG Release                          |
 |                               |               |               |                                     |
 |                            89 | x             | o             | EG Osc Amt [-|+]                    |
 |                             8 | x             | o             | EG Osc Dst [P|2P|1S]                |
@@ -68,7 +68,7 @@
 |                               |               |               |                                     |
 |                            39 | x             | o             | Filter Mode [LP|HP]                 |
 |                            36 | x             | o             | EG Amp Mod [Off|On]                 |
-|                            72 | x             | o             | Release = Decay [Off|On]            |
+|                           105 | x             | o             | Release = Decay [Off|On]            |
 |                            57 | x             | o             | Pitch Bend Range                    |
 |                               |               |               |                                     |
 |                            60 | x             | o             | Breath Filter Amt [-|+]             |

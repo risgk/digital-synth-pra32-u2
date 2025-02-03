@@ -72,7 +72,7 @@ const uint8_t   FILTER_KEY_TRK  = 9;
 const uint8_t   EG_ATTACK       = 73;
 const uint8_t   EG_DECAY        = 75;
 const uint8_t   EG_SUSTAIN      = 30;
-const uint8_t   EG_RELEASE      = 105;
+const uint8_t   EG_RELEASE      = 72;
 
 const uint8_t   EG_OSC_AMT      = 89;
 const uint8_t   EG_OSC_DST      = 8;
@@ -96,7 +96,7 @@ const uint8_t   AMP_RELEASE     = 55;
 
 const uint8_t   FILTER_MODE     = 39;
 const uint8_t   EG_AMP_MOD      = 36;
-const uint8_t   REL_EQ_DECAY    = 72;
+const uint8_t   REL_EQ_DECAY    = 105;
 const uint8_t   P_BEND_RANGE    = 57;
 
 const uint8_t   BTH_FILTER_AMT  = 60;
