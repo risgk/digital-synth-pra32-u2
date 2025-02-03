@@ -630,7 +630,7 @@ static INLINE boolean PRA32_U_ControlPanel_calc_value_display(uint8_t control_ta
     break;
   case OSC_1_WAVE      :
     {
-      char ary[6][5] = {"Saw","Sin","Mul","Sqr","Tri","Pls"};
+      char ary[6][5] = {"Saw","Sqr","Tri","Sin","Mul","Pls"};
       uint32_t index = ((controller_value * 10) + 127) / 254;
       std::strcpy(value_display_text, ary[index]);
       result = true;
@@ -638,7 +638,7 @@ static INLINE boolean PRA32_U_ControlPanel_calc_value_display(uint8_t control_ta
     break;
   case OSC_2_WAVE      :
     {
-      char ary[6][5] = {"Saw","Sin","  -","Sqr","Tri","Nos"};
+      char ary[6][5] = {"Saw","Sqr","Tri","Sin","  -","Nos"};
       uint32_t index = ((controller_value * 10) + 127) / 254;
       std::strcpy(value_display_text, ary[index]);
       result = true;
