@@ -187,6 +187,10 @@
 - Voice Assign Mode [1|2]
     - 0 (0-63): Mode 1, Free voice with next number has priority in Polyphonic/Paraphonic Mode, Release is effective
     - 127 (64-127): Mode 2, Free voice with small number has priority in Polyphonic/Paraphonic Mode, Portamento is effective
+- Chorus Mix [Dry|Wet]
+    - 0: Dry 100%, Wet 0% (min)
+    - 64: Dry 50%, Wet 50%
+    - 127: Dry 0%, Wet 100% (max)
 - Chorus Rate
     - 0: LFO Frequency 0.012 Hz (min)
     - 64: LFO Frequency 0.48 Hz

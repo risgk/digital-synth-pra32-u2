@@ -61,7 +61,7 @@ public:
   }
 
   INLINE void set_chorus_mix(uint8_t controller_value) {
-    m_chorus_mix_control = (controller_value + 1) >> 1;
+    m_chorus_mix_control = ((controller_value + 1) >> 1) << 1;
   }
 
   template <uint8_t N>
