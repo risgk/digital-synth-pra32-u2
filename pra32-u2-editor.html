@@ -339,14 +339,14 @@ presetControllers[VOICE_ASGN_MODE] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 
 
 
-presetControllers[CHORUS_MIX     ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 0  ];
+presetControllers[CHORUS_MIX     ] = [32 , 64 , 32 , 64 , 32 , 64 , 64 , 0  ];
 presetControllers[CHORUS_RATE    ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 presetControllers[CHORUS_DEPTH   ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 
 
 presetControllers[DELAY_FEEDBACK ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 0  ];
 presetControllers[DELAY_TIME     ] = [93 , 93 , 93 , 93 , 93 , 93 , 93 , 93 ];
-presetControllers[DELAY_MODE     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+presetControllers[DELAY_MODE     ] = [127, 0  , 127, 0  , 127, 0  , 0  , 0  ];
 
 
 const PRESET_NUMBER_INITIAL = 7;
@@ -1328,7 +1328,7 @@ function getStoredCCValueString(index, number) {
     <td></td>
     <td><input type="button" value="#17 Synth Brass"    onclick="editorOnlyPreset(17)"></td>
     <td></td>
-    <td><input type="button" value="#18 Electric Piano" onclick="editorOnlyPreset(18)"></td>
+    <td><input type="button" value="#18 Synth Piano"    onclick="editorOnlyPreset(18)"></td>
     <td></td>
     <td><input type="button" value="#19 ---"            onclick="editorOnlyPreset(19)" disabled></td></tr>
 <tr><td>&nbsp;</td></tr>
