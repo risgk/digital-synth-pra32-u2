@@ -1529,11 +1529,6 @@ private:
     index = (index < 0) * index + 5;
 
     uint8_t new_voice_mode = voice_mode_table[index];
-#if 1
-    if (controller_value < 6) {
-      new_voice_mode = voice_mode_table[controller_value];
-    }
-#endif
     if (m_voice_mode != new_voice_mode) {
       m_voice_mode = new_voice_mode;
       all_notes_off();
@@ -1624,23 +1619,15 @@ private:
   }
 
   INLINE void update_eg_osc_mod() {
-#if 1
-    if        (m_eg_osc_dst == 2 || m_eg_osc_dst >= 96) {  /* OSC_DST_SHAPE_1 */
-#else
     if        (m_eg_osc_dst >= 96) {  /* OSC_DST_SHAPE_1 */
-#endif
       m_osc.set_pitch_eg_amt<0>(64);
       m_osc.set_pitch_eg_amt<1>(64);
       m_osc.set_shape_eg_amt(m_eg_osc_amt);
-#if 1
-    } else if (m_eg_osc_dst == 1 || m_eg_osc_dst >= 32) {  /* OSC_DST_PITCH_2 */
-#else
     } else if (m_eg_osc_dst >= 32) {  /* OSC_DST_PITCH_2 */
-#endif
       m_osc.set_pitch_eg_amt<0>(64);
       m_osc.set_pitch_eg_amt<1>(m_eg_osc_amt);
       m_osc.set_shape_eg_amt(64);
-    } else {                         /* OSC_DST_PITCH */
+    } else {                          /* OSC_DST_PITCH */
       m_osc.set_pitch_eg_amt<0>(m_eg_osc_amt);
       m_osc.set_pitch_eg_amt<1>(m_eg_osc_amt);
       m_osc.set_shape_eg_amt(64);
@@ -1648,23 +1635,15 @@ private:
   }
 
   INLINE void update_lfo_osc_mod() {
-#if 1
-    if        (m_lfo_osc_dst == 2 || m_lfo_osc_dst >= 96) {  /* OSC_DST_SHAPE_1 */
-#else
     if        (m_lfo_osc_dst >= 96) {  /* OSC_DST_SHAPE_1 */
-#endif
       m_osc.set_pitch_lfo_amt<0>(64);
       m_osc.set_pitch_lfo_amt<1>(64);
       m_osc.set_shape_lfo_amt(m_lfo_osc_amt);
-#if 1
-    } else if (m_lfo_osc_dst == 1 || m_lfo_osc_dst >= 32) {  /* OSC_DST_PITCH_2 */
-#else
     } else if (m_lfo_osc_dst >= 32) {  /* OSC_DST_PITCH_2 */
-#endif
       m_osc.set_pitch_lfo_amt<0>(64);
       m_osc.set_pitch_lfo_amt<1>(m_lfo_osc_amt);
       m_osc.set_shape_lfo_amt(64);
-    } else {                         /* OSC_DST_PITCH */
+    } else {                           /* OSC_DST_PITCH */
       m_osc.set_pitch_lfo_amt<0>(m_lfo_osc_amt);
       m_osc.set_pitch_lfo_amt<1>(m_lfo_osc_amt);
       m_osc.set_shape_lfo_amt(64);
@@ -1672,11 +1651,7 @@ private:
   }
 
   INLINE void update_eg_and_amp_eg() {
-#if 1
-    if (m_controller_value_eg_amp_mod == 1 || m_controller_value_eg_amp_mod >= 64) {
-#else
     if (m_controller_value_eg_amp_mod >= 64) {
-#endif
       m_eg[0].set_attack  (m_controller_value_eg_attack);
       m_eg[1].set_attack  (m_controller_value_eg_attack);
       m_eg[2].set_attack  (m_controller_value_eg_attack);
@@ -1704,11 +1679,7 @@ private:
       m_eg[6].set_sustain (m_controller_value_eg_sustain);
       m_eg[7].set_sustain (m_controller_value_eg_sustain);
 
-#if 1
-      if (m_controller_value_rel_eq_decay == 1 || m_controller_value_rel_eq_decay >= 64) {
-#else
       if (m_controller_value_rel_eq_decay >= 64) {
-#endif
         m_eg[0].set_release (m_controller_value_eg_decay);
         m_eg[1].set_release (m_controller_value_eg_decay);
         m_eg[2].set_release (m_controller_value_eg_decay);
@@ -1755,11 +1726,7 @@ private:
       m_eg[6].set_sustain (m_controller_value_eg_sustain);
       m_eg[7].set_sustain (m_controller_value_amp_sustain);
 
-#if 1
-      if (m_controller_value_rel_eq_decay == 1 || m_controller_value_rel_eq_decay >= 64) {
-#else
       if (m_controller_value_rel_eq_decay >= 64) {
-#endif
         m_eg[0].set_release (m_controller_value_eg_decay);
         m_eg[1].set_release (m_controller_value_amp_decay);
         m_eg[2].set_release (m_controller_value_eg_decay);

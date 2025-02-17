@@ -28,17 +28,9 @@ PRA32_U_Amp()
   }
 
   INLINE void set_breath_mod(uint8_t controller_value) {
-#if 1
-    if (controller_value == 2 || controller_value >= 96) {
-#else
     if (controller_value >= 96) {
-#endif
       m_breath_mod = 2;
-#if 1
-    } else if (controller_value == 1 || controller_value >= 32) {
-#else
     } else if (controller_value >= 32) {
-#endif
       m_breath_mod = 1;
     } else {
       m_breath_mod = 0;

@@ -16,6 +16,7 @@ class PRA32_U_Osc {
   static const uint8_t WAVEFORM_SINE          = 3;
   static const uint8_t WAVEFORM_1_PULSE       = 4;
   static const uint8_t WAVEFORM_2_NOISE       = 5;
+  static const uint8_t WAVEFORM_1_MULTI_SAW   = 6;
 
   uint32_t       m_portamento_coef[4];
   int16_t        m_pitch_eg_amt[2];
@@ -33,6 +34,7 @@ class PRA32_U_Osc {
   uint32_t       m_freq_base[4 * 2];
   int16_t        m_freq_offset[4 * 2];
   uint32_t       m_phase[4 * 2];
+  uint32_t       m_phase_shape_morph[4];
   boolean        m_osc_on[4];
   int8_t         m_osc_gain_effective[4];
   int8_t         m_osc_level;
@@ -76,6 +78,7 @@ public:
   , m_freq_base()
   , m_freq_offset()
   , m_phase()
+  , m_phase_shape_morph()
   , m_osc_on()
   , m_osc_gain_effective()
   , m_osc_level()
@@ -189,19 +192,19 @@ public:
     static uint8_t waveform_tables[2][6] = {
       {
         WAVEFORM_SAW,
+        WAVEFORM_SQUARE,
+        WAVEFORM_TRIANGLE,
         WAVEFORM_SINE,
-        WAVEFORM_TRIANGLE,
-        WAVEFORM_TRIANGLE,
-        WAVEFORM_1_PULSE,
+        WAVEFORM_1_MULTI_SAW,
         WAVEFORM_1_PULSE,
       },
       {
         WAVEFORM_SAW,
-        WAVEFORM_SINE,
-        WAVEFORM_TRIANGLE,
-        WAVEFORM_TRIANGLE,
-        WAVEFORM_2_NOISE,
         WAVEFORM_SQUARE,
+        WAVEFORM_TRIANGLE,
+        WAVEFORM_SINE,
+        WAVEFORM_SINE,
+        WAVEFORM_2_NOISE,
       },
     };
 
@@ -212,11 +215,6 @@ public:
     index = (index < 0) * index + 5;
 
     m_waveform[N] = waveform_tables[N][index];
-#if 1
-    if (controller_value < 6) {
-      m_waveform[N] = waveform_tables[N][controller_value];
-    }
-#endif
   }
 
   INLINE void set_osc1_shape_control(uint8_t controller_value) {
@@ -429,13 +427,14 @@ public:
 
 private:
   INLINE const int16_t* get_wave_table(uint8_t waveform, uint8_t note_number) {
-    static int16_t** wave_table_table[6] = {
+    static int16_t** wave_table_table[7] = {
       g_osc_saw_wave_tables,       // WAVEFORM_SAW           = 0
       g_osc_square_wave_tables,    // WAVEFORM_SQUARE        = 1
       g_osc_triangle_wave_tables,  // WAVEFORM_TRIANGLE      = 2
       g_osc_sine_wave_tables,      // WAVEFORM_SINE          = 3
       g_osc_saw_wave_tables,       // WAVEFORM_1_PULSE       = 4
       g_osc_square_wave_tables,    // WAVEFORM_2_NOISE       = 5
+      g_osc_saw_wave_tables,       // WAVEFORM_1_MULTI_SAW   = 6
     };
 
     return wave_table_table[waveform][note_number - NOTE_NUMBER_MIN];
@@ -485,6 +484,27 @@ private:
       uint32_t phase_0 = m_phase[N] + ((wave_3 * m_osc1_phase_modulation_depth[N]) >> 4);
       int32_t wave_0 = get_wave_level(wave_table_sine, phase_0);
       result += (wave_0 * osc1_gain * m_osc_gain_effective[N]) >> 10;
+    } else if (m_waveform[0] == WAVEFORM_1_MULTI_SAW) {
+      // phase_modulation_depth_candidate = max(m_osc1_shape_effective[N] - (128 << 8), 0)
+      volatile int32_t phase_modulation_depth_candidate = m_osc1_shape_effective[N] - (128 << 8);
+      phase_modulation_depth_candidate = (phase_modulation_depth_candidate > 0) * phase_modulation_depth_candidate;
+
+      uint32_t freq_shape_morph =
+        ((static_cast<int32_t>((m_freq[N] >> 1) * g_osc_tune_table[(((phase_modulation_depth_candidate + 512) >> 10) + 1 + 128) >> (8 - OSC_TUNE_TABLE_STEPS_BITS)]) >>
+          OSC_TUNE_DENOMINATOR_BITS) >> 0) << 1;
+      freq_shape_morph += (N + 4);
+      m_phase_shape_morph[N] += freq_shape_morph;
+
+      uint32_t phase_shift_base = (127 * (4 - N)) << (5 + 16 - 2);
+
+      int32_t wave_0_0 = get_wave_level(m_wave_table[N], m_phase[N]);
+      int32_t wave_0_1 = get_wave_level(m_wave_table[N], m_phase[N] - (m_phase_shape_morph[N] * 1) - (phase_shift_base * 3));
+      int32_t wave_0_2 = get_wave_level(m_wave_table[N], m_phase[N] + (m_phase_shape_morph[N] * 1) + (phase_shift_base * 5));
+      int32_t wave_0_3 = get_wave_level(m_wave_table[N], m_phase[N] - (m_phase_shape_morph[N] * 3) - (phase_shift_base * 5));
+      int32_t wave_0_4 = get_wave_level(m_wave_table[N], m_phase[N] + (m_phase_shape_morph[N] * 3) + (phase_shift_base * 1));
+      int32_t wave_0_5 = get_wave_level(m_wave_table[N], m_phase[N] - (m_phase_shape_morph[N] * 5) - (phase_shift_base * 1));
+      int32_t wave_0_6 = get_wave_level(m_wave_table[N], m_phase[N] + (m_phase_shape_morph[N] * 5) + (phase_shift_base * 3));
+      result += ((((wave_0_0 + wave_0_1 + wave_0_2 + wave_0_3 + wave_0_4 + wave_0_5 + wave_0_6) << 1) / 5) * osc1_gain * m_osc_gain_effective[N]) >> 10;
     } else {
       int32_t wave_0 = get_wave_level(m_wave_table[N], m_phase[N]);
       result += (wave_0 * osc1_gain * m_osc_gain_effective[N]) >> 10;

@@ -41,7 +41,7 @@ td.keyh {
 }
 </style>
 <script>
-const APP_NAME_VERSION = "PRA32-U2 Editor v0.1.0";
+const APP_NAME_VERSION = "PRA32-U2 Editor v0.2.0";
 
 const PRA32_U_MIDI_CH = 0;  // 0-based
 
@@ -58,7 +58,7 @@ const BTH_CONTROLLER  = 2;
 const SUSTAIN_PEDAL   = 64;
 
 
-const OSC_1_WAVE      = 14;
+const OSC_1_WAVE      = 102;
 const OSC_1_SHAPE     = 19;
 const OSC_1_MORPH     = 20;
 const MIXER_SUB_OSC   = 23;
@@ -71,19 +71,19 @@ const MIXER_OSC_MIX   = 21;
 const FILTER_CUTOFF   = 74;
 const FILTER_RESO     = 71;
 const FILTER_EG_AMT   = 24;
-const FILTER_KEY_TRK  = 26;
+const FILTER_KEY_TRK  = 9;
 
 const EG_ATTACK       = 73;
 const EG_DECAY        = 75;
 const EG_SUSTAIN      = 30;
 const EG_RELEASE      = 72;
 
-const EG_OSC_AMT      = 91;
-const EG_OSC_DST      = 89;
-const VOICE_MODE      = 102;
+const EG_OSC_AMT      = 89;
+const EG_OSC_DST      = 8;
+const VOICE_MODE      = 18;
 const PORTAMENTO      = 5;
 
-const LFO_WAVE        = 12;
+const LFO_WAVE        = 33;
 const LFO_RATE        = 3;
 const LFO_DEPTH       = 17;
 const LFO_FADE_TIME   = 56;
@@ -98,9 +98,9 @@ const AMP_DECAY       = 53;
 const AMP_SUSTAIN     = 54;
 const AMP_RELEASE     = 55;
 
-const FILTER_MODE     = 78;
-const EG_AMP_MOD      = 28;
-const REL_EQ_DECAY    = 29;
+const FILTER_MODE     = 39;
+const EG_AMP_MOD      = 36;
+const REL_EQ_DECAY    = 105;
 const P_BEND_RANGE    = 57;
 
 const BTH_FILTER_AMT  = 60;
@@ -108,12 +108,12 @@ const BTH_AMP_MOD     = 61;
 const EG_VEL_SENS     = 62;
 const AMP_VEL_SENS    = 63;
 
-const VOICE_ASGN_MODE = 108;
+const VOICE_ASGN_MODE = 110;
 
 
 
 
-const CHORUS_MIX      = 27;
+const CHORUS_MIX      = 34;
 const CHORUS_RATE     = 58;
 const CHORUS_DEPTH    = 59;
 
@@ -284,40 +284,40 @@ var controllersInLocalStorage = [
 var presetControllers = {};
 
 // Preset                             #0   #1   #2   #3   #4   #5   #6   #7   
-presetControllers[OSC_1_WAVE     ] = [127, 127, 127, 127, 127, 127, 127, 0  ];
-presetControllers[OSC_1_SHAPE    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
-presetControllers[OSC_1_MORPH    ] = [64 , 64 , 64 , 64 , 64 , 0  , 0  , 0  ];
-presetControllers[MIXER_SUB_OSC  ] = [127, 64 , 64 , 64 , 127, 127, 64 , 64 ];
+presetControllers[OSC_1_WAVE     ] = [127, 127, 127, 102, 127, 76 , 127, 0  ];
+presetControllers[OSC_1_SHAPE    ] = [0  , 0  , 0  , 64 , 0  , 0  , 0  , 0  ];
+presetControllers[OSC_1_MORPH    ] = [64 , 64 , 0  , 64 , 64 , 108, 64 , 0  ];
+presetControllers[MIXER_SUB_OSC  ] = [127, 64 , 127, 64 , 127, 64 , 64 , 64 ];
 
 presetControllers[OSC_2_WAVE     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 presetControllers[OSC_2_COARSE   ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
-presetControllers[OSC_2_PITCH    ] = [109, 72 , 72 , 72 , 72 , 72 , 72 , 72 ];
-presetControllers[MIXER_OSC_MIX  ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 0  ];
+presetControllers[OSC_2_PITCH    ] = [109, 72 , 72 , 72 , 72 , 72 , 72 , 64 ];
+presetControllers[MIXER_OSC_MIX  ] = [64 , 64 , 64 , 0  , 64 , 64 , 0  , 0  ];
 
-presetControllers[FILTER_CUTOFF  ] = [115, 115, 91 , 103, 55 , 115, 67 , 127];
-presetControllers[FILTER_RESO    ] = [64 , 0  , 32 , 32 , 64 , 64 , 32 , 0  ];
-presetControllers[FILTER_EG_AMT  ] = [64 , 64 , 88 , 16 , 112, 64 , 64 , 64 ];
+presetControllers[FILTER_CUTOFF  ] = [115, 103, 115, 103, 55 , 79 , 127, 127];
+presetControllers[FILTER_RESO    ] = [64 , 32 , 64 , 64 , 64 , 32 , 0  , 0  ];
+presetControllers[FILTER_EG_AMT  ] = [64 , 16 , 64 , 64 , 112, 64 , 64 , 64 ];
 presetControllers[FILTER_KEY_TRK ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 0  ];
 
-presetControllers[EG_ATTACK      ] = [0  , 64 , 48 , 96 , 0  , 0  , 0  , 0  ];
-presetControllers[EG_DECAY       ] = [0  , 0  , 80 , 96 , 96 , 0  , 100, 0  ];
-presetControllers[EG_SUSTAIN     ] = [127, 127, 0  , 0  , 0  , 127, 0  , 127];
-presetControllers[EG_RELEASE     ] = [0  , 64 , 0  , 0  , 0  , 0  , 0  , 0  ];
+presetControllers[EG_ATTACK      ] = [0  , 96 , 0  , 0  , 0  , 0  , 0  , 0  ];
+presetControllers[EG_DECAY       ] = [0  , 96 , 0  , 64 , 96 , 100, 0  , 0  ];
+presetControllers[EG_SUSTAIN     ] = [127, 0  , 127, 127, 0  , 0  , 127, 127];
+presetControllers[EG_RELEASE     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 
-presetControllers[EG_OSC_AMT     ] = [64 , 64 , 72 , 64 , 64 , 64 , 96 , 64 ];
-presetControllers[EG_OSC_DST     ] = [0  , 0  , 64 , 0  , 0  , 0  , 127, 0  ];
-presetControllers[VOICE_MODE     ] = [127, 0  , 0  , 0  , 75 , 127, 0  , 0  ];
+presetControllers[EG_OSC_AMT     ] = [64 , 64 , 64 , 64 , 64 , 72 , 64 , 64 ];
+presetControllers[EG_OSC_DST     ] = [0  , 0  , 0  , 0  , 0  , 127, 0  , 0  ];
+presetControllers[VOICE_MODE     ] = [127, 0  , 127, 0  , 76 , 0  , 0  , 0  ];
 presetControllers[PORTAMENTO     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 
 presetControllers[LFO_WAVE       ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 presetControllers[LFO_RATE       ] = [80 , 80 , 80 , 80 , 80 , 80 , 80 , 80 ];
-presetControllers[LFO_DEPTH      ] = [0  , 0  , 0  , 0  , 0  , 127, 0  , 0  ];
+presetControllers[LFO_DEPTH      ] = [0  , 0  , 127, 0  , 0  , 0  , 127, 0  ];
 presetControllers[LFO_FADE_TIME  ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 
-presetControllers[LFO_OSC_AMT    ] = [96 , 96 , 64 , 64 , 64 , 96 , 64 , 64 ];
-presetControllers[LFO_OSC_DST    ] = [0  , 0  , 0  , 0  , 0  , 127, 0  , 0  ];
-presetControllers[LFO_FILTER_AMT ] = [64 , 64 , 88 , 88 , 88 , 64 , 88 , 64 ];
-presetControllers[AMP_GAIN       ] = [90 , 90 , 90 , 90 , 90 , 90 , 127, 90 ];
+presetControllers[LFO_OSC_AMT    ] = [96 , 64 , 96 , 64 , 64 , 64 , 64 , 64 ];
+presetControllers[LFO_OSC_DST    ] = [0  , 0  , 127, 0  , 0  , 0  , 0  , 0  ];
+presetControllers[LFO_FILTER_AMT ] = [64 , 88 , 64 , 88 , 88 , 88 , 64 , 64 ];
+presetControllers[AMP_GAIN       ] = [90 , 90 , 90 , 90 , 90 , 127, 90 , 90 ];
 
 presetControllers[AMP_ATTACK     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 presetControllers[AMP_DECAY      ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
@@ -325,8 +325,8 @@ presetControllers[AMP_SUSTAIN    ] = [127, 127, 127, 127, 127, 127, 127, 127];
 presetControllers[AMP_RELEASE    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 
 presetControllers[FILTER_MODE    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
-presetControllers[EG_AMP_MOD     ] = [127, 127, 0  , 0  , 127, 127, 127, 0  ];
-presetControllers[REL_EQ_DECAY   ] = [0  , 0  , 0  , 0  , 127, 0  , 0  , 0  ];
+presetControllers[EG_AMP_MOD     ] = [127, 0  , 127, 127, 127, 127, 127, 0  ];
+presetControllers[REL_EQ_DECAY   ] = [127, 127, 127, 127, 127, 0  , 127, 0  ];
 presetControllers[P_BEND_RANGE   ] = [12 , 12 , 12 , 12 , 12 , 12 , 12 , 12 ];
 
 presetControllers[BTH_FILTER_AMT ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
@@ -339,17 +339,85 @@ presetControllers[VOICE_ASGN_MODE] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 
 
 
-presetControllers[CHORUS_MIX     ] = [64 , 127, 127, 127, 64 , 64 , 127, 0  ];
+presetControllers[CHORUS_MIX     ] = [32 , 64 , 32 , 64 , 32 , 64 , 64 , 0  ];
 presetControllers[CHORUS_RATE    ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 presetControllers[CHORUS_DEPTH   ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 
 
 presetControllers[DELAY_FEEDBACK ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 0  ];
 presetControllers[DELAY_TIME     ] = [93 , 93 , 93 , 93 , 93 , 93 , 93 , 93 ];
-presetControllers[DELAY_MODE     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+presetControllers[DELAY_MODE     ] = [127, 0  , 127, 0  , 127, 0  , 0  , 0  ];
 
 
 const PRESET_NUMBER_INITIAL = 7;
+
+var editorOnlyPresetControllers = {};
+
+// Editor Only Preset                           #16  #17  #18  #19  #20  #21  #22  #23  
+editorOnlyPresetControllers[OSC_1_WAVE     ] = [127, 127, 127, 0  , 0  , 0  , 0  , 0  ];
+editorOnlyPresetControllers[OSC_1_SHAPE    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+editorOnlyPresetControllers[OSC_1_MORPH    ] = [64 , 64 , 0  , 0  , 0  , 0  , 0  , 0  ];
+editorOnlyPresetControllers[MIXER_SUB_OSC  ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
+
+editorOnlyPresetControllers[OSC_2_WAVE     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+editorOnlyPresetControllers[OSC_2_COARSE   ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
+editorOnlyPresetControllers[OSC_2_PITCH    ] = [72 , 72 , 72 , 64 , 64 , 64 , 64 , 64 ];
+editorOnlyPresetControllers[MIXER_OSC_MIX  ] = [64 , 64 , 64 , 0  , 0  , 0  , 0  , 0  ];
+
+editorOnlyPresetControllers[FILTER_CUTOFF  ] = [115, 91 , 67 , 127, 127, 127, 127, 127];
+editorOnlyPresetControllers[FILTER_RESO    ] = [0  , 32 , 32 , 0  , 0  , 0  , 0  , 0  ];
+editorOnlyPresetControllers[FILTER_EG_AMT  ] = [64 , 88 , 64 , 64 , 64 , 64 , 64 , 64 ];
+editorOnlyPresetControllers[FILTER_KEY_TRK ] = [64 , 64 , 64 , 0  , 0  , 0  , 0  , 0  ];
+
+editorOnlyPresetControllers[EG_ATTACK      ] = [64 , 48 , 0  , 0  , 0  , 0  , 0  , 0  ];
+editorOnlyPresetControllers[EG_DECAY       ] = [64 , 80 , 100, 0  , 0  , 0  , 0  , 0  ];
+editorOnlyPresetControllers[EG_SUSTAIN     ] = [127, 0  , 0  , 127, 127, 127, 127, 127];
+editorOnlyPresetControllers[EG_RELEASE     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+
+editorOnlyPresetControllers[EG_OSC_AMT     ] = [64 , 72 , 96 , 64 , 64 , 64 , 64 , 64 ];
+editorOnlyPresetControllers[EG_OSC_DST     ] = [0  , 64 , 127, 0  , 0  , 0  , 0  , 0  ];
+editorOnlyPresetControllers[VOICE_MODE     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+editorOnlyPresetControllers[PORTAMENTO     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+
+editorOnlyPresetControllers[LFO_WAVE       ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+editorOnlyPresetControllers[LFO_RATE       ] = [80 , 80 , 80 , 80 , 80 , 80 , 80 , 80 ];
+editorOnlyPresetControllers[LFO_DEPTH      ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+editorOnlyPresetControllers[LFO_FADE_TIME  ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+
+editorOnlyPresetControllers[LFO_OSC_AMT    ] = [96 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
+editorOnlyPresetControllers[LFO_OSC_DST    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+editorOnlyPresetControllers[LFO_FILTER_AMT ] = [64 , 88 , 88 , 64 , 64 , 64 , 64 , 64 ];
+editorOnlyPresetControllers[AMP_GAIN       ] = [90 , 90 , 127, 90 , 90 , 90 , 90 , 90 ];
+
+editorOnlyPresetControllers[AMP_ATTACK     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+editorOnlyPresetControllers[AMP_DECAY      ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+editorOnlyPresetControllers[AMP_SUSTAIN    ] = [127, 127, 127, 127, 127, 127, 127, 127];
+editorOnlyPresetControllers[AMP_RELEASE    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+
+editorOnlyPresetControllers[FILTER_MODE    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+editorOnlyPresetControllers[EG_AMP_MOD     ] = [127, 0  , 127, 0  , 0  , 0  , 0  , 0  ];
+editorOnlyPresetControllers[REL_EQ_DECAY   ] = [127, 127, 0  , 0  , 0  , 0  , 0  , 0  ];
+editorOnlyPresetControllers[P_BEND_RANGE   ] = [12 , 12 , 12 , 12 , 12 , 12 , 12 , 12 ];
+
+editorOnlyPresetControllers[BTH_FILTER_AMT ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
+editorOnlyPresetControllers[BTH_AMP_MOD    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+editorOnlyPresetControllers[EG_VEL_SENS    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+editorOnlyPresetControllers[AMP_VEL_SENS   ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+
+editorOnlyPresetControllers[VOICE_ASGN_MODE] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+
+
+
+
+editorOnlyPresetControllers[CHORUS_MIX     ] = [64 , 64 , 64 , 0  , 0  , 0  , 0  , 0  ];
+editorOnlyPresetControllers[CHORUS_RATE    ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
+editorOnlyPresetControllers[CHORUS_DEPTH   ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
+
+
+editorOnlyPresetControllers[DELAY_FEEDBACK ] = [64 , 64 , 64 , 0  , 0  , 0  , 0  , 0  ];
+editorOnlyPresetControllers[DELAY_TIME     ] = [93 , 93 , 93 , 93 , 93 , 93 , 93 , 93 ];
+editorOnlyPresetControllers[DELAY_MODE     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+
 </script>
 <script>
 var midi_ch = PRA32_U_MIDI_CH;
@@ -377,7 +445,7 @@ window.onload = function() {
   var result = restoreControllers();
   if (!result) {
     onChangeTranspose(0);
-    preset(0);
+    preset(PRESET_NUMBER_INITIAL);
   }
 
   document.getElementById("fileImportAll").addEventListener("change", fileImportAllChange, false);
@@ -468,12 +536,16 @@ function afterChangeOsc1Or2WaveOrMixerSubOscOrVoiceModeOrEGAmpModOrRelEqDecay() 
 
   var valueOsc1Wave = localStorage.getItem("keyOSC_1_WAVE     ");
   var indexOsc1Wave = Math.floor(((valueOsc1Wave * 10) + 127) / 254);
-  if ((valueOsc1Wave == 1) || (valueOsc1Wave == 4) || (valueOsc1Wave == 5) || (indexOsc1Wave == 1) || (indexOsc1Wave == 4) || (indexOsc1Wave == 5)) {
-//  if ((indexOsc1Wave == 1) || (indexOsc1Wave == 4) || (indexOsc1Wave == 5)) {
+  if ((indexOsc1Wave == 3) || (indexOsc1Wave == 5)) {
     document.getElementById( "spanOSC_1_SHAPE    ").style.color = 'black';
     document.getElementById("span2OSC_1_SHAPE    ").style.color = 'black';
     document.getElementById( "spanOSC_1_MORPH    ").style.color = 'black';
     document.getElementById("span2OSC_1_MORPH    ").style.color = 'black';
+  } else if ((indexOsc1Wave == 4)) {
+    document.getElementById( "spanOSC_1_SHAPE    ").style.color = 'black';
+    document.getElementById("span2OSC_1_SHAPE    ").style.color = 'black';
+    document.getElementById( "spanOSC_1_MORPH    ").style.color = 'lightgray';
+    document.getElementById("span2OSC_1_MORPH    ").style.color = 'lightgray';
   } else {
     document.getElementById( "spanOSC_1_SHAPE    ").style.color = 'lightgray';
     document.getElementById("span2OSC_1_SHAPE    ").style.color = 'lightgray';
@@ -482,8 +554,7 @@ function afterChangeOsc1Or2WaveOrMixerSubOscOrVoiceModeOrEGAmpModOrRelEqDecay() 
   }
 
   var valueEGAmpMod = localStorage.getItem("keyEG_AMP_MOD     ");
-  if (valueEGAmpMod == 1 || valueEGAmpMod >= 64) {
-//  if (valueEGAmpMod >= 64) {
+  if (valueEGAmpMod >= 64) {
     document.getElementById( "spanAMP_ATTACK     ").style.color = 'lightgray';
     document.getElementById("span2AMP_ATTACK     ").style.color = 'lightgray';
     document.getElementById( "spanAMP_DECAY      ").style.color = 'lightgray';
@@ -494,8 +565,7 @@ function afterChangeOsc1Or2WaveOrMixerSubOscOrVoiceModeOrEGAmpModOrRelEqDecay() 
     document.getElementById("span2AMP_RELEASE    ").style.color = 'lightgray';
 
     var valueRelEqDecay = localStorage.getItem("keyREL_EQ_DECAY   ");
-    if (valueRelEqDecay == 1 || valueRelEqDecay >= 64) {
-//    if (valueRelEqDecay >= 64) {
+    if (valueRelEqDecay >= 64) {
       document.getElementById( "spanEG_RELEASE     ").style.color = 'lightgray';
       document.getElementById("span2EG_RELEASE     ").style.color = 'lightgray';
     } else {
@@ -511,8 +581,7 @@ function afterChangeOsc1Or2WaveOrMixerSubOscOrVoiceModeOrEGAmpModOrRelEqDecay() 
     document.getElementById("span2AMP_SUSTAIN    ").style.color = 'black';
 
     var valueRelEqDecay = localStorage.getItem("keyREL_EQ_DECAY   ");
-    if (valueRelEqDecay == 1 || valueRelEqDecay >= 64) {
-//    if (valueRelEqDecay >= 64) {
+    if (valueRelEqDecay >= 64) {
       document.getElementById( "spanEG_RELEASE     ").style.color = 'lightgray';
       document.getElementById("span2EG_RELEASE     ").style.color = 'lightgray';
       document.getElementById( "spanAMP_RELEASE    ").style.color = 'lightgray';
@@ -566,6 +635,9 @@ function onMIDIMessage(event) {
       return;
     } else if (number >= 8 && number <= 15) {
       recallParameters(number);
+      return;
+    } else if (number >= 16 && number <= 23) {
+      editorOnlyPreset(number);
       return;
     } else if (number == 127) {
       // Program #127: Random Control
@@ -697,7 +769,7 @@ function onChangeOutputPort() {
     var result = restoreControllers();
     if (!result) {
       onChangeTranspose(0);
-      preset(0);
+      preset(PRESET_NUMBER_INITIAL);
     }
   }
 }
@@ -735,17 +807,15 @@ function updateDisplayOfControl(number, value) {
     break;
   case OSC_1_WAVE      :
     {
-      var ary = ["Saw","Sin","-","Tri","-","Pls"];
+      var ary = ["Saw","Sqr","Tri","Sin","Mul","Pls"];
       var index = Math.floor(((value * 10) + 127) / 254);
-      if (value < 6) { index = value; }
       dispValue = ary[index];
     }
     break;
   case OSC_2_WAVE      :
     {
-      var ary = ["Saw","Sin","-","Tri","Nos","Sqr"];
+      var ary = ["Saw","Sqr","Tri","Sin","-","Nos"];
       var index = Math.floor(((value * 10) + 127) / 254);
-      if (value < 6) { index = value; }
       dispValue = ary[index];
     }
     break;
@@ -761,7 +831,6 @@ function updateDisplayOfControl(number, value) {
     {
       var ary = ["P","2P","1S"];
       var index = Math.floor(((value * 4) + 127) / 254);
-      if (value < 3) { index = value; }
       dispValue = ary[index];
     }
     break;
@@ -769,7 +838,6 @@ function updateDisplayOfControl(number, value) {
     {
       var ary = ["Pol","Par","-","Mon","LP","Lgt"];
       var index = Math.floor(((value * 10) + 127) / 254);
-      if (value < 6) { index = value; }
       dispValue = ary[index];
     }
     break;
@@ -777,7 +845,6 @@ function updateDisplayOfControl(number, value) {
     {
       var ary = ["Tri","Sin","-","Saw","SH","Sqr"];
       var index = Math.floor(((value * 10) + 127) / 254);
-      if (value < 6) { index = value; }
       dispValue = ary[index];
     }
     break;
@@ -785,7 +852,6 @@ function updateDisplayOfControl(number, value) {
     {
       var ary = ["LP","HP"];
       var index = Math.floor(((value * 2) + 127) / 254);
-      if (value < 2) { index = value; }
       dispValue = ary[index];
     }
     break;
@@ -794,7 +860,6 @@ function updateDisplayOfControl(number, value) {
     {
       var ary = ["Off","On"];
       var index = Math.floor(((value * 2) + 127) / 254);
-      if (value < 2) { index = value; }
       dispValue = ary[index];
     }
     break;
@@ -802,7 +867,6 @@ function updateDisplayOfControl(number, value) {
     {
       var ary = ["Off","Qad","Lin"];
       var index = Math.floor(((value * 4) + 127) / 254);
-      if (value < 3) { index = value; }
       dispValue = ary[index];
     }
     break;
@@ -810,7 +874,6 @@ function updateDisplayOfControl(number, value) {
     {
       var ary = ["1","2"];
       var index = Math.floor(((value * 2) + 127) / 254);
-      if (value < 2) { index = value; }
       dispValue = ary[index];
     }
     break;
@@ -818,7 +881,6 @@ function updateDisplayOfControl(number, value) {
     {
       var ary = ["S","P"];
       var index = Math.floor(((value * 2) + 127) / 254);
-      if (value < 2) { index = value; }
       dispValue = ary[index];
     }
     break;
@@ -863,6 +925,12 @@ function onChangeControlChange(number, value) {
 function preset(number) {
   controllersInLocalStorage.forEach(function(i) {
     onChangeControlChange(i, presetControllers[i][number]);
+  });
+}
+
+function editorOnlyPreset(number) {
+  controllersInLocalStorage.forEach(function(i) {
+    onChangeControlChange(i, editorOnlyPresetControllers[i][number - 16]);
   });
 }
 
@@ -1015,7 +1083,7 @@ function fileReaderImportAllLoad(event) {
   var result = restoreControllers();
   if (!result) {
     onChangeTranspose(0);
-    preset(0);
+    preset(PRESET_NUMBER_INITIAL);
   }
 
   document.getElementById("fileImportAll").value = "";
@@ -1043,7 +1111,7 @@ function fileReaderImportCurrentLoad(event) {
   var result = restoreControllers();
   if (!result) {
     onChangeTranspose(0);
-    preset(0);
+    preset(PRESET_NUMBER_INITIAL);
   }
 
   document.getElementById("fileImportCurrent").value = "";
@@ -1215,32 +1283,54 @@ function getStoredCCValueString(index, number) {
 <table>
 <tr><td>Preset</td>
     <td></td>
-    <td><input type="button" value="#4 Synth Bass"     onclick="preset(4)"></td>
+    <td><input type="button" value="#4 Synth Bass"      onclick="preset(4)"></td>
     <td></td>
-    <td><input type="button" value="#5 PWM Lead"       onclick="preset(5)"></td>
+    <td><input type="button" value="#5 FM Piano"        onclick="preset(5)"></td>
     <td></td>
-    <td><input type="button" value="#6 Electric Piano" onclick="preset(6)"></td>
+    <td><input type="button" value="#6 Simple"          onclick="preset(6)"></td>
     <td></td>
-    <td><input type="button" value="#7 Initial"        onclick="preset(7)"></td>
+    <td><input type="button" value="#7 Initial"         onclick="preset(7)"></td>
     <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
     <td>Misc</td>
     <td></td>
-    <td><input type="button" value="Random Ctrl"       onclick="setRandom()"></td>
+    <td><input type="button" value="Random Ctrl"        onclick="setRandom()"></td>
     <td></td>
-    <td><input type="button" value="Random FX"         onclick="setRandomChorus()"></td></tr>
+    <td><input type="button" value="Random FX"          onclick="setRandomChorus()"></td></tr>
 <tr><td>(from Browser)</td>
     <td></td>
-    <td><input type="button" value="#0 Fifth Lead"     onclick="preset(0)"></td>
+    <td><input type="button" value="#0 Fifth Lead"      onclick="preset(0)"></td>
     <td></td>
-    <td><input type="button" value="#1 Synth Strings"  onclick="preset(1)"></td>
+    <td><input type="button" value="#1 Synth Pad"       onclick="preset(1)"></td>
     <td></td>
-    <td><input type="button" value="#2 Synth Brass"    onclick="preset(2)"></td>
+    <td><input type="button" value="#2 PWM Lead"        onclick="preset(2)"></td>
     <td></td>
-    <td><input type="button" value="#3 Synth Pad"      onclick="preset(3)"></td>
+    <td><input type="button" value="#3 Multi Saw Pad"   onclick="preset(3)"></td>
     <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
     <td></td>
     <td></td>
-    <td><input type="button" value="Panic"             onclick="panic()"></td></tr>
+    <td><input type="button" value="Panic"              onclick="panic()"></td></tr>
+<tr><td>&nbsp;</td></tr>
+</table>
+
+<table>
+<tr><td>Editor Only</td>
+    <td></td>
+    <td><input type="button" value="#20 ---"            onclick="editorOnlyPreset(20)" disabled></td>
+    <td></td>
+    <td><input type="button" value="#21 ---"            onclick="editorOnlyPreset(21)" disabled></td>
+    <td></td>
+    <td><input type="button" value="#22 ---"            onclick="editorOnlyPreset(22)" disabled></td>
+    <td></td>
+    <td><input type="button" value="#23 ---"            onclick="editorOnlyPreset(23)" disabled></td></tr>
+<tr><td>(from Browser)</td>
+    <td></td>
+    <td><input type="button" value="#16 Synth Strings"  onclick="editorOnlyPreset(16)"></td>
+    <td></td>
+    <td><input type="button" value="#17 Synth Brass"    onclick="editorOnlyPreset(17)"></td>
+    <td></td>
+    <td><input type="button" value="#18 Synth Piano"    onclick="editorOnlyPreset(18)"></td>
+    <td></td>
+    <td><input type="button" value="#19 ---"            onclick="editorOnlyPreset(19)" disabled></td></tr>
 <tr><td>&nbsp;</td></tr>
 </table>
 
@@ -1364,7 +1454,7 @@ function getStoredCCValueString(index, number) {
 <td colspan="12"><hr></td>
 </tr>
 <tr>
-<td colspan="3"><b>Osc 1</b> Wave [Saw|Sin|-|Tri|-|Pls]</td>
+<td colspan="3"><b>Osc 1</b> Wave [Saw|Sqr|Tri|Sin|Mul|Pls]</td>
 <td colspan="3"><b>Osc 1</b> Shape                     </td>
 <td colspan="3"><b>Osc 1</b> Morph                     </td>
 <td colspan="3"><b>Mixer</b> Noise/Sub Osc [N|S]       </td>
@@ -1383,7 +1473,7 @@ function getStoredCCValueString(index, number) {
 <td><span    id="spanMIXER_SUB_OSC  " >-</span></td>
 <td><span   id="span2MIXER_SUB_OSC  " >-</span></td>
 <tr>
-<td colspan="3"><b>Osc 2</b> Wave [Saw|Sin|-|Tri|Nos|Sqr]</td>
+<td colspan="3"><b>Osc 2</b> Wave [Saw|Sqr|Tri|Sin|-|Nos]</td>
 <td colspan="3"><b>Osc 2</b> Coarse [-|+]              </td>
 <td colspan="3"><b>Osc 2</b> Pitch [-|+]               </td>
 <td colspan="3"><b>Mixer</b> Osc Mix [1|2]             </td>

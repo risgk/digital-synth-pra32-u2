@@ -82,11 +82,7 @@ public:
     int16_t left_feedback;
     int16_t right_feedback;
 
-#if 1
-    if (m_delay_mode == 1 || m_delay_mode >= 64) {
-#else
     if (m_delay_mode >= 64) {
-#endif
       // Ping Pong Delay
       left_feedback  = ((((left_input + right_input) >> 2) + right_delay) * m_delay_feedback_effective) / 256;
       right_feedback = ((                                    left_delay ) * m_delay_feedback_effective) / 256;

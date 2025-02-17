@@ -54,7 +54,7 @@ const uint8_t   BTH_CONTROLLER  = 2;
 const uint8_t   SUSTAIN_PEDAL   = 64;
 
 
-const uint8_t   OSC_1_WAVE      = 14;
+const uint8_t   OSC_1_WAVE      = 102;
 const uint8_t   OSC_1_SHAPE     = 19;
 const uint8_t   OSC_1_MORPH     = 20;
 const uint8_t   MIXER_SUB_OSC   = 23;
@@ -67,19 +67,19 @@ const uint8_t   MIXER_OSC_MIX   = 21;
 const uint8_t   FILTER_CUTOFF   = 74;
 const uint8_t   FILTER_RESO     = 71;
 const uint8_t   FILTER_EG_AMT   = 24;
-const uint8_t   FILTER_KEY_TRK  = 26;
+const uint8_t   FILTER_KEY_TRK  = 9;
 
 const uint8_t   EG_ATTACK       = 73;
 const uint8_t   EG_DECAY        = 75;
 const uint8_t   EG_SUSTAIN      = 30;
 const uint8_t   EG_RELEASE      = 72;
 
-const uint8_t   EG_OSC_AMT      = 91;
-const uint8_t   EG_OSC_DST      = 89;
-const uint8_t   VOICE_MODE      = 102;
+const uint8_t   EG_OSC_AMT      = 89;
+const uint8_t   EG_OSC_DST      = 8;
+const uint8_t   VOICE_MODE      = 18;
 const uint8_t   PORTAMENTO      = 5;
 
-const uint8_t   LFO_WAVE        = 12;
+const uint8_t   LFO_WAVE        = 33;
 const uint8_t   LFO_RATE        = 3;
 const uint8_t   LFO_DEPTH       = 17;
 const uint8_t   LFO_FADE_TIME   = 56;
@@ -94,9 +94,9 @@ const uint8_t   AMP_DECAY       = 53;
 const uint8_t   AMP_SUSTAIN     = 54;
 const uint8_t   AMP_RELEASE     = 55;
 
-const uint8_t   FILTER_MODE     = 78;
-const uint8_t   EG_AMP_MOD      = 28;
-const uint8_t   REL_EQ_DECAY    = 29;
+const uint8_t   FILTER_MODE     = 39;
+const uint8_t   EG_AMP_MOD      = 36;
+const uint8_t   REL_EQ_DECAY    = 105;
 const uint8_t   P_BEND_RANGE    = 57;
 
 const uint8_t   BTH_FILTER_AMT  = 60;
@@ -104,12 +104,12 @@ const uint8_t   BTH_AMP_MOD     = 61;
 const uint8_t   EG_VEL_SENS     = 62;
 const uint8_t   AMP_VEL_SENS    = 63;
 
-const uint8_t   VOICE_ASGN_MODE = 108;
+const uint8_t   VOICE_ASGN_MODE = 110;
 
 
 
 
-const uint8_t   CHORUS_MIX      = 27;
+const uint8_t   CHORUS_MIX      = 34;
 const uint8_t   CHORUS_RATE     = 58;
 const uint8_t   CHORUS_DEPTH    = 59;
 
@@ -141,6 +141,7 @@ const uint8_t   POLY_MODE_ON    = 127;
 
 const uint8_t   OSC_WAVE_SAW       = 0;
 const uint8_t   OSC_WAVE_SINE      = 25;
+const uint8_t   OSC_WAVE_MULTI_SAW = 50;
 const uint8_t   OSC_WAVE_TRIANGLE  = 75;
 const uint8_t   OSC_WAVE_2_NOISE   = 100;
 const uint8_t   OSC_WAVE_1_PULSE   = 127;
