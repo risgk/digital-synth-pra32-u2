@@ -8,7 +8,7 @@
     - Simplify the meanings of the values of Control Changes
     - PRA32-U Editor: Add Editor Only Preset programs
     - Improve documentation
-    - Tested with Arduino-Pico version 4.4.2
+    - Tested with Arduino-Pico version 4.4.3
 - v0.1.0 (2025-01-19):
     - Specification is similar to PRA32-U v3.1.0
     - Optimize processing for Raspberry Pi Pico 2/RP2350
