@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v0.2.0 (2025-**-**):
+- v0.2.0 (2025-02-17):
     - Change the Preset programs
     - Change the control numbers of Control Changes
     - Change the meanings of the values of Osc 1 and 2 Wave
