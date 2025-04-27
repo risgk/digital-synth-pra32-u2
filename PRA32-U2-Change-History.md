@@ -2,7 +2,6 @@
 
 - v0.3.0 (2025-**-**):
     - Change the control numbers of Mixer Noise/Sub Osc and Filter EG Amt
-    - Tested with Arduino-Pico version 4.5.2
 - v0.2.0 (2025-02-17):
     - Change the Preset programs
     - Change the control numbers of Control Changes
