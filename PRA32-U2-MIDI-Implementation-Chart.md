@@ -29,7 +29,7 @@
 |                           102 | x             | o             | Osc 1 Wave [Saw|Sqr|Tri|Sin|Mul|Pls] |
 |                            19 | x             | o             | Osc 1 Shape $2                       |
 |                            20 | x             | o             | Osc 1 Morph $3                       |
-|                            37 | x             | o             | Mixer Noise/Sub Osc [N|S]            |
+|                            33 | x             | o             | Mixer Noise/Sub Osc [N|S]            |
 |                               |               |               |                                      |
 |                           104 | x             | o             | Osc 2 Wave [Saw|Sqr|Tri|Sin|-|Nos]   |
 |                            85 | x             | o             | Osc 2 Coarse [-|+]                   |
@@ -38,7 +38,7 @@
 |                               |               |               |                                      |
 |                            74 | x             | o             | Filter Cutoff                        |
 |                            71 | x             | o             | Filter Resonance                     |
-|                            51 | x             | o             | Filter EG Amt [-|+]                  |
+|                            34 | x             | o             | Filter EG Amt [-|+]                  |
 |                             9 | x             | o             | Filter Key Track [0.0|0.5|1.0] $1    |
 |                               |               |               |                                      |
 |                            73 | x             | o             | EG Attack                            |
