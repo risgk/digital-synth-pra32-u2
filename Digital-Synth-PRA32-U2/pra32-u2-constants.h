@@ -57,7 +57,7 @@ const uint8_t   SUSTAIN_PEDAL   = 64;
 const uint8_t   OSC_1_WAVE      = 102;
 const uint8_t   OSC_1_SHAPE     = 19;
 const uint8_t   OSC_1_MORPH     = 20;
-const uint8_t   MIXER_SUB_OSC   = 37;
+const uint8_t   MIXER_SUB_OSC   = 33;
 
 const uint8_t   OSC_2_WAVE      = 104;
 const uint8_t   OSC_2_COARSE    = 85;
@@ -66,7 +66,7 @@ const uint8_t   MIXER_OSC_MIX   = 21;
 
 const uint8_t   FILTER_CUTOFF   = 74;
 const uint8_t   FILTER_RESO     = 71;
-const uint8_t   FILTER_EG_AMT   = 51;
+const uint8_t   FILTER_EG_AMT   = 34;
 const uint8_t   FILTER_KEY_TRK  = 9;
 
 const uint8_t   EG_ATTACK       = 73;
