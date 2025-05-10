@@ -1,9 +1,14 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v0.3.0 (2025-05-10):
+    - Renew High Pass Filter: No noise when changing Resonance
+    - PRA32-U2 with Panel: Easier to change MIDI Ch
+    - Tested with Arduino-Pico version 4.5.3
 - v0.2.0 (2025-02-17):
     - Change the Preset programs
     - Change the control numbers of Control Changes
     - Change the meanings of the values of Osc 1 and 2 Wave
+        - Add Multi Saw to Osc 1 Wave
     - Change the specification of Chorus Mix
     - Simplify the meanings of the values of Control Changes
     - PRA32-U Editor: Add Editor Only Preset programs
