@@ -891,12 +891,7 @@ static INLINE boolean PRA32_U_ControlPanel_calc_value_display(uint8_t control_ta
     break;
   case PANEL_MIDI_CH  :
     {
-      uint8_t midi_ch = g_synth.current_controller_value(PANEL_MIDI_CH  );
-
-      if (midi_ch > 15) {
-        midi_ch = 15;
-      }
-
+      uint8_t midi_ch = g_synth.current_controller_value(PANEL_MIDI_CH  ) >> 3;
       std::sprintf(value_display_text, "%3d", midi_ch + 1);
       result = true;
     }
@@ -1538,12 +1533,7 @@ void PRA32_U_ControlPanel_on_control_change(uint8_t control_number)
   } else if (control_number == SEQ_ACT_STEPS  ) {
     s_seq_act_steps = g_synth.current_controller_value(SEQ_ACT_STEPS  );
   } else if (control_number == PANEL_MIDI_CH  ) {
-    uint8_t midi_ch = g_synth.current_controller_value(PANEL_MIDI_CH);
-
-    if (midi_ch > 15) {
-      midi_ch = 15;
-    }
-
+    uint8_t midi_ch = g_synth.current_controller_value(PANEL_MIDI_CH  ) >> 3;
     g_midi_ch = midi_ch;
   }
 
