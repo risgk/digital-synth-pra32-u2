@@ -2,6 +2,7 @@
 
 - v0.3.0 (2025-**-**):
     - Renew High Pass Filter: No noise when changing Resonance
+    - PRA32-U2 with Panel: Easier to change MIDI Ch
     - Tested with Arduino-Pico version 4.5.3
 - v0.2.0 (2025-02-17):
     - Change the Preset programs
