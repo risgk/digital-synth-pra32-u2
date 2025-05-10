@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v0.3.0 (2025-**-**):
+- v0.3.0 (2025-05-10):
     - Renew High Pass Filter: No noise when changing Resonance
     - PRA32-U2 with Panel: Easier to change MIDI Ch
     - Tested with Arduino-Pico version 4.5.3
