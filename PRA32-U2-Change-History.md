@@ -1,7 +1,8 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v0.3.0 (2025-**-**):
-    - Tested with Arduino-Pico version 4.5.2
+    - Renew High Pass Filter: No noise when changing Resonance
+    - Tested with Arduino-Pico version 4.5.3
 - v0.2.0 (2025-02-17):
     - Change the Preset programs
     - Change the control numbers of Control Changes
