@@ -93,7 +93,7 @@ def last_harmonic(freq)
   last = 7 if last == 8
   last = 5 if last == 6
   last = 3 if last == 4
-  last = [last, 127].min
+  last = [last, OSC_WAVE_TABLE_LAST_HARMONIC].min
   last
 end
 
@@ -140,7 +140,7 @@ generate_osc_wave_table("sine", 1, 1.0) do |n, k|
   Math.sin((2.0 * Math::PI) * (n.to_f / (1 << OSC_WAVE_TABLE_SAMPLES_BITS)) * k)
 end
 
-def generate_osc_wave_tables_array(name, last = 127)
+def generate_osc_wave_tables_array(name, last = OSC_WAVE_TABLE_LAST_HARMONIC)
   $file.printf("int16_t* g_osc_#{name}_wave_tables[] = {\n  ")
   $osc_harmonics_restriction_table.each_with_index do |freq, idx|
     $file.printf("g_osc_#{name}_wave_table_h%-3d,", [last_harmonic(freq), last].min)
