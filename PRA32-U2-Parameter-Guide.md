@@ -189,8 +189,8 @@
     - 127 (64-127): Mode 2, Free voice with small number has priority in Polyphonic/Paraphonic Mode, Portamento is effective
 - Chorus Mix [Dry|Wet]
     - 0: Dry 100%, Wet 0% (min)
-    - 64: Dry 50%, Wet 50%
-    - 127: Dry 0%, Wet 100% (max)
+    - 64: Dry 75%, Wet 25%
+    - 127: Dry 50%, Wet 50% (max)
 - Chorus Rate
     - 0: LFO Frequency 0.012 Hz (min)
     - 64: LFO Frequency 0.48 Hz
