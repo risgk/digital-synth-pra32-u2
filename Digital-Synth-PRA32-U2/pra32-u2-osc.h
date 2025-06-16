@@ -508,7 +508,10 @@ private:
       int32_t wave_0_4 = get_wave_level(m_wave_table[N], m_phase[N] + (m_phase_shape_morph[N] * 3) + (phase_shift_base * 1));
       int32_t wave_0_5 = get_wave_level(m_wave_table[N], m_phase[N] - (m_phase_shape_morph[N] * 5) - (phase_shift_base * 1));
       int32_t wave_0_6 = get_wave_level(m_wave_table[N], m_phase[N] + (m_phase_shape_morph[N] * 5) + (phase_shift_base * 3));
-      result += ((((wave_0_0 + wave_0_1 + wave_0_2 + wave_0_3 + wave_0_4 + wave_0_5 + wave_0_6) << 1) / 5) * osc1_gain * m_osc_gain_effective[N]) >> 10;
+
+      int32_t multi_saw_mix = (m_osc1_morph_control_effective + 1) >> 1;
+      result += (((  ( multi_saw_mix       * (((wave_0_0 + wave_0_1 + wave_0_2 + wave_0_3 + wave_0_4 + wave_0_5 + wave_0_6) << 1) / 5))
+                   + ((64 - multi_saw_mix) *    wave_0_0)) >> 6) * osc1_gain * m_osc_gain_effective[N]) >> 10;
     } else {
       int32_t wave_0 = get_wave_level(m_wave_table[N], m_phase[N]);
       result += (wave_0 * osc1_gain * m_osc_gain_effective[N]) >> 10;
