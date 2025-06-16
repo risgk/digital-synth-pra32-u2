@@ -960,6 +960,10 @@ INLINE void PRA32_U_ControlPanel_setup() {
   i2c_write_blocking(PRA32_U_OLED_DISPLAY_I2C, PRA32_U_OLED_DISPLAY_I2C_ADDRESS, commands_init_1, sizeof(commands_init_1), false);
 #endif  // defined(PRA32_U_USE_CONTROL_PANEL_OLED_DISPLAY)
 
+#else  // defined(PRA32_U_USE_CONTROL_PANEL)
+
+  delay(100);
+
 #endif  // defined(PRA32_U_USE_CONTROL_PANEL)
 }
 
