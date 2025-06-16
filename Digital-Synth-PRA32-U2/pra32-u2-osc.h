@@ -16,7 +16,6 @@ class PRA32_U2_Osc {
   static const uint8_t WAVEFORM_SINE          = 3;
   static const uint8_t WAVEFORM_1_PULSE       = 4;
   static const uint8_t WAVEFORM_2_NOISE       = 5;
-  static const uint8_t WAVEFORM_1_MULTI_SAW   = 6;
 
   uint32_t       m_portamento_coef[4];
   int16_t        m_pitch_eg_amt[2];
@@ -195,7 +194,7 @@ public:
         WAVEFORM_SQUARE,
         WAVEFORM_TRIANGLE,
         WAVEFORM_SINE,
-        WAVEFORM_1_MULTI_SAW,
+        WAVEFORM_SINE,
         WAVEFORM_1_PULSE,
       },
       {
@@ -434,7 +433,6 @@ private:
       g_osc_sine_wave_tables,      // WAVEFORM_SINE          = 3
       g_osc_saw_wave_tables,       // WAVEFORM_1_PULSE       = 4
       g_osc_square_wave_tables,    // WAVEFORM_2_NOISE       = 5
-      g_osc_saw_wave_tables,       // WAVEFORM_1_MULTI_SAW   = 6
     };
 
     return wave_table_table[waveform][note_number - NOTE_NUMBER_MIN];
@@ -484,7 +482,7 @@ private:
       uint32_t phase_0 = m_phase[N] + ((wave_3 * m_osc1_phase_modulation_depth[N]) >> 4);
       int32_t wave_0 = get_wave_level(wave_table_sine, phase_0);
       result += (wave_0 * osc1_gain * m_osc_gain_effective[N]) >> 10;
-    } else if (m_waveform[0] == WAVEFORM_1_MULTI_SAW) {
+    } else if (m_waveform[0] == WAVEFORM_SAW) {
       // phase_modulation_depth_candidate = max(m_osc1_shape_effective[N] - (128 << 8), 0)
       volatile int32_t phase_modulation_depth_candidate = m_osc1_shape_effective[N] - (128 << 8);
       phase_modulation_depth_candidate = (phase_modulation_depth_candidate > 0) * phase_modulation_depth_candidate;
