@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v0.4.0 (20**-**-**):
+    - Enable Osc 1 Morph for Multi Saw
     - Revert the specification change of Chorus Mix
     - Change the Preset programs
     - Tested with Arduino-Pico version 4.5.3

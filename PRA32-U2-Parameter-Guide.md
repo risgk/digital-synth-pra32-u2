@@ -35,6 +35,10 @@
         - 108 (106-109): Ratio 14.0
         - 124 (122-125): Ratio 16.0
         - 127 (126-127): Ratio 16.5 (max)
+    - Multi Saw:
+        - 0: Normal Saw 100% (min)
+        - 64: Normal Saw 50% + Multui Saw 50%
+        - 127: Multui Saw 100% (max)
     - Pulse Wave
         - 0: Pulse 100% = Saw 100% + Reverse Saw 100% (min)
         - 32: Pulse 50% + Saw 50% = Saw 100% + Reverse Saw 50%
