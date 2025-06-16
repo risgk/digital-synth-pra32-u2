@@ -5,7 +5,7 @@
 #include "pra32-u2-common.h"
 #include "pra32-u2-filter-table.h"
 
-class PRA32_U_Filter {
+class PRA32_U2_Filter {
   int32_t         m_b_2_over_a_0;
   int32_t         m_a_1_over_a_0;
   int32_t         m_a_2_over_a_0;
@@ -31,7 +31,7 @@ class PRA32_U_Filter {
   const int16_t MAX_ABS_OUTPUT = ((124 << (AUDIO_FRACTION_BITS - 8)) >> 8) << 8;
 
 public:
-  PRA32_U_Filter()
+  PRA32_U2_Filter()
   : m_b_2_over_a_0()
   , m_a_1_over_a_0()
   , m_a_2_over_a_0()

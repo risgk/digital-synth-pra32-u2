@@ -4,7 +4,7 @@
 #include "pra32-u2-lfo-table.h"
 #include "pra32-u2-osc-table.h"
 
-class PRA32_U_LFO {
+class PRA32_U2_LFO {
   static const uint8_t LFO_WAVEFORM_TRIANGLE  = 0;
   static const uint8_t LFO_WAVEFORM_SINE      = 1;
   static const uint8_t LFO_WAVEFORM_SAW_DOWN  = 2;
@@ -28,7 +28,7 @@ class PRA32_U_LFO {
   int16_t  m_sampled_noise_int15;
 
 public:
-  PRA32_U_LFO()
+  PRA32_U2_LFO()
   : m_lfo_phase()
   , m_lfo_wave_level()
   , m_lfo_level()
