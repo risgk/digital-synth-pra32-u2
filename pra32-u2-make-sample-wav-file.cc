@@ -1,4 +1,4 @@
-#define PRA32_U_MIDI_CH (0)  // 0-based
+#define PRA32_U2_MIDI_CH (0)  // 0-based
 
 
 #include <stdint.h>
@@ -8,16 +8,16 @@ typedef signed char boolean;
 
 #define __not_in_flash_func(func) (func)
 
-uint8_t g_midi_ch = PRA32_U_MIDI_CH;
+uint8_t g_midi_ch = PRA32_U2_MIDI_CH;
 
 #include "./Digital-Synth-PRA32-U2/pra32-u2-common.h"
 #include "./Digital-Synth-PRA32-U2/pra32-u2-synth.h"
 #include "./pra32-u2-midi-in.h"
 #include "./pra32-u2-wav-file-out.h"
 
-PRA32_U_Synth      g_synth;
-PRA32_U_MIDIIn     g_midi_in;
-PRA32_U_WAVFileOut g_wav_file_out;
+PRA32_U2_Synth      g_synth;
+PRA32_U2_MIDIIn     g_midi_in;
+PRA32_U2_WAVFileOut g_wav_file_out;
 
 const uint16_t RECORDING_SEC = 60;
 const uint16_t SERIAL_SPEED_38400 = 38400;

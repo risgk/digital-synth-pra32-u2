@@ -4,7 +4,7 @@
     - Enable Osc 1 Morph for Multi Saw
     - Revert the specification change of Chorus Mix
     - Change the Preset programs
-    - Fix the problem that PRA32_U_USE_DEBUG_PRINT does not work correctly  if PRA32_U_USE_CONTROL_PANEL is not defined
+    - Fix the problem that PRA32_U2_USE_DEBUG_PRINT does not work correctly  if PRA32_U2_USE_CONTROL_PANEL is not defined
     - Tested with Arduino-Pico version 4.5.3
 - v0.3.0 (2025-05-10):
     - Renew High Pass Filter: No noise when changing Resonance
