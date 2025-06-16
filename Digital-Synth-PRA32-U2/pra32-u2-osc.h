@@ -5,7 +5,7 @@
 #include <math.h>
 
 
-class PRA32_U_Osc {
+class PRA32_U2_Osc {
   static const uint8_t OSC_MIX_TABLE_LENGTH   = 65;
 
   static const uint8_t PORTAMENTO_COEF_BASE   = 190;
@@ -61,7 +61,7 @@ class PRA32_U_Osc {
   int8_t         m_shape_lfo_amt;
 
 public:
-  PRA32_U_Osc()
+  PRA32_U2_Osc()
   : m_portamento_coef()
   , m_pitch_eg_amt()
   , m_pitch_lfo_amt()

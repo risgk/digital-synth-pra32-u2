@@ -180,15 +180,15 @@ const uint8_t   DEFAULT_SEQ_ON_STEPS    = 127;
 
 
 
-class PRA32_U_Synth {
-  PRA32_U_Osc       m_osc;
-  PRA32_U_Filter    m_filter[4];
-  PRA32_U_Amp       m_amp[4];
-  PRA32_U_NoiseGen  m_noise_gen;
-  PRA32_U_LFO       m_lfo;
-  PRA32_U_EG        m_eg[2 * 4];
-  PRA32_U_ChorusFx  m_chorus_fx;
-  PRA32_U_DelayFx   m_delay_fx;
+class PRA32_U2_Synth {
+  PRA32_U2_Osc       m_osc;
+  PRA32_U2_Filter    m_filter[4];
+  PRA32_U2_Amp       m_amp[4];
+  PRA32_U2_NoiseGen  m_noise_gen;
+  PRA32_U2_LFO       m_lfo;
+  PRA32_U2_EG        m_eg[2 * 4];
+  PRA32_U2_ChorusFx  m_chorus_fx;
+  PRA32_U2_DelayFx   m_delay_fx;
 
   uint32_t          m_count;
 
@@ -234,7 +234,7 @@ class PRA32_U_Synth {
   volatile int32_t  m_secondary_core_processing_result;
 
 public:
-  PRA32_U_Synth()
+  PRA32_U2_Synth()
 
   : m_osc()
   , m_filter()
@@ -421,10 +421,10 @@ public:
     }
 
 #if defined(ARDUINO_ARCH_RP2040)
-#if defined(PRA32_U_USE_EMULATED_EEPROM)
+#if defined(PRA32_U2_USE_EMULATED_EEPROM)
     EEPROM.begin(2048);
 
-#if !defined(PRA32_U_USE_PWM_AUDIO_INSTEAD_OF_I2S)
+#if !defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
     for (uint32_t program_number = (PRESET_PROGRAM_NUMBER_MAX + 1); program_number <= PROGRAM_NUMBER_MAX; ++program_number) {
       if ((EEPROM.read(program_number * 128) == 'U') && (EEPROM.read(program_number * 128 + 1) == program_number)) {
         for (uint32_t i = 0; i < sizeof(s_program_table_parameters) / sizeof(s_program_table_parameters[0]); ++i) {
@@ -437,7 +437,7 @@ public:
       }
     }
 
-#if defined(PRA32_U_USE_CONTROL_PANEL)
+#if defined(PRA32_U2_USE_CONTROL_PANEL)
     if ((EEPROM.read(0) == 'P') && (EEPROM.read(1) == 0)) {
       for (uint32_t i = 0; i < sizeof(s_program_table_panel_parameters) / sizeof(s_program_table_panel_parameters[0]); ++i) {
         uint32_t control_number = s_program_table_panel_parameters[i];
@@ -447,20 +447,20 @@ public:
         }
       }
     }
-#endif  // defined(PRA32_U_USE_CONTROL_PANEL)
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 
-#endif  // !defined(PRA32_U_USE_PWM_AUDIO_INSTEAD_OF_I2S)
-#endif  // defined(PRA32_U_USE_EMULATED_EEPROM)
+#endif  // !defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
+#endif  // defined(PRA32_U2_USE_EMULATED_EEPROM)
 #endif  // defined(ARDUINO_ARCH_RP2040)
 
     program_change(PROGRAM_NUMBER_DEFAULT);
 
-#if defined(PRA32_U_USE_CONTROL_PANEL)
+#if defined(PRA32_U2_USE_CONTROL_PANEL)
     for (uint32_t i = 0; i < sizeof(s_program_table_panel_parameters) / sizeof(s_program_table_panel_parameters[0]); ++i) {
       uint32_t control_number = s_program_table_panel_parameters[i];
       control_change(control_number, m_program_table_panel[0][control_number]);
     }
-#endif  // defined(PRA32_U_USE_CONTROL_PANEL)
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
   }
 
   INLINE uint8_t current_controller_value(uint8_t control_number) {
@@ -854,9 +854,9 @@ public:
   /* INLINE */ void control_change(uint8_t control_number, uint8_t controller_value) {
     m_current_controller_value_table[control_number] = controller_value;
 
-#if defined(PRA32_U_USE_CONTROL_PANEL)
-    PRA32_U_ControlPanel_on_control_change(control_number);
-#endif  // defined(PRA32_U_USE_CONTROL_PANEL)
+#if defined(PRA32_U2_USE_CONTROL_PANEL)
+    PRA32_U2_ControlPanel_on_control_change(control_number);
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 
     switch (control_number) {
     case MODULATION     :
@@ -1173,18 +1173,18 @@ public:
       }
     }
 
-#if defined(PRA32_U_USE_CONTROL_PANEL)
+#if defined(PRA32_U2_USE_CONTROL_PANEL)
     if (program_number_to_write == 128) {
       for (uint32_t i = 0; i < sizeof(s_program_table_panel_parameters) / sizeof(s_program_table_panel_parameters[0]); ++i) {
         uint32_t control_number = s_program_table_panel_parameters[i];
         m_program_table_panel[0][control_number] = m_current_controller_value_table[control_number];
       }
     }
-#endif  // defined(PRA32_U_USE_CONTROL_PANEL)
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 
 #if defined(ARDUINO_ARCH_RP2040)
 
-#if defined(PRA32_U_USE_EMULATED_EEPROM)
+#if defined(PRA32_U2_USE_EMULATED_EEPROM)
     if (program_number_to_write <= PROGRAM_NUMBER_MAX) {
       for (uint32_t i = 0; i < sizeof(s_program_table_parameters) / sizeof(s_program_table_parameters[0]); ++i) {
         uint32_t control_number = s_program_table_parameters[i];
@@ -1195,7 +1195,7 @@ public:
       EEPROM.write(program_number_to_write * 128 + 1, program_number_to_write);
     }
 
-#if defined(PRA32_U_USE_CONTROL_PANEL)
+#if defined(PRA32_U2_USE_CONTROL_PANEL)
     if (program_number_to_write == 128) {
       for (uint32_t i = 0; i < sizeof(s_program_table_panel_parameters) / sizeof(s_program_table_panel_parameters[0]); ++i) {
         uint32_t control_number = s_program_table_panel_parameters[i];
@@ -1205,15 +1205,15 @@ public:
       EEPROM.write(0, 'P');
       EEPROM.write(1, 0);
     }
-#endif  // defined(PRA32_U_USE_CONTROL_PANEL)
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 
-#if defined(PRA32_U_USE_PWM_AUDIO_INSTEAD_OF_I2S)
+#if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
 
-#else  // defined(PRA32_U_USE_PWM_AUDIO_INSTEAD_OF_I2S)
+#else  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
 
-#if defined(PRA32_U_I2S_DAC_MUTE_OFF_PIN)
-    digitalWrite(PRA32_U_I2S_DAC_MUTE_OFF_PIN, LOW);
-#endif  // defined(PRA32_U_I2S_DAC_MUTE_OFF_PIN)
+#if defined(PRA32_U2_I2S_DAC_MUTE_OFF_PIN)
+    digitalWrite(PRA32_U2_I2S_DAC_MUTE_OFF_PIN, LOW);
+#endif  // defined(PRA32_U2_I2S_DAC_MUTE_OFF_PIN)
 
     g_i2s_output.end();
 
@@ -1221,13 +1221,13 @@ public:
 
     g_i2s_output.begin();
 
-#if defined(PRA32_U_I2S_DAC_MUTE_OFF_PIN)
-    digitalWrite(PRA32_U_I2S_DAC_MUTE_OFF_PIN, HIGH);
-#endif  // defined(PRA32_U_I2S_DAC_MUTE_OFF_PIN)
+#if defined(PRA32_U2_I2S_DAC_MUTE_OFF_PIN)
+    digitalWrite(PRA32_U2_I2S_DAC_MUTE_OFF_PIN, HIGH);
+#endif  // defined(PRA32_U2_I2S_DAC_MUTE_OFF_PIN)
 
-#endif  // defined(PRA32_U_USE_PWM_AUDIO_INSTEAD_OF_I2S)
+#endif  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
 
-#endif  // defined(PRA32_U_USE_EMULATED_EEPROM)
+#endif  // defined(PRA32_U2_USE_EMULATED_EEPROM)
 
 #endif  // defined(ARDUINO_ARCH_RP2040)
   }
@@ -1296,10 +1296,10 @@ public:
     int16_t amp_output   [4];
     int16_t voice_mixer_output;
     if (m_voice_mode == VOICE_POLYPHONIC) {
-#if defined(PRA32_U_USE_2_CORES_FOR_SIGNAL_PROCESSING)
+#if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
       m_secondary_core_processing_argument = noise_int15;
       m_secondary_core_processing_request = 1;
-#endif  // defined(PRA32_U_USE_2_CORES_FOR_SIGNAL_PROCESSING)
+#endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
 
       osc_output   [0] = m_osc      .process<0>(noise_int15);
       filter_output[0] = m_filter[0].process(osc_output   [0] << 2);
@@ -1311,12 +1311,12 @@ public:
 
       int32_t amp_output_sum_a = amp_output[0] + amp_output[1];
 
-#if defined(PRA32_U_USE_2_CORES_FOR_SIGNAL_PROCESSING)
+#if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
       while (m_secondary_core_processing_request) {
         ;
       }
       int32_t amp_output_sum_b = m_secondary_core_processing_result;
-#else  // defined(PRA32_U_USE_2_CORES_FOR_SIGNAL_PROCESSING)
+#else  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
       osc_output   [2] = m_osc      .process<2>(noise_int15);
       filter_output[2] = m_filter[2].process(osc_output   [2] << 2);
       amp_output   [2] = m_amp   [2].process(filter_output[2]);
@@ -1326,31 +1326,31 @@ public:
       amp_output   [3] = m_amp   [3].process(filter_output[3]);
 
       int32_t amp_output_sum_b = amp_output[2] + amp_output[3];
-#endif  // defined(PRA32_U_USE_2_CORES_FOR_SIGNAL_PROCESSING)
+#endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
 
       voice_mixer_output = (amp_output_sum_a + amp_output_sum_b) >> 2;
     } else if (m_voice_mode == VOICE_PARAPHONIC) {
-#if defined(PRA32_U_USE_2_CORES_FOR_SIGNAL_PROCESSING)
+#if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
       m_secondary_core_processing_argument = noise_int15;
       m_secondary_core_processing_request = 1;
-#endif  // defined(PRA32_U_USE_2_CORES_FOR_SIGNAL_PROCESSING)
+#endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
 
       osc_output[0] = m_osc.process<0>(noise_int15);
       osc_output[1] = m_osc.process<1>(noise_int15);
 
       int32_t osc_output_sum_a = osc_output[0] + osc_output[1];
 
-#if defined(PRA32_U_USE_2_CORES_FOR_SIGNAL_PROCESSING)
+#if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
       while (m_secondary_core_processing_request) {
         ;
       }
       int16_t osc_output_sum_b = m_secondary_core_processing_result;
-#else  // defined(PRA32_U_USE_2_CORES_FOR_SIGNAL_PROCESSING)
+#else  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
       osc_output[2] = m_osc.process<2>(noise_int15);
       osc_output[3] = m_osc.process<3>(noise_int15);
 
       int16_t osc_output_sum_b = osc_output[2] + osc_output[3];
-#endif  // defined(PRA32_U_USE_2_CORES_FOR_SIGNAL_PROCESSING)
+#endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
 
       int16_t osc_mixer_output = (osc_output_sum_a + osc_output_sum_b);
 
@@ -1359,10 +1359,10 @@ public:
 
       voice_mixer_output = amp_output[0];
     } else {
-#if defined(PRA32_U_USE_2_CORES_FOR_SIGNAL_PROCESSING)
+#if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
       m_secondary_core_processing_argument = 0;
       m_secondary_core_processing_request = 1;
-#endif  // defined(PRA32_U_USE_2_CORES_FOR_SIGNAL_PROCESSING)
+#endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
 
       osc_output[0] = m_osc.process<0>(noise_int15);
       int16_t osc_mixer_output = osc_output[0] << 1;
@@ -1372,7 +1372,7 @@ public:
 
       voice_mixer_output = amp_output[0];
 
-#if defined(PRA32_U_USE_2_CORES_FOR_SIGNAL_PROCESSING)
+#if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
       // Wait
       for (volatile uint32_t i = 0; i < 30; ++i) {
         ;
@@ -1381,7 +1381,7 @@ public:
       while (m_secondary_core_processing_request) {
         ;
       }
-#endif  // defined(PRA32_U_USE_2_CORES_FOR_SIGNAL_PROCESSING)
+#endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
     }
 
 #if 1
@@ -1401,12 +1401,12 @@ public:
     int16_t delay_fx_output_r;
     int16_t delay_fx_output_l = m_delay_fx.process(chorus_fx_output_l, chorus_fx_output_r, delay_fx_output_r);
 
-#if defined(PRA32_U_USE_PWM_AUDIO_INSTEAD_OF_I2S)
-#if defined(PRA32_U_USE_PWM_AUDIO_DITHERING_INSTEAD_OF_ERROR_DIFFUSION)
+#if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
+#if defined(PRA32_U2_USE_PWM_AUDIO_DITHERING_INSTEAD_OF_ERROR_DIFFUSION)
     // Dithering
     right_level = delay_fx_output_r + (((noise_int15 + 16384) >> 11) - 8);
     return        delay_fx_output_l + (((noise_int15 + 16384) >> 11) - 8);
-#else  // defined(PRA32_U_USE_PWM_AUDIO_DITHERING_INSTEAD_OF_ERROR_DIFFUSION)
+#else  // defined(PRA32_U2_USE_PWM_AUDIO_DITHERING_INSTEAD_OF_ERROR_DIFFUSION)
     // Error diffusion
     static uint16_t s_output_error_l = 0;
     static uint16_t s_output_error_r = 0;
@@ -1427,17 +1427,17 @@ public:
 
     right_level = delay_fx_output_r + (prev_output_error_r > s_output_error_r) * 22;
     return        delay_fx_output_l + (prev_output_error_l > s_output_error_l) * 22;
-#endif  // defined(PRA32_U_USE_PWM_AUDIO_DITHERING_INSTEAD_OF_ERROR_DIFFUSION)
-#else  // defined(PRA32_U_USE_PWM_AUDIO_INSTEAD_OF_I2S)
+#endif  // defined(PRA32_U2_USE_PWM_AUDIO_DITHERING_INSTEAD_OF_ERROR_DIFFUSION)
+#else  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
     right_level = delay_fx_output_r;
     return        delay_fx_output_l;
-#endif  // defined(PRA32_U_USE_PWM_AUDIO_INSTEAD_OF_I2S)
+#endif  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
   }
 
   INLINE boolean secondary_core_process() {
     boolean processed = false;
 
-#if defined(PRA32_U_USE_2_CORES_FOR_SIGNAL_PROCESSING)
+#if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
     if (m_secondary_core_processing_request == 1) {
       int16_t noise_int15 = static_cast<int16_t>(m_secondary_core_processing_argument);
 
@@ -1467,7 +1467,7 @@ public:
       m_secondary_core_processing_request = 0;
       processed = true;
     }
-#endif  // defined(PRA32_U_USE_2_CORES_FOR_SIGNAL_PROCESSING)
+#endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
 
     return processed;
   }
