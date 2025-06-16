@@ -15,7 +15,7 @@
     - Panel and Step Sequencer Parameters
 - This option requires 3 SWs (tactile switches), 3 VRs (ADCs), and a monochrome 128x64 OLED Display based on SSD1306 series drivers
     - Tested with Pimoroni Pico Audio Pack, M5Stack Midi Unit (optional), Long Leg 2x20 Pin Socket * 2, Seeed Studio's Grove Shield for Pi Pico, Buttons * 3, Rotary Angle Sensors * 3, and an OLED Display 0.96 inch
-- Uncomment out `//#define PRA32_U_USE_CONTROL_PANEL` in "Digital-Synth-PRA32-U2.ino" and modify the constants
+- Uncomment out `//#define PRA32_U2_USE_CONTROL_PANEL` in "Digital-Synth-PRA32-U2.ino" and modify the constants
 - Inputs
     - SW0: Prev Key (Push to the previous page, Long press to the previous group)
     - SW1: Next Key (Push to the next page, Long press to the next group)

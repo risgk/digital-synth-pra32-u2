@@ -43,7 +43,7 @@ td.keyh {
 <script>
 const APP_NAME_VERSION = "PRA32-U2 Editor v0.3.0";
 
-const PRA32_U_MIDI_CH = 0;  // 0-based
+const PRA32_U2_MIDI_CH = 0;  // 0-based
 
 
 const NOTE_OFF       = 0x80;
@@ -420,7 +420,7 @@ editorOnlyPresetControllers[DELAY_MODE     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0 
 
 </script>
 <script>
-var midi_ch = PRA32_U_MIDI_CH;
+var midi_ch = PRA32_U2_MIDI_CH;
 var transpose = 0;
 var fileReaderImportAll = new FileReader();
 var fileReaderImportCurrent = new FileReader();
