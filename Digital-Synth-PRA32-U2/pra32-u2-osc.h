@@ -28,8 +28,6 @@ class PRA32_U_Osc {
   int16_t        m_pitch_bend_normalized;
   uint32_t       m_pitch_target[4];
   uint32_t       m_pitch_current[4];
-  uint8_t        m_coarse_current[8];
-  uint8_t        m_coarse_sub_current[4];
   const int16_t* m_wave_table[4 * 4];
   const int16_t* m_wave_table_temp[4 * 3];
   uint32_t       m_freq[4 * 2];
@@ -74,8 +72,6 @@ public:
   , m_pitch_bend_normalized()
   , m_pitch_target()
   , m_pitch_current()
-  , m_coarse_current()
-  , m_coarse_sub_current()
   , m_wave_table()
   , m_wave_table_temp()
   , m_freq()
@@ -600,19 +596,18 @@ private:
     pitch_temp += 128;  // For g_osc_tune_table[]
 
 
-    m_coarse_current[N] = high_byte(pitch_temp);
+    coarse = high_byte(pitch_temp);
     m_freq_base[N] = g_osc_freq_table[coarse - NOTE_NUMBER_MIN];
     if (N >= 4) {
-      m_wave_table_temp[N]     = get_wave_table(m_waveform[1], m_coarse_current[N]);
+      m_wave_table_temp[N]     = get_wave_table(m_waveform[1], coarse);
     } else {
-      m_wave_table_temp[N]     = get_wave_table(m_waveform[0], m_coarse_current[N]);
+      m_wave_table_temp[N]     = get_wave_table(m_waveform[0], coarse);
 
       // coarse_sub = max((coarse - 12), NOTE_NUMBER_MIN)
       volatile int32_t coarse_sub = (coarse - 12) - NOTE_NUMBER_MIN;
       coarse_sub = (coarse_sub > 0) * coarse_sub + NOTE_NUMBER_MIN;
-      m_coarse_sub_current[N] = coarse_sub;
 
-      m_wave_table_temp[N + 8] = get_wave_table(WAVEFORM_SINE, m_coarse_sub_current[N]);
+      m_wave_table_temp[N + 8] = get_wave_table(WAVEFORM_SINE, coarse_sub);
     }
 
 
