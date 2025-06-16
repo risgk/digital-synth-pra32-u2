@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v0.4.0 (20**-**-**):
+    - Merge Osc 1 Multi Saw to Saw Wave
     - Enable Osc 1 Morph for Multi Saw
     - Revert the specification change of Chorus Mix
     - Change the Preset programs

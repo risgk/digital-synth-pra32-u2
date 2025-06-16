@@ -7,24 +7,27 @@
 
 - Notes
     - $1 : Disabled in Paraphonic Mode
-    - $2 : Disabled if Osc 1 Wave is not Sin, Mul, or Pls
-    - $3 : Disabled if Osc 1 Wave is not Sin or Pls
-- Osc 1 Wave [Saw|Sqr|Tri|Sin|Mul|Pls]
-    - 0 (0-12): Saw Wave
+    - $2 : Disabled if Osc 1 Wave is not Saw, Sin, or Pls
+- Osc 1 Wave [Saw|Sqr|Tri|Sin|-|Pls]
+    - 0 (0-12): Saw Wave (Shape adjustable)
     - 25 (13-38): Square Wave
     - 51 (39-63): Triangle Wave
     - 76 (64-88): Sine Wave (Shape adjustable)
-    - 102 (89-114): Multi Saw (Shape adjustable)
+    - 102 (89-114): Sine Wave (Shape adjustable)
     - 127 (115-127): Pulse Wave (Shape adjustable)
 - Osc 1 Shape $2
+    - Saw Wave: Multi Saw Detune
     - Sine Wave (Frequency Modulation or Phase Modulation): Modulation Depth
-    - Multi Saw: Detune
     - Pulse Wave (= 1st Saw + Phase Shifted 2nd Saw)
         - 0: Pulse Width 50%, or 2nd Saw Phase 50% (min)
         - 64: Pulse Width 25%, or 2nd Saw Phase 25%
         - 96: Pulse Width 12.5%, or 2nd Saw Phase 12.5%
         - 127: Pulse Width 0.4%, or 2nd Saw Phase 99.6% (max)
-- Osc 1 Morph $3
+- Osc 1 Morph $2
+    - Saw Wave:
+        - 0: Normal Saw 100% (min)
+        - 64: Normal Saw 50% + Multi Saw 50%
+        - 127: Multi Saw 100% (max)
     - Sine Wave (Frequency Modulation or Phase Modulation): Frequency Ratio of Modulator
         - 0 (0-1): Ratio 0.5 (min)
         - 4 (2-5): Ratio 1.0
@@ -35,10 +38,6 @@
         - 108 (106-109): Ratio 14.0
         - 124 (122-125): Ratio 16.0
         - 127 (126-127): Ratio 16.5 (max)
-    - Multi Saw:
-        - 0: Normal Saw 100% (min)
-        - 64: Normal Saw 50% + Multui Saw 50%
-        - 127: Multui Saw 100% (max)
     - Pulse Wave
         - 0: Pulse 100% = Saw 100% + Reverse Saw 100% (min)
         - 32: Pulse 50% + Saw 50% = Saw 100% + Reverse Saw 50%
