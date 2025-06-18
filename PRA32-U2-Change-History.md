@@ -7,7 +7,7 @@
     - Change the Preset programs
     - PRA32-U2 with Panel: Change the specification of Seq Tempo to BPM 56-300
     - Fix the problem that PRA32_U2_USE_DEBUG_PRINT does not work correctly  if PRA32_U2_USE_CONTROL_PANEL is not defined
-    - Tested with Arduino-Pico version 4.5.3
+    - Tested with Arduino-Pico version 4.5.4
 - v0.3.0 (2025-05-10):
     - Renew High Pass Filter: No noise when changing Resonance
     - PRA32-U2 with Panel: Easier to change MIDI Ch
