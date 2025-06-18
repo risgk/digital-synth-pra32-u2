@@ -191,18 +191,10 @@ static INLINE void PRA32_U2_ControlPanel_calc_value_display_pitch(uint8_t pitch,
 }
 
 static INLINE uint32_t PRA32_U2_ControlPanel_calc_bpm(uint8_t tempo_control_value) {
-  uint32_t bpm = tempo_control_value + 56;
+  uint32_t bpm = (tempo_control_value * 2) + 56;
 
-  if (bpm < 82) {
-    bpm -= 82 - bpm;
-  }
-
-  if (bpm > 126) {
-    bpm += bpm - 126;
-  }
-
-  if (bpm > 180) {
-    bpm += bpm - 180;
+  if (bpm > 300) {
+    bpm = 300;
   }
 
   return bpm;
