@@ -7,7 +7,7 @@
 
 - Notes
     - $1 : Disabled in Paraphonic Mode
-    - $2 : Disabled if Osc 1 Wave is not Saw, Sin, or Pls
+    - $2 : Disabled if Osc 1 Wave is not Saw, Sqr, Sin, or Pls
 - Osc 1 Wave [Saw|Sqr|Tri|Sin|-|Pls]
     - 0 (0-12): Saw Wave
     - 25 (13-38): Square Wave
@@ -17,6 +17,7 @@
     - 127 (115-127): Pulse Wave
 - Osc 1 Shape $2
     - Saw Wave: Multi Saw Detune
+    - Square Wave: Sync Square Pitch
     - Sine Wave (Frequency Modulation or Phase Modulation): Modulation Depth
     - Pulse Wave (= 1st Saw + Phase Shifted 2nd Saw)
         - 0: Pulse Width 50%, or 2nd Saw Phase 50% (min)
@@ -28,6 +29,10 @@
         - 0: Normal Saw 100% (min)
         - 64: Normal Saw 50% + Multi Saw 50%
         - 127: Multi Saw 100% (max)
+    - Square Wave:
+        - 0: Normal Square 100% (min)
+        - 64: Normal Square 50% + Sync Square 50%
+        - 127: Sync Square 100% (max)
     - Sine Wave (Frequency Modulation or Phase Modulation): Frequency Ratio of Modulator
         - 0 (0-1): Ratio 0.5 (min)
         - 4 (2-5): Ratio 1.0
