@@ -5,7 +5,7 @@
     - Enable Osc 1 Morph for Multi Saw
     - Enable Osc 1 Shape and Morph for Sync Square
     - Revert the specification change of Chorus Mix
-    - Change the Preset programs
+    - Change the Preset and the Editor Only Preset programs
     - PRA32-U2 with Panel: Change the specification of Seq Tempo to BPM 56-300
     - PRA32-U2 with Panel: Change analog input parameters
     - Fix the problem that PRA32_U2_USE_DEBUG_PRINT does not work correctly  if PRA32_U2_USE_CONTROL_PANEL is not defined
