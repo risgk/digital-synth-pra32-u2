@@ -16,7 +16,6 @@ class PRA32_U2_Filter {
   int32_t         m_y_2;
   int32_t         m_resonance_index;
   int16_t         m_cutoff_current;
-  int16_t         m_cutoff_candidate;
   uint8_t         m_cutoff_control;
   uint8_t         m_cutoff_control_effective;
   int8_t          m_cutoff_eg_amt;
@@ -42,7 +41,6 @@ public:
   , m_y_2()
   , m_resonance_index()
   , m_cutoff_current()
-  , m_cutoff_candidate()
   , m_cutoff_control()
   , m_cutoff_control_effective()
   , m_cutoff_eg_amt()
@@ -187,21 +185,23 @@ private:
   }
 
   INLINE void update_coefs(int16_t eg_input, int16_t lfo_input, uint16_t osc_pitch) {
-    m_cutoff_candidate = m_cutoff_control_effective;
-    m_cutoff_candidate += (m_cutoff_eg_amt * eg_input) >> 14;
-    m_cutoff_candidate += m_cutoff_offset;
+    int16_t cutoff_candidate = m_cutoff_control_effective << FILTER_TABLE_EXTENSION_BITS;
+    cutoff_candidate += (m_cutoff_eg_amt * eg_input) >> (14 - FILTER_TABLE_EXTENSION_BITS);
+    cutoff_candidate += m_cutoff_offset << FILTER_TABLE_EXTENSION_BITS;
 
-    m_cutoff_candidate += (lfo_input * m_cutoff_lfo_amt) >> 14;
-    m_cutoff_candidate += (((osc_pitch - (60 << 8)) * m_cutoff_pitch_amt) + 128) >> 8;
-    m_cutoff_candidate += (m_breath_controller * m_cutoff_breath_amt) >> 14;
+    cutoff_candidate += (lfo_input * m_cutoff_lfo_amt) >> (14 - FILTER_TABLE_EXTENSION_BITS);
+    cutoff_candidate += (((osc_pitch - (60 << 8)) * m_cutoff_pitch_amt) + 128) >> (8 - FILTER_TABLE_EXTENSION_BITS);
+    cutoff_candidate += (m_breath_controller * m_cutoff_breath_amt) >> (14 - FILTER_TABLE_EXTENSION_BITS);
 
-    // cutoff_target = clamp(m_cutoff_candidate, 0, 255)
-    volatile int16_t cutoff_target = m_cutoff_candidate - 255;
-    cutoff_target = (cutoff_target < 0) * cutoff_target + 255;
+    // cutoff_target = clamp(cutoff_candidate, 0, ((254 << FILTER_TABLE_EXTENSION_BITS) + 1))
+    volatile int16_t cutoff_target = cutoff_candidate - ((254 << FILTER_TABLE_EXTENSION_BITS) + 1);
+    cutoff_target = (cutoff_target < 0) * cutoff_target + ((254 << FILTER_TABLE_EXTENSION_BITS) + 1);
     cutoff_target = (cutoff_target > 0) * cutoff_target;
 
-    m_cutoff_current += (m_cutoff_current < cutoff_target);
-    m_cutoff_current -= (m_cutoff_current > cutoff_target);
+    for (uint32_t i = 0; i < (1 << FILTER_TABLE_EXTENSION_BITS); ++i) {
+      m_cutoff_current += (m_cutoff_current < cutoff_target);
+      m_cutoff_current -= (m_cutoff_current > cutoff_target);
+    }
 
     const int32_t* filter_table = g_filter_tables[m_resonance_index];
     size_t index = m_cutoff_current * 3;

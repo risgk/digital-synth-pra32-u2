@@ -26,6 +26,7 @@ const uint16_t  OSC_DETUNE_FREQ_MAX          = (20 * 2) * (1 << 24) / SAMPLING_R
 const int8_t    FILTER_CONTROL_INTERVAL_BITS = 3;
 const uint8_t   FILTER_CONTROL_INTERVAL      = 0x01 << FILTER_CONTROL_INTERVAL_BITS;
 const int8_t    FILTER_TABLE_FRACTION_BITS   = 30;
+const int8_t    FILTER_TABLE_EXTENSION_BITS  = 2;
 const uint8_t   EG_CONTROL_INTERVAL          = 0x10;
 const int32_t   EG_LEVEL_MAX                 = 0x40000000;
 

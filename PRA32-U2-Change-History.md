@@ -4,6 +4,7 @@
     - Merge Osc 1 Multi Saw to Saw Wave
     - Enable Osc 1 Morph for Multi Saw
     - Enable Osc 1 Shape and Morph for Sync Square
+    - Improve Filter Cutoff frequency accuracy (4x)
     - Revert the specification change of Chorus Mix
     - Change the Preset and the Editor Only Preset programs
     - PRA32-U2 with Panel: Change the specification of Seq Tempo to BPM 56-300
