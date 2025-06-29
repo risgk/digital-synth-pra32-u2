@@ -1302,11 +1302,11 @@ public:
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
 
       osc_output   [0] = m_osc      .process<0>(noise_int15);
-      filter_output[0] = m_filter[0].process(osc_output   [0] << 2);
+      filter_output[0] = m_filter[0].process(osc_output   [0]);
       amp_output   [0] = m_amp   [0].process(filter_output[0]);
 
       osc_output   [1] = m_osc      .process<1>(noise_int15);
-      filter_output[1] = m_filter[1].process(osc_output   [1] << 2);
+      filter_output[1] = m_filter[1].process(osc_output   [1]);
       amp_output   [1] = m_amp   [1].process(filter_output[1]);
 
       int32_t amp_output_sum_a = amp_output[0] + amp_output[1];
@@ -1318,17 +1318,17 @@ public:
       int32_t amp_output_sum_b = m_secondary_core_processing_result;
 #else  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
       osc_output   [2] = m_osc      .process<2>(noise_int15);
-      filter_output[2] = m_filter[2].process(osc_output   [2] << 2);
+      filter_output[2] = m_filter[2].process(osc_output   [2]);
       amp_output   [2] = m_amp   [2].process(filter_output[2]);
 
       osc_output   [3] = m_osc      .process<3>(noise_int15);
-      filter_output[3] = m_filter[3].process(osc_output   [3] << 2);
+      filter_output[3] = m_filter[3].process(osc_output   [3]);
       amp_output   [3] = m_amp   [3].process(filter_output[3]);
 
       int32_t amp_output_sum_b = amp_output[2] + amp_output[3];
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
 
-      voice_mixer_output = (amp_output_sum_a + amp_output_sum_b) >> 2;
+      voice_mixer_output = amp_output_sum_a + amp_output_sum_b;
     } else if (m_voice_mode == VOICE_PARAPHONIC) {
 #if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
       m_secondary_core_processing_argument = noise_int15;
@@ -1365,12 +1365,12 @@ public:
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
 
       osc_output[0] = m_osc.process<0>(noise_int15);
-      int16_t osc_mixer_output = osc_output[0] << 1;
+      int16_t osc_mixer_output = osc_output[0];
 
       filter_output[0] = m_filter[0].process(osc_mixer_output);
       amp_output   [0] = m_amp   [0].process(filter_output[0]);
 
-      voice_mixer_output = amp_output[0];
+      voice_mixer_output = amp_output[0] << 1;
 
 #if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
       // Wait
@@ -1388,7 +1388,7 @@ public:
     // Increase the output level using Extra Amp and Limiter
 
     // voice_mixer_output_clamped = clamp((voice_mixer_output << 1), (-INT16_MAX), (+INT16_MAX))
-    volatile int32_t voice_mixer_output_clamped = (voice_mixer_output * 2) - (+INT16_MAX);
+    volatile int32_t voice_mixer_output_clamped = (voice_mixer_output << 1) - (+INT16_MAX);
     voice_mixer_output_clamped = (voice_mixer_output_clamped < 0) * voice_mixer_output_clamped + (+INT16_MAX) - (-INT16_MAX);
     voice_mixer_output_clamped = (voice_mixer_output_clamped > 0) * voice_mixer_output_clamped + (-INT16_MAX);
 
@@ -1447,11 +1447,11 @@ public:
 
       if (m_voice_mode == VOICE_POLYPHONIC) {
         osc_output   [2] = m_osc      .process<2>(noise_int15);
-        filter_output[2] = m_filter[2].process(osc_output   [2] << 2);
+        filter_output[2] = m_filter[2].process(osc_output   [2]);
         amp_output   [2] = m_amp   [2].process(filter_output[2]);
 
         osc_output   [3] = m_osc      .process<3>(noise_int15);
-        filter_output[3] = m_filter[3].process(osc_output   [3] << 2);
+        filter_output[3] = m_filter[3].process(osc_output   [3]);
         amp_output   [3] = m_amp   [3].process(filter_output[3]);
 
         m_secondary_core_processing_result = amp_output[2] + amp_output[3];
