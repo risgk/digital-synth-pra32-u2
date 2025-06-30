@@ -1373,11 +1373,6 @@ public:
       voice_mixer_output = amp_output[0] << 1;
 
 #if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
-      // Wait
-      for (volatile uint32_t i = 0; i < 30; ++i) {
-        ;
-      }
-
       while (m_secondary_core_processing_request) {
         ;
       }
