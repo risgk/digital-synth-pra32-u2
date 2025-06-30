@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v0.4.0 (20**-**-**):
+- v0.4.0 (2025-06-30):
     - Increase the maximum overtone of Oscillator output in the low frequency range
     - Merge Osc 1 Multi Saw to Saw Wave
     - Enable Osc 1 Morph for Multi Saw
