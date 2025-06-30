@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 with Panel v0.3.0
+# Digital Synth PRA32-U2 with Panel v0.4.0
 
-- 2025-05-10 ISGK Instruments
+- 2025-06-30 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 
@@ -15,7 +15,7 @@
     - Panel and Step Sequencer Parameters
 - This option requires 3 SWs (tactile switches), 3 VRs (ADCs), and a monochrome 128x64 OLED Display based on SSD1306 series drivers
     - Tested with Pimoroni Pico Audio Pack, M5Stack Midi Unit (optional), Long Leg 2x20 Pin Socket * 2, Seeed Studio's Grove Shield for Pi Pico, Buttons * 3, Rotary Angle Sensors * 3, and an OLED Display 0.96 inch
-- Uncomment out `//#define PRA32_U_USE_CONTROL_PANEL` in "Digital-Synth-PRA32-U2.ino" and modify the constants
+- Uncomment out `//#define PRA32_U2_USE_CONTROL_PANEL` in "Digital-Synth-PRA32-U2.ino" and modify the constants
 - Inputs
     - SW0: Prev Key (Push to the previous page, Long press to the previous group)
     - SW1: Next Key (Push to the next page, Long press to the next group)
@@ -57,7 +57,7 @@
     - Seq On Steps: bit 0 is Step 1 On, ..., bit 6 is Step 7 On (Step 0 is always On)
     - Seq Act Steps (Active Steps): bit 0 is Step 1 Active, ..., bit 6 is Step 7 Active (Step 0 is always Active)
     - Seq Step Note [4|8|16]: Quarter Note, Eighth Note, Sixteenth Note
-    - Seq Tempo: BPM 30-300
+    - Seq Tempo: BPM 56-300
     - Seq Gate Time [1/6|2/6|3/6|4/6|5/6|6/6]
     - Seq Transpose [-|+]
     - Seq Clock Src [Int|Ext]: Internal, External (Rx MIDI Clock)

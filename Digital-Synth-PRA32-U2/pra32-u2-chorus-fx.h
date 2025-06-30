@@ -2,7 +2,7 @@
 
 #include "pra32-u2-common.h"
 
-class PRA32_U_ChorusFx {
+class PRA32_U2_ChorusFx {
   static const uint16_t DELAY_BUFF_SIZE = 512;
 
   int16_t  m_delay_buff[DELAY_BUFF_SIZE];
@@ -20,7 +20,7 @@ class PRA32_U_ChorusFx {
   uint16_t m_chorus_delay_time[2];
 
 public:
-  PRA32_U_ChorusFx()
+  PRA32_U2_ChorusFx()
   : m_delay_buff()
   , m_delay_wp()
 
@@ -61,7 +61,7 @@ public:
   }
 
   INLINE void set_chorus_mix(uint8_t controller_value) {
-    m_chorus_mix_control = ((controller_value + 1) >> 1) << 1;
+    m_chorus_mix_control = (controller_value + 1) >> 1;
   }
 
   template <uint8_t N>

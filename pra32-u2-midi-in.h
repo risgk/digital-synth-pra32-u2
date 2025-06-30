@@ -6,8 +6,8 @@
 #include "./Digital-Synth-PRA32-U2/pra32-u2-common.h"
 #include "./Digital-Synth-PRA32-U2/pra32-u2-synth.h"
 
-class PRA32_U_MIDIIn {
-  PRA32_U_Synth* m_synth;
+class PRA32_U2_MIDIIn {
+  PRA32_U2_Synth* m_synth;
 
   uint8_t        m_system_exclusive;
   uint8_t        m_system_data_remaining;
@@ -15,7 +15,7 @@ class PRA32_U_MIDIIn {
   uint8_t        m_first_data;
 
 public:
-  PRA32_U_MIDIIn()
+  PRA32_U2_MIDIIn()
   : m_synth()
   , m_system_exclusive()
   , m_system_data_remaining()
@@ -23,7 +23,7 @@ public:
   , m_first_data()
   {}
 
-  INLINE void open(PRA32_U_Synth& synth) {
+  INLINE void open(PRA32_U2_Synth& synth) {
     m_synth = &synth;
     m_running_status = STATUS_BYTE_INVALID;
     m_first_data = DATA_BYTE_INVALID;
@@ -35,7 +35,7 @@ public:
         // do nothing
       } else if (m_system_data_remaining != 0) {
         --m_system_data_remaining;
-      } else if (m_running_status == (NOTE_ON | PRA32_U_MIDI_CH)) {
+      } else if (m_running_status == (NOTE_ON | PRA32_U2_MIDI_CH)) {
         if (!is_data_byte(m_first_data)) {
           m_first_data = b;
         } else if (b == 0) {
@@ -45,28 +45,28 @@ public:
           m_synth->note_on(m_first_data, b);
           m_first_data = DATA_BYTE_INVALID;
         }
-      } else if (m_running_status == (NOTE_OFF | PRA32_U_MIDI_CH)) {
+      } else if (m_running_status == (NOTE_OFF | PRA32_U2_MIDI_CH)) {
         if (!is_data_byte(m_first_data)) {
           m_first_data = b;
         } else {
           m_synth->note_off(m_first_data);
           m_first_data = DATA_BYTE_INVALID;
         }
-      } else if (m_running_status == (CONTROL_CHANGE | PRA32_U_MIDI_CH)) {
+      } else if (m_running_status == (CONTROL_CHANGE | PRA32_U2_MIDI_CH)) {
         if (!is_data_byte(m_first_data)) {
           m_first_data = b;
         } else {
           m_synth->control_change(m_first_data, b);
           m_first_data = DATA_BYTE_INVALID;
         }
-      } else if (m_running_status == (PITCH_BEND | PRA32_U_MIDI_CH)) {
+      } else if (m_running_status == (PITCH_BEND | PRA32_U2_MIDI_CH)) {
         if (!is_data_byte(m_first_data)) {
           m_first_data = b;
         } else {
           m_synth->pitch_bend(m_first_data, b);
           m_first_data = DATA_BYTE_INVALID;
         }
-      } else if (m_running_status == (PROGRAM_CHANGE | PRA32_U_MIDI_CH)) {
+      } else if (m_running_status == (PROGRAM_CHANGE | PRA32_U2_MIDI_CH)) {
         m_synth->program_change(b);
       }
     } else if (is_system_message(b)) {

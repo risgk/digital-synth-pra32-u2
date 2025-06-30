@@ -20,11 +20,13 @@ const int8_t    OSC_TUNE_DENOMINATOR_BITS    = 15;
 const uint8_t   OSC_WAVE_TABLE_AMP_BITS      = 13;
 const int16_t   OSC_WAVE_TABLE_AMP           = 1 << OSC_WAVE_TABLE_AMP_BITS;
 const int8_t    OSC_WAVE_TABLE_SAMPLES_BITS  = 9;
+const uint16_t  OSC_WAVE_TABLE_LAST_HARMONIC = 255;
 const int8_t    OSC_DETUNE_MUL_NUM_BITS      = 4;
 const uint16_t  OSC_DETUNE_FREQ_MAX          = (20 * 2) * (1 << 24) / SAMPLING_RATE;
 const int8_t    FILTER_CONTROL_INTERVAL_BITS = 3;
 const uint8_t   FILTER_CONTROL_INTERVAL      = 0x01 << FILTER_CONTROL_INTERVAL_BITS;
 const int8_t    FILTER_TABLE_FRACTION_BITS   = 30;
+const int8_t    FILTER_TABLE_EXTENSION_BITS  = 2;
 const uint8_t   EG_CONTROL_INTERVAL          = 0x10;
 const int32_t   EG_LEVEL_MAX                 = 0x40000000;
 
@@ -140,12 +142,11 @@ const uint8_t   MONO_MODE_ON    = 126;
 const uint8_t   POLY_MODE_ON    = 127;
 
 const uint8_t   OSC_WAVE_SAW       = 0;
-const uint8_t   OSC_WAVE_SINE      = 25;
-const uint8_t   OSC_WAVE_MULTI_SAW = 50;
-const uint8_t   OSC_WAVE_TRIANGLE  = 75;
-const uint8_t   OSC_WAVE_2_NOISE   = 100;
+const uint8_t   OSC_WAVE_SQUARE    = 25;
+const uint8_t   OSC_WAVE_TRIANGLE  = 51;
+const uint8_t   OSC_WAVE_SINE      = 76;
 const uint8_t   OSC_WAVE_1_PULSE   = 127;
-const uint8_t   OSC_WAVE_2_SQUARE  = 127;
+const uint8_t   OSC_WAVE_2_NOISE   = 127;
 
 const uint8_t   OSC_DST_PITCH      = 0;
 const uint8_t   OSC_DST_PITCH_2    = 64;
@@ -153,14 +154,14 @@ const uint8_t   OSC_DST_SHAPE_1    = 127;
 
 const uint8_t   LFO_WAVE_SINE      = 0;
 const uint8_t   LFO_WAVE_SAW_DOWN  = 25;
-const uint8_t   LFO_WAVE_TRIANGLE  = 75;
-const uint8_t   LFO_WAVE_S_AND_H   = 100;
+const uint8_t   LFO_WAVE_TRIANGLE  = 76;
+const uint8_t   LFO_WAVE_S_AND_H   = 102;
 const uint8_t   LFO_WAVE_SQUARE    = 127;
 
 const uint8_t   VOICE_PARAPHONIC   = 0;
 const uint8_t   VOICE_POLYPHONIC   = 25;
-const uint8_t   VOICE_MONOPHONIC   = 75;
-const uint8_t   VOICE_LEGATO       = 100;
+const uint8_t   VOICE_MONOPHONIC   = 76;
+const uint8_t   VOICE_LEGATO       = 102;
 const uint8_t   VOICE_LEGATO_PORTA = 127;
 
 

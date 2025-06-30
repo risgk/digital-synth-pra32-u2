@@ -1,5 +1,19 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v0.4.0 (2025-06-30):
+    - Increase the maximum overtone of Oscillator output in the low frequency range
+    - Merge Osc 1 Multi Saw to Saw Wave
+    - Enable Osc 1 Morph for Multi Saw
+    - Enable Osc 1 Shape and Morph for Sync Square
+    - Improve Filter Cutoff frequency accuracy (4x)
+    - Change the signal flow: Change the points at which the levels change
+    - Extend Delay Time range (1 to 333.3 -> 1 to 340 ms)
+    - Revert the specification change of Chorus Mix
+    - Change the Preset and the Editor Only Preset programs
+    - PRA32-U2 with Panel: Change the specification of Seq Tempo to BPM 56-300
+    - PRA32-U2 with Panel: Change analog input parameters
+    - Fix the problem that PRA32_U2_USE_DEBUG_PRINT does not work correctly  if PRA32_U2_USE_CONTROL_PANEL is not defined
+    - Tested with Arduino-Pico version 4.6.0
 - v0.3.0 (2025-05-10):
     - Renew High Pass Filter: No noise when changing Resonance
     - PRA32-U2 with Panel: Easier to change MIDI Ch

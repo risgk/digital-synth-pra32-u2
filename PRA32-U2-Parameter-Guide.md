@@ -1,30 +1,38 @@
-# Digital Synth PRA32-U2 Parameter Guide v0.3.0
+# Digital Synth PRA32-U2 Parameter Guide v0.4.0
 
-- 2025-05-10 ISGK Instruments
+- 2025-06-30 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 ## Control Change Parameters
 
 - Notes
     - $1 : Disabled in Paraphonic Mode
-    - $2 : Disabled if Osc 1 Wave is not Sin, Mul, or Pls
-    - $3 : Disabled if Osc 1 Wave is not Sin or Pls
-- Osc 1 Wave [Saw|Sqr|Tri|Sin|Mul|Pls]
+    - $2 : Disabled if Osc 1 Wave is not Saw, Sqr, Sin, or Pls
+- Osc 1 Wave [Saw|Sqr|Tri|Sin|-|Pls]
     - 0 (0-12): Saw Wave
     - 25 (13-38): Square Wave
     - 51 (39-63): Triangle Wave
-    - 76 (64-88): Sine Wave (Shape adjustable)
-    - 102 (89-114): Multi Saw (Shape adjustable)
-    - 127 (115-127): Pulse Wave (Shape adjustable)
+    - 76 (64-88): Sine Wave
+    - 102 (89-114): Sine Wave
+    - 127 (115-127): Pulse Wave
 - Osc 1 Shape $2
+    - Saw Wave: Multi Saw Detune
+    - Square Wave: Sync Square Pitch
     - Sine Wave (Frequency Modulation or Phase Modulation): Modulation Depth
-    - Multi Saw: Detune
     - Pulse Wave (= 1st Saw + Phase Shifted 2nd Saw)
         - 0: Pulse Width 50%, or 2nd Saw Phase 50% (min)
         - 64: Pulse Width 25%, or 2nd Saw Phase 25%
         - 96: Pulse Width 12.5%, or 2nd Saw Phase 12.5%
         - 127: Pulse Width 0.4%, or 2nd Saw Phase 99.6% (max)
-- Osc 1 Morph $3
+- Osc 1 Morph $2
+    - Saw Wave:
+        - 0: Normal Saw 100% (min)
+        - 64: Normal Saw 50% + Multi Saw 50%
+        - 127: Multi Saw 100% (max)
+    - Square Wave:
+        - 0: Normal Square 100% (min)
+        - 64: Normal Square 50% + Sync Square 50%
+        - 127: Sync Square 100% (max)
     - Sine Wave (Frequency Modulation or Phase Modulation): Frequency Ratio of Modulator
         - 0 (0-1): Ratio 0.5 (min)
         - 4 (2-5): Ratio 1.0
@@ -189,8 +197,8 @@
     - 127 (64-127): Mode 2, Free voice with small number has priority in Polyphonic/Paraphonic Mode, Portamento is effective
 - Chorus Mix [Dry|Wet]
     - 0: Dry 100%, Wet 0% (min)
-    - 64: Dry 50%, Wet 50%
-    - 127: Dry 0%, Wet 100% (max)
+    - 64: Dry 75%, Wet 25%
+    - 127: Dry 50%, Wet 50% (max)
 - Chorus Rate
     - 0: LFO Frequency 0.012 Hz (min)
     - 64: LFO Frequency 0.48 Hz

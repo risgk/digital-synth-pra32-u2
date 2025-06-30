@@ -2,7 +2,7 @@
 
 #include "pra32-u2-common.h"
 
-class PRA32_U_DelayFx {
+class PRA32_U2_DelayFx {
   static const uint16_t DELAY_BUFF_SIZE = 16384;
 
   int16_t  m_delay_buff[2][DELAY_BUFF_SIZE];
@@ -15,7 +15,7 @@ class PRA32_U_DelayFx {
   uint8_t  m_delay_mode;
 
 public:
-  PRA32_U_DelayFx()
+  PRA32_U2_DelayFx()
   : m_delay_buff()
   , m_delay_wp()
 
@@ -54,8 +54,8 @@ public:
       12160, 12320, 12480, 12640, 12800, 12960, 13120, 13280,
       13440, 13600, 13760, 13920, 14080, 14240, 14400, 14560,
       14720, 14880, 15040, 15200, 15360, 15520, 15680, 15840,
-      16000, 16000, 16000, 16000, 16000, 16000, 16000, 16000,
-      16000, 16000, 16000, 16000, 16000, 16000, 16000, 16000,
+      16160, 16320, 16320, 16320, 16320, 16320, 16320, 16320,
+      16320, 16320, 16320, 16320, 16320, 16320, 16320, 16320,
     };
 
     m_delay_time = delay_time_table[controller_value];
