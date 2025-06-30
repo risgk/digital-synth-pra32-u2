@@ -719,10 +719,10 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
         display_value = controller_value + 1;
       } else if (controller_value < 27) {
         display_value = (controller_value * 2) -4;
-      } else if (controller_value < 112) {
+      } else if (controller_value < 114) {
         display_value = (((controller_value * 20) + 3) / 6) - 40;
       } else {
-        display_value = 333;
+        display_value = 340;
       }
 
       std::sprintf(value_display_text, "%3d", display_value);
