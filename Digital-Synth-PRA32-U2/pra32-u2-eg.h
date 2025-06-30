@@ -7,7 +7,7 @@
 #include "pra32-u2-common.h"
 #include "pra32-u2-eg-table.h"
 
-class PRA32_U_EG {
+class PRA32_U2_EG {
   static const uint8_t STATE_ATTACK  = 0;
   static const uint8_t STATE_SUSTAIN = 1;
   static const uint8_t STATE_IDLE    = 2;
@@ -25,7 +25,7 @@ class PRA32_U_EG {
   int32_t m_sustain_level;
 
 public:
-  PRA32_U_EG()
+  PRA32_U2_EG()
   : m_state()
   , m_level()
   , m_level_out()

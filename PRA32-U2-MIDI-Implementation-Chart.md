@@ -1,6 +1,6 @@
 ```
-  [Polyphonic/Paraphonic Synthesizer]                             Date: 2025-05-10                      
-  Model: Digital Synth PRA32-U2   MIDI Implementation Chart       Version: 0.3.0                        
+  [Polyphonic/Paraphonic Synthesizer]                             Date: 2025-06-30                      
+  Model: Digital Synth PRA32-U2   MIDI Implementation Chart       Version: 0.4.0                        
 +-------------------------------+---------------+---------------+--------------------------------------+
 | Function...                   | Transmitted   | Recognized    | Remarks                              |
 +-------------------------------+---------------+---------------+--------------------------------------+
@@ -26,9 +26,9 @@
 | Change                      2 | x             | o             | Breath Controller                    |
 |                            64 | x             | o             | Sustain Pedal [Off|On]               |
 |                               |               |               |                                      |
-|                           102 | x             | o             | Osc 1 Wave [Saw|Sqr|Tri|Sin|Mul|Pls] |
+|                           102 | x             | o             | Osc 1 Wave [Saw|Sqr|Tri|Sin|-|Pls]   |
 |                            19 | x             | o             | Osc 1 Shape $2                       |
-|                            20 | x             | o             | Osc 1 Morph $3                       |
+|                            20 | x             | o             | Osc 1 Morph $2                       |
 |                            23 | x             | o             | Mixer Noise/Sub Osc [N|S]            |
 |                               |               |               |                                      |
 |                           104 | x             | o             | Osc 2 Wave [Saw|Sqr|Tri|Sin|-|Nos]   |
@@ -124,8 +124,7 @@
 |              : Reset          | x             | x             |                                      |
 +-------------------------------+---------------+---------------+--------------------------------------+
 | Notes                         | $1 : Disabled in Paraphonic Mode                                     |
-|                               | $2 : Disabled if Osc 1 Wave is not Sin, Mul, or Pls                  |
-|                               | $3 : Disabled if Osc 1 Wave is not Sin or Pls                        |
+|                               | $2 : Disabled if Osc 1 Wave is not Saw, Sqr, Sin, or Pls             |
 |                               | $4 : To write the current parameters to Program #8-15 and the        |
 |                               |   flash, set "Program Number to Write to" (# is the value mod 16)    |
 |                               |   and then change "Write Parameters to Program" from 0 to 1-127      |

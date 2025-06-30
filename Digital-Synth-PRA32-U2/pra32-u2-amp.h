@@ -2,7 +2,7 @@
 
 #include "pra32-u2-common.h"
 
-class PRA32_U_Amp {
+class PRA32_U2_Amp {
   int16_t m_gain_control;
   int16_t m_gain_control_effective;
   int16_t m_gain_linear;
@@ -12,7 +12,7 @@ class PRA32_U_Amp {
   int16_t m_breath_gain_linear;
 
 public:
-PRA32_U_Amp()
+PRA32_U2_Amp()
   : m_gain_control(127)
   , m_gain_control_effective(0)
   , m_gain_linear()
