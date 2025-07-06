@@ -1,5 +1,8 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v0.5.0 (2025-**-**):
+    - Fix a problem where Filter Key Track correction was off to the plus side
+    - Tested with Arduino-Pico version 4.6.0
 - v0.4.0 (2025-06-30):
     - Increase the maximum overtone of Oscillator output in the low frequency range
     - Merge Osc 1 Multi Saw to Saw Wave

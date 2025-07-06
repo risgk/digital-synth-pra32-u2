@@ -190,7 +190,7 @@ private:
     cutoff_candidate += m_cutoff_offset << FILTER_TABLE_EXTENSION_BITS;
 
     cutoff_candidate += (lfo_input * m_cutoff_lfo_amt) >> (14 - FILTER_TABLE_EXTENSION_BITS);
-    cutoff_candidate += (((osc_pitch - (60 << 8)) * m_cutoff_pitch_amt) + 128) >> (8 - FILTER_TABLE_EXTENSION_BITS);
+    cutoff_candidate += (((osc_pitch - (60 << 8)) * m_cutoff_pitch_amt) + (1 << (7 - FILTER_TABLE_EXTENSION_BITS))) >> (8 - FILTER_TABLE_EXTENSION_BITS);
     cutoff_candidate += (m_breath_controller * m_cutoff_breath_amt) >> (14 - FILTER_TABLE_EXTENSION_BITS);
 
     // cutoff_target = clamp(cutoff_candidate, 0, ((254 << FILTER_TABLE_EXTENSION_BITS) + 1))
