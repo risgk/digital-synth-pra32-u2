@@ -354,28 +354,28 @@ const PRESET_NUMBER_INITIAL = 7;
 var editorOnlyPresetControllers = {};
 
 // Editor Only Preset                           #128 #129 #130 #131 #132 #133 #134 #135 
-editorOnlyPresetControllers[OSC_1_WAVE     ] = [0  , 127, 127, 127, 0  , 127, 0  , 0  ];
+editorOnlyPresetControllers[OSC_1_WAVE     ] = [0  , 127, 127, 127, 0  , 76 , 0  , 0  ];
 editorOnlyPresetControllers[OSC_1_SHAPE    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
-editorOnlyPresetControllers[OSC_1_MORPH    ] = [0  , 64 , 0  , 64 , 0  , 0  , 0  , 0  ];
-editorOnlyPresetControllers[MIXER_SUB_OSC  ] = [64 , 64 , 127, 64 , 64 , 64 , 64 , 64 ];
+editorOnlyPresetControllers[OSC_1_MORPH    ] = [0  , 64 , 0  , 64 , 0  , 12 , 0  , 0  ];
+editorOnlyPresetControllers[MIXER_SUB_OSC  ] = [64 , 64 , 127, 64 , 64 , 127, 64 , 64 ];
 
-editorOnlyPresetControllers[OSC_2_WAVE     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+editorOnlyPresetControllers[OSC_2_WAVE     ] = [0  , 0  , 0  , 0  , 0  , 76 , 0  , 0  ];
 editorOnlyPresetControllers[OSC_2_COARSE   ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
-editorOnlyPresetControllers[OSC_2_PITCH    ] = [64 , 72 , 72 , 72 , 64 , 72 , 64 , 64 ];
+editorOnlyPresetControllers[OSC_2_PITCH    ] = [64 , 72 , 72 , 72 , 64 , 109, 64 , 64 ];
 editorOnlyPresetControllers[MIXER_OSC_MIX  ] = [0  , 64 , 64 , 64 , 0  , 64 , 0  , 0  ];
 
-editorOnlyPresetControllers[FILTER_CUTOFF  ] = [127, 91 , 115, 115, 127, 67 , 127, 127];
-editorOnlyPresetControllers[FILTER_RESO    ] = [0  , 32 , 64 , 0  , 0  , 32 , 0  , 0  ];
+editorOnlyPresetControllers[FILTER_CUTOFF  ] = [127, 91 , 115, 115, 127, 79 , 127, 127];
+editorOnlyPresetControllers[FILTER_RESO    ] = [0  , 32 , 64 , 0  , 0  , 0  , 0  , 0  ];
 editorOnlyPresetControllers[FILTER_EG_AMT  ] = [64 , 88 , 64 , 64 , 64 , 64 , 64 , 64 ];
 editorOnlyPresetControllers[FILTER_KEY_TRK ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 
 editorOnlyPresetControllers[EG_ATTACK      ] = [0  , 48 , 32 , 64 , 0  , 32 , 0  , 0  ];
-editorOnlyPresetControllers[EG_DECAY       ] = [0  , 80 , 32 , 64 , 0  , 100, 0  , 0  ];
-editorOnlyPresetControllers[EG_SUSTAIN     ] = [127, 0  , 127, 127, 127, 0  , 127, 127];
+editorOnlyPresetControllers[EG_DECAY       ] = [0  , 80 , 32 , 64 , 0  , 64 , 0  , 0  ];
+editorOnlyPresetControllers[EG_SUSTAIN     ] = [127, 0  , 127, 127, 127, 96 , 127, 127];
 editorOnlyPresetControllers[EG_RELEASE     ] = [0  , 32 , 32 , 32 , 0  , 32 , 0  , 0  ];
 
-editorOnlyPresetControllers[EG_OSC_AMT     ] = [64 , 72 , 64 , 64 , 64 , 96 , 64 , 64 ];
-editorOnlyPresetControllers[EG_OSC_DST     ] = [0  , 64 , 0  , 0  , 0  , 127, 0  , 0  ];
+editorOnlyPresetControllers[EG_OSC_AMT     ] = [64 , 72 , 64 , 64 , 64 , 64 , 64 , 64 ];
+editorOnlyPresetControllers[EG_OSC_DST     ] = [0  , 64 , 0  , 0  , 0  , 0  , 0  , 0  ];
 editorOnlyPresetControllers[VOICE_MODE     ] = [0  , 0  , 127, 0  , 0  , 0  , 0  , 0  ];
 editorOnlyPresetControllers[PORTAMENTO     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 
@@ -385,9 +385,9 @@ editorOnlyPresetControllers[LFO_DEPTH      ] = [0  , 0  , 127, 0  , 0  , 0  , 0 
 editorOnlyPresetControllers[LFO_FADE_TIME  ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 
 editorOnlyPresetControllers[LFO_OSC_AMT    ] = [64 , 64 , 96 , 96 , 64 , 64 , 64 , 64 ];
-editorOnlyPresetControllers[LFO_OSC_DST    ] = [0  , 0  , 127, 0  , 0  , 0  , 0  , 0  ];
-editorOnlyPresetControllers[LFO_FILTER_AMT ] = [64 , 88 , 64 , 64 , 64 , 88 , 64 , 64 ];
-editorOnlyPresetControllers[AMP_GAIN       ] = [90 , 90 , 90 , 90 , 90 , 127, 90 , 90 ];
+editorOnlyPresetControllers[LFO_OSC_DST    ] = [0  , 0  , 127, 0  , 0  , 127, 0  , 0  ];
+editorOnlyPresetControllers[LFO_FILTER_AMT ] = [64 , 88 , 64 , 64 , 64 , 112, 64 , 64 ];
+editorOnlyPresetControllers[AMP_GAIN       ] = [90 , 90 , 90 , 90 , 90 , 110, 90 , 90 ];
 
 editorOnlyPresetControllers[AMP_ATTACK     ] = [0  , 32 , 32 , 32 , 0  , 32 , 0  , 0  ];
 editorOnlyPresetControllers[AMP_DECAY      ] = [0  , 32 , 32 , 32 , 0  , 32 , 0  , 0  ];
@@ -396,7 +396,7 @@ editorOnlyPresetControllers[AMP_RELEASE    ] = [0  , 32 , 32 , 32 , 0  , 32 , 0 
 
 editorOnlyPresetControllers[FILTER_MODE    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 editorOnlyPresetControllers[EG_AMP_MOD     ] = [0  , 0  , 127, 127, 0  , 127, 0  , 0  ];
-editorOnlyPresetControllers[REL_EQ_DECAY   ] = [0  , 127, 127, 127, 0  , 0  , 0  , 0  ];
+editorOnlyPresetControllers[REL_EQ_DECAY   ] = [0  , 127, 127, 127, 0  , 127, 0  , 0  ];
 editorOnlyPresetControllers[P_BEND_RANGE   ] = [12 , 12 , 12 , 12 , 12 , 12 , 12 , 12 ];
 
 editorOnlyPresetControllers[BTH_FILTER_AMT ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
@@ -1272,54 +1272,54 @@ function getStoredCCValueString(index, number) {
 <table>
 <tr><td>Preset</td>
     <td></td>
-    <td><input type="button" value="#4 Synth Bass"      onclick="preset(4)"></td>
+    <td><input type="button" value="#4 Synth Bass"       onclick="preset(4)"></td>
     <td></td>
-    <td><input type="button" value="#5 FM Piano"        onclick="preset(5)"></td>
+    <td><input type="button" value="#5 FM Piano"         onclick="preset(5)"></td>
     <td></td>
-    <td><input type="button" value="#6 Simple"          onclick="preset(6)"></td>
+    <td><input type="button" value="#6 Simple"           onclick="preset(6)"></td>
     <td></td>
-    <td><input type="button" value="#7 Initial"         onclick="preset(7)"></td>
+    <td><input type="button" value="#7 Initial"          onclick="preset(7)"></td>
     <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
     <td>Misc</td>
     <td></td>
-    <td><input type="button" value="Random Ctrl"        onclick="setRandom()"></td>
+    <td><input type="button" value="Random Ctrl"         onclick="setRandom()"></td>
     <td></td>
-    <td><input type="button" value="Random FX"          onclick="setRandomChorus()"></td></tr>
+    <td><input type="button" value="Random FX"           onclick="setRandomChorus()"></td></tr>
 <tr><td>(from Browser)</td>
     <td></td>
-    <td><input type="button" value="#0 Fifth Lead"      onclick="preset(0)"></td>
+    <td><input type="button" value="#0 Fifth Lead"       onclick="preset(0)"></td>
     <td></td>
-    <td><input type="button" value="#1 Synth Pad"       onclick="preset(1)"></td>
+    <td><input type="button" value="#1 Synth Pad"        onclick="preset(1)"></td>
     <td></td>
-    <td><input type="button" value="#2 Synq Lead"       onclick="preset(2)"></td>
+    <td><input type="button" value="#2 Synq Lead"        onclick="preset(2)"></td>
     <td></td>
-    <td><input type="button" value="#3 Multi Saw Pad"   onclick="preset(3)"></td>
+    <td><input type="button" value="#3 Multi Saw Pad"    onclick="preset(3)"></td>
     <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
     <td></td>
     <td></td>
-    <td><input type="button" value="Panic"              onclick="panic()"></td></tr>
+    <td><input type="button" value="Panic"               onclick="panic()"></td></tr>
 <tr><td>&nbsp;</td></tr>
 </table>
 
 <table>
 <tr><td>Editor Only</td>
     <td></td>
-    <td><input type="button" value="#132 ---"           onclick="editorOnlyPreset(132)" disabled></td>
+    <td><input type="button" value="#132 ---"            onclick="editorOnlyPreset(132)" disabled></td>
     <td></td>
-    <td><input type="button" value="#133 Synth Piano"   onclick="editorOnlyPreset(133)"></td>
+    <td><input type="button" value="#133 Electric Organ" onclick="editorOnlyPreset(133)"></td>
     <td></td>
-    <td><input type="button" value="#134 ---"           onclick="editorOnlyPreset(134)" disabled></td>
+    <td><input type="button" value="#134 ---"            onclick="editorOnlyPreset(134)" disabled></td>
     <td></td>
-    <td><input type="button" value="#135 ---"           onclick="editorOnlyPreset(135)" disabled></td></tr>
+    <td><input type="button" value="#135 ---"            onclick="editorOnlyPreset(135)" disabled></td></tr>
 <tr><td>(from Browser)</td>
     <td></td>
-    <td><input type="button" value="#128 ---"           onclick="editorOnlyPreset(128)" disabled></td>
+    <td><input type="button" value="#128 ---"            onclick="editorOnlyPreset(128)" disabled></td>
     <td></td>
-    <td><input type="button" value="#129 Synth Brass"   onclick="editorOnlyPreset(129)"></td>
+    <td><input type="button" value="#129 Synth Brass"    onclick="editorOnlyPreset(129)"></td>
     <td></td>
-    <td><input type="button" value="#130 PWM Lead"      onclick="editorOnlyPreset(130)"></td>
+    <td><input type="button" value="#130 PWM Lead"       onclick="editorOnlyPreset(130)"></td>
     <td></td>
-    <td><input type="button" value="#131 Synth Strings" onclick="editorOnlyPreset(131)"</td></tr>
+    <td><input type="button" value="#131 Synth Strings"  onclick="editorOnlyPreset(131)"</td></tr>
 <tr><td>&nbsp;</td></tr>
 </table>
 
