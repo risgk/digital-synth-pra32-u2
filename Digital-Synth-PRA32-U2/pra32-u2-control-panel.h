@@ -567,6 +567,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case OSC_2_COARSE    :
   case OSC_2_PITCH     :
   case FILTER_EG_AMT   :
+  case FILTER_KEY_TRK  :
   case EG_OSC_AMT      :
   case LFO_OSC_AMT     :
   case LFO_FILTER_AMT  :
@@ -632,14 +633,6 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
     {
       char ary[6][5] = {"Saw","Sqr","Tri","Sin","  -","Nos"};
       uint32_t index = ((controller_value * 10) + 127) / 254;
-      std::strcpy(value_display_text, ary[index]);
-      result = true;
-    }
-    break;
-  case FILTER_KEY_TRK  :
-    {
-      char ary[3][5] = {"0.0","0.5","1.0"};
-      uint32_t index = ((controller_value * 4) + 127) / 254;
       std::strcpy(value_display_text, ary[index]);
       result = true;
     }
