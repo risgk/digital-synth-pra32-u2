@@ -3,6 +3,7 @@
 - v0.5.0 (2025-**-**):
     - Extend Filter Key Track range and resolution (0.0 to 1.0, step 0.5 -> -1.000 to +1.000, step 0.125)
     - Fix a problem where Filter Key Track correction was off to the plus side
+    - Fix a problem with EG/Amp Sustain level not changing in note on states
     - Change Preset programs
     - Tested with Arduino-Pico version 4.6.0
 - v0.4.0 (2025-06-30):
