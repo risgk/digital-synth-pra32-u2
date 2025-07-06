@@ -16,7 +16,7 @@ const uint8_t g_preset_table_MIXER_OSC_MIX  [] = {64 , 64 , 0  , 0  , 64 , 64 , 
 const uint8_t g_preset_table_FILTER_CUTOFF  [] = {115, 103, 115, 103, 55 , 79 , 127, 127,   115, 103, 115, 103, 55 , 79 , 127, 127};
 const uint8_t g_preset_table_FILTER_RESO    [] = {64 , 32 , 64 , 64 , 64 , 32 , 0  , 0  ,   64 , 32 , 64 , 64 , 64 , 32 , 0  , 0  };
 const uint8_t g_preset_table_FILTER_EG_AMT  [] = {64 , 16 , 64 , 64 , 112, 64 , 64 , 64 ,   64 , 16 , 64 , 64 , 112, 64 , 64 , 64 };
-const uint8_t g_preset_table_FILTER_KEY_TRK [] = {64 , 64 , 64 , 64 , 64 , 64 , 0  , 0  ,   64 , 64 , 64 , 64 , 64 , 64 , 0  , 0  };
+const uint8_t g_preset_table_FILTER_KEY_TRK [] = {96 , 96 , 96 , 96 , 96 , 96 , 64 , 64 ,   96 , 96 , 96 , 96 , 96 , 96 , 64 , 64 };
 
 const uint8_t g_preset_table_EG_ATTACK      [] = {32 , 96 , 32 , 32 , 32 , 32 , 32 , 0  ,   32 , 96 , 32 , 32 , 32 , 32 , 32 , 0  };
 const uint8_t g_preset_table_EG_DECAY       [] = {32 , 96 , 96 , 64 , 96 , 100, 32 , 0  ,   32 , 96 , 96 , 64 , 96 , 100, 32 , 0  };

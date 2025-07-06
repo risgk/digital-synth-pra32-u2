@@ -103,11 +103,7 @@ public:
   }
 
   INLINE void set_cutoff_pitch_amt(uint8_t controller_value) {
-    static int8_t cutoff_pitch_amt_table[4] = {
-        +0,   +1,   +1,   +2,
-    };
-
-    m_cutoff_pitch_amt = cutoff_pitch_amt_table[controller_value >> 5];
+    m_cutoff_pitch_amt = ((controller_value - 64) + 4) >> 3;
   }
 
   INLINE void set_filter_mode(uint8_t controller_value) {
@@ -190,7 +186,7 @@ private:
     cutoff_candidate += m_cutoff_offset << FILTER_TABLE_EXTENSION_BITS;
 
     cutoff_candidate += (lfo_input * m_cutoff_lfo_amt) >> (14 - FILTER_TABLE_EXTENSION_BITS);
-    cutoff_candidate += (((osc_pitch - (60 << 8)) * m_cutoff_pitch_amt) + (1 << (7 - FILTER_TABLE_EXTENSION_BITS))) >> (8 - FILTER_TABLE_EXTENSION_BITS);
+    cutoff_candidate += (((osc_pitch - (60 << 8)) * m_cutoff_pitch_amt) + (1 << ((10 - 1) - FILTER_TABLE_EXTENSION_BITS))) >> (10 - FILTER_TABLE_EXTENSION_BITS);
     cutoff_candidate += (m_breath_controller * m_cutoff_breath_amt) >> (14 - FILTER_TABLE_EXTENSION_BITS);
 
     // cutoff_target = clamp(cutoff_candidate, 0, ((254 << FILTER_TABLE_EXTENSION_BITS) + 1))
