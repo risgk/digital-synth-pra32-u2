@@ -153,11 +153,7 @@ public:
 
     m_y_1 = y_0_clamped;
 
-#if 1
-    if (m_filter_mode == 1 || m_filter_mode >= 64) {
-#else
     if (m_filter_mode >= 64) {
-#endif
       // high pass
       y_0_clamped = x_0 - y_0_clamped;
     }
