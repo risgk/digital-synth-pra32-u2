@@ -47,10 +47,10 @@ PRA32_U2_Amp()
     update_breath_controller_effective();
   }
 
-  INLINE int16_t process(int16_t audio_input) {
-    int16_t audio_output = (audio_input * m_gain_mod_input) >> 14;
-    audio_output = (audio_output * m_gain_linear) >> 14;
-    audio_output = (audio_output * m_breath_gain_linear) >> 14;
+  INLINE int32_t process(int32_t audio_input_int24) {
+    int32_t audio_output = mul_s32_s16_h32(audio_input_int24 << 2, m_gain_mod_input);
+    audio_output = mul_s32_s16_h32(audio_output << 2, m_gain_linear);
+    audio_output = mul_s32_s16_h32(audio_output << 2, m_breath_gain_linear);
     return audio_output;
   }
 
