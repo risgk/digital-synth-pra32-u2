@@ -1344,12 +1344,12 @@ public:
       while (m_secondary_core_processing_request) {
         ;
       }
-      int16_t osc_output_sum_b = m_secondary_core_processing_result;
+      int32_t osc_output_sum_b = m_secondary_core_processing_result;
 #else  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
       osc_output[2] = m_osc.process<2>(noise_int15);
       osc_output[3] = m_osc.process<3>(noise_int15);
 
-      int16_t osc_output_sum_b = osc_output[2] + osc_output[3];
+      int32_t osc_output_sum_b = osc_output[2] + osc_output[3];
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
 
       int32_t osc_mixer_output = (osc_output_sum_a + osc_output_sum_b);
@@ -1436,9 +1436,9 @@ public:
     if (m_secondary_core_processing_request == 1) {
       int16_t noise_int15 = static_cast<int16_t>(m_secondary_core_processing_argument);
 
-      int16_t osc_output   [4];
-      int16_t filter_output[4];
-      int16_t amp_output   [4];
+      int32_t osc_output   [4];
+      int32_t filter_output[4];
+      int32_t amp_output   [4];
 
       if (m_voice_mode == VOICE_POLYPHONIC) {
         osc_output   [2] = m_osc      .process<2>(noise_int15);
