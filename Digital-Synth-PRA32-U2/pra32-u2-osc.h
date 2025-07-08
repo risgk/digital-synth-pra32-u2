@@ -1458,9 +1458,9 @@ public:
   }
 
   template <uint8_t N>
-  INLINE int16_t process(int16_t noise_int15) {
+  INLINE int32_t process(int16_t noise_int15) {
 #if 1
-    return process_osc<N>(noise_int15) >> 8;
+    return process_osc<N>(noise_int15);
 #else
     return = 0;
 #endif

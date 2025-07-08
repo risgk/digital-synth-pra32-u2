@@ -1291,10 +1291,10 @@ public:
       break;
     }
 
-    int16_t osc_output   [4];
-    int16_t filter_output[4];
-    int16_t amp_output   [4];
-    int16_t voice_mixer_output;
+    int32_t osc_output   [4];
+    int32_t filter_output[4];
+    int32_t amp_output   [4];
+    int32_t voice_mixer_output;
     if (m_voice_mode == VOICE_POLYPHONIC) {
 #if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
       m_secondary_core_processing_argument = noise_int15;
@@ -1352,7 +1352,7 @@ public:
       int16_t osc_output_sum_b = osc_output[2] + osc_output[3];
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
 
-      int16_t osc_mixer_output = (osc_output_sum_a + osc_output_sum_b);
+      int32_t osc_mixer_output = (osc_output_sum_a + osc_output_sum_b);
 
       filter_output[0] = m_filter[0].process(osc_mixer_output);
       amp_output   [0] = m_amp   [0].process(filter_output[0]);
@@ -1365,7 +1365,7 @@ public:
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
 
       osc_output[0] = m_osc.process<0>(noise_int15);
-      int16_t osc_mixer_output = osc_output[0];
+      int32_t osc_mixer_output = osc_output[0];
 
       filter_output[0] = m_filter[0].process(osc_mixer_output);
       amp_output   [0] = m_amp   [0].process(filter_output[0]);
@@ -1382,8 +1382,8 @@ public:
 #if 1
     // Increase the output level using Extra Amp and Limiter
 
-    // voice_mixer_output_clamped = clamp((voice_mixer_output << 1), (-INT16_MAX), (+INT16_MAX))
-    volatile int32_t voice_mixer_output_clamped = (voice_mixer_output << 1) - (+INT16_MAX);
+    // voice_mixer_output_clamped = clamp((voice_mixer_output >> (8 - 1)), (-INT16_MAX), (+INT16_MAX))
+    volatile int32_t voice_mixer_output_clamped = (voice_mixer_output >> (8 - 1)) - (+INT16_MAX);
     voice_mixer_output_clamped = (voice_mixer_output_clamped < 0) * voice_mixer_output_clamped + (+INT16_MAX) - (-INT16_MAX);
     voice_mixer_output_clamped = (voice_mixer_output_clamped > 0) * voice_mixer_output_clamped + (-INT16_MAX);
 

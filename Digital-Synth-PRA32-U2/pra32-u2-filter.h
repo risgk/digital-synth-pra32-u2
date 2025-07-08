@@ -10,8 +10,8 @@ class PRA32_U2_Filter {
   int32_t         m_a_1_over_a_0;
   int32_t         m_a_2_over_a_0;
   int16_t         m_filter_gain;
-  int16_t         m_x_1;
-  int16_t         m_x_2;
+  int32_t         m_x_1;
+  int32_t         m_x_2;
   int32_t         m_y_1;
   int32_t         m_y_2;
   int32_t         m_resonance_index;
@@ -26,8 +26,7 @@ class PRA32_U2_Filter {
   int8_t          m_cutoff_breath_amt;
   int16_t         m_breath_controller;
 
-  const uint8_t AUDIO_FRACTION_BITS = 14;
-  const int16_t MAX_ABS_OUTPUT = ((124 << (AUDIO_FRACTION_BITS - 8)) >> 8) << 8;
+  const int32_t MAX_ABS_OUTPUT = 124 << 16;
 
 public:
   PRA32_U2_Filter()
@@ -134,11 +133,11 @@ public:
     }
   }
 
-  INLINE int16_t process(int16_t audio_input) {
+  INLINE int32_t process(int32_t audio_input_int24) {
 #if 1
-    int16_t x_0 = audio_input >> (16 - AUDIO_FRACTION_BITS);
-    int16_t x_3 = x_0 + (m_x_1 << 1) + m_x_2;
-    int32_t y_0 = mul_s32_s16_h32(m_b_2_over_a_0, x_3) << (32 - FILTER_TABLE_FRACTION_BITS);
+    int32_t x_0 = audio_input_int24;
+    int32_t x_3 = x_0 + (m_x_1 << 1) + m_x_2;
+    int32_t y_0 = mul_s32_s32_h32(m_b_2_over_a_0, x_3) << (32 - FILTER_TABLE_FRACTION_BITS);
 
     y_0 -= mul_s32_s32_h32(m_a_1_over_a_0, m_y_1) << (32 - FILTER_TABLE_FRACTION_BITS);
     y_0 -= mul_s32_s32_h32(m_a_2_over_a_0, m_y_2) << (32 - FILTER_TABLE_FRACTION_BITS);
@@ -147,10 +146,10 @@ public:
     m_y_2 = m_y_1;
     m_x_1 = x_0;
 
-    // y_0_clamped = clamp(y_0, (-MAX_ABS_OUTPUT << 16), (+MAX_ABS_OUTPUT << 16))
-    volatile int32_t y_0_clamped = y_0 - (+MAX_ABS_OUTPUT << 16);
-    y_0_clamped = (y_0_clamped < 0) * y_0_clamped + (+MAX_ABS_OUTPUT << 16) - (-MAX_ABS_OUTPUT << 16);
-    y_0_clamped = (y_0_clamped > 0) * y_0_clamped + (-MAX_ABS_OUTPUT << 16);
+    // y_0_clamped = clamp(y_0, (-MAX_ABS_OUTPUT), (+MAX_ABS_OUTPUT))
+    volatile int32_t y_0_clamped = y_0 - (+MAX_ABS_OUTPUT);
+    y_0_clamped = (y_0_clamped < 0) * y_0_clamped + (+MAX_ABS_OUTPUT) - (-MAX_ABS_OUTPUT);
+    y_0_clamped = (y_0_clamped > 0) * y_0_clamped + (-MAX_ABS_OUTPUT);
 
     m_y_1 = y_0_clamped;
 
@@ -160,18 +159,18 @@ public:
     if (m_filter_mode >= 64) {
 #endif
       // high pass
-      y_0_clamped = (x_0 << 16) - y_0_clamped;
+      y_0_clamped = x_0 - y_0_clamped;
     }
 
-    // y_0_clamped_2nd = clamp(y_0_clamped, (-MAX_ABS_OUTPUT << 16), (+MAX_ABS_OUTPUT << 16))
-    volatile int32_t y_0_clamped_2nd = y_0_clamped - (+MAX_ABS_OUTPUT << 16);
-    y_0_clamped_2nd = (y_0_clamped_2nd < 0) * y_0_clamped_2nd + (+MAX_ABS_OUTPUT << 16) - (-MAX_ABS_OUTPUT << 16);
-    y_0_clamped_2nd = (y_0_clamped_2nd > 0) * y_0_clamped_2nd + (-MAX_ABS_OUTPUT << 16);
+    // y_0_clamped_2nd = clamp(y_0_clamped, (-MAX_ABS_OUTPUT), (+MAX_ABS_OUTPUT))
+    volatile int32_t y_0_clamped_2nd = y_0_clamped - (+MAX_ABS_OUTPUT);
+    y_0_clamped_2nd = (y_0_clamped_2nd < 0) * y_0_clamped_2nd + (+MAX_ABS_OUTPUT) - (-MAX_ABS_OUTPUT);
+    y_0_clamped_2nd = (y_0_clamped_2nd > 0) * y_0_clamped_2nd + (-MAX_ABS_OUTPUT);
 #else
     volatile int32_t y_0_clamped_2nd = x_0;
 #endif
 
-    return (y_0_clamped_2nd << (16 - AUDIO_FRACTION_BITS)) >> 16;
+    return y_0_clamped_2nd;
   }
 
 private:
