@@ -18,7 +18,7 @@
     - "Digital-Synth-PRA32-U2-PWM-Audio.uf2" is for Raspberry Pi Pico and PWM Audio
 
 
-## [Change History](/PRA32-U2-Change-History.md)
+## [Change History](./PRA32-U2-Change-History.md)
 
 
 ## Preparation for modification
@@ -166,10 +166,10 @@
 - PRA32-U2 with Panel (USB MIDI Device, UART MIDI, I2S, Control Panel)
 
 
-## [Parameter Guide](/PRA32-U2-Parameter-Guide.md)
+## [Parameter Guide](./PRA32-U2-Parameter-Guide.md)
 
 
-## [MIDI Implementation Chart](/PRA32-U2-MIDI-Implementation-Chart.md)
+## [MIDI Implementation Chart](./PRA32-U2-MIDI-Implementation-Chart.md)
 
 
 ## Synthesizer Block Diagram
