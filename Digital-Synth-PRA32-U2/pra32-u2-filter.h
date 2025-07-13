@@ -145,28 +145,17 @@ public:
     m_x_2 = m_x_1;
     m_y_2 = m_y_1;
     m_x_1 = x_0;
-
-    // y_0_clamped = clamp(y_0, (-MAX_ABS_OUTPUT), (+MAX_ABS_OUTPUT))
-    volatile int32_t y_0_clamped = y_0 - (+MAX_ABS_OUTPUT);
-    y_0_clamped = (y_0_clamped < 0) * y_0_clamped + (+MAX_ABS_OUTPUT) - (-MAX_ABS_OUTPUT);
-    y_0_clamped = (y_0_clamped > 0) * y_0_clamped + (-MAX_ABS_OUTPUT);
-
-    m_y_1 = y_0_clamped;
+    m_y_1 = y_0;
 
     if (m_filter_mode >= 64) {
       // high pass
-      y_0_clamped = x_0 - y_0_clamped;
+      y_0 = x_0 - y_0;
     }
-
-    // y_0_clamped_2nd = clamp(y_0_clamped, (-MAX_ABS_OUTPUT), (+MAX_ABS_OUTPUT))
-    volatile int32_t y_0_clamped_2nd = y_0_clamped - (+MAX_ABS_OUTPUT);
-    y_0_clamped_2nd = (y_0_clamped_2nd < 0) * y_0_clamped_2nd + (+MAX_ABS_OUTPUT) - (-MAX_ABS_OUTPUT);
-    y_0_clamped_2nd = (y_0_clamped_2nd > 0) * y_0_clamped_2nd + (-MAX_ABS_OUTPUT);
 #else
-    volatile int32_t y_0_clamped_2nd = x_0;
+    volatile int32_t y_0 = audio_input_int24;
 #endif
 
-    return y_0_clamped_2nd;
+    return y_0;
   }
 
 private:
