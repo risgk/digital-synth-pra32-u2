@@ -1232,7 +1232,7 @@ public:
 #endif  // defined(ARDUINO_ARCH_RP2040)
   }
 
-  INLINE int16_t process(int16_t& right_level) {
+  INLINE int16_t process(int16_t& right_output_int16) {
     ++m_count;
 
     int16_t noise_int15 = m_noise_gen.process();
@@ -1382,32 +1382,35 @@ public:
 #if 1
     // Increase the output level using Extra Amp and Limiter
 
-    // voice_mixer_output_clamped = clamp((voice_mixer_output >> (8 - 1)), (-INT16_MAX), (+INT16_MAX))
-    volatile int32_t voice_mixer_output_clamped = (voice_mixer_output >> (8 - 1)) - (+INT16_MAX);
-    voice_mixer_output_clamped = (voice_mixer_output_clamped < 0) * voice_mixer_output_clamped + (+INT16_MAX) - (-INT16_MAX);
-    voice_mixer_output_clamped = (voice_mixer_output_clamped > 0) * voice_mixer_output_clamped + (-INT16_MAX);
+    // voice_mixer_output_clamped = clamp((voice_mixer_output << 1), (-(INT16_MAX << 8)), (+(INT16_MAX << 8)))
+    volatile int32_t voice_mixer_output_clamped = (voice_mixer_output << 1) - (+(INT16_MAX << 8));
+    voice_mixer_output_clamped = (voice_mixer_output_clamped < 0) * voice_mixer_output_clamped + (+(INT16_MAX << 8)) - (-(INT16_MAX << 8));
+    voice_mixer_output_clamped = (voice_mixer_output_clamped > 0) * voice_mixer_output_clamped + (-(INT16_MAX << 8));
 
     voice_mixer_output = voice_mixer_output_clamped;
 #endif
 
-    int16_t chorus_fx_output_r;
-    int16_t chorus_fx_output_l = m_chorus_fx.process(voice_mixer_output, chorus_fx_output_r);
+    int32_t chorus_fx_output_r;
+    int32_t chorus_fx_output_l = m_chorus_fx.process(voice_mixer_output, chorus_fx_output_r);
 
-    int16_t delay_fx_output_r;
-    int16_t delay_fx_output_l = m_delay_fx.process(chorus_fx_output_l, chorus_fx_output_r, delay_fx_output_r);
+    int32_t delay_fx_output_r;
+    int32_t delay_fx_output_l = m_delay_fx.process(chorus_fx_output_l, chorus_fx_output_r, delay_fx_output_r);
+
+    int16_t synth_output_r_int16 = (delay_fx_output_r >> 8);
+    int16_t synth_output_l_int16 = (delay_fx_output_l >> 8);
 
 #if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
 #if defined(PRA32_U2_USE_PWM_AUDIO_DITHERING_INSTEAD_OF_ERROR_DIFFUSION)
     // Dithering
-    right_level = delay_fx_output_r + (((noise_int15 + 16384) >> 11) - 8);
-    return        delay_fx_output_l + (((noise_int15 + 16384) >> 11) - 8);
+    right_output_int16 = synth_output_r_int16 + (((noise_int15 + 16384) >> 11) - 8);
+    return               synth_output_l_int16 + (((noise_int15 + 16384) >> 11) - 8);
 #else  // defined(PRA32_U2_USE_PWM_AUDIO_DITHERING_INSTEAD_OF_ERROR_DIFFUSION)
     // Error diffusion
     static uint16_t s_output_error_l = 0;
     static uint16_t s_output_error_r = 0;
 
-    uint32_t pwm_audio_l = delay_fx_output_l + 0x8000;
-    uint32_t pwm_audio_r = delay_fx_output_r + 0x8000;
+    uint32_t pwm_audio_l = synth_output_l_int16 + 0x8000;
+    uint32_t pwm_audio_r = synth_output_r_int16 + 0x8000;
     pwm_audio_l +=  ((noise_int15 + 16384) >> 14);
     pwm_audio_r += !((noise_int15 + 16384) >> 14);
     pwm_audio_l *= 3125;
@@ -1420,12 +1423,12 @@ public:
     s_output_error_l = pwm_audio_l & 0xFFFF;
     s_output_error_r = pwm_audio_r & 0xFFFF;
 
-    right_level = delay_fx_output_r + (prev_output_error_r > s_output_error_r) * 22;
-    return        delay_fx_output_l + (prev_output_error_l > s_output_error_l) * 22;
+    right_output_int16 = synth_output_r_int16 + (prev_output_error_r > s_output_error_r) * 22;
+    return               synth_output_l_int16 + (prev_output_error_l > s_output_error_l) * 22;
 #endif  // defined(PRA32_U2_USE_PWM_AUDIO_DITHERING_INSTEAD_OF_ERROR_DIFFUSION)
 #else  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
-    right_level = delay_fx_output_r;
-    return        delay_fx_output_l;
+    right_output_int16 = synth_output_r_int16;
+    return               synth_output_l_int16;
 #endif  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
   }
 
