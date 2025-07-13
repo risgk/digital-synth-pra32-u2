@@ -1385,8 +1385,23 @@ public:
     int32_t delay_fx_output_r;
     int32_t delay_fx_output_l = m_delay_fx.process(chorus_fx_output_l, chorus_fx_output_r, delay_fx_output_r);
 
-    int16_t synth_output_r_int16 = (delay_fx_output_r >> 8);
-    int16_t synth_output_l_int16 = (delay_fx_output_l >> 8);
+    int32_t synth_output_r = delay_fx_output_r;
+    int32_t synth_output_l = delay_fx_output_l;
+
+    // synth_output_l_clamped = clamp((synth_output_l << 1), (-(INT16_MAX << 8)), (+(INT16_MAX << 8)))
+    volatile int32_t synth_output_l_clamped = (synth_output_l << 1) - (+(INT16_MAX << 8));
+    synth_output_l_clamped = (synth_output_l_clamped < 0) * synth_output_l_clamped + (+(INT16_MAX << 8)) - (-(INT16_MAX << 8));
+    synth_output_l_clamped = (synth_output_l_clamped > 0) * synth_output_l_clamped + (-(INT16_MAX << 8));
+    synth_output_l = synth_output_l_clamped;
+
+    // synth_output_r_clamped = clamp((synth_output_r << 1), (-(INT16_MAX << 8)), (+(INT16_MAX << 8)))
+    volatile int32_t synth_output_r_clamped = (synth_output_r << 1) - (+(INT16_MAX << 8));
+    synth_output_r_clamped = (synth_output_r_clamped < 0) * synth_output_r_clamped + (+(INT16_MAX << 8)) - (-(INT16_MAX << 8));
+    synth_output_r_clamped = (synth_output_r_clamped > 0) * synth_output_r_clamped + (-(INT16_MAX << 8));
+    synth_output_r = synth_output_r_clamped;
+
+    int16_t synth_output_l_int16 = (synth_output_l >> 8);
+    int16_t synth_output_r_int16 = (synth_output_r >> 8);
 
 #if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
 #if defined(PRA32_U2_USE_PWM_AUDIO_DITHERING_INSTEAD_OF_ERROR_DIFFUSION)

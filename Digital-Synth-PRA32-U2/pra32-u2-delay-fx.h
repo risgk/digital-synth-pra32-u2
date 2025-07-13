@@ -76,18 +76,6 @@ public:
   }
 
   INLINE int32_t process(int32_t left_input_int24, int32_t right_input_int24, int32_t& right_output_int24) {
-    // left_input_int24_clamped = clamp((left_input_int24 << 1), (-(INT16_MAX << (8 - 1))), (+(INT16_MAX << (8 - 1))))
-    volatile int32_t left_input_int24_clamped = (left_input_int24 << 1) - (+(INT16_MAX << (8 - 1)));
-    left_input_int24_clamped = (left_input_int24_clamped < 0) * left_input_int24_clamped + (+(INT16_MAX << (8 - 1))) - (-(INT16_MAX << (8 - 1)));
-    left_input_int24_clamped = (left_input_int24_clamped > 0) * left_input_int24_clamped + (-(INT16_MAX << (8 - 1)));
-    left_input_int24 = left_input_int24_clamped;
-
-    // right_input_int24_clamped = clamp((right_input_int24 << 1), (-(INT16_MAX << (8 - 1))), (+(INT16_MAX << (8 - 1))))
-    volatile int32_t right_input_int24_clamped = (right_input_int24 << 1) - (+(INT16_MAX << (8 - 1)));
-    right_input_int24_clamped = (right_input_int24_clamped < 0) * right_input_int24_clamped + (+(INT16_MAX << (8 - 1))) - (-(INT16_MAX << (8 - 1)));
-    right_input_int24_clamped = (right_input_int24_clamped > 0) * right_input_int24_clamped + (-(INT16_MAX << (8 - 1)));
-    right_input_int24 = right_input_int24_clamped;
-
     int32_t left_delay   = delay_buff_get<0>(m_delay_time_effective);
     int32_t right_delay  = delay_buff_get<1>(m_delay_time_effective);
 
