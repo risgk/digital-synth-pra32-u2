@@ -7,7 +7,7 @@ $file.printf("#pragma once\n\n")
 OCTAVES = 10
 
 def generate_filter_lpf_table(res_id, name, q)
-  $file.printf("int32_t g_filter_lpf_table_%s[] = {\n  ", name)
+  $file.printf("const int32_t g_filter_lpf_table_%s[] = {\n  ", name)
   (0..((DATA_BYTE_MAX * 2) << FILTER_TABLE_EXTENSION_BITS) + 1).each do |i|
     f_idx = [[-2 << FILTER_TABLE_EXTENSION_BITS, i - ((1 * 2) << FILTER_TABLE_EXTENSION_BITS)].max,
               252 << FILTER_TABLE_EXTENSION_BITS].min
@@ -48,7 +48,7 @@ MAX_RES_ID = 14
   generate_filter_lpf_table(res_id, res_id.to_s, Math.sqrt(2.0) ** ((res_id - 2.0) / 2.0))
 end
 
-$file.printf("int32_t* g_filter_tables[] = {\n  ")
+$file.printf("const int32_t* g_filter_tables[] = {\n  ")
 (0..16).each do |res_index|
   res_id = [[res_index - 1, 0].max, MAX_RES_ID].min
   $file.printf("g_filter_lpf_table_%-2d,", res_id)

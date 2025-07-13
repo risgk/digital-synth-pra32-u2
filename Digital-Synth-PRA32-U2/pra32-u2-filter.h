@@ -195,6 +195,10 @@ private:
     }
 
     const int32_t* filter_table = g_filter_tables[m_resonance_index];
+#if defined(ARDUINO_ARCH_RP2040)
+    // Uncached, untranslated XIP access -- bypass QMI address translation
+    filter_table = reinterpret_cast<const int32_t*>(reinterpret_cast<uintptr_t>(filter_table) | 0x1c000000u);
+#endif
     size_t index = m_cutoff_current * 3;
     m_b_2_over_a_0 = filter_table[index + 0];
     m_a_1_over_a_0 = filter_table[index + 1];
