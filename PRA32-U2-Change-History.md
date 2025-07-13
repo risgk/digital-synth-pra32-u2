@@ -2,6 +2,7 @@
 
 - v0.5.0 (2025-**-**):
     - Extend Oscillator, Filter, and Amp inputs and outputs to 24-bit (int32_t)
+    - Extend Chorus FX and Delay FX inputs and outputs to 24-bit (int32_t)
     - Extend Filter Key Track range and resolution (0.0 to 1.0, step 0.5 -> -1.000 to +1.000, step 0.125)
     - Fix a problem where Filter Key Track correction was off to the plus side
     - Fix a problem in which High Pass is selected when Filter Mode value is 1

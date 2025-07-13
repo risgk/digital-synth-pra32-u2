@@ -75,7 +75,7 @@ public:
     m_delay_time_effective -= (m_delay_time_effective > m_delay_time);
   }
 
-  INLINE int16_t process(int16_t left_input, int16_t right_input, int16_t& right_level) {
+  INLINE int32_t process(int32_t left_input_int24, int32_t right_input_int24, int32_t& right_output_int24) {
     int16_t left_delay   = delay_buff_get<0>(m_delay_time_effective);
     int16_t right_delay  = delay_buff_get<1>(m_delay_time_effective);
 
@@ -84,22 +84,22 @@ public:
 
     if (m_delay_mode >= 64) {
       // Ping Pong Delay
-      left_feedback  = ((((left_input + right_input) >> 2) + right_delay) * m_delay_feedback_effective) / 256;
-      right_feedback = ((                                    left_delay ) * m_delay_feedback_effective) / 256;
+      left_feedback  = ((((left_input_int24 + right_input_int24) >> (2 + 8)) + right_delay) * m_delay_feedback_effective) / 256;
+      right_feedback = ((                                                      left_delay ) * m_delay_feedback_effective) / 256;
     } else {
       // Stereo Delay
-      left_feedback  = ((((left_input  >> 1) + left_delay ) * m_delay_feedback_effective) / 256);
-      right_feedback = ((((right_input >> 1) + right_delay) * m_delay_feedback_effective) / 256);
+      left_feedback  = ((((left_input_int24  >> (1 + 8)) + left_delay ) * m_delay_feedback_effective) / 256);
+      right_feedback = ((((right_input_int24 >> (1 + 8)) + right_delay) * m_delay_feedback_effective) / 256);
     }
 
     delay_buff_push<0>(left_feedback);
     delay_buff_push<1>(right_feedback);
 
-    int16_t left_output  = (left_input  >> 1) + left_delay;
-    int16_t right_output = (right_input >> 1) + right_delay;
+    int16_t left_output  = (left_input_int24  >> (1 + 8)) + left_delay;
+    int16_t right_output = (right_input_int24 >> (1 + 8)) + right_delay;
 
-    right_level = right_output;
-    return        left_output;
+    right_output_int24 = right_output << 8;
+    return               left_output  << 8;
   }
 
 private:

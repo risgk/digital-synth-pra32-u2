@@ -5,7 +5,7 @@
 class PRA32_U2_ChorusFx {
   static const uint16_t DELAY_BUFF_SIZE = 512;
 
-  int16_t  m_delay_buff[DELAY_BUFF_SIZE];
+  int32_t  m_delay_buff[DELAY_BUFF_SIZE];
   uint16_t m_delay_wp;
 
   uint16_t m_chorus_mix_control;
@@ -109,30 +109,30 @@ public:
 #endif
   }
 
-  INLINE int16_t process(int16_t dir_sample, int16_t& right_level) {
-    int16_t eff_sample_0 = delay_buff_get(get_chorus_delay_time<0>());
-    int16_t eff_sample_1 = delay_buff_get(get_chorus_delay_time<1>());
-    delay_buff_push(dir_sample);
+  INLINE int32_t process(int32_t dir_sample_int24, int32_t& right_output_int24) {
+    int32_t eff_sample_0 = delay_buff_get(get_chorus_delay_time<0>());
+    int32_t eff_sample_1 = delay_buff_get(get_chorus_delay_time<1>());
+    delay_buff_push(dir_sample_int24);
 
-    right_level = (((dir_sample * (128 - m_chorus_mix_control_effective)) + (eff_sample_1 * m_chorus_mix_control_effective))) >> 7;
-    return        (((dir_sample * (128 - m_chorus_mix_control_effective)) + (eff_sample_0 * m_chorus_mix_control_effective))) >> 7;
+    right_output_int24 = (((dir_sample_int24 * (128 - m_chorus_mix_control_effective)) + (eff_sample_1 * m_chorus_mix_control_effective))) >> 7;
+    return               (((dir_sample_int24 * (128 - m_chorus_mix_control_effective)) + (eff_sample_0 * m_chorus_mix_control_effective))) >> 7;
   }
 
 private:
-  INLINE void delay_buff_push(int16_t audio_input) {
+  INLINE void delay_buff_push(int32_t audio_input_int24) {
     m_delay_wp = (m_delay_wp + 1) & (DELAY_BUFF_SIZE - 1);
-    m_delay_buff[m_delay_wp] = audio_input;
+    m_delay_buff[m_delay_wp] = audio_input_int24;
   }
 
-  INLINE int16_t delay_buff_get(uint16_t sample_delay) {
+  INLINE int32_t delay_buff_get(uint16_t sample_delay) {
     uint16_t curr_index  = (m_delay_wp - (sample_delay >> 4)) & (DELAY_BUFF_SIZE - 1);
     uint16_t next_index  = (curr_index - 1) & (DELAY_BUFF_SIZE - 1);
     uint16_t next_weight = (sample_delay & 0xF);
-    int16_t  curr_data   = m_delay_buff[curr_index];
-    int16_t  next_data   = m_delay_buff[next_index];
+    int32_t  curr_data   = m_delay_buff[curr_index];
+    int32_t  next_data   = m_delay_buff[next_index];
 
     // lerp
-    int16_t result = curr_data + (((next_data - curr_data) * next_weight) >> 4);
+    int32_t result = curr_data + mul_s32_u16_h32(next_data - curr_data, next_weight << 12u);
 
     return result;
   }
