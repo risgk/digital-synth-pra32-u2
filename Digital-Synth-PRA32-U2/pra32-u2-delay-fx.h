@@ -95,11 +95,8 @@ public:
     delay_buff_push<0>(left_feedback);
     delay_buff_push<1>(right_feedback);
 
-    int16_t left_output  = (left_input_int24  >> (1 + 8)) + left_delay;
-    int16_t right_output = (right_input_int24 >> (1 + 8)) + right_delay;
-
-    right_output_int24 = right_output << 8;
-    return               left_output  << 8;
+    right_output_int24 = (right_input_int24 >> 1) + (right_delay << 8);
+    return               (left_input_int24  >> 1) + (left_delay  << 8);
   }
 
 private:
