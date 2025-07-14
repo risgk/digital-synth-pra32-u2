@@ -1380,7 +1380,7 @@ public:
     }
 
     int32_t chorus_fx_output_r;
-    int32_t chorus_fx_output_l = m_chorus_fx.process(voice_mixer_output, chorus_fx_output_r);
+    int32_t chorus_fx_output_l = m_chorus_fx.process(voice_mixer_output, voice_mixer_output, chorus_fx_output_r);
 
     int32_t delay_fx_output_r;
     int32_t delay_fx_output_l = m_delay_fx.process(chorus_fx_output_l, chorus_fx_output_r, delay_fx_output_r);
