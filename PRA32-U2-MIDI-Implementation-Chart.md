@@ -81,7 +81,7 @@
 |                               |               |               |                                      |
 |                               |               |               |                                      |
 |                               |               |               |                                      |
-|                            34 | x             | o             | Chorus Mix [Dry|Wet]                 |
+|                            93 | x             | o             | Chorus Mix [Dry|Wet]                 |
 |                            58 | x             | o             | Chorus Rate                          |
 |                            59 | x             | o             | Chorus Depth                         |
 |                               |               |               |                                      |

@@ -111,7 +111,7 @@ const uint8_t   VOICE_ASGN_MODE = 110;
 
 
 
-const uint8_t   CHORUS_MIX      = 34;
+const uint8_t   CHORUS_MIX      = 93;
 const uint8_t   CHORUS_RATE     = 58;
 const uint8_t   CHORUS_DEPTH    = 59;
 
