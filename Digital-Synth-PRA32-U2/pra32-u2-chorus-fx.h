@@ -5,8 +5,8 @@
 class PRA32_U2_ChorusFx {
   static const uint16_t DELAY_BUFF_SIZE = 512;
 
-  int32_t  m_delay_buff[DELAY_BUFF_SIZE];
-  uint16_t m_delay_wp;
+  int32_t  m_delay_buff[2][DELAY_BUFF_SIZE];
+  uint16_t m_delay_wp[2];
 
   uint16_t m_chorus_mix_control;
   uint16_t m_chorus_mix_control_effective;
@@ -34,7 +34,8 @@ public:
   , m_chorus_lfo_phase()
   , m_chorus_delay_time()
   {
-    m_delay_wp = DELAY_BUFF_SIZE - 1;
+    m_delay_wp[0] = DELAY_BUFF_SIZE - 1;
+    m_delay_wp[1] = DELAY_BUFF_SIZE - 1;
 
     set_chorus_depth     (64 );
     set_chorus_rate      (64 );
@@ -109,27 +110,28 @@ public:
 #endif
   }
 
-  INLINE int32_t process(int32_t dir_sample_int24, int32_t& right_output_int24) {
-    int32_t eff_sample_0 = delay_buff_get(get_chorus_delay_time<0>());
-    int32_t eff_sample_1 = delay_buff_get(get_chorus_delay_time<1>());
-    delay_buff_push(dir_sample_int24);
+  INLINE int32_t process(int32_t left_input_int24, int32_t right_input_int24, int32_t& right_output_int24) {
+    int32_t eff_sample_0 = delay_buff_get(0, get_chorus_delay_time<0>());
+    int32_t eff_sample_1 = delay_buff_get(1, get_chorus_delay_time<1>());
+    delay_buff_push(0, left_input_int24);
+    delay_buff_push(1, right_input_int24);
 
-    right_output_int24 = (((dir_sample_int24 * (128 - m_chorus_mix_control_effective)) + (eff_sample_1 * m_chorus_mix_control_effective))) >> 7;
-    return               (((dir_sample_int24 * (128 - m_chorus_mix_control_effective)) + (eff_sample_0 * m_chorus_mix_control_effective))) >> 7;
+    right_output_int24 = (((right_input_int24 * (128 - m_chorus_mix_control_effective)) + (eff_sample_1 * m_chorus_mix_control_effective))) >> 7;
+    return               (((left_input_int24  * (128 - m_chorus_mix_control_effective)) + (eff_sample_0 * m_chorus_mix_control_effective))) >> 7;
   }
 
 private:
-  INLINE void delay_buff_push(int32_t audio_input_int24) {
-    m_delay_wp = (m_delay_wp + 1) & (DELAY_BUFF_SIZE - 1);
-    m_delay_buff[m_delay_wp] = audio_input_int24;
+  INLINE void delay_buff_push(uint32_t lr, int32_t audio_input_int24) {
+    m_delay_wp[lr] = (m_delay_wp[lr] + 1) & (DELAY_BUFF_SIZE - 1);
+    m_delay_buff[lr][m_delay_wp[lr]] = audio_input_int24;
   }
 
-  INLINE int32_t delay_buff_get(uint16_t sample_delay) {
-    uint16_t curr_index  = (m_delay_wp - (sample_delay >> 4)) & (DELAY_BUFF_SIZE - 1);
+  INLINE int32_t delay_buff_get(uint32_t lr, uint16_t sample_delay) {
+    uint16_t curr_index  = (m_delay_wp[lr] - (sample_delay >> 4)) & (DELAY_BUFF_SIZE - 1);
     uint16_t next_index  = (curr_index - 1) & (DELAY_BUFF_SIZE - 1);
     uint16_t next_weight = (sample_delay & 0xF);
-    int32_t  curr_data   = m_delay_buff[curr_index];
-    int32_t  next_data   = m_delay_buff[next_index];
+    int32_t  curr_data   = m_delay_buff[lr][curr_index];
+    int32_t  next_data   = m_delay_buff[lr][next_index];
 
     // lerp
     int32_t result = curr_data + mul_s32_u16_h32(next_data - curr_data, next_weight << 12u);
@@ -139,7 +141,8 @@ private:
 
   INLINE void delay_buff_attenuate() {
     for (uint16_t i = 0; i < DELAY_BUFF_SIZE; ++i) {
-      m_delay_buff[i] = m_delay_buff[i] >> 1;
+      m_delay_buff[0][i] = m_delay_buff[0][i] >> 1;
+      m_delay_buff[1][i] = m_delay_buff[1][i] >> 1;
     }
   }
 
