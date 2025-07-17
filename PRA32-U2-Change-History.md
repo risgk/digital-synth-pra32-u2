@@ -4,6 +4,8 @@
     - Change the control number of Chorus Mix (34 -> 93)
     - Extend Oscillator, Filter, and Amp inputs and outputs to 24-bit (int32_t)
     - Extend Chorus FX and Delay FX inputs and outputs to 24-bit (int32_t)
+    - Improve Filter Resonance accuracy (4x)
+    - Change the meaning of the Filter Resonance control value
     - Extend Filter Key Track range and resolution (0.0 to 1.0, step 0.5 -> -1.000 to +1.000, step 0.125)
     - Reduce SRAM usage: Move g_filter_lpf_table_* to QSPI flash
     - Fix a problem where Filter Key Track correction was off to the plus side

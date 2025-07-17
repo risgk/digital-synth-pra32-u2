@@ -67,7 +67,7 @@ public:
   }
 
   INLINE void set_resonance(uint8_t controller_value) {
-    m_resonance_index = (controller_value + 2) >> 3;
+    m_resonance_index = (controller_value + ((1 << (3 - FILTER_TABLE_RESO_EXT_BITS)) >> 1)) >> (3 - FILTER_TABLE_RESO_EXT_BITS);
   }
 
   INLINE int8_t get_cutoff_mod_amt(uint8_t controller_value) {
@@ -165,20 +165,20 @@ private:
   }
 
   INLINE void update_coefs(int16_t eg_input, int16_t lfo_input, uint16_t osc_pitch) {
-    int16_t cutoff_candidate = m_cutoff_control_effective << FILTER_TABLE_EXTENSION_BITS;
-    cutoff_candidate += (m_cutoff_eg_amt * eg_input) >> (14 - FILTER_TABLE_EXTENSION_BITS);
-    cutoff_candidate += m_cutoff_offset << FILTER_TABLE_EXTENSION_BITS;
+    int16_t cutoff_candidate = m_cutoff_control_effective << FILTER_TABLE_CUTOFF_EXT_BITS;
+    cutoff_candidate += (m_cutoff_eg_amt * eg_input) >> (14 - FILTER_TABLE_CUTOFF_EXT_BITS);
+    cutoff_candidate += m_cutoff_offset << FILTER_TABLE_CUTOFF_EXT_BITS;
 
-    cutoff_candidate += (lfo_input * m_cutoff_lfo_amt) >> (14 - FILTER_TABLE_EXTENSION_BITS);
-    cutoff_candidate += (((osc_pitch - (60 << 8)) * m_cutoff_pitch_amt) + (1 << ((10 - 1) - FILTER_TABLE_EXTENSION_BITS))) >> (10 - FILTER_TABLE_EXTENSION_BITS);
-    cutoff_candidate += (m_breath_controller * m_cutoff_breath_amt) >> (14 - FILTER_TABLE_EXTENSION_BITS);
+    cutoff_candidate += (lfo_input * m_cutoff_lfo_amt) >> (14 - FILTER_TABLE_CUTOFF_EXT_BITS);
+    cutoff_candidate += (((osc_pitch - (60 << 8)) * m_cutoff_pitch_amt) + (1 << ((10 - 1) - FILTER_TABLE_CUTOFF_EXT_BITS))) >> (10 - FILTER_TABLE_CUTOFF_EXT_BITS);
+    cutoff_candidate += (m_breath_controller * m_cutoff_breath_amt) >> (14 - FILTER_TABLE_CUTOFF_EXT_BITS);
 
-    // cutoff_target = clamp(cutoff_candidate, 0, ((254 << FILTER_TABLE_EXTENSION_BITS) + 1))
-    volatile int16_t cutoff_target = cutoff_candidate - ((254 << FILTER_TABLE_EXTENSION_BITS) + 1);
-    cutoff_target = (cutoff_target < 0) * cutoff_target + ((254 << FILTER_TABLE_EXTENSION_BITS) + 1);
+    // cutoff_target = clamp(cutoff_candidate, 0, ((254 << FILTER_TABLE_CUTOFF_EXT_BITS) + 1))
+    volatile int16_t cutoff_target = cutoff_candidate - ((254 << FILTER_TABLE_CUTOFF_EXT_BITS) + 1);
+    cutoff_target = (cutoff_target < 0) * cutoff_target + ((254 << FILTER_TABLE_CUTOFF_EXT_BITS) + 1);
     cutoff_target = (cutoff_target > 0) * cutoff_target;
 
-    for (uint32_t i = 0; i < (1 << FILTER_TABLE_EXTENSION_BITS); ++i) {
+    for (uint32_t i = 0; i < (1 << FILTER_TABLE_CUTOFF_EXT_BITS); ++i) {
       m_cutoff_current += (m_cutoff_current < cutoff_target);
       m_cutoff_current -= (m_cutoff_current > cutoff_target);
     }
