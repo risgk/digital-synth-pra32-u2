@@ -2,6 +2,7 @@
 
 - v0.5.0 (2025-**-**):
     - Change the control number of Chorus Mix (34 -> 93)
+    - Reduce the output level in monophonic modes
     - Extend Oscillator, Filter, and Amp inputs and outputs to 24-bit (int32_t)
     - Extend Chorus FX and Delay FX inputs and outputs to 24-bit (int32_t)
     - Improve Filter Resonance accuracy (4x)
