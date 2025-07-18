@@ -9,7 +9,6 @@ class PRA32_U2_Filter {
   int32_t         m_b_2_over_a_0;
   int32_t         m_a_1_over_a_0;
   int32_t         m_a_2_over_a_0;
-  int16_t         m_filter_gain;
   int32_t         m_x_1;
   int32_t         m_x_2;
   int32_t         m_y_1;
@@ -33,7 +32,6 @@ public:
   : m_b_2_over_a_0()
   , m_a_1_over_a_0()
   , m_a_2_over_a_0()
-  , m_filter_gain()
   , m_x_1()
   , m_x_2()
   , m_y_1()
@@ -192,7 +190,5 @@ private:
     m_b_2_over_a_0 = filter_table[index + 0];
     m_a_1_over_a_0 = filter_table[index + 1];
     m_a_2_over_a_0 = filter_table[index + 2];
-
-    m_filter_gain = g_filter_gain_tables[m_resonance_index];
   }
 };
