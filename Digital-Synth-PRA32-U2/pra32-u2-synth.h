@@ -1370,7 +1370,7 @@ public:
       filter_output[0] = m_filter[0].process(osc_mixer_output);
       amp_output   [0] = m_amp   [0].process(filter_output[0]);
 
-      voice_mixer_output = amp_output[0] << 1;
+      voice_mixer_output = amp_output[0] + (amp_output[0] >> 1);
 
 #if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
       while (m_secondary_core_processing_request) {
