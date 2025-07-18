@@ -9,6 +9,7 @@
     - Change the meaning of the Filter Resonance control value
     - Change the Filter Resonance so that if Q is less than 4, the sound is not reduced
     - Extend Filter Key Track range and resolution (0.0 to 1.0, step 0.5 -> -1.000 to +1.000, step 0.125)
+    - Improve smooth change of Delay Time
     - Reduce SRAM usage: Move g_filter_lpf_table_* to QSPI flash
     - Fix a problem where Filter Key Track correction was off to the plus side
     - Fix a problem in which High Pass is selected when Filter Mode value is 1
