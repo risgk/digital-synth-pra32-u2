@@ -66,13 +66,13 @@ public:
   }
 
   INLINE void process_at_low_rate(uint8_t count) {
-    static_cast<void>(count);
-
     m_delay_feedback_effective += (m_delay_feedback_effective < m_delay_feedback);
     m_delay_feedback_effective -= (m_delay_feedback_effective > m_delay_feedback);
 
-    m_delay_time_effective += (m_delay_time_effective < m_delay_time);
-    m_delay_time_effective -= (m_delay_time_effective > m_delay_time);
+    if ((count & 0x01) == 0) {
+      m_delay_time_effective += (m_delay_time_effective < m_delay_time);
+      m_delay_time_effective -= (m_delay_time_effective > m_delay_time);
+    }
   }
 
   INLINE int32_t process(int32_t left_input_int24, int32_t right_input_int24, int32_t& right_output_int24) {
