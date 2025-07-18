@@ -86,8 +86,9 @@
 |                            59 | x             | o             | Chorus Depth                         |
 |                               |               |               |                                      |
 |                               |               |               |                                      |
-|                            92 | x             | o             | Delay Feedback                       |
+|                            94 | x             | o             | Delay Level                          |
 |                            90 | x             | o             | Delay Time                           |
+|                            92 | x             | o             | Delay Feedback                       |
 |                            35 | x             | o             | Delay Mode [S|P]                     |
 |                               |               |               |                                      |
 |                               |               |               |                                      |

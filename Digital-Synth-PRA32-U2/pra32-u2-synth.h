@@ -81,10 +81,10 @@ static uint8_t s_program_table_parameters[] = {
   CHORUS_DEPTH   ,
 
 
-  DELAY_FEEDBACK ,
+  DELAY_LEVEL    ,
   DELAY_TIME     ,
+  DELAY_FEEDBACK ,
   DELAY_MODE     ,
-
 };
 
 static uint8_t s_program_table_panel_parameters[] = {
@@ -1048,11 +1048,14 @@ public:
       m_voice_asgn_mode = (controller_value < 64) ? 1 : 2;
       break;
 
-    case DELAY_FEEDBACK :
-      m_delay_fx.set_delay_feedback(controller_value);
+    case DELAY_LEVEL    :
+      m_delay_fx.set_delay_level(controller_value);
       break;
     case DELAY_TIME     :
       m_delay_fx.set_delay_time(controller_value);
+      break;
+    case DELAY_FEEDBACK :
+      m_delay_fx.set_delay_feedback(controller_value);
       break;
     case DELAY_MODE     :
       m_delay_fx.set_delay_mode(controller_value);

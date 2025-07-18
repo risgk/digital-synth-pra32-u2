@@ -117,10 +117,10 @@ const uint8_t   CHORUS_RATE     = 58;
 const uint8_t   CHORUS_DEPTH    = 59;
 
 
-const uint8_t   DELAY_FEEDBACK  = 92;
+const uint8_t   DELAY_LEVEL     = 94;
 const uint8_t   DELAY_TIME      = 90;
+const uint8_t   DELAY_FEEDBACK  = 92;
 const uint8_t   DELAY_MODE      = 35;
-
 
 const uint8_t   PROG_N_TO_W_TO  = 87;
 const uint8_t   WRITE_P_TO_PROG = 106;

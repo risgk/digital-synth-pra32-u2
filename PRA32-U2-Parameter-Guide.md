@@ -215,10 +215,7 @@
     - 32: Delay Time +/- 1.3 ms
     - 64: Delay Time +/- 2.7 ms
     - 126: Delay Time +/- 5.3 ms (max)
-- Delay Feedback
-    - 0: Feedback 0% (min)
-    - 64: Feedback 25%
-    - 127: Feedback 49.6% (max)
+- Delay Level
 - Delay Time
     - 0: 1 ms (min)
     - 5: 6 ms
@@ -235,6 +232,10 @@
     - 93: 270 ms
     - 102: 300 ms = eighth note time at 100 BPM
     - 112: 333.3 ms (max)
+- Delay Feedback
+    - 0: Feedback 0% (min)
+    - 64: Feedback 25%
+    - 127: Feedback 49.6% (max)
 - Delay Mode [S|P]
     - 0 (0-63): Stereo Delay
     - 127 (64-127): Ping Pong Delay

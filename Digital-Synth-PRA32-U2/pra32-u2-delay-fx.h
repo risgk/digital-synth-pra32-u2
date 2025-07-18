@@ -8,6 +8,8 @@ class PRA32_U2_DelayFx {
   int32_t  m_delay_buff[2][DELAY_BUFF_SIZE];
   uint16_t m_delay_wp[2];
 
+  uint16_t m_delay_level;
+  uint16_t m_delay_level_effective;
   uint8_t  m_delay_feedback;
   uint8_t  m_delay_feedback_effective;
   uint16_t m_delay_time;
@@ -19,6 +21,8 @@ public:
   : m_delay_buff()
   , m_delay_wp()
 
+  , m_delay_level()
+  , m_delay_level_effective()
   , m_delay_feedback()
   , m_delay_feedback_effective()
   , m_delay_time()
@@ -28,10 +32,15 @@ public:
     m_delay_wp[0] = DELAY_BUFF_SIZE - 1;
     m_delay_wp[1] = DELAY_BUFF_SIZE - 1;
 
-    set_delay_feedback(32 );
+    set_delay_level   (0  );
+    set_delay_feedback(64 );
     set_delay_time    (93 );
 
     m_delay_time_effective = m_delay_time;
+  }
+
+  INLINE void set_delay_level(uint8_t controller_value) {
+    m_delay_level = ((controller_value + 1) >> 1) << 2;
   }
 
   INLINE void set_delay_feedback(uint8_t controller_value) {
@@ -66,6 +75,9 @@ public:
   }
 
   INLINE void process_at_low_rate(uint8_t count) {
+    m_delay_level_effective += (m_delay_level_effective < m_delay_level);
+    m_delay_level_effective -= (m_delay_level_effective > m_delay_level);
+
     m_delay_feedback_effective += (m_delay_feedback_effective < m_delay_feedback);
     m_delay_feedback_effective -= (m_delay_feedback_effective > m_delay_feedback);
 
@@ -82,14 +94,17 @@ public:
     int32_t left_feedback;
     int32_t right_feedback;
 
+    int32_t left_send  = mul_s32_s32_h16(left_input_int24,  m_delay_level_effective << 8);
+    int32_t right_send = mul_s32_s32_h16(right_input_int24, m_delay_level_effective << 8);
+
     if (m_delay_mode >= 64) {
       // Ping Pong Delay
-      left_feedback  = mul_s32_u16_h32((((left_input_int24 + right_input_int24) >> 1) + right_delay), (m_delay_feedback_effective << 8));
-      right_feedback = mul_s32_u16_h32((                                                left_delay ), (m_delay_feedback_effective << 8));
+      left_feedback  = mul_s32_u16_h32((((left_send + right_send) >> 1) + right_delay), (m_delay_feedback_effective << 8));
+      right_feedback = mul_s32_u16_h32((                                  left_delay ), (m_delay_feedback_effective << 8));
     } else {
       // Stereo Delay
-      left_feedback  = mul_s32_u16_h32((left_input_int24  + left_delay ), (m_delay_feedback_effective << 8));
-      right_feedback = mul_s32_u16_h32((right_input_int24 + right_delay), (m_delay_feedback_effective << 8));
+      left_feedback  = mul_s32_u16_h32((left_send  + left_delay ), (m_delay_feedback_effective << 8));
+      right_feedback = mul_s32_u16_h32((right_send + right_delay), (m_delay_feedback_effective << 8));
     }
 
     delay_buff_push<0>(left_feedback);
