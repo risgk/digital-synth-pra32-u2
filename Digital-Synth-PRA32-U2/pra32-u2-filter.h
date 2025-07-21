@@ -113,14 +113,8 @@ public:
   }
 
   INLINE void process_at_low_rate(uint8_t count, int16_t eg_input, int16_t lfo_input, uint16_t osc_pitch) {
+    update_cutoff_control_effective();
     update_coefs(eg_input, lfo_input, osc_pitch);
-
-    switch (count & (0x04 - 1)) {
-    case 0x00:
-    case 0x02:
-      update_cutoff_control_effective();
-      break;
-    }
   }
 
   INLINE int32_t process(int32_t audio_input_int24) {
@@ -150,8 +144,10 @@ public:
 
 private:
   INLINE void update_cutoff_control_effective() {
-    m_cutoff_control_effective += (m_cutoff_control_effective < m_cutoff_control);
-    m_cutoff_control_effective -= (m_cutoff_control_effective > m_cutoff_control);
+    for (uint32_t i = 0; i < 4; ++i) {
+      m_cutoff_control_effective += (m_cutoff_control_effective < m_cutoff_control);
+      m_cutoff_control_effective -= (m_cutoff_control_effective > m_cutoff_control);
+    }
   }
 
   INLINE void update_coefs(int16_t eg_input, int16_t lfo_input, uint16_t osc_pitch) {
