@@ -15,14 +15,13 @@ class PRA32_U2_Filter {
   int32_t         m_y_2;
   int32_t         m_resonance_index;
   int16_t         m_cutoff_current;
-  uint8_t         m_cutoff_control;
-  uint8_t         m_cutoff_control_effective;
-  int8_t          m_cutoff_eg_amt;
-  int8_t          m_cutoff_lfo_amt;
-  int8_t          m_cutoff_pitch_amt;
-  int8_t          m_cutoff_offset;
+  int16_t         m_cutoff_control;
+  int16_t         m_cutoff_control_effective;
+  int16_t         m_cutoff_eg_amt;
+  int16_t         m_cutoff_lfo_amt;
+  int16_t         m_cutoff_pitch_amt;
   uint8_t         m_filter_mode;
-  int8_t          m_cutoff_breath_amt;
+  int16_t         m_cutoff_breath_amt;
   int16_t         m_breath_controller;
 
   const int32_t MAX_ABS_OUTPUT = 124 << 16;
@@ -43,7 +42,6 @@ public:
   , m_cutoff_eg_amt()
   , m_cutoff_lfo_amt()
   , m_cutoff_pitch_amt()
-  , m_cutoff_offset()
   , m_filter_mode()
   , m_cutoff_breath_amt()
   , m_breath_controller()
@@ -55,13 +53,12 @@ public:
     set_cutoff_eg_amt(64);
     set_cutoff_lfo_amt(64);
     set_cutoff_pitch_amt(0);
-    set_cutoff_offset(0);
 
     update_coefs(0, 0, 60 << 8);
   }
 
   INLINE void set_cutoff(uint8_t controller_value) {
-    m_cutoff_control = controller_value << 1;
+    m_cutoff_control = controller_value << (1 + 2);
   }
 
   INLINE void set_resonance(uint8_t controller_value) {
@@ -69,7 +66,7 @@ public:
   }
 
   INLINE int8_t get_cutoff_mod_amt(uint8_t controller_value) {
-    static int8_t cutoff_mod_amt_table[128] = {
+    static int16_t cutoff_mod_amt_table[128] = {
       -120, -120, -120, -120, -120, -118, -116, -114,
       -112, -110, -108, -106, -104, -102, -100,  -98,
        -96,  -94,  -92,  -90,  -88,  -86,  -84,  -82,
@@ -115,17 +112,12 @@ public:
     m_breath_controller = (controller_value * 16384) / 127;
   }
 
-  INLINE void set_cutoff_offset(int8_t cutoff_offset) {
-    m_cutoff_offset = cutoff_offset;
-  }
-
   INLINE void process_at_low_rate(uint8_t count, int16_t eg_input, int16_t lfo_input, uint16_t osc_pitch) {
+    update_coefs(eg_input, lfo_input, osc_pitch);
+
     switch (count & (0x04 - 1)) {
     case 0x00:
     case 0x02:
-      update_coefs(eg_input, lfo_input, osc_pitch);
-      break;
-    case 0x03:
       update_cutoff_control_effective();
       break;
     }
@@ -163,20 +155,19 @@ private:
   }
 
   INLINE void update_coefs(int16_t eg_input, int16_t lfo_input, uint16_t osc_pitch) {
-    int16_t cutoff_candidate = m_cutoff_control_effective << FILTER_TABLE_CUTOFF_EXT_BITS;
-    cutoff_candidate += (m_cutoff_eg_amt * eg_input) >> (14 - FILTER_TABLE_CUTOFF_EXT_BITS);
-    cutoff_candidate += m_cutoff_offset << FILTER_TABLE_CUTOFF_EXT_BITS;
+    int16_t cutoff_candidate = m_cutoff_control_effective;
+    cutoff_candidate += (m_cutoff_eg_amt * eg_input) >> (14 - 2);
 
-    cutoff_candidate += (lfo_input * m_cutoff_lfo_amt) >> (14 - FILTER_TABLE_CUTOFF_EXT_BITS);
-    cutoff_candidate += (((osc_pitch - (60 << 8)) * m_cutoff_pitch_amt) + (1 << ((10 - 1) - FILTER_TABLE_CUTOFF_EXT_BITS))) >> (10 - FILTER_TABLE_CUTOFF_EXT_BITS);
-    cutoff_candidate += (m_breath_controller * m_cutoff_breath_amt) >> (14 - FILTER_TABLE_CUTOFF_EXT_BITS);
+    cutoff_candidate += (lfo_input * m_cutoff_lfo_amt) >> (14 - 2);
+    cutoff_candidate += (((osc_pitch - (60 << 8)) * m_cutoff_pitch_amt) + (1 << ((10 - 1) - 2))) >> (10 - 2);
+    cutoff_candidate += (m_breath_controller * m_cutoff_breath_amt) >> (14 - 2);
 
-    // cutoff_target = clamp(cutoff_candidate, 0, ((254 << FILTER_TABLE_CUTOFF_EXT_BITS) + 1))
-    volatile int16_t cutoff_target = cutoff_candidate - ((254 << FILTER_TABLE_CUTOFF_EXT_BITS) + 1);
-    cutoff_target = (cutoff_target < 0) * cutoff_target + ((254 << FILTER_TABLE_CUTOFF_EXT_BITS) + 1);
+    // cutoff_target = clamp(cutoff_candidate, 0, ((254 << 2) + 1))
+    volatile int16_t cutoff_target = cutoff_candidate - ((254 << 2) + 1);
+    cutoff_target = (cutoff_target < 0) * cutoff_target + ((254 << 2) + 1);
     cutoff_target = (cutoff_target > 0) * cutoff_target;
 
-    for (uint32_t i = 0; i < (1 << FILTER_TABLE_CUTOFF_EXT_BITS); ++i) {
+    for (uint32_t i = 0; i < 4; ++i) {
       m_cutoff_current += (m_cutoff_current < cutoff_target);
       m_cutoff_current -= (m_cutoff_current > cutoff_target);
     }
@@ -186,7 +177,7 @@ private:
     // Uncached, untranslated XIP access -- bypass QMI address translation
     filter_table = reinterpret_cast<const int32_t*>(reinterpret_cast<uintptr_t>(filter_table) | 0x1c000000u);
 #endif
-    size_t index = m_cutoff_current * 3;
+    size_t index = ((m_cutoff_current + ((1 << (2 - FILTER_TABLE_CUTOFF_EXT_BITS)) >> 1)) >> (2 - FILTER_TABLE_CUTOFF_EXT_BITS)) * 3;
     m_b_2_over_a_0 = filter_table[index + 0];
     m_a_1_over_a_0 = filter_table[index + 1];
     m_a_2_over_a_0 = filter_table[index + 2];
