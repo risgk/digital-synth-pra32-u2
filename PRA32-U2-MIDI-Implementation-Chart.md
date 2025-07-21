@@ -26,15 +26,16 @@
 | Change                      2 | x             | o             | Breath Controller                    |
 |                            64 | x             | o             | Sustain Pedal [Off|On]               |
 |                               |               |               |                                      |
+|                               |               |               |                                      |
 |                           102 | x             | o             | Osc 1 Wave [Saw|Sqr|Tri|Sin|-|Pls]   |
+|                            23 | x             | o             | Mixer Noise/Sub Osc [N|S]            |
 |                            19 | x             | o             | Osc 1 Shape $2                       |
 |                            20 | x             | o             | Osc 1 Morph $2                       |
-|                            23 | x             | o             | Mixer Noise/Sub Osc [N|S]            |
 |                               |               |               |                                      |
 |                           104 | x             | o             | Osc 2 Wave [Saw|Sqr|Tri|Sin|-|Nos]   |
+|                            21 | x             | o             | Mixer Osc Mix [1|2]                  |
 |                            85 | x             | o             | Osc 2 Coarse [-|+]                   |
 |                            76 | x             | o             | Osc 2 Pitch [-|+]                    |
-|                            21 | x             | o             | Mixer Osc Mix [1|2]                  |
 |                               |               |               |                                      |
 |                            74 | x             | o             | Filter Cutoff                        |
 |                            71 | x             | o             | Filter Resonance                     |
@@ -52,9 +53,9 @@
 |                             5 | x             | o             | Portamento                           |
 |                               |               |               |                                      |
 |                            33 | x             | o             | LFO Wave [Tri|Sin|-|Saw|SH|Sqr]      |
+|                            56 | x             | o             | LFO Fade Time                        |
 |                             3 | x             | o             | LFO Rate                             |
 |                            17 | x             | o             | LFO Depth                            |
-|                            56 | x             | o             | LFO Fade Time                        |
 |                               |               |               |                                      |
 |                            13 | x             | o             | LFO Osc Amt [-|+]                    |
 |                           103 | x             | o             | LFO Osc Dst [P|2P|1S]                |
@@ -67,9 +68,9 @@
 |                            55 | x             | o             | Amp Release                          |
 |                               |               |               |                                      |
 |                            39 | x             | o             | Filter Mode [LP|HP]                  |
+|                            57 | x             | o             | Pitch Bend Range                     |
 |                            36 | x             | o             | EG Amp Mod [Off|On]                  |
 |                           105 | x             | o             | Release = Decay [Off|On]             |
-|                            57 | x             | o             | Pitch Bend Range                     |
 |                               |               |               |                                      |
 |                            60 | x             | o             | Breath Filter Amt [-|+]              |
 |                            61 | x             | o             | Breath Amp Mod [Off|Qad|Lin]         |
@@ -82,14 +83,14 @@
 |                               |               |               |                                      |
 |                               |               |               |                                      |
 |                            93 | x             | o             | Chorus Mix [Dry|Wet]                 |
+|                               |               |               |                                      |
 |                            58 | x             | o             | Chorus Rate                          |
 |                            59 | x             | o             | Chorus Depth                         |
 |                               |               |               |                                      |
-|                               |               |               |                                      |
 |                            94 | x             | o             | Delay Level                          |
+|                            35 | x             | o             | Delay Mode [S|P]                     |
 |                            90 | x             | o             | Delay Time                           |
 |                            92 | x             | o             | Delay Feedback                       |
-|                            35 | x             | o             | Delay Mode [S|P]                     |
 |                               |               |               |                                      |
 |                               |               |               |                                      |
 |                            87 | x             | o             | Program Number to Write to $4        |
