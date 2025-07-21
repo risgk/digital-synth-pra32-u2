@@ -36,7 +36,7 @@ const uint8_t g_preset_table_LFO_DEPTH      [] = {0  , 0  , 0  , 0  , 0  , 0  , 
 const uint8_t g_preset_table_LFO_OSC_AMT    [] = {96 , 64 , 72 , 64 , 64 , 64 , 64 , 64 ,   96 , 64 , 72 , 64 , 64 , 64 , 64 , 64 };
 const uint8_t g_preset_table_LFO_OSC_DST    [] = {0  , 0  , 127, 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 127, 0  , 0  , 0  , 0  , 0  };
 const uint8_t g_preset_table_LFO_FILTER_AMT [] = {64 , 88 , 64 , 88 , 88 , 88 , 64 , 64 ,   64 , 88 , 64 , 88 , 88 , 88 , 64 , 64 };
-const uint8_t g_preset_table_AMP_GAIN       [] = {90 , 90 , 90 , 90 , 90 , 127, 90 , 90 ,   90 , 90 , 90 , 90 , 90 , 127, 90 , 90 };
+const uint8_t g_preset_table_AMP_GAIN       [] = {90 , 90 , 76 , 90 , 107, 127, 90 , 90 ,   90 , 90 , 76 , 90 , 107, 127, 90 , 90 };
 
 const uint8_t g_preset_table_AMP_ATTACK     [] = {32 , 32 , 32 , 32 , 32 , 32 , 32 , 32 ,   32 , 32 , 32 , 32 , 32 , 32 , 32 , 32 };
 const uint8_t g_preset_table_AMP_DECAY      [] = {32 , 32 , 32 , 32 , 32 , 32 , 32 , 32 ,   32 , 32 , 32 , 32 , 32 , 32 , 32 , 32 };
@@ -66,4 +66,4 @@ const uint8_t g_preset_table_CHORUS_DEPTH   [] = {64 , 64 , 64 , 64 , 64 , 64 , 
 const uint8_t g_preset_table_DELAY_LEVEL    [] = {64 , 64 , 64 , 64 , 64 , 64 , 64 , 0  ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 0  };
 const uint8_t g_preset_table_DELAY_MODE     [] = {0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  };
 const uint8_t g_preset_table_DELAY_TIME     [] = {93 , 93 , 93 , 93 , 93 , 93 , 93 , 93 ,   93 , 93 , 93 , 93 , 93 , 93 , 93 , 93 };
-const uint8_t g_preset_table_DELAY_FEEDBACK [] = {96 , 96 , 96 , 96 , 96 , 96 , 96 , 96 ,   96 , 96 , 96 , 96 , 96 , 96 , 96 , 96 };
+const uint8_t g_preset_table_DELAY_FEEDBACK [] = {64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 };
