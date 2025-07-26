@@ -83,6 +83,10 @@ static INLINE uint8_t PRA32_U2_ControlPanel_get_index_scale()
 
 static INLINE uint8_t PRA32_U2_ControlPanel_calc_scaled_pitch(uint32_t index_scale, uint8_t pitch, int pit_ofst)
 {
+  if (pitch == 0) {
+    return 0xFF;
+  }
+
   if (pitch < 4) {
     pitch = 4;
   } else if (pitch > 124) {
@@ -172,6 +176,15 @@ static INLINE void PRA32_U2_ControlPanel_calc_value_display_pitch(uint8_t pitch,
   uint8_t index_scale = PRA32_U2_ControlPanel_get_index_scale();
   uint8_t new_pitch   = PRA32_U2_ControlPanel_calc_scaled_pitch(
                           index_scale, pitch, g_synth.current_controller_value(PANEL_PIT_OFST ));
+
+  if (new_pitch == 0xFF) {
+    value_display_text[0] = 'O';
+    value_display_text[1] = 'f';
+    value_display_text[2] = 'f';
+    value_display_text[3] = '\0';
+    return;
+  }
+
   new_pitch = PRA32_U2_ControlPanel_calc_transposed_pitch(
     new_pitch, g_synth.current_controller_value(PANEL_TRANSPOSE ) - 64);
 
@@ -260,20 +273,24 @@ static INLINE boolean PRA32_U2_ControlPanel_process_note_off_on() {
       g_synth.note_off(s_panel_playing_note_pitch);
       s_panel_playing_note_pitch = 0xFF;
     } else {
-      if (s_panel_play_note_trigger) {
+      if (s_panel_play_note_trigger && (s_panel_play_note_pitch <= 127)) {
         s_panel_play_note_trigger = false;
 
         g_synth.note_on(s_panel_play_note_pitch, s_panel_play_note_velocity);
         g_synth.note_off(s_panel_playing_note_pitch);
         s_panel_playing_note_pitch = s_panel_play_note_pitch;
+      } else {
+        s_panel_play_note_trigger = false;
       }
     }
   } else {
-    if (s_panel_play_note_gate) {
+    if (s_panel_play_note_gate && (s_panel_play_note_pitch <= 127)) {
       s_panel_play_note_trigger = false;
 
       g_synth.note_on(s_panel_play_note_pitch, s_panel_play_note_velocity);
       s_panel_playing_note_pitch = s_panel_play_note_pitch;
+    } else {
+      s_panel_play_note_trigger = false;
     }
   }
 
@@ -301,6 +318,13 @@ static INLINE void PRA32_U2_ControlPanel_update_pitch(bool progress_seq_step) {
   }
 
   new_pitch = PRA32_U2_ControlPanel_calc_scaled_pitch(s_index_scale, new_pitch, s_panel_pit_ofst);
+
+  if (new_pitch == 0xFF) {
+    s_panel_play_note_pitch = 0xFF;
+    s_panel_play_note_gate  = false;
+    return;
+  }
+
   new_pitch = PRA32_U2_ControlPanel_calc_transposed_pitch(new_pitch, s_panel_transpose + s_seq_transpose);
 
   s_panel_play_note_velocity = new_velocity;

@@ -38,7 +38,7 @@
 - Panel Parameters
     - Panel Play Mode [Nrm|Seq]: Normal Mode, Step Sequencer Mode
     - Panel MIDI Ch: Basic Channel 1-16
-    - Panel Play Pitch: min 4 to max 124
+    - Panel Play Pitch: 0 is Off, 1-4 is lowest, 124-127 is highest
     - Panel Play Velo (Velocity)
     - Panel Scale [Maj|Min|Mel|MaP|MiP|Chr]: Major, Natural Minor, Ascending Melodic Minor (Jazz Minor), Major Pentatonic, Minor Pentatonic, Chromatic (2 octaves)
     - Panel Pitch Ofst (Pitch Offset) [-|+]: Offset Panel Play Pitch and Seq Pitch 0-7 (min -60 to max +60)
@@ -61,7 +61,7 @@
     - Seq Gate Time [1/6|2/6|3/6|4/6|5/6|6/6]
     - Seq Transpose [-|+]
     - Seq Clock Src [Int|Ext]: Internal, External (Rx MIDI Clock)
-    - Seq Pitch 0-7: min 4 to max 124
+    - Seq Pitch 0-7: 0 is Off, 1-4 is lowest, 124-127 is highest
     - Seq Velo 0-7 (Velocity 0-7)
 - Step Sequencer Operations
     - Seq Rand Pitch (Randomize Pitch 0-7): Change the value from 0-63 [Rdy] to 64-127 [Exe]
