@@ -52,7 +52,7 @@
 |                            18 | x             | o             | Voice Mode [Pol|Par|-|Mon|LP|Lgt]    |
 |                             5 | x             | o             | Portamento                           |
 |                               |               |               |                                      |
-|                            33 | x             | o             | LFO Wave [Tri|Sin|-|Saw|SH|Sqr]      |
+|                            33 | x             | o             | LFO Wave [Tri|Sin|Con|Saw|SH|Sqr]    |
 |                            56 | x             | o             | LFO Fade Time                        |
 |                             3 | x             | o             | LFO Rate                             |
 |                            17 | x             | o             | LFO Depth                            |
