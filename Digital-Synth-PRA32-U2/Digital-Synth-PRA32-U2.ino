@@ -50,6 +50,7 @@
 #define PRA32_U2_KEY_INPUT_PREV_KEY_PIN          (16)
 #define PRA32_U2_KEY_INPUT_NEXT_KEY_PIN          (18)
 #define PRA32_U2_KEY_INPUT_PLAY_KEY_PIN          (20)
+//#define PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN         (17)
 #define PRA32_U2_KEY_ANTI_CHATTERING_WAIT        (15)
 #define PRA32_U2_KEY_LONG_PRESS_WAIT             (375)
 
