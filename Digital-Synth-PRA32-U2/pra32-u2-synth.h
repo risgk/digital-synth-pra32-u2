@@ -311,14 +311,14 @@ public:
 
   INLINE void initialize() {
     std::memcpy(m_program_table[OSC_1_WAVE     ], g_preset_table_OSC_1_WAVE     , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[MIXER_SUB_OSC  ], g_preset_table_MIXER_SUB_OSC  , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[OSC_1_SHAPE    ], g_preset_table_OSC_1_SHAPE    , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[OSC_1_MORPH    ], g_preset_table_OSC_1_MORPH    , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[MIXER_SUB_OSC  ], g_preset_table_MIXER_SUB_OSC  , sizeof(m_program_table[0]));
 
     std::memcpy(m_program_table[OSC_2_WAVE     ], g_preset_table_OSC_2_WAVE     , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[MIXER_OSC_MIX  ], g_preset_table_MIXER_OSC_MIX  , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[OSC_2_COARSE   ], g_preset_table_OSC_2_COARSE   , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[OSC_2_PITCH    ], g_preset_table_OSC_2_PITCH    , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[MIXER_OSC_MIX  ], g_preset_table_MIXER_OSC_MIX  , sizeof(m_program_table[0]));
 
     std::memcpy(m_program_table[FILTER_CUTOFF  ], g_preset_table_FILTER_CUTOFF  , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[FILTER_RESO    ], g_preset_table_FILTER_RESO    , sizeof(m_program_table[0]));
@@ -336,9 +336,9 @@ public:
     std::memcpy(m_program_table[PORTAMENTO     ], g_preset_table_PORTAMENTO     , sizeof(m_program_table[0]));
 
     std::memcpy(m_program_table[LFO_WAVE       ], g_preset_table_LFO_WAVE       , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[LFO_FADE_TIME  ], g_preset_table_LFO_FADE_TIME  , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[LFO_RATE       ], g_preset_table_LFO_RATE       , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[LFO_DEPTH      ], g_preset_table_LFO_DEPTH      , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[LFO_FADE_TIME  ], g_preset_table_LFO_FADE_TIME  , sizeof(m_program_table[0]));
 
     std::memcpy(m_program_table[LFO_OSC_AMT    ], g_preset_table_LFO_OSC_AMT    , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[LFO_OSC_DST    ], g_preset_table_LFO_OSC_DST    , sizeof(m_program_table[0]));
@@ -351,9 +351,9 @@ public:
     std::memcpy(m_program_table[AMP_RELEASE    ], g_preset_table_AMP_RELEASE    , sizeof(m_program_table[0]));
 
     std::memcpy(m_program_table[FILTER_MODE    ], g_preset_table_FILTER_MODE    , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[P_BEND_RANGE   ], g_preset_table_P_BEND_RANGE   , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[EG_AMP_MOD     ], g_preset_table_EG_AMP_MOD     , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[REL_EQ_DECAY   ], g_preset_table_REL_EQ_DECAY   , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[P_BEND_RANGE   ], g_preset_table_P_BEND_RANGE   , sizeof(m_program_table[0]));
 
     std::memcpy(m_program_table[BTH_FILTER_AMT ], g_preset_table_BTH_FILTER_AMT , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[BTH_AMP_MOD    ], g_preset_table_BTH_AMP_MOD    , sizeof(m_program_table[0]));
@@ -366,13 +366,14 @@ public:
 
 
     std::memcpy(m_program_table[CHORUS_MIX     ], g_preset_table_CHORUS_MIX     , sizeof(m_program_table[0]));
+
     std::memcpy(m_program_table[CHORUS_RATE    ], g_preset_table_CHORUS_RATE    , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[CHORUS_DEPTH   ], g_preset_table_CHORUS_DEPTH   , sizeof(m_program_table[0]));
 
-
+    std::memcpy(m_program_table[DELAY_LEVEL    ], g_preset_table_DELAY_LEVEL   , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[DELAY_MODE     ], g_preset_table_DELAY_MODE     , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[DELAY_FEEDBACK ], g_preset_table_DELAY_FEEDBACK , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[DELAY_TIME     ], g_preset_table_DELAY_TIME     , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[DELAY_MODE     ], g_preset_table_DELAY_MODE     , sizeof(m_program_table[0]));
 
     for (uint32_t i = 0; i < sizeof(m_program_table_panel) / sizeof(m_program_table_panel[0]); ++i) {
       m_program_table_panel[i][PANEL_SCALE    ] = DEFAULT_PANEL_SCALE    ;
