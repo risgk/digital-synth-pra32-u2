@@ -551,7 +551,7 @@ private:
                                              wave_0_8  + wave_0_9  + wave_0_10 + wave_0_11 + wave_0_12 + wave_0_13 + wave_0_14 + wave_0_15))
                    + ((64 - sqr_sync_mix) *  wave_0)) >> 6) * osc1_gain * m_osc_gain_effective[N]) >> 10;
     } else {
-      int32_t wave_0 = get_wave_level(m_wave_table[N], m_phase[N]);
+      int32_t wave_0 = get_wave_level(m_wave_table[N + 16], m_phase[N]);
       result += (wave_0 * osc1_gain * m_osc_gain_effective[N]) >> 10;
 
       // For Pulse Wave (wave_3)
@@ -559,7 +559,7 @@ private:
       boolean new_period_osc1_add = ((phase_3 + 0x00800000) & 0x00FFFFFF) < (m_freq[N] + 0x00010000); // crossing the middle of a saw wave
       m_wave_table[N + 8] = reinterpret_cast<const int16_t*>((reinterpret_cast<const uintptr_t>(m_wave_table[N + 8]) * (1 - new_period_osc1_add)));
       m_wave_table[N + 8] = reinterpret_cast<const int16_t*>( reinterpret_cast<const uint8_t*>( m_wave_table[N + 8]) +
-                                                             (reinterpret_cast<const uintptr_t>(m_wave_table_temp[N]) * new_period_osc1_add));
+                                                             (reinterpret_cast<const uintptr_t>(m_wave_table_temp[N + 16]) * new_period_osc1_add));
       int16_t wave_3 = get_wave_level(m_wave_table[N + 8], phase_3);
       result += ((((wave_3 * osc1_gain * m_osc_gain_effective[N]) >> 10) * (((m_osc1_morph_control_effective - 63) >> 1) << 1)) >> 6) * (m_waveform[0] == WAVEFORM_1_PULSE);
     }
