@@ -238,9 +238,11 @@ static INLINE void PRA32_U2_ControlPanel_update_page() {
   std::memcpy(&s_display_buffer[6][11], current_page.control_target_b_name_line_1, 10);
   s_adc_control_target[1]             = current_page.control_target_b;
 
+#if defined(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN)
   std::memcpy(&s_display_buffer[1][11], current_page.control_target_c_name_line_0, 10);
   std::memcpy(&s_display_buffer[2][11], current_page.control_target_c_name_line_1, 10);
   s_adc_control_target[2]             = current_page.control_target_c;
+#endif  // defined(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN)
 
   s_display_draw_counter = -1;
 }
@@ -497,6 +499,12 @@ static INLINE void PRA32_U2_ControlPanel_update_control_seq() {
 }
 
 static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_number) {
+#if !defined(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN)
+  if (adc_number == 2) {
+    return false;
+  }
+#endif  // defined(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN)
+
   uint8_t adc_control_value_new = PRA32_U2_ControlPanel_adc_control_value_candidate(adc_number);
 
   if (s_adc_control_value[adc_number] != adc_control_value_new) {
@@ -957,7 +965,11 @@ INLINE void PRA32_U2_ControlPanel_setup() {
   adc_init();
   adc_gpio_init(26);
   adc_gpio_init(27);
+
+#if defined(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN)
   adc_gpio_init(28);
+#endif  // defined(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN)
+
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL_ANALOG_INPUT)
 
 #if defined(PRA32_U2_USE_CONTROL_PANEL_OLED_DISPLAY)

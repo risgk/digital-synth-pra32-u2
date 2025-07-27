@@ -13,18 +13,21 @@
     - Playing by panel operation
     - Built-in monophonic 8-step sequencer
     - Panel and Step Sequencer Parameters
-- This option requires 3 or 4 SWs (tactile switches), 3 VRs (ADCs), and a monochrome 128x64 OLED Display based on SSD1306 series drivers
+- This option requires 1 to 4 SWs (tactile switches), 2 to 3 VRs (ADCs), and a monochrome 128x64 OLED Display based on SSD1306 series drivers
     - Tested with Pimoroni Pico Audio Pack, M5Stack Midi Unit (optional), Long Leg 2x20 Pin Socket * 2, Seeed Studio's Grove Shield for Pi Pico, Dual Button * 3, Rotary Angle Sensor * 3, and an OLED Display 0.96 inch
 - Uncomment out `//#define PRA32_U2_USE_CONTROL_PANEL` in "Digital-Synth-PRA32-U2.ino" and modify the constants
 - Inputs
-    - SW0: Prev Key (Push to the previous page, Long press to the previous group)
+    - SW0: Prev Key (Push to the previous page, Long press to the previous group) (omittable)
+        - To not use this key, comment out `//#define PRA32_U2_KEY_INPUT_PREV_KEY_PIN          (16)` in "Digital-Synth-PRA32-U2.ino"
     - SW1: Next Key (Push to the next page, Long press to the next group)
-    - SW2: Play Key (Normal Mode: press to play, Sequencer Mode: push to start/stop)
+    - SW2: Play Key (Normal Mode: press to play, Sequencer Mode: push to start/stop) (omittable)
+        - To not use this key, comment out `//#define PRA32_U2_KEY_INPUT_PLAY_KEY_PIN          (20)` in "Digital-Synth-PRA32-U2.ino"
     - SW3: Shift Key (Press to prevent values from changing across 64) (optional)
-        - Uncomment out `//#define PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN         (17)` in "Digital-Synth-PRA32-U2.ino"
+        - To use this key, uncomment out `//#define PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN         (17)` in "Digital-Synth-PRA32-U2.ino"
     - VR0 (ADC0): Parameter A
     - VR1 (ADC1): Parameter B
-    - VR2 (ADC2): Parameter C
+    - VR2 (ADC2): Parameter C for Play (omittable)
+        - To not use this, comment out `//#define PRA32_U2_KEY_INPUT_PLAY_KEY_PIN          (20)` in "Digital-Synth-PRA32-U2.ino"
 - NOTE: UART MIDI control is recommended to prevent ADCs from being affected by USB MIDI communication noise
 
 
