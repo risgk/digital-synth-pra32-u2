@@ -345,12 +345,16 @@ static INLINE void PRA32_U2_ControlPanel_update_pitch(bool progress_seq_step) {
 
 static INLINE void PRA32_U2_ControlPanel_seq_clock() {
 #if defined(PRA32_U2_USE_USB_MIDI) && !defined(PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION)
-      USB_MIDI.sendRealTime(midi::Clock);
+  USB_MIDI.sendRealTime(midi::Clock);
 #endif  // defined(PRA32_U2_USE_USB_MIDI) && !defined(PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION)
 
 #if defined(PRA32_U2_USE_UART_MIDI)
-      UART_MIDI.sendRealTime(midi::Clock);
+  UART_MIDI.sendRealTime(midi::Clock);
 #endif  // defined(PRA32_U2_USE_UART_MIDI)
+
+  if (s_playing_status != PlayingStatus_Seq) {
+    return;
+  }
 
   ++s_seq_sub_step;
 
