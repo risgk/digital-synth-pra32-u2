@@ -23,6 +23,7 @@
     - Fix a problem where Filter Key Track correction was off to the plus side
     - Fix a problem in which High Pass is selected when Filter Mode value is 1
     - Fix a problem with EG/Amp Sustain level not changing in note on states
+    - Reduce noise when changing Osc 1 Wave
     - Reduce SRAM usage: Move g_filter_lpf_table_* to QSPI flash
     - Tested with Arduino-Pico version 4.6.1
 - v0.4.0 (2025-06-30):
