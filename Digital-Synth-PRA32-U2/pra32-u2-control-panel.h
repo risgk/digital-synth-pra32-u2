@@ -497,54 +497,66 @@ static INLINE void PRA32_U2_ControlPanel_update_control_seq() {
 }
 
 static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_number) {
-  uint8_t adc_control_value_candidate = PRA32_U2_ControlPanel_adc_control_value_candidate(adc_number);
+  uint8_t adc_control_value_new = PRA32_U2_ControlPanel_adc_control_value_candidate(adc_number);
 
-  if (s_adc_control_value[adc_number] != adc_control_value_candidate) {
-    uint8_t s_adc_control_value_old = s_adc_control_value[adc_number];
-    s_adc_control_value[adc_number] = adc_control_value_candidate;
+  if (s_adc_control_value[adc_number] != adc_control_value_new) {
+    uint8_t adc_control_value_old = s_adc_control_value[adc_number];
+    s_adc_control_value[adc_number] = adc_control_value_new;
 
-    uint8_t current_controller_value = s_adc_control_value[adc_number];
+
+    uint32_t shift_key_pressed = digitalRead(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
+    if (shift_key_pressed) {
+      if        ((adc_control_value_old <= 64) && (adc_control_value_new > 64)) {
+        adc_control_value_new = 64;
+      } else if ((adc_control_value_old >= 64) && (adc_control_value_new < 64)) {
+        adc_control_value_new = 64;
+      }
+    }
+
+
+    uint8_t current_controller_value = adc_control_value_new;
     if        (s_adc_control_target[adc_number] < 128 + 64) {
       current_controller_value = g_synth.current_controller_value(s_adc_control_target[adc_number]);
     }
 
-    if ((s_adc_control_value_old <= current_controller_value) &&
-        (s_adc_control_value[adc_number] >= current_controller_value)) {
+    if ((adc_control_value_old <= current_controller_value) &&
+        (adc_control_value_new >= current_controller_value)) {
       s_adc_control_catched[adc_number] = true;
     }
 
-    if ((s_adc_control_value_old >= current_controller_value) &&
-        (s_adc_control_value[adc_number] <= current_controller_value)) {
+    if ((adc_control_value_old >= current_controller_value) &&
+        (adc_control_value_new <= current_controller_value)) {
       s_adc_control_catched[adc_number] = true;
     }
+
 
     if (s_adc_control_target[adc_number] < 128 + 64) {
       if (s_adc_control_catched[adc_number]) {
-        g_synth.control_change(s_adc_control_target[adc_number], s_adc_control_value[adc_number]);
+        g_synth.control_change(s_adc_control_target[adc_number], adc_control_value_new);
       }
     } else if ((s_adc_control_target[adc_number] >= RD_PROGRAM_0) && (s_adc_control_target[adc_number] <= RD_PROGRAM_15)) {
-      if ((s_adc_control_value_old < 64) && (s_adc_control_value[adc_number] >= 64)) {
+      if ((adc_control_value_old < 64) && (adc_control_value_new >= 64)) {
         g_synth.program_change(s_adc_control_target[adc_number] - RD_PROGRAM_0);
       }
     } else if ((s_adc_control_target[adc_number] >= WR_PROGRAM_0) && (s_adc_control_target[adc_number] <= WR_PROGRAM_15)) {
-      if ((s_adc_control_value_old < 64) && (s_adc_control_value[adc_number] >= 64)) {
+      if ((adc_control_value_old < 64) && (adc_control_value_new >= 64)) {
         uint8_t program_number_to_write = s_adc_control_target[adc_number] - WR_PROGRAM_0;
         g_synth.write_parameters_to_program(program_number_to_write);
       }
     } else if (s_adc_control_target[adc_number] == RD_PANEL_PRMS) {
-      if ((s_adc_control_value_old < 64) && (s_adc_control_value[adc_number] >= 64)) {
+      if ((adc_control_value_old < 64) && (adc_control_value_new >= 64)) {
         g_synth.program_change(128);
       }
     } else if (s_adc_control_target[adc_number] == IN_PANEL_PRMS) {
-      if ((s_adc_control_value_old < 64) && (s_adc_control_value[adc_number] >= 64)) {
+      if ((adc_control_value_old < 64) && (adc_control_value_new >= 64)) {
         g_synth.program_change(129);
       }
     } else if (s_adc_control_target[adc_number] == WR_PANEL_PRMS) {
-      if ((s_adc_control_value_old < 64) && (s_adc_control_value[adc_number] >= 64)) {
+      if ((adc_control_value_old < 64) && (adc_control_value_new >= 64)) {
         g_synth.write_parameters_to_program(128);
       }
     } else if (s_adc_control_target[adc_number] == SEQ_RAND_PITCH) {
-      if ((s_adc_control_value_old < 64) && (s_adc_control_value[adc_number] >= 64)) {
+      if ((adc_control_value_old < 64) && (adc_control_value_new >= 64)) {
         uint8_t array[8] = {};
         g_synth.get_rand_uint8_array(array);
         g_synth.control_change(SEQ_PITCH_0    , array[0] & 0x7Fu);
@@ -557,7 +569,7 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
         g_synth.control_change(SEQ_PITCH_7    , array[7] & 0x7Fu);
       }
     } else if (s_adc_control_target[adc_number] == SEQ_RAND_VELO) {
-      if ((s_adc_control_value_old < 64) && (s_adc_control_value[adc_number] >= 64)) {
+      if ((adc_control_value_old < 64) && (adc_control_value_new >= 64)) {
         uint8_t array[8] = {};
         g_synth.get_rand_uint8_array(array);
         g_synth.control_change(SEQ_VELO_0     , array[0] & 0x7Fu);
@@ -934,6 +946,10 @@ INLINE void PRA32_U2_ControlPanel_setup() {
   pinMode(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN, PRA32_U2_KEY_INPUT_PIN_MODE);
 #endif  // defined(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN)
 
+#if defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
+  pinMode(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN, PRA32_U2_KEY_INPUT_PIN_MODE);
+#endif  // defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
+
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
   PRA32_U2_ControlPanel_update_page();
 
@@ -1008,7 +1024,7 @@ INLINE void PRA32_U2_ControlPanel_update_analog_inputs(uint32_t loop_counter) {
     break;
   case 0x1C:
     s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
-    if        (s_adc_current_value[0]                                  >= s_adc_total_value + PRA32_U2_ANALOG_INPUT_THRESHOLD) {
+    if        (s_adc_current_value[0]                                   >= s_adc_total_value + PRA32_U2_ANALOG_INPUT_THRESHOLD) {
       s_adc_current_value[0] = s_adc_total_value;
     } else if (s_adc_current_value[0] + PRA32_U2_ANALOG_INPUT_THRESHOLD <= s_adc_total_value                                 ) {
       s_adc_current_value[0] = s_adc_total_value;
@@ -1027,7 +1043,7 @@ INLINE void PRA32_U2_ControlPanel_update_analog_inputs(uint32_t loop_counter) {
     break;
   case 0x2C:
     s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
-    if        (s_adc_current_value[1]                                  >= s_adc_total_value + PRA32_U2_ANALOG_INPUT_THRESHOLD) {
+    if        (s_adc_current_value[1]                                   >= s_adc_total_value + PRA32_U2_ANALOG_INPUT_THRESHOLD) {
       s_adc_current_value[1] = s_adc_total_value;
     } else if (s_adc_current_value[1] + PRA32_U2_ANALOG_INPUT_THRESHOLD <= s_adc_total_value                                 ) {
       s_adc_current_value[1] = s_adc_total_value;
@@ -1046,7 +1062,7 @@ INLINE void PRA32_U2_ControlPanel_update_analog_inputs(uint32_t loop_counter) {
     break;
   case 0x3C:
     s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
-    if        (s_adc_current_value[2]                                  >= s_adc_total_value + PRA32_U2_ANALOG_INPUT_THRESHOLD) {
+    if        (s_adc_current_value[2]                                   >= s_adc_total_value + PRA32_U2_ANALOG_INPUT_THRESHOLD) {
       s_adc_current_value[2] = s_adc_total_value;
     } else if (s_adc_current_value[2] + PRA32_U2_ANALOG_INPUT_THRESHOLD <= s_adc_total_value                                 ) {
       s_adc_current_value[2] = s_adc_total_value;
