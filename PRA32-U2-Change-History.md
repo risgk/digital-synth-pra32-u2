@@ -14,6 +14,7 @@
     - Improve smooth change of Filter Cutoff and Delay Time
     - Change the Preset programs
     - PRA32-U2 Editor: Change the layout
+    - PRA32-U2 with Panel: Add Seq T/Rx St/Sp (Transmit/Receive Start/Stop)
     - PRA32-U2 with Panel: Change to send clocks even when the Step Sequencer is not playing
     - PRA32-U2 with Panel: Change the page layout
     - PRA32-U2 with Panel: Change the meaning of Pitch value 0 to Off

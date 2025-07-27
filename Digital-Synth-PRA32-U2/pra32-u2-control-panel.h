@@ -437,13 +437,15 @@ static INLINE void PRA32_U2_ControlPanel_seq_clock() {
 }
 
 static INLINE void PRA32_U2_ControlPanel_seq_start() {
+  if (g_synth.current_controller_value(SEQ_TRX_ST_SP  ) >= 64) {
 #if defined(PRA32_U2_USE_USB_MIDI) && !defined(PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION)
-  USB_MIDI.sendRealTime(midi::Start);
+    USB_MIDI.sendRealTime(midi::Start);
 #endif  // defined(PRA32_U2_USE_USB_MIDI) && !defined(PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION)
 
 #if defined(PRA32_U2_USE_UART_MIDI)
-  UART_MIDI.sendRealTime(midi::Start);
+    UART_MIDI.sendRealTime(midi::Start);
 #endif  // defined(PRA32_U2_USE_UART_MIDI)
+  }
 
   s_playing_status = PlayingStatus_Seq;
 
@@ -463,13 +465,15 @@ static INLINE void PRA32_U2_ControlPanel_seq_start() {
 }
 
 static INLINE void PRA32_U2_ControlPanel_seq_stop() {
+  if (g_synth.current_controller_value(SEQ_TRX_ST_SP  ) >= 64) {
 #if defined(PRA32_U2_USE_USB_MIDI) && !defined(PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION)
-  USB_MIDI.sendRealTime(midi::Stop);
+    USB_MIDI.sendRealTime(midi::Stop);
 #endif  // defined(PRA32_U2_USE_USB_MIDI) && !defined(PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION)
 
 #if defined(PRA32_U2_USE_UART_MIDI)
-  UART_MIDI.sendRealTime(midi::Stop);
+    UART_MIDI.sendRealTime(midi::Stop);
 #endif  // defined(PRA32_U2_USE_UART_MIDI)
+  }
 
   s_playing_status = PlayingStatus_Stop;
   s_display_buffer[0][20] = ' ';
@@ -696,6 +700,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case EG_AMP_MOD      :
   case REL_EQ_DECAY    :
   case SUSTAIN_PEDAL   :
+  case SEQ_TRX_ST_SP   :
     {
       char ary[2][5] = {"Off"," On"};
       uint32_t index = ((controller_value * 2) + 127) / 254;
