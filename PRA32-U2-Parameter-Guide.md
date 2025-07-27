@@ -168,7 +168,8 @@
     - 102 (89-114): Sample & Hold (Key Trigger On, -0.5 to +0.5)
     - 127 (115-127): Square Wave (Key Trigger On, 0.0 to 1.0)
 - LFO Rate
-    - 0: 0.067 Hz (min)
+    - 0: 0.0Hz (min)
+    - 1: 0.072 Hz
     - 64: 2.7 Hz
     - 80: 6.9 Hz
     - 127: 103.8Hz (max)
