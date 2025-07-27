@@ -21,6 +21,7 @@
     - SW1: Next Key (Push to the next page, Long press to the next group)
     - SW2: Play Key (Normal Mode: press to play, Sequencer Mode: push to start/stop)
     - SW3: Shift Key (Press to prevent values from changing across 64) (optional)
+        - Uncomment out `//#define PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN         (17)` in "Digital-Synth-PRA32-U2.ino"
     - VR0 (ADC0): Parameter A
     - VR1 (ADC1): Parameter B
     - VR2 (ADC2): Parameter C
