@@ -459,7 +459,6 @@ static INLINE void PRA32_U2_ControlPanel_seq_start() {
   }
 
   s_seq_sub_step = 23;
-  s_seq_count    = 0;
   s_panel_play_note_gate = false;
 }
 
@@ -478,7 +477,7 @@ static INLINE void PRA32_U2_ControlPanel_seq_stop() {
 }
 
 static INLINE void PRA32_U2_ControlPanel_update_control_seq() {
-  if ((s_playing_status == PlayingStatus_Seq) && (s_seq_clock_src_external == false)) {
+  if ((s_play_mode == 1) && (s_seq_clock_src_external == false)) {  // Seq Mode
     s_seq_count += s_seq_count_increment;
 
     if (s_seq_count >= 7680000 * 2) {
@@ -1229,7 +1228,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
 INLINE void PRA32_U2_ControlPanel_on_clock()
 {
   if (s_seq_clock_src_external) {
-    if (s_playing_status == PlayingStatus_Seq) {
+    if (s_play_mode == 1) {  // Seq Mode
       PRA32_U2_ControlPanel_seq_clock();
     }
   }
