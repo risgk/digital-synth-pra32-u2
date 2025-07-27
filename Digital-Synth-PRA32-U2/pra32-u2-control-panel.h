@@ -503,7 +503,7 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
     uint8_t adc_control_value_old = s_adc_control_value[adc_number];
     s_adc_control_value[adc_number] = adc_control_value_new;
 
-
+#if defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
     uint32_t shift_key_pressed = digitalRead(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
     if (shift_key_pressed) {
       if        ((adc_control_value_old <= 64) && (adc_control_value_new > 64)) {
@@ -512,7 +512,7 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
         adc_control_value_new = 64;
       }
     }
-
+#endif  // defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
 
     uint8_t current_controller_value = adc_control_value_new;
     if        (s_adc_control_target[adc_number] < 128 + 64) {
