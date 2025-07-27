@@ -228,7 +228,7 @@ const uint8_t   SEQ_TRANSPOSE   = 128 + 54;
 const uint8_t   SEQ_STEP_NOTE   = 128 + 55;
 
 const uint8_t   SEQ_ON_STEPS    = 128 + 56;
-
+const uint8_t   SEQ_TRX_ST_SP   = 128 + 57;
 
 
 

@@ -129,7 +129,7 @@ static uint8_t s_program_table_panel_parameters[] = {
   SEQ_STEP_NOTE  ,
 
   SEQ_ON_STEPS   ,
-
+  SEQ_TRX_ST_SP  ,
 
 
 };
@@ -175,6 +175,7 @@ const uint8_t   DEFAULT_SEQ_TRANSPOSE   = 64 ;
 const uint8_t   DEFAULT_SEQ_STEP_NOTE   = 64 ;
 
 const uint8_t   DEFAULT_SEQ_ON_STEPS    = 127;
+const uint8_t   DEFAULT_SEQ_TRX_ST_SP   = 0  ;
 
 
 
@@ -415,7 +416,7 @@ public:
       m_program_table_panel[i][SEQ_STEP_NOTE  ] = DEFAULT_SEQ_STEP_NOTE  ;
 
       m_program_table_panel[i][SEQ_ON_STEPS   ] = DEFAULT_SEQ_ON_STEPS   ;
-
+      m_program_table_panel[i][SEQ_TRX_ST_SP  ] = DEFAULT_SEQ_TRX_ST_SP  ;
 
 
     }

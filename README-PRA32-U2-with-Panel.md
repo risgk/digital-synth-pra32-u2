@@ -52,15 +52,16 @@
         - For example, if Panel Scale is Min and Panel Transpose is -3, the scale is A Natural Minor
         - For example, if Panel Scale is MiP and Panel Transpose is -3, the scale is A Minor Pentatonic
 - Step Sequencer Parameters
+    - Seq Step Note [4|8|16]: Quarter Note, Eighth Note, Sixteenth Note
+    - Seq Clock Src [Int|Ext]: Internal, External (Rx MIDI Clock)
+    - Seq Transpose [-|+]
+    - Seq T/Rx St/Sp (Transmit/Receive Start/Stop): Off, On
+    - Seq Tempo: BPM 56-300
+    - Seq Gate Time [1/6|2/6|3/6|4/6|5/6|6/6]
     - Seq Mode [Fwd|Rvs|Bnc]: Forward, Reverse, Bounce
     - Seq Num Steps (Number of Steps): 1-32 (current step mod 8 is used as the index for Seq Pitch and Seq Velo)
     - Seq On Steps: bit 0 is Step 1 On, ..., bit 6 is Step 7 On (Step 0 is always On)
     - Seq Act Steps (Active Steps): bit 0 is Step 1 Active, ..., bit 6 is Step 7 Active (Step 0 is always Active)
-    - Seq Step Note [4|8|16]: Quarter Note, Eighth Note, Sixteenth Note
-    - Seq Tempo: BPM 56-300
-    - Seq Gate Time [1/6|2/6|3/6|4/6|5/6|6/6]
-    - Seq Transpose [-|+]
-    - Seq Clock Src [Int|Ext]: Internal, External (Rx MIDI Clock)
     - Seq Pitch 0-7: 0 is Off, 1-4 is lowest, 124-127 is highest
     - Seq Velo 0-7 (Velocity 0-7)
 - Step Sequencer Operations
