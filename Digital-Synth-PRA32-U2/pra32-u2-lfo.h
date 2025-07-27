@@ -85,7 +85,7 @@ public:
     if (   (m_lfo_waveform == LFO_WAVEFORM_SAW_DOWN)
         || (m_lfo_waveform == LFO_WAVEFORM_RANDOM)
         || (m_lfo_waveform == LFO_WAVEFORM_SQUARE)) {
-      m_lfo_phase = 0x00FFFFFF;
+      m_lfo_phase = 0x00000000;
     }
 
     if (m_lfo_fade_coef > LFO_FADE_COEF_OFF) {
