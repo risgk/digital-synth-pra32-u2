@@ -2,6 +2,7 @@
 
 - v0.5.0 (2025-**-**):
     - Add the Delay Level control
+    - Add a Constant Wave (Con) to the LFO Wave
     - Change the control number of Chorus Mix (34 -> 93)
     - Reduce the output level in monophonic modes
     - Extend Oscillator, Filter, and Amp inputs and outputs to 24-bit (int32_t)
