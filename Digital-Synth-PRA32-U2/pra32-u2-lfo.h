@@ -7,10 +7,9 @@
 class PRA32_U2_LFO {
   static const uint8_t LFO_WAVEFORM_TRIANGLE  = 0;
   static const uint8_t LFO_WAVEFORM_SINE      = 1;
-  static const uint8_t LFO_WAVEFORM_CONSTANT  = 2;
-  static const uint8_t LFO_WAVEFORM_SAW_DOWN  = 3;
-  static const uint8_t LFO_WAVEFORM_RANDOM    = 4;
-  static const uint8_t LFO_WAVEFORM_SQUARE    = 5;
+  static const uint8_t LFO_WAVEFORM_SAW_DOWN  = 2;
+  static const uint8_t LFO_WAVEFORM_RANDOM    = 3;
+  static const uint8_t LFO_WAVEFORM_SQUARE    = 4;
 
   static const uint8_t LFO_FADE_COEF_OFF      = 1;
 
@@ -54,7 +53,7 @@ public:
     static uint8_t lfo_waveform_table[6] = {
       LFO_WAVEFORM_TRIANGLE,
       LFO_WAVEFORM_SINE,
-      LFO_WAVEFORM_CONSTANT,
+      LFO_WAVEFORM_SAW_DOWN,
       LFO_WAVEFORM_SAW_DOWN,
       LFO_WAVEFORM_RANDOM,
       LFO_WAVEFORM_SQUARE,
@@ -83,8 +82,7 @@ public:
   }
 
   INLINE void trigger_lfo() {
-    if (   (m_lfo_waveform == LFO_WAVEFORM_CONSTANT)
-        || (m_lfo_waveform == LFO_WAVEFORM_SAW_DOWN)
+    if (   (m_lfo_waveform == LFO_WAVEFORM_SAW_DOWN)
         || (m_lfo_waveform == LFO_WAVEFORM_RANDOM)
         || (m_lfo_waveform == LFO_WAVEFORM_SQUARE)) {
       m_lfo_phase = 0x00FFFFFF;
@@ -129,11 +127,6 @@ private:
         int16_t  curr_data   = g_osc_sine_wave_table_h1[curr_index + 0];
         int16_t  next_data   = g_osc_sine_wave_table_h1[curr_index + 1];
         level                = curr_data + (((next_data - curr_data) * next_weight) >> (16 - OSC_WAVE_TABLE_SAMPLES_BITS)); // lerp
-      }
-      break;
-    case LFO_WAVEFORM_CONSTANT:
-      {
-        level = 128 << 7;
       }
       break;
     case LFO_WAVEFORM_SAW_DOWN:
