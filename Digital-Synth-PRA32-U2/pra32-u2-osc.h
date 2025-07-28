@@ -528,6 +528,7 @@ private:
     } else if (m_waveform[0] == WAVEFORM_SQUARE) {
       uint16_t phase_modulation_depth = (m_osc1_shape_effective[N] + ((1 << 6) >> 1)) >> 6;
 
+      int32_t wave_0    = +get_wave_level(m_wave_table[N], m_phase[N]);
       int32_t wave_0_0  = +get_wave_level(m_wave_table[N + 16], m_phase[N] + (g_osc_sqr_shape_table[phase_modulation_depth][0 ] << 8));
       int32_t wave_0_1  = -get_wave_level(m_wave_table[N + 16], m_phase[N] + (g_osc_sqr_shape_table[phase_modulation_depth][1 ] << 8));
       int32_t wave_0_2  = +get_wave_level(m_wave_table[N + 16], m_phase[N] + (g_osc_sqr_shape_table[phase_modulation_depth][2 ] << 8));
@@ -544,8 +545,6 @@ private:
       int32_t wave_0_13 = -get_wave_level(m_wave_table[N + 16], m_phase[N] + (g_osc_sqr_shape_table[phase_modulation_depth][13] << 8));
       int32_t wave_0_14 = +get_wave_level(m_wave_table[N + 16], m_phase[N] + (g_osc_sqr_shape_table[phase_modulation_depth][14] << 8));
       int32_t wave_0_15 = -get_wave_level(m_wave_table[N + 16], m_phase[N] + (g_osc_sqr_shape_table[phase_modulation_depth][15] << 8));
-
-      int32_t wave_0    = +get_wave_level(m_wave_table[N], m_phase[N]);
 
       int32_t sqr_sync_mix = (m_osc1_morph_control_effective + 1) >> 1;
       result += (((  ( sqr_sync_mix       * (wave_0_0  + wave_0_1  + wave_0_2  + wave_0_3  + wave_0_4  + wave_0_5  + wave_0_6  + wave_0_7  +
