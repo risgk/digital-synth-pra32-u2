@@ -513,17 +513,18 @@ private:
 
       uint32_t phase_shift_base = (127 * (4 - N)) << (5 + 16 - 2);
 
-      int32_t wave_0_0 = get_wave_level(m_wave_table[N], m_phase[N]);
-      int32_t wave_0_1 = get_wave_level(m_wave_table[N], m_phase[N] - (m_phase_shape_morph[N] * 1) - (phase_shift_base * 3));
-      int32_t wave_0_2 = get_wave_level(m_wave_table[N], m_phase[N] + (m_phase_shape_morph[N] * 1) + (phase_shift_base * 5));
-      int32_t wave_0_3 = get_wave_level(m_wave_table[N], m_phase[N] - (m_phase_shape_morph[N] * 3) - (phase_shift_base * 5));
-      int32_t wave_0_4 = get_wave_level(m_wave_table[N], m_phase[N] + (m_phase_shape_morph[N] * 3) + (phase_shift_base * 1));
-      int32_t wave_0_5 = get_wave_level(m_wave_table[N], m_phase[N] - (m_phase_shape_morph[N] * 5) - (phase_shift_base * 1));
-      int32_t wave_0_6 = get_wave_level(m_wave_table[N], m_phase[N] + (m_phase_shape_morph[N] * 5) + (phase_shift_base * 3));
+      int32_t wave_0   = get_wave_level(m_wave_table[N], m_phase[N]);
+      int32_t wave_0_0 = get_wave_level(m_wave_table[N + 16], m_phase[N]);
+      int32_t wave_0_1 = get_wave_level(m_wave_table[N + 16], m_phase[N] - (m_phase_shape_morph[N] * 1) - (phase_shift_base * 3));
+      int32_t wave_0_2 = get_wave_level(m_wave_table[N + 16], m_phase[N] + (m_phase_shape_morph[N] * 1) + (phase_shift_base * 5));
+      int32_t wave_0_3 = get_wave_level(m_wave_table[N + 16], m_phase[N] - (m_phase_shape_morph[N] * 3) - (phase_shift_base * 5));
+      int32_t wave_0_4 = get_wave_level(m_wave_table[N + 16], m_phase[N] + (m_phase_shape_morph[N] * 3) + (phase_shift_base * 1));
+      int32_t wave_0_5 = get_wave_level(m_wave_table[N + 16], m_phase[N] - (m_phase_shape_morph[N] * 5) - (phase_shift_base * 1));
+      int32_t wave_0_6 = get_wave_level(m_wave_table[N + 16], m_phase[N] + (m_phase_shape_morph[N] * 5) + (phase_shift_base * 3));
 
       int32_t multi_saw_mix = (m_osc1_morph_control_effective + 1) >> 1;
       result += (((  ( multi_saw_mix       * (((wave_0_0 + wave_0_1 + wave_0_2 + wave_0_3 + wave_0_4 + wave_0_5 + wave_0_6) << 1) / 5))
-                   + ((64 - multi_saw_mix) *    wave_0_0)) >> 6) * osc1_gain * m_osc_gain_effective[N]) >> 10;
+                   + ((64 - multi_saw_mix) *    wave_0)) >> 6) * osc1_gain * m_osc_gain_effective[N]) >> 10;
     } else if (m_waveform[0] == WAVEFORM_SQUARE) {
       uint16_t phase_modulation_depth = (m_osc1_shape_effective[N] + ((1 << 6) >> 1)) >> 6;
 
