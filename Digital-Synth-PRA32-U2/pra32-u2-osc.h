@@ -475,7 +475,7 @@ private:
 
     m_wave_table[N + 12] = reinterpret_cast<const int16_t*>((reinterpret_cast<const uintptr_t>(m_wave_table[N + 12]) * (1 - new_period_osc1)));
     m_wave_table[N + 12] = reinterpret_cast<const int16_t*>( reinterpret_cast<const uint8_t*>( m_wave_table[N + 12]) +
-                                                            (reinterpret_cast<const uintptr_t>(m_wave_table_temp[N + 8]) * new_period_osc1));
+                                                            (reinterpret_cast<const uintptr_t>(m_wave_table_temp[N + 12]) * new_period_osc1));
 
     m_wave_table[N + 16] = reinterpret_cast<const int16_t*>((reinterpret_cast<const uintptr_t>(m_wave_table[N + 16]) * (1 - new_period_osc1)));
     m_wave_table[N + 16] = reinterpret_cast<const int16_t*>( reinterpret_cast<const uint8_t*>( m_wave_table[N + 16]) +
@@ -562,7 +562,7 @@ private:
       boolean new_period_osc1_add = ((phase_3 + 0x00800000) & 0x00FFFFFF) < (m_freq[N] + 0x00010000); // crossing the middle of a saw wave
       m_wave_table[N + 8] = reinterpret_cast<const int16_t*>((reinterpret_cast<const uintptr_t>(m_wave_table[N + 8]) * (1 - new_period_osc1_add)));
       m_wave_table[N + 8] = reinterpret_cast<const int16_t*>( reinterpret_cast<const uint8_t*>( m_wave_table[N + 8]) +
-                                                             (reinterpret_cast<const uintptr_t>(m_wave_table_temp[N + 16]) * new_period_osc1_add));
+                                                             (reinterpret_cast<const uintptr_t>(m_wave_table_temp[N + 8]) * new_period_osc1_add));
       int16_t wave_3 = get_wave_level(m_wave_table[N + 8], phase_3);
 #endif
       result += ((((wave_3 * osc1_gain * m_osc_gain_effective[N]) >> 10) * (((m_osc1_morph_control_effective - 63) >> 1) << 1)) >> 6) * (m_waveform[0] == WAVEFORM_1_PULSE);
@@ -648,13 +648,14 @@ private:
       m_wave_table_temp[N]      = get_wave_table(m_waveform[1], coarse);
     } else {
       m_wave_table_temp[N]      = get_wave_table(m_waveform[0], coarse);
+      m_wave_table_temp[N + 8]  = get_wave_table(WAVEFORM_SAW,  coarse);
       m_wave_table_temp[N + 16] = get_wave_table(WAVEFORM_SAW,  coarse);
 
       // coarse_sub = max((coarse - 12), NOTE_NUMBER_MIN)
       volatile int32_t coarse_sub = (coarse - 12) - NOTE_NUMBER_MIN;
       coarse_sub = (coarse_sub > 0) * coarse_sub + NOTE_NUMBER_MIN;
 
-      m_wave_table_temp[N + 8]  = get_wave_table(WAVEFORM_SINE, coarse_sub);
+      m_wave_table_temp[N + 12] = get_wave_table(WAVEFORM_SINE, coarse_sub);
     }
 
 
