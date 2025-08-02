@@ -23,7 +23,7 @@ const uint8_t g_preset_table_EG_DECAY       [] = {32 , 96 , 96 , 64 , 96 , 96 , 
 const uint8_t g_preset_table_EG_SUSTAIN     [] = {127, 0  , 0  , 127, 0  , 0  , 127, 127,   127, 0  , 0  , 127, 0  , 0  , 127, 127};
 const uint8_t g_preset_table_EG_RELEASE     [] = {32 , 32 , 32 , 32 , 32 , 32 , 32 , 0  ,   32 , 32 , 32 , 32 , 32 , 32 , 32 , 0  };
 
-const uint8_t g_preset_table_EG_OSC_AMT     [] = {64 , 64 , 80 , 64 , 64 , 72 , 64 , 64 ,   64 , 64 , 80 , 64 , 64 , 72 , 64 , 64 };
+const uint8_t g_preset_table_EG_OSC_AMT     [] = {64 , 64 , 72 , 64 , 64 , 72 , 64 , 64 ,   64 , 64 , 72 , 64 , 64 , 72 , 64 , 64 };
 const uint8_t g_preset_table_EG_OSC_DST     [] = {0  , 0  , 127, 0  , 0  , 127, 0  , 0  ,   0  , 0  , 127, 0  , 0  , 127, 0  , 0  };
 const uint8_t g_preset_table_VOICE_MODE     [] = {127, 0  , 76 , 0  , 76 , 0  , 0  , 0  ,   127, 0  , 76 , 0  , 76 , 0  , 0  , 0  };
 const uint8_t g_preset_table_PORTAMENTO     [] = {0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  };
