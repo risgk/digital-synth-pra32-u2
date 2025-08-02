@@ -450,14 +450,23 @@ private:
     return wave_table_table[waveform][note_number - NOTE_NUMBER_MIN];
   }
 
-  INLINE int16_t get_wave_level(const int16_t* wave_table, uint32_t phase) {
-    uint16_t phase16     = phase >> 8;
-    uint16_t curr_index  = phase16 >> (16 - OSC_WAVE_TABLE_SAMPLES_BITS);
-    uint16_t next_weight = phase16 & ((1 << (16 - OSC_WAVE_TABLE_SAMPLES_BITS)) - 1);
+  INLINE int16_t get_wave_level(const int16_t* wave_table, uint32_t phase_24) {
+    uint16_t phase_16    = phase_24 >> 8;
+    uint16_t curr_index  = phase_16 >> (16 - OSC_WAVE_TABLE_SAMPLES_BITS);
+    uint16_t next_weight = phase_16 & ((1 << (16 - OSC_WAVE_TABLE_SAMPLES_BITS)) - 1);
     int16_t  curr_data   = wave_table[curr_index + 0];
     int16_t  next_data   = wave_table[curr_index + 1];
     int16_t  level       = curr_data + (((next_data - curr_data) * next_weight) >> (16 - OSC_WAVE_TABLE_SAMPLES_BITS)); // lerp
     return level;
+  }
+
+  INLINE uint32_t get_osc_sqr_shape_data(uint32_t shape, uint16_t saw_number) {
+    uint16_t curr_index  = shape >> (8 - 0);
+    uint16_t next_weight = shape & ((1 << (8 - 0)) - 1);
+    int32_t curr_data    = g_osc_sqr_shape_table[curr_index + 0][saw_number] << 1;
+    int32_t next_data    = g_osc_sqr_shape_table[curr_index + 1][saw_number] << 1;
+    int32_t data         = (curr_data << 8) + (((next_data - curr_data) * next_weight) << 0); // lerp
+    return data;
   }
 
   template <uint8_t N>
@@ -526,25 +535,25 @@ private:
       result += (((  ( multi_saw_mix       * (((wave_0_0 + wave_0_1 + wave_0_2 + wave_0_3 + wave_0_4 + wave_0_5 + wave_0_6) << 1) / 5))
                    + ((64 - multi_saw_mix) *    wave_0)) >> 6) * osc1_gain * m_osc_gain_effective[N]) >> 10;
     } else if (m_waveform[0] == WAVEFORM_SQUARE) {
-      uint16_t phase_modulation_depth = (m_osc1_shape_effective[N] + ((1 << 6) >> 1)) >> 6;
+      uint32_t shape = m_osc1_shape_effective[N];
 
       int32_t wave_0    = +get_wave_level(m_wave_table[N], m_phase[N]);
-      int32_t wave_0_0  = +get_wave_level(m_wave_table[N + 16], m_phase[N] + (g_osc_sqr_shape_table[phase_modulation_depth][0 ] << 8));
-      int32_t wave_0_1  = -get_wave_level(m_wave_table[N + 16], m_phase[N] + (g_osc_sqr_shape_table[phase_modulation_depth][1 ] << 8));
-      int32_t wave_0_2  = +get_wave_level(m_wave_table[N + 16], m_phase[N] + (g_osc_sqr_shape_table[phase_modulation_depth][2 ] << 8));
-      int32_t wave_0_3  = -get_wave_level(m_wave_table[N + 16], m_phase[N] + (g_osc_sqr_shape_table[phase_modulation_depth][3 ] << 8));
-      int32_t wave_0_4  = +get_wave_level(m_wave_table[N + 16], m_phase[N] + (g_osc_sqr_shape_table[phase_modulation_depth][4 ] << 8));
-      int32_t wave_0_5  = -get_wave_level(m_wave_table[N + 16], m_phase[N] + (g_osc_sqr_shape_table[phase_modulation_depth][5 ] << 8));
-      int32_t wave_0_6  = +get_wave_level(m_wave_table[N + 16], m_phase[N] + (g_osc_sqr_shape_table[phase_modulation_depth][6 ] << 8));
-      int32_t wave_0_7  = -get_wave_level(m_wave_table[N + 16], m_phase[N] + (g_osc_sqr_shape_table[phase_modulation_depth][7 ] << 8));
-      int32_t wave_0_8  = +get_wave_level(m_wave_table[N + 16], m_phase[N] + (g_osc_sqr_shape_table[phase_modulation_depth][8 ] << 8));
-      int32_t wave_0_9  = -get_wave_level(m_wave_table[N + 16], m_phase[N] + (g_osc_sqr_shape_table[phase_modulation_depth][9 ] << 8));
-      int32_t wave_0_10 = +get_wave_level(m_wave_table[N + 16], m_phase[N] + (g_osc_sqr_shape_table[phase_modulation_depth][10] << 8));
-      int32_t wave_0_11 = -get_wave_level(m_wave_table[N + 16], m_phase[N] + (g_osc_sqr_shape_table[phase_modulation_depth][11] << 8));
-      int32_t wave_0_12 = +get_wave_level(m_wave_table[N + 16], m_phase[N] + (g_osc_sqr_shape_table[phase_modulation_depth][12] << 8));
-      int32_t wave_0_13 = -get_wave_level(m_wave_table[N + 16], m_phase[N] + (g_osc_sqr_shape_table[phase_modulation_depth][13] << 8));
-      int32_t wave_0_14 = +get_wave_level(m_wave_table[N + 16], m_phase[N] + (g_osc_sqr_shape_table[phase_modulation_depth][14] << 8));
-      int32_t wave_0_15 = -get_wave_level(m_wave_table[N + 16], m_phase[N] + (g_osc_sqr_shape_table[phase_modulation_depth][15] << 8));
+      int32_t wave_0_0  = +get_wave_level(m_wave_table[N + 16], m_phase[N] + get_osc_sqr_shape_data(shape, 0 ));
+      int32_t wave_0_1  = -get_wave_level(m_wave_table[N + 16], m_phase[N] + get_osc_sqr_shape_data(shape, 1 ));
+      int32_t wave_0_2  = +get_wave_level(m_wave_table[N + 16], m_phase[N] + get_osc_sqr_shape_data(shape, 2 ));
+      int32_t wave_0_3  = -get_wave_level(m_wave_table[N + 16], m_phase[N] + get_osc_sqr_shape_data(shape, 3 ));
+      int32_t wave_0_4  = +get_wave_level(m_wave_table[N + 16], m_phase[N] + get_osc_sqr_shape_data(shape, 4 ));
+      int32_t wave_0_5  = -get_wave_level(m_wave_table[N + 16], m_phase[N] + get_osc_sqr_shape_data(shape, 5 ));
+      int32_t wave_0_6  = +get_wave_level(m_wave_table[N + 16], m_phase[N] + get_osc_sqr_shape_data(shape, 6 ));
+      int32_t wave_0_7  = -get_wave_level(m_wave_table[N + 16], m_phase[N] + get_osc_sqr_shape_data(shape, 7 ));
+      int32_t wave_0_8  = +get_wave_level(m_wave_table[N + 16], m_phase[N] + get_osc_sqr_shape_data(shape, 8 ));
+      int32_t wave_0_9  = -get_wave_level(m_wave_table[N + 16], m_phase[N] + get_osc_sqr_shape_data(shape, 9 ));
+      int32_t wave_0_10 = +get_wave_level(m_wave_table[N + 16], m_phase[N] + get_osc_sqr_shape_data(shape, 10));
+      int32_t wave_0_11 = -get_wave_level(m_wave_table[N + 16], m_phase[N] + get_osc_sqr_shape_data(shape, 11));
+      int32_t wave_0_12 = +get_wave_level(m_wave_table[N + 16], m_phase[N] + get_osc_sqr_shape_data(shape, 12));
+      int32_t wave_0_13 = -get_wave_level(m_wave_table[N + 16], m_phase[N] + get_osc_sqr_shape_data(shape, 13));
+      int32_t wave_0_14 = +get_wave_level(m_wave_table[N + 16], m_phase[N] + get_osc_sqr_shape_data(shape, 14));
+      int32_t wave_0_15 = -get_wave_level(m_wave_table[N + 16], m_phase[N] + get_osc_sqr_shape_data(shape, 15));
 
       int32_t sqr_sync_mix = (m_osc1_morph_control_effective + 1) >> 1;
       result += (((  ( sqr_sync_mix       * (wave_0_0  + wave_0_1  + wave_0_2  + wave_0_3  + wave_0_4  + wave_0_5  + wave_0_6  + wave_0_7  +

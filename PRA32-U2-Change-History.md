@@ -20,6 +20,7 @@
     - PRA32-U2 with Panel: Change the page layout
     - PRA32-U2 with Panel: Change the meaning of Pitch value 0 to Off
     - PRA32-U2 with Panel: Change SW0, SW2, and VR2 omittable
+    - Add interporation for Sync Square
     - Fix a problem where Filter Key Track correction was off to the plus side
     - Fix a problem in which High Pass is selected when Filter Mode value is 1
     - Fix a problem with EG/Amp Sustain level not changing in note on states
