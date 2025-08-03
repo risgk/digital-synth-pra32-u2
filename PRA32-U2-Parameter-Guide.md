@@ -1,4 +1,4 @@
-# Digital Synth PRA32-U2 Parameter Guide v0.5.0
+# Digital Synth PRA32-U2 Parameter Guide v0.5.1
 
 - 2025-08-03 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
@@ -15,6 +15,15 @@
     - 76 (64-88): Sine Wave
     - 102 (89-114): Sine Wave
     - 127 (115-127): Pulse Wave
+- Mixer Noise/Sub Osc [N|S]
+    - -64 (0): Noise 100%
+    - -63 (1): Noise 98.4%
+    - -62 (2): Noise 96.9%
+    - -1 (63): Noise 1.6%
+    - +0 (64): 0%
+    - +1 (65): Sub Osc 1.6%
+    - +62 (126): Sub Osc 96.9%
+    - +63 (127): Sub Osc 100%
 - Osc 1 Shape $2
     - Saw Wave: Multi Saw Detune
     - Square Wave: Sync Square Pitch
@@ -49,15 +58,6 @@
         - 64: Saw 100%
         - 96: Saw 100% + Saw 50%
         - 127: Saw 100% + Saw 100% (max)
-- Mixer Noise/Sub Osc [N|S]
-    - -64 (0): Noise 100%
-    - -63 (1): Noise 98.4%
-    - -62 (2): Noise 96.9%
-    - -1 (63): Noise 1.6%
-    - +0 (64): 0%
-    - +1 (65): Sub Osc 1.6%
-    - +62 (126): Sub Osc 96.9%
-    - +63 (127): Sub Osc 100%
 - Osc 2 Wave [Saw|Sqr|Tri|Sin|-|Nos]
     - 0 (0-12): Saw Wave
     - 25 (13-38): Square Wave
@@ -65,6 +65,7 @@
     - 76 (64-88): Sine Wave
     - 102 (89-114): Sine Wave
     - 127 (115-127): White Noise
+- Mixer Osc Mix [1|2]
 - Osc 2 Coarse [-|+]
     - -60 (4): -60 semitone (min)
     - +60 (124): +60 semitone (max)
@@ -78,7 +79,6 @@
     - +33 (97): +1 semitone
     - +45 (109): +7 semitone
     - +55 (119): +12 semitone (max)
-- Mixer Osc Mix [1|2]
 - Filter Cutoff
     - 0: f = 13.0 Hz (min)
     - 61: f = 440 Hz
@@ -167,22 +167,26 @@
     - 76 (64-88): Saw Wave (Key Trigger On, -0.5 to +0.5)
     - 102 (89-114): Sample & Hold (Key Trigger On, -0.5 to +0.5)
     - 127 (115-127): Square Wave (Key Trigger On, 0.0 to 1.0)
-- LFO Rate
-    - 0: 0.0Hz (min)
-    - 1: 0.072 Hz
-    - 64: 2.7 Hz
-    - 80: 6.9 Hz
-    - 127: 103.8Hz (max)
-- LFO Depth
-    - The actual LFO depth is the "LFO Depth" value plus the "Modulation" value
 - LFO Fade Time
     - 0: 0 ms (min)
     - 1: 9.6 ms
     - 64: 1.0 s
     - 127: 9.6 s (max)
+- LFO Rate
+    - 0: 0.0 Hz (min)
+    - 1: 0.072 Hz
+    - 64: 2.7 Hz
+    - 80: 6.9 Hz
+    - 127: 103.8 Hz (max)
+- LFO Depth
+    - The actual LFO depth is the "LFO Depth" value plus the "Modulation" value
+- Amp Gain
 - Filter Mode [LP|HP]
     - 0 (0-63): Low Pass
     - 127 (64-127): High Pass
+- Pitch Bend Range
+    - 0: 0 semitone (min)
+    - 60: 60 semitone (max)
 - EG Amp Mod [Off|On]
     - 0 (0-63): Off
     - 127 (64-127): On, Amp ADSR = EG ADSR
@@ -190,9 +194,6 @@
     - 0 (0-63): Off
     - 127 (64-127): On, EG Release = EG Decay and Amp Release = Amp Decay
         - **NOTE**: EG Velocity Sensitivity and Amp Velocity Sensitivity works independently
-- Pitch Bend Range
-    - 0: 0 semitone (min)
-    - 60: 60 semitone (max)
 - Breath Filter Amt [-|+]
     - -60 (4): -60 (min)
     - +60 (124): +60 (max)
@@ -200,6 +201,8 @@
     - 0 (0-31): Off
     - 64 (32-95): Quadratic Curve
     - 127 (96-127): Liniear Curve
+- EG Velocity Sensitivity
+- Amp Velocity Sensitivity
 - Voice Assign Mode [1|2]
     - 0 (0-63): Mode 1, Free voice with next number has priority in Polyphonic/Paraphonic Mode, Release is effective
     - 127 (64-127): Mode 2, Free voice with small number has priority in Polyphonic/Paraphonic Mode, Portamento is effective
@@ -217,6 +220,9 @@
     - 64: Delay Time +/- 2.7 ms
     - 126: Delay Time +/- 5.3 ms (max)
 - Delay Level
+- Delay Mode [S|P]
+    - 0 (0-63): Stereo Delay
+    - 127 (64-127): Ping Pong Delay
 - Delay Time
     - 0: 1 ms (min)
     - 5: 6 ms
@@ -237,6 +243,3 @@
     - 0: Feedback 0% (min)
     - 64: Feedback 25%
     - 127: Feedback 49.6% (max)
-- Delay Mode [S|P]
-    - 0 (0-63): Stereo Delay
-    - 127 (64-127): Ping Pong Delay

@@ -1,5 +1,10 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v0.5.1 (2025-08-03):
+    - Change the Preset programs
+    - Fix a problem where sampling does not performed at Note On when LFO Wave is Sample & Hold (SH)
+    - Improve documentation
+    - Tested with Arduino-Pico version 4.6.1
 - v0.5.0 (2025-08-03):
     - Add the Delay Level control
     - Change the control number of Chorus Mix (34 -> 93)
