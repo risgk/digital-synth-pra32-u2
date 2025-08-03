@@ -173,11 +173,11 @@
     - 64: 1.0 s
     - 127: 9.6 s (max)
 - LFO Rate
-    - 0: 0.0Hz (min)
+    - 0: 0.0 Hz (min)
     - 1: 0.072 Hz
     - 64: 2.7 Hz
     - 80: 6.9 Hz
-    - 127: 103.8Hz (max)
+    - 127: 103.8 Hz (max)
 - LFO Depth
     - The actual LFO depth is the "LFO Depth" value plus the "Modulation" value
 - Amp Gain
