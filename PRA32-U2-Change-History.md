@@ -2,28 +2,28 @@
 
 - v0.5.0 (2025-**-**):
     - Add the Delay Level control
-    - Change the meaning of LFO Rate value 0 to 0.0Hz
     - Change the control number of Chorus Mix (34 -> 93)
-    - Reduce the output level in monophonic modes
-    - Extend Oscillator, Filter, and Amp inputs and outputs to 24-bit (int32_t)
-    - Extend Chorus FX and Delay FX inputs and outputs to 24-bit (int32_t)
+    - Change the effectiveness of Osc 1 Shape for Sync Square
     - Improve Filter Resonance accuracy (4x)
-    - Change the meaning of the Filter Resonance control value
     - Change the Filter Resonance so that if Q is less than 4, the sound is not reduced
     - Extend Filter Key Track range and resolution (0.0 to 1.0, step 0.5 -> -1.000 to +1.000, step 0.125)
-    - Improve smooth change of Osc 1 Shape, Filter Cutoff, and Delay Time
+    - Change the meaning of LFO Rate value 0 to 0.0Hz
+    - Reduce the output level in monophonic modes
+    - Add interporation for Sync Square
+    - Extend Oscillator, Filter, and Amp inputs and outputs to 24-bit (int32_t)
+    - Extend Chorus FX and Delay FX inputs and outputs to 24-bit (int32_t)
+    - Improve smooth changes of Osc 1 Shape, Filter Cutoff, and Delay Time
     - Change the Preset programs
     - PRA32-U2 Editor: Change the layout
     - PRA32-U2 with Panel: Add Seq T/Rx St/Sp (Transmit/Receive Start/Stop)
-    - PRA32-U2 with Panel: Add Shift Key (optional)
+    - PRA32-U2 with Panel: Add Shift Key as SW3 (optional)
     - PRA32-U2 with Panel: Change to send clocks even when the Step Sequencer is not playing
-    - PRA32-U2 with Panel: Change the page layout
     - PRA32-U2 with Panel: Change the meaning of Pitch value 0 to Off
+    - PRA32-U2 with Panel: Change the page layout
     - PRA32-U2 with Panel: Change SW0, SW2, and VR2 omittable
-    - Add interporation for Sync Square
+    - Fix a problem with EG/Amp Sustain level not changing in note on states
     - Fix a problem where Filter Key Track correction was off to the plus side
     - Fix a problem in which High Pass is selected when Filter Mode value is 1
-    - Fix a problem with EG/Amp Sustain level not changing in note on states
     - Reduce noise when changing Osc 1 Wave
     - Reduce SRAM usage: Move g_filter_lpf_table_* to QSPI flash
     - Tested with Arduino-Pico version 4.6.1
