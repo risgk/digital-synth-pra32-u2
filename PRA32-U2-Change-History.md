@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v0.5.0 (2025-**-**):
+- v0.5.0 (2025-08-03):
     - Add the Delay Level control
     - Change the control number of Chorus Mix (34 -> 93)
     - Change the effectiveness of Osc 1 Shape for Sync Square
