@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v0.5.1 (2025-**-**):
+- v0.5.1 (2025-08-03):
     - Change the Preset programs
     - Fix a problem where sampling does not performed at Note On when LFO Wave is Sample & Hold (SH)
     - Improve documentation
