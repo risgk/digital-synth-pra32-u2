@@ -22,15 +22,15 @@ struct PRA32_U2_ControlPanelPage {
 
 static const PRA32_U2_ControlPanelPage g_control_panel_page_table_a[] = {
   { "Page=A-00 ", "Info      ",   "PRA32-U2  ", "with Panel", 0xFF           ,   "          ",PRA32_U2_VERSION, 0xFF         ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=A-01 ", "Voice a   ",   "Voice     ", "Mode      ", VOICE_MODE     ,   "Voice     ", "Asgn Mode ", VOICE_ASGN_MODE,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=A-02 ", "Voice b   ",   "Portamento", "          ", PORTAMENTO     ,   "Pitch     ", "Bend Range", P_BEND_RANGE   ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=A-01 ", "Voice     ",   "Voice     ", "Mode      ", VOICE_MODE     ,   "Voice     ", "Asgn Mode ", VOICE_ASGN_MODE,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=A-02 ", "Pitch     ",   "Portamento", "          ", PORTAMENTO     ,   "Pitch     ", "Bend Range", P_BEND_RANGE   ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=A-03 ", "Osc a     ",   "Osc 1     ", "Wave      ", OSC_1_WAVE     ,   "Mixer     ", "Noise/Sub ", MIXER_SUB_OSC  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=A-04 ", "Osc b     ",   "Osc 1     ", "Shape     ", OSC_1_SHAPE    ,   "Osc 1     ", "Morph     ", OSC_1_MORPH    ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=A-05 ", "Osc c     ",   "Osc 2     ", "Wave      ", OSC_2_WAVE     ,   "Mixer     ", "Osc Mix   ", MIXER_OSC_MIX  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=A-06 ", "Osc d     ",   "Osc 2     ", "Coarse    ", OSC_2_COARSE   ,   "Osc 2     ", "Pitch     ", OSC_2_PITCH    ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=A-07 ", "Filter a  ",   "Filter    ", "Cutoff    ", FILTER_CUTOFF  ,   "Filter    ", "Resonance ", FILTER_RESO    ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=A-08 ", "Filter b  ",   "Filter    ", "EG Amt    ", FILTER_EG_AMT  ,   "Filter    ", "Key Track ", FILTER_KEY_TRK ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=A-09 ", "Filter c  ",   "          ", "          ", 0xFF           ,   "Filter    ", "Mode      ", FILTER_MODE    ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=A-09 ", "Filter c  ",   "Filter    ", "Mode      ", FILTER_MODE    ,   "          ", "          ", 0xFF           ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=A-10 ", "EG a      ",   "EG        ", "Attack    ", EG_ATTACK      ,   "EG        ", "Decay     ", EG_DECAY       ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=A-11 ", "EG b      ",   "EG        ", "Sustain   ", EG_SUSTAIN     ,   "EG        ", "Release   ", EG_RELEASE     ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=A-12 ", "EG c      ",   "EG        ", "Amp Mod   ", EG_AMP_MOD     ,   "Release   ", "= Decay   ", REL_EQ_DECAY   ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
@@ -46,8 +46,8 @@ static const PRA32_U2_ControlPanelPage g_control_panel_page_table_a[] = {
   { "Page=A-22 ", "Breath    ",   "Breath    ", "Filter Amt", BTH_FILTER_AMT ,   "Breath    ", "Amp Mod   ", BTH_AMP_MOD    ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=A-23 ", "Chorus a  ",   "Chorus    ", "Mix       ", CHORUS_MIX     ,   "          ", "          ", 0xFF           ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=A-24 ", "Chorus b  ",   "Chorus    ", "Rate      ", CHORUS_RATE    ,   "Chorus    ", "Depth     ", CHORUS_DEPTH   ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=A-25 ", "Delay a   ",   "Delay     ", "Feedback  ", DELAY_FEEDBACK ,   "Delay     ", "Time      ", DELAY_TIME     ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=A-26 ", "Delay b   ",   "Delay     ", "Mode      ", DELAY_MODE     ,   "          ", "          ", 0xFF           ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=A-25 ", "Delay a   ",   "Delay     ", "Level     ", DELAY_LEVEL    ,   "Delay     ", "Mode      ", DELAY_MODE     ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=A-26 ", "Delay b   ",   "Delay     ", "Time      ", DELAY_TIME     ,   "Delay     ", "Feedback  ", DELAY_FEEDBACK ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
 };
 
 static const PRA32_U2_ControlPanelPage g_control_panel_page_table_b[] = {
@@ -56,7 +56,7 @@ static const PRA32_U2_ControlPanelPage g_control_panel_page_table_b[] = {
   { "Page=B-02 ", "Panel c   ",   "Panel     ", "Scale     ", PANEL_SCALE    ,   "Panel     ", "Pitch Ofst", PANEL_PIT_OFST ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=B-03 ", "Panel d   ",   "Panel     ", "Transpose ", PANEL_TRANSPOSE,   "          ", "          ", 0xFF           ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=B-04 ", "Seq a     ",   "Seq       ", "Step Note ", SEQ_STEP_NOTE  ,   "Seq       ", "Clock Src ", SEQ_CLOCK_SRC  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=B-05 ", "Seq b     ",   "Seq       ", "Transpose ", SEQ_TRANSPOSE  ,   "          ", "          ", 0xFF           ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=B-05 ", "Seq b     ",   "Seq       ", "Transpose ", SEQ_TRANSPOSE  ,   "Seq       ", "T/Rx St/Sp", SEQ_TRX_ST_SP  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=B-06 ", "Seq c     ",   "Seq       ", "Tempo     ", SEQ_TEMPO      ,   "Seq       ", "Gate Time ", SEQ_GATE_TIME  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=B-07 ", "Seq d     ",   "Seq       ", "Mode      ", SEQ_MODE       ,   "Seq       ", "Num Steps ", SEQ_NUM_STEPS  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=B-08 ", "Seq e     ",   "Seq       ", "On Steps  ", SEQ_ON_STEPS   ,   "Seq       ", "Act Steps ", SEQ_ACT_STEPS  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },

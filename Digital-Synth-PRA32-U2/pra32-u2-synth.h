@@ -81,10 +81,10 @@ static uint8_t s_program_table_parameters[] = {
   CHORUS_DEPTH   ,
 
 
-  DELAY_FEEDBACK ,
+  DELAY_LEVEL    ,
   DELAY_TIME     ,
+  DELAY_FEEDBACK ,
   DELAY_MODE     ,
-
 };
 
 static uint8_t s_program_table_panel_parameters[] = {
@@ -129,7 +129,7 @@ static uint8_t s_program_table_panel_parameters[] = {
   SEQ_STEP_NOTE  ,
 
   SEQ_ON_STEPS   ,
-
+  SEQ_TRX_ST_SP  ,
 
 
 };
@@ -139,8 +139,8 @@ const uint8_t   DEFAULT_PANEL_SCALE     = 0  ;
 const uint8_t   DEFAULT_PANEL_TRANSPOSE = 64 ;
 const uint8_t   DEFAULT_PANEL_PLAY_MODE = 0  ;
 
-const uint8_t   DEFAULT_PANEL_PLAY_PIT  = 64 ;
-const uint8_t   DEFAULT_PANEL_PLAY_VELO = 64 ;
+const uint8_t   DEFAULT_PANEL_PLAY_PIT  = 0  ;
+const uint8_t   DEFAULT_PANEL_PLAY_VELO = 100;
 const uint8_t   DEFAULT_PANEL_PIT_OFST  = 64 ;
 
 
@@ -150,19 +150,19 @@ const uint8_t   DEFAULT_SEQ_PITCH_2     = 97 ;
 const uint8_t   DEFAULT_SEQ_PITCH_3     = 117;
 
 const uint8_t   DEFAULT_SEQ_PITCH_4     = 72 ;
-const uint8_t   DEFAULT_SEQ_PITCH_5     = 91 ;
+const uint8_t   DEFAULT_SEQ_PITCH_5     = 89 ;
 const uint8_t   DEFAULT_SEQ_PITCH_6     = 107;
-const uint8_t   DEFAULT_SEQ_PITCH_7     = 122;
+const uint8_t   DEFAULT_SEQ_PITCH_7     = 124;
 
-const uint8_t   DEFAULT_SEQ_VELO_0      = 64 ;
-const uint8_t   DEFAULT_SEQ_VELO_1      = 64 ;
-const uint8_t   DEFAULT_SEQ_VELO_2      = 64 ;
-const uint8_t   DEFAULT_SEQ_VELO_3      = 64 ;
+const uint8_t   DEFAULT_SEQ_VELO_0      = 100;
+const uint8_t   DEFAULT_SEQ_VELO_1      = 100;
+const uint8_t   DEFAULT_SEQ_VELO_2      = 100;
+const uint8_t   DEFAULT_SEQ_VELO_3      = 100;
 
-const uint8_t   DEFAULT_SEQ_VELO_4      = 64 ;
-const uint8_t   DEFAULT_SEQ_VELO_5      = 64 ;
-const uint8_t   DEFAULT_SEQ_VELO_6      = 64 ;
-const uint8_t   DEFAULT_SEQ_VELO_7      = 64 ;
+const uint8_t   DEFAULT_SEQ_VELO_4      = 100;
+const uint8_t   DEFAULT_SEQ_VELO_5      = 100;
+const uint8_t   DEFAULT_SEQ_VELO_6      = 100;
+const uint8_t   DEFAULT_SEQ_VELO_7      = 100;
 
 const uint8_t   DEFAULT_SEQ_TEMPO       = 32 ;
 const uint8_t   DEFAULT_SEQ_CLOCK_SRC   = 0  ;
@@ -175,6 +175,7 @@ const uint8_t   DEFAULT_SEQ_TRANSPOSE   = 64 ;
 const uint8_t   DEFAULT_SEQ_STEP_NOTE   = 64 ;
 
 const uint8_t   DEFAULT_SEQ_ON_STEPS    = 127;
+const uint8_t   DEFAULT_SEQ_TRX_ST_SP   = 0  ;
 
 
 
@@ -310,14 +311,14 @@ public:
 
   INLINE void initialize() {
     std::memcpy(m_program_table[OSC_1_WAVE     ], g_preset_table_OSC_1_WAVE     , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[MIXER_SUB_OSC  ], g_preset_table_MIXER_SUB_OSC  , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[OSC_1_SHAPE    ], g_preset_table_OSC_1_SHAPE    , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[OSC_1_MORPH    ], g_preset_table_OSC_1_MORPH    , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[MIXER_SUB_OSC  ], g_preset_table_MIXER_SUB_OSC  , sizeof(m_program_table[0]));
 
     std::memcpy(m_program_table[OSC_2_WAVE     ], g_preset_table_OSC_2_WAVE     , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[MIXER_OSC_MIX  ], g_preset_table_MIXER_OSC_MIX  , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[OSC_2_COARSE   ], g_preset_table_OSC_2_COARSE   , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[OSC_2_PITCH    ], g_preset_table_OSC_2_PITCH    , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[MIXER_OSC_MIX  ], g_preset_table_MIXER_OSC_MIX  , sizeof(m_program_table[0]));
 
     std::memcpy(m_program_table[FILTER_CUTOFF  ], g_preset_table_FILTER_CUTOFF  , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[FILTER_RESO    ], g_preset_table_FILTER_RESO    , sizeof(m_program_table[0]));
@@ -335,9 +336,9 @@ public:
     std::memcpy(m_program_table[PORTAMENTO     ], g_preset_table_PORTAMENTO     , sizeof(m_program_table[0]));
 
     std::memcpy(m_program_table[LFO_WAVE       ], g_preset_table_LFO_WAVE       , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[LFO_FADE_TIME  ], g_preset_table_LFO_FADE_TIME  , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[LFO_RATE       ], g_preset_table_LFO_RATE       , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[LFO_DEPTH      ], g_preset_table_LFO_DEPTH      , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[LFO_FADE_TIME  ], g_preset_table_LFO_FADE_TIME  , sizeof(m_program_table[0]));
 
     std::memcpy(m_program_table[LFO_OSC_AMT    ], g_preset_table_LFO_OSC_AMT    , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[LFO_OSC_DST    ], g_preset_table_LFO_OSC_DST    , sizeof(m_program_table[0]));
@@ -350,9 +351,9 @@ public:
     std::memcpy(m_program_table[AMP_RELEASE    ], g_preset_table_AMP_RELEASE    , sizeof(m_program_table[0]));
 
     std::memcpy(m_program_table[FILTER_MODE    ], g_preset_table_FILTER_MODE    , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[P_BEND_RANGE   ], g_preset_table_P_BEND_RANGE   , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[EG_AMP_MOD     ], g_preset_table_EG_AMP_MOD     , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[REL_EQ_DECAY   ], g_preset_table_REL_EQ_DECAY   , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[P_BEND_RANGE   ], g_preset_table_P_BEND_RANGE   , sizeof(m_program_table[0]));
 
     std::memcpy(m_program_table[BTH_FILTER_AMT ], g_preset_table_BTH_FILTER_AMT , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[BTH_AMP_MOD    ], g_preset_table_BTH_AMP_MOD    , sizeof(m_program_table[0]));
@@ -365,13 +366,14 @@ public:
 
 
     std::memcpy(m_program_table[CHORUS_MIX     ], g_preset_table_CHORUS_MIX     , sizeof(m_program_table[0]));
+
     std::memcpy(m_program_table[CHORUS_RATE    ], g_preset_table_CHORUS_RATE    , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[CHORUS_DEPTH   ], g_preset_table_CHORUS_DEPTH   , sizeof(m_program_table[0]));
 
-
+    std::memcpy(m_program_table[DELAY_LEVEL    ], g_preset_table_DELAY_LEVEL   , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[DELAY_MODE     ], g_preset_table_DELAY_MODE     , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[DELAY_FEEDBACK ], g_preset_table_DELAY_FEEDBACK , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[DELAY_TIME     ], g_preset_table_DELAY_TIME     , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[DELAY_MODE     ], g_preset_table_DELAY_MODE     , sizeof(m_program_table[0]));
 
     for (uint32_t i = 0; i < sizeof(m_program_table_panel) / sizeof(m_program_table_panel[0]); ++i) {
       m_program_table_panel[i][PANEL_SCALE    ] = DEFAULT_PANEL_SCALE    ;
@@ -415,7 +417,7 @@ public:
       m_program_table_panel[i][SEQ_STEP_NOTE  ] = DEFAULT_SEQ_STEP_NOTE  ;
 
       m_program_table_panel[i][SEQ_ON_STEPS   ] = DEFAULT_SEQ_ON_STEPS   ;
-
+      m_program_table_panel[i][SEQ_TRX_ST_SP  ] = DEFAULT_SEQ_TRX_ST_SP  ;
 
 
     }
@@ -1048,11 +1050,14 @@ public:
       m_voice_asgn_mode = (controller_value < 64) ? 1 : 2;
       break;
 
-    case DELAY_FEEDBACK :
-      m_delay_fx.set_delay_feedback(controller_value);
+    case DELAY_LEVEL    :
+      m_delay_fx.set_delay_level(controller_value);
       break;
     case DELAY_TIME     :
       m_delay_fx.set_delay_time(controller_value);
+      break;
+    case DELAY_FEEDBACK :
+      m_delay_fx.set_delay_feedback(controller_value);
       break;
     case DELAY_MODE     :
       m_delay_fx.set_delay_mode(controller_value);
@@ -1232,7 +1237,7 @@ public:
 #endif  // defined(ARDUINO_ARCH_RP2040)
   }
 
-  INLINE int16_t process(int16_t& right_level) {
+  INLINE int16_t process(int16_t& right_output_int16) {
     ++m_count;
 
     int16_t noise_int15 = m_noise_gen.process();
@@ -1291,10 +1296,10 @@ public:
       break;
     }
 
-    int16_t osc_output   [4];
-    int16_t filter_output[4];
-    int16_t amp_output   [4];
-    int16_t voice_mixer_output;
+    int32_t osc_output   [4];
+    int32_t filter_output[4];
+    int32_t amp_output   [4];
+    int32_t voice_mixer_output;
     if (m_voice_mode == VOICE_POLYPHONIC) {
 #if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
       m_secondary_core_processing_argument = noise_int15;
@@ -1344,15 +1349,15 @@ public:
       while (m_secondary_core_processing_request) {
         ;
       }
-      int16_t osc_output_sum_b = m_secondary_core_processing_result;
+      int32_t osc_output_sum_b = m_secondary_core_processing_result;
 #else  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
       osc_output[2] = m_osc.process<2>(noise_int15);
       osc_output[3] = m_osc.process<3>(noise_int15);
 
-      int16_t osc_output_sum_b = osc_output[2] + osc_output[3];
+      int32_t osc_output_sum_b = osc_output[2] + osc_output[3];
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
 
-      int16_t osc_mixer_output = (osc_output_sum_a + osc_output_sum_b);
+      int32_t osc_mixer_output = (osc_output_sum_a + osc_output_sum_b);
 
       filter_output[0] = m_filter[0].process(osc_mixer_output);
       amp_output   [0] = m_amp   [0].process(filter_output[0]);
@@ -1365,12 +1370,12 @@ public:
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
 
       osc_output[0] = m_osc.process<0>(noise_int15);
-      int16_t osc_mixer_output = osc_output[0];
+      int32_t osc_mixer_output = osc_output[0];
 
       filter_output[0] = m_filter[0].process(osc_mixer_output);
       amp_output   [0] = m_amp   [0].process(filter_output[0]);
 
-      voice_mixer_output = amp_output[0] << 1;
+      voice_mixer_output = amp_output[0] + (amp_output[0] >> 1);
 
 #if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
       while (m_secondary_core_processing_request) {
@@ -1379,35 +1384,42 @@ public:
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
     }
 
-#if 1
-    // Increase the output level using Extra Amp and Limiter
+    int32_t chorus_fx_output_r;
+    int32_t chorus_fx_output_l = m_chorus_fx.process(voice_mixer_output, voice_mixer_output, chorus_fx_output_r);
 
-    // voice_mixer_output_clamped = clamp((voice_mixer_output << 1), (-INT16_MAX), (+INT16_MAX))
-    volatile int32_t voice_mixer_output_clamped = (voice_mixer_output << 1) - (+INT16_MAX);
-    voice_mixer_output_clamped = (voice_mixer_output_clamped < 0) * voice_mixer_output_clamped + (+INT16_MAX) - (-INT16_MAX);
-    voice_mixer_output_clamped = (voice_mixer_output_clamped > 0) * voice_mixer_output_clamped + (-INT16_MAX);
+    int32_t delay_fx_output_r;
+    int32_t delay_fx_output_l = m_delay_fx.process(chorus_fx_output_l, chorus_fx_output_r, delay_fx_output_r);
 
-    voice_mixer_output = voice_mixer_output_clamped;
-#endif
+    int32_t synth_output_r = delay_fx_output_r;
+    int32_t synth_output_l = delay_fx_output_l;
 
-    int16_t chorus_fx_output_r;
-    int16_t chorus_fx_output_l = m_chorus_fx.process(voice_mixer_output, chorus_fx_output_r);
+    // synth_output_l_clamped = clamp((synth_output_l << 1), (-(INT16_MAX << 8)), (+(INT16_MAX << 8)))
+    volatile int32_t synth_output_l_clamped = (synth_output_l << 1) - (+(INT16_MAX << 8));
+    synth_output_l_clamped = (synth_output_l_clamped < 0) * synth_output_l_clamped + (+(INT16_MAX << 8)) - (-(INT16_MAX << 8));
+    synth_output_l_clamped = (synth_output_l_clamped > 0) * synth_output_l_clamped + (-(INT16_MAX << 8));
+    synth_output_l = synth_output_l_clamped;
 
-    int16_t delay_fx_output_r;
-    int16_t delay_fx_output_l = m_delay_fx.process(chorus_fx_output_l, chorus_fx_output_r, delay_fx_output_r);
+    // synth_output_r_clamped = clamp((synth_output_r << 1), (-(INT16_MAX << 8)), (+(INT16_MAX << 8)))
+    volatile int32_t synth_output_r_clamped = (synth_output_r << 1) - (+(INT16_MAX << 8));
+    synth_output_r_clamped = (synth_output_r_clamped < 0) * synth_output_r_clamped + (+(INT16_MAX << 8)) - (-(INT16_MAX << 8));
+    synth_output_r_clamped = (synth_output_r_clamped > 0) * synth_output_r_clamped + (-(INT16_MAX << 8));
+    synth_output_r = synth_output_r_clamped;
+
+    int16_t synth_output_l_int16 = (synth_output_l >> 8);
+    int16_t synth_output_r_int16 = (synth_output_r >> 8);
 
 #if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
 #if defined(PRA32_U2_USE_PWM_AUDIO_DITHERING_INSTEAD_OF_ERROR_DIFFUSION)
     // Dithering
-    right_level = delay_fx_output_r + (((noise_int15 + 16384) >> 11) - 8);
-    return        delay_fx_output_l + (((noise_int15 + 16384) >> 11) - 8);
+    right_output_int16 = synth_output_r_int16 + (((noise_int15 + 16384) >> 11) - 8);
+    return               synth_output_l_int16 + (((noise_int15 + 16384) >> 11) - 8);
 #else  // defined(PRA32_U2_USE_PWM_AUDIO_DITHERING_INSTEAD_OF_ERROR_DIFFUSION)
     // Error diffusion
     static uint16_t s_output_error_l = 0;
     static uint16_t s_output_error_r = 0;
 
-    uint32_t pwm_audio_l = delay_fx_output_l + 0x8000;
-    uint32_t pwm_audio_r = delay_fx_output_r + 0x8000;
+    uint32_t pwm_audio_l = synth_output_l_int16 + 0x8000;
+    uint32_t pwm_audio_r = synth_output_r_int16 + 0x8000;
     pwm_audio_l +=  ((noise_int15 + 16384) >> 14);
     pwm_audio_r += !((noise_int15 + 16384) >> 14);
     pwm_audio_l *= 3125;
@@ -1420,12 +1432,12 @@ public:
     s_output_error_l = pwm_audio_l & 0xFFFF;
     s_output_error_r = pwm_audio_r & 0xFFFF;
 
-    right_level = delay_fx_output_r + (prev_output_error_r > s_output_error_r) * 22;
-    return        delay_fx_output_l + (prev_output_error_l > s_output_error_l) * 22;
+    right_output_int16 = synth_output_r_int16 + (prev_output_error_r > s_output_error_r) * 22;
+    return               synth_output_l_int16 + (prev_output_error_l > s_output_error_l) * 22;
 #endif  // defined(PRA32_U2_USE_PWM_AUDIO_DITHERING_INSTEAD_OF_ERROR_DIFFUSION)
 #else  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
-    right_level = delay_fx_output_r;
-    return        delay_fx_output_l;
+    right_output_int16 = synth_output_r_int16;
+    return               synth_output_l_int16;
 #endif  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
   }
 
@@ -1436,9 +1448,9 @@ public:
     if (m_secondary_core_processing_request == 1) {
       int16_t noise_int15 = static_cast<int16_t>(m_secondary_core_processing_argument);
 
-      int16_t osc_output   [4];
-      int16_t filter_output[4];
-      int16_t amp_output   [4];
+      int32_t osc_output   [4];
+      int32_t filter_output[4];
+      int32_t amp_output   [4];
 
       if (m_voice_mode == VOICE_POLYPHONIC) {
         osc_output   [2] = m_osc      .process<2>(noise_int15);

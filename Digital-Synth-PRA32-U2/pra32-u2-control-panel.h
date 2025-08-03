@@ -83,6 +83,10 @@ static INLINE uint8_t PRA32_U2_ControlPanel_get_index_scale()
 
 static INLINE uint8_t PRA32_U2_ControlPanel_calc_scaled_pitch(uint32_t index_scale, uint8_t pitch, int pit_ofst)
 {
+  if (pitch == 0) {
+    return 0xFF;
+  }
+
   if (pitch < 4) {
     pitch = 4;
   } else if (pitch > 124) {
@@ -172,6 +176,15 @@ static INLINE void PRA32_U2_ControlPanel_calc_value_display_pitch(uint8_t pitch,
   uint8_t index_scale = PRA32_U2_ControlPanel_get_index_scale();
   uint8_t new_pitch   = PRA32_U2_ControlPanel_calc_scaled_pitch(
                           index_scale, pitch, g_synth.current_controller_value(PANEL_PIT_OFST ));
+
+  if (new_pitch == 0xFF) {
+    value_display_text[0] = 'O';
+    value_display_text[1] = 'f';
+    value_display_text[2] = 'f';
+    value_display_text[3] = '\0';
+    return;
+  }
+
   new_pitch = PRA32_U2_ControlPanel_calc_transposed_pitch(
     new_pitch, g_synth.current_controller_value(PANEL_TRANSPOSE ) - 64);
 
@@ -225,9 +238,11 @@ static INLINE void PRA32_U2_ControlPanel_update_page() {
   std::memcpy(&s_display_buffer[6][11], current_page.control_target_b_name_line_1, 10);
   s_adc_control_target[1]             = current_page.control_target_b;
 
+#if defined(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN)
   std::memcpy(&s_display_buffer[1][11], current_page.control_target_c_name_line_0, 10);
   std::memcpy(&s_display_buffer[2][11], current_page.control_target_c_name_line_1, 10);
   s_adc_control_target[2]             = current_page.control_target_c;
+#endif  // defined(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN)
 
   s_display_draw_counter = -1;
 }
@@ -260,20 +275,24 @@ static INLINE boolean PRA32_U2_ControlPanel_process_note_off_on() {
       g_synth.note_off(s_panel_playing_note_pitch);
       s_panel_playing_note_pitch = 0xFF;
     } else {
-      if (s_panel_play_note_trigger) {
+      if (s_panel_play_note_trigger && (s_panel_play_note_pitch <= 127)) {
         s_panel_play_note_trigger = false;
 
         g_synth.note_on(s_panel_play_note_pitch, s_panel_play_note_velocity);
         g_synth.note_off(s_panel_playing_note_pitch);
         s_panel_playing_note_pitch = s_panel_play_note_pitch;
+      } else {
+        s_panel_play_note_trigger = false;
       }
     }
   } else {
-    if (s_panel_play_note_gate) {
+    if (s_panel_play_note_gate && (s_panel_play_note_pitch <= 127)) {
       s_panel_play_note_trigger = false;
 
       g_synth.note_on(s_panel_play_note_pitch, s_panel_play_note_velocity);
       s_panel_playing_note_pitch = s_panel_play_note_pitch;
+    } else {
+      s_panel_play_note_trigger = false;
     }
   }
 
@@ -301,6 +320,13 @@ static INLINE void PRA32_U2_ControlPanel_update_pitch(bool progress_seq_step) {
   }
 
   new_pitch = PRA32_U2_ControlPanel_calc_scaled_pitch(s_index_scale, new_pitch, s_panel_pit_ofst);
+
+  if (new_pitch == 0xFF) {
+    s_panel_play_note_pitch = 0xFF;
+    s_panel_play_note_gate  = false;
+    return;
+  }
+
   new_pitch = PRA32_U2_ControlPanel_calc_transposed_pitch(new_pitch, s_panel_transpose + s_seq_transpose);
 
   s_panel_play_note_velocity = new_velocity;
@@ -321,12 +347,16 @@ static INLINE void PRA32_U2_ControlPanel_update_pitch(bool progress_seq_step) {
 
 static INLINE void PRA32_U2_ControlPanel_seq_clock() {
 #if defined(PRA32_U2_USE_USB_MIDI) && !defined(PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION)
-      USB_MIDI.sendRealTime(midi::Clock);
+  USB_MIDI.sendRealTime(midi::Clock);
 #endif  // defined(PRA32_U2_USE_USB_MIDI) && !defined(PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION)
 
 #if defined(PRA32_U2_USE_UART_MIDI)
-      UART_MIDI.sendRealTime(midi::Clock);
+  UART_MIDI.sendRealTime(midi::Clock);
 #endif  // defined(PRA32_U2_USE_UART_MIDI)
+
+  if (s_playing_status != PlayingStatus_Seq) {
+    return;
+  }
 
   ++s_seq_sub_step;
 
@@ -413,13 +443,15 @@ static INLINE void PRA32_U2_ControlPanel_seq_clock() {
 }
 
 static INLINE void PRA32_U2_ControlPanel_seq_start() {
+  if (g_synth.current_controller_value(SEQ_TRX_ST_SP  ) >= 64) {
 #if defined(PRA32_U2_USE_USB_MIDI) && !defined(PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION)
-  USB_MIDI.sendRealTime(midi::Start);
+    USB_MIDI.sendRealTime(midi::Start);
 #endif  // defined(PRA32_U2_USE_USB_MIDI) && !defined(PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION)
 
 #if defined(PRA32_U2_USE_UART_MIDI)
-  UART_MIDI.sendRealTime(midi::Start);
+    UART_MIDI.sendRealTime(midi::Start);
 #endif  // defined(PRA32_U2_USE_UART_MIDI)
+  }
 
   s_playing_status = PlayingStatus_Seq;
 
@@ -435,18 +467,19 @@ static INLINE void PRA32_U2_ControlPanel_seq_start() {
   }
 
   s_seq_sub_step = 23;
-  s_seq_count    = 0;
   s_panel_play_note_gate = false;
 }
 
 static INLINE void PRA32_U2_ControlPanel_seq_stop() {
+  if (g_synth.current_controller_value(SEQ_TRX_ST_SP  ) >= 64) {
 #if defined(PRA32_U2_USE_USB_MIDI) && !defined(PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION)
-  USB_MIDI.sendRealTime(midi::Stop);
+    USB_MIDI.sendRealTime(midi::Stop);
 #endif  // defined(PRA32_U2_USE_USB_MIDI) && !defined(PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION)
 
 #if defined(PRA32_U2_USE_UART_MIDI)
-  UART_MIDI.sendRealTime(midi::Stop);
+    UART_MIDI.sendRealTime(midi::Stop);
 #endif  // defined(PRA32_U2_USE_UART_MIDI)
+  }
 
   s_playing_status = PlayingStatus_Stop;
   s_display_buffer[0][20] = ' ';
@@ -454,7 +487,7 @@ static INLINE void PRA32_U2_ControlPanel_seq_stop() {
 }
 
 static INLINE void PRA32_U2_ControlPanel_update_control_seq() {
-  if ((s_playing_status == PlayingStatus_Seq) && (s_seq_clock_src_external == false)) {
+  if ((s_play_mode == 1) && (s_seq_clock_src_external == false)) {  // Seq Mode
     s_seq_count += s_seq_count_increment;
 
     if (s_seq_count >= 7680000 * 2) {
@@ -466,54 +499,72 @@ static INLINE void PRA32_U2_ControlPanel_update_control_seq() {
 }
 
 static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_number) {
-  uint8_t adc_control_value_candidate = PRA32_U2_ControlPanel_adc_control_value_candidate(adc_number);
+#if !defined(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN)
+  if (adc_number == 2) {
+    return false;
+  }
+#endif  // defined(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN)
 
-  if (s_adc_control_value[adc_number] != adc_control_value_candidate) {
-    uint8_t s_adc_control_value_old = s_adc_control_value[adc_number];
-    s_adc_control_value[adc_number] = adc_control_value_candidate;
+  uint8_t adc_control_value_new = PRA32_U2_ControlPanel_adc_control_value_candidate(adc_number);
 
-    uint8_t current_controller_value = s_adc_control_value[adc_number];
+  if (s_adc_control_value[adc_number] != adc_control_value_new) {
+    uint8_t adc_control_value_old = s_adc_control_value[adc_number];
+    s_adc_control_value[adc_number] = adc_control_value_new;
+
+#if defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
+    uint32_t shift_key_pressed = digitalRead(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
+    if (shift_key_pressed) {
+      if        ((adc_control_value_old <= 64) && (adc_control_value_new > 64)) {
+        adc_control_value_new = 64;
+      } else if ((adc_control_value_old >= 64) && (adc_control_value_new < 64)) {
+        adc_control_value_new = 64;
+      }
+    }
+#endif  // defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
+
+    uint8_t current_controller_value = adc_control_value_new;
     if        (s_adc_control_target[adc_number] < 128 + 64) {
       current_controller_value = g_synth.current_controller_value(s_adc_control_target[adc_number]);
     }
 
-    if ((s_adc_control_value_old <= current_controller_value) &&
-        (s_adc_control_value[adc_number] >= current_controller_value)) {
+    if ((adc_control_value_old <= current_controller_value) &&
+        (adc_control_value_new >= current_controller_value)) {
       s_adc_control_catched[adc_number] = true;
     }
 
-    if ((s_adc_control_value_old >= current_controller_value) &&
-        (s_adc_control_value[adc_number] <= current_controller_value)) {
+    if ((adc_control_value_old >= current_controller_value) &&
+        (adc_control_value_new <= current_controller_value)) {
       s_adc_control_catched[adc_number] = true;
     }
+
 
     if (s_adc_control_target[adc_number] < 128 + 64) {
       if (s_adc_control_catched[adc_number]) {
-        g_synth.control_change(s_adc_control_target[adc_number], s_adc_control_value[adc_number]);
+        g_synth.control_change(s_adc_control_target[adc_number], adc_control_value_new);
       }
     } else if ((s_adc_control_target[adc_number] >= RD_PROGRAM_0) && (s_adc_control_target[adc_number] <= RD_PROGRAM_15)) {
-      if ((s_adc_control_value_old < 64) && (s_adc_control_value[adc_number] >= 64)) {
+      if ((adc_control_value_old < 64) && (adc_control_value_new >= 64)) {
         g_synth.program_change(s_adc_control_target[adc_number] - RD_PROGRAM_0);
       }
     } else if ((s_adc_control_target[adc_number] >= WR_PROGRAM_0) && (s_adc_control_target[adc_number] <= WR_PROGRAM_15)) {
-      if ((s_adc_control_value_old < 64) && (s_adc_control_value[adc_number] >= 64)) {
+      if ((adc_control_value_old < 64) && (adc_control_value_new >= 64)) {
         uint8_t program_number_to_write = s_adc_control_target[adc_number] - WR_PROGRAM_0;
         g_synth.write_parameters_to_program(program_number_to_write);
       }
     } else if (s_adc_control_target[adc_number] == RD_PANEL_PRMS) {
-      if ((s_adc_control_value_old < 64) && (s_adc_control_value[adc_number] >= 64)) {
+      if ((adc_control_value_old < 64) && (adc_control_value_new >= 64)) {
         g_synth.program_change(128);
       }
     } else if (s_adc_control_target[adc_number] == IN_PANEL_PRMS) {
-      if ((s_adc_control_value_old < 64) && (s_adc_control_value[adc_number] >= 64)) {
+      if ((adc_control_value_old < 64) && (adc_control_value_new >= 64)) {
         g_synth.program_change(129);
       }
     } else if (s_adc_control_target[adc_number] == WR_PANEL_PRMS) {
-      if ((s_adc_control_value_old < 64) && (s_adc_control_value[adc_number] >= 64)) {
+      if ((adc_control_value_old < 64) && (adc_control_value_new >= 64)) {
         g_synth.write_parameters_to_program(128);
       }
     } else if (s_adc_control_target[adc_number] == SEQ_RAND_PITCH) {
-      if ((s_adc_control_value_old < 64) && (s_adc_control_value[adc_number] >= 64)) {
+      if ((adc_control_value_old < 64) && (adc_control_value_new >= 64)) {
         uint8_t array[8] = {};
         g_synth.get_rand_uint8_array(array);
         g_synth.control_change(SEQ_PITCH_0    , array[0] & 0x7Fu);
@@ -526,7 +577,7 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
         g_synth.control_change(SEQ_PITCH_7    , array[7] & 0x7Fu);
       }
     } else if (s_adc_control_target[adc_number] == SEQ_RAND_VELO) {
-      if ((s_adc_control_value_old < 64) && (s_adc_control_value[adc_number] >= 64)) {
+      if ((adc_control_value_old < 64) && (adc_control_value_new >= 64)) {
         uint8_t array[8] = {};
         g_synth.get_rand_uint8_array(array);
         g_synth.control_change(SEQ_VELO_0     , array[0] & 0x7Fu);
@@ -567,6 +618,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case OSC_2_COARSE    :
   case OSC_2_PITCH     :
   case FILTER_EG_AMT   :
+  case FILTER_KEY_TRK  :
   case EG_OSC_AMT      :
   case LFO_OSC_AMT     :
   case LFO_FILTER_AMT  :
@@ -636,14 +688,6 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
       result = true;
     }
     break;
-  case FILTER_KEY_TRK  :
-    {
-      char ary[3][5] = {"0.0","0.5","1.0"};
-      uint32_t index = ((controller_value * 4) + 127) / 254;
-      std::strcpy(value_display_text, ary[index]);
-      result = true;
-    }
-    break;
   case EG_OSC_DST      :
   case LFO_OSC_DST     :
     {
@@ -680,6 +724,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case EG_AMP_MOD      :
   case REL_EQ_DECAY    :
   case SUSTAIN_PEDAL   :
+  case SEQ_TRX_ST_SP   :
     {
       char ary[2][5] = {"Off"," On"};
       uint32_t index = ((controller_value * 2) + 127) / 254;
@@ -909,6 +954,10 @@ INLINE void PRA32_U2_ControlPanel_setup() {
   pinMode(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN, PRA32_U2_KEY_INPUT_PIN_MODE);
 #endif  // defined(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN)
 
+#if defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
+  pinMode(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN, PRA32_U2_KEY_INPUT_PIN_MODE);
+#endif  // defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
+
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
   PRA32_U2_ControlPanel_update_page();
 
@@ -916,7 +965,11 @@ INLINE void PRA32_U2_ControlPanel_setup() {
   adc_init();
   adc_gpio_init(26);
   adc_gpio_init(27);
+
+#if defined(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN)
   adc_gpio_init(28);
+#endif  // defined(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN)
+
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL_ANALOG_INPUT)
 
 #if defined(PRA32_U2_USE_CONTROL_PANEL_OLED_DISPLAY)
@@ -983,7 +1036,7 @@ INLINE void PRA32_U2_ControlPanel_update_analog_inputs(uint32_t loop_counter) {
     break;
   case 0x1C:
     s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
-    if        (s_adc_current_value[0]                                  >= s_adc_total_value + PRA32_U2_ANALOG_INPUT_THRESHOLD) {
+    if        (s_adc_current_value[0]                                   >= s_adc_total_value + PRA32_U2_ANALOG_INPUT_THRESHOLD) {
       s_adc_current_value[0] = s_adc_total_value;
     } else if (s_adc_current_value[0] + PRA32_U2_ANALOG_INPUT_THRESHOLD <= s_adc_total_value                                 ) {
       s_adc_current_value[0] = s_adc_total_value;
@@ -1002,7 +1055,7 @@ INLINE void PRA32_U2_ControlPanel_update_analog_inputs(uint32_t loop_counter) {
     break;
   case 0x2C:
     s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
-    if        (s_adc_current_value[1]                                  >= s_adc_total_value + PRA32_U2_ANALOG_INPUT_THRESHOLD) {
+    if        (s_adc_current_value[1]                                   >= s_adc_total_value + PRA32_U2_ANALOG_INPUT_THRESHOLD) {
       s_adc_current_value[1] = s_adc_total_value;
     } else if (s_adc_current_value[1] + PRA32_U2_ANALOG_INPUT_THRESHOLD <= s_adc_total_value                                 ) {
       s_adc_current_value[1] = s_adc_total_value;
@@ -1021,7 +1074,7 @@ INLINE void PRA32_U2_ControlPanel_update_analog_inputs(uint32_t loop_counter) {
     break;
   case 0x3C:
     s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
-    if        (s_adc_current_value[2]                                  >= s_adc_total_value + PRA32_U2_ANALOG_INPUT_THRESHOLD) {
+    if        (s_adc_current_value[2]                                   >= s_adc_total_value + PRA32_U2_ANALOG_INPUT_THRESHOLD) {
       s_adc_current_value[2] = s_adc_total_value;
     } else if (s_adc_current_value[2] + PRA32_U2_ANALOG_INPUT_THRESHOLD <= s_adc_total_value                                 ) {
       s_adc_current_value[2] = s_adc_total_value;
@@ -1212,7 +1265,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
 INLINE void PRA32_U2_ControlPanel_on_clock()
 {
   if (s_seq_clock_src_external) {
-    if (s_playing_status == PlayingStatus_Seq) {
+    if (s_play_mode == 1) {  // Seq Mode
       PRA32_U2_ControlPanel_seq_clock();
     }
   }

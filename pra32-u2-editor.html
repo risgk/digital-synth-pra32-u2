@@ -41,9 +41,11 @@ td.keyh {
 }
 </style>
 <script>
-const APP_NAME_VERSION = "PRA32-U2 Editor v0.4.0";
+const APP_NAME_VERSION = "PRA32-U2 Editor v0.5.0";
 
-const PRA32_U2_MIDI_CH = 0;  // 0-based
+const PRA32_U2_MIDI_CH  = 0;  // 0-based
+const NOTE_ON_VELOCITY  = 100
+const NOTE_OFF_VELOCITY = 64
 
 
 const NOTE_OFF       = 0x80;
@@ -59,14 +61,14 @@ const SUSTAIN_PEDAL   = 64;
 
 
 const OSC_1_WAVE      = 102;
+const MIXER_SUB_OSC   = 23;
 const OSC_1_SHAPE     = 19;
 const OSC_1_MORPH     = 20;
-const MIXER_SUB_OSC   = 23;
 
 const OSC_2_WAVE      = 104;
+const MIXER_OSC_MIX   = 21;
 const OSC_2_COARSE    = 85;
 const OSC_2_PITCH     = 76;
-const MIXER_OSC_MIX   = 21;
 
 const FILTER_CUTOFF   = 74;
 const FILTER_RESO     = 71;
@@ -84,9 +86,9 @@ const VOICE_MODE      = 18;
 const PORTAMENTO      = 5;
 
 const LFO_WAVE        = 33;
+const LFO_FADE_TIME   = 56;
 const LFO_RATE        = 3;
 const LFO_DEPTH       = 17;
-const LFO_FADE_TIME   = 56;
 
 const LFO_OSC_AMT     = 13;
 const LFO_OSC_DST     = 103;
@@ -99,9 +101,9 @@ const AMP_SUSTAIN     = 54;
 const AMP_RELEASE     = 55;
 
 const FILTER_MODE     = 39;
+const P_BEND_RANGE    = 57;
 const EG_AMP_MOD      = 36;
 const REL_EQ_DECAY    = 105;
-const P_BEND_RANGE    = 57;
 
 const BTH_FILTER_AMT  = 60;
 const BTH_AMP_MOD     = 61;
@@ -113,14 +115,15 @@ const VOICE_ASGN_MODE = 110;
 
 
 
-const CHORUS_MIX      = 34;
+const CHORUS_MIX      = 93;
+
 const CHORUS_RATE     = 58;
 const CHORUS_DEPTH    = 59;
 
-
-const DELAY_FEEDBACK  = 92;
-const DELAY_TIME      = 90;
+const DELAY_LEVEL     = 94;
 const DELAY_MODE      = 35;
+const DELAY_TIME      = 90;
+const DELAY_FEEDBACK  = 92;
 
 
 const PROG_N_TO_W_TO  = 87;
@@ -149,14 +152,14 @@ const POLY_MODE_ON    = 127;
 
 var controlNumberToStringMap = new Map([
   [ OSC_1_WAVE     , "OSC_1_WAVE     " ],
+  [ MIXER_SUB_OSC  , "MIXER_SUB_OSC  " ],
   [ OSC_1_SHAPE    , "OSC_1_SHAPE    " ],
   [ OSC_1_MORPH    , "OSC_1_MORPH    " ],
-  [ MIXER_SUB_OSC  , "MIXER_SUB_OSC  " ],
 
   [ OSC_2_WAVE     , "OSC_2_WAVE     " ],
+  [ MIXER_OSC_MIX  , "MIXER_OSC_MIX  " ],
   [ OSC_2_COARSE   , "OSC_2_COARSE   " ],
   [ OSC_2_PITCH    , "OSC_2_PITCH    " ],
-  [ MIXER_OSC_MIX  , "MIXER_OSC_MIX  " ],
 
   [ FILTER_CUTOFF  , "FILTER_CUTOFF  " ],
   [ FILTER_RESO    , "FILTER_RESO    " ],
@@ -174,9 +177,9 @@ var controlNumberToStringMap = new Map([
   [ PORTAMENTO     , "PORTAMENTO     " ],
 
   [ LFO_WAVE       , "LFO_WAVE       " ],
+  [ LFO_FADE_TIME  , "LFO_FADE_TIME  " ],
   [ LFO_RATE       , "LFO_RATE       " ],
   [ LFO_DEPTH      , "LFO_DEPTH      " ],
-  [ LFO_FADE_TIME  , "LFO_FADE_TIME  " ],
 
   [ LFO_OSC_AMT    , "LFO_OSC_AMT    " ],
   [ LFO_OSC_DST    , "LFO_OSC_DST    " ],
@@ -189,9 +192,9 @@ var controlNumberToStringMap = new Map([
   [ AMP_RELEASE    , "AMP_RELEASE    " ],
 
   [ FILTER_MODE    , "FILTER_MODE    " ],
+  [ P_BEND_RANGE   , "P_BEND_RANGE   " ],
   [ EG_AMP_MOD     , "EG_AMP_MOD     " ],
   [ REL_EQ_DECAY   , "REL_EQ_DECAY   " ],
-  [ P_BEND_RANGE   , "P_BEND_RANGE   " ],
 
   [ BTH_FILTER_AMT , "BTH_FILTER_AMT " ],
   [ BTH_AMP_MOD    , "BTH_AMP_MOD    " ],
@@ -204,26 +207,26 @@ var controlNumberToStringMap = new Map([
 
 
   [ CHORUS_MIX     , "CHORUS_MIX     " ],
+
   [ CHORUS_RATE    , "CHORUS_RATE    " ],
   [ CHORUS_DEPTH   , "CHORUS_DEPTH   " ],
 
-
-  [ DELAY_FEEDBACK , "DELAY_FEEDBACK " ],
-  [ DELAY_TIME     , "DELAY_TIME     " ],
+  [ DELAY_LEVEL    , "DELAY_LEVEL    " ],
   [ DELAY_MODE     , "DELAY_MODE     " ],
-
+  [ DELAY_TIME     , "DELAY_TIME     " ],
+  [ DELAY_FEEDBACK , "DELAY_FEEDBACK " ],
 ]);
 
 var controllersInLocalStorage = [
   OSC_1_WAVE     ,
+  MIXER_SUB_OSC  ,
   OSC_1_SHAPE    ,
   OSC_1_MORPH    ,
-  MIXER_SUB_OSC  ,
 
   OSC_2_WAVE     ,
+  MIXER_OSC_MIX  ,
   OSC_2_COARSE   ,
   OSC_2_PITCH    ,
-  MIXER_OSC_MIX  ,
 
   FILTER_CUTOFF  ,
   FILTER_RESO    ,
@@ -241,9 +244,9 @@ var controllersInLocalStorage = [
   PORTAMENTO     ,
 
   LFO_WAVE       ,
+  LFO_FADE_TIME  ,
   LFO_RATE       ,
   LFO_DEPTH      ,
-  LFO_FADE_TIME  ,
 
   LFO_OSC_AMT    ,
   LFO_OSC_DST    ,
@@ -256,9 +259,9 @@ var controllersInLocalStorage = [
   AMP_RELEASE    ,
 
   FILTER_MODE    ,
+  P_BEND_RANGE   ,
   EG_AMP_MOD     ,
   REL_EQ_DECAY   ,
-  P_BEND_RANGE   ,
 
   BTH_FILTER_AMT ,
   BTH_AMP_MOD    ,
@@ -271,53 +274,53 @@ var controllersInLocalStorage = [
 
 
   CHORUS_MIX     ,
+
   CHORUS_RATE    ,
   CHORUS_DEPTH   ,
 
-
-  DELAY_FEEDBACK ,
-  DELAY_TIME     ,
+  DELAY_LEVEL    ,
   DELAY_MODE     ,
-
+  DELAY_TIME     ,
+  DELAY_FEEDBACK ,
 ];
 
 var presetControllers = {};
 
 // Preset                             #0   #1   #2   #3   #4   #5   #6   #7   
 presetControllers[OSC_1_WAVE     ] = [127, 127, 25 , 0  , 127, 76 , 127, 0  ];
-presetControllers[OSC_1_SHAPE    ] = [0  , 0  , 32 , 64 , 0  , 0  , 0  , 0  ];
-presetControllers[OSC_1_MORPH    ] = [64 , 64 , 127, 127, 64 , 108, 64 , 0  ];
 presetControllers[MIXER_SUB_OSC  ] = [127, 64 , 127, 64 , 127, 64 , 64 , 64 ];
+presetControllers[OSC_1_SHAPE    ] = [0  , 0  , 64 , 64 , 0  , 0  , 0  , 0  ];
+presetControllers[OSC_1_MORPH    ] = [64 , 64 , 127, 127, 64 , 108, 64 , 0  ];
 
 presetControllers[OSC_2_WAVE     ] = [0  , 0  , 25 , 0  , 0  , 0  , 0  , 0  ];
+presetControllers[MIXER_OSC_MIX  ] = [64 , 64 , 0  , 0  , 64 , 64 , 0  , 0  ];
 presetControllers[OSC_2_COARSE   ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 presetControllers[OSC_2_PITCH    ] = [109, 72 , 72 , 72 , 72 , 72 , 72 , 64 ];
-presetControllers[MIXER_OSC_MIX  ] = [64 , 64 , 0  , 0  , 64 , 64 , 0  , 0  ];
 
-presetControllers[FILTER_CUTOFF  ] = [115, 103, 115, 103, 55 , 79 , 127, 127];
-presetControllers[FILTER_RESO    ] = [64 , 32 , 64 , 64 , 64 , 32 , 0  , 0  ];
+presetControllers[FILTER_CUTOFF  ] = [115, 103, 115, 115, 43 , 79 , 127, 127];
+presetControllers[FILTER_RESO    ] = [64 , 32 , 64 , 64 , 64 , 32 , 64 , 0  ];
 presetControllers[FILTER_EG_AMT  ] = [64 , 16 , 64 , 64 , 112, 64 , 64 , 64 ];
-presetControllers[FILTER_KEY_TRK ] = [64 , 64 , 64 , 64 , 64 , 64 , 0  , 0  ];
+presetControllers[FILTER_KEY_TRK ] = [64 , 64 , 64 , 64 , 64 , 127, 64 , 64 ];
 
 presetControllers[EG_ATTACK      ] = [32 , 96 , 32 , 32 , 32 , 32 , 32 , 0  ];
-presetControllers[EG_DECAY       ] = [32 , 96 , 96 , 64 , 96 , 100, 32 , 0  ];
+presetControllers[EG_DECAY       ] = [32 , 96 , 96 , 64 , 96 , 96 , 32 , 0  ];
 presetControllers[EG_SUSTAIN     ] = [127, 0  , 0  , 127, 0  , 0  , 127, 127];
 presetControllers[EG_RELEASE     ] = [32 , 32 , 32 , 32 , 32 , 32 , 32 , 0  ];
 
-presetControllers[EG_OSC_AMT     ] = [64 , 64 , 80 , 64 , 64 , 72 , 64 , 64 ];
+presetControllers[EG_OSC_AMT     ] = [64 , 64 , 72 , 64 , 64 , 72 , 64 , 64 ];
 presetControllers[EG_OSC_DST     ] = [0  , 0  , 127, 0  , 0  , 127, 0  , 0  ];
 presetControllers[VOICE_MODE     ] = [127, 0  , 76 , 0  , 76 , 0  , 0  , 0  ];
 presetControllers[PORTAMENTO     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 
 presetControllers[LFO_WAVE       ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+presetControllers[LFO_FADE_TIME  ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 presetControllers[LFO_RATE       ] = [80 , 80 , 80 , 80 , 80 , 80 , 80 , 80 ];
 presetControllers[LFO_DEPTH      ] = [0  , 0  , 0  , 0  , 0  , 0  , 127, 0  ];
-presetControllers[LFO_FADE_TIME  ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 
 presetControllers[LFO_OSC_AMT    ] = [96 , 64 , 72 , 64 , 64 , 64 , 64 , 64 ];
 presetControllers[LFO_OSC_DST    ] = [0  , 0  , 127, 0  , 0  , 0  , 0  , 0  ];
 presetControllers[LFO_FILTER_AMT ] = [64 , 88 , 64 , 88 , 88 , 88 , 64 , 64 ];
-presetControllers[AMP_GAIN       ] = [90 , 90 , 90 , 90 , 90 , 127, 90 , 90 ];
+presetControllers[AMP_GAIN       ] = [90 , 90 , 76 , 90 , 107, 127, 90 , 90 ];
 
 presetControllers[AMP_ATTACK     ] = [32 , 32 , 32 , 32 , 32 , 32 , 32 , 0  ];
 presetControllers[AMP_DECAY      ] = [32 , 32 , 32 , 32 , 32 , 32 , 32 , 0  ];
@@ -325,9 +328,9 @@ presetControllers[AMP_SUSTAIN    ] = [127, 127, 127, 127, 127, 127, 127, 127];
 presetControllers[AMP_RELEASE    ] = [32 , 32 , 32 , 32 , 32 , 32 , 32 , 0  ];
 
 presetControllers[FILTER_MODE    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
-presetControllers[EG_AMP_MOD     ] = [127, 0  , 0  , 127, 127, 127, 127, 0  ];
-presetControllers[REL_EQ_DECAY   ] = [127, 127, 0  , 127, 127, 0  , 127, 0  ];
 presetControllers[P_BEND_RANGE   ] = [12 , 12 , 12 , 12 , 12 , 12 , 12 , 12 ];
+presetControllers[EG_AMP_MOD     ] = [127, 0  , 0  , 127, 127, 127, 127, 127];
+presetControllers[REL_EQ_DECAY   ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 
 presetControllers[BTH_FILTER_AMT ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 presetControllers[BTH_AMP_MOD    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
@@ -340,54 +343,54 @@ presetControllers[VOICE_ASGN_MODE] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 
 
 presetControllers[CHORUS_MIX     ] = [127, 127, 127, 127, 127, 127, 127, 0  ];
+
 presetControllers[CHORUS_RATE    ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 presetControllers[CHORUS_DEPTH   ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 
-
-presetControllers[DELAY_FEEDBACK ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 0  ];
-presetControllers[DELAY_TIME     ] = [93 , 93 , 93 , 93 , 93 , 93 , 93 , 93 ];
+presetControllers[DELAY_LEVEL    ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 0  ];
 presetControllers[DELAY_MODE     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
-
+presetControllers[DELAY_TIME     ] = [93 , 93 , 93 , 93 , 93 , 93 , 93 , 93 ];
+presetControllers[DELAY_FEEDBACK ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 
 const PRESET_NUMBER_INITIAL = 7;
 
 var editorOnlyPresetControllers = {};
 
 // Editor Only Preset                           #128 #129 #130 #131 #132 #133 #134 #135 
-editorOnlyPresetControllers[OSC_1_WAVE     ] = [0  , 127, 127, 127, 0  , 127, 0  , 0  ];
-editorOnlyPresetControllers[OSC_1_SHAPE    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
-editorOnlyPresetControllers[OSC_1_MORPH    ] = [0  , 64 , 0  , 64 , 0  , 0  , 0  , 0  ];
-editorOnlyPresetControllers[MIXER_SUB_OSC  ] = [64 , 64 , 127, 64 , 64 , 64 , 64 , 64 ];
+editorOnlyPresetControllers[OSC_1_WAVE     ] = [0  , 127, 127, 0  , 0  , 76 , 0  , 0  ];
+editorOnlyPresetControllers[MIXER_SUB_OSC  ] = [64 , 64 , 127, 64 , 64 , 127, 64 , 64 ];
+editorOnlyPresetControllers[OSC_1_SHAPE    ] = [0  , 0  , 0  , 64 , 0  , 0  , 0  , 0  ];
+editorOnlyPresetControllers[OSC_1_MORPH    ] = [0  , 64 , 0  , 0  , 0  , 12 , 0  , 0  ];
 
-editorOnlyPresetControllers[OSC_2_WAVE     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
-editorOnlyPresetControllers[OSC_2_COARSE   ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
-editorOnlyPresetControllers[OSC_2_PITCH    ] = [64 , 72 , 72 , 72 , 64 , 72 , 64 , 64 ];
+editorOnlyPresetControllers[OSC_2_WAVE     ] = [0  , 0  , 0  , 0  , 0  , 76 , 0  , 0  ];
 editorOnlyPresetControllers[MIXER_OSC_MIX  ] = [0  , 64 , 64 , 64 , 0  , 64 , 0  , 0  ];
+editorOnlyPresetControllers[OSC_2_COARSE   ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
+editorOnlyPresetControllers[OSC_2_PITCH    ] = [64 , 72 , 72 , 72 , 64 , 109, 64 , 64 ];
 
-editorOnlyPresetControllers[FILTER_CUTOFF  ] = [127, 91 , 115, 115, 127, 67 , 127, 127];
-editorOnlyPresetControllers[FILTER_RESO    ] = [0  , 32 , 64 , 0  , 0  , 32 , 0  , 0  ];
+editorOnlyPresetControllers[FILTER_CUTOFF  ] = [127, 91 , 115, 115, 127, 79 , 127, 127];
+editorOnlyPresetControllers[FILTER_RESO    ] = [0  , 32 , 64 , 0  , 0  , 0  , 0  , 0  ];
 editorOnlyPresetControllers[FILTER_EG_AMT  ] = [64 , 88 , 64 , 64 , 64 , 64 , 64 , 64 ];
-editorOnlyPresetControllers[FILTER_KEY_TRK ] = [0  , 64 , 64 , 64 , 0  , 64 , 0  , 0  ];
+editorOnlyPresetControllers[FILTER_KEY_TRK ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 
 editorOnlyPresetControllers[EG_ATTACK      ] = [0  , 48 , 32 , 64 , 0  , 32 , 0  , 0  ];
-editorOnlyPresetControllers[EG_DECAY       ] = [0  , 80 , 32 , 64 , 0  , 100, 0  , 0  ];
-editorOnlyPresetControllers[EG_SUSTAIN     ] = [127, 0  , 127, 127, 127, 0  , 127, 127];
-editorOnlyPresetControllers[EG_RELEASE     ] = [0  , 32 , 32 , 32 , 0  , 32 , 0  , 0  ];
+editorOnlyPresetControllers[EG_DECAY       ] = [0  , 80 , 32 , 32 , 0  , 32 , 0  , 0  ];
+editorOnlyPresetControllers[EG_SUSTAIN     ] = [127, 0  , 127, 127, 127, 127, 127, 127];
+editorOnlyPresetControllers[EG_RELEASE     ] = [0  , 32 , 32 , 64 , 0  , 32 , 0  , 0  ];
 
-editorOnlyPresetControllers[EG_OSC_AMT     ] = [64 , 72 , 64 , 64 , 64 , 96 , 64 , 64 ];
-editorOnlyPresetControllers[EG_OSC_DST     ] = [0  , 64 , 0  , 0  , 0  , 127, 0  , 0  ];
+editorOnlyPresetControllers[EG_OSC_AMT     ] = [64 , 72 , 64 , 64 , 64 , 64 , 64 , 64 ];
+editorOnlyPresetControllers[EG_OSC_DST     ] = [0  , 64 , 0  , 0  , 0  , 0  , 0  , 0  ];
 editorOnlyPresetControllers[VOICE_MODE     ] = [0  , 0  , 127, 0  , 0  , 0  , 0  , 0  ];
 editorOnlyPresetControllers[PORTAMENTO     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 
 editorOnlyPresetControllers[LFO_WAVE       ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+editorOnlyPresetControllers[LFO_FADE_TIME  ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 editorOnlyPresetControllers[LFO_RATE       ] = [80 , 80 , 80 , 80 , 80 , 80 , 80 , 80 ];
 editorOnlyPresetControllers[LFO_DEPTH      ] = [0  , 0  , 127, 0  , 0  , 0  , 0  , 0  ];
-editorOnlyPresetControllers[LFO_FADE_TIME  ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 
 editorOnlyPresetControllers[LFO_OSC_AMT    ] = [64 , 64 , 96 , 96 , 64 , 64 , 64 , 64 ];
-editorOnlyPresetControllers[LFO_OSC_DST    ] = [0  , 0  , 127, 0  , 0  , 0  , 0  , 0  ];
-editorOnlyPresetControllers[LFO_FILTER_AMT ] = [64 , 88 , 64 , 64 , 64 , 88 , 64 , 64 ];
-editorOnlyPresetControllers[AMP_GAIN       ] = [90 , 90 , 90 , 90 , 90 , 127, 90 , 90 ];
+editorOnlyPresetControllers[LFO_OSC_DST    ] = [0  , 0  , 127, 0  , 0  , 127, 0  , 0  ];
+editorOnlyPresetControllers[LFO_FILTER_AMT ] = [64 , 88 , 64 , 64 , 64 , 112, 64 , 64 ];
+editorOnlyPresetControllers[AMP_GAIN       ] = [90 , 90 , 76 , 90 , 90 , 90 , 90 , 90 ];
 
 editorOnlyPresetControllers[AMP_ATTACK     ] = [0  , 32 , 32 , 32 , 0  , 32 , 0  , 0  ];
 editorOnlyPresetControllers[AMP_DECAY      ] = [0  , 32 , 32 , 32 , 0  , 32 , 0  , 0  ];
@@ -395,9 +398,9 @@ editorOnlyPresetControllers[AMP_SUSTAIN    ] = [127, 127, 127, 127, 127, 127, 12
 editorOnlyPresetControllers[AMP_RELEASE    ] = [0  , 32 , 32 , 32 , 0  , 32 , 0  , 0  ];
 
 editorOnlyPresetControllers[FILTER_MODE    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
-editorOnlyPresetControllers[EG_AMP_MOD     ] = [0  , 0  , 127, 127, 0  , 127, 0  , 0  ];
-editorOnlyPresetControllers[REL_EQ_DECAY   ] = [0  , 127, 127, 127, 0  , 0  , 0  , 0  ];
 editorOnlyPresetControllers[P_BEND_RANGE   ] = [12 , 12 , 12 , 12 , 12 , 12 , 12 , 12 ];
+editorOnlyPresetControllers[EG_AMP_MOD     ] = [127, 0  , 127, 127, 127, 127, 127, 127];
+editorOnlyPresetControllers[REL_EQ_DECAY   ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 
 editorOnlyPresetControllers[BTH_FILTER_AMT ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 editorOnlyPresetControllers[BTH_AMP_MOD    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
@@ -410,13 +413,14 @@ editorOnlyPresetControllers[VOICE_ASGN_MODE] = [0  , 0  , 0  , 0  , 0  , 0  , 0 
 
 
 editorOnlyPresetControllers[CHORUS_MIX     ] = [0  , 127, 127, 127, 0  , 127, 0  , 0  ];
+
 editorOnlyPresetControllers[CHORUS_RATE    ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 editorOnlyPresetControllers[CHORUS_DEPTH   ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 
-
-editorOnlyPresetControllers[DELAY_FEEDBACK ] = [0  , 64 , 64 , 64 , 0  , 64 , 0  , 0  ];
-editorOnlyPresetControllers[DELAY_TIME     ] = [93 , 93 , 93 , 93 , 93 , 93 , 93 , 93 ];
+editorOnlyPresetControllers[DELAY_LEVEL    ] = [0  , 64 , 64 , 64 , 0  , 64 , 0  , 0  ];
 editorOnlyPresetControllers[DELAY_MODE     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+editorOnlyPresetControllers[DELAY_TIME     ] = [93 , 93 , 93 , 93 , 93 , 93 , 93 , 93 ];
+editorOnlyPresetControllers[DELAY_FEEDBACK ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 
 </script>
 <script>
@@ -783,6 +787,7 @@ function updateDisplayOfControl(number, value) {
   case OSC_2_COARSE    :
   case OSC_2_PITCH     :
   case FILTER_EG_AMT   :
+  case FILTER_KEY_TRK  :
   case EG_OSC_AMT      :
   case LFO_OSC_AMT     :
   case LFO_FILTER_AMT  :
@@ -811,13 +816,6 @@ function updateDisplayOfControl(number, value) {
     {
       var ary = ["Saw","Sqr","Tri","Sin","-","Nos"];
       var index = Math.floor(((value * 10) + 127) / 254);
-      dispValue = ary[index];
-    }
-    break;
-  case FILTER_KEY_TRK  :
-    {
-      var ary = ["0.0","0.5","1.0"];
-      var index = Math.floor(((value * 4) + 127) / 254);
       dispValue = ary[index];
     }
     break;
@@ -938,8 +936,9 @@ function setRandom() {
         (i != CHORUS_MIX     ) &&
         (i != CHORUS_RATE    ) &&
         (i != CHORUS_DEPTH   ) &&
-        (i != DELAY_FEEDBACK ) &&
+        (i != DELAY_LEVEL   ) &&
         (i != DELAY_TIME     ) &&
+        (i != DELAY_FEEDBACK ) &&
         (i != DELAY_MODE     ) &&
         (i != BTH_FILTER_AMT ) &&
         (i != BTH_AMP_MOD    ) &&
@@ -956,8 +955,9 @@ function setRandomChorus() {
     if ((i == CHORUS_MIX     ) ||
         (i == CHORUS_RATE    ) ||
         (i == CHORUS_DEPTH   ) ||
-        (i == DELAY_FEEDBACK ) ||
+        (i == DELAY_LEVEL    ) ||
         (i == DELAY_TIME     ) ||
+        (i == DELAY_FEEDBACK ) ||
         (i == DELAY_MODE     )) {
       onChangeControlChange(i, rand(128));
     }
@@ -1016,14 +1016,14 @@ function writeParameters(number) {
 
 function noteOn(noteNumber) {
   if (midiOutput) {
-    midiOutput.send([(NOTE_ON | midi_ch), noteNumber + transpose, 64]);
+    midiOutput.send([(NOTE_ON | midi_ch), noteNumber + transpose, NOTE_ON_VELOCITY]);
     sleep(1);
   }
 }
 
 function noteOff(noteNumber) {
   if (midiOutput) {
-    midiOutput.send([(NOTE_OFF | midi_ch), noteNumber + transpose, 64]);
+    midiOutput.send([(NOTE_OFF | midi_ch), noteNumber + transpose, NOTE_OFF_VELOCITY]);
     sleep(1);
   }
 }
@@ -1115,17 +1115,17 @@ function fileReaderImportCurrentLoad(event) {
 function fileExport() {
   var str = "{\n";
 
-  str += "  \"_version     \" : \"" + APP_NAME_VERSION + "\",\n";
-  str += "  \"_comment     \" : \"  Current  #8   #9   #10  #11  #12  #13  #14  #15  \",\n";
+  str += "  \"_version       \" : \"" + APP_NAME_VERSION + "\",\n";
+  str += "  \"_comment       \" : \"Current  #8   #9   #10  #11  #12  #13  #14  #15  \",\n";
   str += fileExportOneLine(OSC_1_WAVE     );
+  str += fileExportOneLine(MIXER_SUB_OSC  );
   str += fileExportOneLine(OSC_1_SHAPE    );
   str += fileExportOneLine(OSC_1_MORPH    );
-  str += fileExportOneLine(MIXER_SUB_OSC  );
   str += "\n";
   str += fileExportOneLine(OSC_2_WAVE     );
+  str += fileExportOneLine(MIXER_OSC_MIX  );
   str += fileExportOneLine(OSC_2_COARSE   );
   str += fileExportOneLine(OSC_2_PITCH    );
-  str += fileExportOneLine(MIXER_OSC_MIX  );
   str += "\n";
   str += fileExportOneLine(FILTER_CUTOFF  );
   str += fileExportOneLine(FILTER_RESO    );
@@ -1143,9 +1143,9 @@ function fileExport() {
   str += fileExportOneLine(PORTAMENTO     );
   str += "\n";
   str += fileExportOneLine(LFO_WAVE       );
+  str += fileExportOneLine(LFO_FADE_TIME  );
   str += fileExportOneLine(LFO_RATE       );
   str += fileExportOneLine(LFO_DEPTH      );
-  str += fileExportOneLine(LFO_FADE_TIME  );
   str += "\n";
   str += fileExportOneLine(LFO_OSC_AMT    );
   str += fileExportOneLine(LFO_OSC_DST    );
@@ -1158,9 +1158,9 @@ function fileExport() {
   str += fileExportOneLine(AMP_RELEASE    );
   str += "\n";
   str += fileExportOneLine(FILTER_MODE    );
+  str += fileExportOneLine(P_BEND_RANGE   );
   str += fileExportOneLine(EG_AMP_MOD     );
   str += fileExportOneLine(REL_EQ_DECAY   );
-  str += fileExportOneLine(P_BEND_RANGE   );
   str += "\n";
   str += fileExportOneLine(BTH_FILTER_AMT );
   str += fileExportOneLine(BTH_AMP_MOD    );
@@ -1173,15 +1173,15 @@ function fileExport() {
   str += "\n";
   str += "\n";
   str += fileExportOneLine(CHORUS_MIX     );
+  str += "\n";
   str += fileExportOneLine(CHORUS_RATE    );
   str += fileExportOneLine(CHORUS_DEPTH   );
   str += "\n";
-  str += "\n";
-  str += fileExportOneLine(DELAY_FEEDBACK );
-  str += fileExportOneLine(DELAY_TIME     );
+  str += fileExportOneLine(DELAY_LEVEL    );
   str += fileExportOneLine(DELAY_MODE     );
-  str += "\n";
-  str += "  \"_end         \" : \"\"\n";
+  str += fileExportOneLine(DELAY_TIME     );
+  str += fileExportOneLine(DELAY_FEEDBACK );
+  str += "  \"_end           \" : \"\"\n";
   str += "}\n";
 
   var blob = new Blob([str]);
@@ -1254,16 +1254,16 @@ function getStoredCCValueString(index, number) {
 <tr><td>MIDI In 1</td>
     <td></td>
     <td><select id="selectInputPort1" size="1" onchange="onChangeInputPort1()"></select></td>
-    </tr>
-<tr><td>MIDI In 2</td>
+    <td></td>
+    <td>MIDI In 2</td>
     <td></td>
     <td><select id="selectInputPort2" size="1" onchange="onChangeInputPort2()"></select></td>
-    </tr>
-<tr><td>MIDI In 3</td>
+    <td></td>
+    <td>MIDI In 3</td>
     <td></td>
     <td><select id="selectInputPort3" size="1" onchange="onChangeInputPort3()"></select></td>
-    </tr>
-<tr><td>MIDI In 4</td>
+    <td></td>
+    <td>MIDI In 4</td>
     <td></td>
     <td><select id="selectInputPort4" size="1" onchange="onChangeInputPort4()"></select></td>
     </tr>
@@ -1278,54 +1278,54 @@ function getStoredCCValueString(index, number) {
 <table>
 <tr><td>Preset</td>
     <td></td>
-    <td><input type="button" value="#4 Synth Bass"      onclick="preset(4)"></td>
+    <td><input type="button" value="#4 Synth Bass"       onclick="preset(4)"></td>
     <td></td>
-    <td><input type="button" value="#5 FM Piano"        onclick="preset(5)"></td>
+    <td><input type="button" value="#5 FM Piano"         onclick="preset(5)"></td>
     <td></td>
-    <td><input type="button" value="#6 Simple"          onclick="preset(6)"></td>
+    <td><input type="button" value="#6 Simple"           onclick="preset(6)"></td>
     <td></td>
-    <td><input type="button" value="#7 Initial"         onclick="preset(7)"></td>
+    <td><input type="button" value="#7 Initial"          onclick="preset(7)"></td>
     <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
     <td>Misc</td>
     <td></td>
-    <td><input type="button" value="Random Ctrl"        onclick="setRandom()"></td>
+    <td><input type="button" value="Random Ctrl"         onclick="setRandom()"></td>
     <td></td>
-    <td><input type="button" value="Random FX"          onclick="setRandomChorus()"></td></tr>
+    <td><input type="button" value="Random FX"           onclick="setRandomChorus()"></td></tr>
 <tr><td>(from Browser)</td>
     <td></td>
-    <td><input type="button" value="#0 Fifth Lead"      onclick="preset(0)"></td>
+    <td><input type="button" value="#0 Fifth Lead"       onclick="preset(0)"></td>
     <td></td>
-    <td><input type="button" value="#1 Synth Pad"       onclick="preset(1)"></td>
+    <td><input type="button" value="#1 Synth Pad"        onclick="preset(1)"></td>
     <td></td>
-    <td><input type="button" value="#2 Synq Lead"       onclick="preset(2)"></td>
+    <td><input type="button" value="#2 Sync Lead"        onclick="preset(2)"></td>
     <td></td>
-    <td><input type="button" value="#3 Multi Saw Pad"   onclick="preset(3)"></td>
+    <td><input type="button" value="#3 Multi Saw Pad"    onclick="preset(3)"></td>
     <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
     <td></td>
     <td></td>
-    <td><input type="button" value="Panic"              onclick="panic()"></td></tr>
+    <td><input type="button" value="Panic"               onclick="panic()"></td></tr>
 <tr><td>&nbsp;</td></tr>
 </table>
 
 <table>
 <tr><td>Editor Only</td>
     <td></td>
-    <td><input type="button" value="#132 ---"           onclick="editorOnlyPreset(132)" disabled></td>
+    <td><input type="button" value="#132 ---"            onclick="editorOnlyPreset(132)" disabled></td>
     <td></td>
-    <td><input type="button" value="#133 Synth Piano"   onclick="editorOnlyPreset(133)"></td>
+    <td><input type="button" value="#133 Electric Organ" onclick="editorOnlyPreset(133)"></td>
     <td></td>
-    <td><input type="button" value="#134 ---"           onclick="editorOnlyPreset(134)" disabled></td>
+    <td><input type="button" value="#134 ---"            onclick="editorOnlyPreset(134)" disabled></td>
     <td></td>
-    <td><input type="button" value="#135 ---"           onclick="editorOnlyPreset(135)" disabled></td></tr>
+    <td><input type="button" value="#135 ---"            onclick="editorOnlyPreset(135)" disabled></td></tr>
 <tr><td>(from Browser)</td>
     <td></td>
-    <td><input type="button" value="#128 ---"           onclick="editorOnlyPreset(128)" disabled></td>
+    <td><input type="button" value="#128 ---"            onclick="editorOnlyPreset(128)" disabled></td>
     <td></td>
-    <td><input type="button" value="#129 Synth Brass"   onclick="editorOnlyPreset(129)"></td>
+    <td><input type="button" value="#129 Synth Brass"    onclick="editorOnlyPreset(129)"></td>
     <td></td>
-    <td><input type="button" value="#130 PWM Lead"      onclick="editorOnlyPreset(130)"></td>
+    <td><input type="button" value="#130 PWM Lead"       onclick="editorOnlyPreset(130)"></td>
     <td></td>
-    <td><input type="button" value="#131 Synth Strings" onclick="editorOnlyPreset(131)"</td></tr>
+    <td><input type="button" value="#131 Synth Strings"  onclick="editorOnlyPreset(131)"</td></tr>
 <tr><td>&nbsp;</td></tr>
 </table>
 
@@ -1446,52 +1446,58 @@ function getStoredCCValueString(index, number) {
 
 <table>
 <tr>
+<td>&nbsp;</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+<td>&nbsp;</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+<td>&nbsp;</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+<td>&nbsp;</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+</tr>
+<tr>
 <td colspan="12"><hr></td>
 </tr>
 <tr>
 <td colspan="3"><b>Osc 1</b> Wave [Saw|Sqr|Tri|Sin|-|Pls]</td>
+<td colspan="3"><b>Mixer</b> Noise/Sub Osc [N|S]       </td>
 <td colspan="3"><b>Osc 1</b> Shape                     </td>
 <td colspan="3"><b>Osc 1</b> Morph                     </td>
-<td colspan="3"><b>Mixer</b> Noise/Sub Osc [N|S]       </td>
 </tr>
 <tr>
 <td><input  id="inputOSC_1_WAVE     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_1_WAVE     , value)"></td>
 <td><span    id="spanOSC_1_WAVE     " >-</span></td>
 <td><span   id="span2OSC_1_WAVE     " >-</span></td>
+<td><input  id="inputMIXER_SUB_OSC  "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(MIXER_SUB_OSC  , value)"></td>
+<td><span    id="spanMIXER_SUB_OSC  " >-</span></td>
+<td><span   id="span2MIXER_SUB_OSC  " >-</span></td>
 <td><input  id="inputOSC_1_SHAPE    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_1_SHAPE    , value)"></td>
 <td><span    id="spanOSC_1_SHAPE    " >-</span></td>
 <td><span   id="span2OSC_1_SHAPE    " >-</span></td>
 <td><input  id="inputOSC_1_MORPH    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_1_MORPH    , value)"></td>
 <td><span    id="spanOSC_1_MORPH    " >-</span></td>
 <td><span   id="span2OSC_1_MORPH    " >-</span></td>
-<td><input  id="inputMIXER_SUB_OSC  "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(MIXER_SUB_OSC  , value)"></td>
-<td><span    id="spanMIXER_SUB_OSC  " >-</span></td>
-<td><span   id="span2MIXER_SUB_OSC  " >-</span></td>
 <tr>
 <td colspan="3"><b>Osc 2</b> Wave [Saw|Sqr|Tri|Sin|-|Nos]</td>
+<td colspan="3"><b>Mixer</b> Osc Mix [1|2]             </td>
 <td colspan="3"><b>Osc 2</b> Coarse [-|+]              </td>
 <td colspan="3"><b>Osc 2</b> Pitch [-|+]               </td>
-<td colspan="3"><b>Mixer</b> Osc Mix [1|2]             </td>
 </tr>
 <tr>
 <td><input  id="inputOSC_2_WAVE     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_2_WAVE     , value)"></td>
 <td><span    id="spanOSC_2_WAVE     " >-</span></td>
 <td><span   id="span2OSC_2_WAVE     " >-</span></td>
+<td><input  id="inputMIXER_OSC_MIX  "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(MIXER_OSC_MIX  , value)"></td>
+<td><span    id="spanMIXER_OSC_MIX  " >-</span></td>
+<td><span   id="span2MIXER_OSC_MIX  " >-</span></td>
 <td><input  id="inputOSC_2_COARSE   "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_2_COARSE   , value)"></td>
 <td><span    id="spanOSC_2_COARSE   " >-</span></td>
 <td><span   id="span2OSC_2_COARSE   " >-</span></td>
 <td><input  id="inputOSC_2_PITCH    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_2_PITCH    , value)"></td>
 <td><span    id="spanOSC_2_PITCH    " >-</span></td>
 <td><span   id="span2OSC_2_PITCH    " >-</span></td>
-<td><input  id="inputMIXER_OSC_MIX  "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(MIXER_OSC_MIX  , value)"></td>
-<td><span    id="spanMIXER_OSC_MIX  " >-</span></td>
-<td><span   id="span2MIXER_OSC_MIX  " >-</span></td>
 </tr>
 <tr>
 <td colspan="3"><b>Filter</b> Cutoff                   </td>
 <td colspan="3"><b>Filter</b> Resonance                </td>
 <td colspan="3"><b>Filter</b> EG Amt [-|+]             </td>
-<td colspan="3"><b>Filter</b> Key Track [0.0|0.5|1.0]  </td>
+<td colspan="3"><b>Filter</b> Key Track [-|+]          </td>
 </tr>
 <tr>
 <td><input  id="inputFILTER_CUTOFF  "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(FILTER_CUTOFF  , value)"></td>
@@ -1552,23 +1558,23 @@ function getStoredCCValueString(index, number) {
 </tr>
 <tr>
 <td colspan="3"><b>LFO</b> Wave [Tri|Sin|-|Saw|SH|Sqr] </td>
+<td colspan="3"><b>LFO</b> Fade Time                   </td>
 <td colspan="3"><b>LFO</b> Rate                        </td>
 <td colspan="3"><b>LFO</b> Depth                       </td>
-<td colspan="3"><b>LFO</b> Fade Time                   </td>
 </tr>
 <tr>
 <td><input  id="inputLFO_WAVE       "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_WAVE       , value)"></td>
 <td><span    id="spanLFO_WAVE       " >-</span></td>
 <td><span   id="span2LFO_WAVE       " >-</span></td>
+<td><input  id="inputLFO_FADE_TIME  "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_FADE_TIME  , value)"></td>
+<td><span    id="spanLFO_FADE_TIME  " >-</span></td>
+<td><span   id="span2LFO_FADE_TIME  " >-</span></td>
 <td><input  id="inputLFO_RATE       "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_RATE       , value)"></td>
 <td><span    id="spanLFO_RATE       " >-</span></td>
 <td><span   id="span2LFO_RATE       " >-</span></td>
 <td><input  id="inputLFO_DEPTH      "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_DEPTH      , value)"></td>
 <td><span    id="spanLFO_DEPTH      " >-</span></td>
 <td><span   id="span2LFO_DEPTH      " >-</span></td>
-<td><input  id="inputLFO_FADE_TIME  "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_FADE_TIME  , value)"></td>
-<td><span    id="spanLFO_FADE_TIME  " >-</span></td>
-<td><span   id="span2LFO_FADE_TIME  " >-</span></td>
 </tr>
 <tr>
 <td colspan="3"><b>LFO</b> Osc Amt [-|+]               </td>
@@ -1615,23 +1621,23 @@ function getStoredCCValueString(index, number) {
 </tr>
 <tr>
 <td colspan="3"><b>Filter</b> Mode [LP|HP]             </td>
+<td colspan="3">Pitch Bend Range                </td>
 <td colspan="3"><b>EG</b> Amp Mod [Off|On]             </td>
 <td colspan="3">Release = Decay [Off|On]        </td>
-<td colspan="3">Pitch Bend Range                </td>
 </tr>
 <tr>
 <td><input  id="inputFILTER_MODE    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(FILTER_MODE    , value)"></td>
 <td><span    id="spanFILTER_MODE    " >-</span></td>
 <td><span   id="span2FILTER_MODE    " >-</span></td>
+<td><input  id="inputP_BEND_RANGE   "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(P_BEND_RANGE   , value)"></td>
+<td><span    id="spanP_BEND_RANGE   " >-</span></td>
+<td><span   id="span2P_BEND_RANGE   " >-</span></td>
 <td><input  id="inputEG_AMP_MOD     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(EG_AMP_MOD     , value)"></td>
 <td><span    id="spanEG_AMP_MOD     " >-</span></td>
 <td><span   id="span2EG_AMP_MOD     " >-</span></td>
 <td><input  id="inputREL_EQ_DECAY   "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(REL_EQ_DECAY   , value)"></td>
 <td><span    id="spanREL_EQ_DECAY   " >-</span></td>
 <td><span   id="span2REL_EQ_DECAY   " >-</span></td>
-<td><input  id="inputP_BEND_RANGE   "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(P_BEND_RANGE   , value)"></td>
-<td><span    id="spanP_BEND_RANGE   " >-</span></td>
-<td><span   id="span2P_BEND_RANGE   " >-</span></td>
 </tr>
 <tr>
 <td colspan="3"><b>Breath</b> Filter Amt [-|+]         </td>
@@ -1666,40 +1672,43 @@ function getStoredCCValueString(index, number) {
 </tr>
 <tr>
 <td colspan="3"><b>Chorus</b> Mix [Dry|Wet]            </td>
+<td colspan="3">                                </td>
 <td colspan="3"><b>Chorus</b> Rate                     </td>
 <td colspan="3"><b>Chorus</b> Depth                    </td>
-<td colspan="3">                                </td>
 </tr>
 <tr>
 <td><input  id="inputCHORUS_MIX     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(CHORUS_MIX     , value)"></td>
 <td><span    id="spanCHORUS_MIX     " >-</span></td>
 <td><span   id="span2CHORUS_MIX     " >-</span></td>
+<td></td>
+<td></td>
+<td></td>
 <td><input  id="inputCHORUS_RATE    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(CHORUS_RATE    , value)"></td>
 <td><span    id="spanCHORUS_RATE    " >-</span></td>
 <td><span   id="span2CHORUS_RATE    " >-</span></td>
 <td><input  id="inputCHORUS_DEPTH   "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(CHORUS_DEPTH   , value)"></td>
 <td><span    id="spanCHORUS_DEPTH   " >-</span></td>
 <td><span   id="span2CHORUS_DEPTH   " >-</span></td>
-<td></td>
-<td></td>
-<td></td>
 </tr>
 <tr>
-<td colspan="3"><b>Delay</b> Feedback                  </td>
-<td colspan="3"><b>Delay</b> Time                      </td>
+<td colspan="3"><b>Delay</b> Level                     </td>
 <td colspan="3"><b>Delay</b> Mode [S|P]                </td>
-<td colspan="3">                                </td>
+<td colspan="3"><b>Delay</b> Time                      </td>
+<td colspan="3"><b>Delay</b> Feedback                  </td>
 </tr>
 <tr>
-<td><input  id="inputDELAY_FEEDBACK "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(DELAY_FEEDBACK , value)"></td>
-<td><span    id="spanDELAY_FEEDBACK " >-</span></td>
-<td><span   id="span2DELAY_FEEDBACK " >-</span></td>
-<td><input  id="inputDELAY_TIME     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(DELAY_TIME     , value)"></td>
-<td><span    id="spanDELAY_TIME     " >-</span></td>
-<td><span   id="span2DELAY_TIME     " >-</span></td>
+<td><input  id="inputDELAY_LEVEL    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(DELAY_LEVEL    , value)"></td>
+<td><span    id="spanDELAY_LEVEL    " >-</span></td>
+<td><span   id="span2DELAY_LEVEL    " >-</span></td>
 <td><input  id="inputDELAY_MODE     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(DELAY_MODE     , value)"></td>
 <td><span    id="spanDELAY_MODE     " >-</span></td>
 <td><span   id="span2DELAY_MODE     " >-</span></td>
+<td><input  id="inputDELAY_TIME     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(DELAY_TIME     , value)"></td>
+<td><span    id="spanDELAY_TIME     " >-</span></td>
+<td><span   id="span2DELAY_TIME     " >-</span></td>
+<td><input  id="inputDELAY_FEEDBACK "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(DELAY_FEEDBACK , value)"></td>
+<td><span    id="spanDELAY_FEEDBACK " >-</span></td>
+<td><span   id="span2DELAY_FEEDBACK " >-</span></td>
 <td></td>
 <td></td>
 <td></td>
