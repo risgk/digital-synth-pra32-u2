@@ -1,6 +1,8 @@
 require_relative 'Digital-Synth-PRA32-U2/pra32-u2-constants'
 
-PRA32_U2_MIDI_CH = 0  # 0-based
+PRA32_U2_MIDI_CH  = 0  # 0-based
+NOTE_ON_VELOCITY  = 100
+NOTE_OFF_VELOCITY = 64
 
 $file = File.open("pra32-u2-sample-midi-stream.bin", "wb")
 
@@ -19,7 +21,7 @@ def note_on(note_number, velocity)
 end
 
 def note_off(note_number)
-  $file.write([(NOTE_OFF | PRA32_U2_MIDI_CH), note_number, 64].pack("C*"))
+  $file.write([(NOTE_OFF | PRA32_U2_MIDI_CH), note_number, NOTE_OFF_VELOCITY].pack("C*"))
 end
 
 def wait(length)
@@ -27,24 +29,24 @@ def wait(length)
 end
 
 def play_mono_a(oct)
-  play_mono(12, oct, 64)
-  play_mono(16, oct, 64)
-  play_mono(14, oct, 64)
-  play_mono(17, oct, 64)
+  play_mono(12, oct, NOTE_ON_VELOCITY)
+  play_mono(16, oct, NOTE_ON_VELOCITY)
+  play_mono(14, oct, NOTE_ON_VELOCITY)
+  play_mono(17, oct, NOTE_ON_VELOCITY)
 end
 
 def play_a(oct)
-  play_chord_a(12, 16, 19, 23, oct, 64)
-  play_chord_a(16, 19, 23, 26, oct, 64)
-  play_chord_a(14, 17, 21, 24, oct, 64)
-  play_chord_a(17, 21, 24, 28, oct, 64)
+  play_chord_a(12, 16, 19, 23, oct, NOTE_ON_VELOCITY)
+  play_chord_a(16, 19, 23, 26, oct, NOTE_ON_VELOCITY)
+  play_chord_a(14, 17, 21, 24, oct, NOTE_ON_VELOCITY)
+  play_chord_a(17, 21, 24, 28, oct, NOTE_ON_VELOCITY)
 end
 
 def play_b(oct)
-  play_chord_b(12, 16, 19, 23, oct, 64)
-  play_chord_b(16, 19, 23, 26, oct, 64)
-  play_chord_b(14, 17, 21, 24, oct, 64)
-  play_chord_b(17, 21, 24, 28, oct, 64)
+  play_chord_b(12, 16, 19, 23, oct, NOTE_ON_VELOCITY)
+  play_chord_b(16, 19, 23, 26, oct, NOTE_ON_VELOCITY)
+  play_chord_b(14, 17, 21, 24, oct, NOTE_ON_VELOCITY)
+  play_chord_b(17, 21, 24, 28, oct, NOTE_ON_VELOCITY)
 end
 
 def play_mono(x, oct, velocity)

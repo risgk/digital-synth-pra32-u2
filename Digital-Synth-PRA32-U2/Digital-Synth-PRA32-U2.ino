@@ -2,7 +2,7 @@
  * Digital Synth PRA32-U2
  */
 
-#define PRA32_U2_VERSION                       "v0.4.0    "
+#define PRA32_U2_VERSION                       "v0.5.0    "
 
 //#define PRA32_U2_USE_DEBUG_PRINT               // Serial1
 
@@ -50,6 +50,7 @@
 #define PRA32_U2_KEY_INPUT_PREV_KEY_PIN          (16)
 #define PRA32_U2_KEY_INPUT_NEXT_KEY_PIN          (18)
 #define PRA32_U2_KEY_INPUT_PLAY_KEY_PIN          (20)
+//#define PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN         (17)
 #define PRA32_U2_KEY_ANTI_CHATTERING_WAIT        (15)
 #define PRA32_U2_KEY_LONG_PRESS_WAIT             (375)
 
@@ -381,13 +382,17 @@ void __not_in_flash_func(handleClock)()
 void __not_in_flash_func(handleStart)()
 {
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
-  PRA32_U2_ControlPanel_on_start();
+  if (g_synth.current_controller_value(SEQ_TRX_ST_SP  ) >= 64) {
+    PRA32_U2_ControlPanel_on_start();
+  }
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL_ANALOG_INPUT)
 }
 
 void __not_in_flash_func(handleStop)()
 {
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
-  PRA32_U2_ControlPanel_on_stop();
+  if (g_synth.current_controller_value(SEQ_TRX_ST_SP  ) >= 64) {
+    PRA32_U2_ControlPanel_on_stop();
+  }
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL_ANALOG_INPUT)
 }

@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 Parameter Guide v0.4.0
+# Digital Synth PRA32-U2 Parameter Guide v0.5.0
 
-- 2025-06-30 ISGK Instruments
+- 2025-08-03 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 ## Control Change Parameters
@@ -86,28 +86,35 @@
     - 121: f = 14080 kHz
     - 127: f = 19912.1 Hz (max)
 - Filter Resonance
-    - 16 (0-19): Q = 0.7 (min)
-    - 24 (20-27): Q = 0.8
-    - 32 (28-35): Q = 1.0
-    - 40 (36-43): Q = 1.2
-    - 48 (44-51): Q = 1.4
-    - 56 (52-59): Q = 1.7
-    - 64 (60-67): Q = 2.0
-    - 72 (68-75): Q = 2.4
-    - 80 (76-83): Q = 2.8
-    - 88 (84-91): Q = 3.4
-    - 96 (92-99): Q = 4.0
-    - 104 (100-107): Q = 4.8
-    - 112 (108-115): Q = 5.6
-    - 120 (116-123): Q = 6.7
-    - 127 (124-127): Q = 8.0 (max)
+    - 16 (0-16): Q = 0.7 (min)
+    - 32 (31-32): Q = 1.0
+    - 48 (47-48): Q = 1.4
+    - 64 (63-64): Q = 2.0
+    - 80 (79-80): Q = 2.8
+    - 96 (95-96): Q = 4.0
+    - 112 (111-112): Q = 5.6
+    - 127: Q = 8.0 (max)
 - Filter EG Amt [-|+], LFO Filter Amt [-|+]
     - -60 (4): -60 (min)
     - +60 (124): +60 (max)
-- Filter Key Track [0.0|0.5|1.0] $1
-    - 0 (0-31): 0.0
-    - 64 (32-95): 0.5
-    - 127 (96-127): 1.0
+- Filter Key Track [-|+] $1
+    - 0 (0-3): -1.000 (min)
+    - 8 (4-11): -0.875
+    - 16 (12-19): -0.750
+    - 24 (20-27): -0.625
+    - 32 (28-35): -0.500
+    - 40 (36-43): -0.375
+    - 48 (44-51): -0.250
+    - 56 (52-59): -0.125
+    - 64 (60-67): +0.000
+    - 72 (68-75): +0.125
+    - 80 (76-83): +0.250
+    - 88 (84-91): +0.375
+    - 96 (92-99): +0.500
+    - 104 (100-107): +0.625
+    - 112 (108-115): +0.750
+    - 120 (116-123): +0.875
+    - 127 (124-127): +1.000 (max)
 - EG Attack, Amp Attack
     - 0: 0.7 ms
     - 64: 63.2 ms
@@ -161,7 +168,8 @@
     - 102 (89-114): Sample & Hold (Key Trigger On, -0.5 to +0.5)
     - 127 (115-127): Square Wave (Key Trigger On, 0.0 to 1.0)
 - LFO Rate
-    - 0: 0.068 Hz (min)
+    - 0: 0.0Hz (min)
+    - 1: 0.072 Hz
     - 64: 2.7 Hz
     - 80: 6.9 Hz
     - 127: 103.8Hz (max)
@@ -208,10 +216,7 @@
     - 32: Delay Time +/- 1.3 ms
     - 64: Delay Time +/- 2.7 ms
     - 126: Delay Time +/- 5.3 ms (max)
-- Delay Feedback
-    - 0: Feedback 0% (min)
-    - 64: Feedback 25%
-    - 127: Feedback 49.6% (max)
+- Delay Level
 - Delay Time
     - 0: 1 ms (min)
     - 5: 6 ms
@@ -228,6 +233,10 @@
     - 93: 270 ms
     - 102: 300 ms = eighth note time at 100 BPM
     - 112: 333.3 ms (max)
+- Delay Feedback
+    - 0: Feedback 0% (min)
+    - 64: Feedback 25%
+    - 127: Feedback 49.6% (max)
 - Delay Mode [S|P]
     - 0 (0-63): Stereo Delay
     - 127 (64-127): Ping Pong Delay

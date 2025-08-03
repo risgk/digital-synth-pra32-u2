@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 v0.4.0
+# Digital Synth PRA32-U2 v0.5.0
 
-- 2025-06-30 ISGK Instruments
+- 2025-08-03 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 
@@ -18,7 +18,7 @@
     - "Digital-Synth-PRA32-U2-PWM-Audio.uf2" is for Raspberry Pi Pico and PWM Audio
 
 
-## [Change History](/PRA32-U2-Change-History.md)
+## [Change History](./PRA32-U2-Change-History.md)
 
 
 ## Preparation for modification
@@ -28,7 +28,7 @@
     - Info: <https://www.arduino.cc/en/software>
 - Please install Arduino-Pico = **Raspberry Pi Pico/RP2040/RP2350** (by Earle F. Philhower, III) core
     - Additional Board Manager URL: <https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json>
-    - This sketch is tested with version **4.6.0**: <https://github.com/earlephilhower/arduino-pico/releases/tag/4.6.0>
+    - This sketch is tested with version **4.6.1**: <https://github.com/earlephilhower/arduino-pico/releases/tag/4.6.1>
     - Info: <https://github.com/earlephilhower/arduino-pico>
 - Please install Arduino **MIDI Library** (by Francois Best, lathoub)
     - This sketch is tested with version **5.0.2**: <https://github.com/FortySevenEffects/arduino_midi_library/releases/tag/5.0.2>
@@ -166,10 +166,10 @@
 - PRA32-U2 with Panel (USB MIDI Device, UART MIDI, I2S, Control Panel)
 
 
-## [Parameter Guide](/PRA32-U2-Parameter-Guide.md)
+## [Parameter Guide](./PRA32-U2-Parameter-Guide.md)
 
 
-## [MIDI Implementation Chart](/PRA32-U2-MIDI-Implementation-Chart.md)
+## [MIDI Implementation Chart](./PRA32-U2-MIDI-Implementation-Chart.md)
 
 
 ## Synthesizer Block Diagram
@@ -264,11 +264,11 @@ graph LR
 
 ![CC0](http://i.creativecommons.org/p/zero/1.0/88x31.png)
 
-**Digital Synth PRA32-U2 v0.4.0 by ISGK Instruments (Ryo Ishigaki)**
+**Digital Synth PRA32-U2 v0.5.0 by ISGK Instruments (Ryo Ishigaki)**
 
 To the extent possible under law, ISGK Instruments (Ryo Ishigaki)
 has waived all copyright and related or neighboring rights
-to Digital Synth PRA32-U2 v0.4.0.
+to Digital Synth PRA32-U2 v0.5.0.
 
 You should have received a copy of the CC0 legalcode along with this
 work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.

@@ -5,9 +5,11 @@
 class PRA32_U2_DelayFx {
   static const uint16_t DELAY_BUFF_SIZE = 16384;
 
-  int16_t  m_delay_buff[2][DELAY_BUFF_SIZE];
+  int32_t  m_delay_buff[2][DELAY_BUFF_SIZE];
   uint16_t m_delay_wp[2];
 
+  uint16_t m_delay_level;
+  uint16_t m_delay_level_effective;
   uint8_t  m_delay_feedback;
   uint8_t  m_delay_feedback_effective;
   uint16_t m_delay_time;
@@ -19,6 +21,8 @@ public:
   : m_delay_buff()
   , m_delay_wp()
 
+  , m_delay_level()
+  , m_delay_level_effective()
   , m_delay_feedback()
   , m_delay_feedback_effective()
   , m_delay_time()
@@ -28,10 +32,15 @@ public:
     m_delay_wp[0] = DELAY_BUFF_SIZE - 1;
     m_delay_wp[1] = DELAY_BUFF_SIZE - 1;
 
-    set_delay_feedback(32 );
+    set_delay_level   (0  );
+    set_delay_feedback(64 );
     set_delay_time    (93 );
 
     m_delay_time_effective = m_delay_time;
+  }
+
+  INLINE void set_delay_level(uint8_t controller_value) {
+    m_delay_level = ((controller_value + 1) >> 1) << 2;
   }
 
   INLINE void set_delay_feedback(uint8_t controller_value) {
@@ -66,51 +75,54 @@ public:
   }
 
   INLINE void process_at_low_rate(uint8_t count) {
-    static_cast<void>(count);
+    m_delay_level_effective += (m_delay_level_effective < m_delay_level);
+    m_delay_level_effective -= (m_delay_level_effective > m_delay_level);
 
     m_delay_feedback_effective += (m_delay_feedback_effective < m_delay_feedback);
     m_delay_feedback_effective -= (m_delay_feedback_effective > m_delay_feedback);
 
-    m_delay_time_effective += (m_delay_time_effective < m_delay_time);
-    m_delay_time_effective -= (m_delay_time_effective > m_delay_time);
+    if ((count & 0x01) == 0) {
+      m_delay_time_effective += (m_delay_time_effective < m_delay_time);
+      m_delay_time_effective -= (m_delay_time_effective > m_delay_time);
+    }
   }
 
-  INLINE int16_t process(int16_t left_input, int16_t right_input, int16_t& right_level) {
-    int16_t left_delay   = delay_buff_get<0>(m_delay_time_effective);
-    int16_t right_delay  = delay_buff_get<1>(m_delay_time_effective);
+  INLINE int32_t process(int32_t left_input_int24, int32_t right_input_int24, int32_t& right_output_int24) {
+    int32_t left_delay   = delay_buff_get<0>(m_delay_time_effective);
+    int32_t right_delay  = delay_buff_get<1>(m_delay_time_effective);
 
-    int16_t left_feedback;
-    int16_t right_feedback;
+    int32_t left_feedback;
+    int32_t right_feedback;
+
+    int32_t left_send  = mul_s32_s32_h16(left_input_int24,  m_delay_level_effective << 8);
+    int32_t right_send = mul_s32_s32_h16(right_input_int24, m_delay_level_effective << 8);
 
     if (m_delay_mode >= 64) {
       // Ping Pong Delay
-      left_feedback  = ((((left_input + right_input) >> 2) + right_delay) * m_delay_feedback_effective) / 256;
-      right_feedback = ((                                    left_delay ) * m_delay_feedback_effective) / 256;
+      left_feedback  = mul_s32_u16_h32((((left_send + right_send) >> 1) + right_delay), (m_delay_feedback_effective << 8));
+      right_feedback = mul_s32_u16_h32((                                  left_delay ), (m_delay_feedback_effective << 8));
     } else {
       // Stereo Delay
-      left_feedback  = ((((left_input  >> 1) + left_delay ) * m_delay_feedback_effective) / 256);
-      right_feedback = ((((right_input >> 1) + right_delay) * m_delay_feedback_effective) / 256);
+      left_feedback  = mul_s32_u16_h32((left_send  + left_delay ), (m_delay_feedback_effective << 8));
+      right_feedback = mul_s32_u16_h32((right_send + right_delay), (m_delay_feedback_effective << 8));
     }
 
     delay_buff_push<0>(left_feedback);
     delay_buff_push<1>(right_feedback);
 
-    int16_t left_output  = (left_input  >> 1) + left_delay;
-    int16_t right_output = (right_input >> 1) + right_delay;
-
-    right_level = right_output;
-    return        left_output;
+    right_output_int24 = right_input_int24 + right_delay;
+    return               left_input_int24  + left_delay;
   }
 
 private:
   template <uint8_t N>
-  INLINE void delay_buff_push(int16_t audio_input) {
+  INLINE void delay_buff_push(int32_t audio_input) {
     m_delay_wp[N] = (m_delay_wp[N] + 1) & (DELAY_BUFF_SIZE - 1);
     m_delay_buff[N][m_delay_wp[N]] = audio_input;
   }
 
   template <uint8_t N>
-  INLINE int16_t delay_buff_get(uint16_t sample_delay) {
+  INLINE int32_t delay_buff_get(uint16_t sample_delay) {
     uint16_t delay_rp = (m_delay_wp[N] - sample_delay) & (DELAY_BUFF_SIZE - 1);
     return m_delay_buff[N][delay_rp];
   }

@@ -26,7 +26,8 @@ const uint16_t  OSC_DETUNE_FREQ_MAX          = (20 * 2) * (1 << 24) / SAMPLING_R
 const int8_t    FILTER_CONTROL_INTERVAL_BITS = 3;
 const uint8_t   FILTER_CONTROL_INTERVAL      = 0x01 << FILTER_CONTROL_INTERVAL_BITS;
 const int8_t    FILTER_TABLE_FRACTION_BITS   = 30;
-const int8_t    FILTER_TABLE_EXTENSION_BITS  = 2;
+const int8_t    FILTER_TABLE_CUTOFF_EXT_BITS = 2;
+const int8_t    FILTER_TABLE_RESO_EXT_BITS   = 2;
 const uint8_t   EG_CONTROL_INTERVAL          = 0x10;
 const int32_t   EG_LEVEL_MAX                 = 0x40000000;
 
@@ -57,14 +58,14 @@ const uint8_t   SUSTAIN_PEDAL   = 64;
 
 
 const uint8_t   OSC_1_WAVE      = 102;
+const uint8_t   MIXER_SUB_OSC   = 23;
 const uint8_t   OSC_1_SHAPE     = 19;
 const uint8_t   OSC_1_MORPH     = 20;
-const uint8_t   MIXER_SUB_OSC   = 23;
 
 const uint8_t   OSC_2_WAVE      = 104;
+const uint8_t   MIXER_OSC_MIX   = 21;
 const uint8_t   OSC_2_COARSE    = 85;
 const uint8_t   OSC_2_PITCH     = 76;
-const uint8_t   MIXER_OSC_MIX   = 21;
 
 const uint8_t   FILTER_CUTOFF   = 74;
 const uint8_t   FILTER_RESO     = 71;
@@ -82,9 +83,9 @@ const uint8_t   VOICE_MODE      = 18;
 const uint8_t   PORTAMENTO      = 5;
 
 const uint8_t   LFO_WAVE        = 33;
+const uint8_t   LFO_FADE_TIME   = 56;
 const uint8_t   LFO_RATE        = 3;
 const uint8_t   LFO_DEPTH       = 17;
-const uint8_t   LFO_FADE_TIME   = 56;
 
 const uint8_t   LFO_OSC_AMT     = 13;
 const uint8_t   LFO_OSC_DST     = 103;
@@ -97,9 +98,9 @@ const uint8_t   AMP_SUSTAIN     = 54;
 const uint8_t   AMP_RELEASE     = 55;
 
 const uint8_t   FILTER_MODE     = 39;
+const uint8_t   P_BEND_RANGE    = 57;
 const uint8_t   EG_AMP_MOD      = 36;
 const uint8_t   REL_EQ_DECAY    = 105;
-const uint8_t   P_BEND_RANGE    = 57;
 
 const uint8_t   BTH_FILTER_AMT  = 60;
 const uint8_t   BTH_AMP_MOD     = 61;
@@ -111,14 +112,15 @@ const uint8_t   VOICE_ASGN_MODE = 110;
 
 
 
-const uint8_t   CHORUS_MIX      = 34;
+const uint8_t   CHORUS_MIX      = 93;
+
 const uint8_t   CHORUS_RATE     = 58;
 const uint8_t   CHORUS_DEPTH    = 59;
 
-
-const uint8_t   DELAY_FEEDBACK  = 92;
-const uint8_t   DELAY_TIME      = 90;
+const uint8_t   DELAY_LEVEL     = 94;
 const uint8_t   DELAY_MODE      = 35;
+const uint8_t   DELAY_TIME      = 90;
+const uint8_t   DELAY_FEEDBACK  = 92;
 
 
 const uint8_t   PROG_N_TO_W_TO  = 87;
@@ -226,7 +228,7 @@ const uint8_t   SEQ_TRANSPOSE   = 128 + 54;
 const uint8_t   SEQ_STEP_NOTE   = 128 + 55;
 
 const uint8_t   SEQ_ON_STEPS    = 128 + 56;
-
+const uint8_t   SEQ_TRX_ST_SP   = 128 + 57;
 
 
 
