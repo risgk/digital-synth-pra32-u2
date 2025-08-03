@@ -45,10 +45,10 @@ class PRA32_U2_Osc {
   int16_t        m_osc2_detune;
 
   uint8_t        m_phase_high;
-  uint8_t        m_osc1_shape_control;
-  uint8_t        m_osc1_shape_control_effective;
-  uint8_t        m_osc1_morph_control;
-  uint8_t        m_osc1_morph_control_effective;
+  uint16_t       m_osc1_shape_control;
+  uint16_t       m_osc1_shape_control_effective;
+  uint16_t       m_osc1_morph_control;
+  uint16_t       m_osc1_morph_control_effective;
   int32_t        m_osc1_shape[4];
   int32_t        m_osc1_shape_effective[4];
   uint16_t       m_osc1_phase_modulation_depth[4];
@@ -229,7 +229,7 @@ public:
   }
 
   INLINE void set_osc1_shape_control(uint8_t controller_value) {
-    m_osc1_shape_control = controller_value;
+    m_osc1_shape_control = controller_value << 3;
   }
 
   INLINE void set_osc1_morph_control(uint8_t controller_value) {
@@ -422,9 +422,11 @@ public:
       break;
     case 0x07:
       update_freq_offset<7>(noise_int15);
-      update_osc1_control_effective();
+      update_osc1_morph_control_effective();
       break;
     }
+
+    update_osc1_shape_control_effective();
   }
 
   template <uint8_t N>
@@ -708,10 +710,12 @@ private:
     }
   }
 
-  INLINE void update_osc1_control_effective() {
+  INLINE void update_osc1_shape_control_effective() {
     m_osc1_shape_control_effective += (m_osc1_shape_control_effective < m_osc1_shape_control);
     m_osc1_shape_control_effective -= (m_osc1_shape_control_effective > m_osc1_shape_control);
+  }
 
+  INLINE void update_osc1_morph_control_effective() {
     m_osc1_morph_control_effective += (m_osc1_morph_control_effective < m_osc1_morph_control);
     m_osc1_morph_control_effective -= (m_osc1_morph_control_effective > m_osc1_morph_control);
   }
@@ -726,7 +730,7 @@ private:
 
   template <uint8_t N>
   INLINE void update_osc1_shape(int16_t lfo_level, int16_t eg_level) {
-    volatile int32_t osc1_shape = (128 << 8) + (m_osc1_shape_control_effective << 8)
+    volatile int32_t osc1_shape = (128 << 8) + (m_osc1_shape_control_effective << (8 - 3))
                                   + ((eg_level * m_shape_eg_amt) >> 5) - ((lfo_level * m_shape_lfo_amt) >> 5);
 
     // osc1_shape = clamp(y_0, (0 << 8), (256 << 8))
