@@ -86,6 +86,7 @@ public:
         || (m_lfo_waveform == LFO_WAVEFORM_RANDOM)
         || (m_lfo_waveform == LFO_WAVEFORM_SQUARE)) {
       m_lfo_phase = 0x00000000;
+      m_sampled_noise_int15 = m_noise_int15;
     }
 
     if (m_lfo_fade_coef > LFO_FADE_COEF_OFF) {
