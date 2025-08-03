@@ -11,7 +11,7 @@
     - Change the meaning of the Filter Resonance control value
     - Change the Filter Resonance so that if Q is less than 4, the sound is not reduced
     - Extend Filter Key Track range and resolution (0.0 to 1.0, step 0.5 -> -1.000 to +1.000, step 0.125)
-    - Improve smooth change of Filter Cutoff and Delay Time
+    - Improve smooth change of Osc 1 Shape, Filter Cutoff, and Delay Time
     - Change the Preset programs
     - PRA32-U2 Editor: Change the layout
     - PRA32-U2 with Panel: Add Seq T/Rx St/Sp (Transmit/Receive Start/Stop)
