@@ -18,10 +18,10 @@ const uint8_t g_preset_table_FILTER_RESO    [] = {64 , 32 , 64 , 64 , 64 , 32 , 
 const uint8_t g_preset_table_FILTER_EG_AMT  [] = {64 , 16 , 64 , 64 , 112, 64 , 64 , 64 ,   64 , 16 , 64 , 64 , 112, 64 , 64 , 64 };
 const uint8_t g_preset_table_FILTER_KEY_TRK [] = {64 , 64 , 64 , 64 , 64 , 127, 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 127, 64 , 64 };
 
-const uint8_t g_preset_table_EG_ATTACK      [] = {32 , 96 , 32 , 32 , 32 , 32 , 32 , 0  ,   32 , 96 , 32 , 32 , 32 , 32 , 32 , 0  };
-const uint8_t g_preset_table_EG_DECAY       [] = {32 , 96 , 96 , 64 , 96 , 96 , 32 , 0  ,   32 , 96 , 96 , 64 , 96 , 96 , 32 , 0  };
+const uint8_t g_preset_table_EG_ATTACK      [] = {0  , 96 , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 96 , 0  , 0  , 0  , 0  , 0  , 0  };
+const uint8_t g_preset_table_EG_DECAY       [] = {0  , 96 , 96 , 64 , 96 , 96 , 0  , 0  ,   0  , 96 , 96 , 64 , 96 , 96 , 0  , 0  };
 const uint8_t g_preset_table_EG_SUSTAIN     [] = {127, 0  , 0  , 127, 0  , 0  , 127, 127,   127, 0  , 0  , 127, 0  , 0  , 127, 127};
-const uint8_t g_preset_table_EG_RELEASE     [] = {32 , 32 , 32 , 32 , 32 , 32 , 32 , 0  ,   32 , 32 , 32 , 32 , 32 , 32 , 32 , 0  };
+const uint8_t g_preset_table_EG_RELEASE     [] = {0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  };
 
 const uint8_t g_preset_table_EG_OSC_AMT     [] = {64 , 64 , 72 , 64 , 64 , 72 , 64 , 64 ,   64 , 64 , 72 , 64 , 64 , 72 , 64 , 64 };
 const uint8_t g_preset_table_EG_OSC_DST     [] = {0  , 0  , 127, 0  , 0  , 127, 0  , 0  ,   0  , 0  , 127, 0  , 0  , 127, 0  , 0  };
@@ -38,10 +38,10 @@ const uint8_t g_preset_table_LFO_OSC_DST    [] = {0  , 0  , 127, 0  , 0  , 0  , 
 const uint8_t g_preset_table_LFO_FILTER_AMT [] = {64 , 88 , 64 , 88 , 88 , 88 , 64 , 64 ,   64 , 88 , 64 , 88 , 88 , 88 , 64 , 64 };
 const uint8_t g_preset_table_AMP_GAIN       [] = {90 , 90 , 76 , 90 , 107, 127, 90 , 90 ,   90 , 90 , 76 , 90 , 107, 127, 90 , 90 };
 
-const uint8_t g_preset_table_AMP_ATTACK     [] = {32 , 32 , 32 , 32 , 32 , 32 , 32 , 0  ,   32 , 32 , 32 , 32 , 32 , 32 , 32 , 0  };
-const uint8_t g_preset_table_AMP_DECAY      [] = {32 , 32 , 32 , 32 , 32 , 32 , 32 , 0  ,   32 , 32 , 32 , 32 , 32 , 32 , 32 , 0  };
+const uint8_t g_preset_table_AMP_ATTACK     [] = {0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  };
+const uint8_t g_preset_table_AMP_DECAY      [] = {0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  };
 const uint8_t g_preset_table_AMP_SUSTAIN    [] = {127, 127, 127, 127, 127, 127, 127, 127,   127, 127, 127, 127, 127, 127, 127, 127};
-const uint8_t g_preset_table_AMP_RELEASE    [] = {32 , 32 , 32 , 32 , 32 , 32 , 32 , 0  ,   32 , 32 , 32 , 32 , 32 , 32 , 32 , 0  };
+const uint8_t g_preset_table_AMP_RELEASE    [] = {0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  };
 
 const uint8_t g_preset_table_FILTER_MODE    [] = {0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  };
 const uint8_t g_preset_table_P_BEND_RANGE   [] = {12 , 12 , 12 , 12 , 12 , 12 , 12 , 12 ,   12 , 12 , 12 , 12 , 12 , 12 , 12 , 12 };
