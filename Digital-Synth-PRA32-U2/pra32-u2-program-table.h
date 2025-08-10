@@ -15,7 +15,7 @@ const uint8_t g_preset_table_OSC_2_PITCH    [] = {109, 72 , 72 , 72 , 72 , 72 , 
 
 const uint8_t g_preset_table_FILTER_CUTOFF  [] = {115, 103, 115, 115, 43 , 79 , 127, 127,   115, 103, 115, 115, 43 , 79 , 127, 127};
 const uint8_t g_preset_table_FILTER_RESO    [] = {64 , 32 , 64 , 64 , 64 , 32 , 64 , 0  ,   64 , 32 , 64 , 64 , 64 , 32 , 64 , 0  };
-const uint8_t g_preset_table_FILTER_EG_AMT  [] = {64 , 16 , 64 , 64 , 112, 64 , 64 , 64 ,   64 , 16 , 64 , 64 , 112, 64 , 64 , 64 };
+const uint8_t g_preset_table_FILTER_EG_AMT  [] = {64 , 40 , 64 , 64 , 88 , 64 , 64 , 64 ,   64 , 40 , 64 , 64 , 88 , 64 , 64 , 64 };
 const uint8_t g_preset_table_FILTER_KEY_TRK [] = {64 , 64 , 64 , 64 , 64 , 127, 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 127, 64 , 64 };
 
 const uint8_t g_preset_table_EG_ATTACK      [] = {0  , 96 , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 96 , 0  , 0  , 0  , 0  , 0  , 0  };
@@ -35,7 +35,7 @@ const uint8_t g_preset_table_LFO_DEPTH      [] = {0  , 0  , 0  , 0  , 0  , 0  , 
 
 const uint8_t g_preset_table_LFO_OSC_AMT    [] = {96 , 64 , 72 , 64 , 64 , 64 , 64 , 64 ,   96 , 64 , 72 , 64 , 64 , 64 , 64 , 64 };
 const uint8_t g_preset_table_LFO_OSC_DST    [] = {0  , 0  , 127, 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 127, 0  , 0  , 0  , 0  , 0  };
-const uint8_t g_preset_table_LFO_FILTER_AMT [] = {64 , 88 , 64 , 88 , 88 , 88 , 64 , 64 ,   64 , 88 , 64 , 88 , 88 , 88 , 64 , 64 };
+const uint8_t g_preset_table_LFO_FILTER_AMT [] = {64 , 76 , 64 , 76 , 76 , 76 , 64 , 64 ,   64 , 76 , 64 , 76 , 76 , 76 , 64 , 64 };
 const uint8_t g_preset_table_AMP_GAIN       [] = {90 , 90 , 76 , 90 , 107, 127, 90 , 90 ,   90 , 90 , 76 , 90 , 107, 127, 90 , 90 };
 
 const uint8_t g_preset_table_AMP_ATTACK     [] = {0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  };
