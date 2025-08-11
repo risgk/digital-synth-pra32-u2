@@ -468,8 +468,8 @@ private:
     return level;
   }
 
-  INLINE const uint16_t (* get_wave_shape_table(uint8_t osc1_morph_control))[128 + 1 + 1][16] {
-    static const uint16_t (* wave_shape_table[6])[128 + 1 + 1][16] = {
+  INLINE const uint16_t (* get_wave_shape_table(uint8_t osc1_morph_control))[OSC_WAVE_SHAPE_TABLE_LEN_X][OSC_WAVE_SHAPE_TABLE_LEN_Y] {
+    static const uint16_t (* wave_shape_table[6])[OSC_WAVE_SHAPE_TABLE_LEN_X][OSC_WAVE_SHAPE_TABLE_LEN_Y] = {
       &g_osc_wave_shape_table_0,
       &g_osc_wave_shape_table_1,
       &g_osc_wave_shape_table_2,
@@ -483,7 +483,7 @@ private:
     return wave_shape_table[index];
   }
 
-  INLINE uint32_t get_osc_wave_shape_data(const uint16_t (* wave_shape_table)[128 + 1 + 1][16], uint32_t shape, uint16_t saw_number) {
+  INLINE uint32_t get_osc_wave_shape_data(const uint16_t (* wave_shape_table)[OSC_WAVE_SHAPE_TABLE_LEN_X][OSC_WAVE_SHAPE_TABLE_LEN_Y], uint32_t shape, uint16_t saw_number) {
     uint16_t curr_index  = shape >> (8 - 0);
     uint16_t next_weight = shape & ((1 << (8 - 0)) - 1);
     int32_t curr_data    = (*wave_shape_table)[curr_index + 0][saw_number] << 1;
@@ -563,7 +563,7 @@ private:
       phase_modulation_depth_candidate = (phase_modulation_depth_candidate > 0) * phase_modulation_depth_candidate;
 
       uint32_t shape = phase_modulation_depth_candidate;
-      const uint16_t (* wave_shape_table)[128 + 1 + 1][16] = &g_osc_sqr_shape_table;
+      const uint16_t (* wave_shape_table)[OSC_WAVE_SHAPE_TABLE_LEN_X][OSC_WAVE_SHAPE_TABLE_LEN_Y] = &g_osc_sqr_shape_table;
 
       int32_t wave_0    = +get_wave_level(m_wave_table[N], m_phase[N]);
       int32_t wave_0_0  = +get_wave_level(m_wave_table[N + 16], m_phase[N] - get_osc_wave_shape_data(wave_shape_table, shape, 0 ));
@@ -593,7 +593,7 @@ private:
       phase_modulation_depth_candidate = (phase_modulation_depth_candidate > 0) * phase_modulation_depth_candidate;
 
       uint32_t shape = phase_modulation_depth_candidate;
-      const uint16_t (* wave_shape_table)[128 + 1 + 1][16] = get_wave_shape_table(m_osc1_morph_control);
+      const uint16_t (* wave_shape_table)[OSC_WAVE_SHAPE_TABLE_LEN_X][OSC_WAVE_SHAPE_TABLE_LEN_Y] = get_wave_shape_table(m_osc1_morph_control);
 
       int32_t wave_0_0  = +get_wave_level(m_wave_table[N + 16], m_phase[N] - get_osc_wave_shape_data(wave_shape_table, shape, 0 ));
       int32_t wave_0_1  = -get_wave_level(m_wave_table[N + 16], m_phase[N] - get_osc_wave_shape_data(wave_shape_table, shape, 1 ));
