@@ -3,6 +3,7 @@
 - v0.6.0 (2025-**-**):
     - Increase the effect of Filter EG Amt and LFO Filter Amt (2x)
     - Change the Preset programs
+    - PRA32-U2 Editor: Add markers
     - Tested with Arduino-Pico version 4.6.1
 - v0.5.1 (2025-08-03):
     - Change the Preset programs
