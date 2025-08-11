@@ -2,6 +2,7 @@
 
 - v0.6.0 (2025-**-**):
     - Increase the effect of Filter EG Amt and LFO Filter Amt (2x)
+    - Change the LFO Wave display "SH" to "S&H" (Sample & Hold)
     - Change the Preset programs
     - PRA32-U2 Editor: Add markers
     - Tested with Arduino-Pico version 4.6.1
