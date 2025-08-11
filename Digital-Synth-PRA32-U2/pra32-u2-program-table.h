@@ -19,7 +19,7 @@ const uint8_t g_preset_table_FILTER_EG_AMT  [] = {64 , 40 , 64 , 64 , 88 , 64 , 
 const uint8_t g_preset_table_FILTER_KEY_TRK [] = {64 , 64 , 64 , 64 , 64 , 127, 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 127, 64 , 64 };
 
 const uint8_t g_preset_table_EG_ATTACK      [] = {0  , 96 , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 96 , 0  , 0  , 0  , 0  , 0  , 0  };
-const uint8_t g_preset_table_EG_DECAY       [] = {0  , 96 , 96 , 64 , 96 , 96 , 0  , 0  ,   0  , 96 , 96 , 64 , 96 , 96 , 0  , 0  };
+const uint8_t g_preset_table_EG_DECAY       [] = {0  , 96 , 96 , 0  , 96 , 96 , 0  , 0  ,   0  , 96 , 96 , 0  , 96 , 96 , 0  , 0  };
 const uint8_t g_preset_table_EG_SUSTAIN     [] = {127, 0  , 0  , 127, 0  , 0  , 127, 127,   127, 0  , 0  , 127, 0  , 0  , 127, 127};
 const uint8_t g_preset_table_EG_RELEASE     [] = {0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  };
 
