@@ -87,12 +87,9 @@ end
 OSC_DETUNE_CORRECRION = 1060  # Approx. 101 cents
 
 def last_harmonic(freq)
+  correction = [freq * (OSC_DETUNE_CORRECRION - 1000) / 1000, OSC_DETUNE_FREQ_MAX].max
   last = (freq != 0) ? ((FREQUENCY_MAX * (1 << OSC_PHASE_RESOLUTION_BITS)) /
-                        (((freq * OSC_DETUNE_CORRECRION / 1000) + OSC_DETUNE_FREQ_MAX) * SAMPLING_RATE)) : 0
-  last = 9 if last == 10
-  last = 7 if last == 8
-  last = 5 if last == 6
-  last = 3 if last == 4
+                        ((freq + correction) * SAMPLING_RATE)) : 0
   last = [last, OSC_WAVE_TABLE_LAST_HARMONIC].min
   last
 end
