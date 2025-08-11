@@ -27,7 +27,7 @@
 |                            64 | x             | o             | Sustain Pedal [Off|On]               |
 |                               |               |               |                                      |
 |                               |               |               |                                      |
-|                           102 | x             | o             | Osc 1 Wave [Saw|Sqr|Tri|Sin|-|Pls]   |
+|                           102 | x             | o             | Osc 1 Wave [Saw|Sqr|Tri|Sin|WT|Pls]  |
 |                            23 | x             | o             | Mixer Noise/Sub Osc [N|S]            |
 |                            19 | x             | o             | Osc 1 Shape $2                       |
 |                            20 | x             | o             | Osc 1 Morph $2                       |
@@ -126,7 +126,7 @@
 |              : Reset          | x             | x             |                                      |
 +-------------------------------+---------------+---------------+--------------------------------------+
 | Notes                         | $1 : Disabled in Paraphonic Mode                                     |
-|                               | $2 : Disabled if Osc 1 Wave is not Saw, Sqr, Sin, or Pls             |
+|                               | $2 : Disabled if Osc 1 Wave is Tri (Triangle Wave)                   |
 |                               | $4 : To write the current parameters to Program #8-15 and the        |
 |                               |   flash, set "Program Number to Write to" (# is the value mod 16)    |
 |                               |   and then change "Write Parameters to Program" from 0 to 1-127      |

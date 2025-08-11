@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v0.6.0 (2025-**-**):
+    - Add Wave Table with Constraints (WT) to Osc 1 Wave
     - Increase the effect of Filter EG Amt and LFO Filter Amt (2x)
     - Change the LFO Wave display "SH" to "S&H" (Sample & Hold)
     - Change the Preset programs
