@@ -7,6 +7,7 @@
     - Change the LFO Wave display "SH" to "S&H" (Sample & Hold)
     - Change the Preset programs
     - PRA32-U2 Editor: Add markers
+    - Other improvements
     - Tested with Arduino-Pico version 4.6.1
 - v0.5.1 (2025-08-03):
     - Change the Preset programs
