@@ -237,7 +237,7 @@ graph LR
 ```
 
 
-## Simple Circuit for PWM Audio
+## Simple Circuit for PWM Audio (Optional)
 
 ### Circuit Diagram (Simple Circuit for PWM Audio)
 
