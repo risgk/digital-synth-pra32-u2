@@ -75,7 +75,6 @@
   `PRA32_U2_I2S_BCLK_PIN`, `PRA32_U2_I2S_SWAP_BCLK_AND_LRCLK_PINS`, and `PRA32_U2_I2S_SWAP_LEFT_AND_RIGHT`
   in "Digital-Synth-PRA32-U2.ino" to match the hardware configuration
 - The default setting is for Pimoroni [Pico Audio Pack](https://shop.pimoroni.com/products/pico-audio-pack) (PIM544)
-    - GY-PCM5102 (PCM5102A I2S DAC Module) can also be used
 ```
 #define PRA32_U2_I2S_DAC_MUTE_OFF_PIN          (22)
 #define PRA32_U2_I2S_DATA_PIN                  (9)
@@ -85,6 +84,13 @@
 #define PRA32_U2_I2S_SWAP_BCLK_AND_LRCLK_PINS  (false)
 #define PRA32_U2_I2S_SWAP_LEFT_AND_RIGHT       (false)
 ```
+- GY-PCM5102 (PCM5102A I2S DAC Module) can also be used
+    - GP22 (Pin 29) -- XSMT (optional)
+    - GP9 (Pin 12) -- DIN
+    - GP10 (Pin 14) -- BCK
+    - GP11 (Pin 15) -- LCK
+    - VSYS -- VIN
+    - GND -- SCK, GND
 - The following is setting is for [Pimoroni Pico VGA Demo Base](https://shop.pimoroni.com/products/pimoroni-pico-vga-demo-base) (PIM553)
 ```
 //#define PRA32_U2_I2S_DAC_MUTE_OFF_PIN          (0)
