@@ -17,7 +17,6 @@
             - Noise is particularly noticeable in the high frequency band and sine waves
 - Prebuilt UF2 files ("bin")
     - "Digital-Synth-PRA32-U2-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico and Pimoroni Pico Audio Pack
-    - "Digital-Synth-PRA32-U2-PWM-Audio.uf2" is for Raspberry Pi Pico and PWM Audio
 
 
 ## [Change History](./PRA32-U2-Change-History.md)
