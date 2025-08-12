@@ -55,11 +55,11 @@
         - 127 (126-127): Ratio 16.5 (max)
     - Wave Table with Constraints
         - 0 (0-12): Wave Table 0
-        - 25 (13-38): Wave Table 1
-        - 51 (39-63): Wave Table 2
-        - 76 (64-88): Wave Table 3
-        - 102 (89-114): Wave Table 4
-        - 127 (115-127): Wave Table 5
+        - 25 (13-38): Pulse Wave 0.4%, Reserved
+        - 51 (39-63): Pulse Wave 0.8%, Reserved
+        - 76 (64-88): Pulse Wave 1.2%, Reserved
+        - 102 (89-114): Pulse Wave 1.6%, Reserved
+        - 127 (115-127): Pulse Wave 2.0%, Reserved
     - Pulse Wave
         - 0: Pulse 100% = Saw 100% + Reverse Saw 100% (min)
         - 32: Pulse 50% + Saw 50% = Saw 100% + Reverse Saw 50%
