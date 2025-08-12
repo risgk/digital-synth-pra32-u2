@@ -8,15 +8,16 @@
     - Change the Preset programs
     - PRA32-U2 Editor: Add markers
     - Other improvements
-    - KNOWN ISSUE: When using PWM Audio, signal discontinuity occurs approximately every 60-80 milliseconds
+    - Discontinue the binary release of "Digital-Synth-PRA32-U2-PWM-Audio.uf2"
     - Tested with Arduino-Pico version 4.7.1
+    - KNOWN ISSUE: When using PWM Audio, signal discontinuity occurs approximately every 60-80 milliseconds
 - v0.5.1 (2025-08-03):
     - Change the Preset programs
     - Fix a problem where sampling does not occur at Note On when LFO Wave is Sample & Hold (SH)
     - Improve documentation
+    - Tested with Arduino-Pico version 4.6.1
     - KNOWN ISSUE: When using PWM Audio, signal discontinuity occurs approximately every 60-80 milliseconds
         - Noise is particularly noticeable in the high frequency band and sine waves
-    - Tested with Arduino-Pico version 4.6.1
 - v0.5.0 (2025-08-03):
     - Add the Delay Level control
     - Change the control number of Chorus Mix (34 -> 93)
