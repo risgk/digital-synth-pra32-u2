@@ -71,7 +71,7 @@
     - 25 (13-38): Square Wave
     - 51 (39-63): Triangle Wave
     - 76 (64-88): Sine Wave
-    - 102 (89-114): Sine Wave
+    - 102 (89-114): Sine Wave, Reserved
     - 127 (115-127): White Noise
 - Mixer Osc Mix [1|2]
 - Osc 2 Coarse [-|+]
@@ -159,7 +159,7 @@
 - Voice Mode [Pol|Par|-|Mon|LP|Lgt]
     - 0 (0-12): Polyphonic (LFO Single Trigger)
     - 25 (13-38): Paraphonic (LFO Single Trigger)
-    - 51 (39-63): Monophonic (EG & LFO Multi Trigger)
+    - 51 (39-63): Monophonic (EG & LFO Multi Trigger), Reserved
     - 76 (64-88): Monophonic (EG & LFO Multi Trigger)
     - 102 (89-114): Legato Portamento (Monophonic, EG & LFO Single Trigger, Auto Portamento)
     - 127 (115-127): Legato (Monophonic, EG & LFO Single Trigger)
@@ -171,7 +171,7 @@
 - LFO Wave [Tri|Sin|-|Saw|S&H|Sqr]
     - 0 (0-12): Triangle Wave (Key Trigger Off, -0.5 to +0.5)
     - 25 (13-38): Sine Wave (Key Trigger Off, -0.5 to +0.5)
-    - 51 (39-63): Saw Wave (Key Trigger On, -0.5 to +0.5)
+    - 51 (39-63): Saw Wave (Key Trigger On, -0.5 to +0.5), Reserved
     - 76 (64-88): Saw Wave (Key Trigger On, -0.5 to +0.5)
     - 102 (89-114): Sample & Hold (Key Trigger On, -0.5 to +0.5)
     - 127 (115-127): Square Wave (Key Trigger On, 0.0 to 1.0)
