@@ -55,7 +55,7 @@
         - 127 (126-127): Ratio 16.5 (max)
     - Wave Table with Constraints
         - 0 (0-12): Wave Table 0
-        - 25 (13-38): Pulse Wave 0.4%, Reserved
+        - 25 (13-38): Wave Table 1
         - 51 (39-63): Pulse Wave 0.8%, Reserved
         - 76 (64-88): Pulse Wave 1.2%, Reserved
         - 102 (89-114): Pulse Wave 1.6%, Reserved
