@@ -17,7 +17,7 @@
     - Improve documentation
     - Tested with Arduino-Pico version 4.6.1
     - KNOWN ISSUE: When using PWM Audio, signal discontinuity occurs approximately every 60-80 milliseconds
-        - Noise is particularly noticeable in the high frequency band and sine waves
+        - Click noise is particularly noticeable in the high frequency band and sine waves
 - v0.5.0 (2025-08-03):
     - Add the Delay Level control
     - Change the control number of Chorus Mix (34 -> 93)
