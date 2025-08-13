@@ -245,6 +245,11 @@ graph LR
 ```
 
 
+## Wave Table Graphs
+
+![Wave Table Graphs](./pra32-u2-wave-table-graphs.png)
+
+
 ## Simple Circuit for PWM Audio (Optional)
 
 ### Circuit Diagram (Simple Circuit for PWM Audio)
