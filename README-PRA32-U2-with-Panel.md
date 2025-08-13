@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 with Panel v0.5.1
+# Digital Synth PRA32-U2 with Panel v0.6.0
 
-- 2025-08-03 ISGK Instruments
+- 2025-08-13 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 
@@ -98,7 +98,7 @@
 
 - This image was created with Fritzing.
     - Actually, it is necessary to use Raspberry Pi Pico 2 (instead of Raspberry Pi Pico)
-    - GP17 -> SW3 -> GND (optional) is omitted
+    - GP17 -- SW3 -- GND (optional) is omitted
 - NOTE: Unlike Digital Synth PRA32-U v3.1.0, the switches are low active and RP2350 uses internal pull-up to avoid RP2350-E9 Erratum
 
 

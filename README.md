@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 v0.5.1
+# Digital Synth PRA32-U2 v0.6.0
 
-- 2025-08-03 ISGK Instruments
+- 2025-08-13 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 
@@ -13,9 +13,10 @@
 - Modifiable with Arduino IDE and Arduino-Pico (by Earle F. Philhower, III)
 - An **I2S DAC** hardware (e.g. Pimoroni Pico Audio Pack) is required
     - PWM Audio can also be used instead of I2S (PWM Audio does not require an I2S DAC hardware)
+        - KNOWN ISSUE: When using PWM Audio, signal discontinuity occurs approximately every 60-80 milliseconds
+            - Click noise is particularly noticeable in the high frequency band and sine waves
 - Prebuilt UF2 files ("bin")
     - "Digital-Synth-PRA32-U2-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico and Pimoroni Pico Audio Pack
-    - "Digital-Synth-PRA32-U2-PWM-Audio.uf2" is for Raspberry Pi Pico and PWM Audio
 
 
 ## [Change History](./PRA32-U2-Change-History.md)
@@ -28,7 +29,7 @@
     - Info: <https://www.arduino.cc/en/software>
 - Please install Arduino-Pico = **Raspberry Pi Pico/RP2040/RP2350** (by Earle F. Philhower, III) core
     - Additional Board Manager URL: <https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json>
-    - This sketch is tested with version **4.6.1**: <https://github.com/earlephilhower/arduino-pico/releases/tag/4.6.1>
+    - This sketch is tested with version **4.7.1**: <https://github.com/earlephilhower/arduino-pico/releases/tag/4.7.1>
     - Info: <https://github.com/earlephilhower/arduino-pico>
 - Please install Arduino **MIDI Library** (by Francois Best, lathoub)
     - This sketch is tested with version **5.0.2**: <https://github.com/FortySevenEffects/arduino_midi_library/releases/tag/5.0.2>
@@ -74,7 +75,6 @@
   `PRA32_U2_I2S_BCLK_PIN`, `PRA32_U2_I2S_SWAP_BCLK_AND_LRCLK_PINS`, and `PRA32_U2_I2S_SWAP_LEFT_AND_RIGHT`
   in "Digital-Synth-PRA32-U2.ino" to match the hardware configuration
 - The default setting is for Pimoroni [Pico Audio Pack](https://shop.pimoroni.com/products/pico-audio-pack) (PIM544)
-    - GY-PCM5102 (PCM5102A I2S DAC Module) can also be used
 ```
 #define PRA32_U2_I2S_DAC_MUTE_OFF_PIN          (22)
 #define PRA32_U2_I2S_DATA_PIN                  (9)
@@ -84,6 +84,13 @@
 #define PRA32_U2_I2S_SWAP_BCLK_AND_LRCLK_PINS  (false)
 #define PRA32_U2_I2S_SWAP_LEFT_AND_RIGHT       (false)
 ```
+- GY-PCM5102 (PCM5102A I2S DAC Module) can also be used
+    - GP22 (Pin 29) -- XSMT (optional)
+    - GP9 (Pin 12) -- DIN
+    - GP10 (Pin 14) -- BCK
+    - GP11 (Pin 15) -- LCK
+    - VSYS -- VIN
+    - GND -- SCK, GND
 - The following is setting is for [Pimoroni Pico VGA Demo Base](https://shop.pimoroni.com/products/pimoroni-pico-vga-demo-base) (PIM553)
 ```
 //#define PRA32_U2_I2S_DAC_MUTE_OFF_PIN          (0)
@@ -123,6 +130,8 @@
 #define PRA32_U2_PWM_AUDIO_L_PIN               (28)
 #define PRA32_U2_PWM_AUDIO_R_PIN               (27)
 ```
+- KNOWN ISSUE: When using PWM Audio, signal discontinuity occurs approximately every 60-80 milliseconds
+    - Click noise is particularly noticeable in the high frequency band and sine waves
 
 
 ## Files
@@ -236,7 +245,7 @@ graph LR
 ```
 
 
-## Simple Circuit for PWM Audio
+## Simple Circuit for PWM Audio (Optional)
 
 ### Circuit Diagram (Simple Circuit for PWM Audio)
 
@@ -264,11 +273,11 @@ graph LR
 
 ![CC0](http://i.creativecommons.org/p/zero/1.0/88x31.png)
 
-**Digital Synth PRA32-U2 v0.5.1 by ISGK Instruments (Ryo Ishigaki)**
+**Digital Synth PRA32-U2 v0.6.0 by ISGK Instruments (Ryo Ishigaki)**
 
 To the extent possible under law, ISGK Instruments (Ryo Ishigaki)
 has waived all copyright and related or neighboring rights
-to Digital Synth PRA32-U2 v0.5.1.
+to Digital Synth PRA32-U2 v0.6.0.
 
 You should have received a copy of the CC0 legalcode along with this
 work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.

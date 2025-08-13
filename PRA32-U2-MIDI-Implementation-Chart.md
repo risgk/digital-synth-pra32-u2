@@ -1,6 +1,6 @@
 ```
-  [Polyphonic/Paraphonic Synthesizer]                             Date: 2025-08-03                      
-  Model: Digital Synth PRA32-U2   MIDI Implementation Chart       Version: 0.5.1                        
+  [Polyphonic/Paraphonic Synthesizer]                             Date: 2025-08-13                      
+  Model: Digital Synth PRA32-U2   MIDI Implementation Chart       Version: 0.6.0                        
 +-------------------------------+---------------+---------------+--------------------------------------+
 | Function...                   | Transmitted   | Recognized    | Remarks                              |
 +-------------------------------+---------------+---------------+--------------------------------------+
@@ -27,7 +27,7 @@
 |                            64 | x             | o             | Sustain Pedal [Off|On]               |
 |                               |               |               |                                      |
 |                               |               |               |                                      |
-|                           102 | x             | o             | Osc 1 Wave [Saw|Sqr|Tri|Sin|-|Pls]   |
+|                           102 | x             | o             | Osc 1 Wave [Saw|Sqr|Tri|Sin|WT|Pls]  |
 |                            23 | x             | o             | Mixer Noise/Sub Osc [N|S]            |
 |                            19 | x             | o             | Osc 1 Shape $2                       |
 |                            20 | x             | o             | Osc 1 Morph $2                       |
@@ -52,7 +52,7 @@
 |                            18 | x             | o             | Voice Mode [Pol|Par|-|Mon|LP|Lgt]    |
 |                             5 | x             | o             | Portamento                           |
 |                               |               |               |                                      |
-|                            33 | x             | o             | LFO Wave [Tri|Sin|-|Saw|SH|Sqr]      |
+|                            33 | x             | o             | LFO Wave [Tri|Sin|-|Saw|S&H|Sqr]     |
 |                            56 | x             | o             | LFO Fade Time                        |
 |                             3 | x             | o             | LFO Rate                             |
 |                            17 | x             | o             | LFO Depth                            |
@@ -126,7 +126,7 @@
 |              : Reset          | x             | x             |                                      |
 +-------------------------------+---------------+---------------+--------------------------------------+
 | Notes                         | $1 : Disabled in Paraphonic Mode                                     |
-|                               | $2 : Disabled if Osc 1 Wave is not Saw, Sqr, Sin, or Pls             |
+|                               | $2 : Disabled if Osc 1 Wave is Tri (Triangle Wave)                   |
 |                               | $4 : To write the current parameters to Program #8-15 and the        |
 |                               |   flash, set "Program Number to Write to" (# is the value mod 16)    |
 |                               |   and then change "Write Parameters to Program" from 0 to 1-127      |

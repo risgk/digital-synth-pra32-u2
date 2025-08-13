@@ -1,19 +1,19 @@
-# Digital Synth PRA32-U2 Parameter Guide v0.5.1
+# Digital Synth PRA32-U2 Parameter Guide v0.6.0
 
-- 2025-08-03 ISGK Instruments
+- 2025-08-13 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 ## Control Change Parameters
 
 - Notes
     - $1 : Disabled in Paraphonic Mode
-    - $2 : Disabled if Osc 1 Wave is not Saw, Sqr, Sin, or Pls
-- Osc 1 Wave [Saw|Sqr|Tri|Sin|-|Pls]
+    - $2 : Disabled if Osc 1 Wave is Tri (Triangle Wave)
+- Osc 1 Wave [Saw|Sqr|Tri|Sin|WT|Pls]
     - 0 (0-12): Saw Wave
     - 25 (13-38): Square Wave
     - 51 (39-63): Triangle Wave
     - 76 (64-88): Sine Wave
-    - 102 (89-114): Sine Wave
+    - 102 (89-114): Wave Table with Constraints
     - 127 (115-127): Pulse Wave
 - Mixer Noise/Sub Osc [N|S]
     - -64 (0): Noise 100%
@@ -28,6 +28,7 @@
     - Saw Wave: Multi Saw Detune
     - Square Wave: Sync Square Pitch
     - Sine Wave (Frequency Modulation or Phase Modulation): Modulation Depth
+    - Wave Table with Constraints: Position
     - Pulse Wave (= 1st Saw + Phase Shifted 2nd Saw)
         - 0: Pulse Width 50%, or 2nd Saw Phase 50% (min)
         - 64: Pulse Width 25%, or 2nd Saw Phase 25%
@@ -52,6 +53,13 @@
         - 108 (106-109): Ratio 14.0
         - 124 (122-125): Ratio 16.0
         - 127 (126-127): Ratio 16.5 (max)
+    - Wave Table with Constraints
+        - 0 (0-12): Wave Table 0
+        - 25 (13-38): Wave Table 0, Reserved
+        - 51 (39-63): Wave Table 3, Reserved
+        - 76 (64-88): Wave Table 3
+        - 102 (89-114): Wave Table 5, Reserved
+        - 127 (115-127): Wave Table 5
     - Pulse Wave
         - 0: Pulse 100% = Saw 100% + Reverse Saw 100% (min)
         - 32: Pulse 50% + Saw 50% = Saw 100% + Reverse Saw 50%
@@ -63,7 +71,7 @@
     - 25 (13-38): Square Wave
     - 51 (39-63): Triangle Wave
     - 76 (64-88): Sine Wave
-    - 102 (89-114): Sine Wave
+    - 102 (89-114): Sine Wave, Reserved
     - 127 (115-127): White Noise
 - Mixer Osc Mix [1|2]
 - Osc 2 Coarse [-|+]
@@ -95,8 +103,8 @@
     - 112 (111-112): Q = 5.6
     - 127: Q = 8.0 (max)
 - Filter EG Amt [-|+], LFO Filter Amt [-|+]
-    - -60 (4): -60 (min)
-    - +60 (124): +60 (max)
+    - -60 (4): -120 (min)
+    - +60 (124): +120 (max)
 - Filter Key Track [-|+] $1
     - 0 (0-3): -1.000 (min)
     - 8 (4-11): -0.875
@@ -151,7 +159,7 @@
 - Voice Mode [Pol|Par|-|Mon|LP|Lgt]
     - 0 (0-12): Polyphonic (LFO Single Trigger)
     - 25 (13-38): Paraphonic (LFO Single Trigger)
-    - 51 (39-63): Monophonic (EG & LFO Multi Trigger)
+    - 51 (39-63): Monophonic (EG & LFO Multi Trigger), Reserved
     - 76 (64-88): Monophonic (EG & LFO Multi Trigger)
     - 102 (89-114): Legato Portamento (Monophonic, EG & LFO Single Trigger, Auto Portamento)
     - 127 (115-127): Legato (Monophonic, EG & LFO Single Trigger)
@@ -160,10 +168,10 @@
     - 1: Portamento Time 1.1 ms
     - 64: Portamento Time 100 ms
     - 127: Portamento Time 9.3 s
-- LFO Wave [Tri|Sin|-|Saw|SH|Sqr]
+- LFO Wave [Tri|Sin|-|Saw|S&H|Sqr]
     - 0 (0-12): Triangle Wave (Key Trigger Off, -0.5 to +0.5)
     - 25 (13-38): Sine Wave (Key Trigger Off, -0.5 to +0.5)
-    - 51 (39-63): Saw Wave (Key Trigger On, -0.5 to +0.5)
+    - 51 (39-63): Saw Wave (Key Trigger On, -0.5 to +0.5), Reserved
     - 76 (64-88): Saw Wave (Key Trigger On, -0.5 to +0.5)
     - 102 (89-114): Sample & Hold (Key Trigger On, -0.5 to +0.5)
     - 127 (115-127): Square Wave (Key Trigger On, 0.0 to 1.0)

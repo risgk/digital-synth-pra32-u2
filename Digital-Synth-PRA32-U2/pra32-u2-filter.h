@@ -89,11 +89,11 @@ public:
   }
 
   INLINE void set_cutoff_eg_amt(uint8_t controller_value) {
-    m_cutoff_eg_amt = get_cutoff_mod_amt(controller_value);
+    m_cutoff_eg_amt = get_cutoff_mod_amt(controller_value) << 1;
   }
 
   INLINE void set_cutoff_lfo_amt(uint8_t controller_value) {
-    m_cutoff_lfo_amt = get_cutoff_mod_amt(controller_value);
+    m_cutoff_lfo_amt = get_cutoff_mod_amt(controller_value) << 1;
   }
 
   INLINE void set_cutoff_pitch_amt(uint8_t controller_value) {
