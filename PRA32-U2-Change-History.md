@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v0.6.0 (2025-**-**):
+- v0.6.0 (2025-08-13):
     - Add Wave Table with Constraints (WT) to Osc 1 Wave
     - Improve Oscillator wave tables to include more harmonics
     - Increase the effect of Filter EG Amt and LFO Filter Amt (2x)
