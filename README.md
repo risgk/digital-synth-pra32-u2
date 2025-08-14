@@ -76,7 +76,7 @@
   in "Digital-Synth-PRA32-U2.ino" to match the hardware configuration
     - Define `PRA32_U2_I2S_DAC_MUTE_OFF_PIN` and connect this pin to the I2S DAC mute off pin to reduce noise when writing the parameters to the flash
 - The default setting is for Pimoroni [Pico Audio Pack](https://shop.pimoroni.com/products/pico-audio-pack) (PIM544)
-    - [Adafruit PCM510x I2S DAC](https://www.adafruit.com/product/6250) (Product ID: 6250) and GY-PCM5102 (PCM5102A I2S DAC Module) can also be used
+    - [Adafruit PCM5102 I2S DAC](https://www.adafruit.com/product/6250) (Product ID: 6250), [Adafruit PCM5100 I2S DAC](https://www.adafruit.com/product/6251) (Product ID: 6251), and GY-PCM5102 (PCM5102A I2S DAC Module) can also be used
 ```
 #define PRA32_U2_I2S_DAC_MUTE_OFF_PIN          (22)
 #define PRA32_U2_I2S_DATA_PIN                  (9)
