@@ -74,6 +74,7 @@
 - Modify `PRA32_U2_I2S_DAC_MUTE_OFF_PIN`, `PRA32_U2_I2S_DATA_PIN`, `PRA32_U2_I2S_MCLK_PIN`, `PRA32_U2_I2S_MCLK_MULT`,
   `PRA32_U2_I2S_BCLK_PIN`, `PRA32_U2_I2S_SWAP_BCLK_AND_LRCLK_PINS`, and `PRA32_U2_I2S_SWAP_LEFT_AND_RIGHT`
   in "Digital-Synth-PRA32-U2.ino" to match the hardware configuration
+    - Defining `PRA32_U2_I2S_DAC_MUTE_OFF_PIN` reduces noise when writing the parameters to the flash
 - The default setting is for Pimoroni [Pico Audio Pack](https://shop.pimoroni.com/products/pico-audio-pack) (PIM544)
 ```
 #define PRA32_U2_I2S_DAC_MUTE_OFF_PIN          (22)
