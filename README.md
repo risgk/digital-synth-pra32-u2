@@ -90,7 +90,7 @@
     - GP9 (Pin 12) -- DIN
     - GP10 (Pin 14) -- BCK
     - GP11 (Pin 15) -- LCK
-    - VSYS -- VIN
+    - VSYS (Pin 39) -- VIN
     - GND -- SCK, GND
 - The following is setting is for [Pimoroni Pico VGA Demo Base](https://shop.pimoroni.com/products/pimoroni-pico-vga-demo-base) (PIM553)
 ```
