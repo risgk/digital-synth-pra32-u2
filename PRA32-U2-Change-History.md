@@ -3,6 +3,7 @@
 - v0.6.1 (2025-**-**):
     - Change the preset programs
     - Add Wave Table Graphs to README
+    - Other improvements
     - Tested with Arduino-Pico version 4.7.1
     - KNOWN ISSUE: When using PWM Audio, signal discontinuity occurs approximately every 60-80 milliseconds
 - v0.6.0 (2025-08-13):
