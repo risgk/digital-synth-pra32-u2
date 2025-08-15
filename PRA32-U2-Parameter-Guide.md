@@ -13,7 +13,7 @@
     - 25 (13-38): Square Wave
     - 51 (39-63): Triangle Wave
     - 76 (64-88): Sine Wave
-    - 102 (89-114): Wave Table with Constraints
+    - 102 (89-114): Wave Tables with Constraints
     - 127 (115-127): Pulse Wave
 - Mixer Noise/Sub Osc [N|S]
     - -64 (0): Noise 100%
@@ -28,7 +28,7 @@
     - Saw Wave: Multi Saw Detune
     - Square Wave: Sync Square Pitch
     - Sine Wave (Frequency Modulation or Phase Modulation): Modulation Depth
-    - Wave Table with Constraints: Position
+    - Wave Tables with Constraints: Position
     - Pulse Wave (= 1st Saw + Phase Shifted 2nd Saw)
         - 0: Pulse Width 50%, or 2nd Saw Phase 50% (min)
         - 64: Pulse Width 25%, or 2nd Saw Phase 25%
@@ -53,13 +53,13 @@
         - 108 (106-109): Ratio 14.0
         - 124 (122-125): Ratio 16.0
         - 127 (126-127): Ratio 16.5 (max)
-    - Wave Table with Constraints
-        - 0 (0-12): Wave Table 0
+    - Wave Tables with Constraints
+        - 0 (0-12): Wave Table 0 (6+0 to 0+10)
         - 25 (13-38): Wave Table 0, Reserved
         - 51 (39-63): Wave Table 3, Reserved
-        - 76 (64-88): Wave Table 3
+        - 76 (64-88): Wave Table 3 (8+0 to 0+8)
         - 102 (89-114): Wave Table 5, Reserved
-        - 127 (115-127): Wave Table 5
+        - 127 (115-127): Wave Table 5 (Serial Sync 8/3)
     - Pulse Wave
         - 0: Pulse 100% = Saw 100% + Reverse Saw 100% (min)
         - 32: Pulse 50% + Saw 50% = Saw 100% + Reverse Saw 50%
