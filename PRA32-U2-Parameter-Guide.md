@@ -54,12 +54,12 @@
         - 124 (122-125): Ratio 16.0
         - 127 (126-127): Ratio 16.5 (max)
     - Wave Tables with Constraints
-        - 0 (0-12): Wave Table 0 (6+0 to 0+10)
-        - 25 (13-38): Wave Table 0, Reserved
+        - 0 (0-12): Wave Table 0 (Sync Pulse 1/8)
+        - 25 (13-38): Wave Table 1 (Serial Sync 8/3)
         - 51 (39-63): Wave Table 3, Reserved
-        - 76 (64-88): Wave Table 3 (8+0 to 0+8)
-        - 102 (89-114): Wave Table 5, Reserved
-        - 127 (115-127): Wave Table 5 (Serial Sync 8/3)
+        - 76 (64-88): Wave Table 3 (Sync & Ring)
+        - 102 (89-114): Wave Table 4 (8+0 to 0+8)
+        - 127 (115-127): Wave Table 5 (6+0 to 0+10)
     - Pulse Wave
         - 0: Pulse 100% = Saw 100% + Reverse Saw 100% (min)
         - 32: Pulse 50% + Saw 50% = Saw 100% + Reverse Saw 50%
