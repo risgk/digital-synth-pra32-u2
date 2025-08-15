@@ -56,8 +56,8 @@
     - Wave Tables with Constraints
         - 0 (0-12): Wave Table 0 (Sync Pulse 1/8)
         - 25 (13-38): Wave Table 1 (Sync Pulse 1/4)
-        - 51 (39-63): Wave Table 2 (Sync & Ring)
-        - 76 (64-88): Wave Table 3 (Serial Sync 8/3)
+        - 51 (39-63): Wave Table 2 (Serial Sync 8/3)
+        - 76 (64-88): Wave Table 3 (Sync & Ring)
         - 102 (89-114): Wave Table 4 (8+0 to 0+8)
         - 127 (115-127): Wave Table 5 (6+0 to 0+10)
     - Pulse Wave
