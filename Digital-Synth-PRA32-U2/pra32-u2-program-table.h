@@ -33,7 +33,7 @@ const uint8_t g_preset_table_LFO_FADE_TIME  [] = {0  , 0  , 0  , 0  , 0  , 0  , 
 const uint8_t g_preset_table_LFO_RATE       [] = {80 , 80 , 80 , 80 , 80 , 80 , 80 , 80 ,   80 , 80 , 80 , 80 , 80 , 80 , 80 , 80 };
 const uint8_t g_preset_table_LFO_DEPTH      [] = {0  , 0  , 0  , 0  , 0  , 0  , 127, 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 127, 0  };
 
-const uint8_t g_preset_table_LFO_OSC_AMT    [] = {96 , 64 , 72 , 64 , 64 , 64 , 64 , 64 ,   96 , 64 , 72 , 64 , 64 , 64 , 64 , 64 };
+const uint8_t g_preset_table_LFO_OSC_AMT    [] = {119, 64 , 72 , 64 , 64 , 64 , 64 , 64 ,   119, 64 , 72 , 64 , 64 , 64 , 64 , 64 };
 const uint8_t g_preset_table_LFO_OSC_DST    [] = {0  , 0  , 127, 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 127, 0  , 0  , 0  , 0  , 0  };
 const uint8_t g_preset_table_LFO_FILTER_AMT [] = {64 , 76 , 64 , 76 , 76 , 76 , 64 , 64 ,   64 , 76 , 64 , 76 , 76 , 76 , 64 , 64 };
 const uint8_t g_preset_table_AMP_GAIN       [] = {100, 100, 90 , 100, 110, 127, 100, 100,   100, 100, 90 , 100, 110, 127, 100, 100};
