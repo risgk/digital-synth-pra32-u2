@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v0.6.1 (2025-**-**):
+    - Change Wave Tables with Constraints
     - Change the preset programs
     - Add Wave Table Graphs to README
     - Other improvements
