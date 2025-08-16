@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 Parameter Guide v0.6.0
+# Digital Synth PRA32-U2 Parameter Guide v0.7.0
 
-- 2025-08-13 ISGK Instruments
+- 2025-08-16 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 ## Control Change Parameters
@@ -13,7 +13,7 @@
     - 25 (13-38): Square Wave
     - 51 (39-63): Triangle Wave
     - 76 (64-88): Sine Wave
-    - 102 (89-114): Wave Table with Constraints
+    - 102 (89-114): Wave Tables with Constraints
     - 127 (115-127): Pulse Wave
 - Mixer Noise/Sub Osc [N|S]
     - -64 (0): Noise 100%
@@ -28,7 +28,7 @@
     - Saw Wave: Multi Saw Detune
     - Square Wave: Sync Square Pitch
     - Sine Wave (Frequency Modulation or Phase Modulation): Modulation Depth
-    - Wave Table with Constraints: Position
+    - Wave Tables with Constraints: Position
     - Pulse Wave (= 1st Saw + Phase Shifted 2nd Saw)
         - 0: Pulse Width 50%, or 2nd Saw Phase 50% (min)
         - 64: Pulse Width 25%, or 2nd Saw Phase 25%
@@ -53,13 +53,13 @@
         - 108 (106-109): Ratio 14.0
         - 124 (122-125): Ratio 16.0
         - 127 (126-127): Ratio 16.5 (max)
-    - Wave Table with Constraints
-        - 0 (0-12): Wave Table 0
-        - 25 (13-38): Wave Table 0, Reserved
-        - 51 (39-63): Wave Table 3, Reserved
-        - 76 (64-88): Wave Table 3
-        - 102 (89-114): Wave Table 5, Reserved
-        - 127 (115-127): Wave Table 5
+    - Wave Tables with Constraints
+        - 0 (0-12): Wave Table 0 (Sync Pulse 1/8)
+        - 25 (13-38): Wave Table 1 (Sync Pulse 1/4)
+        - 51 (39-63): Wave Table 2 (Serial Sync 8/3)
+        - 76 (64-88): Wave Table 3 (Sync & Ring)
+        - 102 (89-114): Wave Table 4 (8+0 to 0+8)
+        - 127 (115-127): Wave Table 5 (6+0 to 0+10)
     - Pulse Wave
         - 0: Pulse 100% = Saw 100% + Reverse Saw 100% (min)
         - 32: Pulse 50% + Saw 50% = Saw 100% + Reverse Saw 50%

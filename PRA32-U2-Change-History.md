@@ -1,5 +1,12 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v0.7.0 (2025-08-16):
+    - Change Wave Tables with Constraints (Wave Table 0-5)
+    - Change the preset programs
+    - Add Wave Table Graphs to README
+    - Other improvements
+    - Tested with Arduino-Pico version 4.7.1
+    - KNOWN ISSUE: When using PWM Audio, signal discontinuity occurs approximately every 60-80 milliseconds
 - v0.6.0 (2025-08-13):
     - Add Wave Table with Constraints (WT) to Osc 1 Wave
     - Improve Oscillator wave tables to include more harmonics
