@@ -203,8 +203,8 @@
     - 127 (64-127): On, EG Release = EG Decay and Amp Release = Amp Decay
         - **NOTE**: EG Velocity Sensitivity and Amp Velocity Sensitivity works independently
 - Breath Filter Amt [-|+]
-    - -60 (4): -60 (min)
-    - +60 (124): +60 (max)
+    - -60 (4): -120 (min)
+    - +60 (124): +120 (max)
 - Breath Amp Mod [Off|Qad|Lin]
     - 0 (0-31): Off
     - 64 (32-95): Quadratic Curve
