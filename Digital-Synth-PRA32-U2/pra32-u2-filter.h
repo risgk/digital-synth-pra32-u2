@@ -105,7 +105,7 @@ public:
   }
 
   INLINE void set_cutoff_breath_amt(uint8_t controller_value) {;
-    m_cutoff_breath_amt = get_cutoff_mod_amt(controller_value);
+    m_cutoff_breath_amt = get_cutoff_mod_amt(controller_value) << 1;
   }
 
   INLINE void set_breath_controller(uint8_t controller_value) {
