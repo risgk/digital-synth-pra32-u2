@@ -17,12 +17,12 @@
     - 127 (115-127): Pulse Wave
 - Mixer Noise/Sub Osc [N|S]
     - -64 (0): Noise 100%
-    - -63 (1): Noise 98.4%
-    - -62 (2): Noise 96.9%
-    - -1 (63): Noise 1.6%
-    - +0 (64): 0%
-    - +1 (65): Sub Osc 1.6%
-    - +62 (126): Sub Osc 96.9%
+    - -63 (1), -62 (2): Noise 96.9%
+    - -3 (61), -2 (62): Noise 3.1%
+    - -1 (63): Noise 0%
+    - +0 (64): Sub 0%
+    - +1 (65), +2 (66): Sub Osc 3.1%
+    - +61 (125), +62 (126): Sub Osc 96.9%
     - +63 (127): Sub Osc 100%
 - Osc 1 Shape $2
     - Saw Wave: Multi Saw Detune
