@@ -150,8 +150,15 @@
         - +55 (119): +24 semitone
         - +61 (125): +30 semitone (max)
     - Shape
-        - -63 (1): Shape -252 (min)
-        - +63 (127): Shape +252 (max)
+        - -63 (1): Shape -256 (min)
+        - -62 (2): Shape -248
+        - -61 (3): Shape -244
+        - -1 (63): Shape -4
+        - +0 (64): Shape +0
+        - +1 (65): Shape +4
+        - +61 (125): Shape +244
+        - +62 (126): Shape +248
+        - +63 (127): Shape +256 (max)
 - EG Osc Dst [P|2P|1S], LFO Osc Dst [P|2P|1S]
     - 0 (0-31): Osc 1 & 2 Pitch
     - 64 (32-95): Osc 2 Pitch
