@@ -62,8 +62,8 @@ class PRA32_U2_Osc {
   int8_t         m_mixer_noise_sub_osc_control;
   int8_t         m_mixer_noise_sub_osc_control_effective;
   int16_t        m_mix_table[OSC_MIX_TABLE_LENGTH];
-  int8_t         m_shape_eg_amt;
-  int8_t         m_shape_lfo_amt;
+  int16_t        m_shape_eg_amt;
+  int16_t        m_shape_lfo_amt;
 
 public:
   PRA32_U2_Osc()
@@ -274,9 +274,12 @@ public:
   }
 
   INLINE void set_shape_eg_amt(uint8_t controller_value) {
-    if (controller_value == 0) {
-      controller_value = 1;
+    if (controller_value == 1) {
+      controller_value = 0;
+    } else if (controller_value == 127) {
+      controller_value = 128;
     }
+
     m_shape_eg_amt = ((controller_value - 64) << 1);
   }
 
@@ -286,9 +289,12 @@ public:
   }
 
   INLINE void set_shape_lfo_amt(uint8_t controller_value) {
-    if (controller_value == 0) {
-      controller_value = 1;
+    if (controller_value == 1) {
+      controller_value = 0;
+    } else if (controller_value == 127) {
+      controller_value = 128;
     }
+
     m_shape_lfo_amt = -((controller_value - 64) << 1);
   }
 
