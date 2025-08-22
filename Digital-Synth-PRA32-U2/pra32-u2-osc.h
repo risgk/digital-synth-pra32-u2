@@ -242,7 +242,13 @@ public:
   }
 
   INLINE void set_mixer_sub_osc_control(uint8_t controller_value) {
-    m_mixer_noise_sub_osc_control = (((controller_value - 63) >> 1) << 1);
+    if (controller_value == 1) {
+      controller_value = 0;
+    } else if (controller_value == 127) {
+      controller_value = 128;
+    }
+
+    m_mixer_noise_sub_osc_control = controller_value - 64;
   }
 
   INLINE int16_t get_pitch_mod_amt_table(uint8_t controller_value) {
