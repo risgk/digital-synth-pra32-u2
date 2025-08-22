@@ -74,7 +74,11 @@ public:
 
   template <uint8_t N>
   INLINE void set_lfo_depth(uint8_t controller_value) {
-    m_lfo_depth[N] = (controller_value + 1) >> 1;
+    if (controller_value == 127) {
+      controller_value = 128;
+    }
+
+    m_lfo_depth[N] = controller_value;
   }
 
   INLINE void set_lfo_fade_time(uint8_t controller_value) {
@@ -168,10 +172,9 @@ private:
 
 
     uint8_t lfo_depth = high_byte((m_lfo_depth[0] << 1) * m_lfo_fade_level) + m_lfo_depth[1];
-    if (lfo_depth > 64) {
-      lfo_depth = 64;
+    if (lfo_depth > 128) {
+      lfo_depth = 128;
     }
-    lfo_depth <<= 1;
 
     m_lfo_level = (lfo_depth * m_lfo_wave_level) >> 7;
   }

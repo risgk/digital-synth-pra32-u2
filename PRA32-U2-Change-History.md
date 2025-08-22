@@ -2,6 +2,7 @@
 
 - v0.8.0 (2025-**-**):
     - Increase the effect of Breath Filter Amt (2x)
+    - Improve the resolution of Mixer Noise/Sub Osc and LFO Depth
     - Extend EG Osc Amt and LFO Osc Amt (Pitch) range
     - Change the meaning values 0, 1, and 127 of EG Osc Amt and LFO Osc Amt (Shape)
     - Change the preset programs

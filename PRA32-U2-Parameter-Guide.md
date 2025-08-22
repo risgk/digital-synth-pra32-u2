@@ -16,14 +16,15 @@
     - 102 (89-114): Wave Tables with Constraints
     - 127 (115-127): Pulse Wave
 - Mixer Noise/Sub Osc [N|S]
-    - -64 (0): Noise 100%
-    - -63 (1), -62 (2): Noise 96.9%
-    - -3 (61), -2 (62): Noise 3.1%
-    - -1 (63): Noise 0%
-    - +0 (64): Sub 0%
-    - +1 (65), +2 (66): Sub Osc 3.1%
-    - +61 (125), +62 (126): Sub Osc 96.9%
-    - +63 (127): Sub Osc 100%
+    - -63 (1): Noise 100% (min)
+    - -62 (2): Noise 96.9%
+    - -63 (3): Noise 95.3%
+    - -1 (63): Noise 1.6%
+    - +0 (64): 0%
+    - +1 (65): Sub Osc 1.6%
+    - +61 (125): Sub Osc 95.3%
+    - +62 (126): Sub Osc 96.9%
+    - +63 (127): Sub Osc 100% (max)
 - Osc 1 Shape $2
     - Saw Wave: Multi Saw Detune
     - Square Wave: Sync Square Pitch
@@ -208,7 +209,13 @@
     - 80: 6.9 Hz
     - 127: 103.8 Hz (max)
 - LFO Depth
-    - The actual LFO depth is the "LFO Depth" value plus the "Modulation" value
+    - 0: 0% (min)
+    - 1: 10.8%
+    - 64: 50%
+    - 125: 97.7%
+    - 126: 98.5%
+    - 127: 100% (max)
+        - NOTE: The actual LFO depth is the "LFO Depth" value plus the "Modulation" value
 - Amp Gain
 - Filter Mode [LP|HP]
     - 0 (0-63): Low Pass
@@ -222,7 +229,7 @@
 - Release = Decay [Off|On]
     - 0 (0-63): Off
     - 127 (64-127): On, EG Release = EG Decay and Amp Release = Amp Decay
-        - **NOTE**: EG Velocity Sensitivity and Amp Velocity Sensitivity works independently
+        - NOTE: EG Velocity Sensitivity and Amp Velocity Sensitivity works independently
 - Breath Filter Amt [-|+]
     - -60 (4): -120 (min)
     - +60 (124): +120 (max)
