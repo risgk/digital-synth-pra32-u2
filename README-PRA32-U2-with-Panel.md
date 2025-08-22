@@ -36,7 +36,7 @@
 #### Group A
 
 - Synth Parameters
-
+    - NOTE: The parameters Filter EG Amt and EG Filter Amt are the same
 
 #### Group B
 
