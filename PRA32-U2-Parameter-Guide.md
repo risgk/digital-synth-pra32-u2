@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 Parameter Guide v0.7.0
+# Digital Synth PRA32-U2 Parameter Guide v0.8.0
 
-- 2025-08-16 ISGK Instruments
+- 2025-08-24 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 ## Control Change Parameters
@@ -16,14 +16,15 @@
     - 102 (89-114): Wave Tables with Constraints
     - 127 (115-127): Pulse Wave
 - Mixer Noise/Sub Osc [N|S]
-    - -64 (0): Noise 100%
-    - -63 (1): Noise 98.4%
+    - -63 (1): Noise 100% (min)
     - -62 (2): Noise 96.9%
+    - -63 (3): Noise 95.3%
     - -1 (63): Noise 1.6%
     - +0 (64): 0%
     - +1 (65): Sub Osc 1.6%
+    - +61 (125): Sub Osc 95.3%
     - +62 (126): Sub Osc 96.9%
-    - +63 (127): Sub Osc 100%
+    - +63 (127): Sub Osc 100% (max)
 - Osc 1 Shape $2
     - Saw Wave: Multi Saw Detune
     - Square Wave: Sync Square Pitch
@@ -138,7 +139,14 @@
     - 127: 18.6 s
 - EG Osc Amt [-|+], LFO Osc Amt [-|+]
     - Pitch
-        - -61 (3): -30 semitone (min)
+        - -63 (1): -10 oct (min)
+        - -62 (2): -8 oct
+        - -61 (3): -6 oct
+        - -60 (4): -5 oct
+        - -59 (5): -4 oct
+        - -58 (6): -3.5 oct
+        - -57 (7): -3 oct
+        - -56 (8): -2.5 oct
         - -55 (9): -24 semitone
         - -43 (21): -12 semitone
         - -33 (31): -2 semitone
@@ -148,10 +156,24 @@
         - +33 (97): +2 semitone
         - +43 (107): +12 semitone
         - +55 (119): +24 semitone
-        - +61 (125): +30 semitone (max)
+        - +56 (120): +2.5 oct
+        - +57 (121): +3 oct
+        - +58 (122): +3.5 oct
+        - +59 (123): +4 oct
+        - +60 (124): +5 oct
+        - +61 (125): +6 oct
+        - +62 (126): +8 oct
+        - +63 (127): +10 oct (max)
     - Shape
-        - -63 (1): Shape -252 (min)
-        - +63 (127): Shape +252 (max)
+        - -63 (1): Shape -256 (min)
+        - -62 (2): Shape -248
+        - -61 (3): Shape -244
+        - -1 (63): Shape -4
+        - +0 (64): Shape +0
+        - +1 (65): Shape +4
+        - +61 (125): Shape +244
+        - +62 (126): Shape +248
+        - +63 (127): Shape +256 (max)
 - EG Osc Dst [P|2P|1S], LFO Osc Dst [P|2P|1S]
     - 0 (0-31): Osc 1 & 2 Pitch
     - 64 (32-95): Osc 2 Pitch
@@ -187,7 +209,13 @@
     - 80: 6.9 Hz
     - 127: 103.8 Hz (max)
 - LFO Depth
-    - The actual LFO depth is the "LFO Depth" value plus the "Modulation" value
+    - 0: 0% (min)
+    - 1: 10.8%
+    - 64: 50%
+    - 125: 97.7%
+    - 126: 98.5%
+    - 127: 100% (max)
+        - NOTE: The actual LFO depth is the "LFO Depth" value plus the "Modulation" value
 - Amp Gain
 - Filter Mode [LP|HP]
     - 0 (0-63): Low Pass
@@ -201,10 +229,10 @@
 - Release = Decay [Off|On]
     - 0 (0-63): Off
     - 127 (64-127): On, EG Release = EG Decay and Amp Release = Amp Decay
-        - **NOTE**: EG Velocity Sensitivity and Amp Velocity Sensitivity works independently
+        - NOTE: EG Velocity Sensitivity and Amp Velocity Sensitivity works independently
 - Breath Filter Amt [-|+]
-    - -60 (4): -60 (min)
-    - +60 (124): +60 (max)
+    - -60 (4): -120 (min)
+    - +60 (124): +120 (max)
 - Breath Amp Mod [Off|Qad|Lin]
     - 0 (0-31): Off
     - 64 (32-95): Quadratic Curve

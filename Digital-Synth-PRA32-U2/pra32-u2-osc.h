@@ -62,8 +62,8 @@ class PRA32_U2_Osc {
   int8_t         m_mixer_noise_sub_osc_control;
   int8_t         m_mixer_noise_sub_osc_control_effective;
   int16_t        m_mix_table[OSC_MIX_TABLE_LENGTH];
-  int8_t         m_shape_eg_amt;
-  int8_t         m_shape_lfo_amt;
+  int16_t        m_shape_eg_amt;
+  int16_t        m_shape_lfo_amt;
 
 public:
   PRA32_U2_Osc()
@@ -242,27 +242,33 @@ public:
   }
 
   INLINE void set_mixer_sub_osc_control(uint8_t controller_value) {
-    m_mixer_noise_sub_osc_control = (((controller_value - 63) >> 1) << 1);
+    if (controller_value == 1) {
+      controller_value = 0;
+    } else if (controller_value == 127) {
+      controller_value = 128;
+    }
+
+    m_mixer_noise_sub_osc_control = controller_value - 64;
   }
 
   INLINE int16_t get_pitch_mod_amt_table(uint8_t controller_value) {
     static int16_t pitch_mod_amt_table[128] = {
-      -7680, -7680, -7680, -7680, -7424, -7168, -6912, -6656,
-      -6400, -6144, -5888, -5632, -5376, -5120, -4864, -4608,
-      -4352, -4096, -3840, -3584, -3328, -3072, -2816, -2560,
-      -2304, -2048, -1792, -1536, -1280, -1024,  -768,  -512,
-       -256,  -248,  -240,  -232,  -224,  -216,  -208,  -200,
-       -192,  -184,  -176,  -168,  -160,  -152,  -144,  -136,
-       -128,  -120,  -112,  -104,   -96,   -88,   -80,   -72,
-        -64,   -56,   -48,   -40,   -32,   -24,   -16,    -8,
-         +0,    +8,   +16,   +24,   +32,   +40,   +48,   +56,
-        +64,   +72,   +80,   +88,   +96,  +104,  +112,  +120,
-       +128,  +136,  +144,  +152,  +160,  +168,  +176,  +184,
-       +192,  +200,  +208,  +216,  +224,  +232,  +240,  +248,
-       +256,  +512,  +768, +1024, +1280, +1536, +1792, +2048,
-      +2304, +2560, +2816, +3072, +3328, +3584, +3840, +4096,
-      +4352, +4608, +4864, +5120, +5376, +5632, +5888, +6144,
-      +6400, +6656, +6912, +7168, +7424, +7680, +7680, +7680,
+     -30720, -30720, -24576, -18432, -15360, -12288, -10752,  -9216,
+      -7680,  -6144,  -5888,  -5632,  -5376,  -5120,  -4864,  -4608,
+      -4352,  -4096,  -3840,  -3584,  -3328,  -3072,  -2816,  -2560,
+      -2304,  -2048,  -1792,  -1536,  -1280,  -1024,   -768,   -512,
+       -256,   -248,   -240,   -232,   -224,   -216,   -208,   -200,
+       -192,   -184,   -176,   -168,   -160,   -152,   -144,   -136,
+       -128,   -120,   -112,   -104,    -96,    -88,    -80,    -72,
+        -64,    -56,    -48,    -40,    -32,    -24,    -16,     -8,
+         +0,     +8,    +16,    +24,    +32,    +40,    +48,    +56,
+        +64,    +72,    +80,    +88,    +96,   +104,   +112,   +120,
+       +128,   +136,   +144,   +152,   +160,   +168,   +176,   +184,
+       +192,   +200,   +208,   +216,   +224,   +232,   +240,   +248,
+       +256,   +512,   +768,  +1024,  +1280,  +1536,  +1792,  +2048,
+      +2304,  +2560,  +2816,  +3072,  +3328,  +3584,  +3840,  +4096,
+      +4352,  +4608,  +4864,  +5120,  +5376,  +5632,  +5888,  +6144,
+      +7680,  +9216, +10752, +12288, +15360, +18432, +24576, +30720,
     };
 
     return pitch_mod_amt_table[controller_value];
@@ -274,9 +280,12 @@ public:
   }
 
   INLINE void set_shape_eg_amt(uint8_t controller_value) {
-    if (controller_value == 0) {
-      controller_value = 1;
+    if (controller_value == 1) {
+      controller_value = 0;
+    } else if (controller_value == 127) {
+      controller_value = 128;
     }
+
     m_shape_eg_amt = ((controller_value - 64) << 1);
   }
 
@@ -286,9 +295,12 @@ public:
   }
 
   INLINE void set_shape_lfo_amt(uint8_t controller_value) {
-    if (controller_value == 0) {
-      controller_value = 1;
+    if (controller_value == 1) {
+      controller_value = 0;
+    } else if (controller_value == 127) {
+      controller_value = 128;
     }
+
     m_shape_lfo_amt = -((controller_value - 64) << 1);
   }
 
