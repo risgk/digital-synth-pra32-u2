@@ -1,5 +1,16 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v0.8.0 (2025-08-24):
+    - Increase the effect of Breath Filter Amt (2x)
+    - Improve the resolution of Mixer Noise/Sub Osc and LFO Depth
+    - Extend EG Osc Amt and LFO Osc Amt (Pitch) range
+    - Change the meaning values 0, 1, and 127 of EG Osc Amt and LFO Osc Amt (Shape)
+    - Change the preset programs
+    - PRA32-U2 with Panel: Rename Filter EG Amt in the EG pages to EG Filter Amt
+        - NOTE: The parameters Filter EG Amt and EG Filter Amt are the same
+    - Fix documentation
+    - Tested with Arduino-Pico version 4.7.1
+    - KNOWN ISSUE: When using PWM Audio, signal discontinuity occurs approximately every 60-80 milliseconds
 - v0.7.0 (2025-08-16):
     - Change Wave Tables with Constraints (Wave Table 0-5)
     - Change the preset programs
