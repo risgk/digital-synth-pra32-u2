@@ -92,7 +92,7 @@ const uint8_t   LFO_DEPTH       = 17;
 const uint8_t   LFO_OSC_AMT     = 13;
 const uint8_t   LFO_OSC_DST     = 103;
 const uint8_t   LFO_FILTER_AMT  = 25;
-const uint8_t   AMP_GAIN        = 15;
+const uint8_t   AMP_LEVEL       = 15;
 
 const uint8_t   AMP_ATTACK      = 52;
 const uint8_t   AMP_DECAY       = 53;

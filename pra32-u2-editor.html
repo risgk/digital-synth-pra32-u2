@@ -93,7 +93,7 @@ const LFO_DEPTH       = 17;
 const LFO_OSC_AMT     = 13;
 const LFO_OSC_DST     = 103;
 const LFO_FILTER_AMT  = 25;
-const AMP_GAIN        = 15;
+const AMP_LEVEL       = 15;
 
 const AMP_ATTACK      = 52;
 const AMP_DECAY       = 53;
@@ -184,7 +184,7 @@ var controlNumberToStringMap = new Map([
   [ LFO_OSC_AMT    , "LFO_OSC_AMT    " ],
   [ LFO_OSC_DST    , "LFO_OSC_DST    " ],
   [ LFO_FILTER_AMT , "LFO_FILTER_AMT " ],
-  [ AMP_GAIN       , "AMP_GAIN       " ],
+  [ AMP_LEVEL      , "AMP_LEVEL      " ],
 
   [ AMP_ATTACK     , "AMP_ATTACK     " ],
   [ AMP_DECAY      , "AMP_DECAY      " ],
@@ -251,7 +251,7 @@ var controllersInLocalStorage = [
   LFO_OSC_AMT    ,
   LFO_OSC_DST    ,
   LFO_FILTER_AMT ,
-  AMP_GAIN       ,
+  AMP_LEVEL      ,
 
   AMP_ATTACK     ,
   AMP_DECAY      ,
@@ -320,7 +320,7 @@ presetControllers[LFO_DEPTH      ] = [0  , 0  , 0  , 127, 0  , 0  , 0  , 0  ];
 presetControllers[LFO_OSC_AMT    ] = [64 , 64 , 64 , 64 , 119, 72 , 64 , 64 ];
 presetControllers[LFO_OSC_DST    ] = [0  , 0  , 127, 0  , 0  , 127, 0  , 0  ];
 presetControllers[LFO_FILTER_AMT ] = [76 , 76 , 76 , 64 , 64 , 64 , 76 , 64 ];
-presetControllers[AMP_GAIN       ] = [100, 100, 127, 100, 100, 90 , 110, 100];
+presetControllers[AMP_LEVEL      ] = [100, 100, 127, 100, 100, 90 , 110, 100];
 
 presetControllers[AMP_ATTACK     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 presetControllers[AMP_DECAY      ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
@@ -390,7 +390,7 @@ editorOnlyPresetControllers[LFO_DEPTH      ] = [0  , 0  , 0  , 0  , 127, 0  , 0 
 editorOnlyPresetControllers[LFO_OSC_AMT    ] = [64 , 64 , 72 , 64 , 96 , 119, 64 , 64 ];
 editorOnlyPresetControllers[LFO_OSC_DST    ] = [0  , 0  , 127, 127, 127, 0  , 0  , 0  ];
 editorOnlyPresetControllers[LFO_FILTER_AMT ] = [76 , 76 , 64 , 76 , 64 , 64 , 64 , 64 ];
-editorOnlyPresetControllers[AMP_GAIN       ] = [110, 100, 100, 100, 90 , 90 , 100, 100];
+editorOnlyPresetControllers[AMP_LEVEL      ] = [110, 100, 100, 100, 90 , 90 , 100, 100];
 
 editorOnlyPresetControllers[AMP_ATTACK     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 editorOnlyPresetControllers[AMP_DECAY      ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
@@ -930,7 +930,7 @@ function editorOnlyPreset(number) {
 function setRandom() {
   controllersInLocalStorage.forEach(function(i) {
     if ((i != VOICE_MODE     ) &&
-        (i != AMP_GAIN       ) &&
+        (i != AMP_LEVEL      ) &&
         (i != EG_AMP_MOD     ) &&
         (i != REL_EQ_DECAY   ) &&
         (i != CHORUS_MIX     ) &&
@@ -1150,7 +1150,7 @@ function fileExport() {
   str += fileExportOneLine(LFO_OSC_AMT    );
   str += fileExportOneLine(LFO_OSC_DST    );
   str += fileExportOneLine(LFO_FILTER_AMT );
-  str += fileExportOneLine(AMP_GAIN       );
+  str += fileExportOneLine(AMP_LEVEL      );
   str += "\n";
   str += fileExportOneLine(AMP_ATTACK     );
   str += fileExportOneLine(AMP_DECAY      );
@@ -1580,7 +1580,7 @@ function getStoredCCValueString(index, number) {
 <td colspan="3"><b>LFO</b> Osc Amt [-|+]               </td>
 <td colspan="3"><b>LFO</b> Osc Dst [P|2P|1S]           </td>
 <td colspan="3"><b>LFO</b> Filter Amt [-|+]            </td>
-<td colspan="3"><b>Amp</b> Gain                        </td>
+<td colspan="3"><b>Amp</b> Level                       </td>
 </tr>
 <tr>
 <td><input  id="inputLFO_OSC_AMT    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_OSC_AMT    , value)"></td>
@@ -1592,9 +1592,9 @@ function getStoredCCValueString(index, number) {
 <td><input  id="inputLFO_FILTER_AMT "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_FILTER_AMT , value)"></td>
 <td><span    id="spanLFO_FILTER_AMT " >-</span></td>
 <td><span   id="span2LFO_FILTER_AMT " >-</span></td>
-<td><input  id="inputAMP_GAIN       "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(AMP_GAIN       , value)"></td>
-<td><span    id="spanAMP_GAIN       " >-</span></td>
-<td><span   id="span2AMP_GAIN       " >-</span></td>
+<td><input  id="inputAMP_LEVEL      "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(AMP_LEVEL      , value)"></td>
+<td><span    id="spanAMP_LEVEL      " >-</span></td>
+<td><span   id="span2AMP_LEVEL      " >-</span></td>
 </tr>
 <tr>
 <td colspan="3"><b>Amp</b> Attack                      </td>
