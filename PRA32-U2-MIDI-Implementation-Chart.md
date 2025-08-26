@@ -60,7 +60,7 @@
 |                            13 | x             | o             | LFO Osc Amt [-|+]                    |
 |                           103 | x             | o             | LFO Osc Dst [P|2P|1S]                |
 |                            25 | x             | o             | LFO Filter Amt [-|+]                 |
-|                            15 | x             | o             | Amp Gain                             |
+|                            15 | x             | o             | Amp Level                            |
 |                               |               |               |                                      |
 |                            52 | x             | o             | Amp Attack                           |
 |                            53 | x             | o             | Amp Decay                            |

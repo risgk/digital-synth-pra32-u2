@@ -92,7 +92,7 @@ LFO_DEPTH       = 17
 LFO_OSC_AMT     = 13
 LFO_OSC_DST     = 103
 LFO_FILTER_AMT  = 25
-AMP_GAIN        = 15
+AMP_LEVEL       = 15
 
 AMP_ATTACK      = 52
 AMP_DECAY       = 53
