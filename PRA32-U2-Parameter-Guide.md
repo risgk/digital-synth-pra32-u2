@@ -59,8 +59,8 @@
         - 25 (13-38): Wave Table 1 (Sync Pulse 1/4)
         - 51 (39-63): Wave Table 2 (Serial Sync 8/3)
         - 76 (64-88): Wave Table 3 (Sync & Ring)
-        - 102 (89-114): Wave Table 4 (6+0 to 0+10)
-        - 127 (115-127): Wave Table 5 (8+0 to 0+8)
+        - 102 (89-114): Wave Table 4 (8+0 to 0+8)
+        - 127 (115-127): Wave Table 5 (6+0 to 0+10)
     - Pulse Wave
         - 0: Pulse 100% = Saw 100% + Reverse Saw 100% (min)
         - 32: Pulse 50% + Saw 50% = Saw 100% + Reverse Saw 50%
