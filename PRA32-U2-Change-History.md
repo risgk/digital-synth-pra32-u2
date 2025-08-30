@@ -2,7 +2,6 @@
 
 - v0.9.0 (2025-**-**):
     - Rename Amp Gain to Amp Level
-    - Swap Wave Table 4 and Wave Table 5
     - Change the preset programs
     - Tested with Arduino-Pico version 4.7.1
     - KNOWN ISSUE: When using PWM Audio, signal discontinuity occurs approximately every 60-80 milliseconds
