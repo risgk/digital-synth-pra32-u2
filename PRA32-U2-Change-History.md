@@ -2,7 +2,7 @@
 
 - v0.9.0 (2025-**-**):
     - Change the preset programs
-    - Tested with Arduino-Pico version 4.7.1
+    - Tested with Arduino-Pico version 5.0.0
     - KNOWN ISSUE: When using PWM Audio, signal discontinuity occurs approximately every 60-80 milliseconds
 - v0.8.0 (2025-08-24):
     - Increase the effect of Breath Filter Amt (2x)
