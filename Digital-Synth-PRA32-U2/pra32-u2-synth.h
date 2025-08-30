@@ -54,7 +54,7 @@ static uint8_t s_program_table_parameters[] = {
   LFO_OSC_AMT    ,
   LFO_OSC_DST    ,
   LFO_FILTER_AMT ,
-  AMP_LEVEL      ,
+  AMP_GAIN       ,
 
   AMP_ATTACK     ,
   AMP_DECAY      ,
@@ -343,7 +343,7 @@ public:
     std::memcpy(m_program_table[LFO_OSC_AMT    ], g_preset_table_LFO_OSC_AMT    , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[LFO_OSC_DST    ], g_preset_table_LFO_OSC_DST    , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[LFO_FILTER_AMT ], g_preset_table_LFO_FILTER_AMT , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[AMP_LEVEL      ], g_preset_table_AMP_LEVEL      , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[AMP_GAIN       ], g_preset_table_AMP_GAIN       , sizeof(m_program_table[0]));
 
     std::memcpy(m_program_table[AMP_ATTACK     ], g_preset_table_AMP_ATTACK     , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[AMP_DECAY      ], g_preset_table_AMP_DECAY      , sizeof(m_program_table[0]));
@@ -970,7 +970,7 @@ public:
       m_osc.set_osc_level(controller_value);
       break;
 #endif
-    case AMP_LEVEL      :
+    case AMP_GAIN       :
       m_amp[0].set_gain(controller_value);
       m_amp[1].set_gain(controller_value);
       m_amp[2].set_gain(controller_value);
