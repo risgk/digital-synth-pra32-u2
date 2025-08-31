@@ -115,9 +115,7 @@ public:
   INLINE int32_t process(int32_t audio_input_int24, int16_t eg_input, int16_t lfo_input, uint16_t osc_pitch) {
     update_cutoff_control_effective();
     update_coefs(eg_input, lfo_input, osc_pitch);
-  }
 
-  INLINE int32_t process(int32_t audio_input_int24) {
 #if 1
     int32_t x_0 = audio_input_int24;
     int32_t x_3 = x_0 + (m_x_1 << 1) + m_x_2;
