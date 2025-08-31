@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v1.0.1 (2025-**-**):
+    - Improve the accuracy of filter calculations
     - Change the minimum effective Filter Cutoff value to 28 (f = 65.4 Hz) to prevent filter instability
     - Modify Filter Cutoff to change more slowly
     - Tested with Arduino-Pico version 5.0.0
