@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v1.0.1 (2025-**-**):
+- v1.0.1 (2025-08-31):
     - Improve the accuracy of filter calculations
     - Change the minimum effective Filter Cutoff value to 16 (f = 32.7 Hz) to prevent filter instability
     - Modify Filter Cutoff to change more slowly
