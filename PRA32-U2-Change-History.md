@@ -1,7 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v1.0.1 (2025-**-**):
-    - Modify Filter Cutoff to change more slowly
+    - Modify Filter Cutoff to change more slowly and smoothly
     - Tested with Arduino-Pico version 5.0.0
     - KNOWN ISSUE: When using PWM Audio, signal discontinuity occurs approximately every 60-80 milliseconds
 - v1.0.0 (2025-08-31):
