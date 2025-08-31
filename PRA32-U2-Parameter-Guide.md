@@ -1,4 +1,4 @@
-# Digital Synth PRA32-U2 Parameter Guide v1.0.0
+# Digital Synth PRA32-U2 Parameter Guide v1.0.1
 
 - 2025-08-31 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
@@ -89,10 +89,11 @@
     - +45 (109): +7 semitone
     - +55 (119): +12 semitone (max)
 - Filter Cutoff
-    - 0: f = 13.0 Hz (min)
+    - 16: f = 32.7 Hz (min)
     - 61: f = 440 Hz
     - 64: f = 523.3 Hz
     - 121: f = 14080 kHz
+    - 124: f = 16744.0 Hz
     - 127: f = 19912.1 Hz (max)
 - Filter Resonance
     - 16 (0-16): Q = 0.7 (min)
