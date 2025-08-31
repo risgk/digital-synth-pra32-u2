@@ -1,5 +1,9 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v1.0.0 (2025-08-31):
+    - Change the preset programs
+    - Tested with Arduino-Pico version 5.0.0
+    - KNOWN ISSUE: When using PWM Audio, signal discontinuity occurs approximately every 60-80 milliseconds
 - v0.8.0 (2025-08-24):
     - Increase the effect of Breath Filter Amt (2x)
     - Improve the resolution of Mixer Noise/Sub Osc and LFO Depth
