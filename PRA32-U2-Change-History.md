@@ -4,6 +4,7 @@
     - Improve the accuracy of filter calculations
     - Change the minimum effective Filter Cutoff value to 16 (f = 32.7 Hz) to prevent filter instability
     - Modify Filter Cutoff to change more slowly
+    - Improve documentation
     - Tested with Arduino-Pico version 5.0.0
     - KNOWN ISSUE: When using PWM Audio, signal discontinuity occurs approximately every 60-80 milliseconds
 - v1.0.0 (2025-08-31):
