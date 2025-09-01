@@ -2,6 +2,7 @@
 
 - v1.1.0 (2025-**-**):
     - Change the Filter Resonance so that if Q is more than 2.8 (control value 80), the sound is reduced
+    - Modify Filter Cutoff to change more slowly
     - Tested with Arduino-Pico version 5.0.0
     - KNOWN ISSUE: When using PWM Audio, signal discontinuity occurs approximately every 60-80 milliseconds
 - v1.0.1 (2025-08-31):
