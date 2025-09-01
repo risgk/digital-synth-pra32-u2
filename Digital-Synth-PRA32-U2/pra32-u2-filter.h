@@ -144,10 +144,8 @@ public:
 
 private:
   INLINE void update_cutoff_control_effective() {
-    for (uint32_t i = 0; i < 4; ++i) {
-      m_cutoff_control_effective += (m_cutoff_control_effective < m_cutoff_control);
-      m_cutoff_control_effective -= (m_cutoff_control_effective > m_cutoff_control);
-    }
+    m_cutoff_control_effective += (m_cutoff_control_effective < m_cutoff_control);
+    m_cutoff_control_effective -= (m_cutoff_control_effective > m_cutoff_control);
   }
 
   INLINE void update_coefs(int16_t eg_input, int16_t lfo_input, uint16_t osc_pitch) {
