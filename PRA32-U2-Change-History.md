@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v1.1.0 (2025-**-**):
+- v1.1.0 (2025-09-01):
     - Change the Filter Resonance so that if Q is more than 2.8 (control value 80), the sound is reduced
     - Modify Filter Cutoff to change more slowly
     - Tested with Arduino-Pico version 5.0.0
