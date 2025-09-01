@@ -1,5 +1,10 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v1.1.0 (2025-09-01):
+    - Change the Filter Resonance so that if Q is more than 2.8 (control value 80), the sound is reduced
+    - Modify Filter Cutoff to change more slowly
+    - Tested with Arduino-Pico version 5.0.0
+    - KNOWN ISSUE: When using PWM Audio, signal discontinuity occurs approximately every 60-80 milliseconds
 - v1.0.1 (2025-08-31):
     - Improve the accuracy of filter calculations
     - Change the minimum effective Filter Cutoff value to 16 (f = 32.7 Hz) to prevent filter instability
