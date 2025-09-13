@@ -627,7 +627,7 @@ private:
       result += (((64 * (wave_0_0  + wave_0_1  + wave_0_2  + wave_0_3  + wave_0_4  + wave_0_5  + wave_0_6  + wave_0_7  +
                          wave_0_8  + wave_0_9  + wave_0_10 + wave_0_11 + wave_0_12 + wave_0_13 + wave_0_14 + wave_0_15)
                    ) >> 6) * osc1_gain * m_osc_gain_effective[N]) >> 10;
-    } else {
+    } else if (m_waveform[0] == WAVEFORM_1_PULSE) {
       int32_t wave_0 = get_wave_level(m_wave_table[N + 16], m_phase[N]);
       result += (wave_0 * osc1_gain * m_osc_gain_effective[N]) >> 10;
 
@@ -642,7 +642,10 @@ private:
                                                              (reinterpret_cast<const uintptr_t>(m_wave_table_temp[N + 8]) * new_period_osc1_add));
       int16_t wave_3 = get_wave_level(m_wave_table[N + 8], phase_3);
 #endif
-      result += ((((wave_3 * osc1_gain * m_osc_gain_effective[N]) >> 10) * (((m_osc1_morph_control_effective - 63) >> 1) << 1)) >> 6) * (m_waveform[0] == WAVEFORM_1_PULSE);
+      result += ((((wave_3 * osc1_gain * m_osc_gain_effective[N]) >> 10) * (((m_osc1_morph_control_effective - 63) >> 1) << 1)) >> 6);
+    } else {
+      int32_t wave_0 = get_wave_level(m_wave_table[N], m_phase[N]);
+      result += (wave_0 * osc1_gain * m_osc_gain_effective[N]) >> 10;
     }
 
     if (m_mixer_noise_sub_osc_control_effective >= 0) {
