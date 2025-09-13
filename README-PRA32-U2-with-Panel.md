@@ -28,7 +28,7 @@
     - VR1 (ADC1): Parameter B
     - VR2 (ADC2): Parameter C for Play (omittable)
         - To not use this, comment out `//#define PRA32_U2_KEY_INPUT_PLAY_KEY_PIN          (20)` in "Digital-Synth-PRA32-U2.ino"
-- NOTE: UART MIDI control is recommended to prevent ADCs from being affected by USB MIDI communication noise
+- NOTE: Using a USB cable with ferrite cores is recommended to prevent ADCs from being affected by USB MIDI communication noise, and UART MIDI control is also recommended
 
 
 ### GUI Pages
