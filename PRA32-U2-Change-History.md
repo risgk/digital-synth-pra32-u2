@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v1.1.1 (2025-**-**):
+- v1.1.1 (2025-09-13):
     - Fix an issue where the Triangle Wave was output as a Saw Wave in Osc 1 Wave
     - Modify the Editor Only Preset "#131 Electric Organ"
     - Tested with Arduino-Pico version 5.1.0
