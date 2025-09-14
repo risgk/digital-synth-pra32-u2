@@ -13,10 +13,10 @@ const uint8_t g_preset_table_MIXER_OSC_MIX  [] = {64 , 0  , 64 , 0  , 64 , 0  , 
 const uint8_t g_preset_table_OSC_2_COARSE   [] = {64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 };
 const uint8_t g_preset_table_OSC_2_PITCH    [] = {72 , 72 , 72 , 72 , 109, 72 , 72 , 64 ,   72 , 72 , 72 , 72 , 109, 72 , 72 , 64 };
 
-const uint8_t g_preset_table_FILTER_CUTOFF  [] = {115, 115, 85 , 127, 115, 115, 43 , 127,   115, 115, 85 , 127, 115, 115, 43 , 127};
+const uint8_t g_preset_table_FILTER_CUTOFF  [] = {115, 115, 91 , 127, 115, 115, 43 , 127,   115, 115, 91 , 127, 115, 115, 43 , 127};
 const uint8_t g_preset_table_FILTER_RESO    [] = {64 , 64 , 64 , 64 , 64 , 64 , 64 , 0  ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 0  };
 const uint8_t g_preset_table_FILTER_EG_AMT  [] = {40 , 64 , 64 , 64 , 64 , 64 , 88 , 64 ,   40 , 64 , 64 , 64 , 64 , 64 , 88 , 64 };
-const uint8_t g_preset_table_FILTER_KEY_TRK [] = {64 , 64 , 127, 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 127, 64 , 64 , 64 , 64 , 64 };
+const uint8_t g_preset_table_FILTER_KEY_TRK [] = {64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 };
 
 const uint8_t g_preset_table_EG_ATTACK      [] = {96 , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   96 , 0  , 0  , 0  , 0  , 0  , 0  , 0  };
 const uint8_t g_preset_table_EG_DECAY       [] = {96 , 0  , 96 , 0  , 0  , 96 , 96 , 0  ,   96 , 0  , 96 , 0  , 0  , 96 , 96 , 0  };
@@ -36,7 +36,7 @@ const uint8_t g_preset_table_LFO_DEPTH      [] = {0  , 0  , 0  , 127, 0  , 0  , 
 const uint8_t g_preset_table_LFO_OSC_AMT    [] = {64 , 64 , 64 , 64 , 119, 72 , 64 , 64 ,   64 , 64 , 64 , 64 , 119, 72 , 64 , 64 };
 const uint8_t g_preset_table_LFO_OSC_DST    [] = {0  , 0  , 127, 0  , 0  , 127, 0  , 0  ,   0  , 0  , 127, 0  , 0  , 127, 0  , 0  };
 const uint8_t g_preset_table_LFO_FILTER_AMT [] = {76 , 76 , 76 , 64 , 64 , 64 , 76 , 64 ,   76 , 76 , 76 , 64 , 64 , 64 , 76 , 64 };
-const uint8_t g_preset_table_AMP_GAIN       [] = {100, 100, 127, 100, 100, 90 , 110, 100,   100, 100, 127, 100, 100, 90 , 110, 100};
+const uint8_t g_preset_table_AMP_GAIN       [] = {100, 100, 120, 100, 100, 90 , 110, 100,   100, 100, 120, 100, 100, 90 , 110, 100};
 
 const uint8_t g_preset_table_AMP_ATTACK     [] = {0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  };
 const uint8_t g_preset_table_AMP_DECAY      [] = {0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  };
