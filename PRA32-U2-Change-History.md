@@ -5,8 +5,8 @@
     - PRA32-U2 Editor: Improve stability when using Hairless MIDI<->Serial Bridge on Windows
     - PRA32-U2 Editor: Fix the layout
     - Improve documentation
+        - Note that PWM Audio is CURRENTLY NOT RECOMMENDED
     - Tested with Arduino-Pico version 5.1.0
-    - KNOWN ISSUE: When using PWM Audio, signal discontinuity occurs about every 80 ms in each L and R channel
 - v1.1.1 (2025-09-13):
     - Fix an issue where the Triangle Wave was output as a Saw Wave in Osc 1 Wave
     - PRA32-U2 Editor: Modify the Editor Only Preset "#131 Electric Organ"
