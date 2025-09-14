@@ -469,11 +469,11 @@ function sleep(msec) {
 function panic() {
   if (midiOutput) {
     midiOutput.send([(CONTROL_CHANGE | midi_ch), ALL_NOTES_OFF, 0]);
-    sleep(1);
+    sleep(2);
     midiOutput.send([(CONTROL_CHANGE | midi_ch), ALL_SOUND_OFF, 0]);
-    sleep(1);
+    sleep(2);
     midiOutput.send([(CONTROL_CHANGE | midi_ch), RESET_ALL_CTRLS, 0]);
-    sleep(1);
+    sleep(2);
   }
 }
 
@@ -910,7 +910,7 @@ function onChangeControlChange(number, value) {
   if (midiOutput) {
     if ((number <= 127) && (parseInt(value) <= 127)) {
       midiOutput.send([(CONTROL_CHANGE | midi_ch), number, parseInt(value)]);
-      sleep(1);
+      sleep(2);
     }
   }
 }
@@ -994,7 +994,7 @@ function storeParameters(number) {
 function sendProgramChange(number) {
   if (midiOutput) {
     midiOutput.send([(PROGRAM_CHANGE | midi_ch), number]);
-    sleep(1);
+    sleep(2);
   }
 }
 
@@ -1006,25 +1006,25 @@ function writeParameters(number) {
 
   if (midiOutput) {
     midiOutput.send([(CONTROL_CHANGE | midi_ch), PROG_N_TO_W_TO,  number]);
-    sleep(1);
+    sleep(2);
     midiOutput.send([(CONTROL_CHANGE | midi_ch), WRITE_P_TO_PROG, 0]);
-    sleep(1);
+    sleep(2);
     midiOutput.send([(CONTROL_CHANGE | midi_ch), WRITE_P_TO_PROG, 1]);
-    sleep(1);
+    sleep(2);
   }
 }
 
 function noteOn(noteNumber) {
   if (midiOutput) {
     midiOutput.send([(NOTE_ON | midi_ch), noteNumber + transpose, NOTE_ON_VELOCITY]);
-    sleep(1);
+    sleep(2);
   }
 }
 
 function noteOff(noteNumber) {
   if (midiOutput) {
     midiOutput.send([(NOTE_OFF | midi_ch), noteNumber + transpose, NOTE_OFF_VELOCITY]);
-    sleep(1);
+    sleep(2);
   }
 }
 

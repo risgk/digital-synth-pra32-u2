@@ -2,6 +2,7 @@
 
 - v1.1.2 (2025-**-**):
     - Modify the Preset "#2 FM Piano"
+    - PRA32-U2 Editor: Improve stability when using Hairless MIDI<->Serial Bridge on Windows
     - PRA32-U2 Editor: Fix the layout
     - Tested with Arduino-Pico version 5.1.0
     - KNOWN ISSUE: When using PWM Audio, signal discontinuity occurs approximately every 60-80 milliseconds
