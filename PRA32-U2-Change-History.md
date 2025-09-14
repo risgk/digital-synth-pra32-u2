@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v1.1.2 (2025-**-**):
+- v1.2.0 (2025-**-**):
+    - Lower the Amp's output level
     - Modify the Preset "#2 FM Piano"
     - PRA32-U2 Editor: Improve stability when using Hairless MIDI<->Serial Bridge on Windows
     - PRA32-U2 Editor: Fix the layout
