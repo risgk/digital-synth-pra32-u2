@@ -124,7 +124,7 @@
 #define PRA32_U2_PWM_AUDIO_L_PIN               (28)
 #define PRA32_U2_PWM_AUDIO_R_PIN               (27)
 ```
-- KNOWN ISSUE: When using PWM Audio, signal discontinuity occurs about every 80 ms in each L and R channel
+- KNOWN ISSUE: When using PWM Audio, signal discontinuity (missing a sample) occurs about every 80 ms in each L and R channel
     - Click noise is particularly noticeable in the high frequency band and sine waves
 
 
