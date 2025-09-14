@@ -95,11 +95,11 @@ end
 
 sound_off
 
-program_change(0)
+program_change(4)
 play_mono_a(3)
 sound_off
 
-program_change(6)
+program_change(3)
 play_b(3)
 sound_off
 

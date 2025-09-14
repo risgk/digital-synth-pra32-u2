@@ -4,6 +4,7 @@
     - Modify the Preset "#2 FM Piano"
     - PRA32-U2 Editor: Improve stability when using Hairless MIDI<->Serial Bridge on Windows
     - PRA32-U2 Editor: Fix the layout
+    - Modify pra32-u2-sample-midi-stream
     - Improve documentation
         - Note that PWM Audio is CURRENTLY NOT RECOMMENDED
     - Tested with Arduino-Pico version 5.1.0
