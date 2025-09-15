@@ -3,6 +3,7 @@
 - v1.2.0 (2025-**-**):
     - Lower the Amp's output level
     - Modify the Preset "#2 FM Piano"
+    - PRA32-U2 Editor: Modify the Editor Only Preset "#133 Square Lead"
     - PRA32-U2 Editor: Improve stability when using Hairless MIDI<->Serial Bridge on Windows
     - PRA32-U2 Editor: Fix the layout
     - Modify pra32-u2-sample-midi-stream
