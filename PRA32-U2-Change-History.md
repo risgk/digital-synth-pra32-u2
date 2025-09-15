@@ -2,6 +2,7 @@
 
 - v1.2.0 (2025-**-**):
     - Lower the Amp's output level
+    - Change the value 127 of Osc 1 Shape to mean 128
     - Modify the Preset "#2 FM Piano"
     - PRA32-U2 Editor: Modify the Editor Only Preset "#133 Square Lead"
     - PRA32-U2 Editor: Allow Software Kbd Transpose +60
