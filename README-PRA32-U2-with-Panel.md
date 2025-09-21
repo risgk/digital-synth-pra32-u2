@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 with Panel v1.1.1
+# Digital Synth PRA32-U2 with Panel v1.2.0
 
-- 2025-09-13 ISGK Instruments
+- 2025-09-21 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 
