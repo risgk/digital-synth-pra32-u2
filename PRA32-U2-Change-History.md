@@ -1,8 +1,20 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v1.2.0 (2025-09-21):
+    - Lower the Amp's output level
+    - Change the value 127 of Osc 1 Shape to mean 128
+    - Modify the Preset "#2 FM Piano"
+    - PRA32-U2 Editor: Modify the Editor Only Preset "#133 Square Lead"
+    - PRA32-U2 Editor: Allow Software Kbd Transpose +60
+    - PRA32-U2 Editor: Improve stability when using Hairless MIDI<->Serial Bridge on Windows
+    - PRA32-U2 Editor: Fix the layout
+    - Modify pra32-u2-sample-midi-stream
+    - Improve documentation
+        - Note that PWM Audio is CURRENTLY NOT RECOMMENDED
+    - Tested with Arduino-Pico version 5.1.0
 - v1.1.1 (2025-09-13):
     - Fix an issue where the Triangle Wave was output as a Saw Wave in Osc 1 Wave
-    - Modify the Editor Only Preset "#131 Electric Organ"
+    - PRA32-U2 Editor: Modify the Editor Only Preset "#131 Electric Organ"
     - Tested with Arduino-Pico version 5.1.0
     - KNOWN ISSUE: When using PWM Audio, signal discontinuity occurs approximately every 60-80 milliseconds
 - v1.1.0 (2025-09-01):

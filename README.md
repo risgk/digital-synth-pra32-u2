@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 v1.1.1
+# Digital Synth PRA32-U2 v1.2.0
 
-- 2025-09-13 ISGK Instruments
+- 2025-09-21 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 
@@ -13,9 +13,6 @@
     - PRA32-U2 is an upgraded model of PRA32-U (for Raspberry Pi Pico/RP2040), but some specifications differ
 - Modifiable with Arduino IDE and Arduino-Pico (by Earle F. Philhower, III)
 - An **I2S DAC** hardware (e.g. Pimoroni Pico Audio Pack) is required
-    - PWM Audio can also be used instead of I2S (PWM Audio does not require an I2S DAC hardware)
-        - KNOWN ISSUE: When using PWM Audio, signal discontinuity occurs approximately every 60-80 milliseconds
-            - Click noise is particularly noticeable in the high frequency band and sine waves
 - Prebuilt UF2 files ("bin")
     - "Digital-Synth-PRA32-U2-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico and Pimoroni Pico Audio Pack
 
@@ -110,9 +107,9 @@
 ```
 
 
-#### PWM Audio (Optional)
+#### PWM Audio (Optional) (CURRENTLY NOT RECOMMENDED)
 
-- PWM Audio can also be used instead of I2S
+- PWM Audio can also be used instead of I2S (PWM Audio does not require an I2S DAC hardware)
     - NOTE: Probably smaller output volume than I2S DAC boards
     - NOTE: To avoid noise, the parameters will not be written to the flash when using PWM audio
     - We recommend adding RC filter (post LPF) circuits to reduce PWM ripples
@@ -127,7 +124,7 @@
 #define PRA32_U2_PWM_AUDIO_L_PIN               (28)
 #define PRA32_U2_PWM_AUDIO_R_PIN               (27)
 ```
-- KNOWN ISSUE: When using PWM Audio, signal discontinuity occurs approximately every 60-80 milliseconds
+- KNOWN ISSUE: When using PWM Audio, signal discontinuity (missing a sample) occurs about every 80 ms in each L and R channel
     - Click noise is particularly noticeable in the high frequency band and sine waves
 
 
@@ -168,7 +165,7 @@
 
 - PRA32-U2 (USB MIDI Device, I2S), Default
 - PRA32-U2 (USB MIDI Device, UART MIDI, I2S)
-- PRA32-U2 (USB MIDI Device, PWM Audio)
+- PRA32-U2 (USB MIDI Device, PWM Audio) (CURRENTLY NOT RECOMMENDED)
 - PRA32-U2 with Panel (USB MIDI Device, UART MIDI, I2S, Control Panel)
 
 
@@ -247,9 +244,9 @@ graph LR
 ![Wave Table Graphs](./pra32-u2-wave-table-graphs.png)
 
 
-## Simple Circuit for PWM Audio (Optional)
+## Simple Circuit for PWM Audio (Optional) (CURRENTLY NOT RECOMMENDED)
 
-### Circuit Diagram (Simple Circuit for PWM Audio)
+### Circuit Diagram
 
 ![Circuit Diagram](./pra32-u2-pwm-audio-circuit-diagram.png)
 
@@ -260,7 +257,7 @@ graph LR
   Connecting a headphone or a passive speaker may cause a large current to flow and damage the devices.
 
 
-### Actual Wiring Diagram (Simple Circuit for PWM Audio)
+### Actual Wiring Diagram
 
 ![Actual Wiring Diagram](./pra32-u2-pwm-audio-bread-board.png)
 
@@ -275,11 +272,11 @@ graph LR
 
 ![CC0](http://i.creativecommons.org/p/zero/1.0/88x31.png)
 
-**Digital Synth PRA32-U2 v1.1.1 by ISGK Instruments (Ryo Ishigaki)**
+**Digital Synth PRA32-U2 v1.2.0 by ISGK Instruments (Ryo Ishigaki)**
 
 To the extent possible under law, ISGK Instruments (Ryo Ishigaki)
 has waived all copyright and related or neighboring rights
-to Digital Synth PRA32-U2 v1.1.1.
+to Digital Synth PRA32-U2 v1.2.0.
 
 You should have received a copy of the CC0 legalcode along with this
 work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.

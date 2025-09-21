@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 Parameter Guide v1.1.1
+# Digital Synth PRA32-U2 Parameter Guide v1.2.0
 
-- 2025-09-13 ISGK Instruments
+- 2025-09-21 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 ## Control Change Parameters
@@ -31,10 +31,12 @@
     - Sine Wave (Frequency Modulation or Phase Modulation): Modulation Depth
     - Wave Tables with Constraints: Position
     - Pulse Wave (= 1st Saw + Phase Shifted 2nd Saw)
-        - 0: Pulse Width 50%, or 2nd Saw Phase 50% (min)
-        - 64: Pulse Width 25%, or 2nd Saw Phase 25%
-        - 96: Pulse Width 12.5%, or 2nd Saw Phase 12.5%
-        - 127: Pulse Width 0.4%, or 2nd Saw Phase 99.6% (max)
+        - 0: Pulse Width 50%, or 2nd Saw Phase 50%
+        - 1: Pulse Width 49.6%, or 2nd Saw Phase 50.4%
+        - 64: Pulse Width 25%, or 2nd Saw Phase 75%
+        - 96: Pulse Width 12.5%, or 2nd Saw Phase 87.5%
+        - 126: Pulse Width 0.8%, or 2nd Saw Phase 99.2%
+        - 127: Pulse Width 0%, or 2nd Saw Phase 100%
 - Osc 1 Morph $2
     - Saw Wave:
         - 0: Normal Saw 100% (min)

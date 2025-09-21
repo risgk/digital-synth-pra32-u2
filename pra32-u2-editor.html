@@ -41,7 +41,7 @@ td.keyh {
 }
 </style>
 <script>
-const APP_NAME_VERSION = "PRA32-U2 Editor v1.1.1";
+const APP_NAME_VERSION = "PRA32-U2 Editor v1.2.0";
 
 const PRA32_U2_MIDI_CH  = 0;  // 0-based
 const NOTE_ON_VELOCITY  = 100
@@ -297,10 +297,10 @@ presetControllers[MIXER_OSC_MIX  ] = [64 , 0  , 64 , 0  , 64 , 0  , 64 , 0  ];
 presetControllers[OSC_2_COARSE   ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 presetControllers[OSC_2_PITCH    ] = [72 , 72 , 72 , 72 , 109, 72 , 72 , 64 ];
 
-presetControllers[FILTER_CUTOFF  ] = [115, 115, 85 , 127, 115, 115, 43 , 127];
+presetControllers[FILTER_CUTOFF  ] = [115, 115, 91 , 127, 115, 115, 43 , 127];
 presetControllers[FILTER_RESO    ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 0  ];
 presetControllers[FILTER_EG_AMT  ] = [40 , 64 , 64 , 64 , 64 , 64 , 88 , 64 ];
-presetControllers[FILTER_KEY_TRK ] = [64 , 64 , 127, 64 , 64 , 64 , 64 , 64 ];
+presetControllers[FILTER_KEY_TRK ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 
 presetControllers[EG_ATTACK      ] = [96 , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 presetControllers[EG_DECAY       ] = [96 , 0  , 96 , 0  , 0  , 96 , 96 , 0  ];
@@ -320,7 +320,7 @@ presetControllers[LFO_DEPTH      ] = [0  , 0  , 0  , 127, 0  , 0  , 0  , 0  ];
 presetControllers[LFO_OSC_AMT    ] = [64 , 64 , 64 , 64 , 119, 72 , 64 , 64 ];
 presetControllers[LFO_OSC_DST    ] = [0  , 0  , 127, 0  , 0  , 127, 0  , 0  ];
 presetControllers[LFO_FILTER_AMT ] = [76 , 76 , 76 , 64 , 64 , 64 , 76 , 64 ];
-presetControllers[AMP_GAIN       ] = [100, 100, 127, 100, 100, 90 , 110, 100];
+presetControllers[AMP_GAIN       ] = [100, 100, 120, 100, 100, 90 , 110, 100];
 
 presetControllers[AMP_ATTACK     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 presetControllers[AMP_DECAY      ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
@@ -372,8 +372,8 @@ editorOnlyPresetControllers[FILTER_RESO    ] = [64 , 64 , 64 , 0  , 64 , 64 , 0 
 editorOnlyPresetControllers[FILTER_EG_AMT  ] = [76 , 64 , 76 , 64 , 64 , 64 , 64 , 64 ];
 editorOnlyPresetControllers[FILTER_KEY_TRK ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 
-editorOnlyPresetControllers[EG_ATTACK      ] = [48 , 64 , 0  , 32 , 0  , 0  , 0  , 0  ];
-editorOnlyPresetControllers[EG_DECAY       ] = [80 , 64 , 96 , 32 , 0  , 0  , 0  , 0  ];
+editorOnlyPresetControllers[EG_ATTACK      ] = [48 , 64 , 0  , 32 , 0  , 32 , 0  , 0  ];
+editorOnlyPresetControllers[EG_DECAY       ] = [80 , 64 , 96 , 32 , 0  , 32 , 0  , 0  ];
 editorOnlyPresetControllers[EG_SUSTAIN     ] = [0  , 127, 0  , 127, 127, 127, 127, 127];
 editorOnlyPresetControllers[EG_RELEASE     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 
@@ -469,11 +469,11 @@ function sleep(msec) {
 function panic() {
   if (midiOutput) {
     midiOutput.send([(CONTROL_CHANGE | midi_ch), ALL_NOTES_OFF, 0]);
-    sleep(1);
+    sleep(2);
     midiOutput.send([(CONTROL_CHANGE | midi_ch), ALL_SOUND_OFF, 0]);
-    sleep(1);
+    sleep(2);
     midiOutput.send([(CONTROL_CHANGE | midi_ch), RESET_ALL_CTRLS, 0]);
-    sleep(1);
+    sleep(2);
   }
 }
 
@@ -910,7 +910,7 @@ function onChangeControlChange(number, value) {
   if (midiOutput) {
     if ((number <= 127) && (parseInt(value) <= 127)) {
       midiOutput.send([(CONTROL_CHANGE | midi_ch), number, parseInt(value)]);
-      sleep(1);
+      sleep(2);
     }
   }
 }
@@ -994,7 +994,7 @@ function storeParameters(number) {
 function sendProgramChange(number) {
   if (midiOutput) {
     midiOutput.send([(PROGRAM_CHANGE | midi_ch), number]);
-    sleep(1);
+    sleep(2);
   }
 }
 
@@ -1006,25 +1006,25 @@ function writeParameters(number) {
 
   if (midiOutput) {
     midiOutput.send([(CONTROL_CHANGE | midi_ch), PROG_N_TO_W_TO,  number]);
-    sleep(1);
+    sleep(2);
     midiOutput.send([(CONTROL_CHANGE | midi_ch), WRITE_P_TO_PROG, 0]);
-    sleep(1);
+    sleep(2);
     midiOutput.send([(CONTROL_CHANGE | midi_ch), WRITE_P_TO_PROG, 1]);
-    sleep(1);
+    sleep(2);
   }
 }
 
 function noteOn(noteNumber) {
   if (midiOutput) {
     midiOutput.send([(NOTE_ON | midi_ch), noteNumber + transpose, NOTE_ON_VELOCITY]);
-    sleep(1);
+    sleep(2);
   }
 }
 
 function noteOff(noteNumber) {
   if (midiOutput) {
     midiOutput.send([(NOTE_OFF | midi_ch), noteNumber + transpose, NOTE_OFF_VELOCITY]);
-    sleep(1);
+    sleep(2);
   }
 }
 
@@ -1323,7 +1323,7 @@ function getStoredCCValueString(index, number) {
     <td></td>
     <td><input type="button" value="#129 Synth Strings"  onclick="editorOnlyPreset(129)"></td>
     <td></td>
-    <td><input type="button" value="#130 WT Pad "        onclick="editorOnlyPreset(130)"></td>
+    <td><input type="button" value="#130 WT Pad"         onclick="editorOnlyPreset(130)"></td>
     <td></td>
     <td><input type="button" value="#131 Electric Organ" onclick="editorOnlyPreset(131)"</td></tr>
 <tr><td>&nbsp;</td></tr>
@@ -1727,7 +1727,7 @@ function getStoredCCValueString(index, number) {
 <table>
 <tr><td colspan="3">Software Kbd Transpose</td>
     </tr>
-<tr><td><input id="inputTranspose" type="range" list="skt" min="-48" max="48" step="12" oninput="onChangeTranspose(value)" ></td>
+<tr><td><input id="inputTranspose" type="range" list="skt" min="-48" max="60" step="12" oninput="onChangeTranspose(value)" ></td>
     <td><span id="spanTranspose" >-</span></td></tr>
 <tr>
     <td>&nbsp;</td>
@@ -1811,6 +1811,7 @@ function getStoredCCValueString(index, number) {
   <option value="24"></option>
   <option value="36"></option>
   <option value="48"></option>
+  <option value="60"></option>
 </datalist>
 
 </body>
