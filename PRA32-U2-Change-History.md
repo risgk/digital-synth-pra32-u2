@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v1.2.0 (2025-**-**):
+- v1.2.0 (2025-09-21):
     - Lower the Amp's output level
     - Change the value 127 of Osc 1 Shape to mean 128
     - Modify the Preset "#2 FM Piano"
