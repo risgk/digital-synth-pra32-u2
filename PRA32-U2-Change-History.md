@@ -1,5 +1,8 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v1.2.1 (2025-**-**):
+    - PRA32-U2 with Panel: Change the image showing an example of construction by a breadboard
+    - Tested with Arduino-Pico version 5.1.0
 - v1.2.0 (2025-09-21):
     - Lower the Amp's output level
     - Change the value 127 of Osc 1 Shape to mean 128
