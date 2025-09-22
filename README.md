@@ -16,6 +16,8 @@
 - Prebuilt UF2 files ("bin")
     - "Digital-Synth-PRA32-U2-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico and Pimoroni Pico Audio Pack
 
+![PRA32-U2 (Pico Audio Pack)](./pra32-u2-pico-audio-pack.jpg)
+
 
 ## [Change History](./PRA32-U2-Change-History.md)
 
