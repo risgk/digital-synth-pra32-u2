@@ -3,6 +3,7 @@
 - v1.2.1 (2025-**-**):
     - PRA32-U2 with Panel: Improve the image of the circuit diagram
     - PRA32-U2 with Panel: Change the image showing an example of construction by a breadboard
+        - Fix an issue where ADC_VREF is being used instead of 3V3(OUT)
     - Tested with Arduino-Pico version 5.1.0
 - v1.2.0 (2025-09-21):
     - Lower the Amp's output level
