@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 Parameter Guide v1.2.0
+# Digital Synth PRA32-U2 Parameter Guide v1.3.0
 
-- 2025-09-21 ISGK Instruments
+- 2025-09-23 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 ## Control Change Parameters
@@ -129,16 +129,22 @@
     - 127 (124-127): +1.000 (max)
 - EG Attack, Amp Attack
     - 0: 0.7 ms
-    - 64: 63.2 ms
-    - 127: 5.9 s
+    - 32: 6.5 ms
+    - 64: 65 ms
+    - 96: 650 ms
+    - 127: 6.0 s
 - EG Decay, Amp Decay
     - 0: 2 ms
+    - 32: 20 ms
     - 64: 200 ms
+    - 96: 2 s
     - 126: 17.3 s
     - 127: No Decay
 - EG Release, Amp Release
     - 0: 2 ms
+    - 32: 20 ms
     - 64: 200 ms
+    - 96: 2 s
     - 127: 18.6 s
 - EG Osc Amt [-|+], LFO Osc Amt [-|+]
     - Pitch
