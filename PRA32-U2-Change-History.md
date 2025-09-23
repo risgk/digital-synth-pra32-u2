@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v1.3.0 (2025-**-**):
+- v1.3.0 (2025-??-??):
     - Modify the EG/Amp Attack/Decay/Release of the preset programs
     - PRA32-U2 with Panel: Improve the image of the circuit diagram
     - PRA32-U2 with Panel: Change the image showing an example of construction by a breadboard
