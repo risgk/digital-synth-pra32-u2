@@ -1,5 +1,8 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v1.3.1 (2025-??-??):
+    - PRA32-U2 with Panel: Add an example of construction using a universal PCB
+    - Tested with Arduino-Pico version 5.1.0
 - v1.3.0 (2025-09-23):
     - Modify the EG/Amp Attack/Decay/Release of the preset programs
     - PRA32-U2 with Panel: Improve the image of the circuit diagram
