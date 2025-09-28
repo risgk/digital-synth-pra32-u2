@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v1.3.1 (2025-??-??):
+    - PRA32-U2 with Panel: Make SW0 non-omittable; Add SW4 and SW5 as Reserved
     - PRA32-U2 with Panel: Add an example of construction using a universal PCB
     - Tested with Arduino-Pico version 5.1.0
 - v1.3.0 (2025-09-23):
