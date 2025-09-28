@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 with Panel v1.3.0
+# Digital Synth PRA32-U2 with Panel v1.3.1
 
-- 2025-09-23 ISGK Instruments
+- 2025-09-29 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 
@@ -14,16 +14,18 @@
     - Built-in monophonic 8-step sequencer
     - Panel and Step Sequencer Parameters
 - This option requires 1 to 4 SWs (tactile switches), 2 to 3 VRs (ADCs), and a monochrome 128x64 OLED Display based on SSD1306 series drivers
-    - Tested with Pimoroni Pico Audio Pack, M5Stack Midi Unit (optional), Long Leg 2x20 Pin Socket * 2, Seeed Studio's Grove Shield for Pi Pico, Dual Button * 3, Rotary Angle Sensor * 3, and an OLED Display 0.96 inch
+    - Tested with Pimoroni Pico Audio Pack, M5Stack MIDI Unit (optional), Long Leg 2x20 Pin Socket * 2, Seeed Studio's Grove Shield for Pi Pico, Dual Button * 3, Rotary Angle Sensor * 3, and an OLED Display 0.96 inch
 - Uncomment out `//#define PRA32_U2_USE_CONTROL_PANEL` in "Digital-Synth-PRA32-U2.ino" and modify the constants
 - Inputs
-    - SW0: Prev Key (Push to the previous page, Long press to the previous group) (omittable)
+    - SW0: Prev Key (Push to the previous page, Long press to the previous group)
         - To not use this key, comment out `//#define PRA32_U2_KEY_INPUT_PREV_KEY_PIN          (16)` in "Digital-Synth-PRA32-U2.ino"
     - SW1: Next Key (Push to the next page, Long press to the next group)
     - SW2: Play Key (Normal Mode: press to play, Sequencer Mode: push to start/stop) (omittable)
         - To not use this key, comment out `//#define PRA32_U2_KEY_INPUT_PLAY_KEY_PIN          (20)` in "Digital-Synth-PRA32-U2.ino"
     - SW3: Shift Key (Press to prevent values from changing across 64) (optional)
         - To use this key, uncomment out `//#define PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN         (17)` in "Digital-Synth-PRA32-U2.ino"
+    - SW4: Reserved (optional)
+    - SW5: Reserved (optional)
     - VR0 (ADC0): Parameter A
     - VR1 (ADC1): Parameter B
     - VR2 (ADC2): Parameter C for Play (omittable)
@@ -98,13 +100,20 @@
 
 - This image was created with Fritzing.
     - Actually, it is necessary to use Raspberry Pi Pico 2 (instead of Raspberry Pi Pico)
-    - GP17 -- SW3 -- GND (optional) is omitted
 - NOTE: Unlike Digital Synth PRA32-U v3.1.0, the switches are low active and RP2350 uses internal pull-up to avoid RP2350-E9 Erratum
 
 
-### An Example of Construction by a Breadboard
+### An Example of Construction Using a Universal PCB
 
-- Tested with a breadboard, GY-PCM5102 (PCM5102A I2S DAC Module), 3 SWs, 3 VRs, and a OLED Display
+- Using a universal PCB, GY-PCM5102 (PCM5102A I2S DAC Module), 6 SWs, 3 VRs, a OLED Display, and a M5Stack MIDI Unit (optional)
+    - An connection between Raspberry Pico 2's Mute Off Pin and GY-PCM5102's XSMT is omitted
+
+![PRA32-U2 with Panel (Universal PCB)](./pra32-u2-with-panel-universal-pcb.jpg)
+
+
+### An Example of Construction Using a Breadboard
+
+- Using a breadboard, GY-PCM5102 (PCM5102A I2S DAC Module), 3 SWs, 3 VRs, and a OLED Display
     - An connection between Raspberry Pico 2's Mute Off Pin and GY-PCM5102's XSMT is omitted
 
 ![PRA32-U2 with Panel (Bread Board)](./pra32-u2-with-panel-breadboard.jpg)
