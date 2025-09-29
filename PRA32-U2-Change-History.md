@@ -1,5 +1,8 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v1.3.2 (2025-??-??):
+    - PRA32-U2 Editor: Fix the Editor Only Presets "#128 Synth Brass" and "#130 WT Pad"
+    - Tested with Arduino-Pico version 5.2.1
 - v1.3.1 (2025-09-29):
     - PRA32-U2 with Panel: Make SW0 non-omittable; Add SW4 and SW5 as Reserved
     - PRA32-U2 with Panel: Add an example of construction using a universal PCB
