@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v1.3.2 (2025-??-??):
+- v1.3.2 (2025-09-29):
     - PRA32-U2 Editor: Fix the Editor Only Presets "#128 Synth Brass" and "#130 WT Pad"
     - Tested with Arduino-Pico version 5.2.1
 - v1.3.1 (2025-09-29):
