@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v1.3.3 (2025-??-??):
+    - Fix comments
     - PRA32-U2 with Panel: Improve the README
     - Tested with Arduino-Pico version 5.1.0
 - v1.3.2 (2025-09-29):
