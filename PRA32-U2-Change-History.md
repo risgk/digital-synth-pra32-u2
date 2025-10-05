@@ -6,7 +6,7 @@
     - PRA32-U2 Editor: Modify the Editor Only Preset "#133 Square Lead"
     - PRA32-U2 with Panel: Improve the README
     - Fix comments
-    - Tested with Arduino-Pico version 5.1.0
+    - Tested with Arduino-Pico version 5.2.1
 - v1.3.2 (2025-09-29):
     - PRA32-U2 Editor: Fix the Editor Only Presets "#128 Synth Brass" and "#130 WT Pad"
     - Tested with Arduino-Pico version 5.2.1
