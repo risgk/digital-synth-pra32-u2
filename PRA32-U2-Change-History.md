@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v1.3.3 (2025-??-??):
+    - Modify the Preset "#0 Synth Pad"
     - Fix comments
     - PRA32-U2 with Panel: Improve the README
     - Tested with Arduino-Pico version 5.1.0
