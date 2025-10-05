@@ -46,7 +46,7 @@ const uint8_t g_preset_table_AMP_RELEASE    [] = {32 , 32 , 32 , 32 , 32 , 32 , 
 const uint8_t g_preset_table_FILTER_MODE    [] = {0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  };
 const uint8_t g_preset_table_P_BEND_RANGE   [] = {12 , 12 , 12 , 12 , 12 , 12 , 12 , 12 ,   12 , 12 , 12 , 12 , 12 , 12 , 12 , 12 };
 const uint8_t g_preset_table_EG_AMP_MOD     [] = {0  , 127, 127, 127, 127, 0  , 127, 0  ,   0  , 127, 127, 127, 127, 0  , 127, 0  };
-const uint8_t g_preset_table_REL_EQ_DECAY   [] = {0  , 127, 127, 127, 127, 127, 127, 0  ,   0  , 127, 127, 127, 127, 127, 127, 0  };
+const uint8_t g_preset_table_REL_EQ_DECAY   [] = {0  , 127, 127, 127, 127, 0  , 127, 0  ,   0  , 127, 127, 127, 127, 0  , 127, 0  };
 
 const uint8_t g_preset_table_BTH_FILTER_AMT [] = {64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 };
 const uint8_t g_preset_table_BTH_AMP_MOD    [] = {0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  };
