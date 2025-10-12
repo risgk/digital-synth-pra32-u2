@@ -81,7 +81,7 @@ extern void PRA32_U2_ControlPanel_on_control_change(uint8_t control_number);
 extern void PRA32_U2_ControlPanel_on_clock();
 extern void PRA32_U2_ControlPanel_on_start();
 extern void PRA32_U2_ControlPanel_on_stop();
-#endif  // defined(PRA32_U2_USE_CONTROL_PANEL_ANALOG_INPUT)
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 
 #include "pra32-u2-common.h"
 #include "pra32-u2-synth.h"
@@ -376,7 +376,7 @@ void __not_in_flash_func(handleClock)()
 {
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
   PRA32_U2_ControlPanel_on_clock();
-#endif  // defined(PRA32_U2_USE_CONTROL_PANEL_ANALOG_INPUT)
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 }
 
 void __not_in_flash_func(handleStart)()
@@ -385,7 +385,7 @@ void __not_in_flash_func(handleStart)()
   if (g_synth.current_controller_value(SEQ_TRX_ST_SP  ) >= 64) {
     PRA32_U2_ControlPanel_on_start();
   }
-#endif  // defined(PRA32_U2_USE_CONTROL_PANEL_ANALOG_INPUT)
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 }
 
 void __not_in_flash_func(handleStop)()
@@ -394,5 +394,5 @@ void __not_in_flash_func(handleStop)()
   if (g_synth.current_controller_value(SEQ_TRX_ST_SP  ) >= 64) {
     PRA32_U2_ControlPanel_on_stop();
   }
-#endif  // defined(PRA32_U2_USE_CONTROL_PANEL_ANALOG_INPUT)
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 }
