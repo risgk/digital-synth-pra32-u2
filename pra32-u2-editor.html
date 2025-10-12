@@ -43,6 +43,9 @@ td.keyh {
 <script>
 const APP_NAME_VERSION = "PRA32-U2 Editor v1.3.3";
 
+const USER_PROGRAM_NUMBER_MAX      = 7;
+const PROGRAM_NUMBER_MAX           = 15;
+
 const PRA32_U2_MIDI_CH  = 0;  // 0-based
 const NOTE_ON_VELOCITY  = 100
 const NOTE_OFF_VELOCITY = 64
@@ -629,14 +632,11 @@ function onMIDIMessage(event) {
   const PROGRAM_CHANGE = 0xC0;
   if (event.data[0] == (PROGRAM_CHANGE | midi_ch)) {
     var number = event.data[1];
-    if (number >= 0 && number <= 7) {
-      preset(number);
-      return;
-    } else if (number >= 8 && number <= 15) {
+    if (number >= 0 && number <= USER_PROGRAM_NUMBER_MAX) {
       recallParameters(number);
       return;
-    } else if (number >= 16 && number <= 23) {
-      editorOnlyPreset(number);
+    } else if (number >= USER_PROGRAM_NUMBER_MAX + 1 && number <= PROGRAM_NUMBER_MAX) {
+      preset(number);
       return;
     } else if (number == 127) {
       // Program #127: Random Control
@@ -1051,11 +1051,11 @@ function fileReaderImportAllLoad(event) {
 
   var obj = JSON.parse(event.target.result);
 
-  for (var number = 8; number < 16; number++) {
+  for (var number = 0; number <= USER_PROGRAM_NUMBER_MAX; number++) {
     controllersInLocalStorage.forEach(function(i) {
       var line = obj[controlNumberToStringMap.get(i)];
       if (line != null) {
-        var value = line[1][number - 8];
+        var value = line[1][number];
         if (value != null) {
           localStorage.setItem("keyMemory" + String(number) + controlNumberToStringMap.get(i), value);
         }
@@ -1193,14 +1193,14 @@ function fileExport() {
 
 function fileExportOneLine(number) {
   var str = "  \"" + controlNumberToStringMap.get(number) + "\" : [ [" + getCCValueString(number) + "], [";
-  str += getStoredCCValueString(8 , number) + ", ";
-  str += getStoredCCValueString(9 , number) + ", ";
-  str += getStoredCCValueString(10, number) + ", ";
-  str += getStoredCCValueString(11, number) + ", ";
-  str += getStoredCCValueString(12, number) + ", ";
-  str += getStoredCCValueString(13, number) + ", ";
-  str += getStoredCCValueString(14, number) + ", ";
-  str += getStoredCCValueString(15, number) + "] ],\n";
+  str += getStoredCCValueString(0, number) + ", ";
+  str += getStoredCCValueString(1, number) + ", ";
+  str += getStoredCCValueString(2, number) + ", ";
+  str += getStoredCCValueString(3, number) + ", ";
+  str += getStoredCCValueString(4, number) + ", ";
+  str += getStoredCCValueString(5, number) + ", ";
+  str += getStoredCCValueString(6, number) + ", ";
+  str += getStoredCCValueString(7, number) + "] ],\n";
   return str;
 }
 
