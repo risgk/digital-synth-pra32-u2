@@ -2,6 +2,7 @@
 
 - v1.4.0 (2025-??-??):
     - PRA32-U2 Editor: Rename the button "Random Ctrl" to "Random Synth"
+    - PRA32-U2 Editor: Change "EG Amp Mod" and "Release = Decay" by "Random Synth"
     - Tested with Arduino-Pico version 5.2.1
 - v1.3.3 (2025-10-12):
     - Lower Chorus Mix of the Presets and the Editor Only Presets
