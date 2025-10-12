@@ -95,14 +95,14 @@
 |                               |               |               |                                      |
 |                            87 | x             | o             | Program Number to Write to $4        |
 |                           106 | x             | o             | Write Parameters to Program $4       |
-|                           112 | x             | o             | Program Change #8 by CC              |
-|                           113 | x             | o             | Program Change #9 by CC              |
-|                           114 | x             | o             | Program Change #10 by CC             |
-|                           115 | x             | o             | Program Change #11 by CC             |
-|                           116 | x             | o             | Program Change #12 by CC             |
-|                           117 | x             | o             | Program Change #13 by CC             |
-|                           118 | x             | o             | Program Change #14 by CC             |
-|                           119 | x             | o             | Program Change #15 by CC             |
+|                           112 | x             | o             | Program Change #0 by CC              |
+|                           113 | x             | o             | Program Change #1 by CC              |
+|                           114 | x             | o             | Program Change #2 by CC              |
+|                           115 | x             | o             | Program Change #3 by CC              |
+|                           116 | x             | o             | Program Change #4 by CC              |
+|                           117 | x             | o             | Program Change #5 by CC              |
+|                           118 | x             | o             | Program Change #6 by CC              |
+|                           119 | x             | o             | Program Change #7 by CC              |
 |                           111 | x             | x             | [Reserved]                           |
 +-------------------------------+---------------+---------------+--------------------------------------+
 | Program                       | x             | o             |                                      |
@@ -127,7 +127,7 @@
 +-------------------------------+---------------+---------------+--------------------------------------+
 | Notes                         | $1 : Disabled in Paraphonic Mode                                     |
 |                               | $2 : Disabled if Osc 1 Wave is Tri (Triangle Wave)                   |
-|                               | $4 : To write the current parameters to Program #8-15 and the        |
+|                               | $4 : To write the current parameters to Program #0-7 and the         |
 |                               |   flash, set "Program Number to Write to" (# is the value mod 16)    |
 |                               |   and then change "Write Parameters to Program" from 0 to 1-127      |
 |                               | $5 : Basic Channel can be changed in PRA32-U2 with Panel             |

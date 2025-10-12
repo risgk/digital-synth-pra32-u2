@@ -82,7 +82,7 @@
 #### Group C
 
 - Write Operations
-    - Write Program 8-15, Write Panel Prms (Write Panel and Step Sequencer Parameters)
+    - Write Program 0-7, Write Panel Prms (Write Panel and Step Sequencer Parameters)
         - Change the value from 0-63 [Rdy] to 64-127 [Exe] to write to the flash
 
 
