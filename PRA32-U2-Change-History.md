@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v1.3.3 (2025-??-??):
+- v1.3.3 (2025-10-12):
     - Lower Chorus Mix of the Presets and the Editor Only Presets
     - Modify the Presets "#0 Synth Pad" and "#5 Sync Lead"
     - PRA32-U2 Editor: Modify the Editor Only Preset "#128 Synth Brass"
