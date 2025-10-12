@@ -1,6 +1,9 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v1.4.0 (2025-??-??):
+    - Change the programs #0-7 to user presets and #8-15 to factory presets
+    - Change the default program to #0
+    - Rename User Programs to User Presets, Presets to Factory Presets, and Editor Only Presets to Editor Presets
     - PRA32-U2 Editor: Rename the button "Random Ctrl" to "Random Synth"
     - PRA32-U2 Editor: Change "EG Amp Mod" and "Release = Decay" by "Random Synth"
     - Tested with Arduino-Pico version 5.2.1

@@ -278,7 +278,7 @@ public:
   , m_controller_value_eg_amp_mod(0)
   , m_controller_value_rel_eq_decay(0)
 
-  , m_program_number_to_write(0)
+  , m_program_number_to_write(8)
   , m_wr_prog_to_flash_cc_value(0)
   , m_sp_prog_chg_cc_values()
   , m_current_controller_value_table()
@@ -427,11 +427,11 @@ public:
     EEPROM.begin(2048);
 
 #if !defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
-    for (uint32_t program_number = (PRESET_PROGRAM_NUMBER_MAX + 1); program_number <= PROGRAM_NUMBER_MAX; ++program_number) {
+    for (uint32_t program_number = 0; program_number <= USER_PROGRAM_NUMBER_MAX; ++program_number) {
       if ((EEPROM.read(program_number * 128) == 'U') && (EEPROM.read(program_number * 128 + 1) == program_number)) {
         for (uint32_t i = 0; i < sizeof(s_program_table_parameters) / sizeof(s_program_table_parameters[0]); ++i) {
           uint32_t control_number = s_program_table_parameters[i];
-          uint8_t value_read = EEPROM.read(program_number * 128 + control_number);
+          uint8_t value_read = EEPROM.read(1024 + program_number * 128 + control_number);
           if (value_read < 128) {
             m_program_table[control_number][program_number] = value_read;
           }
@@ -1167,15 +1167,13 @@ public:
   }
 
   /* INLINE */ void write_parameters_to_program(uint8_t program_number_to_write) {
-    if (program_number_to_write <= PRESET_PROGRAM_NUMBER_MAX) {
+    if (program_number_to_write > USER_PROGRAM_NUMBER_MAX) {
       return;
     }
 
-    if (program_number_to_write <= PROGRAM_NUMBER_MAX) {
-      for (uint32_t i = 0; i < sizeof(s_program_table_parameters) / sizeof(s_program_table_parameters[0]); ++i) {
-        uint32_t control_number = s_program_table_parameters[i];
-        m_program_table[control_number][program_number_to_write] = m_current_controller_value_table[control_number];
-      }
+    for (uint32_t i = 0; i < sizeof(s_program_table_parameters) / sizeof(s_program_table_parameters[0]); ++i) {
+      uint32_t control_number = s_program_table_parameters[i];
+      m_program_table[control_number][program_number_to_write] = m_current_controller_value_table[control_number];
     }
 
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
@@ -1193,7 +1191,7 @@ public:
     if (program_number_to_write <= PROGRAM_NUMBER_MAX) {
       for (uint32_t i = 0; i < sizeof(s_program_table_parameters) / sizeof(s_program_table_parameters[0]); ++i) {
         uint32_t control_number = s_program_table_parameters[i];
-        EEPROM.write(program_number_to_write * 128 + control_number, m_current_controller_value_table[control_number]);
+        EEPROM.write(1024 + program_number_to_write * 128 + control_number, m_current_controller_value_table[control_number]);
       }
 
       EEPROM.write(program_number_to_write * 128,     'U');
