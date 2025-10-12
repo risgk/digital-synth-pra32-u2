@@ -3,7 +3,7 @@
 - v1.3.3 (2025-??-??):
     - Lower Chorus Mix of the Presets and the Editor Only Presets
     - Modify the Presets "#0 Synth Pad" and "#5 Sync Lead"
-    - PRA32-U2 Editor: Modify the Editor Only Preset "#133 Square Lead"
+    - PRA32-U2 Editor: Modify the Editor Only Preset "#128 Synth Brass"
     - PRA32-U2 with Panel: Improve the README
     - Fix comments
     - Tested with Arduino-Pico version 5.2.1
