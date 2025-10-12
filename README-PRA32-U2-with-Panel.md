@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 with Panel v1.3.2
+# Digital Synth PRA32-U2 with Panel v1.3.3
 
-- 2025-09-29 ISGK Instruments
+- 2025-10-12 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 
@@ -18,10 +18,9 @@
 - Uncomment out `//#define PRA32_U2_USE_CONTROL_PANEL` in "Digital-Synth-PRA32-U2.ino" and modify the constants
 - Inputs
     - SW0: Prev Key (Push to the previous page, Long press to the previous group)
-        - To not use this key, comment out `//#define PRA32_U2_KEY_INPUT_PREV_KEY_PIN          (16)` in "Digital-Synth-PRA32-U2.ino"
     - SW1: Next Key (Push to the next page, Long press to the next group)
     - SW2: Play Key (Normal Mode: press to play, Sequencer Mode: push to start/stop) (omittable)
-        - To not use this key, comment out `//#define PRA32_U2_KEY_INPUT_PLAY_KEY_PIN          (20)` in "Digital-Synth-PRA32-U2.ino"
+        - To not use this key, comment out `#define PRA32_U2_KEY_INPUT_PLAY_KEY_PIN          (20)` in "Digital-Synth-PRA32-U2.ino"
     - SW3: Shift Key (Press to prevent values from changing across 64) (optional)
         - To use this key, uncomment out `//#define PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN         (17)` in "Digital-Synth-PRA32-U2.ino"
     - SW4: Reserved (optional)
@@ -29,7 +28,7 @@
     - VR0 (ADC0): Parameter A
     - VR1 (ADC1): Parameter B
     - VR2 (ADC2): Parameter C for Play (omittable)
-        - To not use this, comment out `//#define PRA32_U2_KEY_INPUT_PLAY_KEY_PIN          (20)` in "Digital-Synth-PRA32-U2.ino"
+        - To not use this, comment out `#define PRA32_U2_KEY_INPUT_PLAY_KEY_PIN          (20)` in "Digital-Synth-PRA32-U2.ino"
 - NOTE: Using a USB cable with ferrite cores is recommended to prevent ADCs from being affected by USB MIDI communication noise, and UART MIDI control is also recommended
 
 
