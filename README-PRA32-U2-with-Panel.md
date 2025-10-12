@@ -17,12 +17,14 @@
     - Tested with Pimoroni Pico Audio Pack, M5Stack MIDI Unit (optional), Long Leg 2x20 Pin Socket * 2, Seeed Studio's Grove Shield for Pi Pico, Dual Button * 3, Rotary Angle Sensor * 3, and an OLED Display 0.96 inch
 - Uncomment out `//#define PRA32_U2_USE_CONTROL_PANEL` in "Digital-Synth-PRA32-U2.ino" and modify the constants
 - Inputs
-    - SW0: Prev Key (Push to the previous page, Long press to the previous group)
-    - SW1: Next Key (Push to the next page, Long press to the next group)
+    - SW0: Prev Key (Push to go to the previous page, Long press to the previous group)
+    - SW1: Next Key (Push to go to the next page, Long press to the next group)
     - SW2: Play Key (Normal Mode: press to play, Sequencer Mode: push to start/stop) (omittable)
         - To not use this key, comment out `#define PRA32_U2_KEY_INPUT_PLAY_KEY_PIN          (20)` in "Digital-Synth-PRA32-U2.ino"
-    - SW3: Reserved (optional)
-    - SW4: Reserved (optional)
+    - SW3: Prog - Key (Push to change to the previous user program) (optional)
+        - To use this key, uncomment out `//#define PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN    (17)` in "Digital-Synth-PRA32-U2.ino"
+    - SW4: Prog + Key (Push to change to the next user program) (optional)
+        - To use this key, uncomment out `//#define PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN     (19)` in "Digital-Synth-PRA32-U2.ino"
     - SW5: Shift Key (Press to prevent values from changing across 64) (optional)
         - To use this key, uncomment out `//#define PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN         (21)` in "Digital-Synth-PRA32-U2.ino"
     - VR0 (ADC0): Parameter A
