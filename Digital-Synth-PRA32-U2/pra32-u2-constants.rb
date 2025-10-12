@@ -127,14 +127,14 @@ DELAY_FEEDBACK  = 92
 
 PROG_N_TO_W_TO  = 87
 WRITE_P_TO_PROG = 106
-PC_BY_CC_8      = 112
-PC_BY_CC_9      = 113
-PC_BY_CC_10     = 114
-PC_BY_CC_11     = 115
-PC_BY_CC_12     = 116
-PC_BY_CC_13     = 117
-PC_BY_CC_14     = 118
-PC_BY_CC_15     = 119
+PC_BY_CC_0      = 112
+PC_BY_CC_1      = 113
+PC_BY_CC_2      = 114
+PC_BY_CC_3      = 115
+PC_BY_CC_4      = 116
+PC_BY_CC_5      = 117
+PC_BY_CC_6      = 118
+PC_BY_CC_7      = 119
 
 
 ALL_SOUND_OFF   = 120

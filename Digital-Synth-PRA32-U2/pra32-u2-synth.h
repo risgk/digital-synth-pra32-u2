@@ -1124,20 +1124,20 @@ public:
       break;
 
     // Program Change by CC
-    case PC_BY_CC_8     :
-    case PC_BY_CC_9     :
-    case PC_BY_CC_10    :
-    case PC_BY_CC_11    :
-    case PC_BY_CC_12    :
-    case PC_BY_CC_13    :
-    case PC_BY_CC_14    :
-    case PC_BY_CC_15    :
+    case PC_BY_CC_0     :
+    case PC_BY_CC_1     :
+    case PC_BY_CC_2     :
+    case PC_BY_CC_3     :
+    case PC_BY_CC_4     :
+    case PC_BY_CC_5     :
+    case PC_BY_CC_6     :
+    case PC_BY_CC_7     :
       {
-        uint8_t program_index = control_number - PC_BY_CC_8;
+        uint8_t program_index = control_number - PC_BY_CC_0;
         uint8_t old_value = m_sp_prog_chg_cc_values[program_index];
         m_sp_prog_chg_cc_values[program_index] = controller_value;
         if ((old_value < 64) && (controller_value >= 64)) {
-          program_change(program_index + 8);
+          program_change(program_index);
         }
       }
       break;
