@@ -247,8 +247,8 @@ static INLINE void PRA32_U2_ControlPanel_update_page() {
 #endif  // defined(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN)
 
 #if defined(PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN) || defined(PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN)
-  s_display_buffer[0][16] = '#';
-  s_display_buffer[0][17] = '0' + s_current_program;
+  s_display_buffer[0][17] = '#';
+  s_display_buffer[0][18] = '0' + s_current_program;
 #endif  // defined(PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN) || defined(PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN)
 
   s_display_draw_counter = -1;
@@ -1275,7 +1275,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
 
         g_synth.program_change(s_current_program);
 
-        PRA32_U2_ControlPanel_update_page();
+        s_display_buffer[0][18] = '0' + s_current_program;
         return;
       }
     }
@@ -1300,7 +1300,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
 
         g_synth.program_change(s_current_program);
 
-        PRA32_U2_ControlPanel_update_page();
+        s_display_buffer[0][18] = '0' + s_current_program;
         return;
       }
     }
