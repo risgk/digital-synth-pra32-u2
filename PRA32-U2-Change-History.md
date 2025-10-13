@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v1.4.0 (2025-??-??):
+- v1.4.0 (2025-10-13):
     - Fix PRA32_U2_VERSION of "Digital-Synth-PRA32-U2.ino"
     - Change the programs #0-7 to user presets and #8-15 to factory presets
     - Change the default program to #0
