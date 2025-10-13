@@ -4,7 +4,7 @@ const uint8_t   PAGE_GROUP_DEFAULT   = 0;
 const uint8_t   PAGE_INDEX_DEFAULT_A = 7;
 const uint8_t   PAGE_INDEX_DEFAULT_B = 2;
 const uint8_t   PAGE_INDEX_DEFAULT_C = 0;
-const uint8_t   PAGE_INDEX_DEFAULT_D = 4;
+const uint8_t   PAGE_INDEX_DEFAULT_D = 0;
 
 struct PRA32_U2_ControlPanelPage {
   char    page_name_line_0            [10 + 1];
@@ -74,10 +74,10 @@ static const PRA32_U2_ControlPanelPage g_control_panel_page_table_b[] = {
 };
 
 static const PRA32_U2_ControlPanelPage g_control_panel_page_table_c[] = {
-  { "Page=C-00 ", "Write 8   ",   "Write     ", "Program  8", WR_PROGRAM_8   ,   "Write     ", "Program  9", WR_PROGRAM_9   ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=C-01 ", "Write 10  ",   "Write     ", "Program 10", WR_PROGRAM_10  ,   "Write     ", "Program 11", WR_PROGRAM_11  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=C-02 ", "Write 12  ",   "Write     ", "Program 12", WR_PROGRAM_12  ,   "Write     ", "Program 13", WR_PROGRAM_13  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=C-03 ", "Write 14  ",   "Write     ", "Program 14", WR_PROGRAM_14  ,   "Write     ", "Program 15", WR_PROGRAM_15  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=C-00 ", "Write 0   ",   "Write     ", "Program  0", WR_PROGRAM_0   ,   "Write     ", "Program  1", WR_PROGRAM_1   ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=C-01 ", "Write 2   ",   "Write     ", "Program  2", WR_PROGRAM_2   ,   "Write     ", "Program  3", WR_PROGRAM_3   ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=C-02 ", "Write 4   ",   "Write     ", "Program  4", WR_PROGRAM_4   ,   "Write     ", "Program  5", WR_PROGRAM_5   ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=C-03 ", "Write 6   ",   "Write     ", "Program  6", WR_PROGRAM_6   ,   "Write     ", "Program  7", WR_PROGRAM_7   ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=C-04 ", "Write a   ",   "Write     ", "Panel Prms", WR_PANEL_PRMS  ,   "          ", "          ", 0xFF           ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
 };
 
