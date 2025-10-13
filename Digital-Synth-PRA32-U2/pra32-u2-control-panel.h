@@ -9,8 +9,7 @@
 #include <cstdio>
 #include <cstring>
 
-
-
+static volatile uint32_t s_current_program = 0;
 static volatile uint32_t s_current_page_group   = PAGE_GROUP_DEFAULT;
 static volatile uint32_t s_current_page_index[] = { PAGE_INDEX_DEFAULT_A, PAGE_INDEX_DEFAULT_B, PAGE_INDEX_DEFAULT_C, PAGE_INDEX_DEFAULT_D };
 
@@ -23,6 +22,9 @@ static volatile boolean  s_adc_control_catched[3];
 static          uint32_t s_prev_key_current_value;
 static          uint32_t s_next_key_current_value;
 static          uint32_t s_play_key_current_value;
+
+static          uint32_t s_prog_minus_key_current_value;
+static          uint32_t s_prog_plus_key_current_value;
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 
 static          uint8_t  s_play_mode                = 0;
@@ -243,6 +245,11 @@ static INLINE void PRA32_U2_ControlPanel_update_page() {
   std::memcpy(&s_display_buffer[2][11], current_page.control_target_c_name_line_1, 10);
   s_adc_control_target[2]             = current_page.control_target_c;
 #endif  // defined(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN)
+
+#if defined(PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN) || defined(PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN)
+  s_display_buffer[0][17] = '#';
+  s_display_buffer[0][18] = '0' + s_current_program;
+#endif  // defined(PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN) || defined(PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN)
 
   s_display_draw_counter = -1;
 }
@@ -954,6 +961,14 @@ INLINE void PRA32_U2_ControlPanel_setup() {
   pinMode(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN, PRA32_U2_KEY_INPUT_PIN_MODE);
 #endif  // defined(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN)
 
+#if defined(PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN)
+  pinMode(PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN, PRA32_U2_KEY_INPUT_PIN_MODE);
+#endif  // defined(PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN)
+
+#if defined(PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN)
+  pinMode(PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN, PRA32_U2_KEY_INPUT_PIN_MODE);
+#endif  // defined(PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN)
+
 #if defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
   pinMode(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN, PRA32_U2_KEY_INPUT_PIN_MODE);
 #endif  // defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
@@ -1111,8 +1126,11 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
   static uint32_t s_next_key_value_changed_time = 0;
   static uint32_t s_play_key_value_changed_time = 0;
 
-  static uint32_t s_prev_key_long_preesed = false;
-  static uint32_t s_next_key_long_preesed = false;
+  static uint32_t s_prog_minus_key_value_changed_time = 0;
+  static uint32_t s_prog_plus_key_value_changed_time  = 0;
+
+  static uint32_t s_prev_key_long_pressed = false;
+  static uint32_t s_next_key_long_pressed = false;
 
   static uint32_t s_key_inpuy_counter = 0;
   ++s_key_inpuy_counter;
@@ -1127,7 +1145,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
 
       if (s_prev_key_current_value == 0) {
         // Prev key released
-        if (s_prev_key_long_preesed == false) {
+        if (s_prev_key_long_pressed == false) {
           if (s_current_page_index[s_current_page_group] == 0) {
             s_current_page_index[s_current_page_group] = g_number_of_pages[s_current_page_group] - 1;
           } else {
@@ -1136,15 +1154,15 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
 
           PRA32_U2_ControlPanel_update_page();
         }
-        s_prev_key_long_preesed = false;
+        s_prev_key_long_pressed = false;
         return;
       }
     }
 
     if (s_prev_key_current_value == 1) {
-      if (s_prev_key_long_preesed == false) {
+      if (s_prev_key_long_pressed == false) {
         if (s_key_inpuy_counter - s_prev_key_value_changed_time >= PRA32_U2_KEY_LONG_PRESS_WAIT) {
-          s_prev_key_long_preesed = true;
+          s_prev_key_long_pressed = true;
 
           if (s_current_page_group == 0) {
             s_current_page_group = NUMBER_OF_PAGE_GROUPS - 1;
@@ -1170,7 +1188,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
 
       if (s_next_key_current_value == 0) {
         // Next key released
-        if (s_next_key_long_preesed == false) {
+        if (s_next_key_long_pressed == false) {
           if (s_current_page_index[s_current_page_group] == g_number_of_pages[s_current_page_group] - 1) {
             s_current_page_index[s_current_page_group] = 0;
           } else {
@@ -1179,15 +1197,15 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
 
           PRA32_U2_ControlPanel_update_page();
         }
-        s_next_key_long_preesed = false;
+        s_next_key_long_pressed = false;
         return;
       }
     }
 
     if (s_next_key_current_value == 1) {
-      if (s_next_key_long_preesed == false) {
+      if (s_next_key_long_pressed == false) {
         if (s_key_inpuy_counter - s_next_key_value_changed_time >= PRA32_U2_KEY_LONG_PRESS_WAIT) {
-          s_next_key_long_preesed = true;
+          s_next_key_long_pressed = true;
 
           if (s_current_page_group == NUMBER_OF_PAGE_GROUPS - 1) {
             s_current_page_group = 0;
@@ -1238,6 +1256,56 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
     }
   }
 #endif  // defined(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN)
+
+#if defined(PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN)
+  if (s_key_inpuy_counter - s_prog_minus_key_value_changed_time >= PRA32_U2_KEY_ANTI_CHATTERING_WAIT) {
+    uint32_t value = digitalRead(PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
+
+    if (s_prog_minus_key_current_value != value) {
+      s_prog_minus_key_current_value = value;
+      s_prog_minus_key_value_changed_time = s_key_inpuy_counter;
+
+      if (s_prog_minus_key_current_value == 0) {
+        // Prog - key released
+        if (s_current_program == 0) {
+          s_current_program = USER_PROGRAM_NUMBER_MAX;
+        } else {
+          --s_current_program;
+        }
+
+        g_synth.program_change(s_current_program);
+
+        s_display_buffer[0][18] = '0' + s_current_program;
+        return;
+      }
+    }
+  }
+#endif  // defined(PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN)
+
+#if defined(PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN)
+  if (s_key_inpuy_counter - s_prog_plus_key_value_changed_time >= PRA32_U2_KEY_ANTI_CHATTERING_WAIT) {
+    uint32_t value = digitalRead(PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
+
+    if (s_prog_plus_key_current_value != value) {
+      s_prog_plus_key_current_value = value;
+      s_prog_plus_key_value_changed_time = s_key_inpuy_counter;
+
+      if (s_prog_plus_key_current_value == 0) {
+        // Prog + key released
+        if (s_current_program == USER_PROGRAM_NUMBER_MAX) {
+          s_current_program = 0;
+        } else {
+          ++s_current_program;
+        }
+
+        g_synth.program_change(s_current_program);
+
+        s_display_buffer[0][18] = '0' + s_current_program;
+        return;
+      }
+    }
+  }
+#endif  // defined(PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN)
 
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL_KEY_INPUT)
 
@@ -1433,7 +1501,7 @@ INLINE void PRA32_U2_ControlPanel_update_display(uint32_t loop_counter) {
 
     ++s_display_draw_counter;
 
-    if (s_display_draw_counter == (14 * 10) + 1) {
+    if (s_display_draw_counter == (15 * 10)) {
       s_display_draw_counter = (11 * 10);
     }
 
@@ -1495,8 +1563,7 @@ INLINE void PRA32_U2_ControlPanel_update_display(uint32_t loop_counter) {
       s_display_draw_position_y = 3;
       break;
     case 14:
-      s_display_draw_position_update = true;
-      s_display_draw_position_x = 20;
+      s_display_draw_position_x = s_display_draw_counter % 10 + 11;
       s_display_draw_position_y = 0;
       break;
     }

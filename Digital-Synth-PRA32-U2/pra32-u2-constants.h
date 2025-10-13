@@ -9,7 +9,7 @@ const uint8_t   NOTE_NUMBER_MIN     = 0;
 const uint8_t   NOTE_NUMBER_MAX     = 127;
 const uint8_t   NOTE_NUMBER_INVALID = 255;
 
-const uint8_t   PRESET_PROGRAM_NUMBER_MAX    = 7;
+const uint8_t   USER_PROGRAM_NUMBER_MAX      = 7;
 const uint8_t   PROGRAM_NUMBER_MAX           = 15;
 
 const int8_t    OSC_CONTROL_INTERVAL_BITS    = 1;
@@ -127,14 +127,14 @@ const uint8_t   DELAY_FEEDBACK  = 92;
 
 const uint8_t   PROG_N_TO_W_TO  = 87;
 const uint8_t   WRITE_P_TO_PROG = 106;
-const uint8_t   PC_BY_CC_8      = 112;
-const uint8_t   PC_BY_CC_9      = 113;
-const uint8_t   PC_BY_CC_10     = 114;
-const uint8_t   PC_BY_CC_11     = 115;
-const uint8_t   PC_BY_CC_12     = 116;
-const uint8_t   PC_BY_CC_13     = 117;
-const uint8_t   PC_BY_CC_14     = 118;
-const uint8_t   PC_BY_CC_15     = 119;
+const uint8_t   PC_BY_CC_0      = 112;
+const uint8_t   PC_BY_CC_1      = 113;
+const uint8_t   PC_BY_CC_2      = 114;
+const uint8_t   PC_BY_CC_3      = 115;
+const uint8_t   PC_BY_CC_4      = 116;
+const uint8_t   PC_BY_CC_5      = 117;
+const uint8_t   PC_BY_CC_6      = 118;
+const uint8_t   PC_BY_CC_7      = 119;
 
 
 const uint8_t   ALL_SOUND_OFF   = 120;

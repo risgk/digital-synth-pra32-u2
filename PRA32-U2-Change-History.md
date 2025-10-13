@@ -1,5 +1,15 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v1.4.0 (2025-10-13):
+    - Fix PRA32_U2_VERSION of "Digital-Synth-PRA32-U2.ino"
+    - Change the programs #0-7 to user presets and #8-15 to factory presets
+    - Change the default program to #0
+    - Rename User Programs to User Presets, Presets to Factory Presets, and Editor Only Presets to Editor Presets
+    - PRA32-U2 Editor: Rename the button "Random Ctrl" to "Random Synth"
+    - PRA32-U2 Editor: Change "EG Amp Mod" and "Release = Decay" by "Random Synth"
+    - PRA32-U2 with Panel: Change the Shift key to SW5
+    - PRA32-U2 with Panel: Add Prog -/+ Key as SW3/SW4 (optional)
+    - Tested with Arduino-Pico version 5.2.1
 - v1.3.3 (2025-10-12):
     - Lower Chorus Mix of the Presets and the Editor Only Presets
     - Modify the Presets "#0 Synth Pad" and "#5 Sync Lead"
