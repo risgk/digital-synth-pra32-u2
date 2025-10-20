@@ -1167,7 +1167,7 @@ public:
   }
 
   /* INLINE */ void write_parameters_to_program(uint8_t program_number_to_write) {
-    if (program_number_to_write > USER_PROGRAM_NUMBER_MAX) {
+    if ((program_number_to_write > USER_PROGRAM_NUMBER_MAX) && (program_number_to_write != 128)) {
       return;
     }
 
