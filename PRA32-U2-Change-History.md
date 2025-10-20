@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v1.4.1 (2025-??-??):
+- v1.4.1 (2025-10-20):
     - PRA32-U2 with Panel: Fix an issue where "Write Panel Prms" is not functioning
     - Tested with Arduino-Pico version 5.4.0
 - v1.4.0 (2025-10-13):
