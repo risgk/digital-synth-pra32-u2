@@ -428,7 +428,7 @@ public:
 
 #if !defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
     for (uint32_t program_number = 0; program_number <= USER_PROGRAM_NUMBER_MAX; ++program_number) {
-      if ((EEPROM.read(program_number * 128) == 'U') && (EEPROM.read(program_number * 128 + 1) == program_number)) {
+      if ((EEPROM.read(1024 + program_number * 128) == 'U') && (EEPROM.read(1024 + program_number * 128 + 1) == program_number)) {
         for (uint32_t i = 0; i < sizeof(s_program_table_parameters) / sizeof(s_program_table_parameters[0]); ++i) {
           uint32_t control_number = s_program_table_parameters[i];
           uint8_t value_read = EEPROM.read(1024 + program_number * 128 + control_number);
@@ -1196,8 +1196,8 @@ public:
         EEPROM.write(1024 + program_number_to_write * 128 + control_number, m_current_controller_value_table[control_number]);
       }
 
-      EEPROM.write(program_number_to_write * 128,     'U');
-      EEPROM.write(program_number_to_write * 128 + 1, program_number_to_write);
+      EEPROM.write(1024 + program_number_to_write * 128,     'U');
+      EEPROM.write(1024 + program_number_to_write * 128 + 1, program_number_to_write);
     }
 
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
