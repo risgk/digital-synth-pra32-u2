@@ -1171,9 +1171,11 @@ public:
       return;
     }
 
-    for (uint32_t i = 0; i < sizeof(s_program_table_parameters) / sizeof(s_program_table_parameters[0]); ++i) {
-      uint32_t control_number = s_program_table_parameters[i];
-      m_program_table[control_number][program_number_to_write] = m_current_controller_value_table[control_number];
+    if (program_number_to_write <= USER_PROGRAM_NUMBER_MAX) {
+        for (uint32_t i = 0; i < sizeof(s_program_table_parameters) / sizeof(s_program_table_parameters[0]); ++i) {
+          uint32_t control_number = s_program_table_parameters[i];
+          m_program_table[control_number][program_number_to_write] = m_current_controller_value_table[control_number];
+        }
     }
 
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
