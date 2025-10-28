@@ -9,7 +9,7 @@
 #include <cstdio>
 #include <cstring>
 
-static volatile uint32_t s_current_program = PROGRAM_NUMBER_DEFAULT;
+static volatile uint32_t s_current_program = (PROGRAM_NUMBER_DEFAULT <= USER_PROGRAM_NUMBER_MAX) ? PROGRAM_NUMBER_DEFAULT : USER_PROGRAM_NUMBER_MAX;
 static volatile uint32_t s_current_page_group   = PAGE_GROUP_DEFAULT;
 static volatile uint32_t s_current_page_index[] = { PAGE_INDEX_DEFAULT_A, PAGE_INDEX_DEFAULT_B, PAGE_INDEX_DEFAULT_C, PAGE_INDEX_DEFAULT_D };
 
