@@ -48,7 +48,7 @@
 |                            72 | x             | o             | EG Release                           |
 |                               |               |               |                                      |
 |                            89 | x             | o             | EG Mod Amt [-|+]                     |
-|                             8 | x             | o             | EG Mod Dst [OP|FC|-|O2P|-|O1S]       |
+|                             8 | x             | o             | EG Mod Dst [P|F|-|2P|-|1S]           |
 |                            18 | x             | o             | Voice Mode [Pol|Par|-|Mon|LP|Lgt]    |
 |                             5 | x             | o             | Portamento                           |
 |                               |               |               |                                      |
@@ -58,7 +58,7 @@
 |                            17 | x             | o             | LFO Depth                            |
 |                               |               |               |                                      |
 |                            13 | x             | o             | LFO Mod Amt [-|+]                    |
-|                           103 | x             | o             | LFO Mod Dst [OP|FC|-|O2P|-|O1S]      |
+|                           103 | x             | o             | LFO Mod Dst [P|F|-|2P|-|1S]          |
 |                            25 | x             | o             | LFO Filter Amt [-|+]                 |
 |                            15 | x             | o             | Amp Gain                             |
 |                               |               |               |                                      |
