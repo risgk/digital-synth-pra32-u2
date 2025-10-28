@@ -2,6 +2,7 @@
 
 - v1.5.0 (2025-??-??):
     - Change EG/LFO Osc Amt/Dst to EG/LFO Mod Amt/Dst
+    - Add Filter Cutoff (F) to EG/LFO Mod Dst
     - Modify the Presets "#0 Synth Pad" and "#5 Sync Lead"
     - PRA32-U2 Editor: Modify the Editor Only Preset "#128 Synth Brass"
     - Other improvements
