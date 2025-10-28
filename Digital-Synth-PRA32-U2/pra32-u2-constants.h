@@ -153,9 +153,10 @@ const uint8_t   OSC_WAVE_1_W_T     = 102;
 const uint8_t   OSC_WAVE_1_PULSE   = 127;
 const uint8_t   OSC_WAVE_2_NOISE   = 127;
 
-const uint8_t   OSC_DST_PITCH      = 0;
-const uint8_t   OSC_DST_PITCH_2    = 64;
-const uint8_t   OSC_DST_SHAPE_1    = 127;
+const uint8_t   MOD_DST_PITCH      = 0;
+const uint8_t   MOD_DST_CUTOFF     = 25;
+const uint8_t   MOD_DST_PITCH_2    = 76;
+const uint8_t   MOD_DST_SHAPE_1    = 127;
 
 const uint8_t   LFO_WAVE_SINE      = 0;
 const uint8_t   LFO_WAVE_SAW_DOWN  = 25;

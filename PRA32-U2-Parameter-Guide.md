@@ -146,7 +146,7 @@
     - 64: 200 ms
     - 96: 2 s
     - 127: 18.6 s
-- EG Osc Amt [-|+], LFO Osc Amt [-|+]
+- EG Mod Amt [-|+], LFO Mod Amt [-|+]
     - Pitch
         - -63 (1): -10 oct (min)
         - -62 (2): -8 oct
@@ -183,10 +183,16 @@
         - +61 (125): Shape +244
         - +62 (126): Shape +248
         - +63 (127): Shape +256 (max)
-- EG Osc Dst [P|2P|1S], LFO Osc Dst [P|2P|1S]
-    - 0 (0-31): Osc 1 & 2 Pitch
-    - 64 (32-95): Osc 2 Pitch
-    - 127 (96-127): Osc 1 Shape
+    - Cutoff
+        - -60 (4): -120 (min)
+        - +60 (124): +120 (max)
+- EG Mod Dst [OP|FC|-|O2P|-|O1S], LFO Mod Dst [OP|FC|-|O2P|-|O1S]
+    - 0 (0-12): Osc 1 & 2 Pitch
+    - 25 (13-38): Filter Cutoff
+    - 51 (39-63): Osc 2 Pitch, Reserved
+    - 76 (64-88): Osc 2 Pitch
+    - 102 (89-114): Osc 1 Shape, Reserved
+    - 127 (115-127): Osc 1 Shape
 - Voice Mode [Pol|Par|-|Mon|LP|Lgt]
     - 0 (0-12): Polyphonic (LFO Single Trigger)
     - 25 (13-38): Paraphonic (LFO Single Trigger)

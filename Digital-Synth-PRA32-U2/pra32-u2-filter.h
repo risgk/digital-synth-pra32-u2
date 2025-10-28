@@ -17,8 +17,8 @@ class PRA32_U2_Filter {
   int16_t         m_cutoff_current;
   int16_t         m_cutoff_control;
   int16_t         m_cutoff_control_effective;
-  int16_t         m_cutoff_eg_amt;
-  int16_t         m_cutoff_lfo_amt;
+  int16_t         m_cutoff_eg_amt[2];
+  int16_t         m_cutoff_lfo_amt[2];
   int16_t         m_cutoff_pitch_amt;
   uint8_t         m_filter_mode;
   int16_t         m_cutoff_breath_amt;
@@ -50,8 +50,10 @@ public:
 
     set_cutoff(127);
     set_resonance(0);
-    set_cutoff_eg_amt(64);
-    set_cutoff_lfo_amt(64);
+    set_cutoff_eg_amt(0, 64);
+    set_cutoff_eg_amt(1, 64);
+    set_cutoff_lfo_amt(0, 64);
+    set_cutoff_lfo_amt(1, 64);
     set_cutoff_pitch_amt(0);
 
     update_coefs(0, 0, 60 << 8);
@@ -88,12 +90,12 @@ public:
     return cutoff_mod_amt_table[controller_value];
   }
 
-  INLINE void set_cutoff_eg_amt(uint8_t controller_value) {
-    m_cutoff_eg_amt = get_cutoff_mod_amt(controller_value) << 1;
+  INLINE void set_cutoff_eg_amt(uint8_t index, uint8_t controller_value) {
+    m_cutoff_eg_amt[index] = get_cutoff_mod_amt(controller_value) << 1;
   }
 
-  INLINE void set_cutoff_lfo_amt(uint8_t controller_value) {
-    m_cutoff_lfo_amt = get_cutoff_mod_amt(controller_value) << 1;
+  INLINE void set_cutoff_lfo_amt(uint8_t index, uint8_t controller_value) {
+    m_cutoff_lfo_amt[index] = get_cutoff_mod_amt(controller_value) << 1;
   }
 
   INLINE void set_cutoff_pitch_amt(uint8_t controller_value) {
@@ -150,9 +152,11 @@ private:
 
   INLINE void update_coefs(int16_t eg_input, int16_t lfo_input, uint16_t osc_pitch) {
     int16_t cutoff_candidate = m_cutoff_control_effective;
-    cutoff_candidate += (m_cutoff_eg_amt * eg_input) >> (14 - 2);
+    cutoff_candidate += (m_cutoff_eg_amt[0] * eg_input) >> (14 - 2);
+    cutoff_candidate += (m_cutoff_eg_amt[1] * eg_input) >> (14 - 2);
 
-    cutoff_candidate += (lfo_input * m_cutoff_lfo_amt) >> (14 - 2);
+    cutoff_candidate += (lfo_input * m_cutoff_lfo_amt[0]) >> (14 - 2);
+    cutoff_candidate += (lfo_input * m_cutoff_lfo_amt[1]) >> (14 - 2);
     cutoff_candidate += (((osc_pitch - (60 << 8)) * m_cutoff_pitch_amt) + (1 << ((10 - 1) - 2))) >> (10 - 2);
     cutoff_candidate += (m_breath_controller * m_cutoff_breath_amt) >> (14 - 2);
 
