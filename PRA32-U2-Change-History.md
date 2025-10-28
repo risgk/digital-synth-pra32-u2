@@ -3,6 +3,7 @@
 - v1.4.3 (2025-??-??):
     - Modify the Presets "#0 Synth Pad" and "#5 Sync Lead"
     - PRA32-U2 Editor: Modify the Editor Only Preset "#128 Synth Brass"
+    - Other improvements
     - Tested with Arduino-Pico version 5.4.0
 - v1.4.2 (2025-10-22):
     - PRA32-U2 with Panel: Fix an issue where "Write Program 0" corrupt the panel parameters
