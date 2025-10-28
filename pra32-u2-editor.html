@@ -381,7 +381,7 @@ editorOnlyPresetControllers[EG_SUSTAIN     ] = [0  , 127, 0  , 127, 127, 127, 12
 editorOnlyPresetControllers[EG_RELEASE     ] = [32 , 32 , 32 , 32 , 32 , 32 , 0  , 0  ];
 
 editorOnlyPresetControllers[EG_OSC_AMT     ] = [72 , 64 , 72 , 64 , 64 , 64 , 64 , 64 ];
-editorOnlyPresetControllers[EG_OSC_DST     ] = [64 , 0  , 127, 127, 127, 0  , 0  , 0  ];
+editorOnlyPresetControllers[EG_OSC_DST     ] = [76 , 0  , 127, 127, 127, 0  , 0  , 0  ];
 editorOnlyPresetControllers[VOICE_MODE     ] = [0  , 0  , 0  , 0  , 127, 127, 127, 127];
 editorOnlyPresetControllers[PORTAMENTO     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 
@@ -822,8 +822,8 @@ function updateDisplayOfControl(number, value) {
   case EG_OSC_DST      :
   case LFO_OSC_DST     :
     {
-      var ary = ["P","2P","1S"];
-      var index = Math.floor(((value * 4) + 127) / 254);
+      var ary = ["OP","FC","-","O2P","-","O1S"];
+      var index = Math.floor(((value * 10) + 127) / 254);
       dispValue = ary[index];
     }
     break;
@@ -1535,8 +1535,8 @@ function getStoredCCValueString(index, number) {
 <td colspan="12"><hr></td>
 </tr>
 <tr>
-<td colspan="3"><b>EG</b> Osc Amt [-|+]                  </td>
-<td colspan="3"><b>EG</b> Osc Dst [P|2P|1S]              </td>
+<td colspan="3"><b>EG</b> Mod Amt [-|+]                  </td>
+<td colspan="3"><b>EG</b> Mod Dst [OP|FC|-|O2P|-|O1S]    </td>
 <td colspan="3">Voice Mode [Pol|Par|-|Mon|LP|Lgt] </td>
 <td colspan="3">Portamento                        </td>
 </tr>
@@ -1544,7 +1544,7 @@ function getStoredCCValueString(index, number) {
 <td><input  id="inputEG_OSC_AMT     "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(EG_OSC_AMT     , value)"></td>
 <td><span    id="spanEG_OSC_AMT     " >-</span></td>
 <td><span   id="span2EG_OSC_AMT     " >-</span></td>
-<td><input  id="inputEG_OSC_DST     "  type="range" list="3 markers" min="0" max="127" step="1" oninput="onChangeControlChange(EG_OSC_DST     , value)"></td>
+<td><input  id="inputEG_OSC_DST     "  type="range" list="6 markers" min="0" max="127" step="1" oninput="onChangeControlChange(EG_OSC_DST     , value)"></td>
 <td><span    id="spanEG_OSC_DST     " >-</span></td>
 <td><span   id="span2EG_OSC_DST     " >-</span></td>
 <td><input  id="inputVOICE_MODE     "  type="range" list="6 markers" min="0" max="127" step="1" oninput="onChangeControlChange(VOICE_MODE     , value)"></td>
@@ -1575,8 +1575,8 @@ function getStoredCCValueString(index, number) {
 <td><span   id="span2LFO_DEPTH      " >-</span></td>
 </tr>
 <tr>
-<td colspan="3"><b>LFO</b> Osc Amt [-|+]               </td>
-<td colspan="3"><b>LFO</b> Osc Dst [P|2P|1S]           </td>
+<td colspan="3"><b>LFO</b> Mod Amt [-|+]               </td>
+<td colspan="3"><b>LFO</b> Mod Dst [OP|FC|-|O2P|-|O1S] </td>
 <td colspan="3"><b>LFO</b> Filter Amt [-|+]            </td>
 <td colspan="3"><b>Amp</b> Gain                        </td>
 </tr>
@@ -1584,7 +1584,7 @@ function getStoredCCValueString(index, number) {
 <td><input  id="inputLFO_OSC_AMT    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_OSC_AMT    , value)"></td>
 <td><span    id="spanLFO_OSC_AMT    " >-</span></td>
 <td><span   id="span2LFO_OSC_AMT    " >-</span></td>
-<td><input  id="inputLFO_OSC_DST    "  type="range" list="3 markers" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_OSC_DST    , value)"></td>
+<td><input  id="inputLFO_OSC_DST    "  type="range" list="6 markers" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_OSC_DST    , value)"></td>
 <td><span    id="spanLFO_OSC_DST    " >-</span></td>
 <td><span   id="span2LFO_OSC_DST    " >-</span></td>
 <td><input  id="inputLFO_FILTER_AMT "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_FILTER_AMT , value)"></td>

@@ -878,10 +878,10 @@ public:
       m_filter[3].set_resonance(controller_value);
       break;
     case FILTER_EG_AMT  :
-      m_filter[0].set_cutoff_eg_amt(controller_value);
-      m_filter[1].set_cutoff_eg_amt(controller_value);
-      m_filter[2].set_cutoff_eg_amt(controller_value);
-      m_filter[3].set_cutoff_eg_amt(controller_value);
+      m_filter[0].set_cutoff_eg_amt(0, controller_value);
+      m_filter[1].set_cutoff_eg_amt(0, controller_value);
+      m_filter[2].set_cutoff_eg_amt(0, controller_value);
+      m_filter[3].set_cutoff_eg_amt(0, controller_value);
       break;
 
     case OSC_1_WAVE     :
@@ -911,10 +911,10 @@ public:
       update_lfo_osc_mod();
       break;
     case LFO_FILTER_AMT :
-      m_filter[0].set_cutoff_lfo_amt(controller_value);
-      m_filter[1].set_cutoff_lfo_amt(controller_value);
-      m_filter[2].set_cutoff_lfo_amt(controller_value);
-      m_filter[3].set_cutoff_lfo_amt(controller_value);
+      m_filter[0].set_cutoff_lfo_amt(0, controller_value);
+      m_filter[1].set_cutoff_lfo_amt(0, controller_value);
+      m_filter[2].set_cutoff_lfo_amt(0, controller_value);
+      m_filter[3].set_cutoff_lfo_amt(0, controller_value);
       break;
 
     case SUSTAIN_PEDAL   :
@@ -1626,34 +1626,74 @@ private:
   }
 
   INLINE void update_eg_osc_mod() {
-    if        (m_eg_osc_dst >= 96) {  /* OSC_DST_SHAPE_1 */
+    if        (m_eg_osc_dst >= 89) {  /* MOD_DST_SHAPE_1 */
       m_osc.set_pitch_eg_amt<0>(64);
       m_osc.set_pitch_eg_amt<1>(64);
       m_osc.set_shape_eg_amt(m_eg_osc_amt);
-    } else if (m_eg_osc_dst >= 32) {  /* OSC_DST_PITCH_2 */
+      m_filter[0].set_cutoff_eg_amt(1, 64);
+      m_filter[1].set_cutoff_eg_amt(1, 64);
+      m_filter[2].set_cutoff_eg_amt(1, 64);
+      m_filter[3].set_cutoff_eg_amt(1, 64);
+    } else if (m_eg_osc_dst >= 39) {  /* MOD_DST_PITCH_2 */
       m_osc.set_pitch_eg_amt<0>(64);
       m_osc.set_pitch_eg_amt<1>(m_eg_osc_amt);
       m_osc.set_shape_eg_amt(64);
-    } else {                          /* OSC_DST_PITCH */
+      m_filter[0].set_cutoff_eg_amt(1, 64);
+      m_filter[1].set_cutoff_eg_amt(1, 64);
+      m_filter[2].set_cutoff_eg_amt(1, 64);
+      m_filter[3].set_cutoff_eg_amt(1, 64);
+    } else if (m_eg_osc_dst >= 13) {  /* MOD_DST_CUTOFF */
+      m_osc.set_pitch_eg_amt<0>(64);
+      m_osc.set_pitch_eg_amt<1>(64);
+      m_osc.set_shape_eg_amt(64);
+      m_filter[0].set_cutoff_eg_amt(1, m_eg_osc_amt);
+      m_filter[1].set_cutoff_eg_amt(1, m_eg_osc_amt);
+      m_filter[2].set_cutoff_eg_amt(1, m_eg_osc_amt);
+      m_filter[3].set_cutoff_eg_amt(1, m_eg_osc_amt);
+    } else {                          /* MOD_DST_PITCH */
       m_osc.set_pitch_eg_amt<0>(m_eg_osc_amt);
       m_osc.set_pitch_eg_amt<1>(m_eg_osc_amt);
       m_osc.set_shape_eg_amt(64);
+      m_filter[0].set_cutoff_eg_amt(1, 64);
+      m_filter[1].set_cutoff_eg_amt(1, 64);
+      m_filter[2].set_cutoff_eg_amt(1, 64);
+      m_filter[3].set_cutoff_eg_amt(1, 64);
     }
   }
 
   INLINE void update_lfo_osc_mod() {
-    if        (m_lfo_osc_dst >= 96) {  /* OSC_DST_SHAPE_1 */
+    if        (m_lfo_osc_dst >= 89) {  /* MOD_DST_SHAPE_1 */
       m_osc.set_pitch_lfo_amt<0>(64);
       m_osc.set_pitch_lfo_amt<1>(64);
       m_osc.set_shape_lfo_amt(m_lfo_osc_amt);
-    } else if (m_lfo_osc_dst >= 32) {  /* OSC_DST_PITCH_2 */
+      m_filter[0].set_cutoff_lfo_amt(1, 64);
+      m_filter[1].set_cutoff_lfo_amt(1, 64);
+      m_filter[2].set_cutoff_lfo_amt(1, 64);
+      m_filter[3].set_cutoff_lfo_amt(1, 64);
+    } else if (m_lfo_osc_dst >= 39) {  /* MOD_DST_PITCH_2 */
       m_osc.set_pitch_lfo_amt<0>(64);
       m_osc.set_pitch_lfo_amt<1>(m_lfo_osc_amt);
       m_osc.set_shape_lfo_amt(64);
-    } else {                           /* OSC_DST_PITCH */
+      m_filter[0].set_cutoff_lfo_amt(1, 64);
+      m_filter[1].set_cutoff_lfo_amt(1, 64);
+      m_filter[2].set_cutoff_lfo_amt(1, 64);
+      m_filter[3].set_cutoff_lfo_amt(1, 64);
+    } else if (m_lfo_osc_dst >= 13) {  /* MOD_DST_CUTOFF */
+      m_osc.set_pitch_lfo_amt<0>(64);
+      m_osc.set_pitch_lfo_amt<1>(64);
+      m_osc.set_shape_lfo_amt(64);
+      m_filter[0].set_cutoff_lfo_amt(1, m_lfo_osc_amt);
+      m_filter[1].set_cutoff_lfo_amt(1, m_lfo_osc_amt);
+      m_filter[2].set_cutoff_lfo_amt(1, m_lfo_osc_amt);
+      m_filter[3].set_cutoff_lfo_amt(1, m_lfo_osc_amt);
+    } else {                           /* MOD_DST_PITCH */
       m_osc.set_pitch_lfo_amt<0>(m_lfo_osc_amt);
       m_osc.set_pitch_lfo_amt<1>(m_lfo_osc_amt);
       m_osc.set_shape_lfo_amt(64);
+      m_filter[0].set_cutoff_lfo_amt(1, 64);
+      m_filter[1].set_cutoff_lfo_amt(1, 64);
+      m_filter[2].set_cutoff_lfo_amt(1, 64);
+      m_filter[3].set_cutoff_lfo_amt(1, 64);
     }
   }
 

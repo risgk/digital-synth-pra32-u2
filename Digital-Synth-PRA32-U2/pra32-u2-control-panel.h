@@ -698,8 +698,8 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case EG_OSC_DST      :
   case LFO_OSC_DST     :
     {
-      char ary[3][5] = {"  P"," 2P"," 1S"};
-      uint32_t index = ((controller_value * 4) + 127) / 254;
+      char ary[6][5] = {" OP"," FC","  -","O2P","  -","O1S"};
+      uint32_t index = ((controller_value * 10) + 127) / 254;
       std::strcpy(value_display_text, ary[index]);
       result = true;
     }
