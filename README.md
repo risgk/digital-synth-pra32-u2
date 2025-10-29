@@ -6,7 +6,7 @@
 
 ## Overview
 
-- 4 Voice Polyphonic/Paraphonic Synthesizer for Raspberry Pi Pico 2/RP2350
+- 4 Voice Polyphonic Synthesizer for Raspberry Pi Pico 2/RP2350
     - Built-in Chorus and Delay FX
     - Controlled by MIDI -- PRA32-U2 is a MIDI sound module
     - Having the function of writing the parameters to the user programs and the flash
@@ -199,28 +199,6 @@ graph LR
     N[Noise Gen]  --> V1O2 & V1OM & V2 & V3 & V4
     N -.-> L[LFO w/ S/H]
     L -.-> V1O1 & V1O2 & V1F & V2 & V3 & V4
-```
-
-
-### Paraphonic Mode
-
-```mermaid
-graph LR
-    subgraph V1[Voice 1]
-        V1O1[Osc 1 w/ Sub Osc] --> V1OM[Osc Mixer]
-        V1O2[Osc 2] --> V1OM
-        V1OM --> V1G[Gate]
-    end
-    V1G --> VM[Voice Mixer]
-    V2[Voice 2] & V3[Voice 3] & V4[Voice 4] --> VM
-    VM --> F[Filter] --> A[Amp] --> C[Chorus FX] --> D[Delay FX] --> AO[Audio Out]
-    C --> D
-    D --> AO
-    N[Noise Gen]  --> V1O2 & V1OM & V2 & V3 & V4
-    N -.-> L[LFO w/ S/H]
-    L -.-> V1O1 & V1O2 & V2 & V3 & V4 & F
-    E[EG] -.-> V1O1 & V1O2 & V2 & V3 & V4 & F
-    AE[Amp EG] -.-> A
 ```
 
 

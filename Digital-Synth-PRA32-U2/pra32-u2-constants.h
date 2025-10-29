@@ -164,8 +164,7 @@ const uint8_t   LFO_WAVE_TRIANGLE  = 76;
 const uint8_t   LFO_WAVE_S_AND_H   = 102;
 const uint8_t   LFO_WAVE_SQUARE    = 127;
 
-const uint8_t   VOICE_PARAPHONIC   = 0;
-const uint8_t   VOICE_POLYPHONIC   = 25;
+const uint8_t   VOICE_POLYPHONIC   = 0;
 const uint8_t   VOICE_MONOPHONIC   = 76;
 const uint8_t   VOICE_LEGATO       = 102;
 const uint8_t   VOICE_LEGATO_PORTA = 127;
