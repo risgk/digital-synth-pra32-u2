@@ -4,6 +4,7 @@
     - Remove Paraphonic Mode form Voice Mode
     - Change EG/LFO Osc Amt/Dst to EG/LFO Mod Amt/Dst
     - Add Filter Cutoff (F) to EG/LFO Mod Dst
+    - Increase Chorus Mix of the Presets
     - Modify the Presets "#0 Synth Pad" and "#5 Sync Lead"
     - PRA32-U2 Editor: Modify the Editor Only Preset "#128 Synth Brass"
     - Other improvements
