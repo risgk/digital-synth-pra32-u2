@@ -525,22 +525,6 @@ var specialProgramChangeCCValues = [0, 0, 0, 0, 0, 0, 0, 0];
 var specialRandomControlCCValue = 0;
 
 function afterChangeOsc1Or2WaveOrMixerSubOscOrVoiceModeOrEGAmpModOrRelEqDecay() {
-  var targetCCNumbers = [FILTER_KEY_TRK];
-
-  var valueVoiceMode = localStorage.getItem("keyVOICE_MODE     ");
-  if (valueVoiceMode == 1 || Math.floor(((valueVoiceMode * 10) + 127) / 254) == 1) {
-//  if (Math.floor(((valueVoiceMode * 10) + 127) / 254) == 1) {
-    targetCCNumbers.forEach(function(i) {
-      document.getElementById( "span" + controlNumberToStringMap.get(i)).style.color = 'lightgray';
-      document.getElementById("span2" + controlNumberToStringMap.get(i)).style.color = 'lightgray';
-    });
-  } else {
-    targetCCNumbers.forEach(function(i) {
-      document.getElementById( "span" + controlNumberToStringMap.get(i)).style.color = 'black';
-      document.getElementById("span2" + controlNumberToStringMap.get(i)).style.color = 'black';
-    });
-  }
-
   var valueOsc1Wave = localStorage.getItem("keyOSC_1_WAVE     ");
   var indexOsc1Wave = Math.floor(((valueOsc1Wave * 10) + 127) / 254);
   if ((indexOsc1Wave == 0) || (indexOsc1Wave == 1) || (indexOsc1Wave == 3) || (indexOsc1Wave == 4) || (indexOsc1Wave == 5)) {
@@ -829,7 +813,7 @@ function updateDisplayOfControl(number, value) {
     break;
   case VOICE_MODE      :
     {
-      var ary = ["Pol","Par","-","Mon","LP","Lgt"];
+      var ary = ["Pol","-","-","Mon","LP","Lgt"];
       var index = Math.floor(((value * 10) + 127) / 254);
       dispValue = ary[index];
     }
@@ -1537,7 +1521,7 @@ function getStoredCCValueString(index, number) {
 <tr>
 <td colspan="3"><b>EG</b> Mod Amt [-|+]                  </td>
 <td colspan="3"><b>EG</b> Mod Dst [P|F|-|2P|-|1S]        </td>
-<td colspan="3">Voice Mode [Pol|Par|-|Mon|LP|Lgt] </td>
+<td colspan="3">Voice Mode [Pol|-|-|Mon|LP|Lgt]   </td>
 <td colspan="3">Portamento                        </td>
 </tr>
 <tr>

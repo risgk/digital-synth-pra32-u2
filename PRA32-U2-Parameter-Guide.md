@@ -6,7 +6,6 @@
 ## Control Change Parameters
 
 - Notes
-    - $1 : Disabled in Paraphonic Mode
     - $2 : Disabled if Osc 1 Wave is Tri (Triangle Wave)
 - Osc 1 Wave [Saw|Sqr|Tri|Sin|WT|Pls]
     - 0 (0-12): Saw Wave
@@ -193,9 +192,9 @@
     - 76 (64-88): Osc 2 Pitch
     - 102 (89-114): Osc 1 Shape, Reserved
     - 127 (115-127): Osc 1 Shape
-- Voice Mode [Pol|Par|-|Mon|LP|Lgt]
+- Voice Mode [Pol|-|-|Mon|LP|Lgt]
     - 0 (0-12): Polyphonic (LFO Single Trigger)
-    - 25 (13-38): Paraphonic (LFO Single Trigger)
+    - 25 (13-38): Polyphonic (LFO Single Trigger), Reserved
     - 51 (39-63): Monophonic (EG & LFO Multi Trigger), Reserved
     - 76 (64-88): Monophonic (EG & LFO Multi Trigger)
     - 102 (89-114): Legato Portamento (Monophonic, EG & LFO Single Trigger, Auto Portamento)
@@ -255,8 +254,8 @@
 - EG Velocity Sensitivity
 - Amp Velocity Sensitivity
 - Voice Assign Mode [1|2]
-    - 0 (0-63): Mode 1, Free voice with next number has priority in Polyphonic/Paraphonic Mode, Release is effective
-    - 127 (64-127): Mode 2, Free voice with small number has priority in Polyphonic/Paraphonic Mode, Portamento is effective
+    - 0 (0-63): Mode 1, Free voice with next number has priority in Polyphonic Mode, Release is effective
+    - 127 (64-127): Mode 2, Free voice with small number has priority in Polyphonic Mode, Portamento is effective
 - Chorus Mix [Dry|Wet]
     - 0: Dry 100%, Wet 0% (min)
     - 64: Dry 75%, Wet 25%

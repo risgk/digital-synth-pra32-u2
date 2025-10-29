@@ -706,7 +706,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
     break;
   case VOICE_MODE      :
     {
-      char ary[6][5] = {"Pol","Par","  -","Mon"," LP","Lgt"};
+      char ary[6][5] = {"Pol","  -","  -","Mon"," LP","Lgt"};
       uint32_t index = ((controller_value * 10) + 127) / 254;
       std::strcpy(value_display_text, ary[index]);
       result = true;
