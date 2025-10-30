@@ -179,8 +179,6 @@
 
 ## Synthesizer Block Diagram
 
-### Polyphonic Mode
-
 ```mermaid
 graph LR
     subgraph V1[Voice 1]
@@ -199,23 +197,6 @@ graph LR
     N[Noise Gen]  --> V1O2 & V1OM & V2 & V3 & V4
     N -.-> L[LFO w/ S/H]
     L -.-> V1O1 & V1O2 & V1F & V2 & V3 & V4
-```
-
-
-### Monophonic Mode
-
-```mermaid
-graph LR
-    O1[Osc 1 w/ Sub Osc] --> OM[Osc Mixer]
-    O2[Osc 2] --> OM
-    OM --> F[Filter] --> A[Amp] --> C[Chorus FX] --> D[Delay FX] --> AO[Audio Out]
-    C --> D
-    D --> AO
-    N[Noise Gen] --> O2 & OM
-    N -.-> L[LFO w/ S/H]
-    L -.-> O1 & O2 & F
-    E[EG] -.-> O1 & O2 & F
-    AE[Amp EG] -.-> A
 ```
 
 
