@@ -1,5 +1,14 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v1.5.0 (2025-11-01):
+    - Remove Paraphonic Mode form Voice Mode
+    - Change EG/LFO Osc Amt/Dst to EG/LFO Mod Amt/Dst
+    - Add Filter Cutoff (F) to EG/LFO Mod Dst
+    - Increase Chorus Mix of the Presets
+    - Modify the Presets "#0 Synth Pad" and "#5 Sync Lead"
+    - PRA32-U2 Editor: Modify the Editor Only Preset "#128 Synth Brass"
+    - Other improvements
+    - Tested with Arduino-Pico version 5.4.2
 - v1.4.2 (2025-10-22):
     - PRA32-U2 with Panel: Fix an issue where "Write Program 0" corrupt the panel parameters
     - PRA32-U2 with Panel: Fix an issue where "Write Panel Prms" corrupt the program #0

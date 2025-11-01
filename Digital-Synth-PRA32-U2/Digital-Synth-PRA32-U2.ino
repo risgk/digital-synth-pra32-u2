@@ -2,17 +2,22 @@
  * Digital Synth PRA32-U2
  */
 
-#define PRA32_U2_VERSION                       "v1.4.2    "
+#define PRA32_U2_VERSION                       "v1.5.0    "
 
-//#define PRA32_U2_USE_DEBUG_PRINT               // Serial1
+//#define PRA32_U2_USE_DEBUG_PRINT
 
 #define PRA32_U2_USE_USB_MIDI                  // Select USB Stack: "Adafruit TinyUSB" in the Arduino IDE "Tools" menu
 
-//#define PRA32_U2_USE_UART_MIDI                 // Serial2
+//#define PRA32_U2_USE_UART_MIDI
+
+#define PRA32_U2_DEBUG_PRINT_SERIAL            Serial1
+#define PRA32_U2_DEBUG_PRINT_TX_PIN            (0)
+#define PRA32_U2_DEBUG_PRINT_RX_PIN            (1)
 
 #define PRA32_U2_UART_MIDI_SPEED               (31250)
 //#define PRA32_U2_UART_MIDI_SPEED               (38400)
 
+#define PRA32_U2_UART_MIDI_SERIAL              Serial2
 #define PRA32_U2_UART_MIDI_TX_PIN              (4)
 #define PRA32_U2_UART_MIDI_RX_PIN              (5)
 
@@ -98,7 +103,7 @@ MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usbd_midi, USB_MIDI);
 #endif  // defined(PRA32_U2_USE_USB_MIDI)
 
 #if defined(PRA32_U2_USE_UART_MIDI)
-MIDI_CREATE_INSTANCE(HardwareSerial, Serial2, UART_MIDI);
+MIDI_CREATE_INSTANCE(HardwareSerial, PRA32_U2_UART_MIDI_SERIAL, UART_MIDI);
 #endif
 
 #include "pra32-u2-control-panel.h"
@@ -131,9 +136,9 @@ void __not_in_flash_func(setup1)() {
   PRA32_U2_ControlPanel_setup();
 
 #if defined(PRA32_U2_USE_DEBUG_PRINT)
-  Serial1.setTX(0);
-  Serial1.setRX(1);
-  Serial1.begin(115200);
+  PRA32_U2_DEBUG_PRINT_SERIAL.setTX(PRA32_U2_DEBUG_PRINT_TX_PIN);
+  PRA32_U2_DEBUG_PRINT_SERIAL.setRX(PRA32_U2_DEBUG_PRINT_RX_PIN);
+  PRA32_U2_DEBUG_PRINT_SERIAL.begin(115200);
 #endif  // defined(PRA32_U2_USE_DEBUG_PRINT)
 }
 
@@ -153,20 +158,20 @@ void __not_in_flash_func(loop1)() {
 #if defined(PRA32_U2_USE_DEBUG_PRINT)
     switch (s_loop_counter) {
     case  1 * 400:
-      Serial1.print("\e[1;1H\e[K");
-      Serial1.print(s_debug_measurement_elapsed1_us);
+      PRA32_U2_DEBUG_PRINT_SERIAL.print("\e[1;1H\e[K");
+      PRA32_U2_DEBUG_PRINT_SERIAL.print(s_debug_measurement_elapsed1_us);
       break;
     case  2 * 400:
-      Serial1.print("\e[2;1H\e[K");
-      Serial1.print(s_debug_measurement_max1_us);
+      PRA32_U2_DEBUG_PRINT_SERIAL.print("\e[2;1H\e[K");
+      PRA32_U2_DEBUG_PRINT_SERIAL.print(s_debug_measurement_max1_us);
       break;
     case  3 * 400:
-      Serial1.print("\e[4;1H\e[K");
-      Serial1.print(s_debug_measurement_elapsed0_us);
+      PRA32_U2_DEBUG_PRINT_SERIAL.print("\e[4;1H\e[K");
+      PRA32_U2_DEBUG_PRINT_SERIAL.print(s_debug_measurement_elapsed0_us);
       break;
     case  4 * 400:
-      Serial1.print("\e[5;1H\e[K");
-      Serial1.print(s_debug_measurement_max0_us);
+      PRA32_U2_DEBUG_PRINT_SERIAL.print("\e[5;1H\e[K");
+      PRA32_U2_DEBUG_PRINT_SERIAL.print(s_debug_measurement_max0_us);
       break;
     default:
       PRA32_U2_ControlPanel_debug_print(s_loop_counter);
@@ -232,8 +237,8 @@ void __not_in_flash_func(setup)() {
 #endif  // defined(PRA32_U2_USE_USB_MIDI)
 
 #if defined(PRA32_U2_USE_UART_MIDI)
-  Serial2.setTX(PRA32_U2_UART_MIDI_TX_PIN);
-  Serial2.setRX(PRA32_U2_UART_MIDI_RX_PIN);
+  PRA32_U2_UART_MIDI_SERIAL.setTX(PRA32_U2_UART_MIDI_TX_PIN);
+  PRA32_U2_UART_MIDI_SERIAL.setRX(PRA32_U2_UART_MIDI_RX_PIN);
   UART_MIDI.setHandleNoteOn(handleNoteOn);
   UART_MIDI.setHandleNoteOff(handleNoteOff);
   UART_MIDI.setHandleControlChange(handleControlChange);
@@ -244,7 +249,7 @@ void __not_in_flash_func(setup)() {
   UART_MIDI.setHandleStop(handleStop);
   UART_MIDI.begin(MIDI_CHANNEL_OMNI);
   UART_MIDI.turnThruOff();
-  Serial2.begin(PRA32_U2_UART_MIDI_SPEED);
+  PRA32_U2_UART_MIDI_SERIAL.begin(PRA32_U2_UART_MIDI_SPEED);
 #endif  // defined(PRA32_U2_USE_UART_MIDI)
 
 #if defined(ARDUINO_RASPBERRY_PI_PICO) || defined(ARDUINO_RASPBERRY_PI_PICO_2)
