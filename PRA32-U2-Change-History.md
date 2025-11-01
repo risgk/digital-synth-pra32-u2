@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v1.5.0 (2025-??-??):
+- v1.5.0 (2025-11-01):
     - Remove Paraphonic Mode form Voice Mode
     - Change EG/LFO Osc Amt/Dst to EG/LFO Mod Amt/Dst
     - Add Filter Cutoff (F) to EG/LFO Mod Dst
