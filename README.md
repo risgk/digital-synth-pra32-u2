@@ -1,12 +1,12 @@
-# Digital Synth PRA32-U2 v1.4.2
+# Digital Synth PRA32-U2 v1.5.0
 
-- 2025-10-22 ISGK Instruments
+- 2025-11-01 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 
 ## Overview
 
-- 4 Voice Polyphonic/Paraphonic Synthesizer for Raspberry Pi Pico 2/RP2350
+- 4 Voice Polyphonic Synthesizer for Raspberry Pi Pico 2/RP2350
     - Built-in Chorus and Delay FX
     - Controlled by MIDI -- PRA32-U2 is a MIDI sound module
     - Having the function of writing the parameters to the user programs and the flash
@@ -29,7 +29,7 @@
     - Info: <https://www.arduino.cc/en/software>
 - Please install Arduino-Pico = **Raspberry Pi Pico/RP2040/RP2350** (by Earle F. Philhower, III) core
     - Additional Board Manager URL: <https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json>
-    - This sketch is tested with version **5.4.0**: <https://github.com/earlephilhower/arduino-pico/releases/tag/5.4.0>
+    - This sketch is tested with version **5.4.2**: <https://github.com/earlephilhower/arduino-pico/releases/tag/5.4.2>
     - Info: <https://github.com/earlephilhower/arduino-pico>
 - Please install Arduino **MIDI Library** (by Francois Best, lathoub)
     - This sketch is tested with version **5.0.2**: <https://github.com/FortySevenEffects/arduino_midi_library/releases/tag/5.0.2>
@@ -179,8 +179,6 @@
 
 ## Synthesizer Block Diagram
 
-### Polyphonic Mode
-
 ```mermaid
 graph LR
     subgraph V1[Voice 1]
@@ -199,45 +197,6 @@ graph LR
     N[Noise Gen]  --> V1O2 & V1OM & V2 & V3 & V4
     N -.-> L[LFO w/ S/H]
     L -.-> V1O1 & V1O2 & V1F & V2 & V3 & V4
-```
-
-
-### Paraphonic Mode
-
-```mermaid
-graph LR
-    subgraph V1[Voice 1]
-        V1O1[Osc 1 w/ Sub Osc] --> V1OM[Osc Mixer]
-        V1O2[Osc 2] --> V1OM
-        V1OM --> V1G[Gate]
-    end
-    V1G --> VM[Voice Mixer]
-    V2[Voice 2] & V3[Voice 3] & V4[Voice 4] --> VM
-    VM --> F[Filter] --> A[Amp] --> C[Chorus FX] --> D[Delay FX] --> AO[Audio Out]
-    C --> D
-    D --> AO
-    N[Noise Gen]  --> V1O2 & V1OM & V2 & V3 & V4
-    N -.-> L[LFO w/ S/H]
-    L -.-> V1O1 & V1O2 & V2 & V3 & V4 & F
-    E[EG] -.-> V1O1 & V1O2 & V2 & V3 & V4 & F
-    AE[Amp EG] -.-> A
-```
-
-
-### Monophonic Mode
-
-```mermaid
-graph LR
-    O1[Osc 1 w/ Sub Osc] --> OM[Osc Mixer]
-    O2[Osc 2] --> OM
-    OM --> F[Filter] --> A[Amp] --> C[Chorus FX] --> D[Delay FX] --> AO[Audio Out]
-    C --> D
-    D --> AO
-    N[Noise Gen] --> O2 & OM
-    N -.-> L[LFO w/ S/H]
-    L -.-> O1 & O2 & F
-    E[EG] -.-> O1 & O2 & F
-    AE[Amp EG] -.-> A
 ```
 
 
@@ -274,11 +233,11 @@ graph LR
 
 ![CC0](http://i.creativecommons.org/p/zero/1.0/88x31.png)
 
-**Digital Synth PRA32-U2 v1.4.2 by ISGK Instruments (Ryo Ishigaki)**
+**Digital Synth PRA32-U2 v1.5.0 by ISGK Instruments (Ryo Ishigaki)**
 
 To the extent possible under law, ISGK Instruments (Ryo Ishigaki)
 has waived all copyright and related or neighboring rights
-to Digital Synth PRA32-U2 v1.4.2.
+to Digital Synth PRA32-U2 v1.5.0.
 
 You should have received a copy of the CC0 legalcode along with this
 work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.

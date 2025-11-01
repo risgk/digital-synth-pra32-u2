@@ -1,6 +1,6 @@
 ```
-  [Polyphonic/Paraphonic Synthesizer]                             Date: 2025-10-22                      
-  Model: Digital Synth PRA32-U2   MIDI Implementation Chart       Version: 1.4.2                        
+  [Polyphonic Synthesizer]                                        Date: 2025-11-01                      
+  Model: Digital Synth PRA32-U2   MIDI Implementation Chart       Version: 1.5.0                        
 +-------------------------------+---------------+---------------+--------------------------------------+
 | Function...                   | Transmitted   | Recognized    | Remarks                              |
 +-------------------------------+---------------+---------------+--------------------------------------+
@@ -47,9 +47,9 @@
 |                            30 | x             | o             | EG Sustain                           |
 |                            72 | x             | o             | EG Release                           |
 |                               |               |               |                                      |
-|                            89 | x             | o             | EG Osc Amt [-|+]                     |
-|                             8 | x             | o             | EG Osc Dst [P|2P|1S]                 |
-|                            18 | x             | o             | Voice Mode [Pol|Par|-|Mon|LP|Lgt]    |
+|                            89 | x             | o             | EG Mod Amt [-|+]                     |
+|                             8 | x             | o             | EG Mod Dst [P|F|-|2P|-|1S]           |
+|                            18 | x             | o             | Voice Mode [Pol|-|-|Mon|LP|Lgt]      |
 |                             5 | x             | o             | Portamento                           |
 |                               |               |               |                                      |
 |                            33 | x             | o             | LFO Wave [Tri|Sin|-|Saw|S&H|Sqr]     |
@@ -57,8 +57,8 @@
 |                             3 | x             | o             | LFO Rate                             |
 |                            17 | x             | o             | LFO Depth                            |
 |                               |               |               |                                      |
-|                            13 | x             | o             | LFO Osc Amt [-|+]                    |
-|                           103 | x             | o             | LFO Osc Dst [P|2P|1S]                |
+|                            13 | x             | o             | LFO Mod Amt [-|+]                    |
+|                           103 | x             | o             | LFO Mod Dst [P|F|-|2P|-|1S]          |
 |                            25 | x             | o             | LFO Filter Amt [-|+]                 |
 |                            15 | x             | o             | Amp Gain                             |
 |                               |               |               |                                      |
@@ -125,8 +125,7 @@
 |              : Active Sense   | x             | x             |                                      |
 |              : Reset          | x             | x             |                                      |
 +-------------------------------+---------------+---------------+--------------------------------------+
-| Notes                         | $1 : Disabled in Paraphonic Mode                                     |
-|                               | $2 : Disabled if Osc 1 Wave is Tri (Triangle Wave)                   |
+| Notes                         | $2 : Disabled if Osc 1 Wave is Tri (Triangle Wave)                   |
 |                               | $4 : To write the current parameters to Program #0-7 and the         |
 |                               |   flash, set "Program Number to Write to" (# is the value mod 16)    |
 |                               |   and then change "Write Parameters to Program" from 0 to 1-127      |

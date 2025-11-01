@@ -9,7 +9,7 @@
 #include <cstdio>
 #include <cstring>
 
-static volatile uint32_t s_current_program = 0;
+static volatile uint32_t s_current_program = (PROGRAM_NUMBER_DEFAULT <= USER_PROGRAM_NUMBER_MAX) ? PROGRAM_NUMBER_DEFAULT : USER_PROGRAM_NUMBER_MAX;
 static volatile uint32_t s_current_page_group   = PAGE_GROUP_DEFAULT;
 static volatile uint32_t s_current_page_index[] = { PAGE_INDEX_DEFAULT_A, PAGE_INDEX_DEFAULT_B, PAGE_INDEX_DEFAULT_C, PAGE_INDEX_DEFAULT_D };
 
@@ -698,15 +698,15 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case EG_OSC_DST      :
   case LFO_OSC_DST     :
     {
-      char ary[3][5] = {"  P"," 2P"," 1S"};
-      uint32_t index = ((controller_value * 4) + 127) / 254;
+      char ary[6][5] = {"  P","  F","  -"," 2P","  -"," 1S"};
+      uint32_t index = ((controller_value * 10) + 127) / 254;
       std::strcpy(value_display_text, ary[index]);
       result = true;
     }
     break;
   case VOICE_MODE      :
     {
-      char ary[6][5] = {"Pol","Par","  -","Mon"," LP","Lgt"};
+      char ary[6][5] = {"Pol","  -","  -","Mon"," LP","Lgt"};
       uint32_t index = ((controller_value * 10) + 127) / 254;
       std::strcpy(value_display_text, ary[index]);
       result = true;

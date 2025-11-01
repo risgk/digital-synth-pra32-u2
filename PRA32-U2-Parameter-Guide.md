@@ -1,12 +1,11 @@
-# Digital Synth PRA32-U2 Parameter Guide v1.4.2
+# Digital Synth PRA32-U2 Parameter Guide v1.5.0
 
-- 2025-10-22 ISGK Instruments
+- 2025-11-01 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 ## Control Change Parameters
 
 - Notes
-    - $1 : Disabled in Paraphonic Mode
     - $2 : Disabled if Osc 1 Wave is Tri (Triangle Wave)
 - Osc 1 Wave [Saw|Sqr|Tri|Sin|WT|Pls]
     - 0 (0-12): Saw Wave
@@ -146,7 +145,7 @@
     - 64: 200 ms
     - 96: 2 s
     - 127: 18.6 s
-- EG Osc Amt [-|+], LFO Osc Amt [-|+]
+- EG Mod Amt [-|+], LFO Mod Amt [-|+]
     - Pitch
         - -63 (1): -10 oct (min)
         - -62 (2): -8 oct
@@ -183,13 +182,19 @@
         - +61 (125): Shape +244
         - +62 (126): Shape +248
         - +63 (127): Shape +256 (max)
-- EG Osc Dst [P|2P|1S], LFO Osc Dst [P|2P|1S]
-    - 0 (0-31): Osc 1 & 2 Pitch
-    - 64 (32-95): Osc 2 Pitch
-    - 127 (96-127): Osc 1 Shape
-- Voice Mode [Pol|Par|-|Mon|LP|Lgt]
+    - Cutoff
+        - -60 (4): -120 (min)
+        - +60 (124): +120 (max)
+- EG Mod Dst [P|F|-|2P|-|1S], LFO Mod Dst [P|F|-|2P|-|1S]
+    - 0 (0-12): Osc 1 & 2 Pitch
+    - 25 (13-38): Filter Cutoff
+    - 51 (39-63): Osc 2 Pitch, Reserved
+    - 76 (64-88): Osc 2 Pitch
+    - 102 (89-114): Osc 1 Shape, Reserved
+    - 127 (115-127): Osc 1 Shape
+- Voice Mode [Pol|-|-|Mon|LP|Lgt]
     - 0 (0-12): Polyphonic (LFO Single Trigger)
-    - 25 (13-38): Paraphonic (LFO Single Trigger)
+    - 25 (13-38): Polyphonic (LFO Single Trigger), Reserved
     - 51 (39-63): Monophonic (EG & LFO Multi Trigger), Reserved
     - 76 (64-88): Monophonic (EG & LFO Multi Trigger)
     - 102 (89-114): Legato Portamento (Monophonic, EG & LFO Single Trigger, Auto Portamento)
@@ -249,8 +254,8 @@
 - EG Velocity Sensitivity
 - Amp Velocity Sensitivity
 - Voice Assign Mode [1|2]
-    - 0 (0-63): Mode 1, Free voice with next number has priority in Polyphonic/Paraphonic Mode, Release is effective
-    - 127 (64-127): Mode 2, Free voice with small number has priority in Polyphonic/Paraphonic Mode, Portamento is effective
+    - 0 (0-63): Mode 1, Free voice with next number has priority in Polyphonic Mode, Release is effective
+    - 127 (64-127): Mode 2, Free voice with small number has priority in Polyphonic Mode, Portamento is effective
 - Chorus Mix [Dry|Wet]
     - 0: Dry 100%, Wet 0% (min)
     - 64: Dry 75%, Wet 25%
