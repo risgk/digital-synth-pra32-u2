@@ -1,5 +1,8 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v1.5.1 (2025-??-??):
+    - PRA32-U2 with Panel: Improve documentation
+    - Tested with Arduino-Pico version 5.4.2
 - v1.5.0 (2025-11-01):
     - Remove Paraphonic Mode form Voice Mode
     - Change EG/LFO Osc Amt/Dst to EG/LFO Mod Amt/Dst

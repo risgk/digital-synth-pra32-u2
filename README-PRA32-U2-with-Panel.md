@@ -118,3 +118,70 @@
     - An connection between Raspberry Pico 2's Mute Off Pin and GY-PCM5102's XSMT is omitted
 
 ![PRA32-U2 with Panel (Bread Board)](./pra32-u2-with-panel-breadboard.jpg)
+
+
+### Table of GUI Pages
+
+| Page           | Parameter A         | Parameter B      |
+| -------------- | ------------------- | ---------------- |
+| A-00 Info      | PRA32-U2 with Panel | v1.5.0           |
+| A-01 Voice     | Voice Mode          | Voice Asgn Mode  |
+| A-02 Pitch     | Portamento          | Pitch Bend Range |
+| A-03 Osc a     | Osc 1 Wave          | Mixer Noise/Sub  |
+| A-04 Osc b     | Osc 1 Shape         | Osc 1 Morph      |
+| A-05 Osc c     | Osc 2 Wave          | Mixer Osc Mix    |
+| A-06 Osc d     | Osc 2 Coarse        | Osc 2 Pitch      |
+| A-07 Filter a  | Filter Cutoff       | Filter Resonance |
+| A-08 Filter b  | Filter EG Amt       | Filter Key Track |
+| A-09 Filter c  | Filter Mode         |                  |
+| A-10 EG a      | EG Attack           | EG Decay         |
+| A-11 EG b      | EG Sustain          | EG Release       |
+| A-12 EG c      | EG Amp Mod          | Release = Decay  |
+| A-13 EG d      | EG Mod Amt          | EG Mod Dst       |
+| A-14 EG e      | EG Filter Amt       | EG Velo Sens     |
+| A-15 Amp a     | Amp Attack          | Amp Decay        |
+| A-16 Amp c     | Amp Sustain         | Amp Release      |
+| A-17 Amp b     | Amp Gain            | Amp Velo Sens    |
+| A-18 LFO a     | LFO Wave            | LFO Fade Time    |
+| A-19 LFO b     | LFO Rate            | LFO Depth        |
+| A-20 LFO c     | LFO Mod Amt         | LFO Mod Dst      |
+| A-21 LFO d     | LFO Filter Amt      |                  |
+| A-22 Breath    | Breath Filter Amt   | Breath Amp Mod   |
+| A-23 Chorus a  | Chorus Mix          |                  |
+| A-24 Chorus b  | Chorus Rate         | Chorus Depth     |
+| A-25 Delay a   | Delay Level         | Delay Mode       |
+| A-26 Delay b   | Delay Time          | Delay Feedback   |
+| B-00 Panel a   | Panel Play Mode     | Panel MIDI Ch    |
+| B-01 Panel b   | Panel Play Pitch    | Panel Play Velo  |
+| B-02 Panel c   | Panel Scale         | Panel Pitch Ofst |
+| B-03 Panel d   | Panel Transpose     |                  |
+| B-04 Seq a     | Seq Step Note       | Seq Clock Src    |
+| B-05 Seq b     | Seq Transpose       | Seq T/Rx St/Sp   |
+| B-06 Seq c     | Seq Tempo           | Seq Gate Time    |
+| B-07 Seq d     | Seq Mode            | Seq Num Steps    |
+| B-08 Seq e     | Seq On Steps        | Seq Act Steps    |
+| B-09 Seq f     | Seq Rand Pitch      | Seq Rand Velo    |
+| B-10 Seq 0     | Seq Pitch 0         | Seq Velo 0       |
+| B-11 Seq 1     | Seq Pitch 1         | Seq Velo 1       |
+| B-12 Seq 2     | Seq Pitch 2         | Seq Velo 2       |
+| B-13 Seq 3     | Seq Pitch 3         | Seq Velo 3       |
+| B-14 Seq 4     | Seq Pitch 4         | Seq Velo 4       |
+| B-15 Seq 5     | Seq Pitch 5         | Seq Velo 5       |
+| B-16 Seq 6     | Seq Pitch 6         | Seq Velo 6       |
+| B-17 Seq 7     | Seq Pitch 7         | Seq Velo 7       |
+| B-18 Control a | Modulation          |                  |
+| B-19 Control b | Breath Controller   | Sustain Pedal    |
+| C-00 Write 0   | Write Program 0     | Write Program 1  |
+| C-01 Write 2   | Write Program 2     | Write Program 3  |
+| C-02 Write 4   | Write Program 4     | Write Program 5  |
+| C-03 Write 6   | Write Program 6     | Write Program 7  |
+| C-04 Write a   | Write Panel Prms    |                  |
+| D-00 Read 0    | Read Program 0      | Read Program 1   |
+| D-01 Read 2    | Read Program 2      | Read Program 3   |
+| D-02 Read 4    | Read Program 4      | Read Program 5   |
+| D-03 Read 6    | Read Program 6      | Read Program 7   |
+| D-04 Read 8    | Read Program 8      | Read Program 9   |
+| D-05 Read 10   | Read Program 10     | Read Program 11  |
+| D-06 Read 12   | Read Program 12     | Read Program 13  |
+| D-07 Read 14   | Read Program 14     | Read Program 15  |
+| D-08 Read a    | Read Panel Prms     | Init Panel Prms  |
