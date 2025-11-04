@@ -123,7 +123,7 @@
 ### Table of GUI Pages
 
 | Page           | Parameter A         | Parameter B      |
-| -------------- | ------------------- | ---------------- |
+| :------------- | :------------------ | :--------------- |
 | A-00 Info      | PRA32-U2 with Panel | v1.5.0           |
 | A-01 Voice     | Voice Mode          | Voice Asgn Mode  |
 | A-02 Pitch     | Portamento          | Pitch Bend Range |
