@@ -2,6 +2,7 @@
 
 - v1.5.1 (2025-??-??):
     - PRA32-U2 with Panel: Improve documentation
+    - PRA32-U2 Editor: Adjust the layout
     - Tested with Arduino-Pico version 5.4.2
 - v1.5.0 (2025-11-01):
     - Remove Paraphonic Mode form Voice Mode
