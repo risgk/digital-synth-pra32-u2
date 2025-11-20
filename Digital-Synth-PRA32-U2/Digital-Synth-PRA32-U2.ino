@@ -83,13 +83,6 @@ uint8_t g_midi_ch = PRA32_U2_MIDI_CH;
 
 #include "hardware/adc.h"
 
-#if defined(PRA32_U2_USE_CONTROL_PANEL)
-extern void PRA32_U2_ControlPanel_on_control_change(uint8_t control_number);
-extern void PRA32_U2_ControlPanel_on_clock();
-extern void PRA32_U2_ControlPanel_on_start();
-extern void PRA32_U2_ControlPanel_on_stop();
-#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
-
 #include "pra32-u2-common.h"
 #include "pra32-u2-synth.h"
 
