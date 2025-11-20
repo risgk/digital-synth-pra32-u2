@@ -1583,7 +1583,7 @@ INLINE void PRA32_U2_ControlPanel_update_display(uint32_t loop_counter) {
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 }
 
-void PRA32_U2_ControlPanel_on_control_change(uint8_t control_number)
+/* INLINE */ void __not_in_flash_func(PRA32_U2_ControlPanel_on_control_change)(uint8_t control_number)
 {
   static_cast<void>(control_number);
 
