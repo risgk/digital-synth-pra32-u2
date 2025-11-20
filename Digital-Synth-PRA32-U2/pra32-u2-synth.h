@@ -469,7 +469,7 @@ public:
     return m_current_controller_value_table[control_number];
   }
 
-  /* INLINE */ void note_on(uint8_t note_number, uint8_t velocity) {
+  /* INLINE */ void __not_in_flash_func(note_on)(uint8_t note_number, uint8_t velocity) {
     if (velocity == 0) {
       note_off(note_number);
       return;
@@ -700,7 +700,7 @@ public:
     }
   }
 
-  /* INLINE */ void note_off(uint8_t note_number) {
+  /* INLINE */ void __not_in_flash_func(note_off)(uint8_t note_number) {
     if (m_note_on_total_count == 0) {
       return;
     }
@@ -853,7 +853,7 @@ public:
     control_change(SUSTAIN_PEDAL   , 0  );
   }
 
-  /* INLINE */ void control_change(uint8_t control_number, uint8_t controller_value) {
+  /* INLINE */ void __not_in_flash_func(control_change)(uint8_t control_number, uint8_t controller_value) {
     m_current_controller_value_table[control_number] = controller_value;
 
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
@@ -1144,12 +1144,12 @@ public:
     }
   }
 
-  /* INLINE */ void pitch_bend(uint8_t lsb, uint8_t msb) {
+  /* INLINE */ void __not_in_flash_func(pitch_bend)(uint8_t lsb, uint8_t msb) {
     int16_t pitch_bend = ((static_cast<uint16_t>(msb) << 8) >> 1) + lsb - 8192;
     m_osc.set_pitch_bend(pitch_bend);
   }
 
-  /* INLINE */ void program_change(uint8_t program_number) {
+  /* INLINE */ void __not_in_flash_func(program_change)(uint8_t program_number) {
     if (program_number > PROGRAM_NUMBER_MAX) {
       if ((program_number == 128) || (program_number == 129)) {
         for (uint32_t i = 0; i < sizeof(s_program_table_panel_parameters) / sizeof(s_program_table_panel_parameters[0]); ++i) {
@@ -1166,7 +1166,7 @@ public:
     }
   }
 
-  /* INLINE */ void write_parameters_to_program(uint8_t program_number_to_write) {
+  /* INLINE */ void __not_in_flash_func(write_parameters_to_program)(uint8_t program_number_to_write) {
     if ((program_number_to_write > USER_PROGRAM_NUMBER_MAX) && (program_number_to_write != 128)) {
       return;
     }
