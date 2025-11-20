@@ -180,6 +180,10 @@ const uint8_t   DEFAULT_SEQ_TRX_ST_SP   = 0  ;
 
 
 
+#if defined(PRA32_U2_USE_CONTROL_PANEL)
+extern void PRA32_U2_ControlPanel_on_control_change(uint8_t control_number);
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
+
 
 class PRA32_U2_Synth {
   PRA32_U2_Osc       m_osc;
