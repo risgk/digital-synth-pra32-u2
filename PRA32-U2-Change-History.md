@@ -5,7 +5,7 @@
     - PRA32-U2 with Panel: Adjust the display position of the current program number
     - PRA32-U2 with Panel: Improve documentation
     - PRA32-U2 Editor: Adjust the layout
-    - Other improvements
+    - Improve the code
     - Tested with Arduino-Pico version 5.4.2
 - v1.5.0 (2025-11-01):
     - Remove Paraphonic Mode form Voice Mode
