@@ -2,6 +2,7 @@
 
 - v1.5.1 (2025-??-??):
     - Improve real-time performance
+    - PRA32-U2 with Panel: Adjust the display position of the current program number
     - PRA32-U2 with Panel: Improve documentation
     - PRA32-U2 Editor: Adjust the layout
     - Other improvements
