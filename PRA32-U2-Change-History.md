@@ -3,9 +3,11 @@
 - v1.6.0 (2025-??-??):
     - Smoothly change Filter Resonance
     - Improve real-time performance
+    - Modify Filter Cutoff and Filter Key Track of Factory Presets
+    - PRA32-U2 Editor: Modify Filter Cutoff and Filter Key Track of Editor Presets
+    - PRA32-U2 Editor: Adjust the layout
     - PRA32-U2 with Panel: Adjust the display position of the current program number
     - PRA32-U2 with Panel: Improve documentation
-    - PRA32-U2 Editor: Adjust the layout
     - Improve the code
     - Tested with Arduino-Pico version 5.4.3
 - v1.5.0 (2025-11-01):
