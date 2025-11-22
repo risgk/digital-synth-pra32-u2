@@ -7,7 +7,7 @@
     - PRA32-U2 with Panel: Improve documentation
     - PRA32-U2 Editor: Adjust the layout
     - Improve the code
-    - Tested with Arduino-Pico version 5.4.2
+    - Tested with Arduino-Pico version 5.4.3
 - v1.5.0 (2025-11-01):
     - Remove Paraphonic Mode form Voice Mode
     - Change EG/LFO Osc Amt/Dst to EG/LFO Mod Amt/Dst
