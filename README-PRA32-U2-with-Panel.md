@@ -30,7 +30,7 @@
     - VR0 (ADC0): Parameter A
     - VR1 (ADC1): Parameter B
     - VR2 (ADC2): Parameter C for Play (omittable)
-        - Panel Play Pitch in Normal Mode, Seq Pitch Ofst in Step Sequencer Mode
+        - Panel Play Pitch in Normal Mode, Seq Pitch Ofst (Offset) in Step Sequencer Mode
         - To not use this, comment out `#define PRA32_U2_KEY_INPUT_PLAY_KEY_PIN          (20)` in "Digital-Synth-PRA32-U2.ino"
 - NOTE: Using a USB cable with ferrite cores is recommended to prevent ADCs from being affected by USB MIDI communication noise, and UART MIDI control is also recommended
 
@@ -63,7 +63,7 @@
 - Step Sequencer Parameters
     - Seq Step Note [4|8|16]: Quarter Note, Eighth Note, Sixteenth Note
     - Seq Clock Src [Int|Ext]: Internal, External (Rx MIDI Clock)
-    - Seq Pitch Ofst (Offset) [-|+]
+    - Seq Pitch Ofst (Offset) [-|+]: Offset Seq Pitch 0-7 (min -60 to max +60)
     - Seq T/Rx St/Sp (Transmit/Receive Start/Stop): Off, On
     - Seq Tempo: BPM 56-300
     - Seq Gate Time [1/6|2/6|3/6|4/6|5/6|6/6]
