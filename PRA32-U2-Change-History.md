@@ -6,7 +6,7 @@
     - Modify Filter Cutoff and Filter Key Track of Factory Presets
     - PRA32-U2 Editor: Modify Filter Cutoff and Filter Key Track of Editor Presets
     - PRA32-U2 Editor: Adjust the layout
-    - PRA32-U2 with Panel: Change Seq Transpose to Seq Pitch Ofst
+    - PRA32-U2 with Panel: Change Seq Transpose to Seq Pitch Ofst (Offset)
     - PRA32-U2 with Panel: Adjust the display position of the current program number
     - PRA32-U2 with Panel: Improve documentation
     - Improve the code
