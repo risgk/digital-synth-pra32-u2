@@ -50,7 +50,7 @@
     - Panel Play Pitch: 0 is Off, 1-4 is lowest, 124-127 is highest
     - Panel Play Velo (Velocity)
     - Panel Scale [Maj|Min|Mel|MaP|MiP|Chr]: Major, Natural Minor, Ascending Melodic Minor (Jazz Minor), Major Pentatonic, Minor Pentatonic, Chromatic (2 octaves)
-    - Panel Pitch Ofst (Pitch Offset) [-|+]: Offset Panel Play Pitch and Seq Pitch 0-7 (min -60 to max +60)
+    - Panel Pitch Ofst (Offset) [-|+]: Offset Panel Play Pitch and Seq Pitch 0-7 (min -60 to max +60)
         - For example, if Panel Scale is Maj and Panel Pitch Ofst is -25, the scale is G Mixolydian
         - For example, if Panel Scale is Maj and Panel Pitch Ofst is -15, the scale is A Aeolian (Natural Minor)
         - For example, if Panel Scale is Maj and Panel Pitch Ofst is +10, the scale is D Dorian
@@ -63,7 +63,7 @@
 - Step Sequencer Parameters
     - Seq Step Note [4|8|16]: Quarter Note, Eighth Note, Sixteenth Note
     - Seq Clock Src [Int|Ext]: Internal, External (Rx MIDI Clock)
-    - Seq Pitch Ofst [-|+]
+    - Seq Pitch Ofst (Offset) [-|+]
     - Seq T/Rx St/Sp (Transmit/Receive Start/Stop): Off, On
     - Seq Tempo: BPM 56-300
     - Seq Gate Time [1/6|2/6|3/6|4/6|5/6|6/6]
