@@ -95,14 +95,12 @@ static INLINE uint8_t PRA32_U2_ControlPanel_calc_scaled_pitch(uint32_t index_sca
     pitch = 124;
   }
 
-  panel_pit_ofst -= 64;
   if (panel_pit_ofst < -60) {
     panel_pit_ofst = -60;
   } else if (panel_pit_ofst > +60) {
     panel_pit_ofst = +60;
   }
 
-  seq_pit_ofst -= 64;
   if (seq_pit_ofst < -60) {
     seq_pit_ofst = -60;
   } else if (seq_pit_ofst > +60) {
@@ -171,8 +169,8 @@ static INLINE void PRA32_U2_ControlPanel_calc_value_display_pitch(uint8_t pitch,
 {
   uint8_t index_scale = PRA32_U2_ControlPanel_get_index_scale();
   uint8_t new_pitch   = PRA32_U2_ControlPanel_calc_scaled_pitch(
-                          index_scale, pitch, g_synth.current_controller_value(PANEL_PIT_OFST ),
-                                              g_synth.current_controller_value(SEQ_PIT_OFST   ));
+                          index_scale, pitch, g_synth.current_controller_value(PANEL_PIT_OFST ) - 64,
+                                              g_synth.current_controller_value(SEQ_PIT_OFST   ) - 64);
 
   if (new_pitch == 0xFF) {
     value_display_text[0] = 'O';
@@ -310,7 +308,7 @@ static INLINE void PRA32_U2_ControlPanel_update_pitch(bool progress_seq_step) {
     new_velocity      = g_synth.current_controller_value(PANEL_PLAY_VELO);
 
     s_index_scale     = PRA32_U2_ControlPanel_get_index_scale();
-    s_panel_pit_ofst  = g_synth.current_controller_value(PANEL_PIT_OFST );
+    s_panel_pit_ofst  = g_synth.current_controller_value(PANEL_PIT_OFST ) - 64;
     s_panel_transpose = g_synth.current_controller_value(PANEL_TRANSPOSE) - 64;
     s_seq_pit_ofst    = 0;
   } else {  // Seq Mode
@@ -418,9 +416,9 @@ static INLINE void PRA32_U2_ControlPanel_seq_clock() {
 
     if (update_scale) {
       s_index_scale     = PRA32_U2_ControlPanel_get_index_scale();
-      s_panel_pit_ofst  = g_synth.current_controller_value(PANEL_PIT_OFST );
+      s_panel_pit_ofst  = g_synth.current_controller_value(PANEL_PIT_OFST ) - 64;
       s_panel_transpose = g_synth.current_controller_value(PANEL_TRANSPOSE) - 64;
-      s_seq_pit_ofst    = g_synth.current_controller_value(SEQ_PIT_OFST   );
+      s_seq_pit_ofst    = g_synth.current_controller_value(SEQ_PIT_OFST   ) - 64;
     }
 
     PRA32_U2_ControlPanel_update_pitch(true);
