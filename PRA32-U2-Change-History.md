@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v1.6.0 (2025-??-??):
+    - Add dithering to the audio autput
     - Smoothly change Filter Resonance
     - Improve real-time performance
     - Modify Filter Cutoff and Filter Key Track of Factory Presets

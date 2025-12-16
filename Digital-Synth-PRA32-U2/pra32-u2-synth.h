@@ -1378,10 +1378,10 @@ public:
     synth_output_r_clamped = (synth_output_r_clamped > 0) * synth_output_r_clamped + (-(INT16_MAX << 8));
     synth_output_r = synth_output_r_clamped;
 
+#if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
     int16_t synth_output_l_int16 = (synth_output_l >> 8);
     int16_t synth_output_r_int16 = (synth_output_r >> 8);
 
-#if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
 #if defined(PRA32_U2_USE_PWM_AUDIO_DITHERING_INSTEAD_OF_ERROR_DIFFUSION)
     // Dithering
     right_output_int16 = synth_output_r_int16 + (((noise_int15 + 16384) >> 11) - 8);
@@ -1409,6 +1409,15 @@ public:
     return               synth_output_l_int16 + (prev_output_error_l > s_output_error_l) * 22;
 #endif  // defined(PRA32_U2_USE_PWM_AUDIO_DITHERING_INSTEAD_OF_ERROR_DIFFUSION)
 #else  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
+#if 1
+    // Dithering
+    int16_t synth_output_l_int16 = ((synth_output_l + ((noise_int15 + 16384) >> 7)) >> 8);
+    int16_t synth_output_r_int16 = ((synth_output_r + ((noise_int15 + 16384) >> 7)) >> 8);
+#else
+    int16_t synth_output_l_int16 = (synth_output_l >> 8);
+    int16_t synth_output_r_int16 = (synth_output_r >> 8);
+#endif
+
     right_output_int16 = synth_output_r_int16;
     return               synth_output_l_int16;
 #endif  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
