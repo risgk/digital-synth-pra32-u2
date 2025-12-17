@@ -12,7 +12,7 @@
     - PRA32-U2 with Panel: Adjust the display position of the current program number
     - PRA32-U2 with Panel: Improve documentation
     - Improve the code
-    - Tested with Arduino-Pico version 5.4.3
+    - Tested with Arduino-Pico version 5.4.4
 - v1.5.0 (2025-11-01):
     - Remove Paraphonic Mode form Voice Mode
     - Change EG/LFO Osc Amt/Dst to EG/LFO Mod Amt/Dst
