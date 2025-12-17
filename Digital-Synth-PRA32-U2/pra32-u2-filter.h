@@ -6,8 +6,7 @@
 #include "pra32-u2-filter-table.h"
 
 class PRA32_U2_Filter {
-  int32_t         m_lpf_b_2_over_a_0;
-  int32_t         m_hpf_b_2_over_a_0;
+  int32_t         m_b_2_over_a_0;
   int32_t         m_a_1_over_a_0;
   int32_t         m_a_2_over_a_0;
   int32_t         m_x_1;
@@ -30,8 +29,7 @@ class PRA32_U2_Filter {
 
 public:
   PRA32_U2_Filter()
-  : m_lpf_b_2_over_a_0()
-  , m_hpf_b_2_over_a_0()
+  : m_b_2_over_a_0()
   , m_a_1_over_a_0()
   , m_a_2_over_a_0()
   , m_x_1()
@@ -126,18 +124,8 @@ public:
   INLINE int32_t process(int32_t audio_input_int24) {
 #if 1
     int32_t x_0 = audio_input_int24;
-    int32_t x_3;
-    int32_t y_0;
-
-    if (m_filter_mode < 64) {
-      // low pass
-      x_3 = x_0 + (m_x_1 << 1) + m_x_2;
-      y_0 = mul_s32_s32_h32(m_lpf_b_2_over_a_0, x_3) << (32 - FILTER_TABLE_FRACTION_BITS);
-    } else {
-      // high pass
-      x_3 = x_0 - (m_x_1 << 1) + m_x_2;
-      y_0 = mul_s32_s32_h32(m_hpf_b_2_over_a_0, x_3) << (32 - FILTER_TABLE_FRACTION_BITS);
-    }
+    int32_t x_3 = x_0 + (m_x_1 << 1) + m_x_2;
+    int32_t y_0 = mul_s32_s32_h32(m_b_2_over_a_0, x_3 << (32 - FILTER_TABLE_FRACTION_BITS));
 
     y_0 -= mul_s32_s32_h32(m_a_1_over_a_0, m_y_1 << (32 - FILTER_TABLE_FRACTION_BITS));
     y_0 -= mul_s32_s32_h32(m_a_2_over_a_0, m_y_2 << (32 - FILTER_TABLE_FRACTION_BITS));
@@ -146,6 +134,11 @@ public:
     m_y_2 = m_y_1;
     m_x_1 = x_0;
     m_y_1 = y_0;
+
+    if (m_filter_mode >= 64) {
+      // high pass
+      y_0 = x_0 - y_0;
+    }
 #else
     volatile int32_t y_0 = audio_input_int24;
 #endif
@@ -188,10 +181,9 @@ private:
     // Uncached, untranslated XIP access -- bypass QMI address translation
     filter_table = reinterpret_cast<const int32_t*>(reinterpret_cast<uintptr_t>(filter_table) | 0x1c000000u);
 #endif
-    size_t index = ((m_cutoff_current + ((1 << (2 - FILTER_TABLE_CUTOFF_EXT_BITS)) >> 1)) >> (2 - FILTER_TABLE_CUTOFF_EXT_BITS)) * 4;
-    m_lpf_b_2_over_a_0 = filter_table[index + 0];
-    m_hpf_b_2_over_a_0 = filter_table[index + 1];
-    m_a_1_over_a_0     = filter_table[index + 2];
-    m_a_2_over_a_0     = filter_table[index + 3];
+    size_t index = ((m_cutoff_current + ((1 << (2 - FILTER_TABLE_CUTOFF_EXT_BITS)) >> 1)) >> (2 - FILTER_TABLE_CUTOFF_EXT_BITS)) * 3;
+    m_b_2_over_a_0 = filter_table[index + 0];
+    m_a_1_over_a_0 = filter_table[index + 1];
+    m_a_2_over_a_0 = filter_table[index + 2];
   }
 };
