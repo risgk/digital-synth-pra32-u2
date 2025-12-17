@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v1.6.0 (2025-??-??):
+    - Renew High Pass Filter: High Resonance reduce the sound like an Low Pass Filter
     - Add dithering to the audio autput
     - Smoothly change Filter Resonance
     - Improve real-time performance
