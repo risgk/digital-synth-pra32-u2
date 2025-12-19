@@ -125,7 +125,7 @@ static uint8_t s_program_table_panel_parameters[] = {
 
   SEQ_MODE       ,
   SEQ_ACT_STEPS  ,
-  SEQ_TRANSPOSE  ,
+  SEQ_PIT_OFST   ,
   SEQ_STEP_NOTE  ,
 
   SEQ_ON_STEPS   ,
@@ -171,7 +171,7 @@ const uint8_t   DEFAULT_SEQ_NUM_STEPS   = 32 ;
 
 const uint8_t   DEFAULT_SEQ_MODE        = 0  ;
 const uint8_t   DEFAULT_SEQ_ACT_STEPS   = 127;
-const uint8_t   DEFAULT_SEQ_TRANSPOSE   = 64 ;
+const uint8_t   DEFAULT_SEQ_PIT_OFST    = 64 ;
 const uint8_t   DEFAULT_SEQ_STEP_NOTE   = 64 ;
 
 const uint8_t   DEFAULT_SEQ_ON_STEPS    = 127;
@@ -179,6 +179,10 @@ const uint8_t   DEFAULT_SEQ_TRX_ST_SP   = 0  ;
 
 
 
+
+#if defined(PRA32_U2_USE_CONTROL_PANEL)
+extern void PRA32_U2_ControlPanel_on_control_change(uint8_t control_number);
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 
 
 class PRA32_U2_Synth {
@@ -413,7 +417,7 @@ public:
 
       m_program_table_panel[i][SEQ_MODE       ] = DEFAULT_SEQ_MODE       ;
       m_program_table_panel[i][SEQ_ACT_STEPS  ] = DEFAULT_SEQ_ACT_STEPS  ;
-      m_program_table_panel[i][SEQ_TRANSPOSE  ] = DEFAULT_SEQ_TRANSPOSE  ;
+      m_program_table_panel[i][SEQ_PIT_OFST   ] = DEFAULT_SEQ_PIT_OFST   ;
       m_program_table_panel[i][SEQ_STEP_NOTE  ] = DEFAULT_SEQ_STEP_NOTE  ;
 
       m_program_table_panel[i][SEQ_ON_STEPS   ] = DEFAULT_SEQ_ON_STEPS   ;
@@ -469,7 +473,7 @@ public:
     return m_current_controller_value_table[control_number];
   }
 
-  /* INLINE */ void note_on(uint8_t note_number, uint8_t velocity) {
+  /* INLINE */ void __not_in_flash_func(note_on)(uint8_t note_number, uint8_t velocity) {
     if (velocity == 0) {
       note_off(note_number);
       return;
@@ -700,7 +704,7 @@ public:
     }
   }
 
-  /* INLINE */ void note_off(uint8_t note_number) {
+  /* INLINE */ void __not_in_flash_func(note_off)(uint8_t note_number) {
     if (m_note_on_total_count == 0) {
       return;
     }
@@ -853,7 +857,7 @@ public:
     control_change(SUSTAIN_PEDAL   , 0  );
   }
 
-  /* INLINE */ void control_change(uint8_t control_number, uint8_t controller_value) {
+  /* INLINE */ void __not_in_flash_func(control_change)(uint8_t control_number, uint8_t controller_value) {
     m_current_controller_value_table[control_number] = controller_value;
 
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
@@ -1144,12 +1148,12 @@ public:
     }
   }
 
-  /* INLINE */ void pitch_bend(uint8_t lsb, uint8_t msb) {
+  /* INLINE */ void __not_in_flash_func(pitch_bend)(uint8_t lsb, uint8_t msb) {
     int16_t pitch_bend = ((static_cast<uint16_t>(msb) << 8) >> 1) + lsb - 8192;
     m_osc.set_pitch_bend(pitch_bend);
   }
 
-  /* INLINE */ void program_change(uint8_t program_number) {
+  /* INLINE */ void __not_in_flash_func(program_change)(uint8_t program_number) {
     if (program_number > PROGRAM_NUMBER_MAX) {
       if ((program_number == 128) || (program_number == 129)) {
         for (uint32_t i = 0; i < sizeof(s_program_table_panel_parameters) / sizeof(s_program_table_panel_parameters[0]); ++i) {
@@ -1166,7 +1170,7 @@ public:
     }
   }
 
-  /* INLINE */ void write_parameters_to_program(uint8_t program_number_to_write) {
+  /* INLINE */ void __not_in_flash_func(write_parameters_to_program)(uint8_t program_number_to_write) {
     if ((program_number_to_write > USER_PROGRAM_NUMBER_MAX) && (program_number_to_write != 128)) {
       return;
     }
@@ -1374,10 +1378,10 @@ public:
     synth_output_r_clamped = (synth_output_r_clamped > 0) * synth_output_r_clamped + (-(INT16_MAX << 8));
     synth_output_r = synth_output_r_clamped;
 
+#if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
     int16_t synth_output_l_int16 = (synth_output_l >> 8);
     int16_t synth_output_r_int16 = (synth_output_r >> 8);
 
-#if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
 #if defined(PRA32_U2_USE_PWM_AUDIO_DITHERING_INSTEAD_OF_ERROR_DIFFUSION)
     // Dithering
     right_output_int16 = synth_output_r_int16 + (((noise_int15 + 16384) >> 11) - 8);
@@ -1405,6 +1409,15 @@ public:
     return               synth_output_l_int16 + (prev_output_error_l > s_output_error_l) * 22;
 #endif  // defined(PRA32_U2_USE_PWM_AUDIO_DITHERING_INSTEAD_OF_ERROR_DIFFUSION)
 #else  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
+#if 1
+    // Dithering
+    int16_t synth_output_l_int16 = ((synth_output_l + ((noise_int15 + 16384) >> 7)) >> 8);
+    int16_t synth_output_r_int16 = ((synth_output_r + ((noise_int15 + 16384) >> 7)) >> 8);
+#else
+    int16_t synth_output_l_int16 = (synth_output_l >> 8);
+    int16_t synth_output_r_int16 = (synth_output_r >> 8);
+#endif
+
     right_output_int16 = synth_output_r_int16;
     return               synth_output_l_int16;
 #endif  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)

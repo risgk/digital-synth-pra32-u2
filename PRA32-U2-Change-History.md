@@ -1,5 +1,18 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v1.6.0 (2025-12-19):
+    - Add dithering to the audio autput
+    - Clamp the filter outputs: To ensure safety even when the filters are oscillating due to the LFO
+    - Smoothly change Filter Resonance
+    - Improve real-time performance
+    - Modify Filter Cutoff and Filter Key Track of Factory Presets
+    - PRA32-U2 Editor: Modify Filter Cutoff and Filter Key Track of Editor Presets
+    - PRA32-U2 Editor: Adjust the layout
+    - PRA32-U2 with Panel: Change Seq Transpose to Seq Pitch Ofst (Offset)
+    - PRA32-U2 with Panel: Adjust the display position of the current program number
+    - PRA32-U2 with Panel: Improve documentation
+    - Improve the code
+    - Tested with Arduino-Pico version 5.4.4
 - v1.5.0 (2025-11-01):
     - Remove Paraphonic Mode form Voice Mode
     - Change EG/LFO Osc Amt/Dst to EG/LFO Mod Amt/Dst
