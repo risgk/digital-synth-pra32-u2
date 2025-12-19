@@ -2,7 +2,7 @@
  * Digital Synth PRA32-U2
  */
 
-#define PRA32_U2_VERSION                       "v1.5.0    "
+#define PRA32_U2_VERSION                       "v1.6.0    "
 
 //#define PRA32_U2_USE_DEBUG_PRINT
 

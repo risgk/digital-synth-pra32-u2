@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v1.6.0 (2025-??-??):
+- v1.6.0 (2025-12-19):
     - Add dithering to the audio autput
     - Clamp the filter outputs: To ensure safety even when the filters are oscillating due to the LFO
     - Smoothly change Filter Resonance
