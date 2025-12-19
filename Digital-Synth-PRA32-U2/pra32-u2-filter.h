@@ -13,7 +13,8 @@ class PRA32_U2_Filter {
   int32_t         m_x_2;
   int32_t         m_y_1;
   int32_t         m_y_2;
-  int32_t         m_resonance_index;
+  uint8_t         m_resonance_target;
+  uint8_t         m_resonance_current;
   int16_t         m_cutoff_current;
   int16_t         m_cutoff_control;
   int16_t         m_cutoff_control_effective;
@@ -35,7 +36,8 @@ public:
   , m_x_2()
   , m_y_1()
   , m_y_2()
-  , m_resonance_index()
+  , m_resonance_target()
+  , m_resonance_current()
   , m_cutoff_current()
   , m_cutoff_control()
   , m_cutoff_control_effective()
@@ -64,7 +66,7 @@ public:
   }
 
   INLINE void set_resonance(uint8_t controller_value) {
-    m_resonance_index = (controller_value + ((1 << (3 - FILTER_TABLE_RESO_EXT_BITS)) >> 1)) >> (3 - FILTER_TABLE_RESO_EXT_BITS);
+    m_resonance_target = controller_value;
   }
 
   INLINE int8_t get_cutoff_mod_amt(uint8_t controller_value) {
@@ -128,6 +130,13 @@ public:
     y_0 -= mul_s32_s32_h32(m_a_1_over_a_0, m_y_1 << (32 - FILTER_TABLE_FRACTION_BITS));
     y_0 -= mul_s32_s32_h32(m_a_2_over_a_0, m_y_2 << (32 - FILTER_TABLE_FRACTION_BITS));
 
+    // y_0_clamped = clamp(y_0, (-MAX_ABS_OUTPUT), (+MAX_ABS_OUTPUT))
+    volatile int32_t y_0_clamped = y_0 - (+MAX_ABS_OUTPUT);
+    y_0_clamped = (y_0_clamped < 0) * y_0_clamped + (+MAX_ABS_OUTPUT) - (-MAX_ABS_OUTPUT);
+    y_0_clamped = (y_0_clamped > 0) * y_0_clamped + (-MAX_ABS_OUTPUT);
+
+    y_0 = y_0_clamped;
+
     m_x_2 = m_x_1;
     m_y_2 = m_y_1;
     m_x_1 = x_0;
@@ -170,7 +179,11 @@ private:
       m_cutoff_current -= (m_cutoff_current > cutoff_target);
     }
 
-    const int32_t* filter_table = g_filter_tables[m_resonance_index];
+    m_resonance_current += (m_resonance_current < m_resonance_target);
+    m_resonance_current -= (m_resonance_current > m_resonance_target);
+
+    uint8_t resonance_index = (m_resonance_current + ((1 << (3 - FILTER_TABLE_RESO_EXT_BITS)) >> 1)) >> (3 - FILTER_TABLE_RESO_EXT_BITS);
+    const int32_t* filter_table = g_filter_tables[resonance_index];
 #if defined(ARDUINO_ARCH_RP2040)
     // Uncached, untranslated XIP access -- bypass QMI address translation
     filter_table = reinterpret_cast<const int32_t*>(reinterpret_cast<uintptr_t>(filter_table) | 0x1c000000u);

@@ -41,7 +41,7 @@ td.keyh {
 }
 </style>
 <script>
-const APP_NAME_VERSION = "PRA32-U2 Editor v1.5.0";
+const APP_NAME_VERSION = "PRA32-U2 Editor v1.6.0";
 
 const USER_PROGRAM_NUMBER_MAX      = 7;
 const PROGRAM_NUMBER_MAX           = 15;
@@ -300,10 +300,10 @@ presetControllers[MIXER_OSC_MIX  ] = [64 , 0  , 64 , 0  , 64 , 0  , 64 , 0  ];
 presetControllers[OSC_2_COARSE   ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 presetControllers[OSC_2_PITCH    ] = [72 , 72 , 72 , 72 , 109, 72 , 72 , 64 ];
 
-presetControllers[FILTER_CUTOFF  ] = [115, 115, 91 , 127, 115, 115, 43 , 127];
+presetControllers[FILTER_CUTOFF  ] = [112, 112, 88 , 127, 112, 112, 52 , 127];
 presetControllers[FILTER_RESO    ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 0  ];
 presetControllers[FILTER_EG_AMT  ] = [40 , 64 , 64 , 64 , 64 , 64 , 88 , 64 ];
-presetControllers[FILTER_KEY_TRK ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
+presetControllers[FILTER_KEY_TRK ] = [96 , 96 , 96 , 96 , 96 , 96 , 96 , 64 ];
 
 presetControllers[EG_ATTACK      ] = [96 , 32 , 32 , 32 , 32 , 32 , 32 , 0  ];
 presetControllers[EG_DECAY       ] = [96 , 32 , 96 , 32 , 32 , 96 , 96 , 0  ];
@@ -370,10 +370,10 @@ editorOnlyPresetControllers[MIXER_OSC_MIX  ] = [64 , 64 , 64 , 64 , 64 , 64 , 0 
 editorOnlyPresetControllers[OSC_2_COARSE   ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 editorOnlyPresetControllers[OSC_2_PITCH    ] = [72 , 72 , 72 , 109, 72 , 72 , 64 , 64 ];
 
-editorOnlyPresetControllers[FILTER_CUTOFF  ] = [91 , 115, 103, 79 , 115, 115, 127, 127];
+editorOnlyPresetControllers[FILTER_CUTOFF  ] = [88 , 112, 100, 76 , 112, 112, 127, 127];
 editorOnlyPresetControllers[FILTER_RESO    ] = [64 , 64 , 64 , 0  , 64 , 64 , 0  , 0  ];
 editorOnlyPresetControllers[FILTER_EG_AMT  ] = [76 , 64 , 76 , 64 , 64 , 64 , 64 , 64 ];
-editorOnlyPresetControllers[FILTER_KEY_TRK ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
+editorOnlyPresetControllers[FILTER_KEY_TRK ] = [96 , 96 , 96 , 96 , 96 , 96 , 96 , 64 ];
 
 editorOnlyPresetControllers[EG_ATTACK      ] = [48 , 64 , 32 , 32 , 32 , 32 , 0  , 0  ];
 editorOnlyPresetControllers[EG_DECAY       ] = [80 , 64 , 96 , 32 , 32 , 32 , 0  , 0  ];
@@ -1428,10 +1428,10 @@ function getStoredCCValueString(index, number) {
 
 <table>
 <tr>
-<td>&nbsp;</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-<td>&nbsp;</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-<td>&nbsp;</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-<td>&nbsp;</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+<td>&nbsp;</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+<td>&nbsp;</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+<td>&nbsp;</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+<td>&nbsp;</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
 </tr>
 <tr>
 <td colspan="12"><hr></td>
