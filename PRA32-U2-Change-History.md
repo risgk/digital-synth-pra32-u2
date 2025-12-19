@@ -2,6 +2,7 @@
 
 - v1.6.0 (2025-??-??):
     - Add dithering to the audio autput
+    - Clamp the filter outputs: To ensure safety even when the filters are oscillating due to the LFO
     - Smoothly change Filter Resonance
     - Improve real-time performance
     - Modify Filter Cutoff and Filter Key Track of Factory Presets

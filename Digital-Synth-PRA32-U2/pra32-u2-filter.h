@@ -130,6 +130,13 @@ public:
     y_0 -= mul_s32_s32_h32(m_a_1_over_a_0, m_y_1 << (32 - FILTER_TABLE_FRACTION_BITS));
     y_0 -= mul_s32_s32_h32(m_a_2_over_a_0, m_y_2 << (32 - FILTER_TABLE_FRACTION_BITS));
 
+    // y_0_clamped = clamp(y_0, (-MAX_ABS_OUTPUT), (+MAX_ABS_OUTPUT))
+    volatile int32_t y_0_clamped = y_0 - (+MAX_ABS_OUTPUT);
+    y_0_clamped = (y_0_clamped < 0) * y_0_clamped + (+MAX_ABS_OUTPUT) - (-MAX_ABS_OUTPUT);
+    y_0_clamped = (y_0_clamped > 0) * y_0_clamped + (-MAX_ABS_OUTPUT);
+
+    y_0 = y_0_clamped;
+
     m_x_2 = m_x_1;
     m_y_2 = m_y_1;
     m_x_1 = x_0;
