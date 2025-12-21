@@ -21,7 +21,7 @@ struct PRA32_U2_ControlPanelPage {
 };
 
 static const PRA32_U2_ControlPanelPage g_control_panel_page_table_a[] = {
-  { "Page=A-00 ", "Info      ",   "PRA32-U2  ", "with Panel", 0xFF           ,   "          ",PRA32_U2_VERSION, 0xFF        ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=A-00 ", "Info      ",   "PRA32-U2/P", "          ", 0xFF           ,   "          ",PRA32_U2_VERSION, 0xFF        ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=A-01 ", "Voice     ",   "Voice     ", "Mode      ", VOICE_MODE     ,   "Voice     ", "Asgn Mode ", VOICE_ASGN_MODE,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=A-02 ", "Pitch     ",   "Portamento", "          ", PORTAMENTO     ,   "Pitch     ", "Bend Range", P_BEND_RANGE   ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=A-03 ", "Osc a     ",   "Osc 1     ", "Wave      ", OSC_1_WAVE     ,   "Mixer     ", "Noise/Sub ", MIXER_SUB_OSC  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
