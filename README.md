@@ -226,7 +226,7 @@ graph LR
     - Actually, it is necessary to use Raspberry Pi Pico 2 (instead of Raspberry Pi Pico)
 
 
-## [PRA32-U2/P (PRA32-U2 with Panel)](./README-PRA32-U2-with-Panel.md) (Optional)
+## [PRA32-U2/P](./README-PRA32-U2-P.md) (PRA32-U2 with Panel) (Optional)
 
 
 ## License
