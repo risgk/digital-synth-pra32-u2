@@ -1,12 +1,12 @@
-# Digital Synth PRA32-U2 with Panel v1.6.0
+# Digital Synth PRA32-U2/P (PRA32-U2 with Panel) v1.6.0
 
 - 2025-12-19 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 
-## PRA32-U2 with Panel (Optional)
+## PRA32-U2/P (Optional)
 
-![PRA32-U2 with Panel (Grove System)](./pra32-u2-with-panel-grove-system.jpg)
+![PRA32-U2/P (Grove System)](./pra32-u2-with-panel-grove-system.jpg)
 
 - Features
     - Editing and displaying parameters by panel operation
@@ -110,7 +110,7 @@
 - Using a universal PCB, GY-PCM5102 (PCM5102A I2S DAC Module), 6 SWs, 3 VRs, a OLED Display, and a M5Stack MIDI Unit (optional)
     - An connection between Raspberry Pico 2's Mute Off Pin and GY-PCM5102's XSMT is omitted
 
-![PRA32-U2 with Panel (Universal PCB)](./pra32-u2-with-panel-universal-pcb.jpg)
+![PRA32-U2/P (Universal PCB)](./pra32-u2-with-panel-universal-pcb.jpg)
 
 
 ### An Example of Construction Using a Breadboard
@@ -118,14 +118,14 @@
 - Using a breadboard, GY-PCM5102 (PCM5102A I2S DAC Module), 3 SWs, 3 VRs, and a OLED Display
     - An connection between Raspberry Pico 2's Mute Off Pin and GY-PCM5102's XSMT is omitted
 
-![PRA32-U2 with Panel (Bread Board)](./pra32-u2-with-panel-breadboard.jpg)
+![PRA32-U2/P (Bread Board)](./pra32-u2-with-panel-breadboard.jpg)
 
 
 ### Table of GUI Pages
 
 | Page           | Parameter A         | Parameter B      |
 | :------------- | :------------------ | :--------------- |
-| A-00 Info      | PRA32-U2 with Panel | v1.6.0           |
+| A-00 Info      | PRA32-U2/P          | v1.6.0           |
 | A-01 Voice     | Voice Mode          | Voice Asgn Mode  |
 | A-02 Pitch     | Portamento          | Pitch Bend Range |
 | A-03 Osc a     | Osc 1 Wave          | Mixer Noise/Sub  |
