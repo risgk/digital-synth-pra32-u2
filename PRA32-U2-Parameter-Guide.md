@@ -256,6 +256,7 @@
 - Voice Assign Mode [1|2]
     - 0 (0-63): Mode 1, Free voice with next number has priority in Polyphonic Mode, Release is effective
     - 127 (64-127): Mode 2, Free voice with small number has priority in Polyphonic Mode, Portamento is effective
+- After Touch LFO Amt
 - Chorus Mix [Dry|Wet]
     - 0: Dry 100%, Wet 0% (min)
     - 64: Dry 75%, Wet 25%
