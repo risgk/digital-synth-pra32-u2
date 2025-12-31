@@ -54,7 +54,7 @@ const uint8_t g_preset_table_EG_VEL_SENS    [] = {0  , 0  , 0  , 0  , 0  , 0  , 
 const uint8_t g_preset_table_AMP_VEL_SENS   [] = {0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  };
 
 const uint8_t g_preset_table_VOICE_ASGN_MODE[] = {0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  };
-
+const uint8_t g_preset_table_AFT_T_LFO_AMT  [] = {0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  };
 
 
 

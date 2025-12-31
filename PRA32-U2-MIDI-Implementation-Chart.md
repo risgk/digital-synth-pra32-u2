@@ -78,7 +78,7 @@
 |                            63 | x             | o             | Amp Velocity Sensitivity             |
 |                               |               |               |                                      |
 |                           110 | x             | o             | Voice Assign Mode [1|2]              |
-|                               |               |               |                                      |
+|                           109 | x             | o             | After Touch LFO Amt                  |
 |                               |               |               |                                      |
 |                               |               |               |                                      |
 |                               |               |               |                                      |

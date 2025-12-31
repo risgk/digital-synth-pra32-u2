@@ -1,7 +1,9 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v1.6.1 (2025-**-**):
+- v1.7.0 (2025-**-**):
+    - Add the "After Touch LFO Amt" parameter
     - PRA32-U2/P: Change the official name of "PRA32-U2 with Panel" to "PRA32-U2/P"
+    - Tested with Arduino-Pico version 5.4.4
 - v1.6.0 (2025-12-19):
     - Add dithering to the audio autput
     - Clamp the filter outputs: To ensure safety even when the filters are oscillating due to the LFO
