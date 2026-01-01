@@ -229,7 +229,7 @@
     - 125: 97.7%
     - 126: 98.5%
     - 127: 100% (max)
-        - NOTE: The actual LFO depth is the "LFO Depth" value plus the "Modulation" value
+        - NOTE: The actual LFO depth is the "LFO Depth" value plus the "Modulation" value and the after touch effect
 - Amp Gain
 - Filter Mode [LP|HP]
     - 0 (0-63): Low Pass
