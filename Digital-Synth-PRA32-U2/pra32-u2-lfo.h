@@ -88,7 +88,11 @@ public:
   }
 
   INLINE void set_pressure_amt(uint8_t controller_value) {
-    m_pressure_amt = ((controller_value + 1) >> 1) << 1;
+    if (controller_value == 127) {
+      controller_value = 128;
+    }
+
+    m_pressure_amt = controller_value;
   }
 
   template <uint8_t N>
