@@ -186,21 +186,21 @@ extern void PRA32_U2_ControlPanel_on_control_change(uint8_t control_number);
 
 
 class PRA32_U2_Synth {
-  PRA32_U2_Osc       m_osc;
-  PRA32_U2_Filter    m_filter[4];
-  PRA32_U2_Amp       m_amp[4];
-  PRA32_U2_NoiseGen  m_noise_gen;
-  PRA32_U2_LFO       m_lfo;
-  PRA32_U2_EG        m_eg[2 * 4];
-  PRA32_U2_ChorusFx  m_chorus_fx;
-  PRA32_U2_DelayFx   m_delay_fx;
+  PRA32_U2_Osc      m_osc;
+  PRA32_U2_Filter   m_filter[4];
+  PRA32_U2_Amp      m_amp[4];
+  PRA32_U2_NoiseGen m_noise_gen;
+  PRA32_U2_LFO      m_lfo;
+  PRA32_U2_EG       m_eg[2 * 4];
+  PRA32_U2_ChorusFx m_chorus_fx;
+  PRA32_U2_DelayFx  m_delay_fx;
 
   uint32_t          m_count;
 
   uint8_t           m_note_queue[4];
   uint8_t           m_note_on_number[4];
-  uint8_t           m_note_on_count[128];
-  uint8_t           m_note_on_total_count;
+  uint32_t          m_note_on_count[128];
+  uint32_t          m_note_on_total_count;
   uint8_t           m_last_note_on_index;
   boolean           m_sustain_pedal;
   uint8_t           m_voice_mode;
