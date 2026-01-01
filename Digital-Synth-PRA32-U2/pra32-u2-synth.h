@@ -72,7 +72,7 @@ static uint8_t s_program_table_parameters[] = {
   AMP_VEL_SENS   ,
 
   VOICE_ASGN_MODE,
-
+  AFT_T_LFO_AMT  ,
 
 
 
@@ -365,7 +365,7 @@ public:
     std::memcpy(m_program_table[AMP_VEL_SENS   ], g_preset_table_AMP_VEL_SENS   , sizeof(m_program_table[0]));
 
     std::memcpy(m_program_table[VOICE_ASGN_MODE], g_preset_table_VOICE_ASGN_MODE, sizeof(m_program_table[0]));
-
+    std::memcpy(m_program_table[AFT_T_LFO_AMT  ], g_preset_table_AFT_T_LFO_AMT  , sizeof(m_program_table[0]));
 
 
 
@@ -1054,6 +1054,9 @@ public:
       m_voice_asgn_mode = (controller_value < 64) ? 1 : 2;
       break;
 
+    case AFT_T_LFO_AMT  :
+      break;
+
     case DELAY_LEVEL    :
       m_delay_fx.set_delay_level(controller_value);
       break;
@@ -1151,6 +1154,14 @@ public:
   /* INLINE */ void __not_in_flash_func(pitch_bend)(uint8_t lsb, uint8_t msb) {
     int16_t pitch_bend = ((static_cast<uint16_t>(msb) << 8) >> 1) + lsb - 8192;
     m_osc.set_pitch_bend(pitch_bend);
+  }
+
+  /* INLINE */ void __not_in_flash_func(after_touch_poly)(uint8_t note_number, uint8_t pressure) {
+    /* TODO */
+  }
+
+  /* INLINE */ void __not_in_flash_func(after_touch_channel)(uint8_t pressure) {
+    /* TODO */
   }
 
   /* INLINE */ void __not_in_flash_func(program_change)(uint8_t program_number) {
