@@ -823,7 +823,7 @@ public:
     m_note_on_number[1] = NOTE_NUMBER_INVALID;
     m_note_on_number[2] = NOTE_NUMBER_INVALID;
     m_note_on_number[3] = NOTE_NUMBER_INVALID;
-    for (uint8_t i = 0; i < sizeof(m_note_on_count); ++i) {
+    for (uint8_t i = 0; i < (sizeof(m_note_on_count) / sizeof(m_note_on_count[0])); ++i) {
       m_note_on_count[i] = 0;
     }
     m_note_on_total_count = 0;
