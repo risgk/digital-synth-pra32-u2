@@ -109,8 +109,8 @@ const uint8_t   BTH_AMP_MOD     = 61;
 const uint8_t   EG_VEL_SENS     = 62;
 const uint8_t   AMP_VEL_SENS    = 63;
 
-const uint8_t   VOICE_ASGN_MODE = 110;
 const uint8_t   AFT_T_LFO_AMT   = 109;
+const uint8_t   VOICE_ASGN_MODE = 110;
 
 
 

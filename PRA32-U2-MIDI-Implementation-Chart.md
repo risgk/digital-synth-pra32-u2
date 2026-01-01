@@ -77,8 +77,8 @@
 |                            62 | x             | o             | EG Velocity Sensitivity              |
 |                            63 | x             | o             | Amp Velocity Sensitivity             |
 |                               |               |               |                                      |
-|                           110 | x             | o             | Voice Assign Mode [1|2]              |
 |                           109 | x             | o             | After Touch LFO Amt                  |
+|                           110 | x             | o             | Voice Assign Mode [1|2]              |
 |                               |               |               |                                      |
 |                               |               |               |                                      |
 |                               |               |               |                                      |
