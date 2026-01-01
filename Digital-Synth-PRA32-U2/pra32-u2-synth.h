@@ -1055,6 +1055,7 @@ public:
       break;
 
     case AFT_T_LFO_AMT  :
+      m_lfo.set_pressure_amt(controller_value);
       break;
 
     case DELAY_LEVEL    :
@@ -1157,11 +1158,28 @@ public:
   }
 
   /* INLINE */ void __not_in_flash_func(after_touch_poly)(uint8_t note_number, uint8_t pressure) {
-    /* TODO */
+    if (m_note_on_number[0] == note_number) {
+      m_lfo.set_pressure<0>(pressure);
+    }
+
+    if (m_note_on_number[1] == note_number) {
+      m_lfo.set_pressure<1>(pressure);
+    }
+
+    if (m_note_on_number[2] == note_number) {
+      m_lfo.set_pressure<2>(pressure);
+    }
+
+    if (m_note_on_number[3] == note_number) {
+      m_lfo.set_pressure<3>(pressure);
+    }
   }
 
   /* INLINE */ void __not_in_flash_func(after_touch_channel)(uint8_t pressure) {
-    /* TODO */
+    m_lfo.set_pressure<0>(pressure);
+    m_lfo.set_pressure<1>(pressure);
+    m_lfo.set_pressure<2>(pressure);
+    m_lfo.set_pressure<3>(pressure);
   }
 
   /* INLINE */ void __not_in_flash_func(program_change)(uint8_t program_number) {
@@ -1277,11 +1295,10 @@ public:
       break;
     }
 
-    int16_t lfo_output = m_lfo.get_output();
-
     switch (m_count & (0x04 - 1)) {
     case 0x00:
       {
+        int16_t lfo_output = m_lfo.get_output<0>();
         m_osc.process_at_low_rate_a<0>(lfo_output, m_eg[0].get_output());
         m_osc.process_at_low_rate_b(m_count >> 2, noise_int15);
         uint16_t osc_pitch_0 = (60 << 8);
@@ -1291,21 +1308,30 @@ public:
       }
       break;
     case 0x01:
-      m_osc.process_at_low_rate_a<1>(lfo_output, m_eg[2].get_output());
-      m_filter[1].process_at_low_rate(m_count >> 2, m_eg[2].get_output(), lfo_output, m_osc.get_osc_pitch(1));
-      m_amp[1].process_at_low_rate(m_eg[3].get_output());
+      {
+        int16_t lfo_output = m_lfo.get_output<1>();
+        m_osc.process_at_low_rate_a<1>(lfo_output, m_eg[2].get_output());
+        m_filter[1].process_at_low_rate(m_count >> 2, m_eg[2].get_output(), lfo_output, m_osc.get_osc_pitch(1));
+        m_amp[1].process_at_low_rate(m_eg[3].get_output());
+      }
       break;
     case 0x02:
-      m_osc.process_at_low_rate_a<2>(lfo_output, m_eg[4].get_output());
-      m_filter[2].process_at_low_rate(m_count >> 2, m_eg[4].get_output(), lfo_output, m_osc.get_osc_pitch(2));
-      m_amp[2].process_at_low_rate(m_eg[5].get_output());
-      m_delay_fx.process_at_low_rate(m_count >> 2);
+      {
+        int16_t lfo_output = m_lfo.get_output<2>();
+        m_osc.process_at_low_rate_a<2>(lfo_output, m_eg[4].get_output());
+        m_filter[2].process_at_low_rate(m_count >> 2, m_eg[4].get_output(), lfo_output, m_osc.get_osc_pitch(2));
+        m_amp[2].process_at_low_rate(m_eg[5].get_output());
+        m_delay_fx.process_at_low_rate(m_count >> 2);
+      }
       break;
     case 0x03:
-      m_osc.process_at_low_rate_a<3>(lfo_output, m_eg[6].get_output());
-      m_filter[3].process_at_low_rate(m_count >> 2, m_eg[6].get_output(), lfo_output, m_osc.get_osc_pitch(3));
-      m_amp[3].process_at_low_rate(m_eg[7].get_output());
-      m_chorus_fx.process_at_low_rate(m_count >> 2);
+      {
+        int16_t lfo_output = m_lfo.get_output<3>();
+        m_osc.process_at_low_rate_a<3>(lfo_output, m_eg[6].get_output());
+        m_filter[3].process_at_low_rate(m_count >> 2, m_eg[6].get_output(), lfo_output, m_osc.get_osc_pitch(3));
+        m_amp[3].process_at_low_rate(m_eg[7].get_output());
+        m_chorus_fx.process_at_low_rate(m_count >> 2);
+      }
       break;
     }
 
