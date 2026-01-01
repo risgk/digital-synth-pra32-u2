@@ -17,7 +17,6 @@ class PRA32_U2_LFO {
 
   uint32_t m_lfo_phase;
   int16_t  m_lfo_wave_level;
-  int16_t  m_lfo_level;
   uint32_t m_lfo_rate;
   uint8_t  m_lfo_depth[2];
   uint8_t  m_lfo_waveform;
@@ -26,12 +25,13 @@ class PRA32_U2_LFO {
   uint8_t  m_lfo_fade_level;
   int16_t  m_noise_int15;
   int16_t  m_sampled_noise_int15;
+  uint8_t  m_pressure_amt;
+  uint8_t  m_pressure[4];
 
 public:
   PRA32_U2_LFO()
   : m_lfo_phase()
   , m_lfo_wave_level()
-  , m_lfo_level()
   , m_lfo_rate()
   , m_lfo_depth()
   , m_lfo_waveform()
@@ -40,6 +40,8 @@ public:
   , m_lfo_fade_level()
   , m_noise_int15()
   , m_sampled_noise_int15()
+  , m_pressure_amt()
+  , m_pressure()
   {
     m_lfo_waveform = LFO_WAVEFORM_TRIANGLE;
     m_lfo_fade_coef = LFO_FADE_COEF_OFF;
@@ -85,6 +87,19 @@ public:
     m_lfo_fade_coef = g_lfo_fade_coef_table[controller_value];
   }
 
+  INLINE void set_pressure_amt(uint8_t controller_value) {
+    m_pressure_amt = ((controller_value + 1) >> 1) << 1;
+  }
+
+  template <uint8_t N>
+  INLINE void set_pressure(uint8_t pressure) {
+    if (pressure == 127) {
+      pressure = 128;
+    }
+
+    m_pressure[N] = pressure;
+  }
+
   INLINE void trigger_lfo() {
     if (   (m_lfo_waveform == LFO_WAVEFORM_SAW_DOWN)
         || (m_lfo_waveform == LFO_WAVEFORM_RANDOM)
@@ -98,15 +113,24 @@ public:
     }
   }
 
+  template <uint8_t N>
   INLINE int16_t get_output() {
-    return m_lfo_level;
+    uint8_t lfo_depth = high_byte((m_lfo_depth[0] << 1) * m_lfo_fade_level) + m_lfo_depth[1]
+                        + ((m_pressure_amt * m_pressure[N]) >> 7);
+    if (lfo_depth > 128) {
+      lfo_depth = 128;
+    }
+
+    int16_t lfo_level = (lfo_depth * m_lfo_wave_level) >> 7;
+
+    return lfo_level;
   }
 
   INLINE void process_at_low_rate(uint8_t count, int16_t noise_int15) {
     static_cast<void>(count);
 
     m_noise_int15 = noise_int15;
-    update_lfo_level();
+    update_lfo_wave_level();
   }
 
 private:
@@ -157,7 +181,7 @@ private:
     return level;
   }
 
-  INLINE void update_lfo_level() {
+  INLINE void update_lfo_wave_level() {
     --m_lfo_fade_cnt;
     if (m_lfo_fade_cnt == 0) {
       m_lfo_fade_cnt = m_lfo_fade_coef;
@@ -169,13 +193,5 @@ private:
     m_lfo_phase += m_lfo_rate;
     m_lfo_phase &= 0x00FFFFFF;
     m_lfo_wave_level = get_lfo_wave_level(m_lfo_phase);
-
-
-    uint8_t lfo_depth = high_byte((m_lfo_depth[0] << 1) * m_lfo_fade_level) + m_lfo_depth[1];
-    if (lfo_depth > 128) {
-      lfo_depth = 128;
-    }
-
-    m_lfo_level = (lfo_depth * m_lfo_wave_level) >> 7;
   }
 };
