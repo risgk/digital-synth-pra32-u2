@@ -120,6 +120,8 @@ void handleNoteOff(byte channel, byte pitch, byte velocity);
 void handleControlChange(byte channel, byte number, byte value);
 void handleProgramChange(byte channel, byte number);
 void handlePitchBend(byte channel, int bend);
+void handleAfterTouchPoly(byte channel, byte note, byte pressure);
+void handleAfterTouchChannel(byte channel, byte pressure);
 void handleClock();
 void handleStart();
 void handleStop();
@@ -222,6 +224,8 @@ void __not_in_flash_func(setup)() {
   USB_MIDI.setHandleControlChange(handleControlChange);
   USB_MIDI.setHandleProgramChange(handleProgramChange);
   USB_MIDI.setHandlePitchBend(handlePitchBend);
+  USB_MIDI.setHandleAfterTouchPoly(handleAfterTouchPoly);
+  USB_MIDI.setHandleAfterTouchChannel(handleAfterTouchChannel);
   USB_MIDI.setHandleClock(handleClock);
   USB_MIDI.setHandleStart(handleStart);
   USB_MIDI.setHandleStop(handleStop);
@@ -237,6 +241,8 @@ void __not_in_flash_func(setup)() {
   UART_MIDI.setHandleControlChange(handleControlChange);
   UART_MIDI.setHandleProgramChange(handleProgramChange);
   UART_MIDI.setHandlePitchBend(handlePitchBend);
+  UART_MIDI.setHandleAfterTouchPoly(handleAfterTouchPoly);
+  UART_MIDI.setHandleAfterTouchChannel(handleAfterTouchChannel);
   UART_MIDI.setHandleClock(handleClock);
   UART_MIDI.setHandleStart(handleStart);
   UART_MIDI.setHandleStop(handleStop);
@@ -369,6 +375,20 @@ void __not_in_flash_func(handlePitchBend)(byte channel, int bend)
 {
   if ((channel - 1) == g_midi_ch) {
     g_synth.pitch_bend((bend + 8192) & 0x7F, (bend + 8192) >> 7);
+  }
+}
+
+void __not_in_flash_func(handleAfterTouchPoly)(byte channel, byte note, byte pressure)
+{
+  if ((channel - 1) == g_midi_ch) {
+    g_synth.after_touch_poly(note, pressure);
+  }
+}
+
+void __not_in_flash_func(handleAfterTouchChannel)(byte channel, byte pressure)
+{
+  if ((channel - 1) == g_midi_ch) {
+    g_synth.after_touch_channel(pressure);
   }
 }
 
