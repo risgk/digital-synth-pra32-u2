@@ -1,6 +1,6 @@
 require_relative 'pra32-u2-constants'
 
-$file = File.open("pra32-u2-filter-table.h", "w")
+$file = File.open("pra32-u2-filter-table.h", "wb")
 
 $file.printf("#pragma once\n\n")
 
