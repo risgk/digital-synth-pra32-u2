@@ -855,6 +855,7 @@ public:
     control_change(MODULATION      , 0  );
     control_change(BTH_CONTROLLER  , 0  );
     control_change(SUSTAIN_PEDAL   , 0  );
+    after_touch_channel(0);
   }
 
   /* INLINE */ void __not_in_flash_func(control_change)(uint8_t control_number, uint8_t controller_value) {
