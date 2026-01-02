@@ -5,6 +5,7 @@
     - Improve stability
     - PRA32-U2 Editor: Modify the Editor Preset "#131 Electric Organ"
     - PRA32-U2/P: Change the official name of "PRA32-U2 with Panel" to "PRA32-U2/P"
+    - PRA32-U2/P: Add the "Panic" function
     - Improve the scripts
     - Tested with Arduino-Pico version 5.4.4
 - v1.6.0 (2025-12-19):

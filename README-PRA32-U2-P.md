@@ -80,6 +80,8 @@
     - Modulation
     - Breath Controller
     - Sustain Pedal
+- Control Operations
+    - Panic: Change the value from 0-63 [Rdy] to 64-127 [Exe]
 
 
 #### Group C
@@ -173,6 +175,7 @@
 | B-17 Seq 7     | Seq Pitch 7         | Seq Velo 7       |
 | B-18 Control a | Modulation          |                  |
 | B-19 Control b | Breath Controller   | Sustain Pedal    |
+| B-20 Control c | Panic               |                  |
 | C-00 Write 0   | Write Program 0     | Write Program 1  |
 | C-01 Write 2   | Write Program 2     | Write Program 3  |
 | C-02 Write 4   | Write Program 4     | Write Program 5  |
