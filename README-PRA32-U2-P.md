@@ -151,7 +151,7 @@
 | A-21 LFO d     | LFO Filter Amt      |                  |
 | A-22 Breath    | Breath Filter Amt   | Breath Amp Mod   |
 | A-23 Aft Touch | Aft Touch LFO Amt   |                  |
-| A-24 Chorus a  | Chorus Mix          |                  |
+| A-24 Chorus a  | Chorus Level        |                  |
 | A-25 Chorus b  | Chorus Rate         | Chorus Depth     |
 | A-26 Delay a   | Delay Level         | Delay Mode       |
 | A-27 Delay b   | Delay Time          | Delay Feedback   |
