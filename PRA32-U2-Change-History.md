@@ -12,6 +12,7 @@
     - PRA32-U2/P: Change the official name of "PRA32-U2 with Panel" to "PRA32-U2/P"
     - PRA32-U2/P: Add the "Panic" function
     - Improve the scripts
+    - Fix an issue where pra32-u2-make-sample-wav-file did not enter polyphonic mode
     - Tested with Arduino-Pico version 5.4.4
 - v1.6.0 (2025-12-19):
     - Add dithering to the audio autput

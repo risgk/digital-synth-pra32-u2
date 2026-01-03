@@ -1340,59 +1340,46 @@ public:
     int32_t filter_output[4];
     int32_t amp_output   [4];
     int32_t voice_mixer_output;
-    if (m_voice_mode == VOICE_POLYPHONIC) {
+
 #if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
-      m_secondary_core_processing_argument = noise_int15;
-      m_secondary_core_processing_request = 1;
+    m_secondary_core_processing_argument = noise_int15;
+    m_secondary_core_processing_request = 1;
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
 
-      osc_output   [0] = m_osc      .process<0>(noise_int15);
-      filter_output[0] = m_filter[0].process(osc_output   [0]);
-      amp_output   [0] = m_amp   [0].process(filter_output[0]);
+    osc_output   [0] = m_osc      .process<0>(noise_int15);
+    filter_output[0] = m_filter[0].process(osc_output   [0]);
+    amp_output   [0] = m_amp   [0].process(filter_output[0]);
 
-      osc_output   [1] = m_osc      .process<1>(noise_int15);
-      filter_output[1] = m_filter[1].process(osc_output   [1]);
-      amp_output   [1] = m_amp   [1].process(filter_output[1]);
-
-      int32_t amp_output_sum_a = amp_output[0] + amp_output[1];
+    osc_output   [1] = m_osc      .process<1>(noise_int15);
+    filter_output[1] = m_filter[1].process(osc_output   [1]);
+    amp_output   [1] = m_amp   [1].process(filter_output[1]);
 
 #if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
-      while (m_secondary_core_processing_request) {
-        ;
-      }
-      int32_t amp_output_sum_b = m_secondary_core_processing_result;
+    while (m_secondary_core_processing_request) {
+      ;
+    }
 #else  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
-      osc_output   [2] = m_osc      .process<2>(noise_int15);
-      filter_output[2] = m_filter[2].process(osc_output   [2]);
-      amp_output   [2] = m_amp   [2].process(filter_output[2]);
 
-      osc_output   [3] = m_osc      .process<3>(noise_int15);
-      filter_output[3] = m_filter[3].process(osc_output   [3]);
-      amp_output   [3] = m_amp   [3].process(filter_output[3]);
+#if defined(PRA32_U2_EMULATION)
+    osc_output   [2] = m_osc      .process<2>(noise_int15);
+    filter_output[2] = m_filter[2].process(osc_output   [2]);
+    amp_output   [2] = m_amp   [2].process(filter_output[2]);
 
-      int32_t amp_output_sum_b = amp_output[2] + amp_output[3];
+    osc_output   [3] = m_osc      .process<3>(noise_int15);
+    filter_output[3] = m_filter[3].process(osc_output   [3]);
+    amp_output   [3] = m_amp   [3].process(filter_output[3]);
+
+    m_secondary_core_processing_result = amp_output[2] + amp_output[3];
+#else  // defined(PRA32_U2_EMULATION)
+    m_secondary_core_processing_result = 0;
+#endif  // defined(PRA32_U2_EMULATION)
+
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
 
-      voice_mixer_output = amp_output_sum_a + amp_output_sum_b;
+    if (m_voice_mode == VOICE_POLYPHONIC) {
+      voice_mixer_output = amp_output[0] + amp_output[1] + m_secondary_core_processing_result;
     } else {
-#if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
-      m_secondary_core_processing_argument = 0;
-      m_secondary_core_processing_request = 1;
-#endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
-
-      osc_output[0] = m_osc.process<0>(noise_int15);
-      int32_t osc_mixer_output = osc_output[0];
-
-      filter_output[0] = m_filter[0].process(osc_mixer_output);
-      amp_output   [0] = m_amp   [0].process(filter_output[0]);
-
       voice_mixer_output = amp_output[0] + (amp_output[0] >> 1);
-
-#if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
-      while (m_secondary_core_processing_request) {
-        ;
-      }
-#endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
     }
 
     int32_t chorus_fx_output_r;
@@ -1464,7 +1451,6 @@ public:
   INLINE boolean secondary_core_process() {
     boolean processed = false;
 
-#if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
     if (m_secondary_core_processing_request == 1) {
       int16_t noise_int15 = static_cast<int16_t>(m_secondary_core_processing_argument);
 
@@ -1472,24 +1458,19 @@ public:
       int32_t filter_output[4];
       int32_t amp_output   [4];
 
-      if (m_voice_mode == VOICE_POLYPHONIC) {
-        osc_output   [2] = m_osc      .process<2>(noise_int15);
-        filter_output[2] = m_filter[2].process(osc_output   [2]);
-        amp_output   [2] = m_amp   [2].process(filter_output[2]);
+      osc_output   [2] = m_osc      .process<2>(noise_int15);
+      filter_output[2] = m_filter[2].process(osc_output   [2]);
+      amp_output   [2] = m_amp   [2].process(filter_output[2]);
 
-        osc_output   [3] = m_osc      .process<3>(noise_int15);
-        filter_output[3] = m_filter[3].process(osc_output   [3]);
-        amp_output   [3] = m_amp   [3].process(filter_output[3]);
+      osc_output   [3] = m_osc      .process<3>(noise_int15);
+      filter_output[3] = m_filter[3].process(osc_output   [3]);
+      amp_output   [3] = m_amp   [3].process(filter_output[3]);
 
-        m_secondary_core_processing_result = amp_output[2] + amp_output[3];
-      } else {
-        m_secondary_core_processing_result = 0;
-      }
+      m_secondary_core_processing_result = amp_output[2] + amp_output[3];
 
       m_secondary_core_processing_request = 0;
       processed = true;
     }
-#endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
 
     return processed;
   }
@@ -1535,7 +1516,7 @@ private:
   }
 
   INLINE void set_voice_mode(uint8_t controller_value) {
-#if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
+#if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_EMULATION)
     static uint8_t voice_mode_table[6] = {
       VOICE_POLYPHONIC,
       VOICE_POLYPHONIC,
@@ -1544,7 +1525,7 @@ private:
       VOICE_LEGATO_PORTA,
       VOICE_LEGATO,
     };
-#else  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
+#else  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_EMULATION)
     static uint8_t voice_mode_table[6] = {
       VOICE_MONOPHONIC,
       VOICE_MONOPHONIC,
@@ -1553,7 +1534,7 @@ private:
       VOICE_LEGATO_PORTA,
       VOICE_LEGATO,
     };
-#endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
+#endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_EMULATION)
 
     volatile int32_t index = ((controller_value * 10) + 127) / 254;
 
