@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v1.7.0 (2025-**-**):
+    - Raise the Osc's output level
     - Change the Filter Resonance so that if Q is more than 2.0 (control value 64), the sound is reduced
     - Change the "Chorus Mix" parameter to the "Chorus Level" parameter
         - When the "Chorus Level" is low, the output level will be low
