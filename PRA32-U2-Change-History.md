@@ -8,6 +8,7 @@
     - Add the "After Touch LFO Amt" parameter
     - Improve stability
     - PRA32-U2 Editor: Modify the Editor Presets "#131 Electric Organ" and "#132 PWM Lead"
+    - PRA32-U2 Editor: Adjust the layout
     - PRA32-U2/P: Change the official name of "PRA32-U2 with Panel" to "PRA32-U2/P"
     - PRA32-U2/P: Add the "Panic" function
     - Improve the scripts
