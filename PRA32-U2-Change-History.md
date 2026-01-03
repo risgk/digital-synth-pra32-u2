@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v1.7.0 (2025-**-**):
+    - Change the "Chorus Mix" parameter to the "Chorus Level" parameter
     - Add the "After Touch LFO Amt" parameter
     - Improve stability
     - PRA32-U2 Editor: Modify the Editor Preset "#131 Electric Organ"

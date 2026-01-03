@@ -967,7 +967,7 @@ public:
       m_chorus_fx.set_chorus_rate(controller_value);
       break;
     case CHORUS_MIX     :
-      m_chorus_fx.set_chorus_mix(controller_value);
+      m_chorus_fx.set_chorus_level(controller_value);
       break;
 
 #if 0
