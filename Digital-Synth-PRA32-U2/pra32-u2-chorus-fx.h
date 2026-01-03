@@ -116,8 +116,8 @@ public:
     delay_buff_push(0, left_input_int24);
     delay_buff_push(1, right_input_int24);
 
-    right_output_int24 = (((right_input_int24 * 64) + (eff_sample_1 * m_chorus_level_control_effective))) >> 7;
-    return               (((left_input_int24  * 64) + (eff_sample_0 * m_chorus_level_control_effective))) >> 7;
+    right_output_int24 = (((right_input_int24 * 64) + (eff_sample_1 * m_chorus_level_control_effective))) >> 6;
+    return               (((left_input_int24  * 64) + (eff_sample_0 * m_chorus_level_control_effective))) >> 6;
   }
 
 private:

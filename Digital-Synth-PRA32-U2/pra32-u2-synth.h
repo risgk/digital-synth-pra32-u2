@@ -1339,7 +1339,6 @@ public:
     int32_t osc_output   [4];
     int32_t filter_output[4];
     int32_t amp_output   [4];
-    int32_t voice_mixer_output;
 
 #if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
     m_secondary_core_processing_argument = noise_int15;
@@ -1376,10 +1375,12 @@ public:
 
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
 
+    int32_t voice_mixer_output;
+
     if (m_voice_mode == VOICE_POLYPHONIC) {
-      voice_mixer_output = amp_output[0] + amp_output[1] + m_secondary_core_processing_result;
+      voice_mixer_output = (amp_output[0] + amp_output[1] + m_secondary_core_processing_result) >> 1;
     } else {
-      voice_mixer_output = amp_output[0] + (amp_output[0] >> 1);
+      voice_mixer_output = (amp_output[0] + (amp_output[0] >> 1)) >> 1;
     }
 
     int32_t chorus_fx_output_r;
