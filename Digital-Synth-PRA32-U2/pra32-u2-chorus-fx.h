@@ -113,11 +113,11 @@ public:
   INLINE int32_t process(int32_t left_input_int24, int32_t right_input_int24, int32_t& right_output_int24) {
     int32_t eff_sample_0 = delay_buff_get(0, get_chorus_delay_time<0>());
     int32_t eff_sample_1 = delay_buff_get(1, get_chorus_delay_time<1>());
-    delay_buff_push(0, left_input_int24);
-    delay_buff_push(1, right_input_int24);
+    delay_buff_push(0, (left_input_int24  * m_chorus_level_control_effective) >> 6);
+    delay_buff_push(1, (right_input_int24 * m_chorus_level_control_effective) >> 6);
 
-    right_output_int24 = (((right_input_int24 * 64) + (eff_sample_1 * m_chorus_level_control_effective))) >> 6;
-    return               (((left_input_int24  * 64) + (eff_sample_0 * m_chorus_level_control_effective))) >> 6;
+    right_output_int24 = right_input_int24 + eff_sample_1;
+    return               left_input_int24  + eff_sample_0;
   }
 
 private:
