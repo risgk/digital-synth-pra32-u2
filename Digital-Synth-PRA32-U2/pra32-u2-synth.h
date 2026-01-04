@@ -302,7 +302,7 @@ public:
     m_note_on_number[2] = NOTE_NUMBER_INVALID;
     m_note_on_number[3] = NOTE_NUMBER_INVALID;
 
-    set_voice_mode(VOICE_POLYPHONIC);
+    set_voice_mode(VOICE_MONOPHONIC);
 
     m_amp[0].set_gain(127);
     m_amp[1].set_gain(127);
