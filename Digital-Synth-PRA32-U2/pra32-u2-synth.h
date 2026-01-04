@@ -1378,9 +1378,9 @@ public:
     int32_t voice_mixer_output;
 
     if (m_voice_mode == VOICE_POLYPHONIC) {
-      voice_mixer_output = (amp_output[0] + amp_output[1] + m_secondary_core_processing_result) >> 1;
+      voice_mixer_output = (amp_output[0] + amp_output[1] + m_secondary_core_processing_result) >> 2;
     } else {
-      voice_mixer_output = (amp_output[0] + (amp_output[0] >> 1)) >> 1;
+      voice_mixer_output = (amp_output[0] + (amp_output[0] >> 1)) >> 2;
     }
 
     int32_t chorus_fx_output_r;
