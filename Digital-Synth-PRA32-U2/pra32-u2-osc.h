@@ -184,7 +184,7 @@ public:
     m_freq_base[5] = g_osc_freq_table[0];
     m_freq_base[6] = g_osc_freq_table[0];
     m_freq_base[7] = g_osc_freq_table[0];
-    m_osc_level = 96;
+    m_osc_level = 72;
 
     m_osc1_shape[0]           = 0;
     m_osc1_shape[1]           = 0;
