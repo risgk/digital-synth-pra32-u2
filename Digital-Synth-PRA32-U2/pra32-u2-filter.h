@@ -124,17 +124,18 @@ public:
   INLINE int32_t process(int32_t audio_input_int24) {
 #if 1
     int32_t x_0 = audio_input_int24;
-    int32_t x_3 = x_0 + (m_x_1 << 1) + m_x_2;
-    int32_t y_0 = mul_s32_s32_h32(m_b_2_over_a_0, x_3 << (32 - FILTER_TABLE_FRACTION_BITS));
-
-    y_0 -= mul_s32_s32_h32(m_a_1_over_a_0, m_y_1 << (32 - FILTER_TABLE_FRACTION_BITS));
-    y_0 -= mul_s32_s32_h32(m_a_2_over_a_0, m_y_2 << (32 - FILTER_TABLE_FRACTION_BITS));
+    int32_t y_0 = 0;
+    y_0 += mul_s32_s32_h32(m_b_2_over_a_0,    x_0       << (32 - FILTER_TABLE_FRACTION_BITS));
+    y_0 += mul_s32_s32_h32(m_b_2_over_a_0, (m_x_1 << 1) << (32 - FILTER_TABLE_FRACTION_BITS));
+    y_0 += mul_s32_s32_h32(m_b_2_over_a_0,    m_x_2     << (32 - FILTER_TABLE_FRACTION_BITS));
+    y_0 -= mul_s32_s32_h32(m_a_1_over_a_0,    m_y_1     << (32 - FILTER_TABLE_FRACTION_BITS));
+    y_0 -= mul_s32_s32_h32(m_a_2_over_a_0,    m_y_2     << (32 - FILTER_TABLE_FRACTION_BITS));
 
     // y_0_clamped = clamp(y_0, (-MAX_ABS_OUTPUT), (+MAX_ABS_OUTPUT))
-    volatile int32_t y_0_clamped = y_0 - (+MAX_ABS_OUTPUT);
-    y_0_clamped = (y_0_clamped < 0) * y_0_clamped + (+MAX_ABS_OUTPUT) - (-MAX_ABS_OUTPUT);
-    y_0_clamped = (y_0_clamped > 0) * y_0_clamped + (-MAX_ABS_OUTPUT);
-
+    volatile int32_t y_0_clamped =
+         (y_0 >  (+MAX_ABS_OUTPUT))                                * (+MAX_ABS_OUTPUT)
+      +                                (y_0 <  (-MAX_ABS_OUTPUT))  * (-MAX_ABS_OUTPUT)
+      + ((y_0 <= (+MAX_ABS_OUTPUT)) && (y_0 >= (-MAX_ABS_OUTPUT))) * y_0;
     y_0 = y_0_clamped;
 
     m_x_2 = m_x_1;
