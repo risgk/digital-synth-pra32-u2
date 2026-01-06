@@ -11,6 +11,7 @@ static INLINE int32_t mul_s32_s32_h41(int32_t x, int32_t y) {
 }
 
 static INLINE int32_t soft_clip(int32_t value) {
+    // Note: Without anti-aliasing (oversampling)
     int32_t one       = (1 << 23);
     int32_t two_three = one * 2 / 3;
     volatile int32_t clamped =
