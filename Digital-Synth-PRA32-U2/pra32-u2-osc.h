@@ -676,7 +676,7 @@ private:
       result += (wave_2 * osc2_gain * m_osc_gain_effective[N]) >> 10;
     }
 
-    return result << 1;
+    return result;
   }
 
   template <uint8_t N>
