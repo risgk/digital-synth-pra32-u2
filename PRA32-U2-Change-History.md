@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v1.7.0 (2025-**-**):
+- v2.0.0 (2025-**-**):
+    - Renew the Filter: Introduce soft clipping (without anti-aliasing)
     - Change the signal levels
     - Change the Filter Resonance so that if Q is more than 2.0 (control value 64), the sound is reduced
     - Change the "Chorus Mix" parameter to the "Chorus Level" parameter
