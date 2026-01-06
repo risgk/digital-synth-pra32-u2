@@ -1,6 +1,7 @@
 #pragma once
 
 // refs https://webaudio.github.io/Audio-EQ-Cookbook/Audio-EQ-Cookbook.txt
+// refs https://ccrma.stanford.edu/~jatin/ComplexNonlinearities/NLBiquad.html
 
 #include "pra32-u2-common.h"
 #include "pra32-u2-filter-table.h"
@@ -9,10 +10,8 @@ class PRA32_U2_Filter {
   int32_t         m_b_2_over_a_0;
   int32_t         m_a_1_over_a_0;
   int32_t         m_a_2_over_a_0;
-  int32_t         m_x_1;
-  int32_t         m_x_2;
-  int32_t         m_y_1;
-  int32_t         m_y_2;
+  int32_t         m_z_1;
+  int32_t         m_z_2;
   uint8_t         m_resonance_target;
   uint8_t         m_resonance_current;
   int16_t         m_cutoff_current;
@@ -32,10 +31,8 @@ public:
   : m_b_2_over_a_0()
   , m_a_1_over_a_0()
   , m_a_2_over_a_0()
-  , m_x_1()
-  , m_x_2()
-  , m_y_1()
-  , m_y_2()
+  , m_z_1()
+  , m_z_2()
   , m_resonance_target()
   , m_resonance_current()
   , m_cutoff_current()
@@ -123,20 +120,15 @@ public:
 
   INLINE int32_t process(int32_t audio_input_int24) {
 #if 1
+    // Biquad Filter, Transposed Direct Form-II
     int32_t x_0 = audio_input_int24;
-    int32_t y_0 = 0;
-    y_0 += mul_s32_s32_h32(m_b_2_over_a_0,    x_0       << (32 - FILTER_TABLE_FRACTION_BITS));
-    y_0 += mul_s32_s32_h32(m_b_2_over_a_0, (m_x_1 << 1) << (32 - FILTER_TABLE_FRACTION_BITS));
-    y_0 += mul_s32_s32_h32(m_b_2_over_a_0,    m_x_2     << (32 - FILTER_TABLE_FRACTION_BITS));
-    y_0 -= mul_s32_s32_h32(m_a_1_over_a_0,    m_y_1     << (32 - FILTER_TABLE_FRACTION_BITS));
-    y_0 -= mul_s32_s32_h32(m_a_2_over_a_0,    m_y_2     << (32 - FILTER_TABLE_FRACTION_BITS));
-
-    y_0 = clamp(y_0, -MAX_ABS_OUTPUT, +MAX_ABS_OUTPUT);
-
-    m_x_2 = m_x_1;
-    m_y_2 = m_y_1;
-    m_x_1 = x_0;
-    m_y_1 = y_0;
+    int32_t y_0 =       m_z_1 + (mul_s32_s32_h32(m_b_2_over_a_0, x_0)      << (32 - FILTER_TABLE_FRACTION_BITS));
+    m_z_1       = clamp(m_z_2 + (mul_s32_s32_h32(m_b_2_over_a_0, x_0 << 1) << (32 - FILTER_TABLE_FRACTION_BITS))
+                              - (mul_s32_s32_h32(m_a_1_over_a_0, y_0)      << (32 - FILTER_TABLE_FRACTION_BITS)),
+                        -MAX_ABS_OUTPUT, +MAX_ABS_OUTPUT);
+    m_z_2       = clamp(        (mul_s32_s32_h32(m_b_2_over_a_0, x_0)      << (32 - FILTER_TABLE_FRACTION_BITS))
+                              - (mul_s32_s32_h32(m_a_2_over_a_0, y_0)      << (32 - FILTER_TABLE_FRACTION_BITS)),
+                        -MAX_ABS_OUTPUT, +MAX_ABS_OUTPUT);
 
     if (m_filter_mode >= 64) {
       // high pass
