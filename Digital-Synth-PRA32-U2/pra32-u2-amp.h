@@ -52,7 +52,9 @@ PRA32_U2_Amp()
     audio_output = mul_s32_s32_h16(audio_output, m_gain_mod_input     << 2);
     audio_output = mul_s32_s32_h16(audio_output, m_gain_linear        << 2);
     audio_output = mul_s32_s32_h16(audio_output, m_breath_gain_linear << 2);
+#if 0
     audio_output = mul_s32_s32_h16(audio_output, 11585                << 2);
+#endif
     return audio_output;
   }
 
