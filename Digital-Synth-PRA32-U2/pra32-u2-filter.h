@@ -6,6 +6,20 @@
 #include "pra32-u2-common.h"
 #include "pra32-u2-filter-table.h"
 
+static INLINE int32_t mul_s32_s32_h41(int32_t x, int32_t y) {
+  return (static_cast<int64_t>(x) * y) >> 23;
+}
+
+static INLINE int32_t soft_clip(int32_t value) {
+    int32_t one       = (1 << 23);
+    int32_t two_three = one * 2 / 3;
+    volatile int32_t clamped =
+         (value >  (+one))                       * (+two_three)
+      +                       (value <  (-one))  * (-two_three)
+      + ((value <= (+one)) && (value >= (-one))) * (value - (mul_s32_s32_h41(mul_s32_s32_h41(value, value), value) / 3));
+    return clamped;
+}
+
 class PRA32_U2_Filter {
   int32_t         m_b_2_over_a_0;
   int32_t         m_a_1_over_a_0;
@@ -23,8 +37,6 @@ class PRA32_U2_Filter {
   uint8_t         m_filter_mode;
   int16_t         m_cutoff_breath_amt;
   int16_t         m_breath_controller;
-
-  const int32_t MAX_ABS_OUTPUT = 124 << 16;
 
 public:
   PRA32_U2_Filter()
@@ -122,13 +134,11 @@ public:
 #if 1
     // Biquad Filter, Transposed Direct Form-II
     int32_t x_0 = audio_input_int24;
-    int32_t y_0 =       m_z_1 + (mul_s32_s32_h32(m_b_2_over_a_0, x_0)      << (32 - FILTER_TABLE_FRACTION_BITS));
-    m_z_1       = clamp(m_z_2 + (mul_s32_s32_h32(m_b_2_over_a_0, x_0 << 1) << (32 - FILTER_TABLE_FRACTION_BITS))
-                              - (mul_s32_s32_h32(m_a_1_over_a_0, y_0)      << (32 - FILTER_TABLE_FRACTION_BITS)),
-                        -MAX_ABS_OUTPUT, +MAX_ABS_OUTPUT);
-    m_z_2       = clamp(        (mul_s32_s32_h32(m_b_2_over_a_0, x_0)      << (32 - FILTER_TABLE_FRACTION_BITS))
-                              - (mul_s32_s32_h32(m_a_2_over_a_0, y_0)      << (32 - FILTER_TABLE_FRACTION_BITS)),
-                        -MAX_ABS_OUTPUT, +MAX_ABS_OUTPUT);
+    int32_t y_0 =           m_z_1 + (mul_s32_s32_h32(m_b_2_over_a_0, x_0)      << (32 - FILTER_TABLE_FRACTION_BITS));
+    m_z_1       = soft_clip(m_z_2 + (mul_s32_s32_h32(m_b_2_over_a_0, x_0 << 1) << (32 - FILTER_TABLE_FRACTION_BITS))
+                                  - (mul_s32_s32_h32(m_a_1_over_a_0, y_0)      << (32 - FILTER_TABLE_FRACTION_BITS)));
+    m_z_2       = soft_clip(        (mul_s32_s32_h32(m_b_2_over_a_0, x_0)      << (32 - FILTER_TABLE_FRACTION_BITS))
+                                  - (mul_s32_s32_h32(m_a_2_over_a_0, y_0)      << (32 - FILTER_TABLE_FRACTION_BITS)));
 
     if (m_filter_mode >= 64) {
       // high pass
