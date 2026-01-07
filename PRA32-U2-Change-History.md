@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v2.0.0 (2025-**-**):
+- v2.0.0 (2026-01-07):
     - **Improve the Filter**: Introduce soft clipping (without anti-aliasing)
     - Change the signal levels
     - Change the "Chorus Mix" parameter to the "Chorus Level" parameter
