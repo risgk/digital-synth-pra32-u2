@@ -1,12 +1,12 @@
-# Digital Synth PRA32-U2 with Panel v1.6.0
+# Digital Synth PRA32-U2/P (PRA32-U2 with Panel) v2.0.0
 
-- 2025-12-19 ISGK Instruments
+- 2026-01-07 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 
-## PRA32-U2 with Panel (Optional)
+## PRA32-U2/P (Optional)
 
-![PRA32-U2 with Panel (Grove System)](./pra32-u2-with-panel-grove-system.jpg)
+![PRA32-U2/P (Grove System)](./pra32-u2-with-panel-grove-system.jpg)
 
 - Features
     - Editing and displaying parameters by panel operation
@@ -80,6 +80,8 @@
     - Modulation
     - Breath Controller
     - Sustain Pedal
+- Control Operations
+    - Panic: Change the value from 0-63 [Rdy] to 64-127 [Exe]
 
 
 #### Group C
@@ -110,7 +112,7 @@
 - Using a universal PCB, GY-PCM5102 (PCM5102A I2S DAC Module), 6 SWs, 3 VRs, a OLED Display, and a M5Stack MIDI Unit (optional)
     - An connection between Raspberry Pico 2's Mute Off Pin and GY-PCM5102's XSMT is omitted
 
-![PRA32-U2 with Panel (Universal PCB)](./pra32-u2-with-panel-universal-pcb.jpg)
+![PRA32-U2/P (Universal PCB)](./pra32-u2-with-panel-universal-pcb.jpg)
 
 
 ### An Example of Construction Using a Breadboard
@@ -118,14 +120,14 @@
 - Using a breadboard, GY-PCM5102 (PCM5102A I2S DAC Module), 3 SWs, 3 VRs, and a OLED Display
     - An connection between Raspberry Pico 2's Mute Off Pin and GY-PCM5102's XSMT is omitted
 
-![PRA32-U2 with Panel (Bread Board)](./pra32-u2-with-panel-breadboard.jpg)
+![PRA32-U2/P (Bread Board)](./pra32-u2-with-panel-breadboard.jpg)
 
 
 ### Table of GUI Pages
 
 | Page           | Parameter A         | Parameter B      |
 | :------------- | :------------------ | :--------------- |
-| A-00 Info      | PRA32-U2 with Panel | v1.6.0           |
+| A-00 Info      | PRA32-U2/P          | v2.0.0           |
 | A-01 Voice     | Voice Mode          | Voice Asgn Mode  |
 | A-02 Pitch     | Portamento          | Pitch Bend Range |
 | A-03 Osc a     | Osc 1 Wave          | Mixer Noise/Sub  |
@@ -148,10 +150,11 @@
 | A-20 LFO c     | LFO Mod Amt         | LFO Mod Dst      |
 | A-21 LFO d     | LFO Filter Amt      |                  |
 | A-22 Breath    | Breath Filter Amt   | Breath Amp Mod   |
-| A-23 Chorus a  | Chorus Mix          |                  |
-| A-24 Chorus b  | Chorus Rate         | Chorus Depth     |
-| A-25 Delay a   | Delay Level         | Delay Mode       |
-| A-26 Delay b   | Delay Time          | Delay Feedback   |
+| A-23 Aft Touch | Aft Touch LFO Amt   |                  |
+| A-24 Chorus a  | Chorus Level        |                  |
+| A-25 Chorus b  | Chorus Rate         | Chorus Depth     |
+| A-26 Delay a   | Delay Level         | Delay Mode       |
+| A-27 Delay b   | Delay Time          | Delay Feedback   |
 | B-00 Panel a   | Panel Play Mode     | Panel MIDI Ch    |
 | B-01 Panel b   | Panel Play Pitch    | Panel Play Velo  |
 | B-02 Panel c   | Panel Scale         | Panel Pitch Ofst |
@@ -172,6 +175,7 @@
 | B-17 Seq 7     | Seq Pitch 7         | Seq Velo 7       |
 | B-18 Control a | Modulation          |                  |
 | B-19 Control b | Breath Controller   | Sustain Pedal    |
+| B-20 Control c | Panic               |                  |
 | C-00 Write 0   | Write Program 0     | Write Program 1  |
 | C-01 Write 2   | Write Program 2     | Write Program 3  |
 | C-02 Write 4   | Write Program 4     | Write Program 5  |

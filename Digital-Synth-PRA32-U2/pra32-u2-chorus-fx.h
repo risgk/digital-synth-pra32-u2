@@ -8,8 +8,8 @@ class PRA32_U2_ChorusFx {
   int32_t  m_delay_buff[2][DELAY_BUFF_SIZE];
   uint16_t m_delay_wp[2];
 
-  uint16_t m_chorus_mix_control;
-  uint16_t m_chorus_mix_control_effective;
+  uint16_t m_chorus_level_control;
+  uint16_t m_chorus_level_control_effective;
   uint16_t m_chorus_depth_control;
   uint16_t m_chorus_depth_control_effective;
   uint32_t m_chorus_rate_control;
@@ -24,8 +24,8 @@ public:
   : m_delay_buff()
   , m_delay_wp()
 
-  , m_chorus_mix_control()
-  , m_chorus_mix_control_effective()
+  , m_chorus_level_control()
+  , m_chorus_level_control_effective()
   , m_chorus_depth_control()
   , m_chorus_depth_control_effective()
   , m_chorus_rate_control()
@@ -61,8 +61,8 @@ public:
     m_chorus_delay_time_control = controller_value << 6;
   }
 
-  INLINE void set_chorus_mix(uint8_t controller_value) {
-    m_chorus_mix_control = (controller_value + 1) >> 1;
+  INLINE void set_chorus_level(uint8_t controller_value) {
+    m_chorus_level_control = (controller_value + 1) >> 1;
   }
 
   template <uint8_t N>
@@ -74,8 +74,8 @@ public:
 #if 1
     static_cast<void>(count);
 
-    m_chorus_mix_control_effective += (m_chorus_mix_control_effective < m_chorus_mix_control);
-    m_chorus_mix_control_effective -= (m_chorus_mix_control_effective > m_chorus_mix_control);
+    m_chorus_level_control_effective += (m_chorus_level_control_effective < m_chorus_level_control);
+    m_chorus_level_control_effective -= (m_chorus_level_control_effective > m_chorus_level_control);
 
     m_chorus_depth_control_effective += (m_chorus_depth_control_effective < m_chorus_depth_control);
     m_chorus_depth_control_effective -= (m_chorus_depth_control_effective > m_chorus_depth_control);
@@ -113,11 +113,11 @@ public:
   INLINE int32_t process(int32_t left_input_int24, int32_t right_input_int24, int32_t& right_output_int24) {
     int32_t eff_sample_0 = delay_buff_get(0, get_chorus_delay_time<0>());
     int32_t eff_sample_1 = delay_buff_get(1, get_chorus_delay_time<1>());
-    delay_buff_push(0, left_input_int24);
-    delay_buff_push(1, right_input_int24);
+    delay_buff_push(0, (left_input_int24  * m_chorus_level_control_effective) >> 6);
+    delay_buff_push(1, (right_input_int24 * m_chorus_level_control_effective) >> 6);
 
-    right_output_int24 = (((right_input_int24 * (128 - m_chorus_mix_control_effective)) + (eff_sample_1 * m_chorus_mix_control_effective))) >> 7;
-    return               (((left_input_int24  * (128 - m_chorus_mix_control_effective)) + (eff_sample_0 * m_chorus_mix_control_effective))) >> 7;
+    right_output_int24 = right_input_int24 + eff_sample_1;
+    return               left_input_int24  + eff_sample_0;
   }
 
 private:

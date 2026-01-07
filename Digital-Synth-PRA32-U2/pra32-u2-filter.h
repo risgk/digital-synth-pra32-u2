@@ -1,18 +1,32 @@
 #pragma once
 
 // refs https://webaudio.github.io/Audio-EQ-Cookbook/Audio-EQ-Cookbook.txt
+// refs https://jatinchowdhury18.medium.com/complex-nonlinearities-episode-4-nonlinear-biquad-filters-ae6b3f23cb0e
 
 #include "pra32-u2-common.h"
 #include "pra32-u2-filter-table.h"
+
+static INLINE int32_t mul_s32_s32_h41(int32_t x, int32_t y) {
+  return (static_cast<int64_t>(x) * y) >> 23;
+}
+
+static INLINE int32_t soft_clip(int32_t value) {
+    // Note: Without anti-aliasing (oversampling)
+    int32_t one       = (1 << 23);
+    int32_t two_three = one * 2 / 3;
+    volatile int32_t clamped =
+         (value >  (+one))                       * (+two_three)
+      +                       (value <  (-one))  * (-two_three)
+      + ((value <= (+one)) && (value >= (-one))) * (value - (mul_s32_s32_h41(mul_s32_s32_h41(value, value), value) / 3));
+    return clamped;
+}
 
 class PRA32_U2_Filter {
   int32_t         m_b_2_over_a_0;
   int32_t         m_a_1_over_a_0;
   int32_t         m_a_2_over_a_0;
-  int32_t         m_x_1;
-  int32_t         m_x_2;
-  int32_t         m_y_1;
-  int32_t         m_y_2;
+  int32_t         m_z_1;
+  int32_t         m_z_2;
   uint8_t         m_resonance_target;
   uint8_t         m_resonance_current;
   int16_t         m_cutoff_current;
@@ -25,17 +39,13 @@ class PRA32_U2_Filter {
   int16_t         m_cutoff_breath_amt;
   int16_t         m_breath_controller;
 
-  const int32_t MAX_ABS_OUTPUT = 124 << 16;
-
 public:
   PRA32_U2_Filter()
   : m_b_2_over_a_0()
   , m_a_1_over_a_0()
   , m_a_2_over_a_0()
-  , m_x_1()
-  , m_x_2()
-  , m_y_1()
-  , m_y_2()
+  , m_z_1()
+  , m_z_2()
   , m_resonance_target()
   , m_resonance_current()
   , m_cutoff_current()
@@ -123,24 +133,13 @@ public:
 
   INLINE int32_t process(int32_t audio_input_int24) {
 #if 1
+    // Nonlinear Biquad Filter, Transposed Direct Form-II
     int32_t x_0 = audio_input_int24;
-    int32_t x_3 = x_0 + (m_x_1 << 1) + m_x_2;
-    int32_t y_0 = mul_s32_s32_h32(m_b_2_over_a_0, x_3 << (32 - FILTER_TABLE_FRACTION_BITS));
-
-    y_0 -= mul_s32_s32_h32(m_a_1_over_a_0, m_y_1 << (32 - FILTER_TABLE_FRACTION_BITS));
-    y_0 -= mul_s32_s32_h32(m_a_2_over_a_0, m_y_2 << (32 - FILTER_TABLE_FRACTION_BITS));
-
-    // y_0_clamped = clamp(y_0, (-MAX_ABS_OUTPUT), (+MAX_ABS_OUTPUT))
-    volatile int32_t y_0_clamped = y_0 - (+MAX_ABS_OUTPUT);
-    y_0_clamped = (y_0_clamped < 0) * y_0_clamped + (+MAX_ABS_OUTPUT) - (-MAX_ABS_OUTPUT);
-    y_0_clamped = (y_0_clamped > 0) * y_0_clamped + (-MAX_ABS_OUTPUT);
-
-    y_0 = y_0_clamped;
-
-    m_x_2 = m_x_1;
-    m_y_2 = m_y_1;
-    m_x_1 = x_0;
-    m_y_1 = y_0;
+    int32_t y_0 =           m_z_1 + (mul_s32_s32_h32(m_b_2_over_a_0, x_0)      << (32 - FILTER_TABLE_FRACTION_BITS));
+    m_z_1       = soft_clip(m_z_2 + (mul_s32_s32_h32(m_b_2_over_a_0, x_0 << 1) << (32 - FILTER_TABLE_FRACTION_BITS))
+                                  - (mul_s32_s32_h32(m_a_1_over_a_0, y_0)      << (32 - FILTER_TABLE_FRACTION_BITS)));
+    m_z_2       = soft_clip(        (mul_s32_s32_h32(m_b_2_over_a_0, x_0)      << (32 - FILTER_TABLE_FRACTION_BITS))
+                                  - (mul_s32_s32_h32(m_a_2_over_a_0, y_0)      << (32 - FILTER_TABLE_FRACTION_BITS)));
 
     if (m_filter_mode >= 64) {
       // high pass

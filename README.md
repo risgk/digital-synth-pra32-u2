@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 v1.6.0
+# Digital Synth PRA32-U2 v2.0.0
 
-- 2025-12-19 ISGK Instruments
+- 2026-01-07 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 
@@ -168,7 +168,7 @@
 - PRA32-U2 (USB MIDI Device, I2S), Default
 - PRA32-U2 (USB MIDI Device, UART MIDI, I2S)
 - PRA32-U2 (USB MIDI Device, PWM Audio) (CURRENTLY NOT RECOMMENDED)
-- PRA32-U2 with Panel (USB MIDI Device, UART MIDI, I2S, Control Panel)
+- PRA32-U2/P (PRA32-U2 with Panel) (USB MIDI Device, UART MIDI, I2S, Control Panel)
 
 
 ## [Parameter Guide](./PRA32-U2-Parameter-Guide.md)
@@ -226,18 +226,18 @@ graph LR
     - Actually, it is necessary to use Raspberry Pi Pico 2 (instead of Raspberry Pi Pico)
 
 
-## [PRA32-U2 with Panel](./README-PRA32-U2-with-Panel.md) (Optional)
+## [PRA32-U2/P](./README-PRA32-U2-P.md) (PRA32-U2 with Panel) (Optional)
 
 
 ## License
 
 ![CC0](http://i.creativecommons.org/p/zero/1.0/88x31.png)
 
-**Digital Synth PRA32-U2 v1.6.0 by ISGK Instruments (Ryo Ishigaki)**
+**Digital Synth PRA32-U2 v2.0.0 by ISGK Instruments (Ryo Ishigaki)**
 
 To the extent possible under law, ISGK Instruments (Ryo Ishigaki)
 has waived all copyright and related or neighboring rights
-to Digital Synth PRA32-U2 v1.6.0.
+to Digital Synth PRA32-U2 v2.0.0.
 
 You should have received a copy of the CC0 legalcode along with this
 work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.

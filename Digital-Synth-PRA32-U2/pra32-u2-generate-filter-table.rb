@@ -1,6 +1,6 @@
 require_relative 'pra32-u2-constants'
 
-$file = File.open("pra32-u2-filter-table.h", "w")
+$file = File.open("pra32-u2-filter-table.h", "wb")
 
 $file.printf("#pragma once\n\n")
 
@@ -25,7 +25,6 @@ def generate_filter_lpf_table(res_id, name, q)
     a_2 = 1.0 - alpha
 
     input_gain = 1.0
-    input_gain = Math.sqrt(8.0) / q if q > Math.sqrt(8.0)
 
     b_2_over_a_0_gain = (input_gain * (lpf_b_2 / a_0) * (1 << FILTER_TABLE_FRACTION_BITS)).floor.to_i
     a_1_over_a_0 = ((a_1 / a_0) * (1 << FILTER_TABLE_FRACTION_BITS)).floor.to_i

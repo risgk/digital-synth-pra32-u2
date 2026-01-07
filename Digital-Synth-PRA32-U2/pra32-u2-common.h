@@ -52,3 +52,11 @@ static INLINE int32_t mul_s32_s32_h32(int32_t x, int32_t y) {
 static INLINE int32_t mul_s32_s32_h16(int32_t x, int32_t y) {
   return (static_cast<int64_t>(x) * y) >> 16;
 }
+
+static INLINE int32_t clamp(int32_t value, int32_t minimum, int32_t maximum) {
+    volatile int32_t clamped =
+         (value >  maximum)                        * maximum
+      +                        (value <  minimum)  * minimum
+      + ((value <= maximum) && (value >= minimum)) * value;
+    return clamped;
+}

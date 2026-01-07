@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 Parameter Guide v1.6.0
+# Digital Synth PRA32-U2 Parameter Guide v2.0.0
 
-- 2025-12-19 ISGK Instruments
+- 2026-01-07 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 ## Control Change Parameters
@@ -229,7 +229,7 @@
     - 125: 97.7%
     - 126: 98.5%
     - 127: 100% (max)
-        - NOTE: The actual LFO depth is the "LFO Depth" value plus the "Modulation" value
+        - NOTE: The actual LFO depth is the "LFO Depth" value plus the "Modulation" value and the after touch effect
 - Amp Gain
 - Filter Mode [LP|HP]
     - 0 (0-63): Low Pass
@@ -253,13 +253,11 @@
     - 127 (96-127): Liniear Curve
 - EG Velocity Sensitivity
 - Amp Velocity Sensitivity
+- After Touch LFO Amt
 - Voice Assign Mode [1|2]
     - 0 (0-63): Mode 1, Free voice with next number has priority in Polyphonic Mode, Release is effective
     - 127 (64-127): Mode 2, Free voice with small number has priority in Polyphonic Mode, Portamento is effective
-- Chorus Mix [Dry|Wet]
-    - 0: Dry 100%, Wet 0% (min)
-    - 64: Dry 75%, Wet 25%
-    - 127: Dry 50%, Wet 50% (max)
+- Chorus Level: Chorus Send Level
 - Chorus Rate
     - 0: LFO Frequency 0.012 Hz (min)
     - 64: LFO Frequency 0.48 Hz
@@ -269,7 +267,7 @@
     - 32: Delay Time +/- 1.3 ms
     - 64: Delay Time +/- 2.7 ms
     - 126: Delay Time +/- 5.3 ms (max)
-- Delay Level
+- Delay Level: Delay Send Level
 - Delay Mode [S|P]
     - 0 (0-63): Stereo Delay
     - 127 (64-127): Ping Pong Delay
