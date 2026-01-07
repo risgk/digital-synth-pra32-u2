@@ -41,7 +41,7 @@ td.keyh {
 }
 </style>
 <script>
-const APP_NAME_VERSION = "PRA32-U2 Editor v1.6.0";
+const APP_NAME_VERSION = "PRA32-U2 Editor v2.0.0";
 
 const USER_PROGRAM_NUMBER_MAX      = 7;
 const PROGRAM_NUMBER_MAX           = 15;
@@ -113,8 +113,8 @@ const BTH_AMP_MOD     = 61;
 const EG_VEL_SENS     = 62;
 const AMP_VEL_SENS    = 63;
 
+const AFT_T_LFO_AMT   = 109;
 const VOICE_ASGN_MODE = 110;
-
 
 
 
@@ -204,8 +204,8 @@ var controlNumberToStringMap = new Map([
   [ EG_VEL_SENS    , "EG_VEL_SENS    " ],
   [ AMP_VEL_SENS   , "AMP_VEL_SENS   " ],
 
+  [ AFT_T_LFO_AMT  , "AFT_T_LFO_AMT  " ],
   [ VOICE_ASGN_MODE, "VOICE_ASGN_MODE" ],
-
 
 
 
@@ -271,8 +271,8 @@ var controllersInLocalStorage = [
   EG_VEL_SENS    ,
   AMP_VEL_SENS   ,
 
+  AFT_T_LFO_AMT  ,
   VOICE_ASGN_MODE,
-
 
 
 
@@ -340,8 +340,8 @@ presetControllers[BTH_AMP_MOD    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 presetControllers[EG_VEL_SENS    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 presetControllers[AMP_VEL_SENS   ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 
+presetControllers[AFT_T_LFO_AMT  ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 presetControllers[VOICE_ASGN_MODE] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
-
 
 
 
@@ -366,11 +366,11 @@ editorOnlyPresetControllers[OSC_1_SHAPE    ] = [0  , 64 , 64 , 0  , 0  , 0  , 0 
 editorOnlyPresetControllers[OSC_1_MORPH    ] = [64 , 0  , 127, 12 , 0  , 0  , 0  , 0  ];
 
 editorOnlyPresetControllers[OSC_2_WAVE     ] = [0  , 0  , 0  , 76 , 0  , 25 , 0  , 0  ];
-editorOnlyPresetControllers[MIXER_OSC_MIX  ] = [64 , 64 , 64 , 64 , 64 , 64 , 0  , 0  ];
+editorOnlyPresetControllers[MIXER_OSC_MIX  ] = [64 , 64 , 64 , 64 , 0  , 64 , 0  , 0  ];
 editorOnlyPresetControllers[OSC_2_COARSE   ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 editorOnlyPresetControllers[OSC_2_PITCH    ] = [72 , 72 , 72 , 109, 72 , 72 , 64 , 64 ];
 
-editorOnlyPresetControllers[FILTER_CUTOFF  ] = [88 , 112, 100, 76 , 112, 112, 127, 127];
+editorOnlyPresetControllers[FILTER_CUTOFF  ] = [88 , 112, 100, 64 , 112, 112, 127, 127];
 editorOnlyPresetControllers[FILTER_RESO    ] = [64 , 64 , 64 , 0  , 64 , 64 , 0  , 0  ];
 editorOnlyPresetControllers[FILTER_EG_AMT  ] = [76 , 64 , 76 , 64 , 64 , 64 , 64 , 64 ];
 editorOnlyPresetControllers[FILTER_KEY_TRK ] = [96 , 96 , 96 , 96 , 96 , 96 , 96 , 64 ];
@@ -388,9 +388,9 @@ editorOnlyPresetControllers[PORTAMENTO     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0 
 editorOnlyPresetControllers[LFO_WAVE       ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 editorOnlyPresetControllers[LFO_FADE_TIME  ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 editorOnlyPresetControllers[LFO_RATE       ] = [80 , 80 , 80 , 80 , 80 , 80 , 80 , 80 ];
-editorOnlyPresetControllers[LFO_DEPTH      ] = [0  , 0  , 0  , 0  , 127, 0  , 0  , 0  ];
+editorOnlyPresetControllers[LFO_DEPTH      ] = [0  , 0  , 0  , 0  , 64 , 0  , 0  , 0  ];
 
-editorOnlyPresetControllers[LFO_OSC_AMT    ] = [64 , 64 , 72 , 64 , 96 , 119, 64 , 64 ];
+editorOnlyPresetControllers[LFO_OSC_AMT    ] = [64 , 64 , 72 , 64 , 127, 119, 64 , 64 ];
 editorOnlyPresetControllers[LFO_OSC_DST    ] = [0  , 0  , 127, 127, 127, 0  , 0  , 0  ];
 editorOnlyPresetControllers[LFO_FILTER_AMT ] = [76 , 76 , 64 , 76 , 64 , 64 , 64 , 64 ];
 editorOnlyPresetControllers[AMP_GAIN       ] = [110, 100, 100, 100, 90 , 90 , 100, 100];
@@ -410,8 +410,8 @@ editorOnlyPresetControllers[BTH_AMP_MOD    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0 
 editorOnlyPresetControllers[EG_VEL_SENS    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 editorOnlyPresetControllers[AMP_VEL_SENS   ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 
+editorOnlyPresetControllers[AFT_T_LFO_AMT  ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 editorOnlyPresetControllers[VOICE_ASGN_MODE] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
-
 
 
 
@@ -926,6 +926,7 @@ function setRandom() {
         (i != BTH_AMP_MOD    ) &&
         (i != EG_VEL_SENS    ) &&
         (i != AMP_VEL_SENS   ) &&
+        (i != AFT_T_LFO_AMT  ) &&
         (i != VOICE_ASGN_MODE)) {
       onChangeControlChange(i, rand(128));
     }
@@ -1149,8 +1150,8 @@ function fileExport() {
   str += fileExportOneLine(EG_VEL_SENS    );
   str += fileExportOneLine(AMP_VEL_SENS   );
   str += "\n";
+  str += fileExportOneLine(AFT_T_LFO_AMT  );
   str += fileExportOneLine(VOICE_ASGN_MODE);
-  str += "\n";
   str += "\n";
   str += "\n";
   str += "\n";
@@ -1275,9 +1276,9 @@ function getStoredCCValueString(index, number) {
     <td><input type="button" value="Random FX"            onclick="setRandomChorus()"></td></tr>
 <tr><td>(from Browser)</td>
     <td></td>
-    <td><input type="button" value="#8  Synth Pad"        onclick="preset(8)"></td>
+    <td><input type="button" value="#8 Synth Pad"         onclick="preset(8)"></td>
     <td></td>
-    <td><input type="button" value="#9  Multi Saw Pad"    onclick="preset(9)"></td>
+    <td><input type="button" value="#9 Multi Saw Pad"     onclick="preset(9)"></td>
     <td></td>
     <td><input type="button" value="#10 FM Piano"         onclick="preset(10)"></td>
     <td></td>
@@ -1642,9 +1643,13 @@ function getStoredCCValueString(index, number) {
 <td><span   id="span2AMP_VEL_SENS   " >-</span></td>
 </tr>
 <tr>
+<td colspan="3"><b>After Touch</b> LFO Amt             </td>
 <td colspan="3">Voice Assign Mode [1|2]         </td>
 </tr>
 <tr>
+<td><input  id="inputAFT_T_LFO_AMT  "  type="range" list="2 markers" min="0" max="127" step="1" oninput="onChangeControlChange(AFT_T_LFO_AMT  , value)"></td>
+<td><span    id="spanAFT_T_LFO_AMT  " >-</span></td>
+<td><span   id="span2AFT_T_LFO_AMT  " >-</span></td>
 <td><input  id="inputVOICE_ASGN_MODE"  type="range" list="2 markers" min="0" max="127" step="1" oninput="onChangeControlChange(VOICE_ASGN_MODE, value)"></td>
 <td><span    id="spanVOICE_ASGN_MODE" >-</span></td>
 <td><span   id="span2VOICE_ASGN_MODE" >-</span></td>
@@ -1653,7 +1658,7 @@ function getStoredCCValueString(index, number) {
 <td colspan="12"><hr></td>
 </tr>
 <tr>
-<td colspan="3"><b>Chorus</b> Mix [Dry|Wet]            </td>
+<td colspan="3"><b>Chorus</b> Level                    </td>
 <td colspan="3">                                </td>
 <td colspan="3"><b>Chorus</b> Rate                     </td>
 <td colspan="3"><b>Chorus</b> Depth                    </td>

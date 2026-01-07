@@ -589,6 +589,11 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
         g_synth.control_change(SEQ_VELO_6     , array[6] & 0x7Fu);
         g_synth.control_change(SEQ_VELO_7     , array[7] & 0x7Fu);
       }
+    } else if (s_adc_control_target[adc_number] == PANIC_OP) {
+      if ((adc_control_value_old < 64) && (adc_control_value_new >= 64)) {
+        g_synth.control_change(ALL_SOUND_OFF  , 0);
+        g_synth.control_change(RESET_ALL_CTRLS, 0);
+      }
     }
 
     return true;
@@ -799,6 +804,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case  WR_PANEL_PRMS  :
   case  SEQ_RAND_PITCH :
   case  SEQ_RAND_VELO  :
+  case  PANIC_OP       :
     {
       if        (controller_value < 64) {
         value_display_text[0] = 'R';

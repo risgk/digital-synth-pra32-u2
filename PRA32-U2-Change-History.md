@@ -1,5 +1,19 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v2.0.0 (2026-01-07):
+    - **Improve the Filter**: Introduce soft clipping (without anti-aliasing)
+    - Change the signal levels
+    - Change the "Chorus Mix" parameter to the "Chorus Level" parameter
+        - When the "Chorus Level" is low, the output level will be low
+    - Add the "After Touch LFO Amt" parameter
+    - Improve stability
+    - PRA32-U2 Editor: Modify the Editor Presets "#131 Electric Organ" and "#132 PWM Lead"
+    - PRA32-U2 Editor: Adjust the layout
+    - PRA32-U2/P: Change the official name of "PRA32-U2 with Panel" to "PRA32-U2/P"
+    - PRA32-U2/P: Add the "Panic" function
+    - Improve the scripts
+    - Fix an issue where pra32-u2-make-sample-wav-file does not become polyphonic
+    - Tested with Arduino-Pico version 5.4.4
 - v1.6.0 (2025-12-19):
     - Add dithering to the audio autput
     - Clamp the filter outputs: To ensure safety even when the filters are oscillating due to the LFO

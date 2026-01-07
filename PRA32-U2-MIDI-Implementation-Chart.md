@@ -1,6 +1,6 @@
 ```
-  [Polyphonic Synthesizer]                                        Date: 2025-12-19                      
-  Model: Digital Synth PRA32-U2   MIDI Implementation Chart       Version: 1.6.0                        
+  [Polyphonic Synthesizer]                                        Date: 2026-01-07                      
+  Model: Digital Synth PRA32-U2   MIDI Implementation Chart       Version: 2.0.0                        
 +-------------------------------+---------------+---------------+--------------------------------------+
 | Function...                   | Transmitted   | Recognized    | Remarks                              |
 +-------------------------------+---------------+---------------+--------------------------------------+
@@ -17,8 +17,8 @@
 | Velocity     Note ON          | x             | o             |                                      |
 |              Note OFF         | x             | x             |                                      |
 +-------------------------------+---------------+---------------+--------------------------------------+
-| After        Key's            | x             | x             |                                      |
-| Touch        Ch's             | x             | x             |                                      |
+| After        Key's            | x             | o             |                                      |
+| Touch        Ch's             | x             | o             |                                      |
 +-------------------------------+---------------+---------------+--------------------------------------+
 | Pitch Bend                    | x             | o             |                                      |
 +-------------------------------+---------------+---------------+--------------------------------------+
@@ -77,12 +77,12 @@
 |                            62 | x             | o             | EG Velocity Sensitivity              |
 |                            63 | x             | o             | Amp Velocity Sensitivity             |
 |                               |               |               |                                      |
+|                           109 | x             | o             | After Touch LFO Amt                  |
 |                           110 | x             | o             | Voice Assign Mode [1|2]              |
 |                               |               |               |                                      |
 |                               |               |               |                                      |
 |                               |               |               |                                      |
-|                               |               |               |                                      |
-|                            93 | x             | o             | Chorus Mix [Dry|Wet]                 |
+|                            93 | x             | o             | Chorus Level                         |
 |                               |               |               |                                      |
 |                            58 | x             | o             | Chorus Rate                          |
 |                            59 | x             | o             | Chorus Depth                         |
@@ -129,9 +129,9 @@
 |                               | $4 : To write the current parameters to Program #0-7 and the         |
 |                               |   flash, set "Program Number to Write to" (# is the value mod 16)    |
 |                               |   and then change "Write Parameters to Program" from 0 to 1-127      |
-|                               | $5 : Basic Channel can be changed in PRA32-U2 with Panel             |
-|                               | $6 : o in PRA32-U2 with Panel (No transmission via USB MIDI)         |
-|                               | $7 : o in PRA32-U2 with Panel if Seq Clock Src is External           |
+|                               | $5 : Basic Channel can be changed in PRA32-U2/P                      |
+|                               | $6 : o in PRA32-U2/P (No transmission via USB MIDI)                  |
+|                               | $7 : o in PRA32-U2/P if Seq Clock Src is External                    |
 +-------------------------------+----------------------------------------------------------------------+
   Mode 1: Omni On,  Poly          Mode 2: Omni On,  Mono          o: Yes                                
   Mode 3: Omni Off, Poly          Mode 4: Omni Off, Mono          x: No                                 
