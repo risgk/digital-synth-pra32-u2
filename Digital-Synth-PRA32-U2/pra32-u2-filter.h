@@ -1,7 +1,7 @@
 #pragma once
 
 // refs https://webaudio.github.io/Audio-EQ-Cookbook/Audio-EQ-Cookbook.txt
-// refs https://ccrma.stanford.edu/~jatin/ComplexNonlinearities/NLBiquad.html
+// refs https://jatinchowdhury18.medium.com/complex-nonlinearities-episode-4-nonlinear-biquad-filters-ae6b3f23cb0e
 
 #include "pra32-u2-common.h"
 #include "pra32-u2-filter-table.h"
@@ -133,7 +133,7 @@ public:
 
   INLINE int32_t process(int32_t audio_input_int24) {
 #if 1
-    // Biquad Filter, Transposed Direct Form-II
+    // Nonlinear Biquad Filter, Transposed Direct Form-II
     int32_t x_0 = audio_input_int24;
     int32_t y_0 =           m_z_1 + (mul_s32_s32_h32(m_b_2_over_a_0, x_0)      << (32 - FILTER_TABLE_FRACTION_BITS));
     m_z_1       = soft_clip(m_z_2 + (mul_s32_s32_h32(m_b_2_over_a_0, x_0 << 1) << (32 - FILTER_TABLE_FRACTION_BITS))
