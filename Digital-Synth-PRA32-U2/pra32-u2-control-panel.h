@@ -1133,6 +1133,20 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
       if (s_prev_key_current_value == 0) {
         // Prev key released
         if (s_prev_key_long_pressed == false) {
+#if defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
+          uint32_t shift_key_pressed = digitalRead(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
+          if (shift_key_pressed) {
+            if (s_current_page_group == 0) {
+              s_current_page_group = NUMBER_OF_PAGE_GROUPS - 1;
+            } else {
+              --s_current_page_group;
+            }
+
+            PRA32_U2_ControlPanel_update_page();
+            return;
+          }
+
+#endif  // defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
           if (s_current_page_index[s_current_page_group] == 0) {
             s_current_page_index[s_current_page_group] = g_number_of_pages[s_current_page_group] - 1;
           } else {
@@ -1140,7 +1154,9 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
           }
 
           PRA32_U2_ControlPanel_update_page();
+          return;
         }
+
         s_prev_key_long_pressed = false;
         return;
       }
@@ -1176,6 +1192,20 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
       if (s_next_key_current_value == 0) {
         // Next key released
         if (s_next_key_long_pressed == false) {
+#if defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
+          uint32_t shift_key_pressed = digitalRead(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
+          if (shift_key_pressed) {
+            if (s_current_page_group == NUMBER_OF_PAGE_GROUPS - 1) {
+              s_current_page_group = 0;
+            } else {
+              ++s_current_page_group;
+            }
+
+            PRA32_U2_ControlPanel_update_page();
+            return;
+          }
+
+#endif  // defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
           if (s_current_page_index[s_current_page_group] == g_number_of_pages[s_current_page_group] - 1) {
             s_current_page_index[s_current_page_group] = 0;
           } else {
@@ -1183,7 +1213,9 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
           }
 
           PRA32_U2_ControlPanel_update_page();
+          return;
         }
+
         s_next_key_long_pressed = false;
         return;
       }

@@ -25,7 +25,9 @@
         - To use this key, uncomment out `//#define PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN    (17)` in "Digital-Synth-PRA32-U2.ino"
     - SW4: Prog + Key (Push to change to the next user program) (optional)
         - To use this key, uncomment out `//#define PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN     (19)` in "Digital-Synth-PRA32-U2.ino"
-    - SW5: Shift Key (Press to prevent values from changing across 64) (optional)
+    - SW5: Shift Key (optional)
+        - Shift + Prev/Next Key: Go to the previous/next group without long-pressing
+        - Shift + VR0/1/2: Prevent values from changing across 64
         - To use this key, uncomment out `//#define PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN         (21)` in "Digital-Synth-PRA32-U2.ino"
     - VR0 (ADC0): Parameter A
     - VR1 (ADC1): Parameter B
