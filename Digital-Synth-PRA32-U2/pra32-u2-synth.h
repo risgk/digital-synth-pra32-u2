@@ -494,13 +494,10 @@ public:
 
           if (m_voice_mode == VOICE_LEGATO_PORTA) {
             m_osc.set_portamento<0>(0);
-            m_osc.set_portamento<2>(0);
           } else {
             m_osc.set_portamento<0>(m_portamento);
-            m_osc.set_portamento<2>(m_portamento);
           }
           m_osc.note_on<0>(note_number);
-          m_osc.note_on<2>(note_number);
           m_lfo.trigger_lfo();
           m_eg[0].note_on(velocity);
           m_eg[1].note_on(velocity);
@@ -511,9 +508,7 @@ public:
           m_note_on_number[0] = note_number;
 
           m_osc.set_portamento<0>(m_portamento);
-          m_osc.set_portamento<2>(m_portamento);
           m_osc.note_on<0>(note_number);
-          m_osc.note_on<2>(note_number);
         }
       } else {
         ++m_note_on_total_count;
@@ -525,9 +520,7 @@ public:
         m_note_on_number[0] = note_number;
 
         m_osc.set_portamento<0>(m_portamento);
-        m_osc.set_portamento<2>(m_portamento);
         m_osc.note_on<0>(note_number);
-        m_osc.note_on<2>(note_number);
         m_lfo.trigger_lfo();
         m_eg[0].note_on(velocity);
         m_eg[1].note_on(velocity);
@@ -743,9 +736,7 @@ public:
 
         if (m_note_on_number[0] != NOTE_NUMBER_INVALID) {
           m_osc.set_portamento<0>(m_portamento);
-          m_osc.set_portamento<2>(m_portamento);
           m_osc.note_on<0>(m_note_on_number[0]);
-          m_osc.note_on<2>(m_note_on_number[0]);
 
           if (m_voice_mode == VOICE_MONOPHONIC) {
             m_lfo.trigger_lfo();
