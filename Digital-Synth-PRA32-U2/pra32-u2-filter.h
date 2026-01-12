@@ -154,8 +154,12 @@ public:
 
 private:
   INLINE void update_cutoff_control_effective() {
+#if 1
+    m_cutoff_control_effective = m_cutoff_control;
+#else
     m_cutoff_control_effective += (m_cutoff_control_effective < m_cutoff_control);
     m_cutoff_control_effective -= (m_cutoff_control_effective > m_cutoff_control);
+#endif
   }
 
   INLINE void update_coefs(int16_t eg_input, int16_t lfo_input, uint16_t osc_pitch) {
