@@ -5,6 +5,8 @@
 class PRA32_U2_Amp {
   int16_t m_gain_control;
   int16_t m_gain_control_effective;
+  int16_t m_expression_control;
+  int16_t m_expression_control_effective;
   int16_t m_gain_linear;
   int16_t m_gain_mod_input;
   uint8_t m_breath_mod;
@@ -15,6 +17,8 @@ public:
 PRA32_U2_Amp()
   : m_gain_control(127)
   , m_gain_control_effective(0)
+  , m_expression_control(127)
+  , m_expression_control_effective(0)
   , m_gain_linear()
   , m_gain_mod_input(0)
   , m_breath_mod()
@@ -25,6 +29,10 @@ PRA32_U2_Amp()
 
   INLINE void set_gain(uint8_t controller_value) {
     m_gain_control = controller_value;
+  }
+
+  INLINE void set_expression(uint8_t controller_value) {
+    m_expression_control = controller_value;
   }
 
   INLINE void set_breath_mod(uint8_t controller_value) {
@@ -63,7 +71,11 @@ private:
     m_gain_control_effective += (m_gain_control_effective < m_gain_control);
     m_gain_control_effective -= (m_gain_control_effective > m_gain_control);
 
-    m_gain_linear = ((m_gain_control_effective * m_gain_control_effective) * 16384) / 16129;
+    m_expression_control_effective += (m_expression_control_effective < m_expression_control);
+    m_expression_control_effective -= (m_expression_control_effective > m_expression_control);
+
+    m_gain_linear = ((((m_gain_control_effective * m_gain_control_effective) * 16384) / 16129) *
+                     (((m_expression_control_effective * m_expression_control_effective) * 16384) / 16129)) >> 14;
   }
 
   INLINE void update_breath_controller_effective() {

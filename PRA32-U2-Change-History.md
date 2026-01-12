@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v2.1.0 (2026-??-??):
+    - Support the "Expression" control
     - Modify Filter Cutoff to change more quickly
     - Improve the code
     - Tested with Arduino-Pico version 5.4.4

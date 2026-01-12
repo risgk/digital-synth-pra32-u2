@@ -24,6 +24,7 @@
 +-------------------------------+---------------+---------------+--------------------------------------+
 | Control                     1 | x             | o             | Modulation                           |
 | Change                      2 | x             | o             | Breath Controller                    |
+|                            11 | x             | o             | Expression                           |
 |                            64 | x             | o             | Sustain Pedal [Off|On]               |
 |                               |               |               |                                      |
 |                               |               |               |                                      |
