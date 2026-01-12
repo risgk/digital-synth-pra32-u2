@@ -56,6 +56,7 @@ const uint8_t   ACTIVE_SENSING        = 0xFE;
 
 const uint8_t   MODULATION      = 1;
 const uint8_t   BTH_CONTROLLER  = 2;
+const uint8_t   EXPRESSION      = 11;
 const uint8_t   SUSTAIN_PEDAL   = 64;
 
 

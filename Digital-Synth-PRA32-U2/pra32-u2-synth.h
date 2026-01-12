@@ -461,6 +461,8 @@ public:
 
     program_change(PROGRAM_NUMBER_DEFAULT);
 
+    reset_all_controllers();
+
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
     for (uint32_t i = 0; i < sizeof(s_program_table_panel_parameters) / sizeof(s_program_table_panel_parameters[0]); ++i) {
       uint32_t control_number = s_program_table_panel_parameters[i];
@@ -844,6 +846,7 @@ public:
   INLINE void reset_all_controllers() {
     pitch_bend(0, 64);
     control_change(MODULATION      , 0  );
+    control_change(EXPRESSION      , 127);
     control_change(BTH_CONTROLLER  , 0  );
     control_change(SUSTAIN_PEDAL   , 0  );
     after_touch_channel(0);
@@ -1088,7 +1091,14 @@ public:
       m_eg[7].set_velocity_sensitivity(controller_value);
       break;
 
-    case BTH_CONTROLLER    :
+    case EXPRESSION     :
+      m_amp[0].set_expression(controller_value);
+      m_amp[1].set_expression(controller_value);
+      m_amp[2].set_expression(controller_value);
+      m_amp[3].set_expression(controller_value);
+      break;
+
+    case BTH_CONTROLLER :
       set_breath_controller(controller_value);
       break;
 

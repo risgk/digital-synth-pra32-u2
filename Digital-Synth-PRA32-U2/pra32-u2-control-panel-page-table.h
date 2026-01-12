@@ -70,7 +70,7 @@ static const PRA32_U2_ControlPanelPage g_control_panel_page_table_b[] = {
   { "Page=B-15 ", "Seq 5     ",   "Seq       ", "Pitch 5   ", SEQ_PITCH_5    ,   "Seq       ", "Velo 5    ", SEQ_VELO_5     ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=B-16 ", "Seq 6     ",   "Seq       ", "Pitch 6   ", SEQ_PITCH_6    ,   "Seq       ", "Velo 6    ", SEQ_VELO_6     ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=B-17 ", "Seq 7     ",   "Seq       ", "Pitch 7   ", SEQ_PITCH_7    ,   "Seq       ", "Velo 7    ", SEQ_VELO_7     ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=B-18 ", "Control a ",   "Modulation", "          ", MODULATION     ,   "          ", "          ", 0xFF           ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=B-18 ", "Control a ",   "Modulation", "          ", MODULATION     ,   "Expression", "          ", EXPRESSION     ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=B-19 ", "Control b ",   "Breath    ", "Controller", BTH_CONTROLLER ,   "Sustain   ", "Pedal     ", SUSTAIN_PEDAL  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=B-20 ", "Control c ",   "Panic     ", "          ", PANIC_OP       ,   "          ", "          ", 0xFF           ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
 };
