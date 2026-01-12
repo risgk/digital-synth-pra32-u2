@@ -1,7 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v2.1.0 (2026-??-??):
-    - Improve the smoothing of the filter
+    - Accelerate change through filter smoothing
     - Improve the code
     - Tested with Arduino-Pico version 5.4.4
 - v2.0.0 (2026-01-07):
