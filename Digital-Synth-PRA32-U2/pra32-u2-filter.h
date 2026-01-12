@@ -173,10 +173,7 @@ private:
     cutoff_target = (cutoff_target < 0) * cutoff_target + ((254 << 2) + 1);
     cutoff_target = (cutoff_target > 0) * cutoff_target;
 
-    for (uint32_t i = 0; i < (4 * 2); ++i) {
-      m_cutoff_current += (m_cutoff_current < cutoff_target);
-      m_cutoff_current -= (m_cutoff_current > cutoff_target);
-    }
+    m_cutoff_current = cutoff_target;
 
     m_resonance_current += (m_resonance_current < m_resonance_target);
     m_resonance_current -= (m_resonance_current > m_resonance_target);
