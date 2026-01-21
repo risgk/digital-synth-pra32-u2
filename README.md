@@ -188,14 +188,10 @@ graph LR
         V1F --> V1A[Amp]
         E[EG] -.-> V1O1 & V1O2 & V1F
         V1AE[Amp EG] -.-> V1A
-        V1A --> V1P[Panner]
     end
-    V1P --> VM[Voice Mixer]
-    V1P --> VM
+    V1A --> VM[Voice Mixer]
     V2[Voice 2] & V3[Voice 3] & V4[Voice 4] --> VM
-    V2 & V3 & V4 --> VM
     VM --> C[Chorus FX] --> D[Delay FX] --> AO[Audio Out]
-    VM --> C
     C --> D
     D --> AO
     N[Noise Gen]  --> V1O2 & V1OM & V2 & V3 & V4
