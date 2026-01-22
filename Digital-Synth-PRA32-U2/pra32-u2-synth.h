@@ -315,11 +315,6 @@ public:
 
     m_eg_osc_amt = 64;
     m_lfo_osc_amt = 64;
-
-    m_panner[0].set_pan(16);
-    m_panner[1].set_pan(48);
-    m_panner[2].set_pan(80);
-    m_panner[3].set_pan(112);
   }
 
   INLINE void initialize() {
@@ -1287,13 +1282,13 @@ public:
     int16_t noise_int15 = m_noise_gen.process();
 
     switch (m_count & (0x04 - 1)) {
-    case 0x01:
+    case 0x00:
       m_lfo.process_at_low_rate(m_count >> 2, noise_int15);
       break;
-    case 0x02:
+    case 0x01:
       m_delay_fx.process_at_low_rate(m_count >> 2);
       break;
-    case 0x03:
+    case 0x02:
       m_chorus_fx.process_at_low_rate(m_count >> 2);
       break;
     }
