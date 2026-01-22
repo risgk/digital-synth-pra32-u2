@@ -10,11 +10,11 @@
 class PRA32_U2_Panner {
   static const uint8_t OSC_PAN_TABLE_LENGTH = 129;
 
-  int32_t m_pan_table[OSC_PAN_TABLE_LENGTH];
+  int16_t m_pan_table[OSC_PAN_TABLE_LENGTH];
   int16_t m_pan_control;
   int16_t m_pan_control_effective;
-  int32_t m_gain_linear_l;
-  int32_t m_gain_linear_r;
+  int16_t m_gain_linear_l;
+  int16_t m_gain_linear_r;
 
 public:
 PRA32_U2_Panner()
@@ -25,7 +25,7 @@ PRA32_U2_Panner()
   , m_gain_linear_r(11585)
   {
     for (uint8_t i = 1; i < OSC_PAN_TABLE_LENGTH - 1; ++i) {
-      m_pan_table[i - 1] = static_cast<int16_t>(std::sin((PI * (i - 1)) / (2 * (OSC_PAN_TABLE_LENGTH - 1))) * (1 << 14)) << 2;
+      m_pan_table[i - 1] = static_cast<int16_t>(std::sin((PI * (i - 1)) / (2 * (OSC_PAN_TABLE_LENGTH - 1))) * (1 << 14));
     }
 
     m_pan_table[0]                        = m_pan_table[1];
@@ -43,8 +43,8 @@ PRA32_U2_Panner()
   INLINE int32_t process(int32_t audio_input_int24, int32_t& audio_output_r_int24) {
     int32_t audio_output_l_int24 = 0;
 
-    audio_output_l_int24 = mul_s32_s32_h16(audio_input_int24, m_gain_linear_l);
-    audio_output_r_int24 = mul_s32_s32_h16(audio_input_int24, m_gain_linear_r);
+    audio_output_l_int24 = mul_s32_s32_h16(audio_input_int24, m_gain_linear_l << 2);
+    audio_output_r_int24 = mul_s32_s32_h16(audio_input_int24, m_gain_linear_r << 2);
 
     return audio_output_l_int24;
   }
