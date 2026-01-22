@@ -7,11 +7,11 @@ class PRA32_U2_Amp {
   int16_t m_gain_control_effective;
   int16_t m_expression_control;
   int16_t m_expression_control_effective;
-  int16_t m_gain_linear;
-  int16_t m_gain_mod_input;
+  int32_t m_gain_linear;
+  int32_t m_gain_mod_input;
   uint8_t m_breath_mod;
   uint8_t m_breath_controller;
-  int16_t m_breath_gain_linear;
+  int32_t m_breath_gain_linear;
 
 public:
 PRA32_U2_Amp()
@@ -51,18 +51,15 @@ PRA32_U2_Amp()
 
   INLINE void process_at_low_rate(int16_t gain_mod_input) {
     update_gain_effective();
-    m_gain_mod_input = gain_mod_input;
+    m_gain_mod_input = gain_mod_input << 2;
     update_breath_controller_effective();
   }
 
   INLINE int32_t process(int32_t audio_input_int24) {
     int32_t audio_output = audio_input_int24;
-    audio_output = mul_s32_s32_h16(audio_output, m_gain_mod_input     << 2);
-    audio_output = mul_s32_s32_h16(audio_output, m_gain_linear        << 2);
-    audio_output = mul_s32_s32_h16(audio_output, m_breath_gain_linear << 2);
-#if 0
-    audio_output = mul_s32_s32_h16(audio_output, 11585                << 2);
-#endif
+    audio_output = mul_s32_s32_h16(audio_output, m_gain_mod_input);
+    audio_output = mul_s32_s32_h16(audio_output, m_gain_linear);
+    audio_output = mul_s32_s32_h16(audio_output, m_breath_gain_linear);
     return audio_output;
   }
 
@@ -75,16 +72,16 @@ private:
     m_expression_control_effective -= (m_expression_control_effective > m_expression_control);
 
     m_gain_linear = ((((m_gain_control_effective * m_gain_control_effective) * 16384) / 16129) *
-                     (((m_expression_control_effective * m_expression_control_effective) * 16384) / 16129)) >> 14;
+                     (((m_expression_control_effective * m_expression_control_effective) * 16384) / 16129)) >> (14 - 2);
   }
 
   INLINE void update_breath_controller_effective() {
     if (m_breath_mod == 2) {
-      m_breath_gain_linear = (m_breath_controller * 16384) / 127;
+      m_breath_gain_linear = ((m_breath_controller * 16384) / 127) << 2;
     } else if (m_breath_mod == 1) {
-      m_breath_gain_linear = ((m_breath_controller * m_breath_controller) * 16384) / 16129;
+      m_breath_gain_linear = (((m_breath_controller * m_breath_controller) * 16384) / 16129) << 2;
     } else {
-      m_breath_gain_linear = 16384;
+      m_breath_gain_linear = 16384 << 2;
     }
   }
 };
