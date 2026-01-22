@@ -8,7 +8,7 @@
 #endif
 
 class PRA32_U2_Panner {
-  static const uint8_t OSC_PAN_TABLE_LENGTH = 129;
+  static const uint8_t OSC_PAN_TABLE_LENGTH = 127;
 
   int16_t m_pan_table[OSC_PAN_TABLE_LENGTH];
   int16_t m_pan_control;
@@ -24,12 +24,10 @@ PRA32_U2_Panner()
   , m_gain_linear_l(11585)
   , m_gain_linear_r(11585)
   {
-    for (uint8_t i = 1; i < OSC_PAN_TABLE_LENGTH - 1; ++i) {
-      m_pan_table[i - 1] = static_cast<int16_t>(std::sin((PI * (i - 1)) / (2 * (OSC_PAN_TABLE_LENGTH - 1))) * (1 << 14));
+    for (uint8_t i = 0; i < OSC_PAN_TABLE_LENGTH; ++i) {
+      m_pan_table[i] = static_cast<int16_t>(std::sin((PI * i) / (2 * (OSC_PAN_TABLE_LENGTH - 1))) * (1 << 14));
+      //printf("%d,%d\n",i,m_pan_table[i]);
     }
-
-    m_pan_table[0]                        = m_pan_table[1];
-    m_pan_table[OSC_PAN_TABLE_LENGTH - 1] = m_pan_table[OSC_PAN_TABLE_LENGTH - 2];
   }
 
   INLINE void set_pan(uint8_t controller_value) {
@@ -54,7 +52,7 @@ private:
     m_pan_control_effective += (m_pan_control_effective < m_pan_control);
     m_pan_control_effective -= (m_pan_control_effective > m_pan_control);
 
-    m_gain_linear_l = m_pan_table[128 - m_pan_control_effective];
-    m_gain_linear_r = m_pan_table[m_pan_control_effective];
+    m_gain_linear_l = (m_pan_control_effective == 0) ? m_pan_table[126] : m_pan_table[127 - m_pan_control_effective];
+    m_gain_linear_r = (m_pan_control_effective == 0) ? m_pan_table[0]   : m_pan_table[m_pan_control_effective - 1];
   }
 };
