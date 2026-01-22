@@ -12,7 +12,6 @@ class PRA32_U2_ChorusFx {
   uint16_t m_chorus_level_control_effective;
   uint16_t m_chorus_depth_control;
   uint16_t m_chorus_depth_control_effective;
-  uint16_t m_chorus_depth_control_effective_limited;
   uint32_t m_chorus_rate_control;
   uint16_t m_chorus_delay_time_control;
   uint16_t m_chorus_delay_time_control_effective;
@@ -29,7 +28,6 @@ public:
   , m_chorus_level_control_effective()
   , m_chorus_depth_control()
   , m_chorus_depth_control_effective()
-  , m_chorus_depth_control_effective_limited()
   , m_chorus_rate_control()
   , m_chorus_delay_time_control()
   , m_chorus_delay_time_control_effective()
@@ -72,7 +70,7 @@ public:
     return m_chorus_delay_time[N];
   }
 
-  INLINE void process_at_low_rate_a(uint8_t count) {
+  INLINE void process_at_low_rate(uint8_t count) {
 #if 1
     static_cast<void>(count);
 
@@ -85,30 +83,27 @@ public:
     m_chorus_delay_time_control_effective += (m_chorus_delay_time_control_effective < m_chorus_delay_time_control);
     m_chorus_delay_time_control_effective -= (m_chorus_delay_time_control_effective > m_chorus_delay_time_control);
 
+    uint16_t chorus_depth_control_effective_limited;
     if (m_chorus_delay_time_control_effective < (64 << 6)) {
       if (m_chorus_depth_control_effective > (m_chorus_delay_time_control_effective << 1)) {
-        m_chorus_depth_control_effective_limited = (m_chorus_delay_time_control_effective << 1);
+        chorus_depth_control_effective_limited = (m_chorus_delay_time_control_effective << 1);
       } else {
-        m_chorus_depth_control_effective_limited = m_chorus_depth_control_effective;
+        chorus_depth_control_effective_limited = m_chorus_depth_control_effective;
       }
     } else {
       if (m_chorus_depth_control_effective > (((127 << 6) - m_chorus_delay_time_control_effective) << 1)) {
-        m_chorus_depth_control_effective_limited = (((127 << 6) - m_chorus_delay_time_control_effective) << 1);
+        chorus_depth_control_effective_limited = (((127 << 6) - m_chorus_delay_time_control_effective) << 1);
       } else {
-        m_chorus_depth_control_effective_limited = m_chorus_depth_control_effective;
+        chorus_depth_control_effective_limited = m_chorus_depth_control_effective;
       }
     }
-#endif
-  }
 
-  INLINE void process_at_low_rate_b(uint8_t count) {
-#if 1
     m_chorus_lfo_phase += m_chorus_rate_control;
     m_chorus_lfo_phase &= 0x00FFFFFF;
 
     int16_t chorus_lfo_wave_level = get_chorus_lfo_wave_level(m_chorus_lfo_phase);
 
-    int16_t chorus_lfo_level = (chorus_lfo_wave_level * m_chorus_depth_control_effective_limited) >> 14;
+    int16_t chorus_lfo_level = (chorus_lfo_wave_level * chorus_depth_control_effective_limited) >> 14;
 
     m_chorus_delay_time[0] = m_chorus_delay_time_control_effective - chorus_lfo_level;
     m_chorus_delay_time[1] = m_chorus_delay_time_control_effective + chorus_lfo_level;
