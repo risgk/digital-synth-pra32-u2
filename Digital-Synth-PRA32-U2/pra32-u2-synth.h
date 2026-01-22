@@ -1287,14 +1287,17 @@ public:
     int16_t noise_int15 = m_noise_gen.process();
 
     switch (m_count & (0x04 - 1)) {
-    case 0x01:
+    case 0x00:
       m_lfo.process_at_low_rate(m_count >> 2, noise_int15);
       break;
+    case 0x01:
+      m_chorus_fx.process_at_low_rate_a(m_count >> 2);
+      break;
     case 0x02:
-      m_delay_fx.process_at_low_rate(m_count >> 2);
+      m_chorus_fx.process_at_low_rate_b(m_count >> 2);
       break;
     case 0x03:
-      m_chorus_fx.process_at_low_rate(m_count >> 2);
+      m_delay_fx.process_at_low_rate(m_count >> 2);
       break;
     }
 
