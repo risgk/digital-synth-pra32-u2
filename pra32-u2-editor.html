@@ -807,7 +807,7 @@ function updateDisplayOfControl(number, value) {
   case EG_OSC_DST      :
   case LFO_OSC_DST     :
     {
-      var ary = ["P","F","-","2P","-","1S"];
+      var ary = ["P","F","2P","2P","1S","1S"];
       var index = Math.floor(((value * 10) + 127) / 254);
       dispValue = ary[index];
     }
@@ -821,7 +821,7 @@ function updateDisplayOfControl(number, value) {
     break;
   case LFO_WAVE        :
     {
-      var ary = ["Tri","Sin","-","Saw","S&H","Sqr"];
+      var ary = ["Tri","Sin","Saw","Saw","S&H","Sqr"];
       var index = Math.floor(((value * 10) + 127) / 254);
       dispValue = ary[index];
     }
@@ -1522,7 +1522,7 @@ function getStoredCCValueString(index, number) {
 </tr>
 <tr>
 <td colspan="3"><b>EG</b> Mod Amt [-|+]                  </td>
-<td colspan="3"><b>EG</b> Mod Dst [P|F|-|2P|-|1S]        </td>
+<td colspan="3"><b>EG</b> Mod Dst [P|F|2P|2P|1S|1S]      </td>
 <td colspan="3">Voice Mode [Pol|Pol|Mon|Mon|LP|Lgt]</td>
 <td colspan="3">Portamento                        </td>
 </tr>
@@ -1541,7 +1541,7 @@ function getStoredCCValueString(index, number) {
 <td><span   id="span2PORTAMENTO     " >-</span></td>
 </tr>
 <tr>
-<td colspan="3"><b>LFO</b> Wave [Tri|Sin|-|Saw|S&H|Sqr]</td>
+<td colspan="3"><b>LFO</b> Wave [Tri|Sin|Saw|Saw|S&H|Sqr]</td>
 <td colspan="3"><b>LFO</b> Fade Time                   </td>
 <td colspan="3"><b>LFO</b> Rate                        </td>
 <td colspan="3"><b>LFO</b> Depth                       </td>
@@ -1562,7 +1562,7 @@ function getStoredCCValueString(index, number) {
 </tr>
 <tr>
 <td colspan="3"><b>LFO</b> Mod Amt [-|+]               </td>
-<td colspan="3"><b>LFO</b> Mod Dst [P|F|-|2P|-|1S]     </td>
+<td colspan="3"><b>LFO</b> Mod Dst [P|F|2P|2P|1S|1S]   </td>
 <td colspan="3"><b>LFO</b> Filter Amt [-|+]            </td>
 <td colspan="3"><b>Amp</b> Gain                        </td>
 </tr>

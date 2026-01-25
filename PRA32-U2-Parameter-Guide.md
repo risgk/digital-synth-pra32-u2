@@ -192,12 +192,12 @@
     - Cutoff
         - -60 (4): -120 (min)
         - +60 (124): +120 (max)
-- EG Mod Dst [P|F|-|2P|-|1S], LFO Mod Dst [P|F|-|2P|-|1S]
+- EG Mod Dst [P|F|2P|2P|1S|1S], LFO Mod Dst [P|F|2P|2P|1S|1S]
     - 0 (0-12): Osc 1 & 2 Pitch
     - 25 (13-38): Filter Cutoff
-    - 51 (39-63): Osc 2 Pitch, Reserved
+    - 51 (39-63): Osc 2 Pitch
     - 76 (64-88): Osc 2 Pitch
-    - 102 (89-114): Osc 1 Shape, Reserved
+    - 102 (89-114): Osc 1 Shape
     - 127 (115-127): Osc 1 Shape
 - Voice Mode [Pol|Pol|Mon|Mon|LP|Lgt]
     - 0 (0-12): Polyphonic (LFO Single Trigger)
@@ -211,10 +211,10 @@
     - 1: Portamento Time 1.1 ms
     - 64: Portamento Time 100 ms
     - 127: Portamento Time 9.3 s
-- LFO Wave [Tri|Sin|-|Saw|S&H|Sqr]
+- LFO Wave [Tri|Sin|Saw|Saw|S&H|Sqr]
     - 0 (0-12): Triangle Wave (Key Trigger Off, -0.5 to +0.5)
     - 25 (13-38): Sine Wave (Key Trigger Off, -0.5 to +0.5)
-    - 51 (39-63): Saw Wave (Key Trigger On, -0.5 to +0.5), Reserved
+    - 51 (39-63): Saw Wave (Key Trigger On, -0.5 to +0.5)
     - 76 (64-88): Saw Wave (Key Trigger On, -0.5 to +0.5)
     - 102 (89-114): Sample & Hold (Key Trigger On, -0.5 to +0.5)
     - 127 (115-127): Square Wave (Key Trigger On, 0.0 to 1.0)
