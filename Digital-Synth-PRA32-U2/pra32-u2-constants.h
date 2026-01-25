@@ -151,6 +151,7 @@ const uint8_t   OSC_WAVE_SQUARE    = 25;
 const uint8_t   OSC_WAVE_TRIANGLE  = 51;
 const uint8_t   OSC_WAVE_SINE      = 76;
 const uint8_t   OSC_WAVE_1_W_T     = 102;
+const uint8_t   OSC_WAVE_2_O_1     = 102;
 const uint8_t   OSC_WAVE_1_PULSE   = 127;
 const uint8_t   OSC_WAVE_2_NOISE   = 127;
 
