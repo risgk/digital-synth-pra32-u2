@@ -7,7 +7,7 @@
 #include "pra32-u2-filter-table.h"
 
 static INLINE int32_t mul_s32_s32_h41(int32_t x, int32_t y) {
-  return (static_cast<int64_t>(x) * y) >> 23;
+  return static_cast<int32_t>((static_cast<int64_t>(x) * y) >> 23);
 }
 
 static INLINE int32_t soft_clip(int32_t value) {
