@@ -8,7 +8,7 @@
     - Modify Filter Cutoff to change more quickly
     - PRA32-U2/P: Support Shift + Prev/Next Key
     - Improve the code
-    - Modify the description of the Voice Mode options
+    - Modify the description of the EG/LFO Mod Dst, the Voice Mode, and the LFO Wave options
     - Tested with Arduino-Pico version 5.4.4
 - v2.0.0 (2026-01-07):
     - **Improve the Filter**: Introduce soft clipping (without anti-aliasing)

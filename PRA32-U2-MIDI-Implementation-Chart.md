@@ -49,17 +49,17 @@
 |                            72 | x             | o             | EG Release                           |
 |                               |               |               |                                      |
 |                            89 | x             | o             | EG Mod Amt [-|+]                     |
-|                             8 | x             | o             | EG Mod Dst [P|F|-|2P|-|1S]           |
+|                             8 | x             | o             | EG Mod Dst [P|F|2P|2P|1S|1S]         |
 |                            18 | x             | o             | Voice Mode [Pol|Pol|Mon|Mon|LP|Lgt]  |
 |                             5 | x             | o             | Portamento                           |
 |                               |               |               |                                      |
-|                            33 | x             | o             | LFO Wave [Tri|Sin|-|Saw|S&H|Sqr]     |
+|                            33 | x             | o             | LFO Wave [Tri|Sin|Saw|Saw|S&H|Sqr]   |
 |                            56 | x             | o             | LFO Fade Time                        |
 |                             3 | x             | o             | LFO Rate                             |
 |                            17 | x             | o             | LFO Depth                            |
 |                               |               |               |                                      |
 |                            13 | x             | o             | LFO Mod Amt [-|+]                    |
-|                           103 | x             | o             | LFO Mod Dst [P|F|-|2P|-|1S]          |
+|                           103 | x             | o             | LFO Mod Dst [P|F|2P|2P|1S|1S]        |
 |                            25 | x             | o             | LFO Filter Amt [-|+]                 |
 |                            15 | x             | o             | Amp Gain                             |
 |                               |               |               |                                      |
