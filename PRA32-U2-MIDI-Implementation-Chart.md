@@ -50,7 +50,7 @@
 |                               |               |               |                                      |
 |                            89 | x             | o             | EG Mod Amt [-|+]                     |
 |                             8 | x             | o             | EG Mod Dst [P|F|-|2P|-|1S]           |
-|                            18 | x             | o             | Voice Mode [Pol|-|-|Mon|LP|Lgt]      |
+|                            18 | x             | o             | Voice Mode [Pol|Pol|Mon|Mon|LP|Lgt]  |
 |                             5 | x             | o             | Portamento                           |
 |                               |               |               |                                      |
 |                            33 | x             | o             | LFO Wave [Tri|Sin|-|Saw|S&H|Sqr]     |

@@ -199,10 +199,10 @@
     - 76 (64-88): Osc 2 Pitch
     - 102 (89-114): Osc 1 Shape, Reserved
     - 127 (115-127): Osc 1 Shape
-- Voice Mode [Pol|-|-|Mon|LP|Lgt]
+- Voice Mode [Pol|Pol|Mon|Mon|LP|Lgt]
     - 0 (0-12): Polyphonic (LFO Single Trigger)
-    - 25 (13-38): Polyphonic (LFO Single Trigger), Reserved
-    - 51 (39-63): Monophonic (EG & LFO Multi Trigger), Reserved
+    - 25 (13-38): Polyphonic (LFO Single Trigger)
+    - 51 (39-63): Monophonic (EG & LFO Multi Trigger)
     - 76 (64-88): Monophonic (EG & LFO Multi Trigger)
     - 102 (89-114): Legato Portamento (Monophonic, EG & LFO Single Trigger, Auto Portamento)
     - 127 (115-127): Legato (Monophonic, EG & LFO Single Trigger)

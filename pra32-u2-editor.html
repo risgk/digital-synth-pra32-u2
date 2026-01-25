@@ -814,7 +814,7 @@ function updateDisplayOfControl(number, value) {
     break;
   case VOICE_MODE      :
     {
-      var ary = ["Pol","-","-","Mon","LP","Lgt"];
+      var ary = ["Pol","Pol","Mon","Mon","LP","Lgt"];
       var index = Math.floor(((value * 10) + 127) / 254);
       dispValue = ary[index];
     }
@@ -1523,7 +1523,7 @@ function getStoredCCValueString(index, number) {
 <tr>
 <td colspan="3"><b>EG</b> Mod Amt [-|+]                  </td>
 <td colspan="3"><b>EG</b> Mod Dst [P|F|-|2P|-|1S]        </td>
-<td colspan="3">Voice Mode [Pol|-|-|Mon|LP|Lgt]   </td>
+<td colspan="3">Voice Mode [Pol|Pol|Mon|Mon|LP|Lgt]</td>
 <td colspan="3">Portamento                        </td>
 </tr>
 <tr>
