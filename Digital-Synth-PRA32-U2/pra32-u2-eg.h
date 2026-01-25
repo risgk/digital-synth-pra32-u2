@@ -95,7 +95,8 @@ public:
       } else if (m_level >= m_attack_level) {
         m_state = STATE_SUSTAIN;
       } else {
-        m_level = ((m_attack_level - 1) << 1) - (mul_s32_s32_h32((((m_attack_level - 1) << 1) - m_level), m_attack_coef) << 2);
+        m_level = ((m_attack_level - 1) << 1) - 
+                  static_cast<int32_t>((static_cast<int64_t>(((m_attack_level - 1) << 1) - m_level) * m_attack_coef) >> 30);
       }
       break;
 
@@ -105,12 +106,13 @@ public:
         int32_t effective_sustain = m_sustain_level - m_level;
         effective_sustain = (effective_sustain < 0) * effective_sustain + m_level;
 
-        m_level = effective_sustain + (mul_s32_s32_h32((m_level - effective_sustain), m_decay_coef) << 2);
+        m_level = effective_sustain + 
+                  static_cast<int32_t>((static_cast<int64_t>(m_level - effective_sustain) * m_decay_coef) >> 30);
       }
       break;
 
     case STATE_IDLE:
-      m_level = mul_s32_s32_h32(m_level, m_release_coef) << 2;
+      m_level = static_cast<int32_t>((static_cast<int64_t>(m_level) * m_release_coef) >> 30);
       break;
     }
 
