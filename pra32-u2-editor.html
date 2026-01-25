@@ -799,7 +799,7 @@ function updateDisplayOfControl(number, value) {
     break;
   case OSC_2_WAVE      :
     {
-      var ary = ["Saw","Sqr","Tri","Sin","-","Nos"];
+      var ary = ["Saw","Sqr","Tri","Sin","O1","Nos"];
       var index = Math.floor(((value * 10) + 127) / 254);
       dispValue = ary[index];
     }
@@ -1458,7 +1458,7 @@ function getStoredCCValueString(index, number) {
 <td><span    id="spanOSC_1_MORPH    " >-</span></td>
 <td><span   id="span2OSC_1_MORPH    " >-</span></td>
 <tr>
-<td colspan="3"><b>Osc 2</b> Wave [Saw|Sqr|Tri|Sin|-|Nos]</td>
+<td colspan="3"><b>Osc 2</b> Wave [Saw|Sqr|Tri|Sin|O1|Nos]</td>
 <td colspan="3"><b>Mixer</b> Osc Mix [1|2]             </td>
 <td colspan="3"><b>Osc 2</b> Coarse [-|+]              </td>
 <td colspan="3"><b>Osc 2</b> Pitch [-|+]               </td>

@@ -28,6 +28,7 @@ class PRA32_U2_Osc {
   int16_t        m_pitch_eg_amt[2];
   int16_t        m_pitch_lfo_amt[2];
 
+  uint8_t        m_waveform_index[2];
   uint8_t        m_waveform[2];
   int16_t        m_pitch_bend;
   uint8_t        m_pitch_bend_range;
@@ -71,6 +72,7 @@ public:
   , m_pitch_eg_amt()
   , m_pitch_lfo_amt()
 
+  , m_waveform_index()
   , m_waveform()
   , m_pitch_bend()
   , m_pitch_bend_range()
@@ -118,6 +120,8 @@ public:
     set_osc2_pitch   (0);
     set_osc2_detune  (0);
 
+    m_waveform_index[0] = 0;
+    m_waveform_index[1] = 0;
     m_waveform[0] = WAVEFORM_SAW;
     m_waveform[1] = WAVEFORM_SAW;
     m_pitch_target[0] = 60 << 24;
@@ -219,7 +223,7 @@ public:
         WAVEFORM_SQUARE,
         WAVEFORM_TRIANGLE,
         WAVEFORM_SINE,
-        WAVEFORM_SINE,
+        WAVEFORM_2_NOISE,
         WAVEFORM_2_NOISE,
       },
     };
@@ -230,7 +234,12 @@ public:
     index = index - 5;
     index = (index < 0) * index + 5;
 
+    m_waveform_index[N] = index;
     m_waveform[N] = waveform_tables[N][index];
+
+    if (m_waveform_index[1] == 4) { // Same as Osc 1 Wave
+      m_waveform[1] = waveform_tables[1][m_waveform_index[0]];
+    }
   }
 
   INLINE void set_osc1_shape_control(uint8_t controller_value) {

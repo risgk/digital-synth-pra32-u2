@@ -33,7 +33,7 @@
 |                            19 | x             | o             | Osc 1 Shape $2                       |
 |                            20 | x             | o             | Osc 1 Morph $2                       |
 |                               |               |               |                                      |
-|                           104 | x             | o             | Osc 2 Wave [Saw|Sqr|Tri|Sin|-|Nos]   |
+|                           104 | x             | o             | Osc 2 Wave [Saw|Sqr|Tri|Sin|O1|Nos]  |
 |                            21 | x             | o             | Mixer Osc Mix [1|2]                  |
 |                            85 | x             | o             | Osc 2 Coarse [-|+]                   |
 |                            76 | x             | o             | Osc 2 Pitch [-|+]                    |

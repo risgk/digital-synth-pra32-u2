@@ -68,12 +68,18 @@
         - 64: Saw 100%
         - 96: Saw 100% + Saw 50%
         - 127: Saw 100% + Saw 100% (max)
-- Osc 2 Wave [Saw|Sqr|Tri|Sin|-|Nos]
+- Osc 2 Wave [Saw|Sqr|Tri|Sin|O1|Nos]
     - 0 (0-12): Saw Wave
     - 25 (13-38): Square Wave
     - 51 (39-63): Triangle Wave
     - 76 (64-88): Sine Wave
-    - 102 (89-114): Sine Wave, Reserved
+    - 102 (89-114): Same as Osc 1 Wave
+        - Saw Wave
+        - Square Wave
+        - Triangle Wave
+        - Sine Wave
+        - White Noise
+        - White Noise
     - 127 (115-127): White Noise
 - Mixer Osc Mix [1|2]
 - Osc 2 Coarse [-|+]

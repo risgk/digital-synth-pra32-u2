@@ -3,6 +3,7 @@
 - v2.1.0 (2026-??-??):
     - Increase the Q values corresponding to the Filter Resonance control values
         - The new Q value range is from 0.7 to 11.3
+    - Add "Same as Osc 1 Wave" (O1) to Osc 2 Wave
     - Support the "Expression" control
     - Modify Filter Cutoff to change more quickly
     - PRA32-U2/P: Support Shift + Prev/Next Key
