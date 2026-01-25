@@ -13,15 +13,15 @@ static INLINE uint8_t high_byte(uint16_t x) {
 }
 
 static INLINE int32_t mul_s32_u16_h32(int32_t x, uint16_t y) {
-  return (static_cast<int64_t>(x) * y) >> 16;
+  return static_cast<int32_t>((static_cast<int64_t>(x) * y) >> 16);
 }
 
 static INLINE int32_t mul_s32_s32_h32(int32_t x, int32_t y) {
-  return (static_cast<int64_t>(x) * y) >> 32;
+  return static_cast<int32_t>((static_cast<int64_t>(x) * y) >> 32);
 }
 
 static INLINE int32_t mul_s32_s32_h16(int32_t x, int32_t y) {
-  return (static_cast<int64_t>(x) * y) >> 16;
+  return static_cast<int32_t>((static_cast<int64_t>(x) * y) >> 16);
 }
 
 static INLINE int32_t clamp(int32_t value, int32_t minimum, int32_t maximum) {
