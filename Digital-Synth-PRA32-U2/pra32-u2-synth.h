@@ -1272,7 +1272,7 @@ public:
 #endif  // defined(ARDUINO_ARCH_RP2040)
   }
 
-  INLINE int16_t process(int16_t& right_output_int16) {
+  /* INLINE */ int16_t __not_in_flash_func(process)(int16_t& right_output_int16) {
     ++m_count;
 
     int16_t noise_int15 = m_noise_gen.process();
@@ -1442,7 +1442,7 @@ public:
 #endif  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
   }
 
-  INLINE boolean secondary_core_process() {
+  /* INLINE */ boolean __not_in_flash_func(secondary_core_process)() {
     boolean processed = false;
 
     if (m_secondary_core_processing_request == 1) {
