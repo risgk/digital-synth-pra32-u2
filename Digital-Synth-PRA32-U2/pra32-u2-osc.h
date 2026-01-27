@@ -230,7 +230,7 @@ public:
 
     volatile int32_t index = ((controller_value * 10) + 127) / 254;
 
-    // index = min(index, 5)
+    // index = minimum(index, 5)
     index = index - 5;
     index = (index < 0) * index + 5;
 
@@ -541,7 +541,7 @@ private:
     if (m_waveform[0] == WAVEFORM_SINE) {
       // For Sine Wave (wave_3)
 
-      // phase_modulation_depth_candidate = max(m_osc1_shape_effective[N] - (128 << 8), 0)
+      // phase_modulation_depth_candidate = maximum(m_osc1_shape_effective[N] - (128 << 8), 0)
       volatile int32_t phase_modulation_depth_candidate = m_osc1_shape_effective[N] - (128 << 8);
       phase_modulation_depth_candidate = (phase_modulation_depth_candidate > 0) * phase_modulation_depth_candidate;
 
@@ -558,7 +558,7 @@ private:
       int32_t wave_0 = get_wave_level(wave_table_sine, phase_0);
       result += (wave_0 * osc1_gain * m_osc_gain_effective[N]) >> 10;
     } else if (m_waveform[0] == WAVEFORM_SAW) {
-      // phase_modulation_depth_candidate = max(m_osc1_shape_effective[N] - (128 << 8), 0)
+      // phase_modulation_depth_candidate = maximum(m_osc1_shape_effective[N] - (128 << 8), 0)
       volatile int32_t phase_modulation_depth_candidate = m_osc1_shape_effective[N] - (128 << 8);
       phase_modulation_depth_candidate = (phase_modulation_depth_candidate > 0) * phase_modulation_depth_candidate;
 
@@ -583,7 +583,7 @@ private:
       result += (((  ( multi_saw_mix       * (((wave_0_0 + wave_0_1 + wave_0_2 + wave_0_3 + wave_0_4 + wave_0_5 + wave_0_6) << 1) / 5))
                    + ((64 - multi_saw_mix) *    wave_0)) >> 6) * osc1_gain * m_osc_gain_effective[N]) >> 10;
     } else if (m_waveform[0] == WAVEFORM_SQUARE) {
-      // phase_modulation_depth_candidate = max(m_osc1_shape_effective[N] - (128 << 8), 0)
+      // phase_modulation_depth_candidate = maximum(m_osc1_shape_effective[N] - (128 << 8), 0)
       volatile int32_t phase_modulation_depth_candidate = m_osc1_shape_effective[N] - (128 << 8);
       phase_modulation_depth_candidate = (phase_modulation_depth_candidate > 0) * phase_modulation_depth_candidate;
 
@@ -613,7 +613,7 @@ private:
                                              wave_0_8  + wave_0_9  + wave_0_10 + wave_0_11 + wave_0_12 + wave_0_13 + wave_0_14 + wave_0_15))
                    + ((64 - sqr_sync_mix) *  wave_0)) >> 6) * osc1_gain * m_osc_gain_effective[N]) >> 10;
     } else if (m_waveform[0] == WAVEFORM_1_WAVE_TABLE) {
-      // phase_modulation_depth_candidate = max(m_osc1_shape_effective[N] - (128 << 8), 0)
+      // phase_modulation_depth_candidate = maximum(m_osc1_shape_effective[N] - (128 << 8), 0)
       volatile int32_t phase_modulation_depth_candidate = m_osc1_shape_effective[N] - (128 << 8);
       phase_modulation_depth_candidate = (phase_modulation_depth_candidate > 0) * phase_modulation_depth_candidate;
 
@@ -744,7 +744,7 @@ private:
       m_wave_table_temp[N + 8]  = get_wave_table(WAVEFORM_SAW,  coarse);
       m_wave_table_temp[N + 16] = get_wave_table(WAVEFORM_SAW,  coarse);
 
-      // coarse_sub = max((coarse - 12), NOTE_NUMBER_MIN)
+      // coarse_sub = maximum((coarse - 12), NOTE_NUMBER_MIN)
       volatile int32_t coarse_sub = (coarse - 12) - NOTE_NUMBER_MIN;
       coarse_sub = (coarse_sub > 0) * coarse_sub + NOTE_NUMBER_MIN;
 

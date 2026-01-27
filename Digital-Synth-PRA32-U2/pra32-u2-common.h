@@ -16,10 +16,24 @@ static INLINE int32_t mul_s32_s32_shift_right(int32_t x, int32_t y, uint8_t z) {
   return static_cast<int32_t>((static_cast<int64_t>(x) * y) >> z);
 }
 
-static INLINE int32_t clamp(int32_t value, int32_t minimum, int32_t maximum) {
-    volatile int32_t clamped =
-         (value >  maximum)                        * maximum
-      +                        (value <  minimum)  * minimum
-      + ((value <= maximum) && (value >= minimum)) * value;
-    return clamped;
+static INLINE int32_t minimum(int32_t value_0, int32_t value_1) {
+    volatile int32_t result =
+        (value_0 < value_1) * value_0
+      + (value_0 > value_1) * value_1;
+    return result;
+}
+
+static INLINE int32_t maximum(int32_t value_0, int32_t value_1) {
+    volatile int32_t result =
+        (value_0 > value_1) * value_0
+      + (value_0 < value_1) * value_1;
+    return result;
+}
+
+static INLINE int32_t clamp(int32_t value, int32_t minimum_value, int32_t maximum_value) {
+    volatile int32_t result =
+         (value >  maximum_value)                              * maximum_value
+      +                              (value <  minimum_value)  * minimum_value
+      + ((value <= maximum_value) && (value >= minimum_value)) * value;
+    return result;
 }
