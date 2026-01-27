@@ -313,7 +313,7 @@ public:
     m_lfo_osc_amt = 64;
   }
 
-  INLINE void initialize() {
+  /* INLINE */ void __not_in_flash_func(initialize)() {
     std::memcpy(m_program_table[OSC_1_WAVE     ], g_preset_table_OSC_1_WAVE     , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[MIXER_SUB_OSC  ], g_preset_table_MIXER_SUB_OSC  , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[OSC_1_SHAPE    ], g_preset_table_OSC_1_SHAPE    , sizeof(m_program_table[0]));
