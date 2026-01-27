@@ -6,6 +6,8 @@
     - Add "Same as Osc 1 Wave" (O1) to Osc 2 Wave
     - Support the "Expression" control
     - Modify Filter Cutoff to change more quickly
+    - Modify the Presets
+    - PRA32-U2 Editor: Modify the Editor Presets
     - PRA32-U2/P: Support Shift + Prev/Next Key
     - Improve the code
     - Modify the description of the EG/LFO Mod Dst, the Voice Mode, and the LFO Wave options
