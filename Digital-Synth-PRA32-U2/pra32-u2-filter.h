@@ -14,7 +14,7 @@ static INLINE int32_t soft_clip(int32_t value) {
          (value >  (+one))                       * (+two_three)
       +                       (value <  (-one))  * (-two_three)
       + ((value <= (+one)) && (value >= (-one))) *
-        (value - (mul_s32_s32_shift_right(mul_s32_s32_shift_right(value, value, 23), value, 23) / 3));
+        (value - (mul_s32_s32_shift_right(mul_s32_s32_shift_right(value << 5, value << 4, 32) << 5, value << 4, 32) / 3));
     return clamped;
 }
 
