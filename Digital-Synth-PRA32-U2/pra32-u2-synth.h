@@ -1410,8 +1410,8 @@ public:
     int32_t synth_output_r = delay_fx_output_r;
     int32_t synth_output_l = delay_fx_output_l;
 
-    int32_t synth_output_l_clamped = clamp((synth_output_l << 1), (-(INT16_MAX << 8)), (+(INT16_MAX << 8)));
-    int32_t synth_output_r_clamped = clamp((synth_output_r << 1), (-(INT16_MAX << 8)), (+(INT16_MAX << 8)));
+    synth_output_l = clamp((synth_output_l << 1), (-(INT16_MAX << 8)), (+(INT16_MAX << 8)));
+    synth_output_r = clamp((synth_output_r << 1), (-(INT16_MAX << 8)), (+(INT16_MAX << 8)));
 
 #if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
     int16_t synth_output_l_int16 = (synth_output_l >> 8);

@@ -797,7 +797,7 @@ private:
 
   template <uint8_t N>
   INLINE void update_osc1_shape_effective() {
-    int32_t effective_new = clamp(m_osc1_shape[N], (m_osc1_shape_effective[N] - 0x0100), (m_osc1_shape_effective[N] + 0x0100));
+    volatile int32_t effective_new = clamp(m_osc1_shape[N], (m_osc1_shape_effective[N] - 0x0100), (m_osc1_shape_effective[N] + 0x0100));
     m_osc1_shape_effective[N] = effective_new;
   }
 
