@@ -14,7 +14,7 @@ static INLINE int32_t soft_clip(int32_t value) {
          (value >  (+one))                       * (+two_three)
       +                       (value <  (-one))  * (-two_three)
       + ((value <= (+one)) && (value >= (-one))) *
-        (value - (mul_s32_s32_shift_right(mul_s32_s32_shift_right(value << 5, value << 4, 32) << 5, value << 4, 32) / 3));
+        (value - (multiply_shift_right(multiply_shift_right(value << 5, value << 4, 32) << 5, value << 4, 32) / 3));
     return clamped;
 }
 
@@ -132,11 +132,11 @@ public:
 #if 1
     // Nonlinear Biquad Filter, Transposed Direct Form-II
     int32_t x_0 = audio_input_int24;
-    int32_t y_0 =           m_z_1 + (mul_s32_s32_shift_right(m_b_2_over_a_0, x_0,      32) << (32 - FILTER_TABLE_FRACTION_BITS));
-    m_z_1       = soft_clip(m_z_2 + (mul_s32_s32_shift_right(m_b_2_over_a_0, x_0 << 1, 32) << (32 - FILTER_TABLE_FRACTION_BITS))
-                                  - (mul_s32_s32_shift_right(m_a_1_over_a_0, y_0,      32) << (32 - FILTER_TABLE_FRACTION_BITS)));
-    m_z_2       = soft_clip(        (mul_s32_s32_shift_right(m_b_2_over_a_0, x_0,      32) << (32 - FILTER_TABLE_FRACTION_BITS))
-                                  - (mul_s32_s32_shift_right(m_a_2_over_a_0, y_0,      32) << (32 - FILTER_TABLE_FRACTION_BITS)));
+    int32_t y_0 =           m_z_1 + (multiply_shift_right(m_b_2_over_a_0, x_0,      32) << (32 - FILTER_TABLE_FRACTION_BITS));
+    m_z_1       = soft_clip(m_z_2 + (multiply_shift_right(m_b_2_over_a_0, x_0 << 1, 32) << (32 - FILTER_TABLE_FRACTION_BITS))
+                                  - (multiply_shift_right(m_a_1_over_a_0, y_0,      32) << (32 - FILTER_TABLE_FRACTION_BITS)));
+    m_z_2       = soft_clip(        (multiply_shift_right(m_b_2_over_a_0, x_0,      32) << (32 - FILTER_TABLE_FRACTION_BITS))
+                                  - (multiply_shift_right(m_a_2_over_a_0, y_0,      32) << (32 - FILTER_TABLE_FRACTION_BITS)));
 
     if (m_filter_mode >= 64) {
       // high pass
