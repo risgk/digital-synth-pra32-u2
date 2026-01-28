@@ -94,17 +94,17 @@ public:
     int32_t left_feedback;
     int32_t right_feedback;
 
-    int32_t left_send  = mul_s32_s32_shift_right(left_input_int24,  m_delay_level_effective, 8);
-    int32_t right_send = mul_s32_s32_shift_right(right_input_int24, m_delay_level_effective, 8);
+    int32_t left_send  = multiply_shift_right(left_input_int24,  m_delay_level_effective, 8);
+    int32_t right_send = multiply_shift_right(right_input_int24, m_delay_level_effective, 8);
 
     if (m_delay_mode >= 64) {
       // Ping Pong Delay
-      left_feedback  = mul_s32_s32_shift_right((((left_send + right_send) >> 1) + right_delay), (m_delay_feedback_effective << 8), 16);
-      right_feedback = mul_s32_s32_shift_right((                                  left_delay ), (m_delay_feedback_effective << 8), 16);
+      left_feedback  = multiply_shift_right((((left_send + right_send) >> 1) + right_delay), (m_delay_feedback_effective << 8), 16);
+      right_feedback = multiply_shift_right((                                  left_delay ), (m_delay_feedback_effective << 8), 16);
     } else {
       // Stereo Delay
-      left_feedback  = mul_s32_s32_shift_right((left_send  + left_delay ), (m_delay_feedback_effective << 8), 16);
-      right_feedback = mul_s32_s32_shift_right((right_send + right_delay), (m_delay_feedback_effective << 8), 16);
+      left_feedback  = multiply_shift_right((left_send  + left_delay ), (m_delay_feedback_effective << 8), 16);
+      right_feedback = multiply_shift_right((right_send + right_delay), (m_delay_feedback_effective << 8), 16);
     }
 
     delay_buff_push<0>(left_feedback);
