@@ -101,10 +101,7 @@ public:
 
     case STATE_SUSTAIN:
       {
-        // effective_sustain = minimum(m_sustain_level, m_level)
-        int32_t effective_sustain = m_sustain_level - m_level;
-        effective_sustain = (effective_sustain < 0) * effective_sustain + m_level;
-
+        int32_t effective_sustain = minimum(m_sustain_level, m_level);
         m_level = effective_sustain + (mul_s32_s32_shift_right((m_level - effective_sustain), m_decay_coef, 32) << 2);
       }
       break;
