@@ -1,16 +1,17 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v2.1.0 (2026-??-??):
-    - Increase the Q values corresponding to the Filter Resonance control values
+    - Increase the Q values corresponding to the "Filter Resonance" control values
         - The new Q value range is from 0.7 to 11.3
-    - Add "Same as Osc 1 Wave" (O1) to Osc 2 Wave
+    - Add the "Same as Osc 1 Wave (O1)" to the "Osc 2 Wave"
+    - Add the "Pan" parameter
     - Support the "Expression" control
-    - Modify Filter Cutoff to change more quickly
+    - Modify the "Filter Cutoff" to change more quickly
     - Modify the Presets
     - PRA32-U2 Editor: Modify the Editor Presets
     - PRA32-U2/P: Support Shift + Prev/Next Key
     - Improve the code
-    - Modify the description of the EG/LFO Mod Dst, the Voice Mode, and the LFO Wave options
+    - Modify the description of the "EG/LFO Mod Dst", the "Voice Mode", and the "LFO Wave" options
     - Tested with Arduino-Pico version 5.5.0
 - v2.0.0 (2026-01-07):
     - **Improve the Filter**: Introduce soft clipping (without anti-aliasing)
