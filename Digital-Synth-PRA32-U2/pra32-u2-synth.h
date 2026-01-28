@@ -1521,11 +1521,7 @@ private:
     };
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_EMULATION)
 
-    volatile int32_t index = ((controller_value * 10) + 127) / 254;
-
-    // index = minimum(index, 5)
-    index = index - 5;
-    index = (index < 0) * index + 5;
+    volatile int32_t index = minimum(((controller_value * 10) + 127) / 254, 5);
 
     uint8_t new_voice_mode = voice_mode_table[index];
     if (m_voice_mode != new_voice_mode) {
