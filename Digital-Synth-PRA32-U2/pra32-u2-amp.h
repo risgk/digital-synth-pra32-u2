@@ -57,9 +57,9 @@ PRA32_U2_Amp()
 
   INLINE int32_t process(int32_t audio_input_int24) {
     int32_t audio_output = audio_input_int24;
-    audio_output = mul_s32_s32_shift_right(audio_output, m_gain_mod_input,     16);
-    audio_output = mul_s32_s32_shift_right(audio_output, m_gain_linear,        16);
-    audio_output = mul_s32_s32_shift_right(audio_output, m_breath_gain_linear, 16);
+    audio_output = multiply_shift_right(audio_output, m_gain_mod_input,     16);
+    audio_output = multiply_shift_right(audio_output, m_gain_linear,        16);
+    audio_output = multiply_shift_right(audio_output, m_breath_gain_linear, 16);
     return audio_output;
   }
 
