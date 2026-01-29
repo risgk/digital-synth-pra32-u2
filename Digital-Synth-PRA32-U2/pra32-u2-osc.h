@@ -228,7 +228,7 @@ public:
       },
     };
 
-    volatile int32_t index = minimum(((controller_value * 10) + 127) / 254, 5);
+    int32_t index = ((controller_value * 10) + 127) / 254;
 
     m_waveform_index[N] = index;
     m_waveform[N] = waveform_tables[N][index];
@@ -626,15 +626,7 @@ private:
 
       // For Pulse Wave (wave_3)
       uint32_t phase_3 = m_phase[N] + (m_osc1_shape_effective[N] << 8);
-#if 1
       int16_t wave_3 = get_wave_level(m_wave_table[N + 16], phase_3);
-#else
-      boolean new_period_osc1_add = ((phase_3 + 0x00800000) & 0x00FFFFFF) < (m_freq[N] + 0x00010000); // crossing the middle of a saw wave
-      m_wave_table[N + 8] = reinterpret_cast<const int16_t*>((reinterpret_cast<const uintptr_t>(m_wave_table[N + 8]) * (1 - new_period_osc1_add)));
-      m_wave_table[N + 8] = reinterpret_cast<const int16_t*>( reinterpret_cast<const uint8_t*>( m_wave_table[N + 8]) +
-                                                             (reinterpret_cast<const uintptr_t>(m_wave_table_temp[N + 8]) * new_period_osc1_add));
-      int16_t wave_3 = get_wave_level(m_wave_table[N + 8], phase_3);
-#endif
       result += ((((wave_3 * osc1_gain * m_osc_gain_effective[N]) >> 10) * (((m_osc1_morph_control_effective - 63) >> 1) << 1)) >> 6);
     } else {
       int32_t wave_0 = get_wave_level(m_wave_table[N], m_phase[N]);
