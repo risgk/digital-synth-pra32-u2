@@ -43,8 +43,8 @@ PRA32_U2_Panner()
   INLINE int32_t process(int32_t audio_input_int24, int32_t& audio_output_r_int24) {
     int32_t audio_output_l_int24 = 0;
 
-    audio_output_l_int24 = multiply_shift_right(audio_input_int24, m_gain_linear_l, 16);
-    audio_output_r_int24 = multiply_shift_right(audio_input_int24, m_gain_linear_r, 16);
+    audio_output_l_int24 = mul_s32_s32_shift_right(audio_input_int24, m_gain_linear_l, 16);
+    audio_output_r_int24 = mul_s32_s32_shift_right(audio_input_int24, m_gain_linear_r, 16);
 
     return audio_output_l_int24;
   }

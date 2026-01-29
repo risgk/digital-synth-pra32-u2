@@ -672,9 +672,9 @@ private:
   INLINE void update_pitch_current() {
     if (m_osc_on[N]) {
       if (m_pitch_current[N] <= m_pitch_target[N]) {
-        m_pitch_current[N] = m_pitch_target[N]  - multiply_shift_right((m_pitch_target[N] - m_pitch_current[N]) << 2,             m_portamento_coef[N], 32);
+        m_pitch_current[N] = m_pitch_target[N]  - mul_s32_s32_shift_right((m_pitch_target[N] - m_pitch_current[N]) << 2,             m_portamento_coef[N], 32);
       } else {
-        m_pitch_current[N] = m_pitch_current[N] + multiply_shift_right((m_pitch_target[N] - m_pitch_current[N]) << 2, (1 << 30) - m_portamento_coef[N], 32);
+        m_pitch_current[N] = m_pitch_current[N] + mul_s32_s32_shift_right((m_pitch_target[N] - m_pitch_current[N]) << 2, (1 << 30) - m_portamento_coef[N], 32);
       }
     }
   }
