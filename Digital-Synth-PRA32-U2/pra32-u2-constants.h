@@ -31,7 +31,8 @@ const int8_t    FILTER_TABLE_FRACTION_BITS   = 30;
 const int8_t    FILTER_TABLE_CUTOFF_EXT_BITS = 2;
 const int8_t    FILTER_TABLE_RESO_EXT_BITS   = 2;
 const uint8_t   EG_CONTROL_INTERVAL          = 0x10;
-const int32_t   EG_LEVEL_MAX                 = 0x40000000;
+const int8_t    EG_LEVEL_MAX_BITS            = 30;
+const int32_t   EG_LEVEL_MAX                 = 0x01 << EG_LEVEL_MAX_BITS;
 
 
 const uint8_t   DATA_BYTE_MAX         = 0x7F;
