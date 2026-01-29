@@ -169,7 +169,7 @@ private:
     cutoff_candidate += (((osc_pitch - (60 << 8)) * m_cutoff_pitch_amt) + (1 << ((10 - 1) - 2))) >> (10 - 2);
     cutoff_candidate += (m_breath_controller * m_cutoff_breath_amt) >> (14 - 2);
 
-    int32_t cutoff_target = clamp(cutoff_candidate, 0, ((254 << 2) + 1));
+    volatile int16_t cutoff_target = clamp(cutoff_candidate, 0, ((254 << 2) + 1));
 
     for (uint32_t i = 0; i < (4 * 2); ++i) {
       m_cutoff_current += (m_cutoff_current < cutoff_target);
