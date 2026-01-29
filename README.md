@@ -192,8 +192,7 @@ graph LR
     V1A --> VM[Voice Mixer]
     V2[Voice 2] & V3[Voice 3] & V4[Voice 4] --> VM
     VM --> C[Chorus FX] --> D[Delay FX] --> AO[Audio Out]
-    C --> D
-    D --> AO
+    C --> D --> AO
     N[Noise Gen]  --> V1O2 & V1OM & V2 & V3 & V4
     N -.-> L[LFO w/ S/H]
     L -.-> V1O1 & V1O2 & V1F & V2 & V3 & V4
