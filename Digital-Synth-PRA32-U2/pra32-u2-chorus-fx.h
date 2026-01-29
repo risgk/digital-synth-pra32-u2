@@ -134,7 +134,7 @@ private:
     int32_t  next_data   = m_delay_buff[lr][next_index];
 
     // lerp
-    int32_t result = curr_data + multiply_shift_right(next_data - curr_data, next_weight << 12, 16);
+    int32_t result = curr_data + mul_s32_s32_shift_right(next_data - curr_data, next_weight << 12, 16);
 
     return result;
   }
