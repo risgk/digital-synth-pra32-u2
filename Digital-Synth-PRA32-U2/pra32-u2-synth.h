@@ -4,6 +4,7 @@
 #include "pra32-u2-osc.h"
 #include "pra32-u2-filter.h"
 #include "pra32-u2-amp.h"
+#include "pra32-u2-panner.h"
 #include "pra32-u2-lfo.h"
 #include "pra32-u2-noise-gen.h"
 #include "pra32-u2-eg.h"
@@ -189,6 +190,7 @@ class PRA32_U2_Synth {
   PRA32_U2_Osc      m_osc;
   PRA32_U2_Filter   m_filter[4];
   PRA32_U2_Amp      m_amp[4];
+  PRA32_U2_Panner   m_panner;
   PRA32_U2_NoiseGen m_noise_gen;
   PRA32_U2_LFO      m_lfo;
   PRA32_U2_EG       m_eg[2 * 4];
@@ -244,6 +246,7 @@ public:
   : m_osc()
   , m_filter()
   , m_amp()
+  , m_panner()
   , m_noise_gen()
   , m_lfo()
   , m_eg()
@@ -308,6 +311,8 @@ public:
     m_amp[1].set_gain(127);
     m_amp[2].set_gain(127);
     m_amp[3].set_gain(127);
+
+    m_panner.set_pan(64);
 
     m_eg_osc_amt = 64;
     m_lfo_osc_amt = 64;
@@ -1278,31 +1283,30 @@ public:
     int16_t noise_int15 = m_noise_gen.process();
 
     switch (m_count & (0x04 - 1)) {
-    case 0x03:
-      m_lfo.process_at_low_rate(m_count >> 2, noise_int15);
-      break;
-    }
-
-    switch (m_count & (0x04 - 1)) {
     case 0x00:
       {
+        m_lfo.process_at_low_rate(m_count >> 2, noise_int15);
+
         m_eg[0].process_at_low_rate();
         m_eg[1].process_at_low_rate();
         int16_t lfo_output = m_lfo.get_output<0>();
         m_osc.process_at_low_rate_a<0>(lfo_output, m_eg[0].get_output());
-        m_osc.process_at_low_rate_b(m_count >> 2, noise_int15);
         m_filter[0].process_at_low_rate(m_count >> 2, m_eg[0].get_output(), lfo_output, m_osc.get_osc_pitch(0));
         m_amp[0].process_at_low_rate(m_eg[1].get_output());
       }
       break;
     case 0x01:
       {
+        m_osc.process_at_low_rate_b(m_count >> 2, noise_int15);
+
         m_eg[2].process_at_low_rate();
         m_eg[3].process_at_low_rate();
         int16_t lfo_output = m_lfo.get_output<1>();
         m_osc.process_at_low_rate_a<1>(lfo_output, m_eg[2].get_output());
         m_filter[1].process_at_low_rate(m_count >> 2, m_eg[2].get_output(), lfo_output, m_osc.get_osc_pitch(1));
         m_amp[1].process_at_low_rate(m_eg[3].get_output());
+
+        m_panner.process_at_low_rate();
       }
       break;
     case 0x02:
@@ -1313,7 +1317,8 @@ public:
         m_osc.process_at_low_rate_a<2>(lfo_output, m_eg[4].get_output());
         m_filter[2].process_at_low_rate(m_count >> 2, m_eg[4].get_output(), lfo_output, m_osc.get_osc_pitch(2));
         m_amp[2].process_at_low_rate(m_eg[5].get_output());
-        m_delay_fx.process_at_low_rate(m_count >> 2);
+
+        m_chorus_fx.process_at_low_rate(m_count >> 2);
       }
       break;
     case 0x03:
@@ -1324,7 +1329,8 @@ public:
         m_osc.process_at_low_rate_a<3>(lfo_output, m_eg[6].get_output());
         m_filter[3].process_at_low_rate(m_count >> 2, m_eg[6].get_output(), lfo_output, m_osc.get_osc_pitch(3));
         m_amp[3].process_at_low_rate(m_eg[7].get_output());
-        m_chorus_fx.process_at_low_rate(m_count >> 2);
+
+        m_delay_fx.process_at_low_rate(m_count >> 2);
       }
       break;
     }
@@ -1375,6 +1381,9 @@ public:
     } else {
       voice_mixer_output = amp_output[0] + (amp_output[0] >> 1);
     }
+
+    int32_t panner_output_r;
+    int32_t panner_output_l = m_panner.process(voice_mixer_output, panner_output_r);
 
     int32_t chorus_fx_output_r;
     int32_t chorus_fx_output_l = m_chorus_fx.process(voice_mixer_output, voice_mixer_output, chorus_fx_output_r);
