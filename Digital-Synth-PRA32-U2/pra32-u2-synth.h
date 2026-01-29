@@ -1394,11 +1394,11 @@ public:
     int32_t voice_mixer_output_r;
 
     if (m_voice_mode == VOICE_POLYPHONIC) {
-      voice_mixer_output_l = (panner_output_l[0] + panner_output_l[1] + m_secondary_core_processing_result_l) >> 0;
-      voice_mixer_output_r = (panner_output_r[0] + panner_output_r[1] + m_secondary_core_processing_result_r) >> 0;
+      voice_mixer_output_l = (panner_output_l[0] + panner_output_l[1] + m_secondary_core_processing_result_l) >> 1;
+      voice_mixer_output_r = (panner_output_r[0] + panner_output_r[1] + m_secondary_core_processing_result_r) >> 1;
     } else {
-      voice_mixer_output_l = (panner_output_l[0] + (panner_output_l[0] >> 1)) >> 0;
-      voice_mixer_output_r = (panner_output_r[0] + (panner_output_r[0] >> 1)) >> 0;
+      voice_mixer_output_l = (panner_output_l[0] + (panner_output_l[0] >> 1)) >> 1;
+      voice_mixer_output_r = (panner_output_r[0] + (panner_output_r[0] >> 1)) >> 1;
     }
 
     int32_t chorus_fx_output_r;
@@ -1410,8 +1410,8 @@ public:
     int32_t synth_output_r = delay_fx_output_r;
     int32_t synth_output_l = delay_fx_output_l;
 
-    synth_output_l = clamp((synth_output_l << 0), (-(INT16_MAX << 8)), (+(INT16_MAX << 8)));
-    synth_output_r = clamp((synth_output_r << 0), (-(INT16_MAX << 8)), (+(INT16_MAX << 8)));
+    synth_output_l = clamp((synth_output_l << 1), (-(INT16_MAX << 8)), (+(INT16_MAX << 8)));
+    synth_output_r = clamp((synth_output_r << 1), (-(INT16_MAX << 8)), (+(INT16_MAX << 8)));
 
 #if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
     int16_t synth_output_l_int16 = (synth_output_l >> 8);
