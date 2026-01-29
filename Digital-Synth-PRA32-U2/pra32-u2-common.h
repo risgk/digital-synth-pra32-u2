@@ -12,7 +12,7 @@ static INLINE uint8_t high_byte(uint16_t x) {
   return (x >> 8) & 0xFF;
 }
 
-static INLINE int32_t mul_s32_s32_shift_right(int32_t x, int32_t y, uint8_t z) {
+static INLINE int32_t multiply_shift_right(int32_t x, int32_t y, uint8_t z) {
   return static_cast<int32_t>((static_cast<int64_t>(x) * y) >> z);
 }
 
