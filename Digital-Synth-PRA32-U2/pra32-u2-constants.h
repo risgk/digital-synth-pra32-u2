@@ -113,7 +113,7 @@ const uint8_t   AMP_VEL_SENS    = 63;
 
 const uint8_t   AFT_T_LFO_AMT   = 109;
 const uint8_t   VOICE_ASGN_MODE = 110;
-
+const uint8_t   PAN             = 10;
 
 
 const uint8_t   CHORUS_MIX      = 93;

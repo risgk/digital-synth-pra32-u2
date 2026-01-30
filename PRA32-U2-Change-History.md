@@ -4,6 +4,7 @@
     - Increase the Q values corresponding to the "Filter Resonance" control values
         - The new Q value range is from 0.7 to 11.3
     - Add the "Same as Osc 1 Wave (O1)" to the "Osc 2 Wave"
+    - Add the "Pan" parameter
     - Support the "Expression" control
     - Modify the "Filter Cutoff" to change more quickly
     - Modify the Presets
