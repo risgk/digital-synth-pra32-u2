@@ -46,8 +46,8 @@ class PRA32_U2_Osc {
   int8_t         m_osc_level_effective[4];
   int8_t         m_osc_level;
 
-  uint8_t        m_mixer_osc_mix_control;
-  uint8_t        m_mixer_osc_mix_control_effective;
+  uint8_t        m_mixer_osc_mix_control[4];
+  uint8_t        m_mixer_osc_mix_control_effective[4];
   int8_t         m_osc2_pitch;
   int16_t        m_osc2_detune;
 
@@ -59,8 +59,8 @@ class PRA32_U2_Osc {
   int32_t        m_osc1_shape[4];
   int32_t        m_osc1_shape_effective[4];
   uint16_t       m_osc1_phase_modulation_frequency_ratio[4];
-  int8_t         m_mixer_noise_sub_osc_control;
-  int8_t         m_mixer_noise_sub_osc_control_effective;
+  int8_t         m_mixer_noise_sub_osc_control[4];
+  int8_t         m_mixer_noise_sub_osc_control_effective[4];
   int16_t        m_mix_table[OSC_MIX_TABLE_LENGTH];
   int16_t        m_shape_eg_amt;
   int16_t        m_shape_lfo_amt;
@@ -113,7 +113,6 @@ public:
     m_portamento_coef[2] = 0;
     m_portamento_coef[3] = 0;
 
-    set_mixer_osc_mix(0);
     set_osc2_pitch   (0);
     set_osc2_detune  (0);
 
@@ -253,6 +252,7 @@ public:
     m_osc1_morph_control[N] = controller_value;
   }
 
+  template <uint8_t N>
   INLINE void set_mixer_sub_osc_control(uint8_t controller_value) {
     if (controller_value == 1) {
       controller_value = 0;
@@ -260,7 +260,7 @@ public:
       controller_value = 128;
     }
 
-    m_mixer_noise_sub_osc_control = controller_value - 64;
+    m_mixer_noise_sub_osc_control[N] = controller_value - 64;
   }
 
   INLINE int16_t get_pitch_mod_amt_table(uint8_t controller_value) {
@@ -316,8 +316,9 @@ public:
     m_shape_lfo_amt = -((controller_value - 64) << 1);
   }
 
+  template <uint8_t N>
   INLINE void set_mixer_osc_mix(uint8_t controller_value) {
-    m_mixer_osc_mix_control = ((controller_value + 1) >> 1) << 1;
+    m_mixer_osc_mix_control[N] = ((controller_value + 1) >> 1) << 1;
   }
 
   INLINE void set_osc2_pitch(uint8_t controller_value) {
@@ -419,6 +420,7 @@ public:
     update_freq_offset<N + 4>();
     update_osc1_morph_control_effective<N>();
     update_osc1_shape_control_effective<N>();
+    update_mixer_control_effective<N>();
   }
 
   template <uint8_t N>
@@ -483,8 +485,8 @@ private:
   INLINE int32_t process_osc(int16_t noise_int15) {
     int32_t result = 0;
 
-    int16_t osc1_gain = m_mix_table[(OSC_MIX_TABLE_LENGTH - 1) - (m_mixer_osc_mix_control_effective >> 1)];
-    int16_t osc2_gain = m_mix_table[                             (m_mixer_osc_mix_control_effective >> 1)];
+    int16_t osc1_gain = m_mix_table[(OSC_MIX_TABLE_LENGTH - 1) - (m_mixer_osc_mix_control_effective[N] >> 1)];
+    int16_t osc2_gain = m_mix_table[                             (m_mixer_osc_mix_control_effective[N] >> 1)];
 
     m_phase[N] += m_freq[N];
     boolean new_period_osc1 = (m_phase[N] & 0x00FFFFFF) < m_freq[N]; // crossing the begin of a osc 1 wave, the begin or the middle of a sub osc wave
@@ -599,14 +601,14 @@ private:
       result += (wave_0 * osc1_gain * m_osc_level_effective[N]) >> 10;
     }
 
-    if (m_mixer_noise_sub_osc_control_effective >= 0) {
+    if (m_mixer_noise_sub_osc_control_effective[N] >= 0) {
       // Sub Osc (wave_1)
       int16_t wave_1 = get_wave_level(m_wave_table[N + 12], m_phase[N] >> 1);
-      result += (wave_1 * m_mixer_noise_sub_osc_control * m_osc_level_effective[N]) >> 6;
+      result += (wave_1 * m_mixer_noise_sub_osc_control_effective[N] * m_osc_level_effective[N]) >> 6;
     } else {
       // Noise (wave_1)
       int16_t wave_1 = noise_int15 >> 1;
-      result += (wave_1 * -m_mixer_noise_sub_osc_control_effective * m_osc_level_effective[N]) >> 6;
+      result += (wave_1 * -m_mixer_noise_sub_osc_control_effective[N] * m_osc_level_effective[N]) >> 6;
     }
 
     m_phase[N + 4] += m_freq[N + 4];
@@ -713,12 +715,13 @@ private:
     m_osc1_morph_control_effective[N] -= (m_osc1_morph_control_effective[N] > m_osc1_morph_control[N]);
   }
 
+  template <uint8_t N>
   INLINE void update_mixer_control_effective() {
-    m_mixer_osc_mix_control_effective       += (m_mixer_osc_mix_control_effective < m_mixer_osc_mix_control);
-    m_mixer_osc_mix_control_effective       -= (m_mixer_osc_mix_control_effective > m_mixer_osc_mix_control);
+    m_mixer_osc_mix_control_effective[N]       += (m_mixer_osc_mix_control_effective[N] < m_mixer_osc_mix_control[N]);
+    m_mixer_osc_mix_control_effective[N]       -= (m_mixer_osc_mix_control_effective[N] > m_mixer_osc_mix_control[N]);
 
-    m_mixer_noise_sub_osc_control_effective += (m_mixer_noise_sub_osc_control_effective < m_mixer_noise_sub_osc_control);
-    m_mixer_noise_sub_osc_control_effective -= (m_mixer_noise_sub_osc_control_effective > m_mixer_noise_sub_osc_control);
+    m_mixer_noise_sub_osc_control_effective[N] += (m_mixer_noise_sub_osc_control_effective[N] < m_mixer_noise_sub_osc_control[N]);
+    m_mixer_noise_sub_osc_control_effective[N] -= (m_mixer_noise_sub_osc_control_effective[N] > m_mixer_noise_sub_osc_control[N]);
   }
 
   template <uint8_t N>
