@@ -7,7 +7,7 @@
     - Add the "Pan" parameter
     - Support the "Expression" control
     - Fix an issue where the level of the Sub Osc changed instantly
-    - Modify "Osc 1 Shape", "Osc 1 Morph", "Mixer Noise/Sub Osc", "Mixer Osc Mix", and "Filter Cutoff" to change more quickly
+    - Modify the "Osc 1 Shape", the "Osc 1 Morph", the "Mixer Noise/Sub Osc", the "Mixer Osc Mix", and the "Filter Cutoff" to change more quickly
     - Modify the Presets
     - PRA32-U2 Editor: Modify the Editor Presets
     - PRA32-U2/P: Support Shift + Prev/Next Key
