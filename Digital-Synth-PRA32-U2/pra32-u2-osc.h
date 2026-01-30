@@ -629,7 +629,7 @@ private:
     if (m_mixer_noise_sub_osc_control_effective >= 0) {
       // Sub Osc (wave_1)
       int16_t wave_1 = get_wave_level(m_wave_table[N + 12], m_phase[N] >> 1);
-      result += (wave_1 * m_mixer_noise_sub_osc_control * m_osc_level_effective[N]) >> 6;
+      result += (wave_1 * m_mixer_noise_sub_osc_control_effective * m_osc_level_effective[N]) >> 6;
     } else {
       // Noise (wave_1)
       int16_t wave_1 = noise_int15 >> 1;

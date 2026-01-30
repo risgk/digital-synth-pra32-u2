@@ -6,6 +6,7 @@
     - Add the "Same as Osc 1 Wave (O1)" to the "Osc 2 Wave"
     - Add the "Pan" parameter
     - Support the "Expression" control
+    - Fix an issue where the level of the Sub Osc changed instantly
     - Modify the "Filter Cutoff" to change more quickly
     - Modify the Presets
     - PRA32-U2 Editor: Modify the Editor Presets
