@@ -907,10 +907,7 @@ public:
       m_osc.set_osc1_morph_control<3>(controller_value);
       break;
     case MIXER_SUB_OSC  :
-      m_osc.set_mixer_sub_osc_control<0>(controller_value);
-      m_osc.set_mixer_sub_osc_control<1>(controller_value);
-      m_osc.set_mixer_sub_osc_control<2>(controller_value);
-      m_osc.set_mixer_sub_osc_control<3>(controller_value);
+      m_osc.set_mixer_sub_osc_control(controller_value);
       break;
 
     case LFO_RATE       :
@@ -995,10 +992,7 @@ public:
       break;
 
     case MIXER_OSC_MIX  :
-      m_osc.set_mixer_osc_mix<0>(controller_value);
-      m_osc.set_mixer_osc_mix<1>(controller_value);
-      m_osc.set_mixer_osc_mix<2>(controller_value);
-      m_osc.set_mixer_osc_mix<3>(controller_value);
+      m_osc.set_mixer_osc_mix(controller_value);
       break;
 
     case OSC_2_COARSE   :
