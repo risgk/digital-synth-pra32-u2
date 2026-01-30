@@ -1294,19 +1294,19 @@ public:
         m_eg[0].process_at_low_rate();
         m_eg[1].process_at_low_rate();
         int16_t lfo_output = m_lfo.get_output<0>();
-        m_osc.process_at_low_rate_a<0>(lfo_output, m_eg[0].get_output());
+        m_osc.process_at_low_rate<0>(lfo_output, m_eg[0].get_output());
         m_filter[0].process_at_low_rate(m_count >> 2, m_eg[0].get_output(), lfo_output, m_osc.get_osc_pitch(0));
         m_amp[0].process_at_low_rate(m_eg[1].get_output());
       }
       break;
     case 0x01:
       {
-        m_osc.process_at_low_rate_b(m_count >> 2, noise_int15);
+        m_osc.process_at_low_rate_global(m_count >> 2, noise_int15);
 
         m_eg[2].process_at_low_rate();
         m_eg[3].process_at_low_rate();
         int16_t lfo_output = m_lfo.get_output<1>();
-        m_osc.process_at_low_rate_a<1>(lfo_output, m_eg[2].get_output());
+        m_osc.process_at_low_rate<1>(lfo_output, m_eg[2].get_output());
         m_filter[1].process_at_low_rate(m_count >> 2, m_eg[2].get_output(), lfo_output, m_osc.get_osc_pitch(1));
         m_amp[1].process_at_low_rate(m_eg[3].get_output());
 
@@ -1318,7 +1318,7 @@ public:
         m_eg[4].process_at_low_rate();
         m_eg[5].process_at_low_rate();
         int16_t lfo_output = m_lfo.get_output<2>();
-        m_osc.process_at_low_rate_a<2>(lfo_output, m_eg[4].get_output());
+        m_osc.process_at_low_rate<2>(lfo_output, m_eg[4].get_output());
         m_filter[2].process_at_low_rate(m_count >> 2, m_eg[4].get_output(), lfo_output, m_osc.get_osc_pitch(2));
         m_amp[2].process_at_low_rate(m_eg[5].get_output());
 
@@ -1330,7 +1330,7 @@ public:
         m_eg[6].process_at_low_rate();
         m_eg[7].process_at_low_rate();
         int16_t lfo_output = m_lfo.get_output<3>();
-        m_osc.process_at_low_rate_a<3>(lfo_output, m_eg[6].get_output());
+        m_osc.process_at_low_rate<3>(lfo_output, m_eg[6].get_output());
         m_filter[3].process_at_low_rate(m_count >> 2, m_eg[6].get_output(), lfo_output, m_osc.get_osc_pitch(3));
         m_amp[3].process_at_low_rate(m_eg[7].get_output());
 
