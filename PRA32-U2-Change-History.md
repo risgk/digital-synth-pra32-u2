@@ -6,7 +6,7 @@
     - Add the "Same as Osc 1 Wave (O1)" to the "Osc 2 Wave"
     - Add the "Pan" parameter
     - Support the "Expression" control
-    - Modify the "Filter Cutoff" to change more quickly
+    - Modify the "Osc 1 Morph" and the "Filter Cutoff" to change more quickly
     - Modify the Presets
     - PRA32-U2 Editor: Modify the Editor Presets
     - PRA32-U2/P: Support Shift + Prev/Next Key
