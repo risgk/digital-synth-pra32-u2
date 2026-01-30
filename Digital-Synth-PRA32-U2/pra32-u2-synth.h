@@ -1537,7 +1537,6 @@ private:
     if (m_voice_mode != new_voice_mode) {
       m_voice_mode = new_voice_mode;
       all_notes_off();
-      m_osc.set_gate_enabled(false);
     }
   }
 
