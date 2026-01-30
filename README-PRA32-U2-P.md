@@ -145,8 +145,8 @@
 | A-13 EG d      | EG Mod Amt          | EG Mod Dst       |
 | A-14 EG e      | EG Filter Amt       | EG Velo Sens     |
 | A-15 Amp a     | Amp Attack          | Amp Decay        |
-| A-16 Amp c     | Amp Sustain         | Amp Release      |
-| A-17 Amp b     | Amp Gain            | Amp Velo Sens    |
+| A-16 Amp b     | Amp Sustain         | Amp Release      |
+| A-17 Amp c     | Amp Gain            | Amp Velo Sens    |
 | A-18 LFO a     | LFO Wave            | LFO Fade Time    |
 | A-19 LFO b     | LFO Rate            | LFO Depth        |
 | A-20 LFO c     | LFO Mod Amt         | LFO Mod Dst      |
