@@ -74,7 +74,7 @@ static uint8_t s_program_table_parameters[] = {
 
   AFT_T_LFO_AMT  ,
   VOICE_ASGN_MODE,
-
+  PAN            ,
 
 
   CHORUS_MIX     ,
@@ -371,7 +371,7 @@ public:
 
     std::memcpy(m_program_table[AFT_T_LFO_AMT  ], g_preset_table_AFT_T_LFO_AMT  , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[VOICE_ASGN_MODE], g_preset_table_VOICE_ASGN_MODE, sizeof(m_program_table[0]));
-
+    std::memcpy(m_program_table[PAN            ], g_preset_table_PAN            , sizeof(m_program_table[0]));
 
 
     std::memcpy(m_program_table[CHORUS_MIX     ], g_preset_table_CHORUS_MIX     , sizeof(m_program_table[0]));
@@ -1054,6 +1054,10 @@ public:
       m_voice_asgn_mode = (controller_value < 64) ? 1 : 2;
       break;
 
+    case PAN            :
+      m_panner.set_pan(controller_value);
+      break;
+
     case AFT_T_LFO_AMT  :
       m_lfo.set_pressure_amt(controller_value);
       break;
@@ -1386,7 +1390,7 @@ public:
     int32_t panner_output_l = m_panner.process(voice_mixer_output, panner_output_r);
 
     int32_t chorus_fx_output_r;
-    int32_t chorus_fx_output_l = m_chorus_fx.process(voice_mixer_output, voice_mixer_output, chorus_fx_output_r);
+    int32_t chorus_fx_output_l = m_chorus_fx.process(panner_output_l, panner_output_r, chorus_fx_output_r);
 
     int32_t delay_fx_output_r;
     int32_t delay_fx_output_l = m_delay_fx.process(chorus_fx_output_l, chorus_fx_output_r, delay_fx_output_r);

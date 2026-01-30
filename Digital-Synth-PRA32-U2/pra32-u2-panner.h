@@ -25,7 +25,7 @@ PRA32_U2_Panner()
   , m_gain_linear_r(11585)
   {
     for (uint8_t i = 1; i < OSC_PAN_TABLE_LENGTH - 1; ++i) {
-      m_pan_table[i - 1] = static_cast<int16_t>(std::sin((PI * (i - 1)) / (2 * (OSC_PAN_TABLE_LENGTH - 1))) * (1 << 14)) << 2;
+      m_pan_table[i] = static_cast<int16_t>(std::sin((PI * (i - 1)) / (2 * (OSC_PAN_TABLE_LENGTH - 1))) * (1 << 14)) << 2;
     }
 
     m_pan_table[0]                        = m_pan_table[1];

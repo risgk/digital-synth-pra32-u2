@@ -147,16 +147,17 @@
 | A-15 Amp a     | Amp Attack          | Amp Decay        |
 | A-16 Amp b     | Amp Sustain         | Amp Release      |
 | A-17 Amp c     | Amp Gain            | Amp Velo Sens    |
-| A-18 LFO a     | LFO Wave            | LFO Fade Time    |
-| A-19 LFO b     | LFO Rate            | LFO Depth        |
-| A-20 LFO c     | LFO Mod Amt         | LFO Mod Dst      |
-| A-21 LFO d     | LFO Filter Amt      |                  |
-| A-22 Breath    | Breath Filter Amt   | Breath Amp Mod   |
-| A-23 Aft Touch | Aft Touch LFO Amt   |                  |
-| A-24 Chorus a  | Chorus Level        |                  |
-| A-25 Chorus b  | Chorus Rate         | Chorus Depth     |
-| A-26 Delay a   | Delay Level         | Delay Mode       |
-| A-27 Delay b   | Delay Time          | Delay Feedback   |
+| A-18 Panner    | Pan                 |                  |
+| A-19 LFO a     | LFO Wave            | LFO Fade Time    |
+| A-20 LFO b     | LFO Rate            | LFO Depth        |
+| A-21 LFO c     | LFO Mod Amt         | LFO Mod Dst      |
+| A-22 LFO d     | LFO Filter Amt      |                  |
+| A-23 Breath    | Breath Filter Amt   | Breath Amp Mod   |
+| A-24 Aft Touch | Aft Touch LFO Amt   |                  |
+| A-25 Chorus a  | Chorus Level        |                  |
+| A-26 Chorus b  | Chorus Rate         | Chorus Depth     |
+| A-27 Delay a   | Delay Level         | Delay Mode       |
+| A-28 Delay b   | Delay Time          | Delay Feedback   |
 | B-00 Panel a   | Panel Play Mode     | Panel MIDI Ch    |
 | B-01 Panel b   | Panel Play Pitch    | Panel Play Velo  |
 | B-02 Panel c   | Panel Scale         | Panel Pitch Ofst |
