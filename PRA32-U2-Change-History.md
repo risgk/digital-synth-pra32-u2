@@ -9,6 +9,7 @@
     - Modify the Presets
     - PRA32-U2 Editor: Modify the Editor Presets
     - PRA32-U2/P: Support Shift + Prev/Next Key
+    - PRA32-U2/P: Fix the page names "Amp b" and "Amp c"
     - Improve the code
     - Modify the description of the "EG/LFO Mod Dst", the "Voice Mode", and the "LFO Wave" options
     - Tested with Arduino-Pico version 5.5.0
