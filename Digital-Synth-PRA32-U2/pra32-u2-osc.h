@@ -407,45 +407,20 @@ public:
   }
 
   template <uint8_t N>
-  INLINE void process_at_low_rate_a(int16_t lfo_level, int16_t eg_level) {
+  INLINE void process_at_low_rate(int16_t lfo_level, int16_t eg_level) {
     update_pitch_current<N>();
     update_osc1_shape<N>(lfo_level, eg_level);
     update_osc1_shape_effective<N>();
     update_freq_base<N + 0>(lfo_level, eg_level);
     update_freq_base<N + 4>(lfo_level, eg_level);
+    update_freq_offset<N + 0>();
+    update_freq_offset<N + 4>();
   }
 
-  INLINE void process_at_low_rate_b(uint8_t count, int16_t noise_int15) {
-    switch (count & (0x08 - 1)) {
-    case 0x00:
-      update_freq_offset<0>(noise_int15);
-      break;
-    case 0x01:
-      update_freq_offset<4>(noise_int15);
-      break;
-    case 0x02:
-      update_freq_offset<1>(noise_int15);
-      break;
-    case 0x03:
-      update_freq_offset<5>(noise_int15);
-      update_mixer_control_effective();
-      break;
-    case 0x04:
-      update_freq_offset<2>(noise_int15);
-      break;
-    case 0x05:
-      update_freq_offset<6>(noise_int15);
-      break;
-    case 0x06:
-      update_freq_offset<3>(noise_int15);
-      break;
-    case 0x07:
-      update_freq_offset<7>(noise_int15);
-      update_osc1_morph_control_effective();
-      break;
-    }
-
+  INLINE void process_at_low_rate_global(uint8_t count, int16_t noise_int15) {
+    update_osc1_morph_control_effective();
     update_osc1_shape_control_effective();
+    update_mixer_control_effective();
   }
 
   template <uint8_t N>
@@ -723,8 +698,7 @@ private:
   }
 
   template <uint8_t N>
-  INLINE void update_freq_offset(int16_t noise_int15) {
-    static_cast<void>(noise_int15);
+  INLINE void update_freq_offset() {
     m_freq_offset[N] = (N >> 2) << 1;
     m_freq[N] = m_freq_base[N] + m_freq_offset[N];
   }
