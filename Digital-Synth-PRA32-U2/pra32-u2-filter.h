@@ -6,10 +6,6 @@
 #include "pra32-u2-common.h"
 #include "pra32-u2-filter-table.h"
 
-static INLINE int32_t mul_s32_s32_h41(int32_t x, int32_t y) {
-  return (static_cast<int64_t>(x) * y) >> 23;
-}
-
 static INLINE int32_t soft_clip(int32_t value) {
     // Note: Without anti-aliasing (oversampling)
     int32_t one       = (1 << 23);
@@ -17,7 +13,8 @@ static INLINE int32_t soft_clip(int32_t value) {
     volatile int32_t clamped =
          (value >  (+one))                       * (+two_three)
       +                       (value <  (-one))  * (-two_three)
-      + ((value <= (+one)) && (value >= (-one))) * (value - (mul_s32_s32_h41(mul_s32_s32_h41(value, value), value) / 3));
+      + ((value <= (+one)) && (value >= (-one))) *
+        (value - (multiply_shift_right(multiply_shift_right(value << 5, value << 4, 32) << 5, value << 4, 32) / 3));
     return clamped;
 }
 
@@ -72,7 +69,7 @@ public:
   }
 
   INLINE void set_cutoff(uint8_t controller_value) {
-    m_cutoff_control = controller_value << (1 + 2);
+    m_cutoff_control = controller_value;
   }
 
   INLINE void set_resonance(uint8_t controller_value) {
@@ -135,11 +132,11 @@ public:
 #if 1
     // Nonlinear Biquad Filter, Transposed Direct Form-II
     int32_t x_0 = audio_input_int24;
-    int32_t y_0 =           m_z_1 + (mul_s32_s32_h32(m_b_2_over_a_0, x_0)      << (32 - FILTER_TABLE_FRACTION_BITS));
-    m_z_1       = soft_clip(m_z_2 + (mul_s32_s32_h32(m_b_2_over_a_0, x_0 << 1) << (32 - FILTER_TABLE_FRACTION_BITS))
-                                  - (mul_s32_s32_h32(m_a_1_over_a_0, y_0)      << (32 - FILTER_TABLE_FRACTION_BITS)));
-    m_z_2       = soft_clip(        (mul_s32_s32_h32(m_b_2_over_a_0, x_0)      << (32 - FILTER_TABLE_FRACTION_BITS))
-                                  - (mul_s32_s32_h32(m_a_2_over_a_0, y_0)      << (32 - FILTER_TABLE_FRACTION_BITS)));
+    int32_t y_0 =           m_z_1 + (multiply_shift_right(m_b_2_over_a_0, x_0,      32) << (32 - FILTER_TABLE_FRACTION_BITS));
+    m_z_1       = soft_clip(m_z_2 + (multiply_shift_right(m_b_2_over_a_0, x_0 << 1, 32) << (32 - FILTER_TABLE_FRACTION_BITS))
+                                  - (multiply_shift_right(m_a_1_over_a_0, y_0,      32) << (32 - FILTER_TABLE_FRACTION_BITS)));
+    m_z_2       = soft_clip(        (multiply_shift_right(m_b_2_over_a_0, x_0,      32) << (32 - FILTER_TABLE_FRACTION_BITS))
+                                  - (multiply_shift_right(m_a_2_over_a_0, y_0,      32) << (32 - FILTER_TABLE_FRACTION_BITS)));
 
     if (m_filter_mode >= 64) {
       // high pass
@@ -154,12 +151,16 @@ public:
 
 private:
   INLINE void update_cutoff_control_effective() {
+#if 1
+    m_cutoff_control_effective = m_cutoff_control;
+#else
     m_cutoff_control_effective += (m_cutoff_control_effective < m_cutoff_control);
     m_cutoff_control_effective -= (m_cutoff_control_effective > m_cutoff_control);
+#endif
   }
 
   INLINE void update_coefs(int16_t eg_input, int16_t lfo_input, uint16_t osc_pitch) {
-    int16_t cutoff_candidate = m_cutoff_control_effective;
+    int16_t cutoff_candidate = m_cutoff_control_effective << (1 + 2);
     cutoff_candidate += (m_cutoff_eg_amt[0] * eg_input) >> (14 - 2);
     cutoff_candidate += (m_cutoff_eg_amt[1] * eg_input) >> (14 - 2);
 
@@ -168,10 +169,7 @@ private:
     cutoff_candidate += (((osc_pitch - (60 << 8)) * m_cutoff_pitch_amt) + (1 << ((10 - 1) - 2))) >> (10 - 2);
     cutoff_candidate += (m_breath_controller * m_cutoff_breath_amt) >> (14 - 2);
 
-    // cutoff_target = clamp(cutoff_candidate, 0, ((254 << 2) + 1))
-    volatile int16_t cutoff_target = cutoff_candidate - ((254 << 2) + 1);
-    cutoff_target = (cutoff_target < 0) * cutoff_target + ((254 << 2) + 1);
-    cutoff_target = (cutoff_target > 0) * cutoff_target;
+    volatile int16_t cutoff_target = clamp(cutoff_candidate, 0, ((254 << 2) + 1));
 
     for (uint32_t i = 0; i < (4 * 2); ++i) {
       m_cutoff_current += (m_cutoff_current < cutoff_target);

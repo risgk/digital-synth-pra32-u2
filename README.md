@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 v2.0.0
+# Digital Synth PRA32-U2 v2.1.0
 
-- 2026-01-07 ISGK Instruments
+- 2026-02-01 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 
@@ -29,7 +29,7 @@
     - Info: <https://www.arduino.cc/en/software>
 - Please install Arduino-Pico = **Raspberry Pi Pico/RP2040/RP2350** (by Earle F. Philhower, III) core
     - Additional Board Manager URL: <https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json>
-    - This sketch is tested with version **5.4.4**: <https://github.com/earlephilhower/arduino-pico/releases/tag/5.4.4>
+    - This sketch is tested with version **5.5.0**: <https://github.com/earlephilhower/arduino-pico/releases/tag/5.5.0>
     - Info: <https://github.com/earlephilhower/arduino-pico>
 - Please install Arduino **MIDI Library** (by Francois Best, lathoub)
     - This sketch is tested with version **5.0.2**: <https://github.com/FortySevenEffects/arduino_midi_library/releases/tag/5.0.2>
@@ -191,9 +191,8 @@ graph LR
     end
     V1A --> VM[Voice Mixer]
     V2[Voice 2] & V3[Voice 3] & V4[Voice 4] --> VM
-    VM --> C[Chorus FX] --> D[Delay FX] --> AO[Audio Out]
-    C --> D
-    D --> AO
+    VM --> P[Panner] --> C[Chorus FX] --> D[Delay FX] --> AO[Audio Out]
+    P --> C --> D --> AO
     N[Noise Gen]  --> V1O2 & V1OM & V2 & V3 & V4
     N -.-> L[LFO w/ S/H]
     L -.-> V1O1 & V1O2 & V1F & V2 & V3 & V4
@@ -233,11 +232,11 @@ graph LR
 
 ![CC0](http://i.creativecommons.org/p/zero/1.0/88x31.png)
 
-**Digital Synth PRA32-U2 v2.0.0 by ISGK Instruments (Ryo Ishigaki)**
+**Digital Synth PRA32-U2 v2.1.0 by ISGK Instruments (Ryo Ishigaki)**
 
 To the extent possible under law, ISGK Instruments (Ryo Ishigaki)
 has waived all copyright and related or neighboring rights
-to Digital Synth PRA32-U2 v2.0.0.
+to Digital Synth PRA32-U2 v2.1.0.
 
 You should have received a copy of the CC0 legalcode along with this
 work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.

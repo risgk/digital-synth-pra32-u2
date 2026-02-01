@@ -61,11 +61,7 @@ public:
       LFO_WAVEFORM_SQUARE,
     };
 
-    volatile int32_t index = ((controller_value * 10) + 127) / 254;
-
-    // index = min(index, 5)
-    index = index - 5;
-    index = (index < 0) * index + 5;
+    int32_t index = ((controller_value * 10) + 127) / 254;
 
     m_lfo_waveform = lfo_waveform_table[index];
   }

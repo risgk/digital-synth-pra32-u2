@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 Parameter Guide v2.0.0
+# Digital Synth PRA32-U2 Parameter Guide v2.1.0
 
-- 2026-01-07 ISGK Instruments
+- 2026-02-01 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 ## Control Change Parameters
@@ -68,12 +68,18 @@
         - 64: Saw 100%
         - 96: Saw 100% + Saw 50%
         - 127: Saw 100% + Saw 100% (max)
-- Osc 2 Wave [Saw|Sqr|Tri|Sin|-|Nos]
+- Osc 2 Wave [Saw|Sqr|Tri|Sin|O1|Nos]
     - 0 (0-12): Saw Wave
     - 25 (13-38): Square Wave
     - 51 (39-63): Triangle Wave
     - 76 (64-88): Sine Wave
-    - 102 (89-114): Sine Wave, Reserved
+    - 102 (89-114): Same as Osc 1 Wave
+        - Saw Wave
+        - Square Wave
+        - Triangle Wave
+        - Sine Wave
+        - White Noise
+        - White Noise
     - 127 (115-127): White Noise
 - Mixer Osc Mix [1|2]
 - Osc 2 Coarse [-|+]
@@ -97,14 +103,15 @@
     - 124: f = 16744.0 Hz
     - 127: f = 19912.1 Hz (max)
 - Filter Resonance
-    - 16 (0-16): Q = 0.7 (min)
-    - 32 (31-32): Q = 1.0
-    - 48 (47-48): Q = 1.4
-    - 64 (63-64): Q = 2.0
-    - 80 (79-80): Q = 2.8
-    - 96 (95-96): Q = 4.0
-    - 112 (111-112): Q = 5.6
-    - 127: Q = 8.0 (max)
+    - 0: Q = 0.7 (min)
+    - 16 (15-16): Q = 1.0
+    - 32 (31-32): Q = 1.4
+    - 48 (47-48): Q = 2.0
+    - 64 (63-64): Q = 2.8
+    - 80 (79-80): Q = 4.0
+    - 96 (95-96): Q = 5.7
+    - 112 (111-112): Q = 8.0
+    - 127: Q = 11.3 (max)
 - Filter EG Amt [-|+], LFO Filter Amt [-|+]
     - -60 (4): -120 (min)
     - +60 (124): +120 (max)
@@ -185,17 +192,17 @@
     - Cutoff
         - -60 (4): -120 (min)
         - +60 (124): +120 (max)
-- EG Mod Dst [P|F|-|2P|-|1S], LFO Mod Dst [P|F|-|2P|-|1S]
+- EG Mod Dst [P|F|2P|2P|1S|1S], LFO Mod Dst [P|F|2P|2P|1S|1S]
     - 0 (0-12): Osc 1 & 2 Pitch
     - 25 (13-38): Filter Cutoff
-    - 51 (39-63): Osc 2 Pitch, Reserved
+    - 51 (39-63): Osc 2 Pitch
     - 76 (64-88): Osc 2 Pitch
-    - 102 (89-114): Osc 1 Shape, Reserved
+    - 102 (89-114): Osc 1 Shape
     - 127 (115-127): Osc 1 Shape
-- Voice Mode [Pol|-|-|Mon|LP|Lgt]
+- Voice Mode [Pol|Pol|Mon|Mon|LP|Lgt]
     - 0 (0-12): Polyphonic (LFO Single Trigger)
-    - 25 (13-38): Polyphonic (LFO Single Trigger), Reserved
-    - 51 (39-63): Monophonic (EG & LFO Multi Trigger), Reserved
+    - 25 (13-38): Polyphonic (LFO Single Trigger)
+    - 51 (39-63): Monophonic (EG & LFO Multi Trigger)
     - 76 (64-88): Monophonic (EG & LFO Multi Trigger)
     - 102 (89-114): Legato Portamento (Monophonic, EG & LFO Single Trigger, Auto Portamento)
     - 127 (115-127): Legato (Monophonic, EG & LFO Single Trigger)
@@ -204,10 +211,10 @@
     - 1: Portamento Time 1.1 ms
     - 64: Portamento Time 100 ms
     - 127: Portamento Time 9.3 s
-- LFO Wave [Tri|Sin|-|Saw|S&H|Sqr]
+- LFO Wave [Tri|Sin|Saw|Saw|S&H|Sqr]
     - 0 (0-12): Triangle Wave (Key Trigger Off, -0.5 to +0.5)
     - 25 (13-38): Sine Wave (Key Trigger Off, -0.5 to +0.5)
-    - 51 (39-63): Saw Wave (Key Trigger On, -0.5 to +0.5), Reserved
+    - 51 (39-63): Saw Wave (Key Trigger On, -0.5 to +0.5)
     - 76 (64-88): Saw Wave (Key Trigger On, -0.5 to +0.5)
     - 102 (89-114): Sample & Hold (Key Trigger On, -0.5 to +0.5)
     - 127 (115-127): Square Wave (Key Trigger On, 0.0 to 1.0)

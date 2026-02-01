@@ -1,6 +1,6 @@
 ```
-  [Polyphonic Synthesizer]                                        Date: 2026-01-07                      
-  Model: Digital Synth PRA32-U2   MIDI Implementation Chart       Version: 2.0.0                        
+  [Polyphonic Synthesizer]                                        Date: 2026-02-01                      
+  Model: Digital Synth PRA32-U2   MIDI Implementation Chart       Version: 2.1.0                        
 +-------------------------------+---------------+---------------+--------------------------------------+
 | Function...                   | Transmitted   | Recognized    | Remarks                              |
 +-------------------------------+---------------+---------------+--------------------------------------+
@@ -24,6 +24,7 @@
 +-------------------------------+---------------+---------------+--------------------------------------+
 | Control                     1 | x             | o             | Modulation                           |
 | Change                      2 | x             | o             | Breath Controller                    |
+|                            11 | x             | o             | Expression                           |
 |                            64 | x             | o             | Sustain Pedal [Off|On]               |
 |                               |               |               |                                      |
 |                               |               |               |                                      |
@@ -32,7 +33,7 @@
 |                            19 | x             | o             | Osc 1 Shape $2                       |
 |                            20 | x             | o             | Osc 1 Morph $2                       |
 |                               |               |               |                                      |
-|                           104 | x             | o             | Osc 2 Wave [Saw|Sqr|Tri|Sin|-|Nos]   |
+|                           104 | x             | o             | Osc 2 Wave [Saw|Sqr|Tri|Sin|O1|Nos]  |
 |                            21 | x             | o             | Mixer Osc Mix [1|2]                  |
 |                            85 | x             | o             | Osc 2 Coarse [-|+]                   |
 |                            76 | x             | o             | Osc 2 Pitch [-|+]                    |
@@ -48,17 +49,17 @@
 |                            72 | x             | o             | EG Release                           |
 |                               |               |               |                                      |
 |                            89 | x             | o             | EG Mod Amt [-|+]                     |
-|                             8 | x             | o             | EG Mod Dst [P|F|-|2P|-|1S]           |
-|                            18 | x             | o             | Voice Mode [Pol|-|-|Mon|LP|Lgt]      |
+|                             8 | x             | o             | EG Mod Dst [P|F|2P|2P|1S|1S]         |
+|                            18 | x             | o             | Voice Mode [Pol|Pol|Mon|Mon|LP|Lgt]  |
 |                             5 | x             | o             | Portamento                           |
 |                               |               |               |                                      |
-|                            33 | x             | o             | LFO Wave [Tri|Sin|-|Saw|S&H|Sqr]     |
+|                            33 | x             | o             | LFO Wave [Tri|Sin|Saw|Saw|S&H|Sqr]   |
 |                            56 | x             | o             | LFO Fade Time                        |
 |                             3 | x             | o             | LFO Rate                             |
 |                            17 | x             | o             | LFO Depth                            |
 |                               |               |               |                                      |
 |                            13 | x             | o             | LFO Mod Amt [-|+]                    |
-|                           103 | x             | o             | LFO Mod Dst [P|F|-|2P|-|1S]          |
+|                           103 | x             | o             | LFO Mod Dst [P|F|2P|2P|1S|1S]        |
 |                            25 | x             | o             | LFO Filter Amt [-|+]                 |
 |                            15 | x             | o             | Amp Gain                             |
 |                               |               |               |                                      |
@@ -79,7 +80,7 @@
 |                               |               |               |                                      |
 |                           109 | x             | o             | After Touch LFO Amt                  |
 |                           110 | x             | o             | Voice Assign Mode [1|2]              |
-|                               |               |               |                                      |
+|                            10 | x             | o             | Pan                                  |
 |                               |               |               |                                      |
 |                               |               |               |                                      |
 |                            93 | x             | o             | Chorus Level                         |
