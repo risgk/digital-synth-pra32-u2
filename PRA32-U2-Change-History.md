@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v2.1.0 (2026-??-??):
+- v2.1.0 (2026-02-01):
     - Increase the Q values corresponding to the "Filter Resonance" control values
         - The new Q value range is from 0.7 to 11.3
     - Add the "Same as Osc 1 Wave (O1)" to the "Osc 2 Wave"
