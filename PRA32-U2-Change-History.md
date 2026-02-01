@@ -14,6 +14,7 @@
     - PRA32-U2/P: Fix the page names "Amp b" and "Amp c"
     - Improve the code
     - Modify the description of the "EG/LFO Mod Dst", the "Voice Mode", and the "LFO Wave" options
+    - Fix the "Wave Table Graphs" in the "README"
     - Tested with Arduino-Pico version 5.5.0
 - v2.0.0 (2026-01-07):
     - **Improve the Filter**: Introduce soft clipping (without anti-aliasing)
