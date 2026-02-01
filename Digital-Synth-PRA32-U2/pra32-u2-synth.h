@@ -4,6 +4,7 @@
 #include "pra32-u2-osc.h"
 #include "pra32-u2-filter.h"
 #include "pra32-u2-amp.h"
+#include "pra32-u2-panner.h"
 #include "pra32-u2-lfo.h"
 #include "pra32-u2-noise-gen.h"
 #include "pra32-u2-eg.h"
@@ -73,7 +74,7 @@ static uint8_t s_program_table_parameters[] = {
 
   AFT_T_LFO_AMT  ,
   VOICE_ASGN_MODE,
-
+  PAN            ,
 
 
   CHORUS_MIX     ,
@@ -189,6 +190,7 @@ class PRA32_U2_Synth {
   PRA32_U2_Osc      m_osc;
   PRA32_U2_Filter   m_filter[4];
   PRA32_U2_Amp      m_amp[4];
+  PRA32_U2_Panner   m_panner;
   PRA32_U2_NoiseGen m_noise_gen;
   PRA32_U2_LFO      m_lfo;
   PRA32_U2_EG       m_eg[2 * 4];
@@ -244,13 +246,14 @@ public:
   : m_osc()
   , m_filter()
   , m_amp()
+  , m_panner()
   , m_noise_gen()
   , m_lfo()
   , m_eg()
   , m_chorus_fx()
   , m_delay_fx()
 
-  , m_count()
+  , m_count(0xFFFFFFFFu)
 
   , m_note_queue()
   , m_note_on_number()
@@ -309,11 +312,13 @@ public:
     m_amp[2].set_gain(127);
     m_amp[3].set_gain(127);
 
+    m_panner.set_pan(64);
+
     m_eg_osc_amt = 64;
     m_lfo_osc_amt = 64;
   }
 
-  INLINE void initialize() {
+  /* INLINE */ void __not_in_flash_func(initialize)() {
     std::memcpy(m_program_table[OSC_1_WAVE     ], g_preset_table_OSC_1_WAVE     , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[MIXER_SUB_OSC  ], g_preset_table_MIXER_SUB_OSC  , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[OSC_1_SHAPE    ], g_preset_table_OSC_1_SHAPE    , sizeof(m_program_table[0]));
@@ -366,7 +371,7 @@ public:
 
     std::memcpy(m_program_table[AFT_T_LFO_AMT  ], g_preset_table_AFT_T_LFO_AMT  , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[VOICE_ASGN_MODE], g_preset_table_VOICE_ASGN_MODE, sizeof(m_program_table[0]));
-
+    std::memcpy(m_program_table[PAN            ], g_preset_table_PAN            , sizeof(m_program_table[0]));
 
 
     std::memcpy(m_program_table[CHORUS_MIX     ], g_preset_table_CHORUS_MIX     , sizeof(m_program_table[0]));
@@ -461,6 +466,8 @@ public:
 
     program_change(PROGRAM_NUMBER_DEFAULT);
 
+    reset_all_controllers();
+
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
     for (uint32_t i = 0; i < sizeof(s_program_table_panel_parameters) / sizeof(s_program_table_panel_parameters[0]); ++i) {
       uint32_t control_number = s_program_table_panel_parameters[i];
@@ -494,13 +501,10 @@ public:
 
           if (m_voice_mode == VOICE_LEGATO_PORTA) {
             m_osc.set_portamento<0>(0);
-            m_osc.set_portamento<2>(0);
           } else {
             m_osc.set_portamento<0>(m_portamento);
-            m_osc.set_portamento<2>(m_portamento);
           }
           m_osc.note_on<0>(note_number);
-          m_osc.note_on<2>(note_number);
           m_lfo.trigger_lfo();
           m_eg[0].note_on(velocity);
           m_eg[1].note_on(velocity);
@@ -511,9 +515,7 @@ public:
           m_note_on_number[0] = note_number;
 
           m_osc.set_portamento<0>(m_portamento);
-          m_osc.set_portamento<2>(m_portamento);
           m_osc.note_on<0>(note_number);
-          m_osc.note_on<2>(note_number);
         }
       } else {
         ++m_note_on_total_count;
@@ -525,9 +527,7 @@ public:
         m_note_on_number[0] = note_number;
 
         m_osc.set_portamento<0>(m_portamento);
-        m_osc.set_portamento<2>(m_portamento);
         m_osc.note_on<0>(note_number);
-        m_osc.note_on<2>(note_number);
         m_lfo.trigger_lfo();
         m_eg[0].note_on(velocity);
         m_eg[1].note_on(velocity);
@@ -743,9 +743,7 @@ public:
 
         if (m_note_on_number[0] != NOTE_NUMBER_INVALID) {
           m_osc.set_portamento<0>(m_portamento);
-          m_osc.set_portamento<2>(m_portamento);
           m_osc.note_on<0>(m_note_on_number[0]);
-          m_osc.note_on<2>(m_note_on_number[0]);
 
           if (m_voice_mode == VOICE_MONOPHONIC) {
             m_lfo.trigger_lfo();
@@ -853,6 +851,7 @@ public:
   INLINE void reset_all_controllers() {
     pitch_bend(0, 64);
     control_change(MODULATION      , 0  );
+    control_change(EXPRESSION      , 127);
     control_change(BTH_CONTROLLER  , 0  );
     control_change(SUSTAIN_PEDAL   , 0  );
     after_touch_channel(0);
@@ -1055,6 +1054,10 @@ public:
       m_voice_asgn_mode = (controller_value < 64) ? 1 : 2;
       break;
 
+    case PAN            :
+      m_panner.set_pan(controller_value);
+      break;
+
     case AFT_T_LFO_AMT  :
       m_lfo.set_pressure_amt(controller_value);
       break;
@@ -1097,7 +1100,14 @@ public:
       m_eg[7].set_velocity_sensitivity(controller_value);
       break;
 
-    case BTH_CONTROLLER    :
+    case EXPRESSION     :
+      m_amp[0].set_expression(controller_value);
+      m_amp[1].set_expression(controller_value);
+      m_amp[2].set_expression(controller_value);
+      m_amp[3].set_expression(controller_value);
+      break;
+
+    case BTH_CONTROLLER :
       set_breath_controller(controller_value);
       break;
 
@@ -1271,67 +1281,60 @@ public:
 #endif  // defined(ARDUINO_ARCH_RP2040)
   }
 
-  INLINE int16_t process(int16_t& right_output_int16) {
+  /* INLINE */ int16_t __not_in_flash_func(process)(int16_t& right_output_int16) {
     ++m_count;
 
     int16_t noise_int15 = m_noise_gen.process();
 
     switch (m_count & (0x04 - 1)) {
     case 0x00:
-      m_eg[0].process_at_low_rate();
-      m_eg[1].process_at_low_rate();
-      break;
-    case 0x01:
-      m_eg[2].process_at_low_rate();
-      m_eg[3].process_at_low_rate();
-      break;
-    case 0x02:
-      m_eg[4].process_at_low_rate();
-      m_eg[5].process_at_low_rate();
-      break;
-    case 0x03:
-      m_eg[6].process_at_low_rate();
-      m_eg[7].process_at_low_rate();
-      m_lfo.process_at_low_rate(m_count >> 2, noise_int15);
-      break;
-    }
-
-    switch (m_count & (0x04 - 1)) {
-    case 0x00:
       {
+        m_lfo.process_at_low_rate(m_count >> 2, noise_int15);
+
+        m_eg[0].process_at_low_rate();
+        m_eg[1].process_at_low_rate();
         int16_t lfo_output = m_lfo.get_output<0>();
-        m_osc.process_at_low_rate_a<0>(lfo_output, m_eg[0].get_output());
-        m_osc.process_at_low_rate_b(m_count >> 2, noise_int15);
-        uint16_t osc_pitch_0 = (60 << 8);
-        osc_pitch_0 = m_osc.get_osc_pitch(0);
-        m_filter[0].process_at_low_rate(m_count >> 2, m_eg[0].get_output(), lfo_output, osc_pitch_0);
+        m_osc.process_at_low_rate<0>(lfo_output, m_eg[0].get_output());
+        m_filter[0].process_at_low_rate(m_count >> 2, m_eg[0].get_output(), lfo_output, m_osc.get_osc_pitch(0));
         m_amp[0].process_at_low_rate(m_eg[1].get_output());
       }
       break;
     case 0x01:
       {
+        m_osc.process_at_low_rate_global(m_count >> 2, noise_int15);
+
+        m_eg[2].process_at_low_rate();
+        m_eg[3].process_at_low_rate();
         int16_t lfo_output = m_lfo.get_output<1>();
-        m_osc.process_at_low_rate_a<1>(lfo_output, m_eg[2].get_output());
+        m_osc.process_at_low_rate<1>(lfo_output, m_eg[2].get_output());
         m_filter[1].process_at_low_rate(m_count >> 2, m_eg[2].get_output(), lfo_output, m_osc.get_osc_pitch(1));
         m_amp[1].process_at_low_rate(m_eg[3].get_output());
+
+        m_panner.process_at_low_rate();
       }
       break;
     case 0x02:
       {
+        m_eg[4].process_at_low_rate();
+        m_eg[5].process_at_low_rate();
         int16_t lfo_output = m_lfo.get_output<2>();
-        m_osc.process_at_low_rate_a<2>(lfo_output, m_eg[4].get_output());
+        m_osc.process_at_low_rate<2>(lfo_output, m_eg[4].get_output());
         m_filter[2].process_at_low_rate(m_count >> 2, m_eg[4].get_output(), lfo_output, m_osc.get_osc_pitch(2));
         m_amp[2].process_at_low_rate(m_eg[5].get_output());
-        m_delay_fx.process_at_low_rate(m_count >> 2);
+
+        m_chorus_fx.process_at_low_rate(m_count >> 2);
       }
       break;
     case 0x03:
       {
+        m_eg[6].process_at_low_rate();
+        m_eg[7].process_at_low_rate();
         int16_t lfo_output = m_lfo.get_output<3>();
-        m_osc.process_at_low_rate_a<3>(lfo_output, m_eg[6].get_output());
+        m_osc.process_at_low_rate<3>(lfo_output, m_eg[6].get_output());
         m_filter[3].process_at_low_rate(m_count >> 2, m_eg[6].get_output(), lfo_output, m_osc.get_osc_pitch(3));
         m_amp[3].process_at_low_rate(m_eg[7].get_output());
-        m_chorus_fx.process_at_low_rate(m_count >> 2);
+
+        m_delay_fx.process_at_low_rate(m_count >> 2);
       }
       break;
     }
@@ -1378,31 +1381,22 @@ public:
     int32_t voice_mixer_output;
 
     if (m_voice_mode == VOICE_POLYPHONIC) {
-      voice_mixer_output = (amp_output[0] + amp_output[1] + m_secondary_core_processing_result) >> 1;
+      voice_mixer_output = amp_output[0] + amp_output[1] + m_secondary_core_processing_result;
     } else {
-      voice_mixer_output = (amp_output[0] + (amp_output[0] >> 1)) >> 1;
+      voice_mixer_output = amp_output[0] + (amp_output[0] >> 1);
     }
 
+    int32_t panner_output_r;
+    int32_t panner_output_l = m_panner.process(voice_mixer_output, panner_output_r);
+
     int32_t chorus_fx_output_r;
-    int32_t chorus_fx_output_l = m_chorus_fx.process(voice_mixer_output, voice_mixer_output, chorus_fx_output_r);
+    int32_t chorus_fx_output_l = m_chorus_fx.process(panner_output_l, panner_output_r, chorus_fx_output_r);
 
     int32_t delay_fx_output_r;
     int32_t delay_fx_output_l = m_delay_fx.process(chorus_fx_output_l, chorus_fx_output_r, delay_fx_output_r);
 
-    int32_t synth_output_r = delay_fx_output_r;
-    int32_t synth_output_l = delay_fx_output_l;
-
-    // synth_output_l_clamped = clamp((synth_output_l << 1), (-(INT16_MAX << 8)), (+(INT16_MAX << 8)))
-    volatile int32_t synth_output_l_clamped = (synth_output_l << 1) - (+(INT16_MAX << 8));
-    synth_output_l_clamped = (synth_output_l_clamped < 0) * synth_output_l_clamped + (+(INT16_MAX << 8)) - (-(INT16_MAX << 8));
-    synth_output_l_clamped = (synth_output_l_clamped > 0) * synth_output_l_clamped + (-(INT16_MAX << 8));
-    synth_output_l = synth_output_l_clamped;
-
-    // synth_output_r_clamped = clamp((synth_output_r << 1), (-(INT16_MAX << 8)), (+(INT16_MAX << 8)))
-    volatile int32_t synth_output_r_clamped = (synth_output_r << 1) - (+(INT16_MAX << 8));
-    synth_output_r_clamped = (synth_output_r_clamped < 0) * synth_output_r_clamped + (+(INT16_MAX << 8)) - (-(INT16_MAX << 8));
-    synth_output_r_clamped = (synth_output_r_clamped > 0) * synth_output_r_clamped + (-(INT16_MAX << 8));
-    synth_output_r = synth_output_r_clamped;
+    int32_t synth_output_r = clamp(delay_fx_output_r, (-(INT16_MAX << 8)), (+(INT16_MAX << 8)));
+    int32_t synth_output_l = clamp(delay_fx_output_l, (-(INT16_MAX << 8)), (+(INT16_MAX << 8)));
 
 #if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
     int16_t synth_output_l_int16 = (synth_output_l >> 8);
@@ -1449,7 +1443,7 @@ public:
 #endif  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
   }
 
-  INLINE boolean secondary_core_process() {
+  /* INLINE */ boolean __not_in_flash_func(secondary_core_process)() {
     boolean processed = false;
 
     if (m_secondary_core_processing_request == 1) {
@@ -1537,17 +1531,12 @@ private:
     };
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_EMULATION)
 
-    volatile int32_t index = ((controller_value * 10) + 127) / 254;
-
-    // index = min(index, 5)
-    index = index - 5;
-    index = (index < 0) * index + 5;
+    int32_t index = ((controller_value * 10) + 127) / 254;
 
     uint8_t new_voice_mode = voice_mode_table[index];
     if (m_voice_mode != new_voice_mode) {
       m_voice_mode = new_voice_mode;
       all_notes_off();
-      m_osc.set_gate_enabled(false);
     }
   }
 

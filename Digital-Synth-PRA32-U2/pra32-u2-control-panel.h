@@ -628,6 +628,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case LFO_OSC_AMT     :
   case LFO_FILTER_AMT  :
   case BTH_FILTER_AMT  :
+  case PAN             :
   case PANEL_TRANSPOSE :
     {
       std::sprintf(value_display_text, "%+3d", static_cast<int>(controller_value) - 64);
@@ -675,7 +676,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
     break;
   case OSC_2_WAVE      :
     {
-      char ary[6][5] = {"Saw","Sqr","Tri","Sin","  -","Nos"};
+      char ary[6][5] = {"Saw","Sqr","Tri","Sin"," O1","Nos"};
       uint32_t index = ((controller_value * 10) + 127) / 254;
       std::strcpy(value_display_text, ary[index]);
       result = true;
@@ -684,7 +685,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case EG_OSC_DST      :
   case LFO_OSC_DST     :
     {
-      char ary[6][5] = {"  P","  F","  -"," 2P","  -"," 1S"};
+      char ary[6][5] = {"  P","  F"," 2P"," 2P"," 1S"," 1S"};
       uint32_t index = ((controller_value * 10) + 127) / 254;
       std::strcpy(value_display_text, ary[index]);
       result = true;
@@ -692,7 +693,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
     break;
   case VOICE_MODE      :
     {
-      char ary[6][5] = {"Pol","  -","  -","Mon"," LP","Lgt"};
+      char ary[6][5] = {"Pol","Pol","Mon","Mon"," LP","Lgt"};
       uint32_t index = ((controller_value * 10) + 127) / 254;
       std::strcpy(value_display_text, ary[index]);
       result = true;
@@ -700,7 +701,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
     break;
   case LFO_WAVE        :
     {
-      char ary[6][5] = {"Tri","Sin","  -","Saw","S&H","Sqr"};
+      char ary[6][5] = {"Tri","Sin","Saw","Saw","S&H","Sqr"};
       uint32_t index = ((controller_value * 10) + 127) / 254;
       std::strcpy(value_display_text, ary[index]);
       result = true;
@@ -1133,6 +1134,20 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
       if (s_prev_key_current_value == 0) {
         // Prev key released
         if (s_prev_key_long_pressed == false) {
+#if defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
+          uint32_t shift_key_pressed = digitalRead(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
+          if (shift_key_pressed) {
+            if (s_current_page_group == 0) {
+              s_current_page_group = NUMBER_OF_PAGE_GROUPS - 1;
+            } else {
+              --s_current_page_group;
+            }
+
+            PRA32_U2_ControlPanel_update_page();
+            return;
+          }
+
+#endif  // defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
           if (s_current_page_index[s_current_page_group] == 0) {
             s_current_page_index[s_current_page_group] = g_number_of_pages[s_current_page_group] - 1;
           } else {
@@ -1140,7 +1155,9 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
           }
 
           PRA32_U2_ControlPanel_update_page();
+          return;
         }
+
         s_prev_key_long_pressed = false;
         return;
       }
@@ -1176,6 +1193,20 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
       if (s_next_key_current_value == 0) {
         // Next key released
         if (s_next_key_long_pressed == false) {
+#if defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
+          uint32_t shift_key_pressed = digitalRead(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
+          if (shift_key_pressed) {
+            if (s_current_page_group == NUMBER_OF_PAGE_GROUPS - 1) {
+              s_current_page_group = 0;
+            } else {
+              ++s_current_page_group;
+            }
+
+            PRA32_U2_ControlPanel_update_page();
+            return;
+          }
+
+#endif  // defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
           if (s_current_page_index[s_current_page_group] == g_number_of_pages[s_current_page_group] - 1) {
             s_current_page_index[s_current_page_group] = 0;
           } else {
@@ -1183,7 +1214,9 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
           }
 
           PRA32_U2_ControlPanel_update_page();
+          return;
         }
+
         s_next_key_long_pressed = false;
         return;
       }

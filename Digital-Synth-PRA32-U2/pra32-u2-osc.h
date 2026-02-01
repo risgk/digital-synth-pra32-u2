@@ -28,6 +28,7 @@ class PRA32_U2_Osc {
   int16_t        m_pitch_eg_amt[2];
   int16_t        m_pitch_lfo_amt[2];
 
+  uint8_t        m_waveform_index[2];
   uint8_t        m_waveform[2];
   int16_t        m_pitch_bend;
   uint8_t        m_pitch_bend_range;
@@ -42,10 +43,9 @@ class PRA32_U2_Osc {
   uint32_t       m_phase[4 * 2];
   uint32_t       m_phase_shape_morph[4];
   boolean        m_osc_on[4];
-  int8_t         m_osc_gain_effective[4];
+  int8_t         m_osc_level_effective[4];
   int8_t         m_osc_level;
 
-  boolean        m_gate_enabled;
   uint8_t        m_mixer_osc_mix_control;
   uint8_t        m_mixer_osc_mix_control_effective;
   int8_t         m_osc2_pitch;
@@ -71,6 +71,7 @@ public:
   , m_pitch_eg_amt()
   , m_pitch_lfo_amt()
 
+  , m_waveform_index()
   , m_waveform()
   , m_pitch_bend()
   , m_pitch_bend_range()
@@ -85,10 +86,9 @@ public:
   , m_phase()
   , m_phase_shape_morph()
   , m_osc_on()
-  , m_osc_gain_effective()
+  , m_osc_level_effective()
   , m_osc_level()
 
-  , m_gate_enabled()
   , m_mixer_osc_mix_control()
   , m_mixer_osc_mix_control_effective()
   , m_osc2_pitch()
@@ -113,11 +113,12 @@ public:
     m_portamento_coef[2] = 0;
     m_portamento_coef[3] = 0;
 
-    set_gate_enabled (false);
     set_mixer_osc_mix(0);
     set_osc2_pitch   (0);
     set_osc2_detune  (0);
 
+    m_waveform_index[0] = 0;
+    m_waveform_index[1] = 0;
     m_waveform[0] = WAVEFORM_SAW;
     m_waveform[1] = WAVEFORM_SAW;
     m_pitch_target[0] = 60 << 24;
@@ -185,6 +186,10 @@ public:
     m_freq_base[6] = g_osc_freq_table[0];
     m_freq_base[7] = g_osc_freq_table[0];
     m_osc_level = 72;
+    m_osc_level_effective[0] = m_osc_level;
+    m_osc_level_effective[1] = m_osc_level;
+    m_osc_level_effective[2] = m_osc_level;
+    m_osc_level_effective[3] = m_osc_level;
 
     m_osc1_shape[0]           = 0;
     m_osc1_shape[1]           = 0;
@@ -219,18 +224,19 @@ public:
         WAVEFORM_SQUARE,
         WAVEFORM_TRIANGLE,
         WAVEFORM_SINE,
-        WAVEFORM_SINE,
+        WAVEFORM_2_NOISE,
         WAVEFORM_2_NOISE,
       },
     };
 
-    volatile int32_t index = ((controller_value * 10) + 127) / 254;
+    int32_t index = ((controller_value * 10) + 127) / 254;
 
-    // index = min(index, 5)
-    index = index - 5;
-    index = (index < 0) * index + 5;
-
+    m_waveform_index[N] = index;
     m_waveform[N] = waveform_tables[N][index];
+
+    if (m_waveform_index[1] == 4) { // Same as Osc 1 Wave
+      m_waveform[1] = waveform_tables[1][m_waveform_index[0]];
+    }
   }
 
   INLINE void set_osc1_shape_control(uint8_t controller_value) {
@@ -306,10 +312,6 @@ public:
     }
 
     m_shape_lfo_amt = -((controller_value - 64) << 1);
-  }
-
-  INLINE void set_gate_enabled(boolean gate_enabled) {
-    m_gate_enabled = gate_enabled;
   }
 
   INLINE void set_mixer_osc_mix(uint8_t controller_value) {
@@ -405,49 +407,20 @@ public:
   }
 
   template <uint8_t N>
-  INLINE void process_at_low_rate_a(int16_t lfo_level, int16_t eg_level) {
+  INLINE void process_at_low_rate(int16_t lfo_level, int16_t eg_level) {
     update_pitch_current<N>();
     update_osc1_shape<N>(lfo_level, eg_level);
     update_osc1_shape_effective<N>();
     update_freq_base<N + 0>(lfo_level, eg_level);
     update_freq_base<N + 4>(lfo_level, eg_level);
+    update_freq_offset<N + 0>();
+    update_freq_offset<N + 4>();
   }
 
-  INLINE void process_at_low_rate_b(uint8_t count, int16_t noise_int15) {
-    switch (count & (0x08 - 1)) {
-    case 0x00:
-      update_freq_offset<0>(noise_int15);
-      update_gate<0>();
-      break;
-    case 0x01:
-      update_freq_offset<4>(noise_int15);
-      break;
-    case 0x02:
-      update_freq_offset<1>(noise_int15);
-      update_gate<1>();
-      break;
-    case 0x03:
-      update_freq_offset<5>(noise_int15);
-      update_mixer_control_effective();
-      break;
-    case 0x04:
-      update_freq_offset<2>(noise_int15);
-      update_gate<2>();
-      break;
-    case 0x05:
-      update_freq_offset<6>(noise_int15);
-      break;
-    case 0x06:
-      update_freq_offset<3>(noise_int15);
-      update_gate<3>();
-      break;
-    case 0x07:
-      update_freq_offset<7>(noise_int15);
-      update_osc1_morph_control_effective();
-      break;
-    }
-
+  INLINE void process_at_low_rate_global(uint8_t count, int16_t noise_int15) {
+    update_osc1_morph_control_effective();
     update_osc1_shape_control_effective();
+    update_mixer_control_effective();
   }
 
   template <uint8_t N>
@@ -531,13 +504,7 @@ private:
 
     if (m_waveform[0] == WAVEFORM_SINE) {
       // For Sine Wave (wave_3)
-
-      // phase_modulation_depth_candidate = max(m_osc1_shape_effective[N] - (128 << 8), 0)
-      volatile int32_t phase_modulation_depth_candidate = m_osc1_shape_effective[N] - (128 << 8);
-      phase_modulation_depth_candidate = (phase_modulation_depth_candidate > 0) * phase_modulation_depth_candidate;
-
-      uint16_t m_osc1_phase_modulation_depth = phase_modulation_depth_candidate;
-
+      uint16_t osc1_phase_modulation_depth = maximum(m_osc1_shape_effective[N] - (128 << 8), 0);
       volatile int32_t phase_modulation_frequency_ratio_candidate = (((m_osc1_morph_control_effective + 2) >> 2) << 1) + 2;
       m_osc1_phase_modulation_frequency_ratio[N] = (m_osc1_phase_modulation_frequency_ratio[N] * (1 - new_period_osc1)) + (phase_modulation_frequency_ratio_candidate * new_period_osc1);
 
@@ -545,16 +512,14 @@ private:
       const int16_t* wave_table_sine = get_wave_table(WAVEFORM_SINE, 60);
       int16_t wave_3 = get_wave_level(wave_table_sine, phase_3);
 
-      uint32_t phase_0 = m_phase[N] + ((wave_3 * m_osc1_phase_modulation_depth) >> 4);
+      uint32_t phase_0 = m_phase[N] + ((wave_3 * osc1_phase_modulation_depth) >> 4);
       int32_t wave_0 = get_wave_level(wave_table_sine, phase_0);
-      result += (wave_0 * osc1_gain * m_osc_gain_effective[N]) >> 10;
+      result += (wave_0 * osc1_gain * m_osc_level_effective[N]) >> 10;
     } else if (m_waveform[0] == WAVEFORM_SAW) {
-      // phase_modulation_depth_candidate = max(m_osc1_shape_effective[N] - (128 << 8), 0)
-      volatile int32_t phase_modulation_depth_candidate = m_osc1_shape_effective[N] - (128 << 8);
-      phase_modulation_depth_candidate = (phase_modulation_depth_candidate > 0) * phase_modulation_depth_candidate;
+      volatile int32_t phase_modulation_depth = maximum(m_osc1_shape_effective[N] - (128 << 8), 0);
 
       uint32_t freq_shape_morph =
-        ((static_cast<int32_t>((m_freq[N] >> 1) * g_osc_tune_table[(((phase_modulation_depth_candidate + 512) >> 10) + 1 + 128) >> (8 - OSC_TUNE_TABLE_STEPS_BITS)]) >>
+        ((static_cast<int32_t>((m_freq[N] >> 1) * g_osc_tune_table[(((phase_modulation_depth + 512) >> 10) + 1 + 128) >> (8 - OSC_TUNE_TABLE_STEPS_BITS)]) >>
           OSC_TUNE_DENOMINATOR_BITS) >> 0) << 1;
       freq_shape_morph += (N + 4);
       m_phase_shape_morph[N] += freq_shape_morph;
@@ -572,13 +537,9 @@ private:
 
       int32_t multi_saw_mix = (m_osc1_morph_control_effective + 1) >> 1;
       result += (((  ( multi_saw_mix       * (((wave_0_0 + wave_0_1 + wave_0_2 + wave_0_3 + wave_0_4 + wave_0_5 + wave_0_6) << 1) / 5))
-                   + ((64 - multi_saw_mix) *    wave_0)) >> 6) * osc1_gain * m_osc_gain_effective[N]) >> 10;
+                   + ((64 - multi_saw_mix) *    wave_0)) >> 6) * osc1_gain * m_osc_level_effective[N]) >> 10;
     } else if (m_waveform[0] == WAVEFORM_SQUARE) {
-      // phase_modulation_depth_candidate = max(m_osc1_shape_effective[N] - (128 << 8), 0)
-      volatile int32_t phase_modulation_depth_candidate = m_osc1_shape_effective[N] - (128 << 8);
-      phase_modulation_depth_candidate = (phase_modulation_depth_candidate > 0) * phase_modulation_depth_candidate;
-
-      uint32_t shape = phase_modulation_depth_candidate;
+      uint32_t shape = maximum(m_osc1_shape_effective[N] - (128 << 8), 0);
       const uint16_t (* wave_shape_table)[OSC_WAVE_SHAPE_TABLE_LEN_X][OSC_WAVE_SHAPE_TABLE_LEN_Y] = &g_osc_sqr_shape_table;
 
       int32_t wave_0    = +get_wave_level(m_wave_table[N], m_phase[N]);
@@ -602,13 +563,9 @@ private:
       int32_t sqr_sync_mix = (m_osc1_morph_control_effective + 1) >> 1;
       result += (((  ( sqr_sync_mix       * (wave_0_0  + wave_0_1  + wave_0_2  + wave_0_3  + wave_0_4  + wave_0_5  + wave_0_6  + wave_0_7  +
                                              wave_0_8  + wave_0_9  + wave_0_10 + wave_0_11 + wave_0_12 + wave_0_13 + wave_0_14 + wave_0_15))
-                   + ((64 - sqr_sync_mix) *  wave_0)) >> 6) * osc1_gain * m_osc_gain_effective[N]) >> 10;
+                   + ((64 - sqr_sync_mix) *  wave_0)) >> 6) * osc1_gain * m_osc_level_effective[N]) >> 10;
     } else if (m_waveform[0] == WAVEFORM_1_WAVE_TABLE) {
-      // phase_modulation_depth_candidate = max(m_osc1_shape_effective[N] - (128 << 8), 0)
-      volatile int32_t phase_modulation_depth_candidate = m_osc1_shape_effective[N] - (128 << 8);
-      phase_modulation_depth_candidate = (phase_modulation_depth_candidate > 0) * phase_modulation_depth_candidate;
-
-      uint32_t shape = phase_modulation_depth_candidate;
+      uint32_t shape = maximum(m_osc1_shape_effective[N] - (128 << 8), 0);
       const uint16_t (* wave_shape_table)[OSC_WAVE_SHAPE_TABLE_LEN_X][OSC_WAVE_SHAPE_TABLE_LEN_Y] = get_wave_shape_table(m_osc1_morph_control);
 
       int32_t wave_0_0  = +get_wave_level(m_wave_table[N + 16], m_phase[N] - get_osc_wave_shape_data(wave_shape_table, shape, 0 ));
@@ -630,36 +587,28 @@ private:
 
       result += (((64 * (wave_0_0  + wave_0_1  + wave_0_2  + wave_0_3  + wave_0_4  + wave_0_5  + wave_0_6  + wave_0_7  +
                          wave_0_8  + wave_0_9  + wave_0_10 + wave_0_11 + wave_0_12 + wave_0_13 + wave_0_14 + wave_0_15)
-                   ) >> 6) * osc1_gain * m_osc_gain_effective[N]) >> 10;
+                   ) >> 6) * osc1_gain * m_osc_level_effective[N]) >> 10;
     } else if (m_waveform[0] == WAVEFORM_1_PULSE) {
       int32_t wave_0 = get_wave_level(m_wave_table[N + 16], m_phase[N]);
-      result += (wave_0 * osc1_gain * m_osc_gain_effective[N]) >> 10;
+      result += (wave_0 * osc1_gain * m_osc_level_effective[N]) >> 10;
 
       // For Pulse Wave (wave_3)
       uint32_t phase_3 = m_phase[N] + (m_osc1_shape_effective[N] << 8);
-#if 1
       int16_t wave_3 = get_wave_level(m_wave_table[N + 16], phase_3);
-#else
-      boolean new_period_osc1_add = ((phase_3 + 0x00800000) & 0x00FFFFFF) < (m_freq[N] + 0x00010000); // crossing the middle of a saw wave
-      m_wave_table[N + 8] = reinterpret_cast<const int16_t*>((reinterpret_cast<const uintptr_t>(m_wave_table[N + 8]) * (1 - new_period_osc1_add)));
-      m_wave_table[N + 8] = reinterpret_cast<const int16_t*>( reinterpret_cast<const uint8_t*>( m_wave_table[N + 8]) +
-                                                             (reinterpret_cast<const uintptr_t>(m_wave_table_temp[N + 8]) * new_period_osc1_add));
-      int16_t wave_3 = get_wave_level(m_wave_table[N + 8], phase_3);
-#endif
-      result += ((((wave_3 * osc1_gain * m_osc_gain_effective[N]) >> 10) * (((m_osc1_morph_control_effective - 63) >> 1) << 1)) >> 6);
+      result += ((((wave_3 * osc1_gain * m_osc_level_effective[N]) >> 10) * (((m_osc1_morph_control_effective - 63) >> 1) << 1)) >> 6);
     } else {
       int32_t wave_0 = get_wave_level(m_wave_table[N], m_phase[N]);
-      result += (wave_0 * osc1_gain * m_osc_gain_effective[N]) >> 10;
+      result += (wave_0 * osc1_gain * m_osc_level_effective[N]) >> 10;
     }
 
     if (m_mixer_noise_sub_osc_control_effective >= 0) {
       // Sub Osc (wave_1)
       int16_t wave_1 = get_wave_level(m_wave_table[N + 12], m_phase[N] >> 1);
-      result += (wave_1 * m_mixer_noise_sub_osc_control * m_osc_gain_effective[N]) >> 6;
+      result += (wave_1 * m_mixer_noise_sub_osc_control_effective * m_osc_level_effective[N]) >> 6;
     } else {
       // Noise (wave_1)
       int16_t wave_1 = noise_int15 >> 1;
-      result += (wave_1 * -m_mixer_noise_sub_osc_control_effective * m_osc_gain_effective[N]) >> 6;
+      result += (wave_1 * -m_mixer_noise_sub_osc_control_effective * m_osc_level_effective[N]) >> 6;
     }
 
     m_phase[N + 4] += m_freq[N + 4];
@@ -669,11 +618,11 @@ private:
                                                            (reinterpret_cast<const uintptr_t>(m_wave_table_temp[N + 4]) * new_period_osc2));
     if (m_waveform[1] != WAVEFORM_2_NOISE) {
       int16_t wave_2 = get_wave_level(m_wave_table[N + 4], m_phase[N + 4]);
-      result += (wave_2 * osc2_gain * m_osc_gain_effective[N]) >> 10;
+      result += (wave_2 * osc2_gain * m_osc_level_effective[N]) >> 10;
     } else {
       // Noise (wave_2)
       int16_t wave_2 = noise_int15 >> 1;
-      result += (wave_2 * osc2_gain * m_osc_gain_effective[N]) >> 10;
+      result += (wave_2 * osc2_gain * m_osc_level_effective[N]) >> 10;
     }
 
     return result;
@@ -683,9 +632,9 @@ private:
   INLINE void update_pitch_current() {
     if (m_osc_on[N]) {
       if (m_pitch_current[N] <= m_pitch_target[N]) {
-        m_pitch_current[N] = m_pitch_target[N]  - mul_s32_s32_h32((m_pitch_target[N] - m_pitch_current[N]) << 2,             m_portamento_coef[N]);
+        m_pitch_current[N] = m_pitch_target[N]  - multiply_shift_right((m_pitch_target[N] - m_pitch_current[N]) << 2,             m_portamento_coef[N], 32);
       } else {
-        m_pitch_current[N] = m_pitch_current[N] + mul_s32_s32_h32((m_pitch_target[N] - m_pitch_current[N]) << 2, (1 << 30) - m_portamento_coef[N]);
+        m_pitch_current[N] = m_pitch_current[N] + multiply_shift_right((m_pitch_target[N] - m_pitch_current[N]) << 2, (1 << 30) - m_portamento_coef[N], 32);
       }
     }
   }
@@ -735,10 +684,7 @@ private:
       m_wave_table_temp[N + 8]  = get_wave_table(WAVEFORM_SAW,  coarse);
       m_wave_table_temp[N + 16] = get_wave_table(WAVEFORM_SAW,  coarse);
 
-      // coarse_sub = max((coarse - 12), NOTE_NUMBER_MIN)
-      volatile int32_t coarse_sub = (coarse - 12) - NOTE_NUMBER_MIN;
-      coarse_sub = (coarse_sub > 0) * coarse_sub + NOTE_NUMBER_MIN;
-
+      volatile int32_t coarse_sub = maximum((coarse - 12), NOTE_NUMBER_MIN);
       m_wave_table_temp[N + 12] = get_wave_table(WAVEFORM_SINE, coarse_sub);
     }
 
@@ -752,35 +698,9 @@ private:
   }
 
   template <uint8_t N>
-  INLINE void update_freq_offset(int16_t noise_int15) {
-    static_cast<void>(noise_int15);
+  INLINE void update_freq_offset() {
     m_freq_offset[N] = (N >> 2) << 1;
     m_freq[N] = m_freq_base[N] + m_freq_offset[N];
-  }
-
-  template <uint8_t N>
-  INLINE void update_gate() {
-    if (m_gate_enabled) {
-      if (m_osc_on[N]) {
-        const int8_t half_level = (m_osc_level >> 1) + 1;
-
-        if (m_osc_gain_effective[N] >= (m_osc_level - half_level)) {
-          m_osc_gain_effective[N] = m_osc_level;
-        } else {
-          m_osc_gain_effective[N] += half_level;
-        }
-      } else {
-        const int8_t one_fourth_level = (m_osc_level >> 2) + 1;
-
-        if (m_osc_gain_effective[N] <= one_fourth_level) {
-          m_osc_gain_effective[N] = 0;
-        } else {
-          m_osc_gain_effective[N] -= one_fourth_level;
-        }
-      }
-    } else {
-      m_osc_gain_effective[N] = m_osc_level;
-    }
   }
 
   INLINE void update_osc1_shape_control_effective() {
@@ -805,21 +725,13 @@ private:
   INLINE void update_osc1_shape(int16_t lfo_level, int16_t eg_level) {
     volatile int32_t osc1_shape = (128 << 8) + (m_osc1_shape_control_effective << (8 - 3))
                                   + ((eg_level * m_shape_eg_amt) >> 5) - ((lfo_level * m_shape_lfo_amt) >> 5);
-
-    // osc1_shape = clamp(y_0, (0 << 8), (256 << 8))
-    osc1_shape = osc1_shape - (256 << 8);
-    osc1_shape = (osc1_shape < 0) * osc1_shape + (256 << 8) - (0 << 8);
-    osc1_shape = (osc1_shape > 0) * osc1_shape + (0 << 8);
-
+    osc1_shape = clamp(osc1_shape, (0 << 8), (256 << 8));
     m_osc1_shape[N] = osc1_shape;
   }
 
   template <uint8_t N>
   INLINE void update_osc1_shape_effective() {
-    // effective_new = clamp(m_osc1_shape[N], (m_osc1_shape_effective[N] - 0x0100), (m_osc1_shape_effective[N] + 0x0100))
-    volatile int32_t effective_new = m_osc1_shape[N] - (m_osc1_shape_effective[N] + 0x0100);
-    effective_new = (effective_new < 0) * effective_new + (m_osc1_shape_effective[N] + 0x0100) - (m_osc1_shape_effective[N] - 0x0100);
-    effective_new = (effective_new > 0) * effective_new + (m_osc1_shape_effective[N] - 0x0100);
+    volatile int32_t effective_new = clamp(m_osc1_shape[N], (m_osc1_shape_effective[N] - 0x0100), (m_osc1_shape_effective[N] + 0x0100));
     m_osc1_shape_effective[N] = effective_new;
   }
 

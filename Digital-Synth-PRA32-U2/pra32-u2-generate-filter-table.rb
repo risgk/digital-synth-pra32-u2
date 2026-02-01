@@ -44,7 +44,7 @@ def generate_filter_lpf_table(res_id, name, q)
   $file.printf("};\n\n")
 end
 
-MAX_RES_ID = (14 * (1 << FILTER_TABLE_RESO_EXT_BITS))
+MAX_RES_ID = (16 * (1 << FILTER_TABLE_RESO_EXT_BITS))
 
 (0..MAX_RES_ID).each do |res_id|
   generate_filter_lpf_table(res_id, res_id.to_s, Math.sqrt(2.0) ** ((res_id - (2.0 * (1 << FILTER_TABLE_RESO_EXT_BITS))) / (2.0 * (1 << FILTER_TABLE_RESO_EXT_BITS))))
@@ -52,7 +52,7 @@ end
 
 $file.printf("const int32_t* g_filter_tables[] = {\n  ")
 (0..16 * (1 << FILTER_TABLE_RESO_EXT_BITS)).each do |res_index|
-  res_id = [[res_index - (2 * (1 << FILTER_TABLE_RESO_EXT_BITS)), 0].max, MAX_RES_ID].min
+  res_id = res_index
   $file.printf("g_filter_lpf_table_%-2d,", res_id)
   if res_index == DATA_BYTE_MAX
     $file.printf("\n")

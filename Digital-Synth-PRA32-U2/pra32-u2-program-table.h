@@ -4,7 +4,7 @@ const uint8_t PROGRAM_NUMBER_DEFAULT = 0;
 
 // Preset                                         #0   #1   #2   #3   #4   #5   #6   #7     #8   #9   #10  #11  #12  #13  #14  #15  
 const uint8_t g_preset_table_OSC_1_WAVE     [] = {127, 0  , 76 , 127, 127, 25 , 127, 0  ,   127, 0  , 76 , 127, 127, 25 , 127, 0  };
-const uint8_t g_preset_table_MIXER_SUB_OSC  [] = {64 , 64 , 64 , 64 , 127, 127, 127, 64 ,   64 , 64 , 64 , 64 , 127, 127, 127, 64 };
+const uint8_t g_preset_table_MIXER_SUB_OSC  [] = {64 , 64 , 64 , 64 , 96 , 96 , 96 , 64 ,   64 , 64 , 64 , 64 , 96 , 96 , 96 , 64 };
 const uint8_t g_preset_table_OSC_1_SHAPE    [] = {0  , 64 , 0  , 0  , 0  , 64 , 0  , 0  ,   0  , 64 , 0  , 0  , 0  , 64 , 0  , 0  };
 const uint8_t g_preset_table_OSC_1_MORPH    [] = {64 , 127, 108, 64 , 64 , 127, 64 , 0  ,   64 , 127, 108, 64 , 64 , 127, 64 , 0  };
 
@@ -55,7 +55,7 @@ const uint8_t g_preset_table_AMP_VEL_SENS   [] = {0  , 0  , 0  , 0  , 0  , 0  , 
 
 const uint8_t g_preset_table_AFT_T_LFO_AMT  [] = {0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  };
 const uint8_t g_preset_table_VOICE_ASGN_MODE[] = {0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  };
-
+const uint8_t g_preset_table_PAN            [] = {64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 };
 
 
 const uint8_t g_preset_table_CHORUS_MIX     [] = {127, 127, 127, 127, 127, 127, 127, 0  ,   127, 127, 127, 127, 127, 127, 127, 0  };

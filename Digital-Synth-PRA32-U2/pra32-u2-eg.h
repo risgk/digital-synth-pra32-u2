@@ -71,7 +71,8 @@ public:
       m_note_on_velocity = velocity;
     }
 
-    m_attack_level = ((((m_note_on_velocity * m_velocity_sensitivity) + (127 * (64 - m_velocity_sensitivity))) * 16384) / 127) << 10;
+    m_attack_level = ((((m_note_on_velocity * m_velocity_sensitivity) +
+                        (127 * (64 - m_velocity_sensitivity))) * 16384) / 127) << (EG_LEVEL_MAX_BITS - 20);
     m_sustain_level = (m_attack_level >> 6) * m_sustain;
     m_state = STATE_ATTACK;
   }
@@ -89,28 +90,24 @@ public:
 #if 1
     switch (m_state) {
     case STATE_ATTACK:
-      if (m_level >= EG_LEVEL_MAX) {
-        m_level = EG_LEVEL_MAX;
-        m_state = STATE_SUSTAIN;
-      } else if (m_level >= m_attack_level) {
+      if (m_level >= m_attack_level) {
+        m_level = m_attack_level;
         m_state = STATE_SUSTAIN;
       } else {
-        m_level = ((m_attack_level - 1) << 1) - (mul_s32_s32_h32((((m_attack_level - 1) << 1) - m_level), m_attack_coef) << 2);
+        m_level = ((m_attack_level - 1) << 1) -
+                  (multiply_shift_right((((m_attack_level - 1) << 1) - m_level), m_attack_coef, 32) << 2);
       }
       break;
 
     case STATE_SUSTAIN:
       {
-        // effective_sustain = min(m_sustain_level, m_level)
-        int32_t effective_sustain = m_sustain_level - m_level;
-        effective_sustain = (effective_sustain < 0) * effective_sustain + m_level;
-
-        m_level = effective_sustain + (mul_s32_s32_h32((m_level - effective_sustain), m_decay_coef) << 2);
+        int32_t effective_sustain = minimum(m_sustain_level, m_level);
+        m_level = effective_sustain + (multiply_shift_right((m_level - effective_sustain), m_decay_coef, 32) << 2);
       }
       break;
 
     case STATE_IDLE:
-      m_level = mul_s32_s32_h32(m_level, m_release_coef) << 2;
+      m_level = multiply_shift_right(m_level, m_release_coef, 32) << 2;
       break;
     }
 

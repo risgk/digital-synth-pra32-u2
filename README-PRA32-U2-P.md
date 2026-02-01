@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2/P (PRA32-U2 with Panel) v2.0.0
+# Digital Synth PRA32-U2/P (PRA32-U2 with Panel) v2.1.0
 
-- 2026-01-07 ISGK Instruments
+- 2026-02-01 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 
@@ -25,7 +25,9 @@
         - To use this key, uncomment out `//#define PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN    (17)` in "Digital-Synth-PRA32-U2.ino"
     - SW4: Prog + Key (Push to change to the next user program) (optional)
         - To use this key, uncomment out `//#define PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN     (19)` in "Digital-Synth-PRA32-U2.ino"
-    - SW5: Shift Key (Press to prevent values from changing across 64) (optional)
+    - SW5: Shift Key (optional)
+        - Shift + Prev/Next Key: Go to the previous/next group without long-pressing
+        - Shift + VR0/1/2: Prevent values from changing across 64
         - To use this key, uncomment out `//#define PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN         (21)` in "Digital-Synth-PRA32-U2.ino"
     - VR0 (ADC0): Parameter A
     - VR1 (ADC1): Parameter B
@@ -127,7 +129,7 @@
 
 | Page           | Parameter A         | Parameter B      |
 | :------------- | :------------------ | :--------------- |
-| A-00 Info      | PRA32-U2/P          | v2.0.0           |
+| A-00 Info      | PRA32-U2/P          | v2.1.0           |
 | A-01 Voice     | Voice Mode          | Voice Asgn Mode  |
 | A-02 Pitch     | Portamento          | Pitch Bend Range |
 | A-03 Osc a     | Osc 1 Wave          | Mixer Noise/Sub  |
@@ -143,18 +145,19 @@
 | A-13 EG d      | EG Mod Amt          | EG Mod Dst       |
 | A-14 EG e      | EG Filter Amt       | EG Velo Sens     |
 | A-15 Amp a     | Amp Attack          | Amp Decay        |
-| A-16 Amp c     | Amp Sustain         | Amp Release      |
-| A-17 Amp b     | Amp Gain            | Amp Velo Sens    |
-| A-18 LFO a     | LFO Wave            | LFO Fade Time    |
-| A-19 LFO b     | LFO Rate            | LFO Depth        |
-| A-20 LFO c     | LFO Mod Amt         | LFO Mod Dst      |
-| A-21 LFO d     | LFO Filter Amt      |                  |
-| A-22 Breath    | Breath Filter Amt   | Breath Amp Mod   |
-| A-23 Aft Touch | Aft Touch LFO Amt   |                  |
-| A-24 Chorus a  | Chorus Level        |                  |
-| A-25 Chorus b  | Chorus Rate         | Chorus Depth     |
-| A-26 Delay a   | Delay Level         | Delay Mode       |
-| A-27 Delay b   | Delay Time          | Delay Feedback   |
+| A-16 Amp b     | Amp Sustain         | Amp Release      |
+| A-17 Amp c     | Amp Gain            | Amp Velo Sens    |
+| A-18 Panner    | Pan                 |                  |
+| A-19 LFO a     | LFO Wave            | LFO Fade Time    |
+| A-20 LFO b     | LFO Rate            | LFO Depth        |
+| A-21 LFO c     | LFO Mod Amt         | LFO Mod Dst      |
+| A-22 LFO d     | LFO Filter Amt      |                  |
+| A-23 Breath    | Breath Filter Amt   | Breath Amp Mod   |
+| A-24 Aft Touch | Aft Touch LFO Amt   |                  |
+| A-25 Chorus a  | Chorus Level        |                  |
+| A-26 Chorus b  | Chorus Rate         | Chorus Depth     |
+| A-27 Delay a   | Delay Level         | Delay Mode       |
+| A-28 Delay b   | Delay Time          | Delay Feedback   |
 | B-00 Panel a   | Panel Play Mode     | Panel MIDI Ch    |
 | B-01 Panel b   | Panel Play Pitch    | Panel Play Velo  |
 | B-02 Panel c   | Panel Scale         | Panel Pitch Ofst |
@@ -173,7 +176,7 @@
 | B-15 Seq 5     | Seq Pitch 5         | Seq Velo 5       |
 | B-16 Seq 6     | Seq Pitch 6         | Seq Velo 6       |
 | B-17 Seq 7     | Seq Pitch 7         | Seq Velo 7       |
-| B-18 Control a | Modulation          |                  |
+| B-18 Control a | Modulation          | Expression       |
 | B-19 Control b | Breath Controller   | Sustain Pedal    |
 | B-20 Control c | Panic               |                  |
 | C-00 Write 0   | Write Program 0     | Write Program 1  |

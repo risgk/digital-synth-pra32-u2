@@ -31,7 +31,8 @@ const int8_t    FILTER_TABLE_FRACTION_BITS   = 30;
 const int8_t    FILTER_TABLE_CUTOFF_EXT_BITS = 2;
 const int8_t    FILTER_TABLE_RESO_EXT_BITS   = 2;
 const uint8_t   EG_CONTROL_INTERVAL          = 0x10;
-const int32_t   EG_LEVEL_MAX                 = 0x40000000;
+const int8_t    EG_LEVEL_MAX_BITS            = 30;
+const int32_t   EG_LEVEL_MAX                 = 0x01 << EG_LEVEL_MAX_BITS;
 
 
 const uint8_t   DATA_BYTE_MAX         = 0x7F;
@@ -56,6 +57,7 @@ const uint8_t   ACTIVE_SENSING        = 0xFE;
 
 const uint8_t   MODULATION      = 1;
 const uint8_t   BTH_CONTROLLER  = 2;
+const uint8_t   EXPRESSION      = 11;
 const uint8_t   SUSTAIN_PEDAL   = 64;
 
 
@@ -111,7 +113,7 @@ const uint8_t   AMP_VEL_SENS    = 63;
 
 const uint8_t   AFT_T_LFO_AMT   = 109;
 const uint8_t   VOICE_ASGN_MODE = 110;
-
+const uint8_t   PAN             = 10;
 
 
 const uint8_t   CHORUS_MIX      = 93;
@@ -150,6 +152,7 @@ const uint8_t   OSC_WAVE_SQUARE    = 25;
 const uint8_t   OSC_WAVE_TRIANGLE  = 51;
 const uint8_t   OSC_WAVE_SINE      = 76;
 const uint8_t   OSC_WAVE_1_W_T     = 102;
+const uint8_t   OSC_WAVE_2_O_1     = 102;
 const uint8_t   OSC_WAVE_1_PULSE   = 127;
 const uint8_t   OSC_WAVE_2_NOISE   = 127;
 
