@@ -161,9 +161,9 @@ const uint8_t   MOD_DST_CUTOFF     = 25;
 const uint8_t   MOD_DST_PITCH_2    = 76;
 const uint8_t   MOD_DST_SHAPE_1    = 127;
 
-const uint8_t   LFO_WAVE_SINE      = 0;
-const uint8_t   LFO_WAVE_SAW_DOWN  = 25;
-const uint8_t   LFO_WAVE_TRIANGLE  = 76;
+const uint8_t   LFO_WAVE_TRIANGLE  = 0;
+const uint8_t   LFO_WAVE_SINE      = 25;
+const uint8_t   LFO_WAVE_SAW_DOWN  = 76;
 const uint8_t   LFO_WAVE_S_AND_H   = 102;
 const uint8_t   LFO_WAVE_SQUARE    = 127;
 
