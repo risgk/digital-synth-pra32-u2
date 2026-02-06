@@ -1,5 +1,9 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v2.2.0 (2026-??-??):
+    - Add the "Red Noise (Nos)" to the "LFO Wave"
+    - Improve the code
+    - Tested with Arduino-Pico version 5.5.0
 - v2.1.0 (2026-02-01):
     - Increase the Q values corresponding to the "Filter Resonance" control values
         - The new Q value range is from 0.7 to 11.3
