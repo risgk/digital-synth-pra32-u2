@@ -10,6 +10,7 @@ class PRA32_U2_LFO {
   static const uint8_t LFO_WAVEFORM_SAW_DOWN  = 2;
   static const uint8_t LFO_WAVEFORM_RANDOM    = 3;
   static const uint8_t LFO_WAVEFORM_SQUARE    = 4;
+  static const uint8_t LFO_WAVEFORM_RED_NOISE = 5;
 
   static const uint8_t LFO_FADE_COEF_OFF      = 1;
 
@@ -24,6 +25,7 @@ class PRA32_U2_LFO {
   uint16_t m_lfo_fade_cnt;
   uint8_t  m_lfo_fade_level;
   int16_t  m_noise_int15;
+  int16_t  m_prev_noise_int15;
   int16_t  m_sampled_noise_int15;
   uint8_t  m_pressure_amt;
   uint8_t  m_pressure[4];
@@ -39,6 +41,7 @@ public:
   , m_lfo_fade_cnt()
   , m_lfo_fade_level()
   , m_noise_int15()
+  , m_prev_noise_int15()
   , m_sampled_noise_int15()
   , m_pressure_amt()
   , m_pressure()
@@ -48,6 +51,7 @@ public:
     m_lfo_fade_cnt = m_lfo_fade_coef;
     m_lfo_fade_level = LFO_FADE_LEVEL_MAX;
     m_noise_int15 = 0;
+    m_prev_noise_int15 = m_noise_int15;
     m_sampled_noise_int15 = m_noise_int15;
   }
 
@@ -55,7 +59,7 @@ public:
     static uint8_t lfo_waveform_table[6] = {
       LFO_WAVEFORM_TRIANGLE,
       LFO_WAVEFORM_SINE,
-      LFO_WAVEFORM_SAW_DOWN,
+      LFO_WAVEFORM_RED_NOISE,
       LFO_WAVEFORM_SAW_DOWN,
       LFO_WAVEFORM_RANDOM,
       LFO_WAVEFORM_SQUARE,
@@ -129,6 +133,7 @@ public:
   INLINE void process_at_low_rate(uint8_t count, int16_t noise_int15) {
     static_cast<void>(count);
 
+    m_prev_noise_int15 = m_noise_int15;
     m_noise_int15 = noise_int15;
     update_lfo_wave_level();
   }
@@ -175,6 +180,9 @@ private:
       } else {
         level = 0;
       }
+      break;
+    case LFO_WAVEFORM_RED_NOISE:
+      level = (m_prev_noise_int15 + m_noise_int15) >> 2;
       break;
     }
 
