@@ -1343,7 +1343,7 @@ public:
     int32_t filter_output[4];
     int32_t amp_output   [4];
 
-#if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
+#if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_EMULATION)
     m_secondary_core_processing_argument = noise_int15;
     m_secondary_core_processing_request = 1;
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
@@ -1356,27 +1356,19 @@ public:
     filter_output[1] = m_filter[1].process(osc_output   [1]);
     amp_output   [1] = m_amp   [1].process(filter_output[1]);
 
+#if defined(PRA32_U2_EMULATION)
+    secondary_core_process();
+#else  // defined(PRA32_U2_EMULATION)
+
 #if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
     while (m_secondary_core_processing_request) {
       ;
     }
 #else  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
-
-#if defined(PRA32_U2_EMULATION)
-    osc_output   [2] = m_osc      .process<2>(noise_int15);
-    filter_output[2] = m_filter[2].process(osc_output   [2]);
-    amp_output   [2] = m_amp   [2].process(filter_output[2]);
-
-    osc_output   [3] = m_osc      .process<3>(noise_int15);
-    filter_output[3] = m_filter[3].process(osc_output   [3]);
-    amp_output   [3] = m_amp   [3].process(filter_output[3]);
-
-    m_secondary_core_processing_result = amp_output[2] + amp_output[3];
-#else  // defined(PRA32_U2_EMULATION)
     m_secondary_core_processing_result = 0;
-#endif  // defined(PRA32_U2_EMULATION)
-
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
+
+#endif  // defined(PRA32_U2_EMULATION)
 
     int32_t voice_mixer_output;
 
