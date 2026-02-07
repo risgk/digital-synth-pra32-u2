@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v2.2.0 (2026-??-??):
+- v2.2.0 (2026-02-07):
     - **Fix the EG/Amp Decay behavior**
     - Fix the EG/Amp Attack behavior when the "EG/Amp Velocity Sensitivity" value is greater than 0
     - Add the "Red Noise (Nos)" to the "LFO Wave"
