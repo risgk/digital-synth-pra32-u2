@@ -41,7 +41,7 @@ td.keyh {
 }
 </style>
 <script>
-const APP_NAME_VERSION = "PRA32-U2 Editor v2.1.0";
+const APP_NAME_VERSION = "PRA32-U2 Editor v2.2.0";
 
 const USER_PROGRAM_NUMBER_MAX      = 7;
 const PROGRAM_NUMBER_MAX           = 15;
@@ -822,7 +822,7 @@ function updateDisplayOfControl(number, value) {
     break;
   case LFO_WAVE        :
     {
-      var ary = ["Tri","Sin","Saw","Saw","S&H","Sqr"];
+      var ary = ["Tri","Sin","Nos","Saw","S&H","Sqr"];
       var index = Math.floor(((value * 10) + 127) / 254);
       dispValue = ary[index];
     }
@@ -1543,7 +1543,7 @@ function getStoredCCValueString(index, number) {
 <td><span   id="span2PORTAMENTO     " >-</span></td>
 </tr>
 <tr>
-<td colspan="3"><b>LFO</b> Wave [Tri|Sin|Saw|Saw|S&H|Sqr]</td>
+<td colspan="3"><b>LFO</b> Wave [Tri|Sin|Nos|Saw|S&H|Sqr]</td>
 <td colspan="3"><b>LFO</b> Fade Time                   </td>
 <td colspan="3"><b>LFO</b> Rate                        </td>
 <td colspan="3"><b>LFO</b> Depth                       </td>

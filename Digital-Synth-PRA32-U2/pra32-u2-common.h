@@ -18,15 +18,15 @@ static INLINE int32_t multiply_shift_right(int32_t x, int32_t y, uint8_t z) {
 
 static INLINE int32_t minimum(int32_t value_0, int32_t value_1) {
   volatile int32_t result =
-      (value_0 < value_1) * value_0
-    + (value_0 > value_1) * value_1;
+      (value_0 <  value_1) * value_0
+    + (value_0 >= value_1) * value_1;
   return result;
 }
 
 static INLINE int32_t maximum(int32_t value_0, int32_t value_1) {
   volatile int32_t result =
-      (value_0 > value_1) * value_0
-    + (value_0 < value_1) * value_1;
+      (value_0 >  value_1) * value_0
+    + (value_0 <= value_1) * value_1;
   return result;
 }
 
