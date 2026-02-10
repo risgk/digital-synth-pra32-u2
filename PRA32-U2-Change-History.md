@@ -1,5 +1,8 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v2.2.1 (2026-??-**):
+    - MIDI Implementation Chart: Fix the default Program number from 8 to 0
+    - Tested with Arduino-Pico version 5.5.0
 - v2.2.0 (2026-02-07):
     - **Fix the EG/Amp Decay behavior**
     - Fix the EG/Amp Attack behavior when the "EG/Amp Velocity Sensitivity" value is greater than 0
