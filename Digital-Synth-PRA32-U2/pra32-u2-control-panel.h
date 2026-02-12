@@ -1120,6 +1120,9 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
   static uint32_t s_prev_key_long_pressed = false;
   static uint32_t s_next_key_long_pressed = false;
 
+  static uint32_t s_prog_minus_key_long_pressed = false;
+  static uint32_t s_prog_plus_key_long_pressed  = false;
+
   static uint32_t s_key_inpuy_counter = 0;
   ++s_key_inpuy_counter;
 
@@ -1280,23 +1283,42 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
 #if defined(PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN)
   if (s_key_inpuy_counter - s_prog_minus_key_value_changed_time >= PRA32_U2_KEY_ANTI_CHATTERING_WAIT) {
     uint32_t value = digitalRead(PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
-
     if (s_prog_minus_key_current_value != value) {
       s_prog_minus_key_current_value = value;
       s_prog_minus_key_value_changed_time = s_key_inpuy_counter;
-
       if (s_prog_minus_key_current_value == 0) {
         // Prog - key released
-        if (s_current_program == 0) {
-          s_current_program = USER_PROGRAM_NUMBER_MAX;
-        } else {
-          --s_current_program;
+        if (s_prog_minus_key_long_pressed == false) {
+#if defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
+          uint32_t shift_key_pressed = digitalRead(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
+          if (shift_key_pressed) {
+            if (s_current_program == 0) {
+              s_current_program = USER_PROGRAM_NUMBER_MAX;
+            } else {
+              --s_current_program;
+            }
+            g_synth.program_change(s_current_program);
+            s_display_buffer[0][17] = '0' + s_current_program;
+          }
+#endif  // defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
         }
-
-        g_synth.program_change(s_current_program);
-
-        s_display_buffer[0][17] = '0' + s_current_program;
+        s_prog_minus_key_long_pressed = false;
         return;
+      }
+    }
+    if (s_prog_minus_key_current_value == 1) {
+      if (s_prog_minus_key_long_pressed == false) {
+        if (s_key_inpuy_counter - s_prog_minus_key_value_changed_time >= PRA32_U2_KEY_LONG_PRESS_WAIT) {
+          s_prog_minus_key_long_pressed = true;
+          if (s_current_program == 0) {
+            s_current_program = USER_PROGRAM_NUMBER_MAX;
+          } else {
+            --s_current_program;
+          }
+          g_synth.program_change(s_current_program);
+          s_display_buffer[0][17] = '0' + s_current_program;
+          return;
+        }
       }
     }
   }
@@ -1305,23 +1327,42 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
 #if defined(PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN)
   if (s_key_inpuy_counter - s_prog_plus_key_value_changed_time >= PRA32_U2_KEY_ANTI_CHATTERING_WAIT) {
     uint32_t value = digitalRead(PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
-
     if (s_prog_plus_key_current_value != value) {
       s_prog_plus_key_current_value = value;
       s_prog_plus_key_value_changed_time = s_key_inpuy_counter;
-
       if (s_prog_plus_key_current_value == 0) {
         // Prog + key released
-        if (s_current_program == USER_PROGRAM_NUMBER_MAX) {
-          s_current_program = 0;
-        } else {
-          ++s_current_program;
+        if (s_prog_plus_key_long_pressed == false) {
+#if defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
+          uint32_t shift_key_pressed = digitalRead(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
+          if (shift_key_pressed) {
+            if (s_current_program == USER_PROGRAM_NUMBER_MAX) {
+              s_current_program = 0;
+            } else {
+              ++s_current_program;
+            }
+            g_synth.program_change(s_current_program);
+            s_display_buffer[0][17] = '0' + s_current_program;
+          }
+#endif  // defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
         }
-
-        g_synth.program_change(s_current_program);
-
-        s_display_buffer[0][17] = '0' + s_current_program;
+        s_prog_plus_key_long_pressed = false;
         return;
+      }
+    }
+    if (s_prog_plus_key_current_value == 1) {
+      if (s_prog_plus_key_long_pressed == false) {
+        if (s_key_inpuy_counter - s_prog_plus_key_value_changed_time >= PRA32_U2_KEY_LONG_PRESS_WAIT) {
+          s_prog_plus_key_long_pressed = true;
+          if (s_current_program == USER_PROGRAM_NUMBER_MAX) {
+            s_current_program = 0;
+          } else {
+            ++s_current_program;
+          }
+          g_synth.program_change(s_current_program);
+          s_display_buffer[0][17] = '0' + s_current_program;
+          return;
+        }
       }
     }
   }
