@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v2.2.1 (2026-??-**):
+- v2.3.0 (2026-??-??):
+    - PRA32-U2/P: Change the Prog -/+ Keys to function with long-pressing (or Shift + pushing) instead of pushing
     - MIDI Implementation Chart: Fix the default Program number from 8 to 0
     - Tested with Arduino-Pico version 5.5.0
 - v2.2.0 (2026-02-07):
