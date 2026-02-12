@@ -21,12 +21,13 @@
     - SW1: Next Key (Push to go to the next page, Long press to the next group)
     - SW2: Play Key (Normal Mode: press to play, Sequencer Mode: push to start/stop) (omittable)
         - To not use this key, comment out `#define PRA32_U2_KEY_INPUT_PLAY_KEY_PIN          (20)` in "Digital-Synth-PRA32-U2.ino"
-    - SW3: Prog - Key (Push to change to the previous user program) (optional)
+    - SW3: Prog - Key (Long press to change to the previous user program) (optional)
         - To use this key, uncomment out `//#define PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN    (17)` in "Digital-Synth-PRA32-U2.ino"
-    - SW4: Prog + Key (Push to change to the next user program) (optional)
+    - SW4: Prog + Key (Long press to change to the next user program) (optional)
         - To use this key, uncomment out `//#define PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN     (19)` in "Digital-Synth-PRA32-U2.ino"
     - SW5: Shift Key (optional)
         - Shift + Prev/Next Key: Go to the previous/next group without long-pressing
+        - Shift + Prog -/+ Key: Change to the previous/next user program without long-pressing
         - Shift + VR0/1/2: Prevent values from changing across 64
         - To use this key, uncomment out `//#define PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN         (21)` in "Digital-Synth-PRA32-U2.ino"
     - VR0 (ADC0): Parameter A
