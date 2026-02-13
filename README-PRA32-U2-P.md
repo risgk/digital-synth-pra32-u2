@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2/P (PRA32-U2 with Panel) v2.2.0
+# Digital Synth PRA32-U2/P (PRA32-U2 with Panel) v2.3.0
 
-- 2026-02-07 ISGK Instruments
+- 2026-02-14 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 
@@ -21,12 +21,13 @@
     - SW1: Next Key (Push to go to the next page, Long press to the next group)
     - SW2: Play Key (Normal Mode: press to play, Sequencer Mode: push to start/stop) (omittable)
         - To not use this key, comment out `#define PRA32_U2_KEY_INPUT_PLAY_KEY_PIN          (20)` in "Digital-Synth-PRA32-U2.ino"
-    - SW3: Prog - Key (Push to change to the previous user program) (optional)
+    - SW3: Prog - Key (Long press to change to the previous user program) (optional)
         - To use this key, uncomment out `//#define PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN    (17)` in "Digital-Synth-PRA32-U2.ino"
-    - SW4: Prog + Key (Push to change to the next user program) (optional)
+    - SW4: Prog + Key (Long press to change to the next user program) (optional)
         - To use this key, uncomment out `//#define PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN     (19)` in "Digital-Synth-PRA32-U2.ino"
     - SW5: Shift Key (optional)
         - Shift + Prev/Next Key: Go to the previous/next group without long-pressing
+        - Shift + Prog -/+ Key: Change to the previous/next user program without long-pressing
         - Shift + VR0/1/2: Prevent values from changing across 64
         - To use this key, uncomment out `//#define PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN         (21)` in "Digital-Synth-PRA32-U2.ino"
     - VR0 (ADC0): Parameter A
@@ -76,28 +77,28 @@
     - Seq Pitch 0-7: 0 is Off, 1-4 is lowest, 124-127 is highest
     - Seq Velo 0-7 (Velocity 0-7)
 - Step Sequencer Operations
-    - Seq Rand Pitch (Randomize Pitch 0-7): Change the value from 0-63 [Rdy] to 64-127 [Exe]
-    - Seq Rand Velo (Randomize Velo 0-7): Change the value from 0-63 [Rdy] to 64-127 [Exe]
+    - Seq Rand Pitch (Randomize Pitch 0-7): Change the value from 0-32 [Rdy] to 96-127 [Exe]
+    - Seq Rand Velo (Randomize Velo 0-7): Change the value from 0-32 [Rdy] to 96-127 [Exe]
 - Control Parameters
     - Modulation
     - Breath Controller
     - Sustain Pedal
 - Control Operations
-    - Panic: Change the value from 0-63 [Rdy] to 64-127 [Exe]
+    - Panic: Change the value from 0-32 [Rdy] to 96-127 [Exe]
 
 
 #### Group C
 
 - Write Operations
     - Write Program 0-7, Write Panel Prms (Write Panel and Step Sequencer Parameters)
-        - Change the value from 0-63 [Rdy] to 64-127 [Exe] to write to the flash
+        - Change the value from 0-32 [Rdy] to 96-127 [Exe] to write to the flash
 
 
 #### Group D
 
 - Read Operations
     - Read Program 1-7, 8-15, Read Panel Prms, Init Panel Prms
-        - Change the value from 0-63 [Rdy] to 64-127 [Exe] to read from the flash
+        - Change the value from 0-32 [Rdy] to 96-127 [Exe] to read from the flash
 
 
 ### Circuit Diagram
@@ -129,7 +130,7 @@
 
 | Page           | Parameter A         | Parameter B      |
 | :------------- | :------------------ | :--------------- |
-| A-00 Info      | PRA32-U2/P          | v2.2.0           |
+| A-00 Info      | PRA32-U2/P          | v2.3.0           |
 | A-01 Voice     | Voice Mode          | Voice Asgn Mode  |
 | A-02 Pitch     | Portamento          | Pitch Bend Range |
 | A-03 Osc a     | Osc 1 Wave          | Mixer Noise/Sub  |
