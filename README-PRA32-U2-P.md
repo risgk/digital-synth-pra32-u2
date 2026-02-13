@@ -77,28 +77,28 @@
     - Seq Pitch 0-7: 0 is Off, 1-4 is lowest, 124-127 is highest
     - Seq Velo 0-7 (Velocity 0-7)
 - Step Sequencer Operations
-    - Seq Rand Pitch (Randomize Pitch 0-7): Change the value from 0-63 [Rdy] to 64-127 [Exe]
-    - Seq Rand Velo (Randomize Velo 0-7): Change the value from 0-63 [Rdy] to 64-127 [Exe]
+    - Seq Rand Pitch (Randomize Pitch 0-7): Change the value from 0-32 [Rdy] to 96-127 [Exe]
+    - Seq Rand Velo (Randomize Velo 0-7): Change the value from 0-32 [Rdy] to 96-127 [Exe]
 - Control Parameters
     - Modulation
     - Breath Controller
     - Sustain Pedal
 - Control Operations
-    - Panic: Change the value from 0-63 [Rdy] to 64-127 [Exe]
+    - Panic: Change the value from 0-32 [Rdy] to 96-127 [Exe]
 
 
 #### Group C
 
 - Write Operations
     - Write Program 0-7, Write Panel Prms (Write Panel and Step Sequencer Parameters)
-        - Change the value from 0-63 [Rdy] to 64-127 [Exe] to write to the flash
+        - Change the value from 0-32 [Rdy] to 96-127 [Exe] to write to the flash
 
 
 #### Group D
 
 - Read Operations
     - Read Program 1-7, 8-15, Read Panel Prms, Init Panel Prms
-        - Change the value from 0-63 [Rdy] to 64-127 [Exe] to read from the flash
+        - Change the value from 0-32 [Rdy] to 96-127 [Exe] to read from the flash
 
 
 ### Circuit Diagram
