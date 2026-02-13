@@ -543,28 +543,52 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
         g_synth.control_change(s_adc_control_target[adc_number], adc_control_value_new);
       }
     } else if ((s_adc_control_target[adc_number] >= RD_PROGRAM_0) && (s_adc_control_target[adc_number] <= RD_PROGRAM_15)) {
-      if ((adc_control_value_old < 64) && (adc_control_value_new >= 64)) {
+      static boolean s_ready_to_read[PROGRAM_NUMBER_MAX + 1] = {};
+      uint8_t program_number_to_read = s_adc_control_target[adc_number] - RD_PROGRAM_0;
+      if (s_adc_control_value[adc_number] <= 32) {
+        s_ready_to_read[program_number_to_read] = true;
+      } else if (s_ready_to_read[program_number_to_read] && (s_adc_control_value[adc_number] >= 96)) {
         g_synth.program_change(s_adc_control_target[adc_number] - RD_PROGRAM_0);
+        s_ready_to_read[program_number_to_read] = false;
       }
     } else if ((s_adc_control_target[adc_number] >= WR_PROGRAM_0) && (s_adc_control_target[adc_number] <= WR_PROGRAM_15)) {
-      if ((adc_control_value_old < 64) && (adc_control_value_new >= 64)) {
-        uint8_t program_number_to_write = s_adc_control_target[adc_number] - WR_PROGRAM_0;
+      static boolean s_ready_to_write[PROGRAM_NUMBER_MAX + 1] = {};
+      uint8_t program_number_to_write = s_adc_control_target[adc_number] - WR_PROGRAM_0;
+      if (s_adc_control_value[adc_number] <= 32) {
+        s_ready_to_write[program_number_to_write] = true;
+      } else if (s_ready_to_write[program_number_to_write] && (s_adc_control_value[adc_number] >= 96)) {
         g_synth.write_parameters_to_program(program_number_to_write);
+        s_ready_to_write[program_number_to_write] = false;
       }
     } else if (s_adc_control_target[adc_number] == RD_PANEL_PRMS) {
-      if ((adc_control_value_old < 64) && (adc_control_value_new >= 64)) {
+      static boolean s_ready_to_read_panel_prms;
+      if (s_adc_control_value[adc_number] <= 32) {
+        s_ready_to_read_panel_prms = true;
+      } else if (s_ready_to_read_panel_prms && (s_adc_control_value[adc_number] >= 96)) {
         g_synth.program_change(128);
+        s_ready_to_read_panel_prms = false;
       }
     } else if (s_adc_control_target[adc_number] == IN_PANEL_PRMS) {
-      if ((adc_control_value_old < 64) && (adc_control_value_new >= 64)) {
+      static boolean s_ready_to_init_panel_prms;
+      if (s_adc_control_value[adc_number] <= 32) {
+        s_ready_to_init_panel_prms = true;
+      } else if (s_ready_to_init_panel_prms && (s_adc_control_value[adc_number] >= 96)) {
         g_synth.program_change(129);
+        s_ready_to_init_panel_prms = false;
       }
     } else if (s_adc_control_target[adc_number] == WR_PANEL_PRMS) {
-      if ((adc_control_value_old < 64) && (adc_control_value_new >= 64)) {
+      static boolean s_ready_to_write_panel_prms;
+      if (s_adc_control_value[adc_number] <= 32) {
+        s_ready_to_write_panel_prms = true;
+      } else if (s_ready_to_write_panel_prms && (s_adc_control_value[adc_number] >= 96)) {
         g_synth.write_parameters_to_program(128);
+        s_ready_to_write_panel_prms = false;
       }
     } else if (s_adc_control_target[adc_number] == SEQ_RAND_PITCH) {
-      if ((adc_control_value_old < 64) && (adc_control_value_new >= 64)) {
+      static boolean s_ready_to_rand_pitch;
+      if (s_adc_control_value[adc_number] <= 32) {
+        s_ready_to_rand_pitch = true;
+      } else if (s_ready_to_rand_pitch && (s_adc_control_value[adc_number] >= 96)) {
         uint8_t array[8] = {};
         g_synth.get_rand_uint8_array(array);
         g_synth.control_change(SEQ_PITCH_0    , array[0] & 0x7Fu);
@@ -575,9 +599,14 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
         g_synth.control_change(SEQ_PITCH_5    , array[5] & 0x7Fu);
         g_synth.control_change(SEQ_PITCH_6    , array[6] & 0x7Fu);
         g_synth.control_change(SEQ_PITCH_7    , array[7] & 0x7Fu);
+
+        s_ready_to_rand_pitch = false;
       }
     } else if (s_adc_control_target[adc_number] == SEQ_RAND_VELO) {
-      if ((adc_control_value_old < 64) && (adc_control_value_new >= 64)) {
+      static boolean s_ready_to_rand_velo;
+      if (s_adc_control_value[adc_number] <= 32) {
+        s_ready_to_rand_velo = true;
+      } else if (s_ready_to_rand_velo && (s_adc_control_value[adc_number] >= 96)) {
         uint8_t array[8] = {};
         g_synth.get_rand_uint8_array(array);
         g_synth.control_change(SEQ_VELO_0     , array[0] & 0x7Fu);
@@ -588,11 +617,18 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
         g_synth.control_change(SEQ_VELO_5     , array[5] & 0x7Fu);
         g_synth.control_change(SEQ_VELO_6     , array[6] & 0x7Fu);
         g_synth.control_change(SEQ_VELO_7     , array[7] & 0x7Fu);
+
+        s_ready_to_rand_velo = false;
       }
     } else if (s_adc_control_target[adc_number] == PANIC_OP) {
-      if ((adc_control_value_old < 64) && (adc_control_value_new >= 64)) {
+      static boolean s_ready_to_panic;
+      if (s_adc_control_value[adc_number] <= 32) {
+        s_ready_to_panic = true;
+      } else if (s_ready_to_panic && (s_adc_control_value[adc_number] >= 96)) {
         g_synth.control_change(ALL_SOUND_OFF  , 0);
         g_synth.control_change(RESET_ALL_CTRLS, 0);
+
+        s_ready_to_panic = false;
       }
     }
 
@@ -807,14 +843,18 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case  SEQ_RAND_VELO  :
   case  PANIC_OP       :
     {
-      if        (controller_value < 64) {
+      if        (controller_value <= 32) {
         value_display_text[0] = 'R';
         value_display_text[1] = 'd';
         value_display_text[2] = 'y';
-      } else {
+      } else if (controller_value >= 96) {
         value_display_text[0] = 'E';
         value_display_text[1] = 'x';
         value_display_text[2] = 'e';
+      } else {
+        value_display_text[0] = ' ';
+        value_display_text[1] = ' ';
+        value_display_text[2] = '-';
       }
 
       result = true;
