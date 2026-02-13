@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v2.3.0 (2026-??-??):
+- v2.3.0 (2026-02-14):
     - PRA32-U2/P: Change the execution method for various operations
         - Old: Change the value from 0-63 [Rdy] to 64-127 [Exe]
         - New: Change the value from 0-32 [Rdy] to 96-127 [Exe]
