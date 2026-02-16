@@ -11,7 +11,6 @@ def generate_filter_lpf_table(res_id, name, q)
   (0..((DATA_BYTE_MAX * 2) << FILTER_TABLE_CUTOFF_EXT_BITS) + 1).each do |i|
     f_idx = [[-2 << FILTER_TABLE_CUTOFF_EXT_BITS, i - ((1 * 2) << FILTER_TABLE_CUTOFF_EXT_BITS)].max,
               252 << FILTER_TABLE_CUTOFF_EXT_BITS].min
-    f_idx = 120 if f_idx < 120
     f_0 = (2.0 ** ((f_idx / 2.0 / (1 << FILTER_TABLE_CUTOFF_EXT_BITS)) / (120.0 / OCTAVES))) * ((A4_FREQ * 2.0) * 16.0) * 2.0 / (2.0 ** (OCTAVES.to_f + 1.0))
     f_0_over_f_s = f_0 / SAMPLING_RATE
 
