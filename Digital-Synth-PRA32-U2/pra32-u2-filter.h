@@ -8,7 +8,7 @@
 
 static INLINE int32_t soft_clip(int32_t value) {
     // Note: Without anti-aliasing (oversampling)
-    int32_t one       = (1 << 23);
+    int32_t one       = (1 << 23) << 1;
     int32_t two_three = one * 2 / 3;
     volatile int32_t clamped =
          (value >  (+one))                       * (+two_three)
@@ -131,7 +131,7 @@ public:
   INLINE int32_t process(int32_t audio_input_int24) {
 #if 1
     // Nonlinear Biquad Filter, Transposed Direct Form-II
-    int32_t x_0 = audio_input_int24;
+    int32_t x_0 = audio_input_int24 << 1;
     int32_t y_0 =           m_z_1 + (multiply_shift_right(m_b_2_over_a_0, x_0,      32) << (32 - FILTER_TABLE_FRACTION_BITS));
     m_z_1       = soft_clip(m_z_2 + (multiply_shift_right(m_b_2_over_a_0, x_0 << 1, 32) << (32 - FILTER_TABLE_FRACTION_BITS))
                                   - (multiply_shift_right(m_a_1_over_a_0, y_0,      32) << (32 - FILTER_TABLE_FRACTION_BITS)));
@@ -143,10 +143,10 @@ public:
       y_0 = x_0 - y_0;
     }
 #else
-    volatile int32_t y_0 = audio_input_int24;
+    volatile int32_t y_0 = audio_input_int24 << 1;
 #endif
 
-    return y_0;
+    return y_0 >> 1;
   }
 
 private:

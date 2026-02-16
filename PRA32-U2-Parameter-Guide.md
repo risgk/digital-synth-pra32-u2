@@ -96,7 +96,7 @@
     - +45 (109): +7 semitone
     - +55 (119): +12 semitone (max)
 - Filter Cutoff
-    - 16: f = 32.7 Hz (min)
+    - 0: f = 13.0 Hz (min)
     - 61: f = 440 Hz
     - 64: f = 523.3 Hz
     - 121: f = 14080 kHz
