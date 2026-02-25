@@ -39,8 +39,9 @@ class PRA32_U2_Osc {
   const int16_t* m_wave_table_temp[4 * 5];
   uint32_t       m_freq[4 * 2];
   uint32_t       m_freq_base[4 * 2];
-  int16_t        m_freq_offset[4 * 2];
+  int32_t        m_freq_offset[4 * 2];
   uint32_t       m_phase[4 * 2];
+  int16_t        m_prev_noise_int15[4 * 2];
   uint32_t       m_phase_shape_morph[4];
   boolean        m_osc_on[4];
   int8_t         m_osc_level_effective[4];
@@ -84,6 +85,7 @@ public:
   , m_freq_base()
   , m_freq_offset()
   , m_phase()
+  , m_prev_noise_int15()
   , m_phase_shape_morph()
   , m_osc_on()
   , m_osc_level_effective()
@@ -407,17 +409,24 @@ public:
   }
 
   template <uint8_t N>
-  INLINE void process_at_low_rate(int16_t lfo_level, int16_t eg_level) {
+  INLINE void process_at_low_rate(uint16_t count, int16_t lfo_level, int16_t eg_level, int16_t noise_int15) {
     update_pitch_current<N>();
     update_osc1_shape<N>(lfo_level, eg_level);
     update_osc1_shape_effective<N>();
     update_freq_base<N + 0>(lfo_level, eg_level);
     update_freq_base<N + 4>(lfo_level, eg_level);
-    update_freq_offset<N + 0>();
-    update_freq_offset<N + 4>();
+
+    switch (count) {
+    case ((N * 0x2000) + 0x0000):
+      update_freq_offset<N + 0>(noise_int15);
+      break;
+    case ((N * 0x2000) + 0x8000):
+      update_freq_offset<N + 4>(noise_int15);
+      break;
+    }
   }
 
-  INLINE void process_at_low_rate_global(uint8_t count, int16_t noise_int15) {
+  INLINE void process_at_low_rate_global() {
     update_osc1_morph_control_effective();
     update_osc1_shape_control_effective();
     update_mixer_control_effective();
@@ -698,8 +707,14 @@ private:
   }
 
   template <uint8_t N>
-  INLINE void update_freq_offset() {
+  INLINE void update_freq_offset(int16_t noise_int15) {
     m_freq_offset[N] = (N >> 2) << 1;
+
+#if 1
+    m_freq_offset[N] += (static_cast<int32_t>(m_freq_base[N]) * ((noise_int15 >> 8) + (m_prev_noise_int15[N] >> 8))) >> 18;
+    m_prev_noise_int15[N] = noise_int15;
+#endif
+
     m_freq[N] = m_freq_base[N] + m_freq_offset[N];
   }
 
