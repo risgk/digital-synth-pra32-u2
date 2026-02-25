@@ -1,5 +1,8 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v2.5.0 (2026-??-??):
+    - Add the "Osc Drift" parameter
+    - Tested with Arduino-Pico version 5.5.0
 - v2.4.0 (2026-02-23):
     - Change the minimum effective "Filter Cutoff" value from 16 (f = 32.7 Hz) to 0 (f = 13.0 Hz)
     - PRA32-U2 Editor: Rename "Random Synth/FX" to "Randomize Synth/FX Prms"
