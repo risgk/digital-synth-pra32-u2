@@ -711,7 +711,7 @@ private:
     m_freq_offset[N] = (N >> 2) << 1;
 
 #if 0
-    m_freq_offset[N] += (static_cast<int32_t>(m_freq_base[N]) * ((noise_int15 >> 8) + (m_prev_noise_int15[N] >> 8))) >> 20;
+    m_freq_offset[N] += (static_cast<int32_t>(m_freq_base[N]) * ((noise_int15 >> 8) + (m_prev_noise_int15[N] >> 8))) >> 21;
     m_prev_noise_int15[N] = noise_int15;
 #endif
 
