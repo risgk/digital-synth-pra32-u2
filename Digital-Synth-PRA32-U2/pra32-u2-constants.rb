@@ -116,6 +116,11 @@ VOICE_ASGN_MODE = 110
 PAN             = 10
 
 
+OSC_DRIFT       = 82
+
+
+
+
 CHORUS_MIX      = 93
 
 CHORUS_RATE     = 58

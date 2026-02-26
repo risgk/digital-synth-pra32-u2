@@ -77,6 +77,11 @@ static uint8_t s_program_table_parameters[] = {
   PAN            ,
 
 
+  OSC_DRIFT      ,
+
+
+
+
   CHORUS_MIX     ,
   CHORUS_RATE    ,
   CHORUS_DEPTH   ,
@@ -372,6 +377,11 @@ public:
     std::memcpy(m_program_table[AFT_T_LFO_AMT  ], g_preset_table_AFT_T_LFO_AMT  , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[VOICE_ASGN_MODE], g_preset_table_VOICE_ASGN_MODE, sizeof(m_program_table[0]));
     std::memcpy(m_program_table[PAN            ], g_preset_table_PAN            , sizeof(m_program_table[0]));
+
+
+    std::memcpy(m_program_table[OSC_DRIFT      ], g_preset_table_OSC_DRIFT      , sizeof(m_program_table[0]));
+
+
 
 
     std::memcpy(m_program_table[CHORUS_MIX     ], g_preset_table_CHORUS_MIX     , sizeof(m_program_table[0]));
@@ -1056,6 +1066,10 @@ public:
 
     case PAN            :
       m_panner.set_pan(controller_value);
+      break;
+
+    case OSC_DRIFT      :
+      m_osc.set_drift(controller_value);
       break;
 
     case AFT_T_LFO_AMT  :

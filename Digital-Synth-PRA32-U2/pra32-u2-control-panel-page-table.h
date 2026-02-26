@@ -1,7 +1,7 @@
 #pragma once
 
 const uint8_t   PAGE_GROUP_DEFAULT   = 0;
-const uint8_t   PAGE_INDEX_DEFAULT_A = 7;
+const uint8_t   PAGE_INDEX_DEFAULT_A = 8;
 const uint8_t   PAGE_INDEX_DEFAULT_B = 2;
 const uint8_t   PAGE_INDEX_DEFAULT_C = 0;
 const uint8_t   PAGE_INDEX_DEFAULT_D = 0;
@@ -28,28 +28,29 @@ static const PRA32_U2_ControlPanelPage g_control_panel_page_table_a[] = {
   { "Page=A-04 ", "Osc b     ",   "Osc 1     ", "Shape     ", OSC_1_SHAPE    ,   "Osc 1     ", "Morph     ", OSC_1_MORPH    ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=A-05 ", "Osc c     ",   "Osc 2     ", "Wave      ", OSC_2_WAVE     ,   "Mixer     ", "Osc Mix   ", MIXER_OSC_MIX  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=A-06 ", "Osc d     ",   "Osc 2     ", "Coarse    ", OSC_2_COARSE   ,   "Osc 2     ", "Pitch     ", OSC_2_PITCH    ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=A-07 ", "Filter a  ",   "Filter    ", "Cutoff    ", FILTER_CUTOFF  ,   "Filter    ", "Resonance ", FILTER_RESO    ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=A-08 ", "Filter b  ",   "Filter    ", "EG Amt    ", FILTER_EG_AMT  ,   "Filter    ", "Key Track ", FILTER_KEY_TRK ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=A-09 ", "Filter c  ",   "Filter    ", "Mode      ", FILTER_MODE    ,   "          ", "          ", 0xFF           ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=A-10 ", "EG a      ",   "EG        ", "Attack    ", EG_ATTACK      ,   "EG        ", "Decay     ", EG_DECAY       ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=A-11 ", "EG b      ",   "EG        ", "Sustain   ", EG_SUSTAIN     ,   "EG        ", "Release   ", EG_RELEASE     ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=A-12 ", "EG c      ",   "EG        ", "Amp Mod   ", EG_AMP_MOD     ,   "Release   ", "= Decay   ", REL_EQ_DECAY   ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=A-13 ", "EG d      ",   "EG        ", "Mod Amt   ", EG_OSC_AMT     ,   "EG        ", "Mod Dst   ", EG_OSC_DST     ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=A-14 ", "EG e      ",   "EG        ", "Filter Amt", FILTER_EG_AMT  ,   "EG        ", "Velo Sens ", EG_VEL_SENS    ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=A-15 ", "Amp a     ",   "Amp       ", "Attack    ", AMP_ATTACK     ,   "Amp       ", "Decay     ", AMP_DECAY      ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=A-16 ", "Amp b     ",   "Amp       ", "Sustain   ", AMP_SUSTAIN    ,   "Amp       ", "Release   ", AMP_RELEASE    ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=A-17 ", "Amp c     ",   "Amp       ", "Gain      ", AMP_GAIN       ,   "Amp       ", "Velo Sens ", AMP_VEL_SENS   ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=A-18 ", "Panner    ",   "Pan       ", "          ", PAN            ,   "          ", "          ", 0xFF           ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=A-19 ", "LFO a     ",   "LFO       ", "Wave      ", LFO_WAVE       ,   "LFO       ", "Fade Time ", LFO_FADE_TIME  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=A-20 ", "LFO b     ",   "LFO       ", "Rate      ", LFO_RATE       ,   "LFO       ", "Depth     ", LFO_DEPTH      ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=A-21 ", "LFO c     ",   "LFO       ", "Mod Amt   ", LFO_OSC_AMT    ,   "LFO       ", "Mod Dst   ", LFO_OSC_DST    ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=A-22 ", "LFO d     ",   "LFO       ", "Filter Amt", LFO_FILTER_AMT ,   "          ", "          ", 0xFF           ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=A-23 ", "Breath    ",   "Breath    ", "Filter Amt", BTH_FILTER_AMT ,   "Breath    ", "Amp Mod   ", BTH_AMP_MOD    ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=A-24 ", "Aft Touch ",   "Aft Touch ", "LFO Amt   ", AFT_T_LFO_AMT  ,   "          ", "          ", 0xFF           ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=A-25 ", "Chorus a  ",   "Chorus    ", "Level     ", CHORUS_MIX     ,   "          ", "          ", 0xFF           ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=A-26 ", "Chorus b  ",   "Chorus    ", "Rate      ", CHORUS_RATE    ,   "Chorus    ", "Depth     ", CHORUS_DEPTH   ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=A-27 ", "Delay a   ",   "Delay     ", "Level     ", DELAY_LEVEL    ,   "Delay     ", "Mode      ", DELAY_MODE     ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=A-28 ", "Delay b   ",   "Delay     ", "Time      ", DELAY_TIME     ,   "Delay     ", "Feedback  ", DELAY_FEEDBACK ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=A-07 ", "Osc e     ",   "Osc       ", "Drift     ", OSC_DRIFT      ,   "          ", "          ", 0xFF           ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=A-08 ", "Filter a  ",   "Filter    ", "Cutoff    ", FILTER_CUTOFF  ,   "Filter    ", "Resonance ", FILTER_RESO    ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=A-09 ", "Filter b  ",   "Filter    ", "EG Amt    ", FILTER_EG_AMT  ,   "Filter    ", "Key Track ", FILTER_KEY_TRK ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=A-10 ", "Filter c  ",   "Filter    ", "Mode      ", FILTER_MODE    ,   "          ", "          ", 0xFF           ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=A-11 ", "EG a      ",   "EG        ", "Attack    ", EG_ATTACK      ,   "EG        ", "Decay     ", EG_DECAY       ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=A-12 ", "EG b      ",   "EG        ", "Sustain   ", EG_SUSTAIN     ,   "EG        ", "Release   ", EG_RELEASE     ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=A-13 ", "EG c      ",   "EG        ", "Amp Mod   ", EG_AMP_MOD     ,   "Release   ", "= Decay   ", REL_EQ_DECAY   ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=A-14 ", "EG d      ",   "EG        ", "Mod Amt   ", EG_OSC_AMT     ,   "EG        ", "Mod Dst   ", EG_OSC_DST     ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=A-15 ", "EG e      ",   "EG        ", "Filter Amt", FILTER_EG_AMT  ,   "EG        ", "Velo Sens ", EG_VEL_SENS    ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=A-16 ", "Amp a     ",   "Amp       ", "Attack    ", AMP_ATTACK     ,   "Amp       ", "Decay     ", AMP_DECAY      ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=A-17 ", "Amp b     ",   "Amp       ", "Sustain   ", AMP_SUSTAIN    ,   "Amp       ", "Release   ", AMP_RELEASE    ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=A-18 ", "Amp c     ",   "Amp       ", "Gain      ", AMP_GAIN       ,   "Amp       ", "Velo Sens ", AMP_VEL_SENS   ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=A-19 ", "Panner    ",   "Pan       ", "          ", PAN            ,   "          ", "          ", 0xFF           ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=A-20 ", "LFO a     ",   "LFO       ", "Wave      ", LFO_WAVE       ,   "LFO       ", "Fade Time ", LFO_FADE_TIME  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=A-21 ", "LFO b     ",   "LFO       ", "Rate      ", LFO_RATE       ,   "LFO       ", "Depth     ", LFO_DEPTH      ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=A-22 ", "LFO c     ",   "LFO       ", "Mod Amt   ", LFO_OSC_AMT    ,   "LFO       ", "Mod Dst   ", LFO_OSC_DST    ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=A-23 ", "LFO d     ",   "LFO       ", "Filter Amt", LFO_FILTER_AMT ,   "          ", "          ", 0xFF           ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=A-24 ", "Breath    ",   "Breath    ", "Filter Amt", BTH_FILTER_AMT ,   "Breath    ", "Amp Mod   ", BTH_AMP_MOD    ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=A-25 ", "Aft Touch ",   "Aft Touch ", "LFO Amt   ", AFT_T_LFO_AMT  ,   "          ", "          ", 0xFF           ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=A-26 ", "Chorus a  ",   "Chorus    ", "Level     ", CHORUS_MIX     ,   "          ", "          ", 0xFF           ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=A-27 ", "Chorus b  ",   "Chorus    ", "Rate      ", CHORUS_RATE    ,   "Chorus    ", "Depth     ", CHORUS_DEPTH   ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=A-28 ", "Delay a   ",   "Delay     ", "Level     ", DELAY_LEVEL    ,   "Delay     ", "Mode      ", DELAY_MODE     ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=A-29 ", "Delay b   ",   "Delay     ", "Time      ", DELAY_TIME     ,   "Delay     ", "Feedback  ", DELAY_FEEDBACK ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
 };
 
 static const PRA32_U2_ControlPanelPage g_control_panel_page_table_b[] = {

@@ -83,6 +83,11 @@
 |                            10 | x             | o             | Pan                                  |
 |                               |               |               |                                      |
 |                               |               |               |                                      |
+|                            82 | x             | o             | Osc Drift                            |
+|                               |               |               |                                      |
+|                               |               |               |                                      |
+|                               |               |               |                                      |
+|                               |               |               |                                      |
 |                            93 | x             | o             | Chorus Level                         |
 |                               |               |               |                                      |
 |                            58 | x             | o             | Chorus Rate                          |
