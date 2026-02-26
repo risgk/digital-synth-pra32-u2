@@ -264,6 +264,8 @@
 - Voice Assign Mode [1|2]
     - 0 (0-63): Mode 1, Free voice with next number has priority in Polyphonic Mode, Release is effective
     - 127 (64-127): Mode 2, Free voice with small number has priority in Polyphonic Mode, Portamento is effective
+- Pan
+- Osc Drift
 - Chorus Level: Chorus Send Level
 - Chorus Rate
     - 0: LFO Frequency 0.012 Hz (min)

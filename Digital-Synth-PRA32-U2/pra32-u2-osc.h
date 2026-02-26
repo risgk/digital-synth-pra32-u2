@@ -24,6 +24,7 @@ class PRA32_U2_Osc {
   static const uint8_t WAVEFORM_1_PULSE       = 5;
   static const uint8_t WAVEFORM_2_NOISE       = 6;
 
+  uint16_t       m_drift;
   uint32_t       m_portamento_coef[4];
   int16_t        m_pitch_eg_amt[2];
   int16_t        m_pitch_lfo_amt[2];
@@ -68,7 +69,8 @@ class PRA32_U2_Osc {
 
 public:
   PRA32_U2_Osc()
-  : m_portamento_coef()
+  : m_drift()
+  , m_portamento_coef()
   , m_pitch_eg_amt()
   , m_pitch_lfo_amt()
 
@@ -351,6 +353,10 @@ public:
     };
 
     m_osc2_detune = m_osc2_detune_table[controller_value];
+  }
+
+  INLINE void set_drift(uint8_t controller_value) {
+    m_drift = ((controller_value + 1) >> 1) << 2;
   }
 
   template <uint8_t N>
@@ -710,10 +716,9 @@ private:
   INLINE void update_freq_offset(int16_t noise_int15) {
     m_freq_offset[N] = (N >> 2) << 1;
 
-#if 0
-    m_freq_offset[N] += (static_cast<int32_t>(m_freq_base[N]) * ((noise_int15 >> 8) + (m_prev_noise_int15[N] >> 8))) >> 21;
+    m_freq_offset[N] += (((static_cast<int32_t>(m_freq_base[N]) *
+                           ((noise_int15 >> 8) + (m_prev_noise_int15[N] >> 8))) >> 8) * m_drift) >> 21;
     m_prev_noise_int15[N] = noise_int15;
-#endif
 
     m_freq[N] = m_freq_base[N] + m_freq_offset[N];
   }
