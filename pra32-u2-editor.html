@@ -314,7 +314,7 @@ presetControllers[OSC_1_MORPH    ] = [64 , 127, 108, 64 , 64 , 127, 64 , 0  ];
 presetControllers[OSC_2_WAVE     ] = [0  , 0  , 0  , 0  , 0  , 25 , 0  , 0  ];
 presetControllers[MIXER_OSC_MIX  ] = [64 , 0  , 64 , 0  , 64 , 0  , 64 , 0  ];
 presetControllers[OSC_2_COARSE   ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
-presetControllers[OSC_2_PITCH    ] = [72 , 72 , 72 , 72 , 109, 72 , 72 , 64 ];
+presetControllers[OSC_2_PITCH    ] = [72 , 72 , 72 , 72 , 109, 72 , 72 , 65 ];
 
 presetControllers[FILTER_CUTOFF  ] = [112, 112, 88 , 127, 112, 112, 52 , 127];
 presetControllers[FILTER_RESO    ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 0  ];
@@ -348,7 +348,7 @@ presetControllers[AMP_RELEASE    ] = [32 , 32 , 32 , 32 , 32 , 32 , 32 , 0  ];
 
 presetControllers[FILTER_MODE    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 presetControllers[P_BEND_RANGE   ] = [12 , 12 , 12 , 12 , 12 , 12 , 12 , 12 ];
-presetControllers[EG_AMP_MOD     ] = [0  , 127, 127, 127, 127, 0  , 127, 0  ];
+presetControllers[EG_AMP_MOD     ] = [0  , 127, 127, 127, 0  , 0  , 127, 0  ];
 presetControllers[REL_EQ_DECAY   ] = [127, 127, 127, 127, 127, 127, 127, 0  ];
 
 presetControllers[BTH_FILTER_AMT ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
@@ -381,50 +381,50 @@ const PRESET_NUMBER_INITIAL = 15;
 var editorOnlyPresetControllers = {};
 
 // Editor Preset                                #128 #129 #130 #131 #132 #133 #134 #135 
-editorOnlyPresetControllers[OSC_1_WAVE     ] = [127, 0  , 102, 76 , 127, 127, 0  , 0  ];
+editorOnlyPresetControllers[OSC_1_WAVE     ] = [127, 0  , 102, 76 , 127, 127, 127, 0  ];
 editorOnlyPresetControllers[MIXER_SUB_OSC  ] = [64 , 64 , 64 , 109, 64 , 64 , 64 , 64 ];
 editorOnlyPresetControllers[OSC_1_SHAPE    ] = [0  , 64 , 64 , 0  , 0  , 0  , 0  , 0  ];
-editorOnlyPresetControllers[OSC_1_MORPH    ] = [64 , 0  , 127, 12 , 0  , 0  , 0  , 0  ];
+editorOnlyPresetControllers[OSC_1_MORPH    ] = [64 , 0  , 127, 12 , 64 , 0  , 0  , 0  ];
 
 editorOnlyPresetControllers[OSC_2_WAVE     ] = [0  , 0  , 0  , 76 , 0  , 25 , 0  , 0  ];
-editorOnlyPresetControllers[MIXER_OSC_MIX  ] = [64 , 64 , 64 , 64 , 0  , 64 , 0  , 0  ];
+editorOnlyPresetControllers[MIXER_OSC_MIX  ] = [64 , 64 , 64 , 64 , 64 , 64 , 0  , 0  ];
 editorOnlyPresetControllers[OSC_2_COARSE   ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
-editorOnlyPresetControllers[OSC_2_PITCH    ] = [72 , 72 , 72 , 109, 72 , 72 , 64 , 64 ];
+editorOnlyPresetControllers[OSC_2_PITCH    ] = [72 , 72 , 72 , 109, 65 , 72 , 72 , 65 ];
 
-editorOnlyPresetControllers[FILTER_CUTOFF  ] = [88 , 112, 100, 64 , 112, 112, 127, 127];
-editorOnlyPresetControllers[FILTER_RESO    ] = [64 , 64 , 64 , 0  , 64 , 64 , 0  , 0  ];
+editorOnlyPresetControllers[FILTER_CUTOFF  ] = [88 , 112, 100, 64 , 112, 112, 112, 127];
+editorOnlyPresetControllers[FILTER_RESO    ] = [64 , 64 , 64 , 0  , 64 , 64 , 64 , 0  ];
 editorOnlyPresetControllers[FILTER_EG_AMT  ] = [76 , 64 , 76 , 64 , 64 , 64 , 64 , 64 ];
 editorOnlyPresetControllers[FILTER_KEY_TRK ] = [96 , 96 , 96 , 96 , 96 , 96 , 96 , 64 ];
 
-editorOnlyPresetControllers[EG_ATTACK      ] = [48 , 64 , 32 , 32 , 32 , 32 , 0  , 0  ];
-editorOnlyPresetControllers[EG_DECAY       ] = [80 , 64 , 96 , 32 , 32 , 32 , 0  , 0  ];
+editorOnlyPresetControllers[EG_ATTACK      ] = [48 , 64 , 32 , 32 , 32 , 32 , 32 , 0  ];
+editorOnlyPresetControllers[EG_DECAY       ] = [80 , 64 , 96 , 32 , 32 , 32 , 32 , 0  ];
 editorOnlyPresetControllers[EG_SUSTAIN     ] = [0  , 127, 0  , 127, 127, 127, 127, 127];
-editorOnlyPresetControllers[EG_RELEASE     ] = [32 , 32 , 32 , 32 , 32 , 32 , 0  , 0  ];
+editorOnlyPresetControllers[EG_RELEASE     ] = [32 , 32 , 32 , 32 , 32 , 32 , 32 , 0  ];
 
 editorOnlyPresetControllers[EG_OSC_AMT     ] = [72 , 64 , 72 , 64 , 64 , 64 , 64 , 64 ];
-editorOnlyPresetControllers[EG_OSC_DST     ] = [76 , 0  , 127, 127, 127, 0  , 0  , 0  ];
+editorOnlyPresetControllers[EG_OSC_DST     ] = [76 , 0  , 127, 127, 0  , 0  , 127, 0  ];
 editorOnlyPresetControllers[VOICE_MODE     ] = [0  , 0  , 0  , 0  , 127, 127, 127, 127];
 editorOnlyPresetControllers[PORTAMENTO     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 
 editorOnlyPresetControllers[LFO_WAVE       ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 editorOnlyPresetControllers[LFO_FADE_TIME  ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 editorOnlyPresetControllers[LFO_RATE       ] = [80 , 80 , 80 , 80 , 80 , 80 , 80 , 80 ];
-editorOnlyPresetControllers[LFO_DEPTH      ] = [0  , 0  , 0  , 0  , 64 , 0  , 0  , 0  ];
+editorOnlyPresetControllers[LFO_DEPTH      ] = [0  , 0  , 0  , 0  , 0  , 0  , 64 , 0  ];
 
-editorOnlyPresetControllers[LFO_OSC_AMT    ] = [64 , 64 , 72 , 64 , 96 , 119, 64 , 64 ];
-editorOnlyPresetControllers[LFO_OSC_DST    ] = [0  , 0  , 127, 127, 127, 0  , 0  , 0  ];
+editorOnlyPresetControllers[LFO_OSC_AMT    ] = [64 , 64 , 72 , 64 , 119, 119, 96 , 64 ];
+editorOnlyPresetControllers[LFO_OSC_DST    ] = [0  , 0  , 127, 127, 0  , 0  , 127, 0  ];
 editorOnlyPresetControllers[LFO_FILTER_AMT ] = [76 , 76 , 64 , 76 , 64 , 64 , 64 , 64 ];
-editorOnlyPresetControllers[AMP_GAIN       ] = [110, 100, 100, 100, 90 , 90 , 100, 100];
+editorOnlyPresetControllers[AMP_GAIN       ] = [110, 100, 100, 100, 100, 90 , 90 , 100];
 
-editorOnlyPresetControllers[AMP_ATTACK     ] = [32 , 32 , 32 , 32 , 32 , 32 , 0  , 0  ];
-editorOnlyPresetControllers[AMP_DECAY      ] = [32 , 32 , 32 , 32 , 32 , 32 , 0  , 0  ];
+editorOnlyPresetControllers[AMP_ATTACK     ] = [32 , 32 , 32 , 32 , 32 , 32 , 32 , 0  ];
+editorOnlyPresetControllers[AMP_DECAY      ] = [32 , 32 , 32 , 32 , 32 , 32 , 32 , 0  ];
 editorOnlyPresetControllers[AMP_SUSTAIN    ] = [127, 127, 127, 127, 127, 127, 127, 127];
-editorOnlyPresetControllers[AMP_RELEASE    ] = [32 , 32 , 32 , 32 , 32 , 32 , 0  , 0  ];
+editorOnlyPresetControllers[AMP_RELEASE    ] = [32 , 32 , 32 , 32 , 32 , 32 , 32 , 0  ];
 
 editorOnlyPresetControllers[FILTER_MODE    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 editorOnlyPresetControllers[P_BEND_RANGE   ] = [12 , 12 , 12 , 12 , 12 , 12 , 12 , 12 ];
-editorOnlyPresetControllers[EG_AMP_MOD     ] = [0  , 127, 127, 127, 127, 127, 0  , 0  ];
-editorOnlyPresetControllers[REL_EQ_DECAY   ] = [127, 127, 127, 127, 127, 127, 0  , 0  ];
+editorOnlyPresetControllers[EG_AMP_MOD     ] = [0  , 127, 127, 127, 0  , 0  , 127, 0  ];
+editorOnlyPresetControllers[REL_EQ_DECAY   ] = [127, 127, 127, 127, 127, 127, 127, 0  ];
 
 editorOnlyPresetControllers[BTH_FILTER_AMT ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 editorOnlyPresetControllers[BTH_AMP_MOD    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
@@ -441,12 +441,12 @@ editorOnlyPresetControllers[OSC_DRIFT      ] = [64 , 64 , 64 , 64 , 64 , 64 , 64
 
 
 
-editorOnlyPresetControllers[CHORUS_MIX     ] = [127, 127, 127, 127, 127, 127, 0  , 0  ];
+editorOnlyPresetControllers[CHORUS_MIX     ] = [127, 127, 127, 127, 127, 127, 127, 0  ];
 
 editorOnlyPresetControllers[CHORUS_RATE    ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 editorOnlyPresetControllers[CHORUS_DEPTH   ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 
-editorOnlyPresetControllers[DELAY_LEVEL    ] = [64 , 64 , 64 , 64 , 64 , 64 , 0  , 0  ];
+editorOnlyPresetControllers[DELAY_LEVEL    ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 0  ];
 editorOnlyPresetControllers[DELAY_MODE     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 editorOnlyPresetControllers[DELAY_TIME     ] = [93 , 93 , 93 , 93 , 93 , 93 , 93 , 93 ];
 editorOnlyPresetControllers[DELAY_FEEDBACK ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
@@ -1327,11 +1327,11 @@ function getStoredCCValueString(index, number) {
 <table>
 <tr><td>Editor Preset</td>
     <td></td>
-    <td><input type="button" value="#132 PWM Lead"       onclick="editorOnlyPreset(132)"></td>
+    <td><input type="button" value="#132 Saw Lead"       onclick="editorOnlyPreset(132)"></td>
     <td></td>
     <td><input type="button" value="#133 Square Lead"    onclick="editorOnlyPreset(133)"></td>
     <td></td>
-    <td><input type="button" value="#134 ---"            onclick="editorOnlyPreset(134)" disabled></td>
+    <td><input type="button" value="#134 PWM Lead"       onclick="editorOnlyPreset(134)"></td>
     <td></td>
     <td><input type="button" value="#135 ---"            onclick="editorOnlyPreset(135)" disabled></td></tr>
 <tr><td>(from Browser)</td>

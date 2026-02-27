@@ -11,7 +11,7 @@ const uint8_t g_preset_table_OSC_1_MORPH    [] = {64 , 127, 108, 64 , 64 , 127, 
 const uint8_t g_preset_table_OSC_2_WAVE     [] = {0  , 0  , 0  , 0  , 0  , 25 , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 25 , 0  , 0  };
 const uint8_t g_preset_table_MIXER_OSC_MIX  [] = {64 , 0  , 64 , 0  , 64 , 0  , 64 , 0  ,   64 , 0  , 64 , 0  , 64 , 0  , 64 , 0  };
 const uint8_t g_preset_table_OSC_2_COARSE   [] = {64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 };
-const uint8_t g_preset_table_OSC_2_PITCH    [] = {72 , 72 , 72 , 72 , 109, 72 , 72 , 64 ,   72 , 72 , 72 , 72 , 109, 72 , 72 , 64 };
+const uint8_t g_preset_table_OSC_2_PITCH    [] = {72 , 72 , 72 , 72 , 109, 72 , 72 , 65 ,   72 , 72 , 72 , 72 , 109, 72 , 72 , 65 };
 
 const uint8_t g_preset_table_FILTER_CUTOFF  [] = {112, 112, 88 , 127, 112, 112, 52 , 127,   112, 112, 88 , 127, 112, 112, 52 , 127};
 const uint8_t g_preset_table_FILTER_RESO    [] = {64 , 64 , 64 , 64 , 64 , 64 , 64 , 0  ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 0  };
@@ -45,7 +45,7 @@ const uint8_t g_preset_table_AMP_RELEASE    [] = {32 , 32 , 32 , 32 , 32 , 32 , 
 
 const uint8_t g_preset_table_FILTER_MODE    [] = {0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  };
 const uint8_t g_preset_table_P_BEND_RANGE   [] = {12 , 12 , 12 , 12 , 12 , 12 , 12 , 12 ,   12 , 12 , 12 , 12 , 12 , 12 , 12 , 12 };
-const uint8_t g_preset_table_EG_AMP_MOD     [] = {0  , 127, 127, 127, 127, 0  , 127, 0  ,   0  , 127, 127, 127, 127, 0  , 127, 0  };
+const uint8_t g_preset_table_EG_AMP_MOD     [] = {0  , 127, 127, 127, 0  , 0  , 127, 0  ,   0  , 127, 127, 127, 0  , 0  , 127, 0  };
 const uint8_t g_preset_table_REL_EQ_DECAY   [] = {127, 127, 127, 127, 127, 127, 127, 0  ,   127, 127, 127, 127, 127, 127, 127, 0  };
 
 const uint8_t g_preset_table_BTH_FILTER_AMT [] = {64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 };
