@@ -19,6 +19,9 @@ class PRA32_U2_ChorusFx {
   uint32_t m_chorus_lfo_phase;
   uint16_t m_chorus_delay_time[2];
 
+  int32_t  m_prev_sample_to_push_0;
+  int32_t  m_prev_sample_to_push_1;
+
 public:
   PRA32_U2_ChorusFx()
   : m_delay_buff()
@@ -33,6 +36,9 @@ public:
   , m_chorus_delay_time_control_effective()
   , m_chorus_lfo_phase()
   , m_chorus_delay_time()
+
+  , m_prev_sample_to_push_0()
+  , m_prev_sample_to_push_1()
   {
     m_delay_wp[0] = DELAY_BUFF_SIZE - 1;
     m_delay_wp[1] = DELAY_BUFF_SIZE - 1;
@@ -113,8 +119,21 @@ public:
   INLINE int32_t process(int32_t left_input_int24, int32_t right_input_int24, int32_t& right_output_int24) {
     int32_t eff_sample_0 = delay_buff_get(0, get_chorus_delay_time<0>());
     int32_t eff_sample_1 = delay_buff_get(1, get_chorus_delay_time<1>());
-    delay_buff_push(0, (left_input_int24  * m_chorus_level_control_effective) >> 6);
-    delay_buff_push(1, (right_input_int24 * m_chorus_level_control_effective) >> 6);
+
+    int32_t curr_sample_to_push_0 = (left_input_int24  * m_chorus_level_control_effective) >> 6;
+    int32_t curr_sample_to_push_1 = (right_input_int24 * m_chorus_level_control_effective) >> 6;
+
+#if 0
+    // Do not apply LPF to the delay component
+    m_prev_sample_to_push_0 = curr_sample_to_push_0;
+    m_prev_sample_to_push_1 = curr_sample_to_push_1;
+#endif
+
+    delay_buff_push(0, (curr_sample_to_push_0 + m_prev_sample_to_push_0) >> 1);
+    delay_buff_push(1, (curr_sample_to_push_1 + m_prev_sample_to_push_1) >> 1);
+
+    m_prev_sample_to_push_0 = curr_sample_to_push_0;
+    m_prev_sample_to_push_1 = curr_sample_to_push_1;
 
     right_output_int24 = right_input_int24 + eff_sample_1;
     return               left_input_int24  + eff_sample_0;
