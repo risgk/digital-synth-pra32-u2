@@ -16,9 +16,6 @@ class PRA32_U2_DelayFx {
   uint16_t m_delay_time_effective;
   uint8_t  m_delay_mode;
 
-  int32_t  m_prev_sample_to_push_0;
-  int32_t  m_prev_sample_to_push_1;
-
 public:
   PRA32_U2_DelayFx()
   : m_delay_buff()
@@ -31,9 +28,6 @@ public:
   , m_delay_time()
   , m_delay_time_effective()
   , m_delay_mode()
-
-  , m_prev_sample_to_push_0()
-  , m_prev_sample_to_push_1()
   {
     m_delay_wp[0] = DELAY_BUFF_SIZE - 1;
     m_delay_wp[1] = DELAY_BUFF_SIZE - 1;
@@ -113,20 +107,8 @@ public:
       right_feedback = multiply_shift_right((right_send + right_delay), (m_delay_feedback_effective << 8), 16);
     }
 
-    int32_t curr_sample_to_push_0 = left_feedback;
-    int32_t curr_sample_to_push_1 = right_feedback;
-
-#if 0
-    // Do not apply LPF to the delay component
-    m_prev_sample_to_push_0 = curr_sample_to_push_0;
-    m_prev_sample_to_push_1 = curr_sample_to_push_1;
-#endif
-
-    delay_buff_push<0>((curr_sample_to_push_0 + m_prev_sample_to_push_0) >> 1);
-    delay_buff_push<1>((curr_sample_to_push_1 + m_prev_sample_to_push_1) >> 1);
-
-    m_prev_sample_to_push_0 = curr_sample_to_push_0;
-    m_prev_sample_to_push_1 = curr_sample_to_push_1;
+    delay_buff_push<0>(left_feedback);
+    delay_buff_push<1>(right_feedback);
 
     right_output_int24 = right_input_int24 + right_delay;
     return               left_input_int24  + left_delay;
