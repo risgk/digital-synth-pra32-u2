@@ -137,28 +137,29 @@
 | A-04 Osc b     | Osc 1 Shape         | Osc 1 Morph      |
 | A-05 Osc c     | Osc 2 Wave          | Mixer Osc Mix    |
 | A-06 Osc d     | Osc 2 Coarse        | Osc 2 Pitch      |
-| A-07 Filter a  | Filter Cutoff       | Filter Resonance |
-| A-08 Filter b  | Filter EG Amt       | Filter Key Track |
-| A-09 Filter c  | Filter Mode         |                  |
-| A-10 EG a      | EG Attack           | EG Decay         |
-| A-11 EG b      | EG Sustain          | EG Release       |
-| A-12 EG c      | EG Amp Mod          | Release = Decay  |
-| A-13 EG d      | EG Mod Amt          | EG Mod Dst       |
-| A-14 EG e      | EG Filter Amt       | EG Velo Sens     |
-| A-15 Amp a     | Amp Attack          | Amp Decay        |
-| A-16 Amp b     | Amp Sustain         | Amp Release      |
-| A-17 Amp c     | Amp Gain            | Amp Velo Sens    |
-| A-18 Panner    | Pan                 |                  |
-| A-19 LFO a     | LFO Wave            | LFO Fade Time    |
-| A-20 LFO b     | LFO Rate            | LFO Depth        |
-| A-21 LFO c     | LFO Mod Amt         | LFO Mod Dst      |
-| A-22 LFO d     | LFO Filter Amt      |                  |
-| A-23 Breath    | Breath Filter Amt   | Breath Amp Mod   |
-| A-24 Aft Touch | Aft Touch LFO Amt   |                  |
-| A-25 Chorus a  | Chorus Level        |                  |
-| A-26 Chorus b  | Chorus Rate         | Chorus Depth     |
-| A-27 Delay a   | Delay Level         | Delay Mode       |
-| A-28 Delay b   | Delay Time          | Delay Feedback   |
+| A-07 Osc e     | Osc Drift           |                  |
+| A-08 Filter a  | Filter Cutoff       | Filter Resonance |
+| A-09 Filter b  | Filter EG Amt       | Filter Key Track |
+| A-10 Filter c  | Filter Mode         |                  |
+| A-11 EG a      | EG Attack           | EG Decay         |
+| A-12 EG b      | EG Sustain          | EG Release       |
+| A-13 EG c      | EG Amp Mod          | Release = Decay  |
+| A-14 EG d      | EG Mod Amt          | EG Mod Dst       |
+| A-15 EG e      | EG Filter Amt       | EG Velo Sens     |
+| A-16 Amp a     | Amp Attack          | Amp Decay        |
+| A-17 Amp b     | Amp Sustain         | Amp Release      |
+| A-18 Amp c     | Amp Gain            | Amp Velo Sens    |
+| A-19 Panner    | Pan                 |                  |
+| A-20 LFO a     | LFO Wave            | LFO Fade Time    |
+| A-21 LFO b     | LFO Rate            | LFO Depth        |
+| A-22 LFO c     | LFO Mod Amt         | LFO Mod Dst      |
+| A-23 LFO d     | LFO Filter Amt      |                  |
+| A-24 Breath    | Breath Filter Amt   | Breath Amp Mod   |
+| A-25 Aft Touch | Aft Touch LFO Amt   |                  |
+| A-26 Chorus a  | Chorus Level        |                  |
+| A-27 Chorus b  | Chorus Rate         | Chorus Depth     |
+| A-28 Delay a   | Delay Level         | Delay Mode       |
+| A-29 Delay b   | Delay Time          | Delay Feedback   |
 | B-00 Panel a   | Panel Play Mode     | Panel MIDI Ch    |
 | B-01 Panel b   | Panel Play Pitch    | Panel Play Velo  |
 | B-02 Panel c   | Panel Scale         | Panel Pitch Ofst |
