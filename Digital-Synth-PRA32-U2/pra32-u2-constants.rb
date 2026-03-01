@@ -117,7 +117,7 @@ PAN             = 10
 
 
 OSC_DRIFT       = 82
-
+OSC_SAW_W_MODE  = 83
 
 
 

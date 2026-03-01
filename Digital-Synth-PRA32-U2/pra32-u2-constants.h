@@ -117,7 +117,7 @@ const uint8_t   PAN             = 10;
 
 
 const uint8_t   OSC_DRIFT       = 82;
-
+const uint8_t   OSC_SAW_W_MODE  = 83;
 
 
 

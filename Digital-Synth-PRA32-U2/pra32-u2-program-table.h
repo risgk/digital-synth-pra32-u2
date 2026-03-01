@@ -59,7 +59,7 @@ const uint8_t g_preset_table_PAN            [] = {64 , 64 , 64 , 64 , 64 , 64 , 
 
 
 const uint8_t g_preset_table_OSC_DRIFT      [] = {127, 127, 127, 127, 127, 127, 127, 127,   127, 127, 127, 127, 127, 127, 127, 127};
-
+const uint8_t g_preset_table_OSC_SAW_W_MODE [] = {127, 127, 127, 127, 127, 127, 127, 127,   127, 127, 127, 127, 127, 127, 127, 127};
 
 
 
