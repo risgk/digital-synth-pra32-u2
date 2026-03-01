@@ -84,7 +84,7 @@
 |                               |               |               |                                      |
 |                               |               |               |                                      |
 |                            82 | x             | o             | Osc Drift                            |
-|                               |               |               |                                      |
+|                            83 | x             | o             | Osc Saw Wave Mode [Str|Cur]          |
 |                               |               |               |                                      |
 |                               |               |               |                                      |
 |                               |               |               |                                      |

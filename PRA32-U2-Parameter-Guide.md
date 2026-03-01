@@ -266,6 +266,9 @@
     - 127 (64-127): Mode 2, Free voice with small number has priority in Polyphonic Mode, Portamento is effective
 - Pan
 - Osc Drift
+- Osc Saw Wave Mode [Str|Cur]
+    - 0 (0-63): Straight Saw Wave
+    - 127 (64-127): Curved Saw Wave, This does not affect the Pulse Wave
 - Chorus Level: Chorus Send Level
 - Chorus Rate
     - 0: LFO Frequency 0.012 Hz (min)
