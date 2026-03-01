@@ -2,6 +2,9 @@
 
 - v2.5.0 (2026-??-??):
     - Add the "Osc Drift" parameter
+        - Initial: 127
+    - Add the "Osc Saw Wave Mode" parameter
+        - Initial: 127 (Curved Saw Wave)
     - Modify the Presets and the Editor Presets
     - Tested with Arduino-Pico version 5.5.0
 - v2.4.0 (2026-02-23):
