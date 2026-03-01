@@ -78,7 +78,7 @@ static uint8_t s_program_table_parameters[] = {
 
 
   OSC_DRIFT      ,
-
+  OSC_SAW_W_MODE ,
 
 
 
@@ -380,7 +380,7 @@ public:
 
 
     std::memcpy(m_program_table[OSC_DRIFT      ], g_preset_table_OSC_DRIFT      , sizeof(m_program_table[0]));
-
+    std::memcpy(m_program_table[OSC_SAW_W_MODE ], g_preset_table_OSC_SAW_W_MODE , sizeof(m_program_table[0]));
 
 
 
@@ -1070,6 +1070,10 @@ public:
 
     case OSC_DRIFT      :
       m_osc.set_drift(controller_value);
+      break;
+
+    case OSC_SAW_W_MODE :
+      m_osc.set_saw_wave_mode(controller_value);
       break;
 
     case AFT_T_LFO_AMT  :
