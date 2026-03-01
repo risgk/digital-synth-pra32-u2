@@ -6,6 +6,7 @@
     - Add the "Osc Saw Wave Mode" parameter
         - Initial: 127 (Curved Saw Wave)
     - Modify the Presets and the Editor Presets
+    - Other improvements
     - Tested with Arduino-Pico version 5.5.0
 - v2.4.0 (2026-02-23):
     - Change the minimum effective "Filter Cutoff" value from 16 (f = 32.7 Hz) to 0 (f = 13.0 Hz)
