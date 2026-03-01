@@ -1,7 +1,7 @@
 require_relative 'pra32-u2-constants'
 
 # refs http://en.wikipedia.org/wiki/Cooley%E2%80%93Tukey_FFT_algorithm
-# Cooley?Tukey FFT algorithm - Wikipedia, the free encyclopedia
+# Cooley–Tukey FFT algorithm - Wikipedia, the free encyclopedia
 
 def fft(a)
   ditfft2(a, a.size, 1)
