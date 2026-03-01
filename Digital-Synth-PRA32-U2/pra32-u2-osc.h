@@ -567,7 +567,7 @@ private:
       uint32_t phase_0 = m_phase[N] + ((wave_3 * osc1_phase_modulation_depth) >> 4);
       int32_t wave_0 = get_wave_level(wave_table_sine, phase_0);
       result += (wave_0 * osc1_gain * m_osc_level_effective[N]) >> 10;
-    } else if (m_waveform[0] == WAVEFORM_SAW) {
+    } else if ((m_waveform[0] == WAVEFORM_SAW) || (m_waveform[0] == WAVEFORM_SAW2)) {
       volatile int32_t phase_modulation_depth = maximum(m_osc1_shape_effective[N] - (128 << 8), 0);
 
       uint32_t freq_shape_morph =
