@@ -6,6 +6,7 @@
     - Add the "Osc Saw Wave Mode" parameter
         - Initial: 127 (Curved Saw Wave)
     - Modify the Presets and the Editor Presets
+    - Optimize the Osc processing
     - Optimize the EG processing
     - Other improvements
     - Tested with Arduino-Pico version 5.5.0
