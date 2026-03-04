@@ -6,6 +6,7 @@
     - Add the "Osc Saw Wave Mode" parameter
         - Initial: 127 (Curved Saw Wave)
     - Change the Chorus FX to apply LPF to the delay component
+    - Change the Delay FX to apply LPF to the delay component
     - Modify the Presets and the Editor Presets
     - Optimize the Osc processing
     - Optimize the EG processing
