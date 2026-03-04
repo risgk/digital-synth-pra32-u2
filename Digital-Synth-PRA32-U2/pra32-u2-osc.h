@@ -546,9 +546,11 @@ private:
     m_wave_table[N]      = reinterpret_cast<const int16_t*>( reinterpret_cast<const uint8_t*>( m_wave_table[N]) +
                                                             (reinterpret_cast<const uintptr_t>(m_wave_table_temp[N]) * new_period_osc1));
 
+#if 0
     m_wave_table[N + 12] = reinterpret_cast<const int16_t*>((reinterpret_cast<const uintptr_t>(m_wave_table[N + 12]) * (1 - new_period_osc1)));
     m_wave_table[N + 12] = reinterpret_cast<const int16_t*>( reinterpret_cast<const uint8_t*>( m_wave_table[N + 12]) +
                                                             (reinterpret_cast<const uintptr_t>(m_wave_table_temp[N + 12]) * new_period_osc1));
+#endif
 
     m_wave_table[N + 16] = reinterpret_cast<const int16_t*>((reinterpret_cast<const uintptr_t>(m_wave_table[N + 16]) * (1 - new_period_osc1)));
     m_wave_table[N + 16] = reinterpret_cast<const int16_t*>( reinterpret_cast<const uint8_t*>( m_wave_table[N + 16]) +
@@ -737,6 +739,9 @@ private:
 
       volatile int32_t coarse_sub = maximum((coarse - 12), NOTE_NUMBER_MIN);
       m_wave_table_temp[N + 12] = get_wave_table(WAVEFORM_SINE, coarse_sub);
+#if 1
+      m_wave_table[N + 12]      = m_wave_table_temp[N + 12];
+#endif
     }
 
 
