@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v2.5.0 (2026-??-??):
+- v2.5.0 (2026-03-06):
     - Add the "Osc Drift" parameter
         - Initial: 127
     - Add the "Osc Saw Wave Mode" parameter
