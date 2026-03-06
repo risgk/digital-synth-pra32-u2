@@ -762,6 +762,14 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
       result = true;
     }
     break;
+  case OSC_SAW_W_MODE  :
+    {
+      char ary[2][5] = {"Str","Cur"};
+      uint32_t index = ((controller_value * 2) + 127) / 254;
+      std::strcpy(value_display_text, ary[index]);
+      result = true;
+    }
+    break;
   case BTH_AMP_MOD     :
     {
       char ary[3][5] = {"Off","Qad","Lin"};

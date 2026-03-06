@@ -1,5 +1,15 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v2.5.0 (2026-03-06):
+    - Add the "Osc Drift" parameter
+        - Initial: 127
+    - Add the "Osc Saw Wave Mode" parameter
+        - Initial: 127 (Curved Saw Wave)
+    - Change the Chorus FX and the Delay FX to apply LPF to the delay component
+    - Modify the Presets and the Editor Presets
+    - Optimize processing of the Osc and the EG
+    - Other improvements
+    - Tested with Arduino-Pico version 5.5.1
 - v2.4.0 (2026-02-23):
     - Change the minimum effective "Filter Cutoff" value from 16 (f = 32.7 Hz) to 0 (f = 13.0 Hz)
     - PRA32-U2 Editor: Rename "Random Synth/FX" to "Randomize Synth/FX Prms"
