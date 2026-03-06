@@ -1,5 +1,9 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v2.5.2 (2026-03-06):
+    - Decrease the "Osc Drift" of the Presets and the Editor Presets
+        - From 64 to 32
+    - Tested with Arduino-Pico version 5.5.1
 - v2.5.1 (2026-03-06):
     - Decrease the "Osc Drift" of the Presets and the Editor Presets
     - Tested with Arduino-Pico version 5.5.1
