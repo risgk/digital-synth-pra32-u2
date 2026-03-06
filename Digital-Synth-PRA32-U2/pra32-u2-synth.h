@@ -77,6 +77,11 @@ static uint8_t s_program_table_parameters[] = {
   PAN            ,
 
 
+  OSC_DRIFT      ,
+  OSC_SAW_W_MODE ,
+
+
+
   CHORUS_MIX     ,
   CHORUS_RATE    ,
   CHORUS_DEPTH   ,
@@ -372,6 +377,11 @@ public:
     std::memcpy(m_program_table[AFT_T_LFO_AMT  ], g_preset_table_AFT_T_LFO_AMT  , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[VOICE_ASGN_MODE], g_preset_table_VOICE_ASGN_MODE, sizeof(m_program_table[0]));
     std::memcpy(m_program_table[PAN            ], g_preset_table_PAN            , sizeof(m_program_table[0]));
+
+
+    std::memcpy(m_program_table[OSC_DRIFT      ], g_preset_table_OSC_DRIFT      , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[OSC_SAW_W_MODE ], g_preset_table_OSC_SAW_W_MODE , sizeof(m_program_table[0]));
+
 
 
     std::memcpy(m_program_table[CHORUS_MIX     ], g_preset_table_CHORUS_MIX     , sizeof(m_program_table[0]));
@@ -1058,6 +1068,14 @@ public:
       m_panner.set_pan(controller_value);
       break;
 
+    case OSC_DRIFT      :
+      m_osc.set_drift(controller_value);
+      break;
+
+    case OSC_SAW_W_MODE :
+      m_osc.set_saw_wave_mode(controller_value);
+      break;
+
     case AFT_T_LFO_AMT  :
       m_lfo.set_pressure_amt(controller_value);
       break;
@@ -1294,19 +1312,19 @@ public:
         m_eg[0].process_at_low_rate();
         m_eg[1].process_at_low_rate();
         int16_t lfo_output = m_lfo.get_output<0>();
-        m_osc.process_at_low_rate<0>(lfo_output, m_eg[0].get_output());
+        m_osc.process_at_low_rate<0>(m_count >> 2, lfo_output, m_eg[0].get_output(), noise_int15);
         m_filter[0].process_at_low_rate(m_count >> 2, m_eg[0].get_output(), lfo_output, m_osc.get_osc_pitch(0));
         m_amp[0].process_at_low_rate(m_eg[1].get_output());
       }
       break;
     case 0x01:
       {
-        m_osc.process_at_low_rate_global(m_count >> 2, noise_int15);
+        m_osc.process_at_low_rate_global();
 
         m_eg[2].process_at_low_rate();
         m_eg[3].process_at_low_rate();
         int16_t lfo_output = m_lfo.get_output<1>();
-        m_osc.process_at_low_rate<1>(lfo_output, m_eg[2].get_output());
+        m_osc.process_at_low_rate<1>(m_count >> 2, lfo_output, m_eg[2].get_output(), noise_int15);
         m_filter[1].process_at_low_rate(m_count >> 2, m_eg[2].get_output(), lfo_output, m_osc.get_osc_pitch(1));
         m_amp[1].process_at_low_rate(m_eg[3].get_output());
 
@@ -1318,7 +1336,7 @@ public:
         m_eg[4].process_at_low_rate();
         m_eg[5].process_at_low_rate();
         int16_t lfo_output = m_lfo.get_output<2>();
-        m_osc.process_at_low_rate<2>(lfo_output, m_eg[4].get_output());
+        m_osc.process_at_low_rate<2>(m_count >> 2, lfo_output, m_eg[4].get_output(), noise_int15);
         m_filter[2].process_at_low_rate(m_count >> 2, m_eg[4].get_output(), lfo_output, m_osc.get_osc_pitch(2));
         m_amp[2].process_at_low_rate(m_eg[5].get_output());
 
@@ -1330,7 +1348,7 @@ public:
         m_eg[6].process_at_low_rate();
         m_eg[7].process_at_low_rate();
         int16_t lfo_output = m_lfo.get_output<3>();
-        m_osc.process_at_low_rate<3>(lfo_output, m_eg[6].get_output());
+        m_osc.process_at_low_rate<3>(m_count >> 2, lfo_output, m_eg[6].get_output(), noise_int15);
         m_filter[3].process_at_low_rate(m_count >> 2, m_eg[6].get_output(), lfo_output, m_osc.get_osc_pitch(3));
         m_amp[3].process_at_low_rate(m_eg[7].get_output());
 

@@ -90,14 +90,9 @@ public:
 #if 1
     switch (m_state) {
     case STATE_ATTACK:
-      if (m_level >= EG_LEVEL_MAX) {
-        m_level = EG_LEVEL_MAX;
-        m_state = STATE_SUSTAIN;
-      } else if (m_level >= m_attack_level) {
-        m_state = STATE_SUSTAIN;
-      } else {
-        m_level = ((m_attack_level - 1) << 1) - (multiply_shift_right((((m_attack_level - 1) << 1) - m_level), m_attack_coef, 32) << 2);
-      }
+      m_level = ((m_attack_level - 1) << 1) - (multiply_shift_right((((m_attack_level - 1) << 1) - m_level), m_attack_coef, 32) << 2);
+      m_level = minimum(m_level, EG_LEVEL_MAX);
+      m_state = /* STATE_ATTACK * (m_level < m_attack_level) + */ STATE_SUSTAIN * (m_level >= m_attack_level);
       break;
 
     case STATE_SUSTAIN:

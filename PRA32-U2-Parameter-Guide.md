@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 Parameter Guide v2.4.0
+# Digital Synth PRA32-U2 Parameter Guide v2.5.0
 
-- 2026-02-23 ISGK Instruments
+- 2026-03-06 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 ## Control Change Parameters
@@ -264,6 +264,11 @@
 - Voice Assign Mode [1|2]
     - 0 (0-63): Mode 1, Free voice with next number has priority in Polyphonic Mode, Release is effective
     - 127 (64-127): Mode 2, Free voice with small number has priority in Polyphonic Mode, Portamento is effective
+- Pan
+- Osc Drift
+- Osc Saw Wave Mode [Str|Cur]
+    - 0 (0-63): Straight Saw Wave
+    - 127 (64-127): Curved Saw Wave, This does not affect the Pulse Wave
 - Chorus Level: Chorus Send Level
 - Chorus Rate
     - 0: LFO Frequency 0.012 Hz (min)
