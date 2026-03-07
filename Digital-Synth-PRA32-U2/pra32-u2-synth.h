@@ -1669,7 +1669,7 @@ private:
   }
 
   INLINE void update_lfo_osc_mod() {
-    if        (m_lfo_osc_dst >= 89) {  /* MOD_DST_SHAPE_1 */
+    if        (m_lfo_osc_dst >= 115) {  /* MOD_DST_SHAPE_1 */
       m_osc.set_pitch_lfo_amt<0>(64);
       m_osc.set_pitch_lfo_amt<1>(64);
       m_osc.set_shape_lfo_amt(m_lfo_osc_amt);
@@ -1677,6 +1677,14 @@ private:
       m_filter[1].set_cutoff_lfo_amt(1, 64);
       m_filter[2].set_cutoff_lfo_amt(1, 64);
       m_filter[3].set_cutoff_lfo_amt(1, 64);
+    } else if (m_lfo_osc_dst >= 89) {  /* MOD_DST_CUTOFF */
+      m_osc.set_pitch_lfo_amt<0>(64);
+      m_osc.set_pitch_lfo_amt<1>(64);
+      m_osc.set_shape_lfo_amt(64);
+      m_filter[0].set_cutoff_lfo_amt(1, m_lfo_osc_amt);
+      m_filter[1].set_cutoff_lfo_amt(1, m_lfo_osc_amt);
+      m_filter[2].set_cutoff_lfo_amt(1, m_lfo_osc_amt);
+      m_filter[3].set_cutoff_lfo_amt(1, m_lfo_osc_amt);
     } else if (m_lfo_osc_dst >= 39) {  /* MOD_DST_PITCH_2 */
       m_osc.set_pitch_lfo_amt<0>(64);
       m_osc.set_pitch_lfo_amt<1>(m_lfo_osc_amt);
@@ -1685,14 +1693,6 @@ private:
       m_filter[1].set_cutoff_lfo_amt(1, 64);
       m_filter[2].set_cutoff_lfo_amt(1, 64);
       m_filter[3].set_cutoff_lfo_amt(1, 64);
-    } else if (m_lfo_osc_dst >= 13) {  /* MOD_DST_CUTOFF */
-      m_osc.set_pitch_lfo_amt<0>(64);
-      m_osc.set_pitch_lfo_amt<1>(64);
-      m_osc.set_shape_lfo_amt(64);
-      m_filter[0].set_cutoff_lfo_amt(1, m_lfo_osc_amt);
-      m_filter[1].set_cutoff_lfo_amt(1, m_lfo_osc_amt);
-      m_filter[2].set_cutoff_lfo_amt(1, m_lfo_osc_amt);
-      m_filter[3].set_cutoff_lfo_amt(1, m_lfo_osc_amt);
     } else {                           /* MOD_DST_PITCH */
       m_osc.set_pitch_lfo_amt<0>(m_lfo_osc_amt);
       m_osc.set_pitch_lfo_amt<1>(m_lfo_osc_amt);
