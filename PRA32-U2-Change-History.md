@@ -2,6 +2,8 @@
 
 - v2.6.0 (2026-03-??):
     - Extend the frequency change cycle of the "Osc Drift"
+    - Increase the "Osc Drift" of the Presets and the Editor Presets
+        - From 32 to 48
     - Tested with Arduino-Pico version 5.5.1
 - v2.5.2 (2026-03-06):
     - Decrease the "Osc Drift" of the Presets and the Editor Presets
