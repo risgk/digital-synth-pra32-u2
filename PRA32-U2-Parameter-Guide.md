@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 Parameter Guide v2.5.2
+# Digital Synth PRA32-U2 Parameter Guide v2.6.0
 
-- 2026-03-06 ISGK Instruments
+- 2026-03-08 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 ## Control Change Parameters
@@ -194,10 +194,10 @@
         - +60 (124): +120 (max)
 - EG Mod Dst [P|F|2P|2P|1S|1S], LFO Mod Dst [P|F|2P|2P|1S|1S]
     - 0 (0-12): Osc 1 & 2 Pitch
-    - 25 (13-38): Filter Cutoff
+    - 25 (13-38): Osc 1 & 2 Pitch
     - 51 (39-63): Osc 2 Pitch
     - 76 (64-88): Osc 2 Pitch
-    - 102 (89-114): Osc 1 Shape
+    - 102 (89-114): Filter Cutoff
     - 127 (115-127): Osc 1 Shape
 - Voice Mode [Pol|Pol|Mon|Mon|LP|Lgt]
     - 0 (0-12): Polyphonic (LFO Single Trigger)

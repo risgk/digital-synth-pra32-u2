@@ -9,7 +9,7 @@ const uint8_t g_preset_table_OSC_1_SHAPE    [] = {64 , 64 , 0  , 0  , 64 , 64 , 
 const uint8_t g_preset_table_OSC_1_MORPH    [] = {0  , 127, 108, 64 , 0  , 127, 0  , 0  ,   0  , 127, 108, 64 , 0  , 127, 0  , 0  };
 
 const uint8_t g_preset_table_OSC_2_WAVE     [] = {0  , 0  , 0  , 0  , 0  , 25 , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 25 , 0  , 0  };
-const uint8_t g_preset_table_MIXER_OSC_MIX  [] = {64 , 0  , 64 , 0  , 64 , 0  , 64 , 0  ,   64 , 0  , 64 , 0  , 64 , 0  , 64 , 0  };
+const uint8_t g_preset_table_MIXER_OSC_MIX  [] = {32 , 0  , 32 , 0  , 32 , 0  , 32 , 0  ,   32 , 0  , 32 , 0  , 32 , 0  , 32 , 0  };
 const uint8_t g_preset_table_OSC_2_COARSE   [] = {64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 };
 const uint8_t g_preset_table_OSC_2_PITCH    [] = {72 , 72 , 72 , 72 , 109, 72 , 72 , 64 ,   72 , 72 , 72 , 72 , 109, 72 , 72 , 64 };
 
@@ -58,7 +58,7 @@ const uint8_t g_preset_table_VOICE_ASGN_MODE[] = {0  , 0  , 0  , 0  , 0  , 0  , 
 const uint8_t g_preset_table_PAN            [] = {64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 };
 
 
-const uint8_t g_preset_table_OSC_DRIFT      [] = {32 , 32 , 32 , 32 , 32 , 32 , 32 , 32 ,   32 , 32 , 32 , 32 , 32 , 32 , 32 , 32 };
+const uint8_t g_preset_table_OSC_DRIFT      [] = {48 , 48 , 48 , 48 , 48 , 48 , 48 , 48 ,   48 , 48 , 48 , 48 , 48 , 48 , 48 , 48 };
 const uint8_t g_preset_table_OSC_SAW_W_MODE [] = {127, 127, 127, 127, 127, 127, 127, 127,   127, 127, 127, 127, 127, 127, 127, 127};
 
 

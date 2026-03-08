@@ -455,14 +455,24 @@ public:
   }
 
   template <uint8_t N>
-  INLINE void process_at_low_rate(uint16_t count, int16_t lfo_level, int16_t eg_level, int16_t noise_int15) {
+  INLINE void process_at_low_rate(uint32_t count, int16_t lfo_level, int16_t eg_level, int16_t noise_int15) {
     update_pitch_current<N>();
     update_osc1_shape<N>(lfo_level, eg_level);
     update_osc1_shape_effective<N>();
     update_freq_base<N + 0>(lfo_level, eg_level);
     update_freq_base<N + 4>(lfo_level, eg_level);
 
-    switch (count) {
+#if 1
+    switch (count & 0x1FFFF) {
+    case ((N * 0x04000) + 0x00000):
+      update_freq_offset<N + 0>(noise_int15);
+      break;
+    case ((N * 0x04000) + 0x10000):
+      update_freq_offset<N + 4>(noise_int15);
+      break;
+    }
+#else
+    switch (count & 0xFFFF) {
     case ((N * 0x2000) + 0x0000):
       update_freq_offset<N + 0>(noise_int15);
       break;
@@ -470,6 +480,7 @@ public:
       update_freq_offset<N + 4>(noise_int15);
       break;
     }
+#endif
   }
 
   INLINE void process_at_low_rate_global() {
