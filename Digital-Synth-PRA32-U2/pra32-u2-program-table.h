@@ -58,7 +58,7 @@ const uint8_t g_preset_table_VOICE_ASGN_MODE[] = {0  , 0  , 0  , 0  , 0  , 0  , 
 const uint8_t g_preset_table_PAN            [] = {64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 };
 
 
-const uint8_t g_preset_table_OSC_DRIFT      [] = {48 , 48 , 48 , 48 , 48 , 48 , 48 , 48 ,   48 , 48 , 48 , 48 , 48 , 48 , 48 , 48 };
+const uint8_t g_preset_table_OSC_DRIFT      [] = {64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 };
 const uint8_t g_preset_table_OSC_SAW_W_MODE [] = {127, 127, 127, 127, 127, 127, 127, 127,   127, 127, 127, 127, 127, 127, 127, 127};
 
 
