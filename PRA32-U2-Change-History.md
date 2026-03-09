@@ -1,9 +1,5 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v2.6.1 (2026-03-??):
-    - Increase the "Osc Drift" of the Presets and the Editor Presets
-        - From 48 to 127
-    - Tested with Arduino-Pico version 5.5.1
 - v2.6.0 (2026-03-08):
     - Change the "EG/LFO Mod Dst" choices from "[P|F|2P|2P|1S|1S]" to "[P|P|2P|2P|F|1S]"
     - Extend the frequency change cycle of the "Osc Drift"
