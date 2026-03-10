@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v2.7.0 (2026-??-??):
+    - Fix the behavior of the "Portamento"
     - Change the Presets and the Editor Presets
         - #12 Fifth Lead -> Saw Lead
         - #132 Saw Lead -> Fifth Lead
