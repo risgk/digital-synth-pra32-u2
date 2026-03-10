@@ -793,8 +793,8 @@ private:
     m_mixer_noise_sub_osc_control_effective += (m_mixer_noise_sub_osc_control_effective < m_mixer_noise_sub_osc_control);
     m_mixer_noise_sub_osc_control_effective -= (m_mixer_noise_sub_osc_control_effective > m_mixer_noise_sub_osc_control);
 
-    m_osc1_gain = m_mix_table[(OSC_MIX_TABLE_LENGTH - 1) - (m_mixer_osc_mix_control_effective >> 1)];
-    m_osc2_gain = m_mix_table[                             (m_mixer_osc_mix_control_effective >> 1)];
+    m_osc1_gain = m_mix_table[(OSC_MIX_TABLE_LENGTH - 1) - ((m_mixer_osc_mix_control_effective + 1) >> 1)];
+    m_osc2_gain = m_mix_table[                             ((m_mixer_osc_mix_control_effective + 1) >> 1)];
   }
 
   template <uint8_t N>
