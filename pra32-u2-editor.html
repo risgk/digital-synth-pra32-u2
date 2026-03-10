@@ -307,14 +307,14 @@ var presetControllers = {};
 
 // Preset                             #8   #9   #10  #11  #12  #13  #14  #15  
 presetControllers[OSC_1_WAVE     ] = [0  , 0  , 76 , 127, 0  , 25 , 0  , 0  ];
-presetControllers[MIXER_SUB_OSC  ] = [64 , 64 , 64 , 64 , 96 , 96 , 96 , 64 ];
+presetControllers[MIXER_SUB_OSC  ] = [64 , 64 , 64 , 64 , 127, 96 , 127, 64 ];
 presetControllers[OSC_1_SHAPE    ] = [64 , 64 , 0  , 0  , 64 , 64 , 64 , 0  ];
 presetControllers[OSC_1_MORPH    ] = [0  , 127, 108, 64 , 0  , 127, 0  , 0  ];
 
 presetControllers[OSC_2_WAVE     ] = [0  , 0  , 0  , 0  , 0  , 25 , 0  , 0  ];
-presetControllers[MIXER_OSC_MIX  ] = [32 , 0  , 32 , 0  , 32 , 0  , 32 , 0  ];
+presetControllers[MIXER_OSC_MIX  ] = [64 , 0  , 64 , 0  , 64 , 0  , 64 , 0  ];
 presetControllers[OSC_2_COARSE   ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
-presetControllers[OSC_2_PITCH    ] = [72 , 72 , 72 , 72 , 66 , 72 , 66 , 64 ];
+presetControllers[OSC_2_PITCH    ] = [72 , 72 , 72 , 72 , 66 , 72 , 72 , 64 ];
 
 presetControllers[FILTER_CUTOFF  ] = [112, 112, 88 , 127, 112, 112, 52 , 127];
 presetControllers[FILTER_RESO    ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 0  ];
@@ -329,14 +329,14 @@ presetControllers[EG_RELEASE     ] = [32 , 32 , 32 , 32 , 32 , 32 , 32 , 0  ];
 presetControllers[EG_OSC_AMT     ] = [64 , 64 , 72 , 64 , 64 , 72 , 64 , 64 ];
 presetControllers[EG_OSC_DST     ] = [0  , 0  , 127, 0  , 0  , 127, 0  , 0  ];
 presetControllers[VOICE_MODE     ] = [0  , 0  , 0  , 0  , 127, 76 , 76 , 127];
-presetControllers[PORTAMENTO     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+presetControllers[PORTAMENTO     ] = [0  , 0  , 0  , 0  , 48 , 48 , 0  , 0  ];
 
 presetControllers[LFO_WAVE       ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 presetControllers[LFO_FADE_TIME  ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 presetControllers[LFO_RATE       ] = [80 , 80 , 80 , 80 , 80 , 80 , 80 , 80 ];
-presetControllers[LFO_DEPTH      ] = [0  , 0  , 0  , 127, 0  , 0  , 0  , 0  ];
+presetControllers[LFO_DEPTH      ] = [0  , 0  , 0  , 127, 8  , 0  , 0  , 0  ];
 
-presetControllers[LFO_OSC_AMT    ] = [64 , 64 , 64 , 64 , 119, 72 , 64 , 64 ];
+presetControllers[LFO_OSC_AMT    ] = [64 , 64 , 64 , 64 , 96 , 72 , 64 , 64 ];
 presetControllers[LFO_OSC_DST    ] = [0  , 0  , 127, 0  , 0  , 127, 0  , 0  ];
 presetControllers[LFO_FILTER_AMT ] = [76 , 76 , 76 , 64 , 64 , 64 , 76 , 64 ];
 presetControllers[AMP_GAIN       ] = [100, 100, 120, 100, 100, 90 , 110, 100];
@@ -347,7 +347,7 @@ presetControllers[AMP_SUSTAIN    ] = [127, 127, 127, 127, 127, 127, 127, 127];
 presetControllers[AMP_RELEASE    ] = [32 , 32 , 32 , 32 , 32 , 32 , 32 , 0  ];
 
 presetControllers[FILTER_MODE    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
-presetControllers[P_BEND_RANGE   ] = [12 , 12 , 12 , 12 , 12 , 12 , 12 , 12 ];
+presetControllers[P_BEND_RANGE   ] = [2  , 2  , 2  , 2  , 2  , 2  , 2  , 2  ];
 presetControllers[EG_AMP_MOD     ] = [0  , 127, 127, 127, 0  , 0  , 127, 0  ];
 presetControllers[REL_EQ_DECAY   ] = [127, 127, 127, 127, 127, 127, 127, 0  ];
 
@@ -382,12 +382,12 @@ var editorOnlyPresetControllers = {};
 
 // Editor Preset                                #128 #129 #130 #131 #132 #133 #134 #135 
 editorOnlyPresetControllers[OSC_1_WAVE     ] = [0  , 0  , 102, 76 , 0  , 25 , 127, 0  ];
-editorOnlyPresetControllers[MIXER_SUB_OSC  ] = [64 , 64 , 64 , 109, 96 , 64 , 64 , 64 ];
+editorOnlyPresetControllers[MIXER_SUB_OSC  ] = [64 , 64 , 64 , 109, 127, 96 , 96 , 64 ];
 editorOnlyPresetControllers[OSC_1_SHAPE    ] = [64 , 64 , 64 , 0  , 64 , 32 , 0  , 0  ];
 editorOnlyPresetControllers[OSC_1_MORPH    ] = [0  , 0  , 127, 12 , 0  , 0  , 0  , 0  ];
 
 editorOnlyPresetControllers[OSC_2_WAVE     ] = [0  , 0  , 0  , 76 , 0  , 25 , 0  , 0  ];
-editorOnlyPresetControllers[MIXER_OSC_MIX  ] = [32 , 32 , 32 , 64 , 32 , 32 , 0  , 0  ];
+editorOnlyPresetControllers[MIXER_OSC_MIX  ] = [64 , 64 , 64 , 64 , 64 , 64 , 0  , 0  ];
 editorOnlyPresetControllers[OSC_2_COARSE   ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 editorOnlyPresetControllers[OSC_2_PITCH    ] = [72 , 72 , 72 , 109, 109, 72 , 72 , 64 ];
 
@@ -404,14 +404,14 @@ editorOnlyPresetControllers[EG_RELEASE     ] = [32 , 32 , 32 , 32 , 32 , 32 , 32
 editorOnlyPresetControllers[EG_OSC_AMT     ] = [72 , 64 , 72 , 64 , 64 , 64 , 64 , 64 ];
 editorOnlyPresetControllers[EG_OSC_DST     ] = [76 , 0  , 127, 127, 0  , 0  , 127, 0  ];
 editorOnlyPresetControllers[VOICE_MODE     ] = [0  , 0  , 0  , 0  , 127, 127, 127, 127];
-editorOnlyPresetControllers[PORTAMENTO     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+editorOnlyPresetControllers[PORTAMENTO     ] = [0  , 0  , 0  , 0  , 48 , 48 , 48 , 0  ];
 
 editorOnlyPresetControllers[LFO_WAVE       ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 editorOnlyPresetControllers[LFO_FADE_TIME  ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
-editorOnlyPresetControllers[LFO_RATE       ] = [80 , 80 , 80 , 80 , 80 , 80 , 80 , 80 ];
-editorOnlyPresetControllers[LFO_DEPTH      ] = [0  , 0  , 0  , 0  , 0  , 0  , 64 , 0  ];
+editorOnlyPresetControllers[LFO_RATE       ] = [80 , 80 , 80 , 80 , 80 , 80 , 44 , 80 ];
+editorOnlyPresetControllers[LFO_DEPTH      ] = [0  , 0  , 0  , 0  , 8  , 8  , 64 , 0  ];
 
-editorOnlyPresetControllers[LFO_OSC_AMT    ] = [64 , 64 , 72 , 64 , 119, 119, 96 , 64 ];
+editorOnlyPresetControllers[LFO_OSC_AMT    ] = [64 , 64 , 72 , 64 , 96 , 96 , 127, 64 ];
 editorOnlyPresetControllers[LFO_OSC_DST    ] = [0  , 0  , 127, 127, 0  , 0  , 127, 0  ];
 editorOnlyPresetControllers[LFO_FILTER_AMT ] = [76 , 76 , 64 , 76 , 64 , 64 , 64 , 64 ];
 editorOnlyPresetControllers[AMP_GAIN       ] = [110, 100, 100, 100, 100, 90 , 90 , 100];
@@ -422,7 +422,7 @@ editorOnlyPresetControllers[AMP_SUSTAIN    ] = [127, 127, 127, 127, 127, 127, 12
 editorOnlyPresetControllers[AMP_RELEASE    ] = [32 , 32 , 32 , 32 , 32 , 32 , 32 , 0  ];
 
 editorOnlyPresetControllers[FILTER_MODE    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
-editorOnlyPresetControllers[P_BEND_RANGE   ] = [12 , 12 , 12 , 12 , 12 , 12 , 12 , 12 ];
+editorOnlyPresetControllers[P_BEND_RANGE   ] = [2  , 2  , 2  , 2  , 2  , 2  , 2  , 2  ];
 editorOnlyPresetControllers[EG_AMP_MOD     ] = [0  , 127, 127, 127, 0  , 0  , 127, 0  ];
 editorOnlyPresetControllers[REL_EQ_DECAY   ] = [127, 127, 127, 127, 127, 127, 127, 0  ];
 
