@@ -4,6 +4,7 @@
     - Change the Presets and the Editor Presets
         - #12 Fifth Lead -> Saw Lead
         - #132 Saw Lead -> Fifth Lead
+    - Smooth the change of the "Mixer Osc Mix"
     - Tested with Arduino-Pico version 5.5.1
 - v2.6.0 (2026-03-08):
     - Change the "EG/LFO Mod Dst" choices from "[P|F|2P|2P|1S|1S]" to "[P|P|2P|2P|F|1S]"
