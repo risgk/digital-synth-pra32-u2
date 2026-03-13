@@ -86,7 +86,7 @@ uint8_t g_midi_ch = PRA32_U2_MIDI_CH;
 #include "pra32-u2-common.h"
 #include "pra32-u2-synth.h"
 
-PRA32_U2_Synth g_synth;
+PRA32_U2_Synth<> g_synth;
 
 #include <MIDI.h>
 #if defined(PRA32_U2_USE_USB_MIDI)
@@ -301,7 +301,7 @@ void __not_in_flash_func(loop)() {
   int16_t left_buffer[PRA32_U2_I2S_BUFFER_WORDS];
   int16_t right_buffer[PRA32_U2_I2S_BUFFER_WORDS];
   for (uint32_t i = 0; i < PRA32_U2_I2S_BUFFER_WORDS; i++) {
-    left_buffer[i] = g_synth.process(right_buffer[i]);
+    left_buffer[i] = g_synth.process(0, 0, right_buffer[i]);
   }
 
 #if defined(PRA32_U2_USE_DEBUG_PRINT)
