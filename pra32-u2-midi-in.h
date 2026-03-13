@@ -7,7 +7,7 @@
 #include "./Digital-Synth-PRA32-U2/pra32-u2-synth.h"
 
 class PRA32_U2_MIDIIn {
-  PRA32_U2_Synth* m_synth;
+  PRA32_U2_Synth<>* m_synth;
 
   uint8_t        m_system_exclusive;
   uint8_t        m_system_data_remaining;
@@ -23,7 +23,7 @@ public:
   , m_first_data()
   {}
 
-  INLINE void open(PRA32_U2_Synth& synth) {
+  INLINE void open(PRA32_U2_Synth<>& synth) {
     m_synth = &synth;
     m_running_status = STATUS_BYTE_INVALID;
     m_first_data = DATA_BYTE_INVALID;
