@@ -1319,7 +1319,7 @@ if constexpr (BYPASS_FX == false) {
 #endif  // defined(ARDUINO_ARCH_RP2040)
   }
 
-  /* INLINE */ int16_t __not_in_flash_func(process)(int32_t audio_input_l, int32_t audio_input_r, int16_t& right_output_int16) {
+  /* INLINE */ int16_t __not_in_flash_func(process)(int16_t audio_input_l, int16_t audio_input_r, int16_t& right_output_int16) {
     ++m_count;
 
     int16_t noise_int15 = m_noise_gen.process();
@@ -1404,6 +1404,8 @@ if constexpr (BYPASS_FX == false) {
     osc_output   [1] = m_osc      .process<1>(noise_int15);
     filter_output[1] = m_filter[1].process(osc_output   [1]);
     amp_output   [1] = m_amp   [1].process(filter_output[1]);
+#else  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_EMULATION)
+    amp_output   [1] = 0;
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_EMULATION)
 
 #if defined(PRA32_U2_EMULATION)
@@ -1431,8 +1433,8 @@ if constexpr (BYPASS_FX == false) {
     int32_t panner_output_r;
     int32_t panner_output_l = m_panner.process(voice_mixer_output, panner_output_r);
 
-    int32_t mixed_output_r = panner_output_r + audio_input_r;
-    int32_t mixed_output_l = panner_output_l + audio_input_l;
+    int32_t mixed_output_r = panner_output_r + (audio_input_r << 8);
+    int32_t mixed_output_l = panner_output_l + (audio_input_l << 8);
 
     int32_t chorus_fx_output_r;
     int32_t chorus_fx_output_l;
