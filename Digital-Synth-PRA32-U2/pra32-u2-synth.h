@@ -195,7 +195,7 @@ extern void PRA32_U2_ControlPanel_on_control_change(uint8_t control_number);
 
 static int32_t s_placeholder_int32;
 
-template <boolean BYPASS_FX = false>
+template <boolean BYPASS_FX = false, boolean EXT_INPUT_OUTPUT = false>
 class PRA32_U2_Synth {
   PRA32_U2_Osc      m_osc;
   PRA32_U2_Filter   m_filter[4];
@@ -1435,8 +1435,16 @@ if constexpr (BYPASS_FX == false) {
     int32_t panner_output_r;
     int32_t panner_output_l = m_panner.process(voice_mixer_output, panner_output_r);
 
-    int32_t mixed_output_r = panner_output_r + audio_input_r_int32;
-    int32_t mixed_output_l = panner_output_l + audio_input_l_int32;
+    int32_t mixed_output_r;
+    int32_t mixed_output_l;
+
+if constexpr (EXT_INPUT_OUTPUT == false) {
+    mixed_output_r = panner_output_r;
+    mixed_output_l = panner_output_l;
+} else {
+    mixed_output_r = panner_output_r + audio_input_r_int32;
+    mixed_output_l = panner_output_l + audio_input_l_int32;
+}
 
     int32_t chorus_fx_output_r;
     int32_t chorus_fx_output_l;
@@ -1456,8 +1464,10 @@ if constexpr (BYPASS_FX == false) {
     int32_t synth_output_r = clamp(delay_fx_output_r, (-(INT16_MAX << 8)), (+(INT16_MAX << 8)));
     int32_t synth_output_l = clamp(delay_fx_output_l, (-(INT16_MAX << 8)), (+(INT16_MAX << 8)));
 
+if constexpr (EXT_INPUT_OUTPUT) {
     audio_output_l_int32 = synth_output_r;
     audio_output_r_int32 = synth_output_l;
+}
 
 #if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
     int16_t synth_output_l_int16 = (synth_output_l >> 8);
