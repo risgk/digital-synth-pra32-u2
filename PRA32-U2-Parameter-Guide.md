@@ -1,4 +1,4 @@
-# Digital Synth PRA32-U2 Parameter Guide v2.7.1
+# Digital Synth PRA32-U2 Parameter Guide v2.7.2
 
 - 2026-03-14 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
