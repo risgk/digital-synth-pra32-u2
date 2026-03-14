@@ -193,6 +193,8 @@ extern void PRA32_U2_ControlPanel_on_control_change(uint8_t control_number);
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 
 
+static int32_t s_placeholder_int32;
+
 template <boolean BYPASS_FX = false>
 class PRA32_U2_Synth {
   PRA32_U2_Osc      m_osc;
@@ -1319,7 +1321,7 @@ if constexpr (BYPASS_FX == false) {
 #endif  // defined(ARDUINO_ARCH_RP2040)
   }
 
-  /* INLINE */ int16_t __not_in_flash_func(process)(int16_t audio_input_l, int16_t audio_input_r, int16_t& right_output_int16) {
+  /* INLINE */ int16_t __not_in_flash_func(process)(int32_t audio_input_l_int32, int32_t audio_input_r_int32, int16_t& right_output_int16, int32_t& audio_output_l_int32 = s_placeholder_int32, int32_t& audio_output_r_int32 = s_placeholder_int32) {
     ++m_count;
 
     int16_t noise_int15 = m_noise_gen.process();
@@ -1433,8 +1435,8 @@ if constexpr (BYPASS_FX == false) {
     int32_t panner_output_r;
     int32_t panner_output_l = m_panner.process(voice_mixer_output, panner_output_r);
 
-    int32_t mixed_output_r = panner_output_r + (audio_input_r << 8);
-    int32_t mixed_output_l = panner_output_l + (audio_input_l << 8);
+    int32_t mixed_output_r = panner_output_r + audio_input_r_int32;
+    int32_t mixed_output_l = panner_output_l + audio_input_l_int32;
 
     int32_t chorus_fx_output_r;
     int32_t chorus_fx_output_l;
@@ -1453,6 +1455,9 @@ if constexpr (BYPASS_FX == false) {
 
     int32_t synth_output_r = clamp(delay_fx_output_r, (-(INT16_MAX << 8)), (+(INT16_MAX << 8)));
     int32_t synth_output_l = clamp(delay_fx_output_l, (-(INT16_MAX << 8)), (+(INT16_MAX << 8)));
+
+    audio_output_l_int32 = synth_output_r;
+    audio_output_r_int32 = synth_output_l;
 
 #if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
     int16_t synth_output_l_int16 = (synth_output_l >> 8);
