@@ -122,8 +122,11 @@ void __not_in_flash_func(loop)() {
   for (uint32_t i = 0; i < PRA32_U2_I2S_BUFFER_WORDS; i++) {
     int16_t sub_synth_output_l;
     int16_t sub_synth_output_r;
-    sub_synth_output_l = g_sub_synth.process(0, 0, sub_synth_output_r);
-    left_buffer[i] = g_synth.process(sub_synth_output_l, sub_synth_output_r, right_buffer[i]);
+    int32_t sub_synth_output_l_int32;
+    int32_t sub_synth_output_r_int32;
+    sub_synth_output_l = g_sub_synth.process(0, 0, sub_synth_output_r, sub_synth_output_l_int32, sub_synth_output_r_int32);
+    static_cast<void>(sub_synth_output_l);
+    left_buffer[i] = g_synth.process(sub_synth_output_l_int32, sub_synth_output_r_int32, right_buffer[i]);
   }
 
 #if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
