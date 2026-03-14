@@ -554,18 +554,15 @@ private:
 
     m_phase[N] += m_freq[N];
     boolean new_period_osc1 = (m_phase[N] & 0x00FFFFFF) < m_freq[N]; // crossing the begin of a osc 1 wave, the begin or the middle of a sub osc wave
-    m_wave_table[N]      = reinterpret_cast<const int16_t*>((reinterpret_cast<const uintptr_t>(m_wave_table[N]) * (1 - new_period_osc1)));
-    m_wave_table[N]      = reinterpret_cast<const int16_t*>( reinterpret_cast<const uint8_t*>( m_wave_table[N]) +
+    m_wave_table[N]      = reinterpret_cast<const int16_t*>((reinterpret_cast<const uintptr_t>(m_wave_table[N]) * (1 - new_period_osc1)) +
                                                             (reinterpret_cast<const uintptr_t>(m_wave_table_temp[N]) * new_period_osc1));
 
 #if 0
-    m_wave_table[N + 12] = reinterpret_cast<const int16_t*>((reinterpret_cast<const uintptr_t>(m_wave_table[N + 12]) * (1 - new_period_osc1)));
-    m_wave_table[N + 12] = reinterpret_cast<const int16_t*>( reinterpret_cast<const uint8_t*>( m_wave_table[N + 12]) +
+    m_wave_table[N + 12] = reinterpret_cast<const int16_t*>((reinterpret_cast<const uintptr_t>(m_wave_table[N + 12]) * (1 - new_period_osc1)) +
                                                             (reinterpret_cast<const uintptr_t>(m_wave_table_temp[N + 12]) * new_period_osc1));
 #endif
 
-    m_wave_table[N + 16] = reinterpret_cast<const int16_t*>((reinterpret_cast<const uintptr_t>(m_wave_table[N + 16]) * (1 - new_period_osc1)));
-    m_wave_table[N + 16] = reinterpret_cast<const int16_t*>( reinterpret_cast<const uint8_t*>( m_wave_table[N + 16]) +
+    m_wave_table[N + 16] = reinterpret_cast<const int16_t*>((reinterpret_cast<const uintptr_t>(m_wave_table[N + 16]) * (1 - new_period_osc1)) +
                                                             (reinterpret_cast<const uintptr_t>(m_wave_table_temp[N + 16]) * new_period_osc1));
 
     if (m_waveform[0] == WAVEFORM_SINE) {
@@ -679,8 +676,7 @@ private:
 
     m_phase[N + 4] += m_freq[N + 4];
     boolean new_period_osc2 = (m_phase[N + 4] & 0x00FFFFFF) < m_freq[N + 4];
-    m_wave_table[N + 4] = reinterpret_cast<const int16_t*>((reinterpret_cast<const uintptr_t>(m_wave_table[N + 4]) * (1 - new_period_osc2)));
-    m_wave_table[N + 4] = reinterpret_cast<const int16_t*>( reinterpret_cast<const uint8_t*>( m_wave_table[N + 4]) +
+    m_wave_table[N + 4] = reinterpret_cast<const int16_t*>((reinterpret_cast<const uintptr_t>(m_wave_table[N + 4]) * (1 - new_period_osc2)) +
                                                            (reinterpret_cast<const uintptr_t>(m_wave_table_temp[N + 4]) * new_period_osc2));
     if (m_waveform[1] != WAVEFORM_2_NOISE) {
       int16_t wave_2 = get_wave_level(m_wave_table[N + 4], m_phase[N + 4]);
