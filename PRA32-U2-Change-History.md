@@ -1,5 +1,8 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v2.7.3 (2026-??-??):
+    - Improve the code
+    - Tested with Arduino-Pico version 5.5.1
 - v2.7.2 (2026-03-14):
     - Fix a performance issue
     - Tested with Arduino-Pico version 5.5.1
