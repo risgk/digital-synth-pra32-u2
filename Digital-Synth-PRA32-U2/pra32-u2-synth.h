@@ -195,7 +195,7 @@ extern void PRA32_U2_ControlPanel_on_control_change(uint8_t control_number);
 
 static int32_t s_placeholder_int32;
 
-template <boolean BYPASS_FX = false, boolean EXT_INPUT_OUTPUT = false>
+template <boolean BYPASS_FX = false, boolean EXT_INPUT_OUTPUT = false, uint32_t COUNT_OFFSET = 0>
 class PRA32_U2_Synth {
   PRA32_U2_Osc      m_osc;
   PRA32_U2_Filter   m_filter[4];
@@ -266,7 +266,7 @@ public:
   , m_chorus_fx()
   , m_delay_fx()
 
-  , m_count(0xFFFFFFFFu)
+  , m_count(0xFFFFFFFFu + COUNT_OFFSET)
 
   , m_note_queue()
   , m_note_on_number()
