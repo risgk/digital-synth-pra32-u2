@@ -28,6 +28,11 @@ public:
     return noise_int15;
   }
 
+  INLINE int16_t get() {
+    int16_t noise_int15 = (m_state_a >> 17) - 16384;
+    return noise_int15;
+  }
+
   INLINE void get_rand_uint8_array(uint8_t array[8]) {
     array[0] = (m_state_a_prev >>  0) & 0xFFu;
     array[1] = (m_state_a_prev >>  8) & 0xFFu;

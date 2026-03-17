@@ -35,8 +35,8 @@ uint8_t g_midi_ch = PRA32_U2_MIDI_CH;
 #include "pra32-u2-common.h"
 #include "pra32-u2-synth.h"
 
-PRA32_U2_Synth<false, true, 0> g_synth;
-PRA32_U2_Synth<true,  true, 2> g_sub_synth;
+PRA32_U2_Synth<false, true,  false, 0> g_synth;
+PRA32_U2_Synth<true,  false, true,  2> g_sub_synth;
 
 #if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
 #include <PWMAudio.h>
