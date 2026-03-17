@@ -195,7 +195,7 @@ extern void PRA32_U2_ControlPanel_on_control_change(uint8_t control_number);
 
 static int32_t s_placeholder_int32;
 
-template <boolean NO_FX = false, boolean EXT_INPUT = false, boolean EXT_OUTPUT = false, uint32_t COUNT_OFFSET = 0, boolean MONO_LEVEL_DOWN = false>
+template <boolean NO_FX = false, boolean EXT_INPUT = false, boolean EXT_OUTPUT = false, uint32_t SYNTH_ID = 0, boolean MONO_LEVEL_DOWN = false>
 class PRA32_U2_Synth {
   PRA32_U2_Osc      m_osc;
   PRA32_U2_Filter   m_filter[4];
@@ -266,7 +266,7 @@ public:
   , m_chorus_fx()
   , m_delay_fx()
 
-  , m_count(0xFFFFFFFFu + COUNT_OFFSET)
+  , m_count(0xFFFFFFFFu + SYNTH_ID)
 
   , m_note_queue()
   , m_note_on_number()
@@ -482,7 +482,7 @@ public:
 #endif  // defined(PRA32_U2_USE_EMULATED_EEPROM)
 #endif  // defined(ARDUINO_ARCH_RP2040)
 
-    program_change(PROGRAM_NUMBER_DEFAULT);
+    program_change((PROGRAM_NUMBER_DEFAULT + SYNTH_ID) & USER_PROGRAM_NUMBER_MAX);
 
     reset_all_controllers();
 
