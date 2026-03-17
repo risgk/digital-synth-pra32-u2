@@ -195,7 +195,7 @@ extern void PRA32_U2_ControlPanel_on_control_change(uint8_t control_number);
 
 static int32_t s_placeholder_int32;
 
-template <boolean BYPASS_FX = false, boolean EXT_INPUT_OUTPUT = false, uint32_t COUNT_OFFSET = 0>
+template <boolean BYPASS_FX = false, boolean EXT_INPUT_OUTPUT = false, uint32_t COUNT_OFFSET = 0, boolean MONO_LEVEL_DOWN = false>
 class PRA32_U2_Synth {
   PRA32_U2_Osc      m_osc;
   PRA32_U2_Filter   m_filter[4];
@@ -1429,7 +1429,11 @@ if constexpr (BYPASS_FX == false) {
     if (m_voice_mode == VOICE_POLYPHONIC) {
       voice_mixer_output = amp_output[0] + amp_output[1] + m_secondary_core_processing_result;
     } else {
+if constexpr (MONO_LEVEL_DOWN == false) {
       voice_mixer_output = amp_output[0] + (amp_output[0] >> 1);
+} else {
+      voice_mixer_output = amp_output[0];
+}
     }
 
     int32_t panner_output_r;
