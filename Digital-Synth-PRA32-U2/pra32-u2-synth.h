@@ -1373,7 +1373,7 @@ if constexpr (BYPASS_SYNTH == false) {
         m_amp[2].process_at_low_rate(m_eg[5].get_output());
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_EMULATION)
 
-if constexpr ((NO_FX == false) && (BYPASS_FX == false)) {
+if constexpr (NO_FX == false) {
         m_chorus_fx.process_at_low_rate(m_count >> 2);
 }
       }
@@ -1389,7 +1389,7 @@ if constexpr ((NO_FX == false) && (BYPASS_FX == false)) {
         m_amp[3].process_at_low_rate(m_eg[7].get_output());
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_EMULATION)
 
-if constexpr ((NO_FX == false) && (BYPASS_FX == false)) {
+if constexpr (NO_FX == false) {
         m_delay_fx.process_at_low_rate(m_count >> 2);
 }
       }
