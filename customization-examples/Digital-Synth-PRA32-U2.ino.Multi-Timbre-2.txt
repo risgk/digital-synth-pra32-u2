@@ -90,6 +90,8 @@ void handleAfterTouchChannel(byte channel, byte pressure);
 void writeProgramsToFlashAndEndSketch();
 
 void __not_in_flash_func(setup1)() {
+  delay(100);
+
 #if defined(PRA32_U2_USE_DEBUG_PRINT)
   PRA32_U2_DEBUG_PRINT_SERIAL.setTX(PRA32_U2_DEBUG_PRINT_TX_PIN);
   PRA32_U2_DEBUG_PRINT_SERIAL.setRX(PRA32_U2_DEBUG_PRINT_RX_PIN);
