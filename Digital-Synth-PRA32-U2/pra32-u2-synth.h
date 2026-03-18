@@ -923,7 +923,7 @@ public:
       break;
 
     case LFO_RATE       :
-      m_lfo.set_lfo_rate(controller_value);
+      m_lfo.set_lfo_rate<SYNTH_ID>(controller_value);
       break;
     case LFO_DEPTH      :
       m_lfo.set_lfo_depth<0>(controller_value);
