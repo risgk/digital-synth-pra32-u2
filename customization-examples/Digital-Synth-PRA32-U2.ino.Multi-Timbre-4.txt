@@ -354,7 +354,8 @@ void __not_in_flash_func(loop)() {
       ;
     }
 
-    left_buffer[i] = g_synth.process<true, false>(synth_output_l_int32 + s_secondary_core_processing_result_l, synth_output_r_int32 + s_secondary_core_processing_result_r, right_buffer[i]);
+    left_buffer[i] = g_synth.process<true, false>(synth_output_l_int32 + s_secondary_core_processing_result_l, synth_output_r_int32 + s_secondary_core_processing_result_r,
+                                                  right_buffer[i], synth_output_l_int32, synth_output_r_int32);
   }
 
 #if defined(PRA32_U2_USE_DEBUG_PRINT)
