@@ -89,7 +89,7 @@ extern void writeParametersToProgram(byte channel, byte number);
 
 static INLINE uint8_t PRA32_U2_ControlPanel_get_index_scale()
 {
-  uint8_t controller_value = getCurrentControllerValue(g_midi_ch + s_current_synth + 1, PANEL_SCALE    );
+  uint8_t controller_value = g_synth.current_controller_value(PANEL_SCALE    );
   uint8_t index_scale = ((controller_value * 10) + 127) / 254;
 //if (controller_value < 6) { index_scale = controller_value; }
   return index_scale;
@@ -181,8 +181,8 @@ static INLINE void PRA32_U2_ControlPanel_calc_value_display_pitch(uint8_t pitch,
 {
   uint8_t index_scale = PRA32_U2_ControlPanel_get_index_scale();
   uint8_t new_pitch   = PRA32_U2_ControlPanel_calc_scaled_pitch(
-                          index_scale, pitch, getCurrentControllerValue(g_midi_ch + s_current_synth + 1, PANEL_PIT_OFST ) - 64,
-                                              getCurrentControllerValue(g_midi_ch + s_current_synth + 1, SEQ_PIT_OFST   ) - 64);
+                          index_scale, pitch, g_synth.current_controller_value(PANEL_PIT_OFST ) - 64,
+                                              g_synth.current_controller_value(SEQ_PIT_OFST   ) - 64);
 
   if (new_pitch == 0xFF) {
     value_display_text[0] = 'O';
@@ -193,7 +193,7 @@ static INLINE void PRA32_U2_ControlPanel_calc_value_display_pitch(uint8_t pitch,
   }
 
   new_pitch = PRA32_U2_ControlPanel_calc_transposed_pitch(
-    new_pitch, getCurrentControllerValue(g_midi_ch + s_current_synth + 1, PANEL_TRANSPOSE ) - 64);
+    new_pitch, g_synth.current_controller_value(PANEL_TRANSPOSE ) - 64);
 
   char ary[12][5] = { " C", "C#", " D", "D#", " E", " F", "F#", " G", "G#", " A", "A#", " B" };
 
@@ -323,16 +323,16 @@ static INLINE void PRA32_U2_ControlPanel_update_pitch(bool progress_seq_step) {
   uint8_t new_velocity = 127;
 
   if (s_play_mode == 0) {  // Normal Mode
-    new_pitch         = getCurrentControllerValue(g_midi_ch + s_current_synth + 1, PANEL_PLAY_PIT );
-    new_velocity      = getCurrentControllerValue(g_midi_ch + s_current_synth + 1, PANEL_PLAY_VELO);
+    new_pitch         = g_synth.current_controller_value(PANEL_PLAY_PIT );
+    new_velocity      = g_synth.current_controller_value(PANEL_PLAY_VELO);
 
     s_index_scale     = PRA32_U2_ControlPanel_get_index_scale();
-    s_panel_pit_ofst  = getCurrentControllerValue(g_midi_ch + s_current_synth + 1, PANEL_PIT_OFST ) - 64;
-    s_panel_transpose = getCurrentControllerValue(g_midi_ch + s_current_synth + 1, PANEL_TRANSPOSE) - 64;
+    s_panel_pit_ofst  = g_synth.current_controller_value(PANEL_PIT_OFST ) - 64;
+    s_panel_transpose = g_synth.current_controller_value(PANEL_TRANSPOSE) - 64;
     s_seq_pit_ofst    = 0;
   } else {  // Seq Mode
-    new_pitch         = getCurrentControllerValue(g_midi_ch + s_current_synth + 1, SEQ_PITCH_0      + (s_seq_step & 0x07));
-    new_velocity      = getCurrentControllerValue(g_midi_ch + s_current_synth + 1, SEQ_VELO_0       + (s_seq_step & 0x07));
+    new_pitch         = g_synth.current_controller_value(SEQ_PITCH_0      + (s_seq_step & 0x07));
+    new_velocity      = g_synth.current_controller_value(SEQ_VELO_0       + (s_seq_step & 0x07));
     if (((s_seq_step & 0x07) != 0) && ((1 << ((s_seq_step & 0x07) - 1)) & s_seq_on_steps) == 0) {
       new_velocity = 0;
     }
@@ -435,9 +435,9 @@ static INLINE void PRA32_U2_ControlPanel_seq_clock() {
 
     if (update_scale) {
       s_index_scale     = PRA32_U2_ControlPanel_get_index_scale();
-      s_panel_pit_ofst  = getCurrentControllerValue(g_midi_ch + s_current_synth + 1, PANEL_PIT_OFST ) - 64;
-      s_panel_transpose = getCurrentControllerValue(g_midi_ch + s_current_synth + 1, PANEL_TRANSPOSE) - 64;
-      s_seq_pit_ofst    = getCurrentControllerValue(g_midi_ch + s_current_synth + 1, SEQ_PIT_OFST   ) - 64;
+      s_panel_pit_ofst  = g_synth.current_controller_value(PANEL_PIT_OFST ) - 64;
+      s_panel_transpose = g_synth.current_controller_value(PANEL_TRANSPOSE) - 64;
+      s_seq_pit_ofst    = g_synth.current_controller_value(SEQ_PIT_OFST   ) - 64;
     }
 
     PRA32_U2_ControlPanel_update_pitch(true);
@@ -462,7 +462,7 @@ static INLINE void PRA32_U2_ControlPanel_seq_clock() {
 }
 
 static INLINE void PRA32_U2_ControlPanel_seq_start() {
-  if (getCurrentControllerValue(g_midi_ch + s_current_synth + 1, SEQ_TRX_ST_SP  ) >= 64) {
+  if (g_synth.current_controller_value(SEQ_TRX_ST_SP  ) >= 64) {
 #if defined(PRA32_U2_USE_USB_MIDI) && !defined(PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION)
     USB_MIDI.sendRealTime(midi::Start);
 #endif  // defined(PRA32_U2_USE_USB_MIDI) && !defined(PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION)
@@ -490,7 +490,7 @@ static INLINE void PRA32_U2_ControlPanel_seq_start() {
 }
 
 static INLINE void PRA32_U2_ControlPanel_seq_stop() {
-  if (getCurrentControllerValue(g_midi_ch + s_current_synth + 1, SEQ_TRX_ST_SP  ) >= 64) {
+  if (g_synth.current_controller_value(SEQ_TRX_ST_SP  ) >= 64) {
 #if defined(PRA32_U2_USE_USB_MIDI) && !defined(PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION)
     USB_MIDI.sendRealTime(midi::Stop);
 #endif  // defined(PRA32_U2_USE_USB_MIDI) && !defined(PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION)
@@ -542,8 +542,10 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
 #endif  // defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
 
     uint8_t current_controller_value = adc_control_value_new;
-    if        (s_adc_control_target[adc_number] < 128 + 64) {
+    if        (s_adc_control_target[adc_number] < 128) {
       current_controller_value = getCurrentControllerValue(g_midi_ch + s_current_synth + 1, s_adc_control_target[adc_number]);
+    } else if (s_adc_control_target[adc_number] < 128 + 64) {
+      g_synth.current_controller_value(s_adc_control_target[adc_number]);
     }
 
     if ((adc_control_value_old <= current_controller_value) &&
@@ -576,7 +578,7 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
       if (s_adc_control_value[adc_number] <= 32) {
         s_ready_to_write[program_number_to_write] = true;
       } else if (s_ready_to_write[program_number_to_write] && (s_adc_control_value[adc_number] >= 96)) {
-        getCurrentControllerValue(g_midi_ch + s_current_synth + 1, program_number_to_write);
+        writeParametersToProgram(g_midi_ch + s_current_synth + 1, program_number_to_write);
         s_ready_to_write[program_number_to_write] = false;
       }
     } else if (s_adc_control_target[adc_number] == RD_PANEL_PRMS) {
@@ -600,7 +602,7 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
       if (s_adc_control_value[adc_number] <= 32) {
         s_ready_to_write_panel_prms = true;
       } else if (s_ready_to_write_panel_prms && (s_adc_control_value[adc_number] >= 96)) {
-        writeParametersToProgram(g_midi_ch + s_current_synth + 1, 128);
+        g_synth.write_parameters_to_program(128);
         s_ready_to_write_panel_prms = false;
       }
     } else if (s_adc_control_target[adc_number] == SEQ_RAND_PITCH) {
@@ -923,7 +925,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
     break;
   case SEQ_TEMPO      :
     {
-      uint32_t bpm = PRA32_U2_ControlPanel_calc_bpm(getCurrentControllerValue(g_midi_ch + s_current_synth + 1, SEQ_TEMPO      ));
+      uint32_t bpm = PRA32_U2_ControlPanel_calc_bpm(g_synth.current_controller_value(SEQ_TEMPO      ));
       std::sprintf(value_display_text, "%3lu", bpm);
       result = true;
     }
@@ -963,7 +965,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
     break;
   case SEQ_NUM_STEPS  :
     {
-      int32_t last_step = getCurrentControllerValue(g_midi_ch + s_current_synth + 1, SEQ_NUM_STEPS  );
+      int32_t last_step = g_synth.current_controller_value(SEQ_NUM_STEPS  );
       last_step = (last_step - 2) >> 2;
       if (last_step < 0) { last_step = 0; }
       std::sprintf(value_display_text, "%3ld", last_step + 1);
@@ -980,21 +982,21 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
     break;
   case SEQ_ON_STEPS   :
     {
-      uint8_t on_steps = getCurrentControllerValue(g_midi_ch + s_current_synth + 1, SEQ_ON_STEPS   );
+      uint8_t on_steps = g_synth.current_controller_value(SEQ_ON_STEPS   );
       std::sprintf(value_display_text, "x%02X", on_steps);
       result = true;
     }
     break;
   case SEQ_ACT_STEPS  :
     {
-      uint8_t act_steps = getCurrentControllerValue(g_midi_ch + s_current_synth + 1, SEQ_ACT_STEPS  );
+      uint8_t act_steps = g_synth.current_controller_value(SEQ_ACT_STEPS  );
       std::sprintf(value_display_text, "x%02X", act_steps);
       result = true;
     }
     break;
   case PANEL_MIDI_CH  :
     {
-      uint8_t midi_ch = getCurrentControllerValue(g_midi_ch + s_current_synth + 1, PANEL_MIDI_CH  ) >> 3;
+      uint8_t midi_ch = g_synth.current_controller_value(PANEL_MIDI_CH  ) >> 3;
       std::sprintf(value_display_text, "%3d", midi_ch + 1);
       result = true;
     }
@@ -1556,8 +1558,10 @@ INLINE void PRA32_U2_ControlPanel_update_display_buffer(uint32_t loop_counter) {
     if (adc_control_target_0 < 0xFF) {
       uint8_t adc_control_value        = s_adc_control_value[0];
       uint8_t current_controller_value = adc_control_value;
-      if        (adc_control_target_0 < 128 + 64) {
+      if        (adc_control_target_0 < 128) {
         current_controller_value = getCurrentControllerValue(g_midi_ch + s_current_synth + 1, adc_control_target_0);
+      } else if (adc_control_target_0 < 128 + 64) {
+        g_synth.current_controller_value(adc_control_target_0);
       }
 
       s_display_buffer[7][ 0] = 'A';
@@ -1593,8 +1597,10 @@ INLINE void PRA32_U2_ControlPanel_update_display_buffer(uint32_t loop_counter) {
     if (adc_control_target_1 < 0xFF) {
       uint8_t adc_control_value        = s_adc_control_value[1];
       uint8_t current_controller_value = adc_control_value;
-      if        (adc_control_target_1 < 128 + 64) {
+      if        (adc_control_target_1 < 128) {
         current_controller_value = getCurrentControllerValue(g_midi_ch + s_current_synth + 1, adc_control_target_1);
+      } else if (adc_control_target_1 < 128 + 64) {
+        g_synth.current_controller_value(adc_control_target_1);
       }
 
       s_display_buffer[7][11] = 'B';
@@ -1630,8 +1636,10 @@ INLINE void PRA32_U2_ControlPanel_update_display_buffer(uint32_t loop_counter) {
     if (adc_control_target_2 < 0xFF) {
       uint8_t adc_control_value        = s_adc_control_value[2];
       uint8_t current_controller_value = adc_control_value;
-      if        (adc_control_target_2 < 128+64) {
+      if        (adc_control_target_2 < 128) {
         current_controller_value = getCurrentControllerValue(g_midi_ch + s_current_synth + 1, adc_control_target_2);
+      } else if (adc_control_target_2 < 128 + 64) {
+        g_synth.current_controller_value(adc_control_target_2);
       }
 
       s_display_buffer[3][11] = 'C';
@@ -1791,7 +1799,7 @@ INLINE void PRA32_U2_ControlPanel_update_display(uint32_t loop_counter) {
       (control_number == PANEL_TRANSPOSE)) {
     PRA32_U2_ControlPanel_update_pitch(false);
   } else if (control_number == PANEL_PLAY_MODE) {
-    uint8_t controller_value = getCurrentControllerValue(g_midi_ch + s_current_synth + 1, PANEL_PLAY_MODE);
+    uint8_t controller_value = g_synth.current_controller_value(PANEL_PLAY_MODE);
     uint8_t index = ((controller_value * 2) + 127) / 254;
 
     if (s_play_mode != index) {
@@ -1805,35 +1813,35 @@ INLINE void PRA32_U2_ControlPanel_update_display(uint32_t loop_counter) {
       PRA32_U2_ControlPanel_update_page();
     }
   } else if (control_number == SEQ_TEMPO      ) {
-    uint32_t bpm = PRA32_U2_ControlPanel_calc_bpm(getCurrentControllerValue(g_midi_ch + s_current_synth + 1, SEQ_TEMPO));
+    uint32_t bpm = PRA32_U2_ControlPanel_calc_bpm(g_synth.current_controller_value(SEQ_TEMPO      ));
     s_seq_count_increment = bpm * 8192;
   } else if (control_number == SEQ_CLOCK_SRC  ) {
-    uint32_t controller_value = getCurrentControllerValue(g_midi_ch + s_current_synth + 1, SEQ_CLOCK_SRC  );
+    uint32_t controller_value = g_synth.current_controller_value(SEQ_CLOCK_SRC  );
     uint32_t index = ((controller_value * 2) + 127) / 254;
     s_seq_clock_src_external = index;
   } else if (control_number == SEQ_GATE_TIME  ) {
-    uint8_t controller_value = getCurrentControllerValue(g_midi_ch + s_current_synth + 1, SEQ_GATE_TIME  );
+    uint8_t controller_value = g_synth.current_controller_value(SEQ_GATE_TIME  );
     s_seq_gate_time = (((controller_value * 10) + 127) / 254) + 1;
   } else if (control_number == SEQ_STEP_NOTE  ) {
     uint8_t ary[3] = {24, 12, 6};
-    uint8_t controller_value = getCurrentControllerValue(g_midi_ch + s_current_synth + 1, SEQ_STEP_NOTE  );
+    uint8_t controller_value = g_synth.current_controller_value(SEQ_STEP_NOTE  );
     uint32_t index = ((controller_value * 4) + 127) / 254;
     s_seq_step_clock_candidate = ary[index];
   } else if (control_number == SEQ_NUM_STEPS  ) {
-    int32_t last_step = getCurrentControllerValue(g_midi_ch + s_current_synth + 1, SEQ_NUM_STEPS  );
+    int32_t last_step = g_synth.current_controller_value(SEQ_NUM_STEPS  );
     last_step = (last_step - 2) >> 2;
     if (last_step < 0) { last_step = 0; }
     s_seq_last_step = last_step;
   } else if (control_number == SEQ_MODE       ) {
-    uint8_t controller_value = getCurrentControllerValue(g_midi_ch + s_current_synth + 1, SEQ_MODE       );
+    uint8_t controller_value = g_synth.current_controller_value(SEQ_MODE       );
     uint32_t index = ((controller_value * 4) + 127) / 254;
     s_seq_mode = index;
   } else if (control_number == SEQ_ON_STEPS   ) {
-    s_seq_on_steps = getCurrentControllerValue(g_midi_ch + s_current_synth + 1, SEQ_ON_STEPS   );
+    s_seq_on_steps = g_synth.current_controller_value(SEQ_ON_STEPS   );
   } else if (control_number == SEQ_ACT_STEPS  ) {
-    s_seq_act_steps = getCurrentControllerValue(g_midi_ch + s_current_synth + 1, SEQ_ACT_STEPS  );
+    s_seq_act_steps = g_synth.current_controller_value(SEQ_ACT_STEPS  );
   } else if (control_number == PANEL_MIDI_CH  ) {
-    uint8_t midi_ch = getCurrentControllerValue(g_midi_ch + s_current_synth + 1, PANEL_MIDI_CH  ) >> 3;
+    uint8_t midi_ch = g_synth.current_controller_value(PANEL_MIDI_CH  ) >> 3;
     g_midi_ch = midi_ch;
   }
 
