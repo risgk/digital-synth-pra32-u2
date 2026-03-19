@@ -545,7 +545,7 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
     if        (s_adc_control_target[adc_number] < 128) {
       current_controller_value = getCurrentControllerValue(g_midi_ch + s_current_synth + 1, s_adc_control_target[adc_number]);
     } else if (s_adc_control_target[adc_number] < 128 + 64) {
-      g_synth.current_controller_value(s_adc_control_target[adc_number]);
+      current_controller_value = g_synth.current_controller_value(s_adc_control_target[adc_number]);
     }
 
     if ((adc_control_value_old <= current_controller_value) &&
@@ -559,9 +559,13 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
     }
 
 
-    if (s_adc_control_target[adc_number] < 128 + 64) {
+    if (s_adc_control_target[adc_number] < 128) {
       if (s_adc_control_catched[adc_number]) {
         handleControlChange(g_midi_ch + s_current_synth + 1, s_adc_control_target[adc_number], adc_control_value_new);
+      }
+    } else if (s_adc_control_target[adc_number] < 128 + 64) {
+      if (s_adc_control_catched[adc_number]) {
+        g_synth.control_change(s_adc_control_target[adc_number], adc_control_value_new);
       }
     } else if ((s_adc_control_target[adc_number] >= RD_PROGRAM_0) && (s_adc_control_target[adc_number] <= RD_PROGRAM_15)) {
       static boolean s_ready_to_read[PROGRAM_NUMBER_MAX + 1] = {};
@@ -1561,7 +1565,7 @@ INLINE void PRA32_U2_ControlPanel_update_display_buffer(uint32_t loop_counter) {
       if        (adc_control_target_0 < 128) {
         current_controller_value = getCurrentControllerValue(g_midi_ch + s_current_synth + 1, adc_control_target_0);
       } else if (adc_control_target_0 < 128 + 64) {
-        g_synth.current_controller_value(adc_control_target_0);
+        current_controller_value = g_synth.current_controller_value(adc_control_target_0);
       }
 
       s_display_buffer[7][ 0] = 'A';
@@ -1600,7 +1604,7 @@ INLINE void PRA32_U2_ControlPanel_update_display_buffer(uint32_t loop_counter) {
       if        (adc_control_target_1 < 128) {
         current_controller_value = getCurrentControllerValue(g_midi_ch + s_current_synth + 1, adc_control_target_1);
       } else if (adc_control_target_1 < 128 + 64) {
-        g_synth.current_controller_value(adc_control_target_1);
+        current_controller_value = g_synth.current_controller_value(adc_control_target_1);
       }
 
       s_display_buffer[7][11] = 'B';
@@ -1639,7 +1643,7 @@ INLINE void PRA32_U2_ControlPanel_update_display_buffer(uint32_t loop_counter) {
       if        (adc_control_target_2 < 128) {
         current_controller_value = getCurrentControllerValue(g_midi_ch + s_current_synth + 1, adc_control_target_2);
       } else if (adc_control_target_2 < 128 + 64) {
-        g_synth.current_controller_value(adc_control_target_2);
+        current_controller_value = g_synth.current_controller_value(adc_control_target_2);
       }
 
       s_display_buffer[3][11] = 'C';
