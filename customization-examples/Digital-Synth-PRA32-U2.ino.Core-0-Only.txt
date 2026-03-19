@@ -45,6 +45,8 @@
 
 #define PRA32_U2_USE_EMULATED_EEPROM
 
+#define PRA32_U2_NUMBER_OF_SYNTHS              (2)
+
 ////////////////////////////////////////////////////////////////
 
 //#define PRA32_U2_USE_CONTROL_PANEL               // PRA32-U2/P (PRA32-U2 with Panel)
