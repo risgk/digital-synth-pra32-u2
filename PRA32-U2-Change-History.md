@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v2.7.3 (2026-??-??):
+- v2.8.0 (2026-??-??):
+    - Add the "PRA32-U2/M (PRA32-U2 Multi-Timbre Edition)" option (Experimental)
     - PRA32-U2/P: Rename "Panel MIDI Ch" to "MIDI Basic Ch"
     - Improve the code
     - Improve customizability
