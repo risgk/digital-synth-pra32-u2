@@ -1321,7 +1321,7 @@ if constexpr (NO_FX == false) {
 #endif  // defined(ARDUINO_ARCH_RP2040)
   }
 
-template <boolean BYPASS_SYNTH = false, boolean BYPASS_FX = false>
+template <boolean BYPASS_SYNTH = false, boolean BYPASS_FX = false, boolean RESTRICT_OSC = false>
   /* INLINE */ int16_t __not_in_flash_func(process)(int32_t audio_input_l_int32, int32_t audio_input_r_int32, int16_t& right_output_int16, int32_t& audio_output_l_int32 = s_placeholder_int32, int32_t& audio_output_r_int32 = s_placeholder_int32) {
     int16_t noise_int15;
     int32_t panner_output_r;
@@ -1405,12 +1405,12 @@ if constexpr (NO_FX == false) {
     m_secondary_core_processing_request = 1;
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_EMULATION)
 
-    osc_output   [0] = m_osc      .process<0>(noise_int15);
+    osc_output   [0] = m_osc      .process<0, RESTRICT_OSC>(noise_int15);
     filter_output[0] = m_filter[0].process(osc_output   [0]);
     amp_output   [0] = m_amp   [0].process(filter_output[0]);
 
 #if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_EMULATION)
-    osc_output   [1] = m_osc      .process<1>(noise_int15);
+    osc_output   [1] = m_osc      .process<1, RESTRICT_OSC>(noise_int15);
     filter_output[1] = m_filter[1].process(osc_output   [1]);
     amp_output   [1] = m_amp   [1].process(filter_output[1]);
 #else  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_EMULATION)
@@ -1532,6 +1532,7 @@ if constexpr (EXT_OUTPUT) {
 #endif  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
   }
 
+  template <boolean RESTRICT_OSC = false>
   /* INLINE */ boolean __not_in_flash_func(secondary_core_process)() {
     boolean processed = false;
 
@@ -1542,11 +1543,11 @@ if constexpr (EXT_OUTPUT) {
       int32_t filter_output[4];
       int32_t amp_output   [4];
 
-      osc_output   [2] = m_osc      .process<2>(noise_int15);
+      osc_output   [2] = m_osc      .process<2, RESTRICT_OSC>(noise_int15);
       filter_output[2] = m_filter[2].process(osc_output   [2]);
       amp_output   [2] = m_amp   [2].process(filter_output[2]);
 
-      osc_output   [3] = m_osc      .process<3>(noise_int15);
+      osc_output   [3] = m_osc      .process<3, RESTRICT_OSC>(noise_int15);
       filter_output[3] = m_filter[3].process(osc_output   [3]);
       amp_output   [3] = m_amp   [3].process(filter_output[3]);
 
