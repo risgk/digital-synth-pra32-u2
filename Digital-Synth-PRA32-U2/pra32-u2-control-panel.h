@@ -252,8 +252,8 @@ static INLINE void PRA32_U2_ControlPanel_update_page() {
 #endif  // defined(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN)
 
 #if (PRA32_U2_NUMBER_OF_SYNTHS > 1)
-  s_display_buffer[0][12] = 'S';
-  s_display_buffer[0][13] = '0' + s_current_synth;
+  s_display_buffer[0][13] = '$';
+  s_display_buffer[0][14] = '0' + s_current_synth;
 #endif  // (PRA32_U2_NUMBER_OF_SYNTHS > 1)
 
 #if defined(PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN) || defined(PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN)
@@ -1254,7 +1254,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
             }
 
             s_current_synth = (s_current_synth + 1) >= PRA32_U2_NUMBER_OF_SYNTHS ? 0 : (s_current_synth + 1);
-            s_display_buffer[0][13] = '0' + s_current_synth;
+            s_display_buffer[0][14] = '0' + s_current_synth;
 
             s_prev_key_long_pressed = true;
             s_next_key_long_pressed = true;
@@ -1339,7 +1339,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
             }
 
             s_current_synth = (s_current_synth + 1) >= PRA32_U2_NUMBER_OF_SYNTHS ? 0 : (s_current_synth + 1);
-            s_display_buffer[0][13] = '0' + s_current_synth;
+            s_display_buffer[0][14] = '0' + s_current_synth;
 
             s_prev_key_long_pressed = true;
             s_next_key_long_pressed = true;
