@@ -45,6 +45,8 @@
 
 #define PRA32_U2_USE_EMULATED_EEPROM
 
+#define PRA32_U2_NUMBER_OF_SYNTHS              (1)
+
 ////////////////////////////////////////////////////////////////
 
 uint8_t g_midi_ch = PRA32_U2_MIDI_CH;
