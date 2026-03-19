@@ -62,6 +62,8 @@ static volatile uint8_t  s_panel_play_note_velocity = 127;
 static volatile bool     s_panel_play_note_gate     = false;
 static volatile bool     s_panel_play_note_trigger  = false;
 
+static          uint8_t  s_panel_playing_note_pitch = 0xFF;
+
 static volatile int32_t s_display_draw_counter         = -1;
 
 static char s_display_buffer[8][21 + 1] = {
@@ -287,8 +289,6 @@ static INLINE uint8_t PRA32_U2_ControlPanel_adc_control_value_candidate(uint32_t
 }
 
 static INLINE boolean PRA32_U2_ControlPanel_process_note_off_on() {
-  static uint8_t s_panel_playing_note_pitch = 0xFF;
-
   if (s_panel_playing_note_pitch <= 127) {
     if (s_panel_play_note_gate == false) {
       handleNoteOff(g_midi_ch + s_current_synth + 1, s_panel_playing_note_pitch, 64);
@@ -1243,6 +1243,10 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
 #if defined(PRA32_U2_KEY_INPUT_NEXT_KEY_PIN)
           uint32_t next_key_pressed = digitalRead(PRA32_U2_KEY_INPUT_NEXT_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
           if (next_key_pressed) {
+            if (s_panel_playing_note_pitch <= 127) {
+              handleNoteOff(g_midi_ch + s_current_synth + 1, s_panel_playing_note_pitch, 64);
+            }
+
             s_current_synth = (s_current_synth + 1) >= PRA32_U2_NUMBER_OF_SYNTHS ? 0 : (s_current_synth + 1);
             s_display_buffer[0][13] = '0' + s_current_synth;
 
@@ -1324,6 +1328,10 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
 #if defined(PRA32_U2_KEY_INPUT_PREV_KEY_PIN)
           uint32_t prev_key_pressed = digitalRead(PRA32_U2_KEY_INPUT_PREV_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
           if (prev_key_pressed) {
+            if (s_panel_playing_note_pitch <= 127) {
+              handleNoteOff(g_midi_ch + s_current_synth + 1, s_panel_playing_note_pitch, 64);
+            }
+
             s_current_synth = (s_current_synth + 1) >= PRA32_U2_NUMBER_OF_SYNTHS ? 0 : (s_current_synth + 1);
             s_display_buffer[0][13] = '0' + s_current_synth;
 
