@@ -54,7 +54,7 @@ static const PRA32_U2_ControlPanelPage g_control_panel_page_table_a[] = {
 };
 
 static const PRA32_U2_ControlPanelPage g_control_panel_page_table_b[] = {
-  { "Page=B-00 ", "Panel a   ",   "Panel     ", "Play Mode ", PANEL_PLAY_MODE,   "Synth     ", "MIDI Ch   ", PANEL_MIDI_CH  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=B-00 ", "Panel a   ",   "Panel     ", "Play Mode ", PANEL_PLAY_MODE,   "MIDI      ", "Basic Ch  ", PANEL_MIDI_CH  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=B-01 ", "Panel b   ",   "Panel     ", "Play Pitch", PANEL_PLAY_PIT ,   "Panel     ", "Play Velo ", PANEL_PLAY_VELO,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=B-02 ", "Panel c   ",   "Panel     ", "Scale     ", PANEL_SCALE    ,   "Panel     ", "Pitch Ofst", PANEL_PIT_OFST ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=B-03 ", "Panel d   ",   "Panel     ", "Transpose ", PANEL_TRANSPOSE,   "          ", "          ", 0xFF           ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
