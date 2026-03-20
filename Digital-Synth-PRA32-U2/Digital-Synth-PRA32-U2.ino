@@ -2,7 +2,7 @@
  * Digital Synth PRA32-U2
  */
 
-#define PRA32_U2_VERSION                       "v2.7.2    "
+#define PRA32_U2_VERSION                       "v2.8.0    "
 
 //#define PRA32_U2_USE_DEBUG_PRINT
 
@@ -44,6 +44,8 @@
 #define PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING
 
 #define PRA32_U2_USE_EMULATED_EEPROM
+
+#define PRA32_U2_NUMBER_OF_SYNTHS              (1)
 
 ////////////////////////////////////////////////////////////////
 
@@ -128,7 +130,11 @@ void handleStop();
 void writeProgramsToFlashAndEndSketch();
 
 void __not_in_flash_func(setup1)() {
+#if defined(PRA32_U2_USE_CONTROL_PANEL)
   PRA32_U2_ControlPanel_setup();
+#else  // defined(PRA32_U2_USE_CONTROL_PANEL)
+  delay(100);
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 
 #if defined(PRA32_U2_USE_DEBUG_PRINT)
   PRA32_U2_DEBUG_PRINT_SERIAL.setTX(PRA32_U2_DEBUG_PRINT_TX_PIN);
@@ -218,7 +224,11 @@ void __not_in_flash_func(setup)() {
 #if defined(PRA32_U2_USE_USB_MIDI)
   TinyUSB_Device_Init(0);
   USBDevice.setManufacturerDescriptor("ISGK Instruments");
+#if defined(PRA32_U2_USE_CONTROL_PANEL)
+  USBDevice.setProductDescriptor("Digital Synth PRA32-U2/P");
+#else  // defined(PRA32_U2_USE_CONTROL_PANEL)
   USBDevice.setProductDescriptor("Digital Synth PRA32-U2");
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
   USB_MIDI.setHandleNoteOn(handleNoteOn);
   USB_MIDI.setHandleNoteOff(handleNoteOff);
   USB_MIDI.setHandleControlChange(handleControlChange);
@@ -416,3 +426,31 @@ void __not_in_flash_func(handleStop)()
   }
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 }
+
+
+#if defined(PRA32_U2_USE_CONTROL_PANEL)
+
+uint8_t __not_in_flash_func(getCurrentControllerValue)(byte channel, byte number)
+{
+  if ((channel - 1) == g_midi_ch) {
+    return g_synth.current_controller_value(number);
+  }
+
+  return 0;
+}
+
+void __not_in_flash_func(getRrandUint8Rrray)(byte channel, uint8_t array[8])
+{
+  if ((channel - 1) == g_midi_ch) {
+    g_synth.get_rand_uint8_array(array);
+  }
+}
+
+void __not_in_flash_func(writeParametersToProgram)(byte channel, byte number)
+{
+  if ((channel - 1) == g_midi_ch) {
+    g_synth.write_parameters_to_program(number);
+  }
+}
+
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
