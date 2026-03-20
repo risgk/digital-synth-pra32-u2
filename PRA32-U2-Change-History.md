@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v2.8.0 (2026-??-??):
+- v2.8.0 (2026-03-20):
     - Add the PRA32-U2/M (PRA32-U2 Multi-Timbre Edition) option (Experimental)
     - PRA32-U2/P: Change the USB device name to "Digital Synth PRA32-U2/P"
     - PRA32-U2/P: Rename "Panel MIDI Ch" to "MIDI Basic Ch"
@@ -10,7 +10,7 @@
 - v2.7.2 (2026-03-14):
     - Fix a performance issue
     - Tested with Arduino-Pico version 5.5.1
-- v2.7.1 (2026-03-14):
+- v2.7.1 (2026-03-20):
     - Improve customizability
     - Tested with Arduino-Pico version 5.5.1
 - v2.7.0 (2026-03-11):
