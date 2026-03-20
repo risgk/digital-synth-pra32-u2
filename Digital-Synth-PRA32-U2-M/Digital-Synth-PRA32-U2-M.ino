@@ -1,8 +1,8 @@
 /*
- * Digital Synth PRA32-U2
+ * Digital Synth PRA32-U2/M
  */
 
-#define PRA32_U2_VERSION                       "v2.7.2    "
+#define PRA32_U2_VERSION                       "v2.8.0    "
 
 //#define PRA32_U2_USE_DEBUG_PRINT
 
@@ -45,15 +45,53 @@
 
 #define PRA32_U2_USE_EMULATED_EEPROM
 
+#define PRA32_U2_NUMBER_OF_SYNTHS              (4)
+
+////////////////////////////////////////////////////////////////
+
+//#define PRA32_U2_USE_CONTROL_PANEL               // PRA32-U2/P (PRA32-U2 with Panel)
+
+#define PRA32_U2_USE_CONTROL_PANEL_KEY_INPUT     // Use tactile switches
+#define PRA32_U2_KEY_INPUT_ACTIVE_LEVEL          (LOW)
+#define PRA32_U2_KEY_INPUT_PIN_MODE              (INPUT_PULLUP)
+#define PRA32_U2_KEY_INPUT_PREV_KEY_PIN          (16)
+#define PRA32_U2_KEY_INPUT_NEXT_KEY_PIN          (18)
+#define PRA32_U2_KEY_INPUT_PLAY_KEY_PIN          (20)
+//#define PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN    (17)
+//#define PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN     (19)
+//#define PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN         (21)
+#define PRA32_U2_KEY_ANTI_CHATTERING_WAIT        (15)
+#define PRA32_U2_KEY_LONG_PRESS_WAIT             (375)
+
+#define PRA32_U2_USE_CONTROL_PANEL_ANALOG_INPUT  // Use ADC0, ADC1, and ADC2
+#define PRA32_U2_ANALOG_INPUT_REVERSED           (true)
+#define PRA32_U2_ANALOG_INPUT_CORRECTION         (-2040)
+#define PRA32_U2_ANALOG_INPUT_DENOMINATOR        (480)
+#define PRA32_U2_ANALOG_INPUT_THRESHOLD          (PRA32_U2_ANALOG_INPUT_DENOMINATOR)
+
+#define PRA32_U2_USE_CONTROL_PANEL_OLED_DISPLAY  // Use SSD1306 monochrome 128x64 OLED
+#define PRA32_U2_OLED_DISPLAY_I2C                (i2c1)
+#define PRA32_U2_OLED_DISPLAY_I2C_SDA_PIN        (6)
+#define PRA32_U2_OLED_DISPLAY_I2C_SCL_PIN        (7)
+#define PRA32_U2_OLED_DISPLAY_I2C_ADDRESS        (0x3C)
+#define PRA32_U2_OLED_DISPLAY_CONTRAST           (0xFF)
+#define PRA32_U2_OLED_DISPLAY_ROTATION           (true)
+
+#define PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION
+
 ////////////////////////////////////////////////////////////////
 
 uint8_t g_midi_ch = PRA32_U2_MIDI_CH;
 
+#include "hardware/adc.h"
+
 #include "pra32-u2-common.h"
 #include "pra32-u2-synth.h"
 
-PRA32_U2_Synth<false, true> g_synth;
-PRA32_U2_Synth<true,  true> g_sub_synth;
+PRA32_U2_Synth<false, true,  true, 0, true> g_synth;
+PRA32_U2_Synth<true,  true,  true, 1, true> g_sub_1_synth;
+PRA32_U2_Synth<true,  false, true, 2, true> g_sub_2_synth;
+PRA32_U2_Synth<true,  false, true, 3, true> g_sub_3_synth;
 
 #include <MIDI.h>
 #if defined(PRA32_U2_USE_USB_MIDI)
@@ -65,6 +103,8 @@ MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usbd_midi, USB_MIDI);
 #if defined(PRA32_U2_USE_UART_MIDI)
 MIDI_CREATE_INSTANCE(HardwareSerial, PRA32_U2_UART_MIDI_SERIAL, UART_MIDI);
 #endif
+
+#include "pra32-u2-control-panel.h"
 
 #if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
 #include <PWMAudio.h>
@@ -80,6 +120,10 @@ static volatile uint32_t s_debug_measurement_max0_us     = 0;
 static volatile uint32_t s_debug_measurement_elapsed1_us = 0;
 static volatile uint32_t s_debug_measurement_max1_us     = 0;
 
+static volatile uint32_t s_secondary_core_processing_request  = 0;
+static          int32_t  s_secondary_core_processing_result_l = 0;
+static          int32_t  s_secondary_core_processing_result_r = 0;
+
 void handleNoteOn(byte channel, byte pitch, byte velocity);
 void handleNoteOff(byte channel, byte pitch, byte velocity);
 void handleControlChange(byte channel, byte number, byte value);
@@ -87,9 +131,18 @@ void handleProgramChange(byte channel, byte number);
 void handlePitchBend(byte channel, int bend);
 void handleAfterTouchPoly(byte channel, byte note, byte pressure);
 void handleAfterTouchChannel(byte channel, byte pressure);
+void handleClock();
+void handleStart();
+void handleStop();
 void writeProgramsToFlashAndEndSketch();
 
 void __not_in_flash_func(setup1)() {
+#if defined(PRA32_U2_USE_CONTROL_PANEL)
+  PRA32_U2_ControlPanel_setup();
+#else  // defined(PRA32_U2_USE_CONTROL_PANEL)
+  delay(100);
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
+
 #if defined(PRA32_U2_USE_DEBUG_PRINT)
   PRA32_U2_DEBUG_PRINT_SERIAL.setTX(PRA32_U2_DEBUG_PRINT_TX_PIN);
   PRA32_U2_DEBUG_PRINT_SERIAL.setRX(PRA32_U2_DEBUG_PRINT_RX_PIN);
@@ -98,13 +151,38 @@ void __not_in_flash_func(setup1)() {
 }
 
 void __not_in_flash_func(loop1)() {
-  boolean processed = g_synth.secondary_core_process();
+  boolean processed = false;
+
+  if (s_secondary_core_processing_request == 1) {
+    int16_t sub_3_synth_output_l;
+    int16_t sub_3_synth_output_r;
+    int32_t sub_3_synth_output_l_int32;
+    int32_t sub_3_synth_output_r_int32;
+    sub_3_synth_output_l = g_sub_3_synth.process<false, false, true>(0, 0, sub_3_synth_output_r, sub_3_synth_output_l_int32, sub_3_synth_output_r_int32);
+    static_cast<void>(sub_3_synth_output_l);
+    static_cast<void>(sub_3_synth_output_r);
+
+    int16_t sub_1_synth_output_l;
+    int16_t sub_1_synth_output_r;
+    sub_1_synth_output_l = g_sub_1_synth.process<false, true>(sub_3_synth_output_l_int32, sub_3_synth_output_r_int32,
+                                                              sub_1_synth_output_r, s_secondary_core_processing_result_l, s_secondary_core_processing_result_r);
+    static_cast<void>(sub_1_synth_output_l);
+    static_cast<void>(sub_1_synth_output_r);
+
+    s_secondary_core_processing_request = 0;
+    processed = true;
+  }
+
   if (processed) {
     static uint32_t s_loop_counter = 0;
     s_loop_counter++;
     if (s_loop_counter >= 16 * 400) {
       s_loop_counter = 0;
     }
+
+    PRA32_U2_ControlPanel_update_analog_inputs(s_loop_counter);
+    PRA32_U2_ControlPanel_update_display_buffer(s_loop_counter);
+    PRA32_U2_ControlPanel_update_display(s_loop_counter);
 
 #if defined(PRA32_U2_USE_DEBUG_PRINT)
     switch (s_loop_counter) {
@@ -123,6 +201,9 @@ void __not_in_flash_func(loop1)() {
     case  4 * 400:
       PRA32_U2_DEBUG_PRINT_SERIAL.print("\e[5;1H\e[K");
       PRA32_U2_DEBUG_PRINT_SERIAL.print(s_debug_measurement_max0_us);
+      break;
+    default:
+      PRA32_U2_ControlPanel_debug_print(s_loop_counter);
       break;
     }
 #endif  // defined(PRA32_U2_USE_DEBUG_PRINT)
@@ -171,7 +252,11 @@ void __not_in_flash_func(setup)() {
 #if defined(PRA32_U2_USE_USB_MIDI)
   TinyUSB_Device_Init(0);
   USBDevice.setManufacturerDescriptor("ISGK Instruments");
-  USBDevice.setProductDescriptor("Digital Synth PRA32-U2");
+#if defined(PRA32_U2_USE_CONTROL_PANEL)
+  USBDevice.setProductDescriptor("Digital Synth PRA32-U2/M/P");
+#else  // defined(PRA32_U2_USE_CONTROL_PANEL)
+  USBDevice.setProductDescriptor("Digital Synth PRA32-U2/M");
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
   USB_MIDI.setHandleNoteOn(handleNoteOn);
   USB_MIDI.setHandleNoteOff(handleNoteOff);
   USB_MIDI.setHandleControlChange(handleControlChange);
@@ -179,6 +264,9 @@ void __not_in_flash_func(setup)() {
   USB_MIDI.setHandlePitchBend(handlePitchBend);
   USB_MIDI.setHandleAfterTouchPoly(handleAfterTouchPoly);
   USB_MIDI.setHandleAfterTouchChannel(handleAfterTouchChannel);
+  USB_MIDI.setHandleClock(handleClock);
+  USB_MIDI.setHandleStart(handleStart);
+  USB_MIDI.setHandleStop(handleStop);
   USB_MIDI.begin(MIDI_CHANNEL_OMNI);
   USB_MIDI.turnThruOff();
 #endif  // defined(PRA32_U2_USE_USB_MIDI)
@@ -193,6 +281,9 @@ void __not_in_flash_func(setup)() {
   UART_MIDI.setHandlePitchBend(handlePitchBend);
   UART_MIDI.setHandleAfterTouchPoly(handleAfterTouchPoly);
   UART_MIDI.setHandleAfterTouchChannel(handleAfterTouchChannel);
+  UART_MIDI.setHandleClock(handleClock);
+  UART_MIDI.setHandleStart(handleStart);
+  UART_MIDI.setHandleStop(handleStop);
   UART_MIDI.begin(MIDI_CHANNEL_OMNI);
   UART_MIDI.turnThruOff();
   PRA32_U2_UART_MIDI_SERIAL.begin(PRA32_U2_UART_MIDI_SPEED);
@@ -217,7 +308,11 @@ void __not_in_flash_func(setup)() {
 #endif  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
 
   g_synth.initialize();
-  g_sub_synth.initialize();
+  g_sub_1_synth.initialize();
+  g_sub_2_synth.initialize();
+  g_sub_3_synth.initialize();
+
+  PRA32_U2_ControlPanel_initialize_parameters();
 
   delay(100);
 }
@@ -238,6 +333,8 @@ void __not_in_flash_func(loop)() {
 #endif
   }
 
+  PRA32_U2_ControlPanel_update_control();
+
 #if defined(PRA32_U2_USE_DEBUG_PRINT)
   uint32_t debug_measurement_start1_us = micros();
 #endif  // defined(PRA32_U2_USE_DEBUG_PRINT)
@@ -245,13 +342,30 @@ void __not_in_flash_func(loop)() {
   int16_t left_buffer[PRA32_U2_I2S_BUFFER_WORDS];
   int16_t right_buffer[PRA32_U2_I2S_BUFFER_WORDS];
   for (uint32_t i = 0; i < PRA32_U2_I2S_BUFFER_WORDS; i++) {
-    int16_t sub_synth_output_l;
-    int16_t sub_synth_output_r;
-    int32_t sub_synth_output_l_int32;
-    int32_t sub_synth_output_r_int32;
-    sub_synth_output_l = g_sub_synth.process(0, 0, sub_synth_output_r, sub_synth_output_l_int32, sub_synth_output_r_int32);
-    static_cast<void>(sub_synth_output_l);
-    left_buffer[i] = g_synth.process(sub_synth_output_l_int32, sub_synth_output_r_int32, right_buffer[i]);
+    s_secondary_core_processing_request = 1;
+
+    int16_t sub_2_synth_output_l;
+    int16_t sub_2_synth_output_r;
+    int32_t sub_2_synth_output_l_int32;
+    int32_t sub_2_synth_output_r_int32;
+    sub_2_synth_output_l = g_sub_2_synth.process(0, 0, sub_2_synth_output_r, sub_2_synth_output_l_int32, sub_2_synth_output_r_int32);
+    static_cast<void>(sub_2_synth_output_l);
+    static_cast<void>(sub_2_synth_output_r);
+
+    int16_t synth_output_l;
+    int16_t synth_output_r;
+    int32_t synth_output_l_int32;
+    int32_t synth_output_r_int32;
+    synth_output_l = g_synth.process<false, true>(sub_2_synth_output_l_int32, sub_2_synth_output_r_int32, synth_output_r, synth_output_l_int32, synth_output_r_int32);
+    static_cast<void>(synth_output_l);
+    static_cast<void>(synth_output_r);
+
+    while (s_secondary_core_processing_request) {
+      ;
+    }
+
+    left_buffer[i] = g_synth.process<true, false>(synth_output_l_int32 + s_secondary_core_processing_result_l, synth_output_r_int32 + s_secondary_core_processing_result_r,
+                                                  right_buffer[i], synth_output_l_int32, synth_output_r_int32);
   }
 
 #if defined(PRA32_U2_USE_DEBUG_PRINT)
@@ -297,7 +411,11 @@ void __not_in_flash_func(handleNoteOn)(byte channel, byte pitch, byte velocity)
   if ((channel - 1) == g_midi_ch) {
     g_synth.note_on(pitch, velocity);
   } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
-    g_sub_synth.note_on(pitch, velocity);
+    g_sub_1_synth.note_on(pitch, velocity);
+  } else if ((channel - 1) == ((g_midi_ch + 2) & 0x0F)) {
+    g_sub_2_synth.note_on(pitch, velocity);
+  } else if ((channel - 1) == ((g_midi_ch + 3) & 0x0F)) {
+    g_sub_3_synth.note_on(pitch, velocity);
   }
 }
 
@@ -308,7 +426,13 @@ void __not_in_flash_func(handleNoteOff)(byte channel, byte pitch, byte velocity)
     g_synth.note_off(pitch);
   } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
     (void) velocity;
-    g_sub_synth.note_off(pitch);
+    g_sub_1_synth.note_off(pitch);
+  } else if ((channel - 1) == ((g_midi_ch + 2) & 0x0F)) {
+    (void) velocity;
+    g_sub_2_synth.note_off(pitch);
+  } else if ((channel - 1) == ((g_midi_ch + 3) & 0x0F)) {
+    (void) velocity;
+    g_sub_3_synth.note_off(pitch);
   }
 }
 
@@ -317,7 +441,11 @@ void __not_in_flash_func(handleControlChange)(byte channel, byte number, byte va
   if ((channel - 1) == g_midi_ch) {
     g_synth.control_change(number, value);
   } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
-    g_sub_synth.control_change(number, value);
+    g_sub_1_synth.control_change(number, value);
+  } else if ((channel - 1) == ((g_midi_ch + 2) & 0x0F)) {
+    g_sub_2_synth.control_change(number, value);
+  } else if ((channel - 1) == ((g_midi_ch + 3) & 0x0F)) {
+    g_sub_3_synth.control_change(number, value);
   }
 }
 
@@ -326,7 +454,11 @@ void __not_in_flash_func(handleProgramChange)(byte channel, byte number)
   if ((channel - 1) == g_midi_ch) {
     g_synth.program_change(number);
   } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
-    g_sub_synth.program_change(number);
+    g_sub_1_synth.program_change(number);
+  } else if ((channel - 1) == ((g_midi_ch + 2) & 0x0F)) {
+    g_sub_2_synth.program_change(number);
+  } else if ((channel - 1) == ((g_midi_ch + 3) & 0x0F)) {
+    g_sub_3_synth.program_change(number);
   }
 }
 
@@ -335,7 +467,11 @@ void __not_in_flash_func(handlePitchBend)(byte channel, int bend)
   if ((channel - 1) == g_midi_ch) {
     g_synth.pitch_bend((bend + 8192) & 0x7F, (bend + 8192) >> 7);
   } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
-    g_sub_synth.pitch_bend((bend + 8192) & 0x7F, (bend + 8192) >> 7);
+    g_sub_1_synth.pitch_bend((bend + 8192) & 0x7F, (bend + 8192) >> 7);
+  } else if ((channel - 1) == ((g_midi_ch + 2) & 0x0F)) {
+    g_sub_2_synth.pitch_bend((bend + 8192) & 0x7F, (bend + 8192) >> 7);
+  } else if ((channel - 1) == ((g_midi_ch + 3) & 0x0F)) {
+    g_sub_3_synth.pitch_bend((bend + 8192) & 0x7F, (bend + 8192) >> 7);
   }
 }
 
@@ -344,7 +480,11 @@ void __not_in_flash_func(handleAfterTouchPoly)(byte channel, byte note, byte pre
   if ((channel - 1) == g_midi_ch) {
     g_synth.after_touch_poly(note, pressure);
   } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
-    g_sub_synth.after_touch_poly(note, pressure);
+    g_sub_1_synth.after_touch_poly(note, pressure);
+  } else if ((channel - 1) == ((g_midi_ch + 2) & 0x0F)) {
+    g_sub_2_synth.after_touch_poly(note, pressure);
+  } else if ((channel - 1) == ((g_midi_ch + 3) & 0x0F)) {
+    g_sub_3_synth.after_touch_poly(note, pressure);
   }
 }
 
@@ -353,6 +493,81 @@ void __not_in_flash_func(handleAfterTouchChannel)(byte channel, byte pressure)
   if ((channel - 1) == g_midi_ch) {
     g_synth.after_touch_channel(pressure);
   } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
-    g_sub_synth.after_touch_channel(pressure);
+    g_sub_1_synth.after_touch_channel(pressure);
+  } else if ((channel - 1) == ((g_midi_ch + 2) & 0x0F)) {
+    g_sub_2_synth.after_touch_channel(pressure);
+  } else if ((channel - 1) == ((g_midi_ch + 3) & 0x0F)) {
+    g_sub_3_synth.after_touch_channel(pressure);
   }
 }
+
+void __not_in_flash_func(handleClock)()
+{
+#if defined(PRA32_U2_USE_CONTROL_PANEL)
+  PRA32_U2_ControlPanel_on_clock();
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
+}
+
+void __not_in_flash_func(handleStart)()
+{
+#if defined(PRA32_U2_USE_CONTROL_PANEL)
+  if (g_synth.current_controller_value(SEQ_TRX_ST_SP  ) >= 64) {
+    PRA32_U2_ControlPanel_on_start();
+  }
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
+}
+
+void __not_in_flash_func(handleStop)()
+{
+#if defined(PRA32_U2_USE_CONTROL_PANEL)
+  if (g_synth.current_controller_value(SEQ_TRX_ST_SP  ) >= 64) {
+    PRA32_U2_ControlPanel_on_stop();
+  }
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
+}
+
+
+#if defined(PRA32_U2_USE_CONTROL_PANEL)
+
+uint8_t __not_in_flash_func(getCurrentControllerValue)(byte channel, byte number)
+{
+  if ((channel - 1) == g_midi_ch) {
+    return g_synth.current_controller_value(number);
+  } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
+    return g_sub_1_synth.current_controller_value(number);
+  } else if ((channel - 1) == ((g_midi_ch + 2) & 0x0F)) {
+    return g_sub_2_synth.current_controller_value(number);
+  } else if ((channel - 1) == ((g_midi_ch + 3) & 0x0F)) {
+    return g_sub_3_synth.current_controller_value(number);
+  }
+
+  return 0;
+}
+
+void __not_in_flash_func(getRrandUint8Rrray)(byte channel, uint8_t array[8])
+{
+  if ((channel - 1) == g_midi_ch) {
+    g_synth.get_rand_uint8_array(array);
+  } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
+    g_sub_1_synth.get_rand_uint8_array(array);
+  } else if ((channel - 1) == ((g_midi_ch + 2) & 0x0F)) {
+    g_sub_2_synth.get_rand_uint8_array(array);
+  } else if ((channel - 1) == ((g_midi_ch + 3) & 0x0F)) {
+    g_sub_3_synth.get_rand_uint8_array(array);
+  }
+}
+
+void __not_in_flash_func(writeParametersToProgram)(byte channel, byte number)
+{
+  if ((channel - 1) == g_midi_ch) {
+    g_synth.write_parameters_to_program(number);
+  } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
+    g_sub_1_synth.write_parameters_to_program(number);
+  } else if ((channel - 1) == ((g_midi_ch + 2) & 0x0F)) {
+    g_sub_2_synth.write_parameters_to_program(number);
+  } else if ((channel - 1) == ((g_midi_ch + 3) & 0x0F)) {
+    g_sub_3_synth.write_parameters_to_program(number);
+  }
+}
+
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)

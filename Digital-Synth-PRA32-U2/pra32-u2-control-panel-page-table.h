@@ -21,7 +21,11 @@ struct PRA32_U2_ControlPanelPage {
 };
 
 static const PRA32_U2_ControlPanelPage g_control_panel_page_table_a[] = {
+#if (PRA32_U2_NUMBER_OF_SYNTHS > 1)
+  { "Page=A-00 ", "Info      ",   "PRA32-U2/M", "/P        ", 0xFF           ,   PRA32_U2_VERSION, "          ", 0xFF       ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+#else  // (PRA32_U2_NUMBER_OF_SYNTHS > 1)
   { "Page=A-00 ", "Info      ",   "PRA32-U2/P", "          ", 0xFF           ,   PRA32_U2_VERSION, "          ", 0xFF       ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+#endif  // (PRA32_U2_NUMBER_OF_SYNTHS > 1)
   { "Page=A-01 ", "Voice     ",   "Voice     ", "Mode      ", VOICE_MODE     ,   "Voice     ", "Asgn Mode ", VOICE_ASGN_MODE,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=A-02 ", "Pitch     ",   "Portamento", "          ", PORTAMENTO     ,   "Pitch     ", "Bend Range", P_BEND_RANGE   ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=A-03 ", "Osc a     ",   "Osc 1     ", "Wave      ", OSC_1_WAVE     ,   "Mixer     ", "Noise/Sub ", MIXER_SUB_OSC  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
@@ -54,7 +58,7 @@ static const PRA32_U2_ControlPanelPage g_control_panel_page_table_a[] = {
 };
 
 static const PRA32_U2_ControlPanelPage g_control_panel_page_table_b[] = {
-  { "Page=B-00 ", "Panel a   ",   "Panel     ", "Play Mode ", PANEL_PLAY_MODE,   "Panel     ", "MIDI Ch   ", PANEL_MIDI_CH  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=B-00 ", "Panel a   ",   "Panel     ", "Play Mode ", PANEL_PLAY_MODE,   "MIDI      ", "Basic Ch  ", PANEL_MIDI_CH  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=B-01 ", "Panel b   ",   "Panel     ", "Play Pitch", PANEL_PLAY_PIT ,   "Panel     ", "Play Velo ", PANEL_PLAY_VELO,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=B-02 ", "Panel c   ",   "Panel     ", "Scale     ", PANEL_SCALE    ,   "Panel     ", "Pitch Ofst", PANEL_PIT_OFST ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=B-03 ", "Panel d   ",   "Panel     ", "Transpose ", PANEL_TRANSPOSE,   "          ", "          ", 0xFF           ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },

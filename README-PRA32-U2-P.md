@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2/P (PRA32-U2 with Panel) v2.7.2
+# Digital Synth PRA32-U2/P (PRA32-U2 with Panel) v2.8.0
 
-- 2026-03-14 ISGK Instruments
+- 2026-03-20 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 
@@ -49,7 +49,7 @@
 
 - Panel Parameters
     - Panel Play Mode [Nrm|Seq]: Normal Mode, Step Sequencer Mode
-    - Panel MIDI Ch: Basic Channel 1-16
+    - MIDI Basic Ch: Basic Channel 1-16
     - Panel Play Pitch: 0 is Off, 1-4 is lowest, 124-127 is highest
     - Panel Play Velo (Velocity)
     - Panel Scale [Maj|Min|Mel|MaP|MiP|Chr]: Major, Natural Minor, Ascending Melodic Minor (Jazz Minor), Major Pentatonic, Minor Pentatonic, Chromatic (2 octaves)
@@ -130,7 +130,7 @@
 
 | Page           | Parameter A         | Parameter B      |
 | :------------- | :------------------ | :--------------- |
-| A-00 Info      | PRA32-U2/P          | v2.7.2           |
+| A-00 Info      | PRA32-U2/P          | v2.8.0           |
 | A-01 Voice     | Voice Mode          | Voice Asgn Mode  |
 | A-02 Pitch     | Portamento          | Pitch Bend Range |
 | A-03 Osc a     | Osc 1 Wave          | Mixer Noise/Sub  |
@@ -160,7 +160,7 @@
 | A-27 Chorus b  | Chorus Rate         | Chorus Depth     |
 | A-28 Delay a   | Delay Level         | Delay Mode       |
 | A-29 Delay b   | Delay Time          | Delay Feedback   |
-| B-00 Panel a   | Panel Play Mode     | Panel MIDI Ch    |
+| B-00 Panel a   | Panel Play Mode     | MIDI Basic Ch    |
 | B-01 Panel b   | Panel Play Pitch    | Panel Play Velo  |
 | B-02 Panel c   | Panel Scale         | Panel Pitch Ofst |
 | B-03 Panel d   | Panel Transpose     |                  |

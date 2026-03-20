@@ -70,8 +70,12 @@ public:
     m_lfo_waveform = lfo_waveform_table[index];
   }
 
+  template <uint32_t LFO_RATE_OFFSET = 0>
   INLINE void set_lfo_rate(uint8_t controller_value) {
     m_lfo_rate = g_lfo_rate_table[controller_value];
+    if (m_lfo_rate > 0) {
+      m_lfo_rate += LFO_RATE_OFFSET;
+    }
   }
 
   template <uint8_t N>

@@ -1,8 +1,8 @@
 /*
- * Digital Synth PRA32-U2
+ * Digital Synth PRA32-U2/M
  */
 
-#define PRA32_U2_VERSION                       "v2.7.2    "
+#define PRA32_U2_VERSION                       "v2.8.0    "
 
 #define PRA32_U2_MIDI_CH                       (0)  // 0-based
 
@@ -28,6 +28,8 @@
 
 //#define PRA32_U2_USE_EMULATED_EEPROM
 
+#define PRA32_U2_NUMBER_OF_SYNTHS              (2)
+
 ////////////////////////////////////////////////////////////////
 
 uint8_t g_midi_ch = PRA32_U2_MIDI_CH;
@@ -35,8 +37,8 @@ uint8_t g_midi_ch = PRA32_U2_MIDI_CH;
 #include "pra32-u2-common.h"
 #include "pra32-u2-synth.h"
 
-PRA32_U2_Synth<false, true> g_synth;
-PRA32_U2_Synth<true,  true> g_sub_synth;
+PRA32_U2_Synth<false, true,  false, 0> g_synth;
+PRA32_U2_Synth<true,  false, true,  2> g_sub_synth;
 
 #if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
 #include <PWMAudio.h>
