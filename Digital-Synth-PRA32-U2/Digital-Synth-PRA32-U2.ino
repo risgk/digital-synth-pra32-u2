@@ -224,7 +224,11 @@ void __not_in_flash_func(setup)() {
 #if defined(PRA32_U2_USE_USB_MIDI)
   TinyUSB_Device_Init(0);
   USBDevice.setManufacturerDescriptor("ISGK Instruments");
+#if defined(PRA32_U2_USE_CONTROL_PANEL)
+  USBDevice.setProductDescriptor("Digital Synth PRA32-U2/P");
+#else  // defined(PRA32_U2_USE_CONTROL_PANEL)
   USBDevice.setProductDescriptor("Digital Synth PRA32-U2");
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
   USB_MIDI.setHandleNoteOn(handleNoteOn);
   USB_MIDI.setHandleNoteOff(handleNoteOff);
   USB_MIDI.setHandleControlChange(handleControlChange);
