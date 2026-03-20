@@ -241,7 +241,7 @@ graph LR
     - "Digital-Synth-PRA32-U2-M.ino" is a Arduino sketch
 - **PRA32-U2/M/P** (Optional) (Experimental)
     - Uncomment out `//#define PRA32_U2_USE_CONTROL_PANEL`
-    - Prev Key + Next Key: Go to the next channel ("$0" -> "$1" -> "$2" -> "$3" -> "$0")
+    - Prev Key + Next Key: Push to go to the next channel ("$0" -> "$1" -> "$2" -> "$3" -> "$0")
 
 
 ## License
