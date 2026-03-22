@@ -235,7 +235,7 @@ graph LR
     - Basic Channel + 0: The default program is #0; The FX parameters apply to all channels
     - Basic Channel + 1: The default program is #1; The FX parameters are disabled
     - Basic Channel + 2: The default program is #2; The FX parameters are disabled
-    - Basic Channel + 3: The default program is #3; The FX parameters are disabled; Osc 1 Shape and Morph are disabled in Saw, Sqr, and WT
+    - Basic Channel + 3: The default program is #3; The FX parameters are disabled; Osc 1 Shape and Morph are disabled in Sqr and WT
 - How to make
     - Copy all files in the "Digital-Synth-PRA32-U2" folder, except for "Digital-Synth-PRA32-U2.ino", to the "Digital-Synth-PRA32-U2-M" folder
     - "Digital-Synth-PRA32-U2-M.ino" is a Arduino sketch
