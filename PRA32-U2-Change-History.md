@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v2.8.1 (20??-??-??):
+    - PRA32-U2/M: In Basic Channel + 3, Osc 1 Shape and Morph are enabled in Saw
     - PRA32-U2/M/P: Fix an issue where the MIDI channel for panel operations is over 16
     - Tested with Arduino-Pico version 5.5.1
 - v2.8.0 (2026-03-20):
