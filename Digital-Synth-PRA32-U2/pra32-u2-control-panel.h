@@ -616,14 +616,14 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
       } else if (s_ready_to_rand_pitch && (s_adc_control_value[adc_number] >= 96)) {
         uint8_t array[8] = {};
         getRrandUint8Rrray(((g_midi_ch + s_current_synth) & 0x0F) + 1, array);
-        handleControlChange(((g_midi_ch + s_current_synth) & 0x0F) + 1, SEQ_PITCH_0    , array[0] & 0x7Fu);
-        handleControlChange(((g_midi_ch + s_current_synth) & 0x0F) + 1, SEQ_PITCH_1    , array[1] & 0x7Fu);
-        handleControlChange(((g_midi_ch + s_current_synth) & 0x0F) + 1, SEQ_PITCH_2    , array[2] & 0x7Fu);
-        handleControlChange(((g_midi_ch + s_current_synth) & 0x0F) + 1, SEQ_PITCH_3    , array[3] & 0x7Fu);
-        handleControlChange(((g_midi_ch + s_current_synth) & 0x0F) + 1, SEQ_PITCH_4    , array[4] & 0x7Fu);
-        handleControlChange(((g_midi_ch + s_current_synth) & 0x0F) + 1, SEQ_PITCH_5    , array[5] & 0x7Fu);
-        handleControlChange(((g_midi_ch + s_current_synth) & 0x0F) + 1, SEQ_PITCH_6    , array[6] & 0x7Fu);
-        handleControlChange(((g_midi_ch + s_current_synth) & 0x0F) + 1, SEQ_PITCH_7    , array[7] & 0x7Fu);
+        g_synth.control_change(SEQ_PITCH_0    , array[0] & 0x7Fu);
+        g_synth.control_change(SEQ_PITCH_1    , array[1] & 0x7Fu);
+        g_synth.control_change(SEQ_PITCH_2    , array[2] & 0x7Fu);
+        g_synth.control_change(SEQ_PITCH_3    , array[3] & 0x7Fu);
+        g_synth.control_change(SEQ_PITCH_4    , array[4] & 0x7Fu);
+        g_synth.control_change(SEQ_PITCH_5    , array[5] & 0x7Fu);
+        g_synth.control_change(SEQ_PITCH_6    , array[6] & 0x7Fu);
+        g_synth.control_change(SEQ_PITCH_7    , array[7] & 0x7Fu);
 
         s_ready_to_rand_pitch = false;
       }
@@ -634,14 +634,14 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
       } else if (s_ready_to_rand_velo && (s_adc_control_value[adc_number] >= 96)) {
         uint8_t array[8] = {};
         getRrandUint8Rrray(((g_midi_ch + s_current_synth) & 0x0F) + 1, array);
-        handleControlChange(((g_midi_ch + s_current_synth) & 0x0F) + 1, SEQ_VELO_0     , array[0] & 0x7Fu);
-        handleControlChange(((g_midi_ch + s_current_synth) & 0x0F) + 1, SEQ_VELO_1     , array[1] & 0x7Fu);
-        handleControlChange(((g_midi_ch + s_current_synth) & 0x0F) + 1, SEQ_VELO_2     , array[2] & 0x7Fu);
-        handleControlChange(((g_midi_ch + s_current_synth) & 0x0F) + 1, SEQ_VELO_3     , array[3] & 0x7Fu);
-        handleControlChange(((g_midi_ch + s_current_synth) & 0x0F) + 1, SEQ_VELO_4     , array[4] & 0x7Fu);
-        handleControlChange(((g_midi_ch + s_current_synth) & 0x0F) + 1, SEQ_VELO_5     , array[5] & 0x7Fu);
-        handleControlChange(((g_midi_ch + s_current_synth) & 0x0F) + 1, SEQ_VELO_6     , array[6] & 0x7Fu);
-        handleControlChange(((g_midi_ch + s_current_synth) & 0x0F) + 1, SEQ_VELO_7     , array[7] & 0x7Fu);
+        g_synth.control_change(SEQ_VELO_0     , array[0] & 0x7Fu);
+        g_synth.control_change(SEQ_VELO_1     , array[1] & 0x7Fu);
+        g_synth.control_change(SEQ_VELO_2     , array[2] & 0x7Fu);
+        g_synth.control_change(SEQ_VELO_3     , array[3] & 0x7Fu);
+        g_synth.control_change(SEQ_VELO_4     , array[4] & 0x7Fu);
+        g_synth.control_change(SEQ_VELO_5     , array[5] & 0x7Fu);
+        g_synth.control_change(SEQ_VELO_6     , array[6] & 0x7Fu);
+        g_synth.control_change(SEQ_VELO_7     , array[7] & 0x7Fu);
 
         s_ready_to_rand_velo = false;
       }
