@@ -3,6 +3,7 @@
 - v2.8.1 (20??-??-??):
     - PRA32-U2/M: In Basic Channel + 3, Osc 1 Shape and Morph are enabled in Saw
     - PRA32-U2/M/P: Fix an issue where the MIDI channel for panel operations is over 16
+    - PRA32-U2/M/P: Fix an issue where "Seq Rand Pitch" and "Seq Rand Velo" sometimes do not work
     - Tested with Arduino-Pico version 5.5.1
 - v2.8.0 (2026-03-20):
     - Add the PRA32-U2/M (PRA32-U2 Multi-Timbre Edition) option (Experimental)
