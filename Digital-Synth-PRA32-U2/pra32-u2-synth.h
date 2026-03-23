@@ -1489,13 +1489,13 @@ if constexpr ((NO_FX == false) && (BYPASS_FX == false)) {
     delay_fx_output_l = mixed_output_l;
 }
 
+if constexpr (EXT_OUTPUT) {
+    audio_output_r_int32 = delay_fx_output_r;
+    audio_output_l_int32 = delay_fx_output_l;
+}
+
     int32_t synth_output_r = clamp(delay_fx_output_r, (-(INT16_MAX << 8)), (+(INT16_MAX << 8)));
     int32_t synth_output_l = clamp(delay_fx_output_l, (-(INT16_MAX << 8)), (+(INT16_MAX << 8)));
-
-if constexpr (EXT_OUTPUT) {
-    audio_output_l_int32 = synth_output_l;
-    audio_output_r_int32 = synth_output_r;
-}
 
 #if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
     int16_t synth_output_l_int16 = (synth_output_l >> 8);
