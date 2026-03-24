@@ -26,7 +26,7 @@ const uint8_t g_preset_table_EG_RELEASE     [] = {32 , 32 , 32 , 32 , 32 , 32 , 
 const uint8_t g_preset_table_EG_OSC_AMT     [] = {64 , 64 , 72 , 64 , 64 , 72 , 64 , 64 ,   64 , 64 , 72 , 64 , 64 , 72 , 64 , 64 };
 const uint8_t g_preset_table_EG_OSC_DST     [] = {0  , 0  , 127, 0  , 0  , 127, 0  , 0  ,   0  , 0  , 127, 0  , 0  , 127, 0  , 0  };
 const uint8_t g_preset_table_VOICE_MODE     [] = {0  , 0  , 0  , 0  , 127, 76 , 76 , 127,   0  , 0  , 0  , 0  , 127, 76 , 76 , 127};
-const uint8_t g_preset_table_PORTAMENTO     [] = {40 , 0  , 0  , 0  , 40 , 40 , 0  , 0  ,   40 , 0  , 0  , 0  , 40 , 40 , 0  , 0  };
+const uint8_t g_preset_table_PORTAMENTO     [] = {48 , 0  , 0  , 0  , 48 , 48 , 0  , 0  ,   48 , 0  , 0  , 0  , 48 , 48 , 0  , 0  };
 
 const uint8_t g_preset_table_LFO_WAVE       [] = {0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  };
 const uint8_t g_preset_table_LFO_FADE_TIME  [] = {0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  };
