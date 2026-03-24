@@ -489,10 +489,10 @@ public:
     update_mixer_control_effective();
   }
 
-  template <uint8_t N, boolean RESTRICT_OSC = false>
+  template <uint8_t N, boolean RESTRICT_SAW = false, boolean RESTRICT_SQR_WT = false>
   INLINE int32_t process(int16_t noise_int15) {
 #if 1
-    return process_osc<N, RESTRICT_OSC>(noise_int15);
+    return process_osc<N, RESTRICT_SAW, RESTRICT_SQR_WT>(noise_int15);
 #else
     return = 0;
 #endif
@@ -548,7 +548,7 @@ private:
     return data;
   }
 
-  template <uint8_t N, boolean RESTRICT_OSC = false>
+  template <uint8_t N, boolean RESTRICT_SAW = false, boolean RESTRICT_SQR_WT = false>
   INLINE int32_t process_osc(int16_t noise_int15) {
     int32_t result = 0;
 
@@ -579,6 +579,7 @@ private:
       int32_t wave_0 = get_wave_level(wave_table_sine, phase_0);
       result += (wave_0 * m_osc1_gain * m_osc_level_effective[N]) >> 10;
     } else if ((m_waveform[0] == WAVEFORM_SAW) || (m_waveform[0] == WAVEFORM_SAW2)) {
+if constexpr (RESTRICT_SAW == false) {
       volatile int32_t phase_modulation_depth = maximum(m_osc1_shape_effective[N] - (128 << 8), 0);
 
       uint32_t freq_shape_morph =
@@ -601,11 +602,15 @@ private:
       int32_t multi_saw_mix = (m_osc1_morph_control_effective + 1) >> 1;
       result += (((  ( multi_saw_mix       * (((wave_0_0 + wave_0_1 + wave_0_2 + wave_0_3 + wave_0_4 + wave_0_5 + wave_0_6) << 1) / 5))
                    + ((64 - multi_saw_mix) *    wave_0)) >> 6) * m_osc1_gain * m_osc_level_effective[N]) >> 10;
+} else {
+      int32_t wave_0 = get_wave_level(m_wave_table[N], m_phase[N]);
+      result += (wave_0 * m_osc1_gain * m_osc_level_effective[N]) >> 10;
+}
     } else if (m_waveform[0] == WAVEFORM_SQUARE) {
+if constexpr (RESTRICT_SQR_WT == false) {
       uint32_t shape = maximum(m_osc1_shape_effective[N] - (128 << 8), 0);
       const uint16_t (* wave_shape_table)[OSC_WAVE_SHAPE_TABLE_LEN_X][OSC_WAVE_SHAPE_TABLE_LEN_Y] = &g_osc_sqr_shape_table;
 
-if constexpr (RESTRICT_OSC == false) {
       int32_t wave_0    = +get_wave_level(m_wave_table[N], m_phase[N]);
       int32_t wave_0_0  = +get_wave_level(m_wave_table[N + 16], m_phase[N] - get_osc_wave_shape_data(wave_shape_table, shape, 0 ));
       int32_t wave_0_1  = -get_wave_level(m_wave_table[N + 16], m_phase[N] - get_osc_wave_shape_data(wave_shape_table, shape, 1 ));
@@ -633,10 +638,10 @@ if constexpr (RESTRICT_OSC == false) {
       result += (wave_0 * m_osc1_gain * m_osc_level_effective[N]) >> 10;
 }
     } else if (m_waveform[0] == WAVEFORM_1_WAVE_TABLE) {
+if constexpr (RESTRICT_SQR_WT == false) {
       uint32_t shape = maximum(m_osc1_shape_effective[N] - (128 << 8), 0);
       const uint16_t (* wave_shape_table)[OSC_WAVE_SHAPE_TABLE_LEN_X][OSC_WAVE_SHAPE_TABLE_LEN_Y] = get_wave_shape_table(m_osc1_morph_control);
 
-if constexpr (RESTRICT_OSC == false) {
       int32_t wave_0_0  = +get_wave_level(m_wave_table[N + 16], m_phase[N] - get_osc_wave_shape_data(wave_shape_table, shape, 0 ));
       int32_t wave_0_1  = -get_wave_level(m_wave_table[N + 16], m_phase[N] - get_osc_wave_shape_data(wave_shape_table, shape, 1 ));
       int32_t wave_0_2  = +get_wave_level(m_wave_table[N + 16], m_phase[N] - get_osc_wave_shape_data(wave_shape_table, shape, 2 ));
