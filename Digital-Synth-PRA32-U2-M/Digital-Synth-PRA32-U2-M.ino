@@ -158,7 +158,7 @@ void __not_in_flash_func(loop1)() {
     int16_t sub_3_synth_output_r;
     int32_t sub_3_synth_output_l_int32;
     int32_t sub_3_synth_output_r_int32;
-    sub_3_synth_output_l = g_sub_3_synth.process<false, false, true>(0, 0, sub_3_synth_output_r, sub_3_synth_output_l_int32, sub_3_synth_output_r_int32);
+    sub_3_synth_output_l = g_sub_3_synth.process<false, false, false, true>(0, 0, sub_3_synth_output_r, sub_3_synth_output_l_int32, sub_3_synth_output_r_int32);
     static_cast<void>(sub_3_synth_output_l);
     static_cast<void>(sub_3_synth_output_r);
 
