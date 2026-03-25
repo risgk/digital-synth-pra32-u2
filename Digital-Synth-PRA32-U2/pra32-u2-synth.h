@@ -482,7 +482,7 @@ public:
 #endif  // defined(PRA32_U2_USE_EMULATED_EEPROM)
 #endif  // defined(ARDUINO_ARCH_RP2040)
 
-    program_change((PROGRAM_NUMBER_DEFAULT + SYNTH_ID) & USER_PROGRAM_NUMBER_MAX);
+    program_change((PROGRAM_NUMBER_DEFAULT + ((PRA32_U2_NUMBER_OF_SYNTHS > 1) * 4) + SYNTH_ID) & USER_PROGRAM_NUMBER_MAX);
 
     reset_all_controllers();
 
