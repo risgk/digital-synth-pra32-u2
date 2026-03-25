@@ -489,10 +489,10 @@ public:
     update_mixer_control_effective();
   }
 
-  template <uint8_t N, boolean RESTRICT_SAW = false, boolean RESTRICT_SQR_WT = false>
+  template <uint8_t N, uint32_t SYNTH_ID = 0, boolean RESTRICT_SAW = false, boolean RESTRICT_SQR_WT = false>
   INLINE int32_t process(int16_t noise_int15) {
 #if 1
-    return process_osc<N, RESTRICT_SAW, RESTRICT_SQR_WT>(noise_int15);
+    return process_osc<N, SYNTH_ID, RESTRICT_SAW, RESTRICT_SQR_WT>(noise_int15);
 #else
     return = 0;
 #endif
@@ -548,7 +548,7 @@ private:
     return data;
   }
 
-  template <uint8_t N, boolean RESTRICT_SAW = false, boolean RESTRICT_SQR_WT = false>
+  template <uint8_t N, uint32_t SYNTH_ID = 0, boolean RESTRICT_SAW = false, boolean RESTRICT_SQR_WT = false>
   INLINE int32_t process_osc(int16_t noise_int15) {
     int32_t result = 0;
 
@@ -588,7 +588,7 @@ if constexpr (RESTRICT_SAW == false) {
       freq_shape_morph += (N + 4);
       m_phase_shape_morph[N] += freq_shape_morph;
 
-      uint32_t phase_shift_base = (127 * (4 - N)) << (5 + 16 - 2);
+      uint32_t phase_shift_base = (127 * (4 - ((N + SYNTH_ID) & 0x03))) << (5 + 16 - 2);
 
       int32_t wave_0   = get_wave_level(m_wave_table[N], m_phase[N]);
       int32_t wave_0_0 = get_wave_level(m_wave_table[N], m_phase[N]);

@@ -1405,12 +1405,12 @@ if constexpr (NO_FX == false) {
     m_secondary_core_processing_request = 1;
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)
 
-    osc_output   [0] = m_osc      .process<0, RESTRICT_SAW, RESTRICT_SQR_WT>(noise_int15);
+    osc_output   [0] = m_osc      .process<0, SYNTH_ID, RESTRICT_SAW, RESTRICT_SQR_WT>(noise_int15);
     filter_output[0] = m_filter[0].process(osc_output   [0]);
     amp_output   [0] = m_amp   [0].process(filter_output[0]);
 
 #if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)
-    osc_output   [1] = m_osc      .process<1, RESTRICT_SAW, RESTRICT_SQR_WT>(noise_int15);
+    osc_output   [1] = m_osc      .process<1, SYNTH_ID, RESTRICT_SAW, RESTRICT_SQR_WT>(noise_int15);
     filter_output[1] = m_filter[1].process(osc_output   [1]);
     amp_output   [1] = m_amp   [1].process(filter_output[1]);
 #else  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)
@@ -1543,11 +1543,11 @@ if constexpr (EXT_OUTPUT) {
       int32_t filter_output[4];
       int32_t amp_output   [4];
 
-      osc_output   [2] = m_osc      .process<2, RESTRICT_SAW, RESTRICT_SQR_WT>(noise_int15);
+      osc_output   [2] = m_osc      .process<2, SYNTH_ID, RESTRICT_SAW, RESTRICT_SQR_WT>(noise_int15);
       filter_output[2] = m_filter[2].process(osc_output   [2]);
       amp_output   [2] = m_amp   [2].process(filter_output[2]);
 
-      osc_output   [3] = m_osc      .process<3, RESTRICT_SAW, RESTRICT_SQR_WT>(noise_int15);
+      osc_output   [3] = m_osc      .process<3, SYNTH_ID, RESTRICT_SAW, RESTRICT_SQR_WT>(noise_int15);
       filter_output[3] = m_filter[3].process(osc_output   [3]);
       amp_output   [3] = m_amp   [3].process(filter_output[3]);
 
