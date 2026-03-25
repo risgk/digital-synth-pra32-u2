@@ -2,6 +2,7 @@
 
 - v2.8.1 (20??-??-??):
     - Modify the Presets and the Editor Presets
+    - PRA32-U2/M: Change the default programs from #0-3 to #4-7
     - PRA32-U2/M: Change the phases of the Multi Saw for each channel
     - PRA32-U2/M: In Basic Channel + 3, Osc 1 Shape and Morph are enabled in Saw
     - PRA32-U2/M/P: Fix an issue where the MIDI channel for panel operations is over 16
