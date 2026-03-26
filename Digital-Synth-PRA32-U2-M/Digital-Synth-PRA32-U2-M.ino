@@ -2,7 +2,7 @@
  * Digital Synth PRA32-U2/M
  */
 
-#define PRA32_U2_VERSION                       "v2.8.0    "
+#define PRA32_U2_VERSION                       "v2.9.0    "
 
 //#define PRA32_U2_USE_DEBUG_PRINT
 
@@ -42,6 +42,7 @@
 #define PRA32_U2_PWM_AUDIO_R_PIN               (27)
 
 //#define PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING
+//#define PRA32_U2_ENABLE_POLY_ON_1_CORE
 
 #define PRA32_U2_USE_EMULATED_EEPROM
 
@@ -88,10 +89,10 @@ uint8_t g_midi_ch = PRA32_U2_MIDI_CH;
 #include "pra32-u2-common.h"
 #include "pra32-u2-synth.h"
 
-PRA32_U2_Synth<false, true,  true, 0, true> g_synth;
-PRA32_U2_Synth<true,  true,  true, 1, true> g_sub_1_synth;
-PRA32_U2_Synth<true,  false, true, 2, true> g_sub_2_synth;
-PRA32_U2_Synth<true,  false, true, 3, true> g_sub_3_synth;
+PRA32_U2_Synth<false, true,  true, 0> g_synth;
+PRA32_U2_Synth<true,  true,  true, 1> g_sub_1_synth;
+PRA32_U2_Synth<true,  false, true, 2> g_sub_2_synth;
+PRA32_U2_Synth<true,  false, true, 3> g_sub_3_synth;
 
 #include <MIDI.h>
 #if defined(PRA32_U2_USE_USB_MIDI)
@@ -158,7 +159,7 @@ void __not_in_flash_func(loop1)() {
     int16_t sub_3_synth_output_r;
     int32_t sub_3_synth_output_l_int32;
     int32_t sub_3_synth_output_r_int32;
-    sub_3_synth_output_l = g_sub_3_synth.process<false, false, true>(0, 0, sub_3_synth_output_r, sub_3_synth_output_l_int32, sub_3_synth_output_r_int32);
+    sub_3_synth_output_l = g_sub_3_synth.process<false, false, false, true>(0, 0, sub_3_synth_output_r, sub_3_synth_output_l_int32, sub_3_synth_output_r_int32);
     static_cast<void>(sub_3_synth_output_l);
     static_cast<void>(sub_3_synth_output_r);
 
