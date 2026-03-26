@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v2.9.0 (20??-??-??):
+- v2.9.0 (2026-03-26):
     - Modify the Presets and the Editor Presets
     - PRA32-U2/M: Increase the output level
     - PRA32-U2/M: Change the default programs from #0-3 to #4-7
