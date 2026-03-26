@@ -2,7 +2,7 @@
  * Digital Synth PRA32-U2
  */
 
-#define PRA32_U2_VERSION                       "v2.8.0    "
+#define PRA32_U2_VERSION                       "v2.9.0    "
 
 //#define PRA32_U2_USE_DEBUG_PRINT
 
@@ -42,6 +42,7 @@
 #define PRA32_U2_PWM_AUDIO_R_PIN               (27)
 
 #define PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING
+//#define PRA32_U2_ENABLE_POLY_ON_1_CORE
 
 #define PRA32_U2_USE_EMULATED_EEPROM
 

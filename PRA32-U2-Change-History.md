@@ -1,5 +1,14 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v2.9.0 (2026-03-26):
+    - Modify the Presets and the Editor Presets
+    - PRA32-U2/M: Increase the output level
+    - PRA32-U2/M: Change the default programs from #0-3 to #4-7
+    - PRA32-U2/M: Change the phases of the Multi Saw for each channel
+    - PRA32-U2/M: In Basic Channel + 3, Osc 1 Shape and Morph are enabled in Saw
+    - PRA32-U2/M/P: Fix an issue where the MIDI channel for panel operations is over 16
+    - PRA32-U2/M/P: Fix an issue where "Seq Rand Pitch" and "Seq Rand Velo" sometimes do not work
+    - Tested with Arduino-Pico version 5.5.1
 - v2.8.0 (2026-03-20):
     - Add the PRA32-U2/M (PRA32-U2 Multi-Timbre Edition) option (Experimental)
     - PRA32-U2/P: Change the USB device name to "Digital Synth PRA32-U2/P"
@@ -10,7 +19,7 @@
 - v2.7.2 (2026-03-14):
     - Fix a performance issue
     - Tested with Arduino-Pico version 5.5.1
-- v2.7.1 (2026-03-20):
+- v2.7.1 (2026-03-14):
     - Improve customizability
     - Tested with Arduino-Pico version 5.5.1
 - v2.7.0 (2026-03-11):
