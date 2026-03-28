@@ -1,7 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v2.10.1 (2026-??-??):
-    - Modify the Preset "#12 Saw Lead"
+- v2.11.1 (2026-??-??):
+    - Modify the Presets and the Editor Presets for Mono
     - PRA32-U2/M: Add "Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2"
     - Tested with Arduino-Pico version 5.5.1
 - v2.10.0 (2026-03-28):
