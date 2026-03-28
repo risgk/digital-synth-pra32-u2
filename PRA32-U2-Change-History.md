@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v2.10.0 (2026-??-??):
+- v2.10.0 (2026-03-28):
     - Smooth out changes of the "Osc 1 Shape" and the "Filter Cutoff"
     - Modify the Presets and the Editor Presets
     - Fix an issue where modulation stop working when LFO Depth and Modulation are 127
