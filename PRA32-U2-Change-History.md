@@ -1,5 +1,10 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v2.10.1 (2026-??-??):
+    - Modify the Presets and the Editor Presets for Mono
+    - Change the behavior of the "Same as Osc 1 Wave (O1)" in the "Osc 2 Wave"
+    - PRA32-U2/M: Add "Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2"
+    - Tested with Arduino-Pico version 5.5.1
 - v2.10.0 (2026-03-28):
     - Smooth out changes of the "Osc 1 Shape" and the "Filter Cutoff"
     - Modify the Presets and the Editor Presets
