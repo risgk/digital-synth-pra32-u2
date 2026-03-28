@@ -221,7 +221,7 @@ public:
 
   template <uint8_t N>
   INLINE void set_osc_waveform(uint8_t controller_value) {
-    static uint8_t waveform_tables[2][6] = {
+    static uint8_t waveform_tables[3][6] = {
       {
         WAVEFORM_SAW,
         WAVEFORM_SQUARE,
@@ -237,6 +237,14 @@ public:
         WAVEFORM_SINE,
         WAVEFORM_2_NOISE,
         WAVEFORM_2_NOISE,
+      },
+      {
+        WAVEFORM_SAW,
+        WAVEFORM_SQUARE,
+        WAVEFORM_TRIANGLE,
+        WAVEFORM_SINE,
+        WAVEFORM_SQUARE,
+        WAVEFORM_SQUARE,
       },
     };
 
@@ -254,7 +262,7 @@ public:
     }
 
     if (m_waveform_index[1] == 4) { // Same as Osc 1 Wave
-      m_waveform[1] = waveform_tables[1][m_waveform_index[0]];
+      m_waveform[1] = waveform_tables[2][m_waveform_index[0]];
     }
   }
 

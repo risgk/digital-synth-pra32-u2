@@ -236,7 +236,9 @@ graph LR
     - Basic Channel + 1: The default program is #5; The FX parameters are disabled
     - Basic Channel + 2: The default program is #6; The FX parameters are disabled
     - Basic Channel + 3: The default program is #7; The FX parameters are disabled; Osc 1 Shape and Morph are disabled in Sqr and WT
-- How to make
+- Prebuilt UF2 files ("bin")
+    - "Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico and Pimoroni Pico Audio Pack
+- How to modify
     - Copy all files in the "Digital-Synth-PRA32-U2" folder, except for "Digital-Synth-PRA32-U2.ino", to the "Digital-Synth-PRA32-U2-M" folder
     - "Digital-Synth-PRA32-U2-M.ino" is a Arduino sketch
 - **PRA32-U2/M/P** (Optional) (Experimental)

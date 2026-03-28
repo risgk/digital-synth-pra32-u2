@@ -78,8 +78,8 @@
         - Square Wave
         - Triangle Wave
         - Sine Wave
-        - White Noise
-        - White Noise
+        - Square Wave
+        - Square Wave
     - 127 (115-127): White Noise
 - Mixer Osc Mix [1|2]
 - Osc 2 Coarse [-|+]
