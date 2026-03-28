@@ -73,7 +73,7 @@ public:
   }
 
   INLINE void set_cutoff(uint8_t controller_value) {
-    m_cutoff_control = controller_value;
+    m_cutoff_control = controller_value << (1 + 2);
   }
 
   INLINE void set_resonance(uint8_t controller_value) {
@@ -155,7 +155,7 @@ public:
 
 private:
   INLINE void update_cutoff_control_effective() {
-#if 1
+#if 0
     m_cutoff_control_effective = m_cutoff_control;
 #else
     m_cutoff_control_effective += (m_cutoff_control_effective < m_cutoff_control);
@@ -164,7 +164,7 @@ private:
   }
 
   INLINE void update_coefs(int16_t eg_input, int16_t lfo_input, uint16_t osc_pitch) {
-    int16_t cutoff_candidate = m_cutoff_control_effective << (1 + 2);
+    int16_t cutoff_candidate = m_cutoff_control_effective;
     cutoff_candidate += (m_cutoff_eg_amt[0] * eg_input) >> (14 - 2);
     cutoff_candidate += (m_cutoff_eg_amt[1] * eg_input) >> (14 - 2);
 
