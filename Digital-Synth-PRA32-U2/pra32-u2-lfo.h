@@ -123,7 +123,7 @@ public:
 
   template <uint8_t N>
   INLINE int16_t get_output() {
-    uint8_t lfo_depth = high_byte((m_lfo_depth[0] << 1) * m_lfo_fade_level) + m_lfo_depth[1]
+    int16_t lfo_depth = high_byte((m_lfo_depth[0] << 1) * m_lfo_fade_level) + m_lfo_depth[1]
                         + ((m_pressure_amt * m_pressure[N]) >> 7);
     if (lfo_depth > 128) {
       lfo_depth = 128;
