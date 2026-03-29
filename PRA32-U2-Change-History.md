@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v2.10.1 (2026-??-??):
+- v2.11.0 (2026-03-29):
     - Modify the Presets and the Editor Presets for Mono
     - Change the behavior of the "Same as Osc 1 Wave (O1)" in the "Osc 2 Wave"
     - PRA32-U2/M: Add "Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2"
