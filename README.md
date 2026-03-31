@@ -241,6 +241,7 @@ graph LR
             - Results of Program Change: Program # + 0 for Basic Channel + 0, and Program # + 1 for Basic Channel + 1
         - Basic Channel + 5: Control Basic Channel + 2 and + 3 simultaneously
             - Results of Program Change: Program # + 0 for Basic Channel + 2, and Program # + 1 for Basic Channel + 3
+        - Not to use this feature, comment out `#define PRA32_U2_ENABLE_LAYERING` in "Digital-Synth-PRA32-U2-M.ino"
 - Prebuilt UF2 files ("bin")
     - "Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico and Pimoroni Pico Audio Pack
 - How to modify
