@@ -238,8 +238,19 @@ graph LR
         - Basic Channel + 3: The default program is #7; The FX parameters are disabled; Osc 1 Shape and Morph are disabled in Sqr and WT
     - Layering
         - Basic Channel + 4: Control all channels simultaneously
+            - Results of Program Change
+                - Basic Channel + 0: Program # + 0
+                - Basic Channel + 1: Program # + 1
+                - Basic Channel + 2: Program # + 2
+                - Basic Channel + 3: Program # + 3
         - Basic Channel + 5: Control Basic Channel + 0 and + 1 simultaneously
+            - Results of Program Change
+                - Basic Channel + 0: Program # + 0
+                - Basic Channel + 1: Program # + 1
         - Basic Channel + 6: Control Basic Channel + 2 and + 3 simultaneously
+            - Results of Program Change 
+                - Basic Channel + 2: Program # + 0
+                - Basic Channel + 3: Program # + 1
 - Prebuilt UF2 files ("bin")
     - "Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico and Pimoroni Pico Audio Pack
 - How to modify

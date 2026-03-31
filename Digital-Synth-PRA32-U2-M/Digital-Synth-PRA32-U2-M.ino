@@ -498,15 +498,15 @@ void __not_in_flash_func(handleProgramChange)(byte channel, byte number)
     g_sub_3_synth.program_change(number);
   } else if ((channel - 1) == ((g_midi_ch + 4) & 0x0F)) {
     g_synth.program_change(number);
-    g_sub_1_synth.program_change(number);
-    g_sub_2_synth.program_change(number);
-    g_sub_3_synth.program_change(number);
+    g_sub_1_synth.program_change((number + 1) & 0x3F);
+    g_sub_2_synth.program_change((number + 2) & 0x3F);
+    g_sub_3_synth.program_change((number + 3) & 0x3F);
   } else if ((channel - 1) == ((g_midi_ch + 5) & 0x0F)) {
     g_synth.program_change(number);
-    g_sub_1_synth.program_change(number);
+    g_sub_1_synth.program_change((number + 1) & 0x3F);
   } else if ((channel - 1) == ((g_midi_ch + 6) & 0x0F)) {
     g_sub_2_synth.program_change(number);
-    g_sub_3_synth.program_change(number);
+    g_sub_3_synth.program_change((number + 1) & 0x3F);
   }
 }
 
