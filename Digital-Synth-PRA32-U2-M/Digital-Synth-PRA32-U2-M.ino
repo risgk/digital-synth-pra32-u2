@@ -420,12 +420,7 @@ void __not_in_flash_func(handleNoteOn)(byte channel, byte pitch, byte velocity)
   } else if ((channel - 1) == ((g_midi_ch + 4) & 0x0F)) {
     g_synth.note_on(pitch, velocity);
     g_sub_1_synth.note_on(pitch, velocity);
-    g_sub_2_synth.note_on(pitch, velocity);
-    g_sub_3_synth.note_on(pitch, velocity);
   } else if ((channel - 1) == ((g_midi_ch + 5) & 0x0F)) {
-    g_synth.note_on(pitch, velocity);
-    g_sub_1_synth.note_on(pitch, velocity);
-  } else if ((channel - 1) == ((g_midi_ch + 6) & 0x0F)) {
     g_sub_2_synth.note_on(pitch, velocity);
     g_sub_3_synth.note_on(pitch, velocity);
   }
@@ -449,13 +444,7 @@ void __not_in_flash_func(handleNoteOff)(byte channel, byte pitch, byte velocity)
     (void) velocity;
     g_synth.note_off(pitch);
     g_sub_1_synth.note_off(pitch);
-    g_sub_2_synth.note_off(pitch);
-    g_sub_3_synth.note_off(pitch);
   } else if ((channel - 1) == ((g_midi_ch + 5) & 0x0F)) {
-    (void) velocity;
-    g_synth.note_off(pitch);
-    g_sub_1_synth.note_off(pitch);
-  } else if ((channel - 1) == ((g_midi_ch + 6) & 0x0F)) {
     (void) velocity;
     g_sub_2_synth.note_off(pitch);
     g_sub_3_synth.note_off(pitch);
@@ -475,12 +464,7 @@ void __not_in_flash_func(handleControlChange)(byte channel, byte number, byte va
   } else if ((channel - 1) == ((g_midi_ch + 4) & 0x0F)) {
     g_synth.control_change(number, value);
     g_sub_1_synth.control_change(number, value);
-    g_sub_2_synth.control_change(number, value);
-    g_sub_3_synth.control_change(number, value);
   } else if ((channel - 1) == ((g_midi_ch + 5) & 0x0F)) {
-    g_synth.control_change(number, value);
-    g_sub_1_synth.control_change(number, value);
-  } else if ((channel - 1) == ((g_midi_ch + 6) & 0x0F)) {
     g_sub_2_synth.control_change(number, value);
     g_sub_3_synth.control_change(number, value);
   }
@@ -499,12 +483,7 @@ void __not_in_flash_func(handleProgramChange)(byte channel, byte number)
   } else if ((channel - 1) == ((g_midi_ch + 4) & 0x0F)) {
     g_synth.program_change(number);
     g_sub_1_synth.program_change((number + 1) & 0x3F);
-    g_sub_2_synth.program_change((number + 2) & 0x3F);
-    g_sub_3_synth.program_change((number + 3) & 0x3F);
   } else if ((channel - 1) == ((g_midi_ch + 5) & 0x0F)) {
-    g_synth.program_change(number);
-    g_sub_1_synth.program_change((number + 1) & 0x3F);
-  } else if ((channel - 1) == ((g_midi_ch + 6) & 0x0F)) {
     g_sub_2_synth.program_change(number);
     g_sub_3_synth.program_change((number + 1) & 0x3F);
   }
@@ -523,12 +502,7 @@ void __not_in_flash_func(handlePitchBend)(byte channel, int bend)
   } else if ((channel - 1) == ((g_midi_ch + 4) & 0x0F)) {
     g_synth.pitch_bend((bend + 8192) & 0x7F, (bend + 8192) >> 7);
     g_sub_1_synth.pitch_bend((bend + 8192) & 0x7F, (bend + 8192) >> 7);
-    g_sub_2_synth.pitch_bend((bend + 8192) & 0x7F, (bend + 8192) >> 7);
-    g_sub_3_synth.pitch_bend((bend + 8192) & 0x7F, (bend + 8192) >> 7);
   } else if ((channel - 1) == ((g_midi_ch + 5) & 0x0F)) {
-    g_synth.pitch_bend((bend + 8192) & 0x7F, (bend + 8192) >> 7);
-    g_sub_1_synth.pitch_bend((bend + 8192) & 0x7F, (bend + 8192) >> 7);
-  } else if ((channel - 1) == ((g_midi_ch + 6) & 0x0F)) {
     g_sub_2_synth.pitch_bend((bend + 8192) & 0x7F, (bend + 8192) >> 7);
     g_sub_3_synth.pitch_bend((bend + 8192) & 0x7F, (bend + 8192) >> 7);
   }
@@ -547,12 +521,7 @@ void __not_in_flash_func(handleAfterTouchPoly)(byte channel, byte note, byte pre
   } else if ((channel - 1) == ((g_midi_ch + 4) & 0x0F)) {
     g_synth.after_touch_poly(note, pressure);
     g_sub_1_synth.after_touch_poly(note, pressure);
-    g_sub_2_synth.after_touch_poly(note, pressure);
-    g_sub_3_synth.after_touch_poly(note, pressure);
   } else if ((channel - 1) == ((g_midi_ch + 5) & 0x0F)) {
-    g_synth.after_touch_poly(note, pressure);
-    g_sub_1_synth.after_touch_poly(note, pressure);
-  } else if ((channel - 1) == ((g_midi_ch + 6) & 0x0F)) {
     g_sub_2_synth.after_touch_poly(note, pressure);
     g_sub_3_synth.after_touch_poly(note, pressure);
   }
@@ -571,12 +540,7 @@ void __not_in_flash_func(handleAfterTouchChannel)(byte channel, byte pressure)
   } else if ((channel - 1) == ((g_midi_ch + 4) & 0x0F)) {
     g_synth.after_touch_channel(pressure);
     g_sub_1_synth.after_touch_channel(pressure);
-    g_sub_2_synth.after_touch_channel(pressure);
-    g_sub_3_synth.after_touch_channel(pressure);
   } else if ((channel - 1) == ((g_midi_ch + 5) & 0x0F)) {
-    g_synth.after_touch_channel(pressure);
-    g_sub_1_synth.after_touch_channel(pressure);
-  } else if ((channel - 1) == ((g_midi_ch + 6) & 0x0F)) {
     g_sub_2_synth.after_touch_channel(pressure);
     g_sub_3_synth.after_touch_channel(pressure);
   }
