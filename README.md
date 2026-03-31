@@ -232,10 +232,14 @@ graph LR
 
 - Features
     - Mode 4 (Omni Off, Mono) (M=4)
-    - Basic Channel + 0: The default program is #4; The FX parameters apply to all channels
-    - Basic Channel + 1: The default program is #5; The FX parameters are disabled
-    - Basic Channel + 2: The default program is #6; The FX parameters are disabled
-    - Basic Channel + 3: The default program is #7; The FX parameters are disabled; Osc 1 Shape and Morph are disabled in Sqr and WT
+        - Basic Channel + 0: The default program is #4; The FX parameters apply to all channels
+        - Basic Channel + 1: The default program is #5; The FX parameters are disabled
+        - Basic Channel + 2: The default program is #6; The FX parameters are disabled
+        - Basic Channel + 3: The default program is #7; The FX parameters are disabled; Osc 1 Shape and Morph are disabled in Sqr and WT
+    - Layering
+        - Basic Channel + 4: Control all channels simultaneously
+        - Basic Channel + 5: Control Basic Channel + 0 and + 1 simultaneously
+        - Basic Channel + 6: Control Basic Channel + 2 and + 3 simultaneously
 - Prebuilt UF2 files ("bin")
     - "Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico and Pimoroni Pico Audio Pack
 - How to modify
