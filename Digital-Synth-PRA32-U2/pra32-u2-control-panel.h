@@ -1013,7 +1013,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
 
 
 INLINE void PRA32_U2_ControlPanel_setup() {
-  s_current_program[0] = (PROGRAM_NUMBER_DEFAULT + 0) & USER_PROGRAM_NUMBER_MAX;
+  s_current_program[0] = (PROGRAM_NUMBER_DEFAULT + ((PRA32_U2_NUMBER_OF_SYNTHS > 1) * 4) + 0) & USER_PROGRAM_NUMBER_MAX;
   for (uint32_t i = 1; i < PRA32_U2_NUMBER_OF_SYNTHS; ++i) {
     s_current_program[i] = (s_current_program[i - 1] + 1) & USER_PROGRAM_NUMBER_MAX;
   }
