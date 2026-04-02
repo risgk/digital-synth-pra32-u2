@@ -3,6 +3,8 @@
 - v2.12.0 (2026-??-??):
     - PRA32-U2/M: Add MIDI channels for layering
     - Improve the code
+    - Waveshare Pico-Audio Rev2.1 Version is CURRENTLY NOT RECOMMENDED
+        - No sound unless using Arduino-Pico 4.4.0
     - Tested with Arduino-Pico version 5.5.1
 - v2.11.0 (2026-03-29):
     - Modify the Presets and the Editor Presets for Mono
