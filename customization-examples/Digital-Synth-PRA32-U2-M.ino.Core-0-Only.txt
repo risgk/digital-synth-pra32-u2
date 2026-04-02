@@ -46,9 +46,13 @@
 
 #define PRA32_U2_USE_EMULATED_EEPROM
 
-#define PRA32_U2_NUMBER_OF_SYNTHS              (2)
-
 #define PRA32_U2_ENABLE_LAYERING
+
+#if defined(PRA32_U2_ENABLE_LAYERING)
+#define PRA32_U2_NUMBER_OF_SYNTHS              (2 + 1)
+#else
+#define PRA32_U2_NUMBER_OF_SYNTHS              (2)
+#endif
 
 ////////////////////////////////////////////////////////////////
 
@@ -92,7 +96,7 @@ uint8_t g_midi_ch = PRA32_U2_MIDI_CH;
 #include "pra32-u2-synth.h"
 
 PRA32_U2_Synth<false, true,  false, 0> g_synth;
-PRA32_U2_Synth<true,  false, true,  2> g_sub_synth;
+PRA32_U2_Synth<true,  false, true,  1> g_sub_synth;
 
 #include <MIDI.h>
 #if defined(PRA32_U2_USE_USB_MIDI)
@@ -518,6 +522,10 @@ uint8_t __not_in_flash_func(getCurrentControllerValue)(byte channel, byte number
     return g_synth.current_controller_value(number);
   } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
     return g_sub_synth.current_controller_value(number);
+#if defined(PRA32_U2_ENABLE_LAYERING)
+  } else if ((channel - 1) == ((g_midi_ch + 2) & 0x0F)) {
+    return g_synth.current_controller_value(number);
+#endif  // defined(PRA32_U2_ENABLE_LAYERING)
   }
 
   return 0;
@@ -530,6 +538,10 @@ void __not_in_flash_func(getRrandUint8Rrray)(byte channel, uint8_t array[8])
   } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
     g_sub_synth.get_rand_uint8_array(array);
   }
+#if defined(PRA32_U2_ENABLE_LAYERING)
+  } else if ((channel - 1) == ((g_midi_ch + 2) & 0x0F)) {
+    g_synth.get_rand_uint8_array(array);
+#endif  // defined(PRA32_U2_ENABLE_LAYERING)
 }
 
 void __not_in_flash_func(writeParametersToProgram)(byte channel, byte number)
@@ -539,6 +551,10 @@ void __not_in_flash_func(writeParametersToProgram)(byte channel, byte number)
   } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
     g_sub_synth.write_parameters_to_program(number);
   }
+#if defined(PRA32_U2_ENABLE_LAYERING)
+  } else if ((channel - 1) == ((g_midi_ch + 2) & 0x0F)) {
+    g_synth.write_parameters_to_program(number);
+#endif  // defined(PRA32_U2_ENABLE_LAYERING)
 }
 
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)

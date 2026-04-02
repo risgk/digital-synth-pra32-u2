@@ -46,9 +46,13 @@
 
 #define PRA32_U2_USE_EMULATED_EEPROM
 
-#define PRA32_U2_NUMBER_OF_SYNTHS              (4)
-
 #define PRA32_U2_ENABLE_LAYERING
+
+#if defined(PRA32_U2_ENABLE_LAYERING)
+#define PRA32_U2_NUMBER_OF_SYNTHS              (4 + 2)
+#else
+#define PRA32_U2_NUMBER_OF_SYNTHS              (4)
+#endif
 
 ////////////////////////////////////////////////////////////////
 
@@ -600,6 +604,12 @@ uint8_t __not_in_flash_func(getCurrentControllerValue)(byte channel, byte number
     return g_sub_2_synth.current_controller_value(number);
   } else if ((channel - 1) == ((g_midi_ch + 3) & 0x0F)) {
     return g_sub_3_synth.current_controller_value(number);
+#if defined(PRA32_U2_ENABLE_LAYERING)
+  } else if ((channel - 1) == ((g_midi_ch + 4) & 0x0F)) {
+    return g_synth.current_controller_value(number);
+  } else if ((channel - 1) == ((g_midi_ch + 5) & 0x0F)) {
+    return g_sub_2_synth.current_controller_value(number);
+#endif  // defined(PRA32_U2_ENABLE_LAYERING)
   }
 
   return 0;
@@ -615,6 +625,12 @@ void __not_in_flash_func(getRrandUint8Rrray)(byte channel, uint8_t array[8])
     g_sub_2_synth.get_rand_uint8_array(array);
   } else if ((channel - 1) == ((g_midi_ch + 3) & 0x0F)) {
     g_sub_3_synth.get_rand_uint8_array(array);
+#if defined(PRA32_U2_ENABLE_LAYERING)
+  } else if ((channel - 1) == ((g_midi_ch + 4) & 0x0F)) {
+    g_synth.get_rand_uint8_array(array);
+  } else if ((channel - 1) == ((g_midi_ch + 5) & 0x0F)) {
+    g_sub_2_synth.get_rand_uint8_array(array);
+#endif  // defined(PRA32_U2_ENABLE_LAYERING)
   }
 }
 
@@ -628,6 +644,12 @@ void __not_in_flash_func(writeParametersToProgram)(byte channel, byte number)
     g_sub_2_synth.write_parameters_to_program(number);
   } else if ((channel - 1) == ((g_midi_ch + 3) & 0x0F)) {
     g_sub_3_synth.write_parameters_to_program(number);
+#if defined(PRA32_U2_ENABLE_LAYERING)
+  } else if ((channel - 1) == ((g_midi_ch + 4) & 0x0F)) {
+    g_synth.write_parameters_to_program(number);
+  } else if ((channel - 1) == ((g_midi_ch + 5) & 0x0F)) {
+    g_sub_2_synth.write_parameters_to_program(number);
+#endif  // defined(PRA32_U2_ENABLE_LAYERING)
   }
 }
 
