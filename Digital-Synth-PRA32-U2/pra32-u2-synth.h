@@ -23,6 +23,10 @@ extern I2S g_i2s_output;
 #include <variant>
 #include <type_traits>
 
+#if !defined(PRA32_U2_NUMBER_OF_SYNTHS)
+#define PRA32_U2_NUMBER_OF_SYNTHS              (1)
+#endif
+
 static uint8_t s_program_table_parameters[] = {
   OSC_1_WAVE     ,
   OSC_1_SHAPE    ,
