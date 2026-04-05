@@ -6,7 +6,7 @@
 
 ## Overview
 
-- 4 Voice Polyphonic Synthesizer for Raspberry Pi Pico 2/RP2350
+- 4-Voice Polyphonic Synthesizer for Raspberry Pi Pico 2/RP2350
     - Built-in Chorus and Delay FX
     - Controlled by MIDI -- PRA32-U2 is a MIDI sound module
     - Having the function of writing the parameters to the user programs and the flash
