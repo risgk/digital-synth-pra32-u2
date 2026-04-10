@@ -1432,7 +1432,9 @@ if constexpr (RESTRICT_POLY == false) {
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)
 
 #if defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)
+if constexpr (RESTRICT_POLY == false) {
     secondary_core_process<RESTRICT_SAW, RESTRICT_SQR_WT>();
+}
 #else  // defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)
 
 #if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
