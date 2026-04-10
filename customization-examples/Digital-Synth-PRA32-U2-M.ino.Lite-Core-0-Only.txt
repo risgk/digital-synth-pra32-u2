@@ -6,7 +6,7 @@
  * - Basic Channel + 5: Control Basic Channel + 2 and + 3 simultaneously
  */
 
-#define PRA32_U2_VERSION                       "v2.11.0   "
+#define PRA32_U2_VERSION                       "v2.12.0   "
 
 //#define PRA32_U2_USE_DEBUG_PRINT
 
