@@ -2,6 +2,7 @@
 
 - v2.12.0 (2026-??-??):
     - PRA32-U2/M: Add MIDI channels for layering
+    - PRA32-U2/M: Use a different seed for the noise generator for each channel
     - Improve customizability
     - Improve the code
     - Waveshare Pico-Audio Rev2.1 Version is CURRENTLY NOT RECOMMENDED
