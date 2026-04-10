@@ -1,5 +1,7 @@
 /*
  * Digital Synth PRA32-U2/M (Lite)
+ *
+ * - Synth 0 to 3: Osc 1 Shape and Morph are disabled in Saw, Sqr, and WT
  */
 
 #define PRA32_U2_VERSION                       "v2.11.0   "
@@ -41,7 +43,9 @@ uint8_t g_midi_ch = PRA32_U2_MIDI_CH;
 #include "pra32-u2-synth.h"
 
 PRA32_U2_Synth<false, true,  false, 0> g_synth;
-PRA32_U2_Synth<true,  false, true,  2> g_sub_synth;
+PRA32_U2_Synth<true,  true,  true,  1> g_sub_1_synth;
+PRA32_U2_Synth<true,  true,  true,  2> g_sub_2_synth;
+PRA32_U2_Synth<true,  false, true,  3> g_sub_3_synth;
 
 #if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
 #include <PWMAudio.h>
@@ -116,7 +120,9 @@ void __not_in_flash_func(setup)() {
 #endif  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
 
   g_synth.initialize();
-  g_sub_synth.initialize();
+  g_sub_1_synth.initialize();
+  g_sub_2_synth.initialize();
+  g_sub_3_synth.initialize();
 }
 
 void __not_in_flash_func(loop)() {
@@ -125,13 +131,28 @@ void __not_in_flash_func(loop)() {
   int16_t left_buffer[PRA32_U2_I2S_BUFFER_WORDS];
   int16_t right_buffer[PRA32_U2_I2S_BUFFER_WORDS];
   for (uint32_t i = 0; i < PRA32_U2_I2S_BUFFER_WORDS; i++) {
-    int16_t sub_synth_output_l;
-    int16_t sub_synth_output_r;
-    int32_t sub_synth_output_l_int32;
-    int32_t sub_synth_output_r_int32;
-    sub_synth_output_l = g_sub_synth.process(0, 0, sub_synth_output_r, sub_synth_output_l_int32, sub_synth_output_r_int32);
-    static_cast<void>(sub_synth_output_l);
-    left_buffer[i] = g_synth.process(sub_synth_output_l_int32, sub_synth_output_r_int32, right_buffer[i]);
+    int16_t sub_3_synth_output_l;
+    int16_t sub_3_synth_output_r;
+    int32_t sub_3_synth_output_l_int32;
+    int32_t sub_3_synth_output_r_int32;
+    sub_3_synth_output_l = g_sub_3_synth.process<false, false, true, true>(0, 0, sub_3_synth_output_r, sub_3_synth_output_l_int32, sub_3_synth_output_r_int32);
+    static_cast<void>(sub_3_synth_output_l);
+
+    int16_t sub_2_synth_output_l;
+    int16_t sub_2_synth_output_r;
+    int32_t sub_2_synth_output_l_int32;
+    int32_t sub_2_synth_output_r_int32;
+    sub_2_synth_output_l = g_sub_2_synth.process<false, false, true, true>(sub_3_synth_output_r_int32, sub_3_synth_output_l_int32, sub_2_synth_output_r, sub_2_synth_output_l_int32, sub_2_synth_output_r_int32);
+    static_cast<void>(sub_2_synth_output_l);
+
+    int16_t sub_1_synth_output_l;
+    int16_t sub_1_synth_output_r;
+    int32_t sub_1_synth_output_l_int32;
+    int32_t sub_1_synth_output_r_int32;
+    sub_1_synth_output_l = g_sub_1_synth.process<false, false, true, true>(sub_2_synth_output_r_int32, sub_2_synth_output_l_int32, sub_1_synth_output_r, sub_1_synth_output_l_int32, sub_1_synth_output_r_int32);
+    static_cast<void>(sub_1_synth_output_l);
+
+    left_buffer[i] = g_synth.process<false, false, true, true>(sub_1_synth_output_l_int32, sub_1_synth_output_r_int32, right_buffer[i]);
   }
 
 #if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
