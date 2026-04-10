@@ -1,5 +1,14 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v2.12.0 (2026-04-11):
+    - PRA32-U2/M: Add MIDI channels for layering
+    - PRA32-U2/M: In Basic Channel + 3, Osc 1 Shape and Morph are disabled in Saw
+    - PRA32-U2/M: Use a different seed for the noise generator for each channel
+    - Improve customizability
+    - Improve the code
+    - Waveshare Pico-Audio Rev2.1 Version is CURRENTLY NOT RECOMMENDED
+        - NOTE: No sound unless using Arduino-Pico 4.4.0
+    - Tested with Arduino-Pico version 5.5.1
 - v2.11.0 (2026-03-29):
     - Modify the Presets and the Editor Presets for Mono
     - Change the behavior of the "Same as Osc 1 Wave (O1)" in the "Osc 2 Wave"
