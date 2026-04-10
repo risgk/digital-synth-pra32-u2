@@ -2,6 +2,7 @@
 
 - v2.12.0 (2026-??-??):
     - PRA32-U2/M: Add MIDI channels for layering
+    - Improve customizability
     - Improve the code
     - Waveshare Pico-Audio Rev2.1 Version is CURRENTLY NOT RECOMMENDED
         - NOTE: No sound unless using Arduino-Pico 4.4.0
