@@ -1,12 +1,12 @@
-# Digital Synth PRA32-U2 v2.11.0
+# Digital Synth PRA32-U2 v2.12.0
 
-- 2026-03-29 ISGK Instruments
+- 2026-04-11 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 
 ## Overview
 
-- 4 Voice Polyphonic Synthesizer for Raspberry Pi Pico 2/RP2350
+- 4-Voice Polyphonic Synthesizer for Raspberry Pi Pico 2/RP2350
     - Built-in Chorus and Delay FX
     - Controlled by MIDI -- PRA32-U2 is a MIDI sound module
     - Having the function of writing the parameters to the user programs and the flash
@@ -97,7 +97,18 @@
 #define PRA32_U2_I2S_SWAP_BCLK_AND_LRCLK_PINS  (false)
 #define PRA32_U2_I2S_SWAP_LEFT_AND_RIGHT       (false)
 ```
-- The following is setting is for [Waveshare Pico-Audio](https://www.waveshare.com/wiki/Pico-Audio) Rev2.1 Version (WAVESHARE-20167)
+- The following is setting is for [Waveshare Pico-Audio](https://www.waveshare.com/wiki/Pico-Audio) Initial Version (WAVESHARE-20167)
+```
+//#define PRA32_U2_I2S_DAC_MUTE_OFF_PIN          (0)
+#define PRA32_U2_I2S_DATA_PIN                  (26)
+//#define PRA32_U2_I2S_MCLK_PIN                  (0)
+//#define PRA32_U2_I2S_MCLK_MULT                 (0)
+#define PRA32_U2_I2S_BCLK_PIN                  (27)  // LRCLK Pin is is PRA32_U2_I2S_BCLK_PIN + 1
+#define PRA32_U2_I2S_SWAP_BCLK_AND_LRCLK_PINS  (false)
+#define PRA32_U2_I2S_SWAP_LEFT_AND_RIGHT       (true)
+```
+- The following is setting is for [Waveshare Pico-Audio](https://www.waveshare.com/wiki/Pico-Audio) Rev2.1 Version (WAVESHARE-20167) (CURRENTLY NOT RECOMMENDED)
+    - NOTE: No sound unless using Arduino-Pico 4.4.0
 ```
 //#define PRA32_U2_I2S_DAC_MUTE_OFF_PIN          (0)
 #define PRA32_U2_I2S_DATA_PIN                  (22)
@@ -232,10 +243,16 @@ graph LR
 
 - Features
     - Mode 4 (Omni Off, Mono) (M=4)
-    - Basic Channel + 0: The default program is #4; The FX parameters apply to all channels
-    - Basic Channel + 1: The default program is #5; The FX parameters are disabled
-    - Basic Channel + 2: The default program is #6; The FX parameters are disabled
-    - Basic Channel + 3: The default program is #7; The FX parameters are disabled; Osc 1 Shape and Morph are disabled in Sqr and WT
+        - Basic Channel + 0: The default program is #4; The FX parameters apply to all channels
+        - Basic Channel + 1: The default program is #5; The FX parameters are disabled
+        - Basic Channel + 2: The default program is #6; The FX parameters are disabled
+        - Basic Channel + 3: The default program is #7; The FX parameters are disabled; Osc 1 Shape and Morph are disabled in Saw, Sqr, and WT
+    - Layering
+        - Basic Channel + 4: Control Basic Channel + 0 and + 1 simultaneously
+            - Results of Program Change: Program # + 0 for Basic Channel + 0, and Program # + 1 for Basic Channel + 1
+        - Basic Channel + 5: Control Basic Channel + 2 and + 3 simultaneously
+            - Results of Program Change: Program # + 0 for Basic Channel + 2, and Program # + 1 for Basic Channel + 3
+        - Not to use this feature, comment out `#define PRA32_U2_ENABLE_LAYERING` in "Digital-Synth-PRA32-U2-M.ino"
 - Prebuilt UF2 files ("bin")
     - "Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico and Pimoroni Pico Audio Pack
 - How to modify
@@ -250,11 +267,11 @@ graph LR
 
 ![CC0](http://i.creativecommons.org/p/zero/1.0/88x31.png)
 
-**Digital Synth PRA32-U2 v2.11.0 by ISGK Instruments (Ryo Ishigaki)**
+**Digital Synth PRA32-U2 v2.12.0 by ISGK Instruments (Ryo Ishigaki)**
 
 To the extent possible under law, ISGK Instruments (Ryo Ishigaki)
 has waived all copyright and related or neighboring rights
-to Digital Synth PRA32-U2 v2.11.0.
+to Digital Synth PRA32-U2 v2.12.0.
 
 You should have received a copy of the CC0 legalcode along with this
 work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.

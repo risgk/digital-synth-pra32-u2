@@ -9,8 +9,8 @@ class PRA32_U2_NoiseGen {
   uint32_t m_state_a_prev;
 
 public:
-  PRA32_U2_NoiseGen()
-  : m_state_a(1)
+  PRA32_U2_NoiseGen(uint32_t seed)
+  : m_state_a(1 + seed)
   , m_state_a_prev(0)
   {
   }

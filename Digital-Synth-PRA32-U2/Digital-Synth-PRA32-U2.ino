@@ -2,7 +2,7 @@
  * Digital Synth PRA32-U2
  */
 
-#define PRA32_U2_VERSION                       "v2.11.0   "
+#define PRA32_U2_VERSION                       "v2.12.0   "
 
 //#define PRA32_U2_USE_DEBUG_PRINT
 
@@ -440,7 +440,7 @@ uint8_t __not_in_flash_func(getCurrentControllerValue)(byte channel, byte number
   return 0;
 }
 
-void __not_in_flash_func(getRrandUint8Rrray)(byte channel, uint8_t array[8])
+void __not_in_flash_func(getRandUint8Rrray)(byte channel, uint8_t array[8])
 {
   if ((channel - 1) == g_midi_ch) {
     g_synth.get_rand_uint8_array(array);

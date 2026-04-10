@@ -83,7 +83,7 @@ extern void handleNoteOff(byte channel, byte pitch, byte velocity);
 extern void handleControlChange(byte channel, byte number, byte value);
 extern void handleProgramChange(byte channel, byte number);
 extern uint8_t getCurrentControllerValue(byte channel, byte number);
-extern void getRrandUint8Rrray(byte channel, uint8_t array[8]);
+extern void getRandUint8Rrray(byte channel, uint8_t array[8]);
 extern void writeParametersToProgram(byte channel, byte number);
 
 
@@ -615,7 +615,7 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
         s_ready_to_rand_pitch = true;
       } else if (s_ready_to_rand_pitch && (s_adc_control_value[adc_number] >= 96)) {
         uint8_t array[8] = {};
-        getRrandUint8Rrray(((g_midi_ch + s_current_synth) & 0x0F) + 1, array);
+        getRandUint8Rrray(((g_midi_ch + s_current_synth) & 0x0F) + 1, array);
         g_synth.control_change(SEQ_PITCH_0    , array[0] & 0x7Fu);
         g_synth.control_change(SEQ_PITCH_1    , array[1] & 0x7Fu);
         g_synth.control_change(SEQ_PITCH_2    , array[2] & 0x7Fu);
@@ -633,7 +633,7 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
         s_ready_to_rand_velo = true;
       } else if (s_ready_to_rand_velo && (s_adc_control_value[adc_number] >= 96)) {
         uint8_t array[8] = {};
-        getRrandUint8Rrray(((g_midi_ch + s_current_synth) & 0x0F) + 1, array);
+        getRandUint8Rrray(((g_midi_ch + s_current_synth) & 0x0F) + 1, array);
         g_synth.control_change(SEQ_VELO_0     , array[0] & 0x7Fu);
         g_synth.control_change(SEQ_VELO_1     , array[1] & 0x7Fu);
         g_synth.control_change(SEQ_VELO_2     , array[2] & 0x7Fu);
@@ -1013,7 +1013,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
 
 
 INLINE void PRA32_U2_ControlPanel_setup() {
-  s_current_program[0] = (PROGRAM_NUMBER_DEFAULT + 0) & USER_PROGRAM_NUMBER_MAX;
+  s_current_program[0] = (PROGRAM_NUMBER_DEFAULT + ((PRA32_U2_NUMBER_OF_SYNTHS > 1) * 4) + 0) & USER_PROGRAM_NUMBER_MAX;
   for (uint32_t i = 1; i < PRA32_U2_NUMBER_OF_SYNTHS; ++i) {
     s_current_program[i] = (s_current_program[i - 1] + 1) & USER_PROGRAM_NUMBER_MAX;
   }

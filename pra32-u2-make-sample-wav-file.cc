@@ -1,7 +1,5 @@
 #define PRA32_U2_ENABLE_POLY_ON_1_CORE
 
-#define PRA32_U2_NUMBER_OF_SYNTHS              (1)
-
 #define PRA32_U2_MIDI_CH (0)  // 0-based
 
 
