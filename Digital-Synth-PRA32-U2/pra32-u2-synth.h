@@ -264,7 +264,7 @@ public:
   , m_filter()
   , m_amp()
   , m_panner()
-  , m_noise_gen()
+  , m_noise_gen(SYNTH_ID)
   , m_lfo()
   , m_eg()
   , m_chorus_fx()
