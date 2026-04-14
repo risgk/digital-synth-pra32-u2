@@ -495,6 +495,17 @@ function sleep(msec) {
   } while (t2 < t1 + msec);
 }
 
+function sendCurrentParameters() {
+  if (midiOutput) {
+    panic();
+    var result = restoreControllers();
+    if (!result) {
+      onChangeTranspose(0);
+      preset(PRESET_NUMBER_INITIAL);
+    }
+  }
+}
+
 function panic() {
   if (midiOutput) {
     midiOutput.send([(CONTROL_CHANGE | midi_ch), ALL_NOTES_OFF, 0]);
@@ -773,14 +784,6 @@ function onChangeInputPort4(){
 function onChangeOutputPort() {
   var selectOutputPort = document.getElementById("selectOutputPort");
   midiOutput = midiOutputs[selectOutputPort.selectedIndex];
-  if (midiOutput) {
-    panic();
-    var result = restoreControllers();
-    if (!result) {
-      onChangeTranspose(0);
-      preset(PRESET_NUMBER_INITIAL);
-    }
-  }
 }
 
 function onChangeMIDICh() {
@@ -1312,10 +1315,9 @@ function getStoredCCValueString(index, number) {
     <td><input type="button" value="#15 Initial"          onclick="preset(15)"></td>
     <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
     <td>Misc</td>
+    <td><input type="button" value="Send Current"         onclick="sendCurrentParameters()"></td>
     <td></td>
-    <td><input type="button" value="Randomize Synth Prms" onclick="setRandom()"></td>
-    <td></td>
-    <td><input type="button" value="Randomize FX Prms"    onclick="setRandomChorus()"></td></tr>
+    <td><input type="button" value="Panic"                onclick="panic()"></td></tr>
 <tr><td>(from Browser)</td>
     <td></td>
     <td><input type="button" value="#8 Synth Pad"         onclick="preset(8)"></td>
@@ -1327,8 +1329,9 @@ function getStoredCCValueString(index, number) {
     <td><input type="button" value="#11 Simple"           onclick="preset(11)"></td>
     <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
     <td></td>
+    <td><input type="button" value="Randomize Synth Prms" onclick="setRandom()"></td>
     <td></td>
-    <td><input type="button" value="Panic"                onclick="panic()"></td></tr>
+    <td><input type="button" value="Randomize FX Prms"    onclick="setRandomChorus()"></td></tr>
 <tr><td>&nbsp;</td></tr>
 </table>
 
@@ -1409,17 +1412,7 @@ function getStoredCCValueString(index, number) {
 </table>
 
 <table>
-<tr><td><font color="green">Write</font></td>
-    <td></td>
-    <td><input type="button" value="#4"      onclick="writeParameters(4)"    style="color:green"></td>
-    <td></td>
-    <td><input type="button" value="#5"      onclick="writeParameters(5)"    style="color:green"></td>
-    <td></td>
-    <td><input type="button" value="#6"      onclick="writeParameters(6)"    style="color:green"></td>
-    <td></td>
-    <td><input type="button" value="#7"      onclick="writeParameters(7)"    style="color:green"></td>
-    <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
-    <td><font color="green">Program Change</font></td>
+<tr><td><font color="green">Program Change</font></td>
     <td></td>
     <td><input type="button" value="#4"      onclick="sendProgramChange(4)"  style="color:green"></td>
     <td></td>
@@ -1437,18 +1430,18 @@ function getStoredCCValueString(index, number) {
     <td><input type="button" value="#14"     onclick="sendProgramChange(14)" style="color:green"></td>
     <td></td>
     <td><input type="button" value="#15"     onclick="sendProgramChange(15)" style="color:green"></td>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+    <td><font color="green">Write</font></td>
+    <td></td>
+    <td><input type="button" value="#4"      onclick="writeParameters(4)"    style="color:green"></td>
+    <td></td>
+    <td><input type="button" value="#5"      onclick="writeParameters(5)"    style="color:green"></td>
+    <td></td>
+    <td><input type="button" value="#6"      onclick="writeParameters(6)"    style="color:green"></td>
+    <td></td>
+    <td><input type="button" value="#7"      onclick="writeParameters(7)"    style="color:green"></td>
     </tr>
 <tr><td><font color="green">(to PRA32-U2)</font></td>
-    <td></td>
-    <td><input type="button" value="#0"      onclick="writeParameters(0)"    style="color:green"></td>
-    <td></td>
-    <td><input type="button" value="#1"      onclick="writeParameters(1)"    style="color:green"></td>
-    <td></td>
-    <td><input type="button" value="#2"      onclick="writeParameters(2)"    style="color:green"></td>
-    <td></td>
-    <td><input type="button" value="#3"      onclick="writeParameters(3)"    style="color:green"></td>
-    <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
-    <td><font color="green">(to PRA32-U2)</font></td>
     <td></td>
     <td><input type="button" value="#0 "     onclick="sendProgramChange(0)"  style="color:green"></td>
     <td></td>
@@ -1466,6 +1459,16 @@ function getStoredCCValueString(index, number) {
     <td><input type="button" value="#10"     onclick="sendProgramChange(10)" style="color:green"></td>
     <td></td>
     <td><input type="button" value="#11"     onclick="sendProgramChange(11)" style="color:green"></td>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+    <td><font color="green">(to PRA32-U2)</font></td>
+    <td></td>
+    <td><input type="button" value="#0"      onclick="writeParameters(0)"    style="color:green"></td>
+    <td></td>
+    <td><input type="button" value="#1"      onclick="writeParameters(1)"    style="color:green"></td>
+    <td></td>
+    <td><input type="button" value="#2"      onclick="writeParameters(2)"    style="color:green"></td>
+    <td></td>
+    <td><input type="button" value="#3"      onclick="writeParameters(3)"    style="color:green"></td>
     </tr>
 </table>
 

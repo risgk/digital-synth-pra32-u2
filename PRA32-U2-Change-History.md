@@ -1,5 +1,9 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v2.13.0 (2026-??-??):
+    - PRA32-U2 Editor: Add the "Send Current" button; Stop sending Control Change on MIDI Out change
+    - PRA32-U2 Editor: Change the layout
+    - Tested with Arduino-Pico version 5.5.1
 - v2.12.0 (2026-04-11):
     - PRA32-U2/M: Add MIDI channels for layering
     - PRA32-U2/M: In Basic Channel + 3, Osc 1 Shape and Morph are disabled in Saw
