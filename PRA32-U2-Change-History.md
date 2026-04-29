@@ -2,6 +2,7 @@
 
 - v2.13.0 (2026-??-??):
     - Modify the Preset "#14 Synth Bass"
+    - Change the pin mode for PRA32_U2_UART_MIDI_RX_PIN and RA32_U2_DEBUG_PRINT_RX_PIN to INPUT_PULLUP
     - PRA32-U2/M: Change the MIDI channels for layering
     - PRA32-U2 Editor: Add the "Send Current" button; Stop sending Control Change on MIDI Out change
     - PRA32-U2 Editor: Change the layout
