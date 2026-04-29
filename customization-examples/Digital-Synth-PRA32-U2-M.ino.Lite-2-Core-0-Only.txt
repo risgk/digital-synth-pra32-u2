@@ -11,7 +11,7 @@
 
 #define PRA32_U2_USE_USB_MIDI                  // Select USB Stack: "Adafruit TinyUSB" in the Arduino IDE "Tools" menu
 
-//#define PRA32_U2_USE_UART_MIDI
+#define PRA32_U2_USE_UART_MIDI
 
 #define PRA32_U2_DEBUG_PRINT_SERIAL            Serial1
 #define PRA32_U2_DEBUG_PRINT_TX_PIN            (0)
