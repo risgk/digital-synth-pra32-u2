@@ -38,20 +38,20 @@
 
 ## Features
 
-### MIDI (Input)
+### MIDI
 
-#### USB MIDI Device (Default)
+#### USB MIDI Device
 
-- MIDI Device Name: "Digital Synth PRA32-U2"
 - NOTE: Select USB Stack: "Adafruit TinyUSB" in the Arduino IDE "Tools" menu
+- To disable, comment out `#define PRA32_U2_USE_USB_MIDI` in "Digital-Synth-PRA32-U2.ino"
+- MIDI Device Name: "Digital Synth PRA32-U2"
 
 
-#### UART MIDI (Optional)
+#### UART MIDI
 
-- UART MIDI can also be used
-    - Noise caused by USB communication can be avoided
-- Uncomment out `//#define PRA32_U2_USE_UART_MIDI` in "Digital-Synth-PRA32-U2.ino"
-  and modify `PRA32_U2_UART_MIDI_SPEED`, `PRA32_U2_UART_MIDI_TX_PIN`, and `PRA32_U2_UART_MIDI_RX_PIN`
+- UART MIDI helps avoid noise caused by USB communication
+- To disable, comment out `#define PRA32_U2_USE_UART_MIDI` in "Digital-Synth-PRA32-U2.ino"
+- Modify `PRA32_U2_UART_MIDI_SPEED`, `PRA32_U2_UART_MIDI_TX_PIN`, and `PRA32_U2_UART_MIDI_RX_PIN`
     - Speed: 31250 bps (default, for DIN/TRS MIDI) or 38400 bps (for PC)
     - GP4 and GP5 pins are used by UART1 TX and UART1 RX by default
 - DIN/TRS MIDI is available by using (and modifying) Adafruit MIDI FeatherWing Kit, for example
@@ -66,7 +66,7 @@
     - On Mac, a virtual MIDI bus (port) can be created by using the IAC bus
 
 
-### Audio (Output)
+### Audio Output
 
 #### I2S (Default)
 
