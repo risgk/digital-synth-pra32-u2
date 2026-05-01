@@ -11,6 +11,10 @@
 #include "pra32-u2-osc-wave-shape-table-5.h"
 #include <math.h>
 
+#if defined(ARDUINO_ARCH_RP2040)
+#include "hardware/interp.h"
+#endif  // defined(ARDUINO_ARCH_RP2040)
+
 class PRA32_U2_Osc {
   static const uint8_t OSC_MIX_TABLE_LENGTH   = 65;
 
@@ -516,12 +520,21 @@ private:
   }
 
   INLINE int16_t get_wave_level(const int16_t* wave_table, uint32_t phase_24) {
+#if defined(ARDUINO_ARCH_RP2040)
+    interp0->accum[0]    = phase_24;
+    interp0->accum[1]    = phase_24;
+    uint16_t curr_index  = interp0->peek[0];
+    interp0->base[0]     = static_cast<int32_t>(wave_table[curr_index + 0]);
+    interp0->base[1]     = static_cast<int32_t>(wave_table[curr_index + 1]);
+    int16_t level        = static_cast<int16_t>(interp0->peek[1]); // lerp
+#else  // defined(ARDUINO_ARCH_RP2040)
     uint16_t phase_16    = phase_24 >> 8;
     uint16_t curr_index  = phase_16 >> (16 - OSC_WAVE_TABLE_SAMPLES_BITS);
     uint16_t next_weight = phase_16 & ((1 << (16 - OSC_WAVE_TABLE_SAMPLES_BITS)) - 1);
     int16_t  curr_data   = wave_table[curr_index + 0];
     int16_t  next_data   = wave_table[curr_index + 1];
     int16_t  level       = curr_data + (((next_data - curr_data) * next_weight) >> (16 - OSC_WAVE_TABLE_SAMPLES_BITS)); // lerp
+#endif  // defined(ARDUINO_ARCH_RP2040)
     return level;
   }
 
