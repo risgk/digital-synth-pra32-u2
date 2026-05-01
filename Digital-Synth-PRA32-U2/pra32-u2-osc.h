@@ -524,16 +524,15 @@ private:
     interp0->accum[0]    = phase_24;
     interp0->accum[1]    = phase_24;
     uint16_t curr_index  = interp0->peek[0];
-    interp0->base[0]     = static_cast<int32_t>(wave_table[curr_index + 0]);
-    interp0->base[1]     = static_cast<int32_t>(wave_table[curr_index + 1]);
+    interp0->base[0]     = wave_table[curr_index + 0];
+    interp0->base[1]     = wave_table[curr_index + 1];
     int16_t level        = static_cast<int16_t>(interp0->peek[1]); // lerp
 #else  // defined(ARDUINO_ARCH_RP2040)
-    uint16_t phase_16    = phase_24 >> 8;
-    uint16_t curr_index  = phase_16 >> (16 - OSC_WAVE_TABLE_SAMPLES_BITS);
-    uint16_t next_weight = phase_16 & ((1 << (16 - OSC_WAVE_TABLE_SAMPLES_BITS)) - 1);
+    uint16_t curr_index  = (phase_24  & 0xFFFFFF) >> (24 - OSC_WAVE_TABLE_SAMPLES_BITS);
+    uint16_t next_weight = (phase_24 >> (24 - OSC_WAVE_TABLE_SAMPLES_BITS - 8)) & 0xFF;
     int16_t  curr_data   = wave_table[curr_index + 0];
     int16_t  next_data   = wave_table[curr_index + 1];
-    int16_t  level       = curr_data + (((next_data - curr_data) * next_weight) >> (16 - OSC_WAVE_TABLE_SAMPLES_BITS)); // lerp
+    int16_t  level       = curr_data + (((next_data - curr_data) * next_weight) >> 8); // lerp
 #endif  // defined(ARDUINO_ARCH_RP2040)
     return level;
   }
