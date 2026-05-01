@@ -145,6 +145,9 @@ void writeProgramsToFlashAndEndSketch();
 
 void __not_in_flash_func(setup1)() {
   g_synth.initialize_secondary_core();
+  g_sub_1_synth.initialize_secondary_core();
+  g_sub_2_synth.initialize_secondary_core();
+  g_sub_3_synth.initialize_secondary_core();
 
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
   PRA32_U2_ControlPanel_setup();
