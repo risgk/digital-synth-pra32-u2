@@ -246,7 +246,7 @@ graph LR
         - Basic Channel + 0 (Default 1): The default program is #4; The FX parameters apply to all channels
         - Basic Channel + 1 (Default 2): The default program is #5; The FX parameters are disabled
         - Basic Channel + 2 (Default 3): The default program is #6; The FX parameters are disabled
-        - Basic Channel + 3 (Default 4): The default program is #7; The FX parameters are disabled; Osc 1 Shape and Morph are disabled in Saw, Sqr, and WT
+        - Basic Channel + 3 (Default 4): The default program is #7; The FX parameters are disabled
     - Layering
         - Basic Channel - 3 (Default 14): Control Basic Channel + 0 and + 1 simultaneously
             - Results of Program Change: Program # + 0 for Basic Channel + 0 and Program # + 1 for Basic Channel + 1
