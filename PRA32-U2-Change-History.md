@@ -4,6 +4,7 @@
     - **Enable UART MIDI by default**
         - GP4 and GP5 pins are used by UART1 TX and UART1 RX
     - Change the pin mode for PRA32_U2_UART_MIDI_RX_PIN and RA32_U2_DEBUG_PRINT_RX_PIN to INPUT_PULLUP
+    - Change the smoothing method for filter cutoff modulation
     - Modify the Preset "#14 Synth Bass"
     - Improve performance using the RP2350 Hardware Interpolators
     - PRA32-U2/M: Change the MIDI channels for layering
