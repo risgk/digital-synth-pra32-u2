@@ -49,7 +49,7 @@
 #define PRA32_U2_ENABLE_LAYERING
 
 #if defined(PRA32_U2_ENABLE_LAYERING)
-#define PRA32_U2_NUMBER_OF_SYNTHS              (4 + 2)
+#define PRA32_U2_NUMBER_OF_SYNTHS              (4 + 3)
 #else
 #define PRA32_U2_NUMBER_OF_SYNTHS              (4)
 #endif
@@ -700,6 +700,18 @@ void __not_in_flash_func(writeParametersToProgram)(byte channel, byte number)
     g_synth.write_parameters_to_program(number);
 #endif  // defined(PRA32_U2_ENABLE_LAYERING)
   }
+}
+
+byte __not_in_flash_func(getTargetMIDICh)(byte synth)
+{
+#if defined(PRA32_U2_ENABLE_LAYERING)
+  if (synth >= 4) {
+    return (((g_midi_ch + synth + 9) & 0x0F) + 1);
+  }
+  return (((g_midi_ch + synth) & 0x0F) + 1);
+#else
+  return (((g_midi_ch + synth) & 0x0F) + 1);
+#endif
 }
 
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
