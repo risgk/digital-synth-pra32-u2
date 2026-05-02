@@ -62,8 +62,8 @@ class PRA32_U2_Osc {
   int16_t        m_osc2_detune;
 
   uint8_t        m_phase_high;
-  uint16_t       m_osc1_shape_control;
-  uint16_t       m_osc1_shape_control_effective;
+  int32_t        m_osc1_shape_control;
+  int32_t        m_osc1_shape_control_effective;
   uint16_t       m_osc1_morph_control;
   uint16_t       m_osc1_morph_control_effective;
   int32_t        m_osc1_shape[4];
@@ -268,7 +268,7 @@ public:
       controller_value = 128;
     }
 
-    m_osc1_shape_control = controller_value << 4;
+    m_osc1_shape_control = controller_value << 16;
   }
 
   INLINE void set_osc1_morph_control(uint8_t controller_value) {
@@ -799,8 +799,11 @@ if constexpr (RESTRICT_SQR_WT == false) {
   }
 
   INLINE void update_osc1_shape_control_effective() {
-    m_osc1_shape_control_effective += (m_osc1_shape_control_effective < m_osc1_shape_control);
-    m_osc1_shape_control_effective -= (m_osc1_shape_control_effective > m_osc1_shape_control);
+    if (m_osc1_shape_control_effective <= m_osc1_shape_control) {
+      m_osc1_shape_control_effective = m_osc1_shape_control           - (((m_osc1_shape_control - m_osc1_shape_control_effective) * 252) >> 8);
+    } else {
+      m_osc1_shape_control_effective = m_osc1_shape_control_effective + (((m_osc1_shape_control - m_osc1_shape_control_effective) *   4) >> 8);
+    }
   }
 
   INLINE void update_osc1_morph_control_effective() {
@@ -821,7 +824,7 @@ if constexpr (RESTRICT_SQR_WT == false) {
 
   template <uint8_t N>
   INLINE void update_osc1_shape(int16_t lfo_level, int16_t eg_level) {
-    volatile int32_t osc1_shape = (128 << 8) + (m_osc1_shape_control_effective << (8 - 4))
+    volatile int32_t osc1_shape = (128 << 8) + ((m_osc1_shape_control_effective + (1 << (8 - 1))) >> 8)
                                   + ((eg_level * m_shape_eg_amt) >> 5) - ((lfo_level * m_shape_lfo_amt) >> 5);
     osc1_shape = clamp(osc1_shape, (0 << 8), (256 << 8));
     m_osc1_shape[N] = osc1_shape;
