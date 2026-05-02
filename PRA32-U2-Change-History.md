@@ -8,6 +8,7 @@
     - Modify the Preset "#14 Synth Bass"
     - Improve performance using the RP2350 Hardware Interpolators
     - PRA32-U2/M: Change the MIDI channels for layering
+    - PRA32-U2/M: In Basic Channel + 3, Osc 1 Shape and Morph are enabled in Saw, Sqr, and WT
     - PRA32-U2 Editor: Add the "Send Current" button; Stop sending Control Change on MIDI Out change
     - PRA32-U2 Editor: Change the layout
     - Improve documentation
