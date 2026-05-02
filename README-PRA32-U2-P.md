@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2/P (PRA32-U2 with Panel) v2.12.0
+# Digital Synth PRA32-U2/P (PRA32-U2 with Panel) v2.13.0
 
-- 2026-04-11 ISGK Instruments
+- 2026-05-02 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 
@@ -19,7 +19,7 @@
 - Inputs
     - SW0: Prev Key (Push to go to the previous page, Long press to the previous group)
     - SW1: Next Key (Push to go to the next page, Long press to the next group)
-    - SW2: Play Key (Normal Mode: press to play, Sequencer Mode: push to start/stop) (omittable)
+    - SW2: Play Key (Normal Mode: press to play, Sequencer Mode: push to start/stop) (Removable)
         - Not to use this key, comment out `#define PRA32_U2_KEY_INPUT_PLAY_KEY_PIN          (20)` in "Digital-Synth-PRA32-U2.ino"
     - SW3: Prog - Key (Long press to change to the previous user program) (optional)
         - To use this key, uncomment out `//#define PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN    (17)` in "Digital-Synth-PRA32-U2.ino"
@@ -32,7 +32,7 @@
         - To use this key, uncomment out `//#define PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN         (21)` in "Digital-Synth-PRA32-U2.ino"
     - VR0 (ADC0): Parameter A
     - VR1 (ADC1): Parameter B
-    - VR2 (ADC2): Parameter C for Play (omittable)
+    - VR2 (ADC2): Parameter C for Play (Removable)
         - Panel Play Pitch in Normal Mode, Seq Pitch Ofst (Offset) in Step Sequencer Mode
         - Not to use this, comment out `#define PRA32_U2_KEY_INPUT_PLAY_KEY_PIN          (20)` in "Digital-Synth-PRA32-U2.ino"
 - NOTE: Using a USB cable with ferrite cores is recommended to prevent ADCs from being affected by USB MIDI communication noise, and UART MIDI control is also recommended
@@ -130,7 +130,7 @@
 
 | Page           | Parameter A         | Parameter B      |
 | :------------- | :------------------ | :--------------- |
-| A-00 Info      | PRA32-U2/P          | v2.12.0          |
+| A-00 Info      | PRA32-U2/P          | v2.13.0          |
 | A-01 Voice     | Voice Mode          | Voice Asgn Mode  |
 | A-02 Pitch     | Portamento          | Pitch Bend Range |
 | A-03 Osc a     | Osc 1 Wave          | Mixer Noise/Sub  |
