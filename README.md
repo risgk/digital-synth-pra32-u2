@@ -29,7 +29,7 @@
     - Info: <https://www.arduino.cc/en/software>
 - Please install Arduino-Pico = **Raspberry Pi Pico/RP2040/RP2350** (by Earle F. Philhower, III) core
     - Additional Board Manager URL: <https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json>
-    - This sketch is tested with version **5.5.1**: <https://github.com/earlephilhower/arduino-pico/releases/tag/5.5.1>
+    - This sketch is tested with version **5.6.0**: <https://github.com/earlephilhower/arduino-pico/releases/tag/5.6.0>
     - Info: <https://github.com/earlephilhower/arduino-pico>
 - Please install Arduino **MIDI Library** (by Francois Best, lathoub)
     - This sketch is tested with version **5.0.2**: <https://github.com/FortySevenEffects/arduino_midi_library/releases/tag/5.0.2>
@@ -38,20 +38,20 @@
 
 ## Features
 
-### MIDI (Input)
+### MIDI
 
-#### USB MIDI Device (Default)
+#### USB MIDI Device
 
-- MIDI Device Name: "Digital Synth PRA32-U2"
 - NOTE: Select USB Stack: "Adafruit TinyUSB" in the Arduino IDE "Tools" menu
+- To disable, comment out `#define PRA32_U2_USE_USB_MIDI` in "Digital-Synth-PRA32-U2.ino"
+- MIDI Device Name: "Digital Synth PRA32-U2"
 
 
-#### UART MIDI (Optional)
+#### UART MIDI
 
-- UART MIDI can also be used
-    - Noise caused by USB communication can be avoided
-- Uncomment out `//#define PRA32_U2_USE_UART_MIDI` in "Digital-Synth-PRA32-U2.ino"
-  and modify `PRA32_U2_UART_MIDI_SPEED`, `PRA32_U2_UART_MIDI_TX_PIN`, and `PRA32_U2_UART_MIDI_RX_PIN`
+- UART MIDI helps avoid noise caused by USB communication
+- To disable, comment out `#define PRA32_U2_USE_UART_MIDI` in "Digital-Synth-PRA32-U2.ino"
+- Modify `PRA32_U2_UART_MIDI_SPEED`, `PRA32_U2_UART_MIDI_TX_PIN`, and `PRA32_U2_UART_MIDI_RX_PIN`
     - Speed: 31250 bps (default, for DIN/TRS MIDI) or 38400 bps (for PC)
     - GP4 and GP5 pins are used by UART1 TX and UART1 RX by default
 - DIN/TRS MIDI is available by using (and modifying) Adafruit MIDI FeatherWing Kit, for example
@@ -66,7 +66,7 @@
     - On Mac, a virtual MIDI bus (port) can be created by using the IAC bus
 
 
-### Audio (Output)
+### Audio Output
 
 #### I2S (Default)
 
@@ -243,15 +243,17 @@ graph LR
 
 - Features
     - Mode 4 (Omni Off, Mono) (M=4)
-        - Basic Channel + 0: The default program is #4; The FX parameters apply to all channels
-        - Basic Channel + 1: The default program is #5; The FX parameters are disabled
-        - Basic Channel + 2: The default program is #6; The FX parameters are disabled
-        - Basic Channel + 3: The default program is #7; The FX parameters are disabled; Osc 1 Shape and Morph are disabled in Saw, Sqr, and WT
+        - Basic Channel + 0 (Default 1): The default program is #4; The FX parameters apply to all channels
+        - Basic Channel + 1 (Default 2): The default program is #5; The FX parameters are disabled
+        - Basic Channel + 2 (Default 3): The default program is #6; The FX parameters are disabled
+        - Basic Channel + 3 (Default 4): The default program is #7; The FX parameters are disabled; Osc 1 Shape and Morph are disabled in Saw, Sqr, and WT
     - Layering
-        - Basic Channel + 4: Control Basic Channel + 0 and + 1 simultaneously
-            - Results of Program Change: Program # + 0 for Basic Channel + 0, and Program # + 1 for Basic Channel + 1
-        - Basic Channel + 5: Control Basic Channel + 2 and + 3 simultaneously
-            - Results of Program Change: Program # + 0 for Basic Channel + 2, and Program # + 1 for Basic Channel + 3
+        - Basic Channel - 3 (Default 14): Control Basic Channel + 0 and + 1 simultaneously
+            - Results of Program Change: Program # + 0 for Basic Channel + 0 and Program # + 1 for Basic Channel + 1
+        - Basic Channel - 2 (Default 15): Control Basic Channel + 2 and + 3 simultaneously
+            - Results of Program Change: Program # + 0 for Basic Channel + 2 and Program # + 1 for Basic Channel + 3
+        - Basic Channel - 1 (Default 16): Control Basic Channel + 0, + 1, + 2, and + 3 simultaneously
+            - Results of Program Change: Program # + 0 for Basic Channel + 0, Program # + 1 for Basic Channel + 1, Program # + 2 for Basic Channel + 2, and Program # + 3 for Basic Channel + 3
         - Not to use this feature, comment out `#define PRA32_U2_ENABLE_LAYERING` in "Digital-Synth-PRA32-U2-M.ino"
 - Prebuilt UF2 files ("bin")
     - "Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico and Pimoroni Pico Audio Pack
@@ -260,7 +262,10 @@ graph LR
     - "Digital-Synth-PRA32-U2-M.ino" is a Arduino sketch
 - **PRA32-U2/M/P** (Optional) (Experimental)
     - Uncomment out `//#define PRA32_U2_USE_CONTROL_PANEL`
-    - Prev Key + Next Key: Push to go to the next channel ("$0" -> "$1" -> "$2" -> "$3" -> "$0")
+    - Prev Key + Next Key: Push to go to the next synth (channel)
+        - "$0" -> "$1" -> ... -> "$6" -> "$0"
+        - "$0" to "$3": Basic Channel + 0 to Basic Channel + 3 (Mono)
+        - "$4" to "$6": Basic Channel - 3 to Basic Channel - 1 (Layering)
 
 
 ## License
