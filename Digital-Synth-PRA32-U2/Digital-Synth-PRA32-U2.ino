@@ -458,4 +458,9 @@ void __not_in_flash_func(writeParametersToProgram)(byte channel, byte number)
   }
 }
 
+byte __not_in_flash_func(getTargetMIDICh)(byte synth)
+{
+  return (((g_midi_ch + synth) & 0x0F) + 1);
+}
+
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
