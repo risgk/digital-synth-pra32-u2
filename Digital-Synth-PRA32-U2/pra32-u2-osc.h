@@ -523,9 +523,10 @@ private:
     uint16_t curr_index  = (phase_24 & 0xFFFFFF) >> (24 - OSC_WAVE_TABLE_SAMPLES_BITS);
     uint16_t next_weight = (phase_24 >> (24 - OSC_WAVE_TABLE_SAMPLES_BITS - 8)) & 0xFF;
 #if defined(ARDUINO_ARCH_RP2040)
+    interp0->accum[1]    = next_weight;
     interp0->base[0]     = wave_table[curr_index + 0];
     interp0->base[1]     = wave_table[curr_index + 1];
-    int16_t level        = static_cast<int16_t>(interp0->peek[1]); // lerp
+    int16_t  level       = static_cast<int16_t>(interp0->peek[1]); // lerp
 #else  // defined(ARDUINO_ARCH_RP2040)
     int16_t  curr_data   = wave_table[curr_index + 0];
     int16_t  next_data   = wave_table[curr_index + 1];
