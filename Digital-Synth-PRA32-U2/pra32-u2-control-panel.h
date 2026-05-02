@@ -85,6 +85,7 @@ extern void handleProgramChange(byte channel, byte number);
 extern uint8_t getCurrentControllerValue(byte channel, byte number);
 extern void getRandUint8Rrray(byte channel, uint8_t array[8]);
 extern void writeParametersToProgram(byte channel, byte number);
+extern byte getTargetMIDICh(byte synth);
 
 
 static INLINE uint8_t PRA32_U2_ControlPanel_get_index_scale()
@@ -291,14 +292,14 @@ static INLINE uint8_t PRA32_U2_ControlPanel_adc_control_value_candidate(uint32_t
 static INLINE boolean PRA32_U2_ControlPanel_process_note_off_on() {
   if (s_panel_playing_note_pitch <= 127) {
     if (s_panel_play_note_gate == false) {
-      handleNoteOff(((g_midi_ch + s_current_synth) & 0x0F) + 1, s_panel_playing_note_pitch, 64);
+      handleNoteOff(getTargetMIDICh(s_current_synth), s_panel_playing_note_pitch, 64);
       s_panel_playing_note_pitch = 0xFF;
     } else {
       if (s_panel_play_note_trigger && (s_panel_play_note_pitch <= 127)) {
         s_panel_play_note_trigger = false;
 
-        handleNoteOn(((g_midi_ch + s_current_synth) & 0x0F) + 1, s_panel_play_note_pitch, s_panel_play_note_velocity);
-        handleNoteOff(((g_midi_ch + s_current_synth) & 0x0F) + 1, s_panel_playing_note_pitch, 64);
+        handleNoteOn(getTargetMIDICh(s_current_synth), s_panel_play_note_pitch, s_panel_play_note_velocity);
+        handleNoteOff(getTargetMIDICh(s_current_synth), s_panel_playing_note_pitch, 64);
         s_panel_playing_note_pitch = s_panel_play_note_pitch;
       } else {
         s_panel_play_note_trigger = false;
@@ -308,7 +309,7 @@ static INLINE boolean PRA32_U2_ControlPanel_process_note_off_on() {
     if (s_panel_play_note_gate && (s_panel_play_note_pitch <= 127)) {
       s_panel_play_note_trigger = false;
 
-      handleNoteOn(((g_midi_ch + s_current_synth) & 0x0F) + 1, s_panel_play_note_pitch, s_panel_play_note_velocity);
+      handleNoteOn(getTargetMIDICh(s_current_synth), s_panel_play_note_pitch, s_panel_play_note_velocity);
       s_panel_playing_note_pitch = s_panel_play_note_pitch;
     } else {
       s_panel_play_note_trigger = false;
@@ -543,7 +544,7 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
 
     uint8_t current_controller_value = adc_control_value_new;
     if        (s_adc_control_target[adc_number] < 128) {
-      current_controller_value = getCurrentControllerValue(((g_midi_ch + s_current_synth) & 0x0F) + 1, s_adc_control_target[adc_number]);
+      current_controller_value = getCurrentControllerValue(getTargetMIDICh(s_current_synth), s_adc_control_target[adc_number]);
     } else if (s_adc_control_target[adc_number] < 128 + 64) {
       current_controller_value = g_synth.current_controller_value(s_adc_control_target[adc_number]);
     }
@@ -561,7 +562,7 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
 
     if (s_adc_control_target[adc_number] < 128) {
       if (s_adc_control_catched[adc_number]) {
-        handleControlChange(((g_midi_ch + s_current_synth) & 0x0F) + 1, s_adc_control_target[adc_number], adc_control_value_new);
+        handleControlChange(getTargetMIDICh(s_current_synth), s_adc_control_target[adc_number], adc_control_value_new);
       }
     } else if (s_adc_control_target[adc_number] < 128 + 64) {
       if (s_adc_control_catched[adc_number]) {
@@ -573,7 +574,7 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
       if (s_adc_control_value[adc_number] <= 32) {
         s_ready_to_read[program_number_to_read] = true;
       } else if (s_ready_to_read[program_number_to_read] && (s_adc_control_value[adc_number] >= 96)) {
-        handleProgramChange(((g_midi_ch + s_current_synth) & 0x0F) + 1, s_adc_control_target[adc_number] - RD_PROGRAM_0);
+        handleProgramChange(getTargetMIDICh(s_current_synth), s_adc_control_target[adc_number] - RD_PROGRAM_0);
         s_ready_to_read[program_number_to_read] = false;
       }
     } else if ((s_adc_control_target[adc_number] >= WR_PROGRAM_0) && (s_adc_control_target[adc_number] <= WR_PROGRAM_15)) {
@@ -582,7 +583,7 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
       if (s_adc_control_value[adc_number] <= 32) {
         s_ready_to_write[program_number_to_write] = true;
       } else if (s_ready_to_write[program_number_to_write] && (s_adc_control_value[adc_number] >= 96)) {
-        writeParametersToProgram(((g_midi_ch + s_current_synth) & 0x0F) + 1, program_number_to_write);
+        writeParametersToProgram(getTargetMIDICh(s_current_synth), program_number_to_write);
         s_ready_to_write[program_number_to_write] = false;
       }
     } else if (s_adc_control_target[adc_number] == RD_PANEL_PRMS) {
@@ -590,7 +591,7 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
       if (s_adc_control_value[adc_number] <= 32) {
         s_ready_to_read_panel_prms = true;
       } else if (s_ready_to_read_panel_prms && (s_adc_control_value[adc_number] >= 96)) {
-        handleProgramChange(((g_midi_ch + s_current_synth) & 0x0F) + 1, 128);
+        handleProgramChange(getTargetMIDICh(s_current_synth), 128);
         s_ready_to_read_panel_prms = false;
       }
     } else if (s_adc_control_target[adc_number] == IN_PANEL_PRMS) {
@@ -598,7 +599,7 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
       if (s_adc_control_value[adc_number] <= 32) {
         s_ready_to_init_panel_prms = true;
       } else if (s_ready_to_init_panel_prms && (s_adc_control_value[adc_number] >= 96)) {
-        handleProgramChange(((g_midi_ch + s_current_synth) & 0x0F) + 1, 129);
+        handleProgramChange(getTargetMIDICh(s_current_synth), 129);
         s_ready_to_init_panel_prms = false;
       }
     } else if (s_adc_control_target[adc_number] == WR_PANEL_PRMS) {
@@ -615,7 +616,7 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
         s_ready_to_rand_pitch = true;
       } else if (s_ready_to_rand_pitch && (s_adc_control_value[adc_number] >= 96)) {
         uint8_t array[8] = {};
-        getRandUint8Rrray(((g_midi_ch + s_current_synth) & 0x0F) + 1, array);
+        getRandUint8Rrray(getTargetMIDICh(s_current_synth), array);
         g_synth.control_change(SEQ_PITCH_0    , array[0] & 0x7Fu);
         g_synth.control_change(SEQ_PITCH_1    , array[1] & 0x7Fu);
         g_synth.control_change(SEQ_PITCH_2    , array[2] & 0x7Fu);
@@ -633,7 +634,7 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
         s_ready_to_rand_velo = true;
       } else if (s_ready_to_rand_velo && (s_adc_control_value[adc_number] >= 96)) {
         uint8_t array[8] = {};
-        getRandUint8Rrray(((g_midi_ch + s_current_synth) & 0x0F) + 1, array);
+        getRandUint8Rrray(getTargetMIDICh(s_current_synth), array);
         g_synth.control_change(SEQ_VELO_0     , array[0] & 0x7Fu);
         g_synth.control_change(SEQ_VELO_1     , array[1] & 0x7Fu);
         g_synth.control_change(SEQ_VELO_2     , array[2] & 0x7Fu);
@@ -650,8 +651,8 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
       if (s_adc_control_value[adc_number] <= 32) {
         s_ready_to_panic = true;
       } else if (s_ready_to_panic && (s_adc_control_value[adc_number] >= 96)) {
-        handleControlChange(((g_midi_ch + s_current_synth) & 0x0F) + 1, ALL_SOUND_OFF  , 0);
-        handleControlChange(((g_midi_ch + s_current_synth) & 0x0F) + 1, RESET_ALL_CTRLS, 0);
+        handleControlChange(getTargetMIDICh(s_current_synth), ALL_SOUND_OFF  , 0);
+        handleControlChange(getTargetMIDICh(s_current_synth), RESET_ALL_CTRLS, 0);
 
         s_ready_to_panic = false;
       }
@@ -1250,7 +1251,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
           uint32_t next_key_pressed = digitalRead(PRA32_U2_KEY_INPUT_NEXT_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
           if (next_key_pressed) {
             if (s_panel_playing_note_pitch <= 127) {
-              handleNoteOff(((g_midi_ch + s_current_synth) & 0x0F) + 1, s_panel_playing_note_pitch, 64);
+              handleNoteOff(getTargetMIDICh(s_current_synth), s_panel_playing_note_pitch, 64);
             }
 
             s_current_synth = (s_current_synth + 1) >= PRA32_U2_NUMBER_OF_SYNTHS ? 0 : (s_current_synth + 1);
@@ -1335,7 +1336,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
           uint32_t prev_key_pressed = digitalRead(PRA32_U2_KEY_INPUT_PREV_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
           if (prev_key_pressed) {
             if (s_panel_playing_note_pitch <= 127) {
-              handleNoteOff(((g_midi_ch + s_current_synth) & 0x0F) + 1, s_panel_playing_note_pitch, 64);
+              handleNoteOff(getTargetMIDICh(s_current_synth), s_panel_playing_note_pitch, 64);
             }
 
             s_current_synth = (s_current_synth + 1) >= PRA32_U2_NUMBER_OF_SYNTHS ? 0 : (s_current_synth + 1);
@@ -1426,7 +1427,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
             } else {
               --s_current_program[s_current_synth];
             }
-            handleProgramChange(((g_midi_ch + s_current_synth) & 0x0F) + 1, s_current_program[s_current_synth]);
+            handleProgramChange(getTargetMIDICh(s_current_synth), s_current_program[s_current_synth]);
             s_display_buffer[0][17] = '0' + s_current_program[s_current_synth];
           }
 #endif  // defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
@@ -1444,7 +1445,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
           } else {
             --s_current_program[s_current_synth];
           }
-          handleProgramChange(((g_midi_ch + s_current_synth) & 0x0F) + 1, s_current_program[s_current_synth]);
+          handleProgramChange(getTargetMIDICh(s_current_synth), s_current_program[s_current_synth]);
           s_display_buffer[0][17] = '0' + s_current_program[s_current_synth];
           return;
         }
@@ -1470,7 +1471,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
             } else {
               ++s_current_program[s_current_synth];
             }
-            handleProgramChange(((g_midi_ch + s_current_synth) & 0x0F) + 1, s_current_program[s_current_synth]);
+            handleProgramChange(getTargetMIDICh(s_current_synth), s_current_program[s_current_synth]);
             s_display_buffer[0][17] = '0' + s_current_program[s_current_synth];
           }
 #endif  // defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
@@ -1488,7 +1489,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
           } else {
             ++s_current_program[s_current_synth];
           }
-          handleProgramChange(((g_midi_ch + s_current_synth) & 0x0F) + 1, s_current_program[s_current_synth]);
+          handleProgramChange(getTargetMIDICh(s_current_synth), s_current_program[s_current_synth]);
           s_display_buffer[0][17] = '0' + s_current_program[s_current_synth];
           return;
         }
@@ -1563,7 +1564,7 @@ INLINE void PRA32_U2_ControlPanel_update_display_buffer(uint32_t loop_counter) {
       uint8_t adc_control_value        = s_adc_control_value[0];
       uint8_t current_controller_value = adc_control_value;
       if        (adc_control_target_0 < 128) {
-        current_controller_value = getCurrentControllerValue(((g_midi_ch + s_current_synth) & 0x0F) + 1, adc_control_target_0);
+        current_controller_value = getCurrentControllerValue(getTargetMIDICh(s_current_synth), adc_control_target_0);
       } else if (adc_control_target_0 < 128 + 64) {
         current_controller_value = g_synth.current_controller_value(adc_control_target_0);
       }
@@ -1602,7 +1603,7 @@ INLINE void PRA32_U2_ControlPanel_update_display_buffer(uint32_t loop_counter) {
       uint8_t adc_control_value        = s_adc_control_value[1];
       uint8_t current_controller_value = adc_control_value;
       if        (adc_control_target_1 < 128) {
-        current_controller_value = getCurrentControllerValue(((g_midi_ch + s_current_synth) & 0x0F) + 1, adc_control_target_1);
+        current_controller_value = getCurrentControllerValue(getTargetMIDICh(s_current_synth), adc_control_target_1);
       } else if (adc_control_target_1 < 128 + 64) {
         current_controller_value = g_synth.current_controller_value(adc_control_target_1);
       }
@@ -1641,7 +1642,7 @@ INLINE void PRA32_U2_ControlPanel_update_display_buffer(uint32_t loop_counter) {
       uint8_t adc_control_value        = s_adc_control_value[2];
       uint8_t current_controller_value = adc_control_value;
       if        (adc_control_target_2 < 128) {
-        current_controller_value = getCurrentControllerValue(((g_midi_ch + s_current_synth) & 0x0F) + 1, adc_control_target_2);
+        current_controller_value = getCurrentControllerValue(getTargetMIDICh(s_current_synth), adc_control_target_2);
       } else if (adc_control_target_2 < 128 + 64) {
         current_controller_value = g_synth.current_controller_value(adc_control_target_2);
       }

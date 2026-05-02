@@ -496,6 +496,24 @@ public:
       control_change(control_number, m_program_table_panel[0][control_number]);
     }
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
+
+    setup_interp();
+  }
+
+  /* INLINE */ void __not_in_flash_func(initialize_secondary_core)() {
+    setup_interp();
+  }
+
+  /* INLINE */ void __not_in_flash_func(setup_interp)() {
+#if defined(ARDUINO_ARCH_RP2040)
+    interp_config config0_0 = interp_default_config();
+    interp_config_set_blend(&config0_0, true);
+    interp_set_config(interp0, 0, &config0_0);
+
+    interp_config config0_1 = interp_default_config();
+    interp_config_set_signed(&config0_1, true);
+    interp_set_config(interp0, 1, &config0_1);
+#endif  // defined(ARDUINO_ARCH_RP2040)
   }
 
   INLINE uint8_t current_controller_value(uint8_t control_number) {

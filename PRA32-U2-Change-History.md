@@ -1,9 +1,17 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v2.13.0 (2026-??-??):
+    - **Enable UART MIDI by default**
+        - GP4 and GP5 pins are used by UART1 TX and UART1 RX
+    - Change the pin mode for PRA32_U2_UART_MIDI_RX_PIN and RA32_U2_DEBUG_PRINT_RX_PIN to INPUT_PULLUP
+    - Change the smoothing method for oscillator shape control and filter cutoff modulation
+    - Modify the Preset "#14 Synth Bass"
+    - Improve performance using the RP2350 Hardware Interpolators
+    - PRA32-U2/M: Change the MIDI channels for layering
     - PRA32-U2 Editor: Add the "Send Current" button; Stop sending Control Change on MIDI Out change
     - PRA32-U2 Editor: Change the layout
-    - Tested with Arduino-Pico version 5.5.1
+    - Improve documentation
+    - Tested with Arduino-Pico version 5.6.0
 - v2.12.0 (2026-04-11):
     - PRA32-U2/M: Add MIDI channels for layering
     - PRA32-U2/M: In Basic Channel + 3, Osc 1 Shape and Morph are disabled in Saw
