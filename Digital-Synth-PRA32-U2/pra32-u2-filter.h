@@ -30,9 +30,8 @@ class PRA32_U2_Filter {
   int32_t         m_z_2;
   uint8_t         m_resonance_target;
   uint8_t         m_resonance_current;
-  int16_t         m_cutoff_current;
-  int16_t         m_cutoff_control;
-  int16_t         m_cutoff_control_effective;
+  int32_t         m_cutoff_current;
+  int32_t         m_cutoff_control;
   int16_t         m_cutoff_eg_amt[2];
   int16_t         m_cutoff_lfo_amt[2];
   int16_t         m_cutoff_pitch_amt;
@@ -51,7 +50,6 @@ public:
   , m_resonance_current()
   , m_cutoff_current()
   , m_cutoff_control()
-  , m_cutoff_control_effective()
   , m_cutoff_eg_amt()
   , m_cutoff_lfo_amt()
   , m_cutoff_pitch_amt()
@@ -59,8 +57,6 @@ public:
   , m_cutoff_breath_amt()
   , m_breath_controller()
   {
-    m_cutoff_current = 254;
-
     set_cutoff(127);
     set_resonance(0);
     set_cutoff_eg_amt(0, 64);
@@ -128,7 +124,6 @@ public:
   }
 
   INLINE void process_at_low_rate(uint8_t count, int16_t eg_input, int16_t lfo_input, uint16_t osc_pitch) {
-    update_cutoff_control_effective();
     update_coefs(eg_input, lfo_input, osc_pitch);
   }
 
@@ -154,17 +149,8 @@ public:
   }
 
 private:
-  INLINE void update_cutoff_control_effective() {
-#if 0
-    m_cutoff_control_effective = m_cutoff_control;
-#else
-    m_cutoff_control_effective += (m_cutoff_control_effective < m_cutoff_control);
-    m_cutoff_control_effective -= (m_cutoff_control_effective > m_cutoff_control);
-#endif
-  }
-
   INLINE void update_coefs(int16_t eg_input, int16_t lfo_input, uint16_t osc_pitch) {
-    int16_t cutoff_candidate = m_cutoff_control_effective;
+    int16_t cutoff_candidate = m_cutoff_control;
     cutoff_candidate += (m_cutoff_eg_amt[0] * eg_input) >> (14 - 2);
     cutoff_candidate += (m_cutoff_eg_amt[1] * eg_input) >> (14 - 2);
 
@@ -173,11 +159,12 @@ private:
     cutoff_candidate += (((osc_pitch - (60 << 8)) * m_cutoff_pitch_amt) + (1 << ((10 - 1) - 2))) >> (10 - 2);
     cutoff_candidate += (m_breath_controller * m_cutoff_breath_amt) >> (14 - 2);
 
-    volatile int16_t cutoff_target = clamp(cutoff_candidate, 0, ((254 << 2) + 1));
+    volatile int32_t cutoff_target = clamp(cutoff_candidate, 0, ((254 << 2) + 1)) << 8;
 
-    for (uint32_t i = 0; i < (4 * 2); ++i) {
-      m_cutoff_current += (m_cutoff_current < cutoff_target);
-      m_cutoff_current -= (m_cutoff_current > cutoff_target);
+    if (m_cutoff_current <= cutoff_target) {
+      m_cutoff_current =   cutoff_target  - (((cutoff_target - m_cutoff_current) * 252) >> 8);
+    } else {
+      m_cutoff_current = m_cutoff_current + (((cutoff_target - m_cutoff_current) *   4) >> 8);
     }
 
     m_resonance_current += (m_resonance_current < m_resonance_target);
@@ -189,7 +176,8 @@ private:
     // Uncached, untranslated XIP access -- bypass QMI address translation
     filter_table = reinterpret_cast<const int32_t*>(reinterpret_cast<uintptr_t>(filter_table) | 0x1c000000u);
 #endif
-    size_t index = ((m_cutoff_current + ((1 << (2 - FILTER_TABLE_CUTOFF_EXT_BITS)) >> 1)) >> (2 - FILTER_TABLE_CUTOFF_EXT_BITS)) * 3;
+    size_t index = ((((m_cutoff_current + (1 << (8 - 1))) >> 8) + ((1 << (2 - FILTER_TABLE_CUTOFF_EXT_BITS)) >> 1))
+                    >> (2 - FILTER_TABLE_CUTOFF_EXT_BITS)) * 3;
     m_b_2_over_a_0 = filter_table[index + 0];
     m_a_1_over_a_0 = filter_table[index + 1];
     m_a_2_over_a_0 = filter_table[index + 2];

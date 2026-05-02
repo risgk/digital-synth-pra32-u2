@@ -2,13 +2,13 @@
  * Digital Synth PRA32-U2
  */
 
-#define PRA32_U2_VERSION                       "v2.12.0   "
+#define PRA32_U2_VERSION                       "v2.13.0   "
 
 //#define PRA32_U2_USE_DEBUG_PRINT
 
 #define PRA32_U2_USE_USB_MIDI                  // Select USB Stack: "Adafruit TinyUSB" in the Arduino IDE "Tools" menu
 
-//#define PRA32_U2_USE_UART_MIDI
+#define PRA32_U2_USE_UART_MIDI
 
 #define PRA32_U2_DEBUG_PRINT_SERIAL            Serial1
 #define PRA32_U2_DEBUG_PRINT_TX_PIN            (0)
@@ -131,6 +131,8 @@ void handleStop();
 void writeProgramsToFlashAndEndSketch();
 
 void __not_in_flash_func(setup1)() {
+  g_synth.initialize_secondary_core();
+
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
   PRA32_U2_ControlPanel_setup();
 #else  // defined(PRA32_U2_USE_CONTROL_PANEL)
@@ -138,6 +140,7 @@ void __not_in_flash_func(setup1)() {
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 
 #if defined(PRA32_U2_USE_DEBUG_PRINT)
+  pinMode(PRA32_U2_DEBUG_PRINT_RX_PIN, INPUT_PULLUP);
   PRA32_U2_DEBUG_PRINT_SERIAL.setTX(PRA32_U2_DEBUG_PRINT_TX_PIN);
   PRA32_U2_DEBUG_PRINT_SERIAL.setRX(PRA32_U2_DEBUG_PRINT_RX_PIN);
   PRA32_U2_DEBUG_PRINT_SERIAL.begin(115200);
@@ -245,6 +248,7 @@ void __not_in_flash_func(setup)() {
 #endif  // defined(PRA32_U2_USE_USB_MIDI)
 
 #if defined(PRA32_U2_USE_UART_MIDI)
+  pinMode(PRA32_U2_UART_MIDI_RX_PIN, INPUT_PULLUP);
   PRA32_U2_UART_MIDI_SERIAL.setTX(PRA32_U2_UART_MIDI_TX_PIN);
   PRA32_U2_UART_MIDI_SERIAL.setRX(PRA32_U2_UART_MIDI_RX_PIN);
   UART_MIDI.setHandleNoteOn(handleNoteOn);
@@ -452,6 +456,11 @@ void __not_in_flash_func(writeParametersToProgram)(byte channel, byte number)
   if ((channel - 1) == g_midi_ch) {
     g_synth.write_parameters_to_program(number);
   }
+}
+
+byte __not_in_flash_func(getTargetMIDICh)(byte synth)
+{
+  return (((g_midi_ch + synth) & 0x0F) + 1);
 }
 
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
