@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1136" height="304" viewBox="0 0 284 76" shape-rendering="crispEdges">
+  <rect width="284" height="76" fill="#000"/>
+  <rect x="0" y="0" width="284" height="14" fill="#00FF00"/>
+  <text x="2" y="10" font-family="monospace" font-size="8" fill="#FFF">B-1/7</text>
+  <text x="44" y="10" font-family="monospace" font-size="8" fill="#FFF">FILTER</text>
+  <text x="198" y="10" font-family="monospace" font-size="8" fill="#FFF">PLAY Edt</text>
+  <text x="240" y="10" font-family="monospace" font-size="8" fill="#FFF">DIN</text>
+
+  <rect x="4" y="18" width="90" height="42" fill="#181C18" stroke="#00FF00"/>
+  <text x="8" y="27" font-family="monospace" font-size="8" fill="#FFF">A:CUTOFF</text>
+  <text x="8" y="39" font-family="monospace" font-size="8" fill="#FFF">2.75k (82)</text>
+  <rect x="8" y="50" width="82" height="6" fill="none" stroke="#00FF00"/>
+  <rect x="9" y="51" width="53" height="4" fill="#00FF00"/>
+
+  <rect x="98" y="18" width="90" height="42" fill="#FFF" stroke="#FFF"/>
+  <text x="102" y="27" font-family="monospace" font-size="8" fill="#000">B:RESON</text>
+  <text x="102" y="39" font-family="monospace" font-size="8" fill="#000">High (101)</text>
+  <rect x="102" y="50" width="82" height="6" fill="none" stroke="#000"/>
+  <rect x="103" y="51" width="65" height="4" fill="#000"/>
+
+  <rect x="192" y="18" width="90" height="42" fill="#181C18" stroke="#00FF00"/>
+  <text x="196" y="27" font-family="monospace" font-size="8" fill="#FFF">C:EG AMT</text>
+  <text x="196" y="39" font-family="monospace" font-size="8" fill="#FFF">+32 (96)</text>
+  <rect x="196" y="50" width="82" height="6" fill="none" stroke="#00FF00"/>
+  <rect x="197" y="51" width="62" height="4" fill="#00FF00"/>
+
+  <rect x="0" y="64" width="284" height="12" fill="#000"/>
+  <text x="2" y="73" font-family="monospace" font-size="8" fill="#FFF">Turn:Value  Click:Done  Hold:Cancel</text>
+</svg>
