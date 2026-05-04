@@ -1435,8 +1435,10 @@ if constexpr (NO_FX == false) {
     int32_t amp_output   [4];
 
 #if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)
+if constexpr (RESTRICT_POLY == false) {
     m_secondary_core_processing_argument = noise_int15;
     m_secondary_core_processing_request = 1;
+}
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)
 
     osc_output   [0] = m_osc      .process<0, SYNTH_ID, RESTRICT_SAW, RESTRICT_SQR_WT>(noise_int15);
@@ -1468,9 +1470,13 @@ if (m_voice_mode == VOICE_POLYPHONIC) {
 #else  // defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)
 
 #if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
+if constexpr (RESTRICT_POLY == false) {
     while (m_secondary_core_processing_request) {
       ;
     }
+} else {
+    m_secondary_core_processing_result = 0;
+}
 #else  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
     m_secondary_core_processing_result = 0;
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)

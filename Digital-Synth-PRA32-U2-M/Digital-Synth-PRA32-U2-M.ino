@@ -41,7 +41,7 @@
 #define PRA32_U2_PWM_AUDIO_L_PIN               (28)
 #define PRA32_U2_PWM_AUDIO_R_PIN               (27)
 
-//#define PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING
+#define PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING
 //#define PRA32_U2_ENABLE_POLY_ON_1_CORE
 
 #define PRA32_U2_USE_EMULATED_EEPROM
@@ -95,10 +95,10 @@ uint8_t g_midi_ch = PRA32_U2_MIDI_CH;
 #include "pra32-u2-common.h"
 #include "pra32-u2-synth.h"
 
-PRA32_U2_Synth<false, true,  true, 0> g_synth;
-PRA32_U2_Synth<true,  true,  true, 1> g_sub_1_synth;
-PRA32_U2_Synth<true,  false, true, 2> g_sub_2_synth;
-PRA32_U2_Synth<true,  false, true, 3> g_sub_3_synth;
+PRA32_U2_Synth<false, true,  true, 0, false, true> g_synth;
+PRA32_U2_Synth<true,  true,  true, 1, false, true> g_sub_1_synth;
+PRA32_U2_Synth<true,  false, true, 2, false, true> g_sub_2_synth;
+PRA32_U2_Synth<true,  false, true, 3, false, true> g_sub_3_synth;
 
 #include <MIDI.h>
 #if defined(PRA32_U2_USE_USB_MIDI)
