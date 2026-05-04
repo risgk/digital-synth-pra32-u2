@@ -2,6 +2,7 @@
 
 - v2.13.1 (2026-??-??):
     - Reduce CPU usage in monophonic modes
+    - Improve customizability
     - Tested with Arduino-Pico version 5.6.0
 - v2.13.0 (2026-05-02):
     - **Enable UART MIDI by default**
