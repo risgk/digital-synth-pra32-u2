@@ -6,6 +6,7 @@
     - PRA32-U2/M: Change the default programs from #4-7 to #0-3
     - Reduce CPU usage in monophonic modes
     - Improve customizability
+    - Improve the code
     - Tested with Arduino-Pico version 5.6.0
 - v2.13.0 (2026-05-02):
     - **Enable UART MIDI by default**
