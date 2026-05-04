@@ -1618,6 +1618,10 @@ if (m_voice_mode == VOICE_POLYPHONIC) {
     m_noise_gen.get_rand_uint8_array(array);
   }
 
+  INLINE boolean is_in_polyphonic_mode() {
+    return (m_voice_mode == VOICE_POLYPHONIC);
+  }
+
 private:
 
   INLINE void note_queue_on(uint8_t note_on_osc_index) {
