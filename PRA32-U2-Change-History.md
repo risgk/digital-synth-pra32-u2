@@ -1,6 +1,8 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v2.13.1 (2026-??-??):
+    - PRA32-U2/M: Enable polyphonic mode for Basic Channel + 0 (Main Synth)
+        - Sub Synths are processed only if Main Synth is in monophonic modes
     - Reduce CPU usage in monophonic modes
     - Improve customizability
     - Tested with Arduino-Pico version 5.6.0
