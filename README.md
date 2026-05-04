@@ -264,8 +264,8 @@ graph LR
     - Uncomment out `//#define PRA32_U2_USE_CONTROL_PANEL`
     - Prev Key + Next Key: Push to go to the next synth (channel)
         - "$0" -> "$1" -> ... -> "$6" -> "$0"
-        - "$0" to "$3": Basic Channel + 0 to Basic Channel + 3 (Mono)
-        - "$4" to "$6": Basic Channel - 3 to Basic Channel - 1 (Layering)
+        - "$0" to "$3": Basic Channel + 0 to + 3 (Mono)
+        - "$D" to "$F": Basic Channel - 3 to - 1 (Layering)
 
 
 ## License
