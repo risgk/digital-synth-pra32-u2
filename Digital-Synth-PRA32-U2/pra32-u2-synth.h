@@ -199,7 +199,7 @@ extern void PRA32_U2_ControlPanel_on_control_change(uint8_t control_number);
 
 static int32_t s_placeholder_int32;
 
-template <boolean NO_FX = false, boolean EXT_INPUT = false, boolean EXT_OUTPUT = false, uint32_t SYNTH_ID = 0, boolean MONO_LEVEL_DOWN = false, boolean RESTRICT_POLY = false>
+template <boolean NO_FX = false, boolean EXT_INPUT = false, boolean EXT_OUTPUT = false, uint32_t SYNTH_ID = 0, boolean MONO_LEVEL_DOWN = false, boolean RESTRICT_POLY_AND_CORES = false>
 class PRA32_U2_Synth {
   PRA32_U2_Osc      m_osc;
   PRA32_U2_Filter   m_filter[4];
@@ -1373,7 +1373,7 @@ if constexpr (BYPASS_SYNTH == false) {
         m_osc.process_at_low_rate_global();
 
 #if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)
-if constexpr (RESTRICT_POLY == false) {
+if constexpr (RESTRICT_POLY_AND_CORES == false) {
 if (m_voice_mode == VOICE_POLYPHONIC) {
         m_eg[2].process_at_low_rate();
         m_eg[3].process_at_low_rate();
@@ -1391,7 +1391,7 @@ if (m_voice_mode == VOICE_POLYPHONIC) {
     case 0x02:
       {
 #if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)
-if constexpr (RESTRICT_POLY == false) {
+if constexpr (RESTRICT_POLY_AND_CORES == false) {
 if (m_voice_mode == VOICE_POLYPHONIC) {
         m_eg[4].process_at_low_rate();
         m_eg[5].process_at_low_rate();
@@ -1411,7 +1411,7 @@ if constexpr (NO_FX == false) {
     case 0x03:
       {
 #if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)
-if constexpr (RESTRICT_POLY == false) {
+if constexpr (RESTRICT_POLY_AND_CORES == false) {
 if (m_voice_mode == VOICE_POLYPHONIC) {
         m_eg[6].process_at_low_rate();
         m_eg[7].process_at_low_rate();
@@ -1435,7 +1435,7 @@ if constexpr (NO_FX == false) {
     int32_t amp_output   [4];
 
 #if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)
-if constexpr (RESTRICT_POLY == false) {
+if constexpr (RESTRICT_POLY_AND_CORES == false) {
     m_secondary_core_processing_argument = noise_int15;
     m_secondary_core_processing_request = 1;
 }
@@ -1446,7 +1446,7 @@ if constexpr (RESTRICT_POLY == false) {
     amp_output   [0] = m_amp   [0].process(filter_output[0]);
 
 #if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)
-if constexpr (RESTRICT_POLY == false) {
+if constexpr (RESTRICT_POLY_AND_CORES == false) {
 if (m_voice_mode == VOICE_POLYPHONIC) {
     osc_output   [1] = m_osc      .process<1, SYNTH_ID, RESTRICT_SAW, RESTRICT_SQR_WT>(noise_int15);
     filter_output[1] = m_filter[1].process(osc_output   [1]);
@@ -1462,7 +1462,7 @@ if (m_voice_mode == VOICE_POLYPHONIC) {
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)
 
 #if defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)
-if constexpr (RESTRICT_POLY == false) {
+if constexpr (RESTRICT_POLY_AND_CORES == false) {
 if (m_voice_mode == VOICE_POLYPHONIC) {
     secondary_core_process<RESTRICT_SAW, RESTRICT_SQR_WT>();
 }
@@ -1470,7 +1470,7 @@ if (m_voice_mode == VOICE_POLYPHONIC) {
 #else  // defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)
 
 #if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
-if constexpr (RESTRICT_POLY == false) {
+if constexpr (RESTRICT_POLY_AND_CORES == false) {
     while (m_secondary_core_processing_request) {
       ;
     }
@@ -1664,7 +1664,7 @@ private:
       VOICE_LEGATO_PORTA,
       VOICE_LEGATO,
     };
-if constexpr (RESTRICT_POLY == false) {
+if constexpr (RESTRICT_POLY_AND_CORES == false) {
 } else {
     voice_mode_table[0] = VOICE_MONOPHONIC;
     voice_mode_table[1] = VOICE_MONOPHONIC;
