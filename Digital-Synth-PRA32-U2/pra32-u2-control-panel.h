@@ -570,7 +570,7 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
       if (s_adc_control_catched[adc_number]) {
         g_synth.control_change(s_adc_control_target[adc_number], adc_control_value_new);
       }
-    } else if ((s_adc_control_target[adc_number] >= RD_PROGRAM_0) && (s_adc_control_target[adc_number] <= RD_PROGRAM_15)) {
+    } else if ((s_adc_control_target[adc_number] >= RD_PROGRAM_0) && (s_adc_control_target[adc_number] <= RD_PROGRAM_31)) {
       static boolean s_ready_to_read[PROGRAM_NUMBER_MAX + 1] = {};
       uint8_t program_number_to_read = s_adc_control_target[adc_number] - RD_PROGRAM_0;
       if (s_adc_control_value[adc_number] <= 32) {
@@ -860,6 +860,22 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case  RD_PROGRAM_13  :
   case  RD_PROGRAM_14  :
   case  RD_PROGRAM_15  :
+  case  RD_PROGRAM_16  :
+  case  RD_PROGRAM_17  :
+  case  RD_PROGRAM_18  :
+  case  RD_PROGRAM_19  :
+  case  RD_PROGRAM_20  :
+  case  RD_PROGRAM_21  :
+  case  RD_PROGRAM_22  :
+  case  RD_PROGRAM_23  :
+  case  RD_PROGRAM_24  :
+  case  RD_PROGRAM_25  :
+  case  RD_PROGRAM_26  :
+  case  RD_PROGRAM_27  :
+  case  RD_PROGRAM_28  :
+  case  RD_PROGRAM_29  :
+  case  RD_PROGRAM_30  :
+  case  RD_PROGRAM_31  :
   case  WR_PROGRAM_0   :
   case  WR_PROGRAM_1   :
   case  WR_PROGRAM_2   :

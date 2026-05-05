@@ -264,31 +264,51 @@ const uint8_t   RD_PROGRAM_13   = 128 + 77;
 const uint8_t   RD_PROGRAM_14   = 128 + 78;
 const uint8_t   RD_PROGRAM_15   = 128 + 79;
 
-const uint8_t   WR_PROGRAM_0    = 128 + 80;
-const uint8_t   WR_PROGRAM_1    = 128 + 81;
-const uint8_t   WR_PROGRAM_2    = 128 + 82;
-const uint8_t   WR_PROGRAM_3    = 128 + 83;
+const uint8_t   RD_PROGRAM_16   = 128 + 80;
+const uint8_t   RD_PROGRAM_17   = 128 + 81;
+const uint8_t   RD_PROGRAM_18   = 128 + 82;
+const uint8_t   RD_PROGRAM_19   = 128 + 83;
 
-const uint8_t   WR_PROGRAM_4    = 128 + 84;
-const uint8_t   WR_PROGRAM_5    = 128 + 85;
-const uint8_t   WR_PROGRAM_6    = 128 + 86;
-const uint8_t   WR_PROGRAM_7    = 128 + 87;
+const uint8_t   RD_PROGRAM_20   = 128 + 84;
+const uint8_t   RD_PROGRAM_21   = 128 + 85;
+const uint8_t   RD_PROGRAM_22   = 128 + 86;
+const uint8_t   RD_PROGRAM_23   = 128 + 87;
 
-const uint8_t   WR_PROGRAM_8    = 128 + 88;
-const uint8_t   WR_PROGRAM_9    = 128 + 89;
-const uint8_t   WR_PROGRAM_10   = 128 + 90;
-const uint8_t   WR_PROGRAM_11   = 128 + 91;
+const uint8_t   RD_PROGRAM_24   = 128 + 88;
+const uint8_t   RD_PROGRAM_25   = 128 + 89;
+const uint8_t   RD_PROGRAM_26   = 128 + 90;
+const uint8_t   RD_PROGRAM_27   = 128 + 91;
 
-const uint8_t   WR_PROGRAM_12   = 128 + 92;
-const uint8_t   WR_PROGRAM_13   = 128 + 93;
-const uint8_t   WR_PROGRAM_14   = 128 + 94;
-const uint8_t   WR_PROGRAM_15   = 128 + 95;
+const uint8_t   RD_PROGRAM_28   = 128 + 92;
+const uint8_t   RD_PROGRAM_29   = 128 + 93;
+const uint8_t   RD_PROGRAM_30   = 128 + 94;
+const uint8_t   RD_PROGRAM_31   = 128 + 95;
 
-const uint8_t   RD_PANEL_PRMS   = 128 + 96;
-const uint8_t   IN_PANEL_PRMS   = 128 + 97;
+const uint8_t   WR_PROGRAM_0    = 128 + 96;
+const uint8_t   WR_PROGRAM_1    = 128 + 97;
+const uint8_t   WR_PROGRAM_2    = 128 + 98;
+const uint8_t   WR_PROGRAM_3    = 128 + 99;
 
-const uint8_t   WR_PANEL_PRMS   = 128 + 100;
+const uint8_t   WR_PROGRAM_4    = 128 + 100;
+const uint8_t   WR_PROGRAM_5    = 128 + 101;
+const uint8_t   WR_PROGRAM_6    = 128 + 102;
+const uint8_t   WR_PROGRAM_7    = 128 + 103;
 
-const uint8_t   SEQ_RAND_PITCH  = 128 + 104;
-const uint8_t   SEQ_RAND_VELO   = 128 + 105;
-const uint8_t   PANIC_OP        = 128 + 106;
+const uint8_t   WR_PROGRAM_8    = 128 + 104;
+const uint8_t   WR_PROGRAM_9    = 128 + 105;
+const uint8_t   WR_PROGRAM_10   = 128 + 106;
+const uint8_t   WR_PROGRAM_11   = 128 + 107;
+
+const uint8_t   WR_PROGRAM_12   = 128 + 108;
+const uint8_t   WR_PROGRAM_13   = 128 + 109;
+const uint8_t   WR_PROGRAM_14   = 128 + 110;
+const uint8_t   WR_PROGRAM_15   = 128 + 111;
+
+const uint8_t   RD_PANEL_PRMS   = 128 + 112;
+const uint8_t   IN_PANEL_PRMS   = 128 + 113;
+
+const uint8_t   WR_PANEL_PRMS   = 128 + 116;
+
+const uint8_t   SEQ_RAND_PITCH  = 128 + 120;
+const uint8_t   SEQ_RAND_VELO   = 128 + 121;
+const uint8_t   PANIC_OP        = 128 + 122;
