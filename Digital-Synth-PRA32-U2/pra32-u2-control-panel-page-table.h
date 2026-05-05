@@ -86,7 +86,11 @@ static const PRA32_U2_ControlPanelPage g_control_panel_page_table_c[] = {
   { "Page=C-01 ", "Write 2   ",   "Write     ", "Program  2", WR_PROGRAM_2   ,   "Write     ", "Program  3", WR_PROGRAM_3   ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=C-02 ", "Write 4   ",   "Write     ", "Program  4", WR_PROGRAM_4   ,   "Write     ", "Program  5", WR_PROGRAM_5   ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=C-03 ", "Write 6   ",   "Write     ", "Program  6", WR_PROGRAM_6   ,   "Write     ", "Program  7", WR_PROGRAM_7   ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=C-04 ", "Write a   ",   "Write     ", "Panel Prms", WR_PANEL_PRMS  ,   "          ", "          ", 0xFF           ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=C-04 ", "Write 8   ",   "Write     ", "Program  8", WR_PROGRAM_8   ,   "Write     ", "Program  9", WR_PROGRAM_9   ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=C-05 ", "Write 10  ",   "Write     ", "Program 10", WR_PROGRAM_10  ,   "Write     ", "Program 11", WR_PROGRAM_11  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=C-06 ", "Write 12  ",   "Write     ", "Program 12", WR_PROGRAM_12  ,   "Write     ", "Program 13", WR_PROGRAM_13  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=C-07 ", "Write 14  ",   "Write     ", "Program 14", WR_PROGRAM_14  ,   "Write     ", "Program 15", WR_PROGRAM_15  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=C-08 ", "Write a   ",   "Write     ", "Panel Prms", WR_PANEL_PRMS  ,   "          ", "          ", 0xFF           ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
 };
 
 static const PRA32_U2_ControlPanelPage g_control_panel_page_table_d[] = {
@@ -98,7 +102,15 @@ static const PRA32_U2_ControlPanelPage g_control_panel_page_table_d[] = {
   { "Page=D-05 ", "Read 10   ",   "Read      ", "Program 10", RD_PROGRAM_10  ,   "Read      ", "Program 11", RD_PROGRAM_11  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=D-06 ", "Read 12   ",   "Read      ", "Program 12", RD_PROGRAM_12  ,   "Read      ", "Program 13", RD_PROGRAM_13  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=D-07 ", "Read 14   ",   "Read      ", "Program 14", RD_PROGRAM_14  ,   "Read      ", "Program 15", RD_PROGRAM_15  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=D-08 ", "Read a    ",   "Read      ", "Panel Prms", RD_PANEL_PRMS  ,   "Init      ", "Panel Prms", IN_PANEL_PRMS  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=D-08 ", "Read 16   ",   "Read      ", "Program 16", RD_PROGRAM_16  ,   "Read      ", "Program 17", RD_PROGRAM_17  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=D-09 ", "Read 18   ",   "Read      ", "Program 18", RD_PROGRAM_18  ,   "Read      ", "Program 19", RD_PROGRAM_19  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=D-10 ", "Read 20   ",   "Read      ", "Program 20", RD_PROGRAM_20  ,   "Read      ", "Program 21", RD_PROGRAM_21  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=D-11 ", "Read 22   ",   "Read      ", "Program 22", RD_PROGRAM_22  ,   "Read      ", "Program 23", RD_PROGRAM_23  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=D-12 ", "Read 24   ",   "Read      ", "Program 24", RD_PROGRAM_24  ,   "Read      ", "Program 25", RD_PROGRAM_25  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=D-13 ", "Read 26   ",   "Read      ", "Program 26", RD_PROGRAM_26  ,   "Read      ", "Program 27", RD_PROGRAM_27  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=D-14 ", "Read 28   ",   "Read      ", "Program 28", RD_PROGRAM_28  ,   "Read      ", "Program 29", RD_PROGRAM_29  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=D-15 ", "Read 30   ",   "Read      ", "Program 30", RD_PROGRAM_30  ,   "Read      ", "Program 31", RD_PROGRAM_31  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=D-16 ", "Read a    ",   "Read      ", "Panel Prms", RD_PANEL_PRMS  ,   "Init      ", "Panel Prms", IN_PANEL_PRMS  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
 };
 
 const PRA32_U2_ControlPanelPage* g_control_panel_page_table[] = {
