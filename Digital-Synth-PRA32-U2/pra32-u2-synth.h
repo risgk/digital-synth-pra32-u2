@@ -455,7 +455,7 @@ public:
 
 #if defined(ARDUINO_ARCH_RP2040)
 #if defined(PRA32_U2_USE_EMULATED_EEPROM)
-    EEPROM.begin(2048);
+    EEPROM.begin(3072);
 
 #if !defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
     for (uint32_t program_number = 0; program_number <= USER_PROGRAM_NUMBER_MAX; ++program_number) {
