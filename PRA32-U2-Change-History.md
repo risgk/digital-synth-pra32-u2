@@ -2,6 +2,7 @@
 
 - v2.13.1 (2026-??-??):
     - Change the smoothing method for oscillator shape modulation
+    - Increase the smoothing speed for filter cutoff modulation
     - Change the programs #0-15 to user presets and #16-31 to factory presets
     - PRA32-U2/M: Enable polyphonic mode for Basic Channel + 0 (Main Synth)
         - Sub Synths are processed only if Main Synth is in monophonic modes
