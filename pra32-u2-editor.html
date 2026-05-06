@@ -1233,7 +1233,7 @@ function getStoredCCValueString(index, number) {
 </table>
 
 <table>
-<tr><td>Factory Preset A</td>
+<tr><td>Factory Preset</td>
     <td></td>
     <td><input type="button" value="#20 Saw Lead"         onclick="preset(20)"></td>
     <td></td>
@@ -1243,10 +1243,13 @@ function getStoredCCValueString(index, number) {
     <td></td>
     <td><input type="button" value="#23 Initial"          onclick="preset(23)"></td>
     <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
-    <td>Misc</td>
-    <td><input type="button" value="Send Current"         onclick="sendCurrentParameters()"></td>
+    <td><input type="button" value="#28 Fifth Lead"       onclick="preset(28)"></td>
     <td></td>
-    <td><input type="button" value="Panic"                onclick="panic()"></td></tr>
+    <td><input type="button" value="#29 Square Lead"      onclick="preset(29)"></td>
+    <td></td>
+    <td><input type="button" value="#30 PWM Lead"         onclick="preset(30)"></td>
+    <td></td>
+    <td><input type="button" value="#31 ---"              onclick="preset(31)"></td></tr>
 <tr><td>(from Browser)</td>
     <td></td>
     <td><input type="button" value="#16 Synth Pad"        onclick="preset(16)"></td>
@@ -1257,23 +1260,26 @@ function getStoredCCValueString(index, number) {
     <td></td>
     <td><input type="button" value="#19 Simple"           onclick="preset(19)"></td>
     <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+    <td><input type="button" value="#24 Synth Brass"      onclick="preset(24)"></td>
     <td></td>
-    <td><input type="button" value="Randomize Synth Prms" onclick="setRandom()"></td>
+    <td><input type="button" value="#25 Synth Str"        onclick="preset(25)"></td>
     <td></td>
-    <td><input type="button" value="Randomize FX Prms"    onclick="setRandomChorus()"></td></tr>
+    <td><input type="button" value="#26 WT Pad"           onclick="preset(26)"></td>
+    <td></td>
+    <td><input type="button" value="#27 El Organ"         onclick="preset(27)"</td></tr>
 <tr><td>&nbsp;</td></tr>
 </table>
 
 <table>
-<tr><td>Factory Preset B</td>
+<tr><td>Misc</td>
     <td></td>
-    <td><input type="button" value="#28 Fifth Lead"      onclick="preset(28)"></td>
+    <td><input type="button" value="Send Current"         onclick="sendCurrentParameters()"></td>
     <td></td>
-    <td><input type="button" value="#29 Square Lead"     onclick="preset(29)"></td>
+    <td><input type="button" value="Panic"                onclick="panic()"></td>
     <td></td>
-    <td><input type="button" value="#30 PWM Lead"        onclick="preset(30)"></td>
+    <td><input type="button" value="Randomize Synth Prms" onclick="setRandom()"></td>
     <td></td>
-    <td><input type="button" value="#31 ---"             onclick="preset(31)" disabled></td>
+    <td><input type="button" value="Randomize FX Prms"    onclick="setRandomChorus()"></td>
     <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
     <td>File</td>
     <td></td>
@@ -1281,18 +1287,7 @@ function getStoredCCValueString(index, number) {
         <input type="button" value="Import All"     onclick="fileImportAll()"></td>
     <td></td>
     <td><input type="file" id="fileImportCurrent" style="display:none" accept=".json"/>
-        <input type="button" value="Import Current" onclick="fileImportCurrent()"></td></tr>
-<tr><td>(from Browser)</td>
-    <td></td>
-    <td><input type="button" value="#24 Synth Brass"     onclick="preset(24)"></td>
-    <td></td>
-    <td><input type="button" value="#25 Synth Strings"   onclick="preset(25)"></td>
-    <td></td>
-    <td><input type="button" value="#26 WT Pad"          onclick="preset(26)"></td>
-    <td></td>
-    <td><input type="button" value="#27 Electric Organ"  onclick="preset(27)"</td>
-    <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
-    <td></td>
+        <input type="button" value="Import Current" onclick="fileImportCurrent()"></td>
     <td></td>
     <td><input type="button" value="Export All"     onclick="fileExport()"></td></tr>
 <tr><td>&nbsp;</td></tr>
