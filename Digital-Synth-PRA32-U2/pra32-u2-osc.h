@@ -266,7 +266,7 @@ public:
       controller_value = 128;
     }
 
-    m_osc1_shape_control = controller_value << 16;
+    m_osc1_shape_control = controller_value << 8;
   }
 
   INLINE void set_osc1_morph_control(uint8_t controller_value) {
@@ -813,7 +813,7 @@ if constexpr (RESTRICT_SQR_WT == false) {
 
   template <uint8_t N>
   INLINE void update_osc1_shape(int16_t lfo_level, int16_t eg_level) {
-    volatile int32_t osc1_shape = (128 << 8) + ((m_osc1_shape_control + (1 << (8 - 1))) >> 8)
+    volatile int32_t osc1_shape = (128 << 8) + m_osc1_shape_control
                                   + ((eg_level * m_shape_eg_amt) >> 5) - ((lfo_level * m_shape_lfo_amt) >> 5);
     osc1_shape = clamp(osc1_shape, (0 << 8), (256 << 8));
     m_osc1_shape[N] = osc1_shape;
@@ -824,9 +824,9 @@ if constexpr (RESTRICT_SQR_WT == false) {
     int32_t effective_new_candidate;
 
     if (m_osc1_shape_effective[N] <= m_osc1_shape[N]) {
-      effective_new_candidate = m_osc1_shape[N]           - (((m_osc1_shape[N] - m_osc1_shape_effective[N]) * 252) >> 8);
+      effective_new_candidate = m_osc1_shape[N]           - (((m_osc1_shape[N] - m_osc1_shape_effective[N]) * 248) >> 8);
     } else {
-      effective_new_candidate = m_osc1_shape_effective[N] + (((m_osc1_shape[N] - m_osc1_shape_effective[N]) *   4) >> 8);
+      effective_new_candidate = m_osc1_shape_effective[N] + (((m_osc1_shape[N] - m_osc1_shape_effective[N]) *   8) >> 8);
     }
 
     volatile int32_t effective_new = clamp(effective_new_candidate, (m_osc1_shape_effective[N] - 0x0100), (m_osc1_shape_effective[N] + 0x0100));
