@@ -1,10 +1,10 @@
-# Digital Synth PRA32-U2/P (PRA32-U2 with Panel) v2.13.0
+# Digital Synth PRA32-U2/P v2.13.0
 
 - 2026-05-02 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 
-## PRA32-U2/P (Optional)
+## PRA32-U2/P (PRA32-U2 with Panel) (Optional)
 
 ![PRA32-U2/P (Grove System)](./pra32-u2-with-panel-grove-system.jpg)
 
@@ -36,6 +36,16 @@
         - Panel Play Pitch in Normal Mode, Seq Pitch Ofst (Offset) in Step Sequencer Mode
         - Not to use this, comment out `#define PRA32_U2_KEY_INPUT_PLAY_KEY_PIN          (20)` in "Digital-Synth-PRA32-U2.ino"
 - NOTE: Using a USB cable with ferrite cores is recommended to prevent ADCs from being affected by USB MIDI communication noise, and UART MIDI control is also recommended
+
+
+### PRA32-U2/M/P (PRA32-U2 Multi-Timbre Edition with Panel) (Optional)
+
+- Copy all files in the "Digital-Synth-PRA32-U2" folder, except for "Digital-Synth-PRA32-U2.ino", to the "Digital-Synth-PRA32-U2-M" folder
+- Uncomment out `//#define PRA32_U2_USE_CONTROL_PANEL` in "Digital-Synth-PRA32-U2-M.ino"
+- Prev Key + Next Key: Push to go to the next synth (channel)
+    - "$0" -> "$1" -> "$2" -> "$3" -> "$D" -> "$E" -> "$F" -> "$0"
+    - "$0" to "$3": Basic Channel + 0 to + 3 (Synths)
+    - "$D" to "$F": Basic Channel - 3 to - 1 (Layering)
 
 
 ### GUI Pages
