@@ -14,8 +14,8 @@
 - Modifiable with Arduino IDE and Arduino-Pico (by Earle F. Philhower, III)
 - An **I2S DAC** hardware (e.g. Pimoroni Pico Audio Pack) is required
 - Optional
-    - **[PRA32-U2/P](./README-PRA32-U2-P.md)** (PRA32-U2 with Panel) can also be configured by adding certain parts
-    - **[PRA32-U2/M](#pra32-u2m-pra32-u2-multi-timbre-edition-optional)** (PRA32-U2 Multi-Timbre Edition) and **PRA32-U2/M/P** (PRA32-U2 Multi-Timbre Edition with Panel) can also be configured
+    - **[PRA32-U2/M](#pra32-u2m-pra32-u2-multi-timbre-edition-optional)** (PRA32-U2 Multi-Timbre Edition) can also be configured
+    - **[PRA32-U2/P](./README-PRA32-U2-P.md)** (PRA32-U2 with Panel) and **PRA32-U2/M/P** (PRA32-U2 Multi-Timbre Edition with Panel) can also be configured by adding certain parts
 - Prebuilt UF2 files (in the "bin" directory)
     - PRA32-U2: "Digital-Synth-PRA32-U2-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico 2 and Pimoroni Pico Audio Pack
     - PRA32-U2/M: "Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico 2 and Pimoroni Pico Audio Pack
@@ -240,9 +240,6 @@ graph LR
     - Actually, it is necessary to use Raspberry Pi Pico 2 (instead of Raspberry Pi Pico)
 
 
-## [PRA32-U2/P](./README-PRA32-U2-P.md) (PRA32-U2 with Panel) (Optional)
-
-
 ## PRA32-U2/M (PRA32-U2 Multi-Timbre Edition) (Optional)
 
 - Features
@@ -263,12 +260,9 @@ graph LR
 - How to modify
     - Copy all files in the "Digital-Synth-PRA32-U2" folder, except for "Digital-Synth-PRA32-U2.ino", to the "Digital-Synth-PRA32-U2-M" folder
     - "Digital-Synth-PRA32-U2-M.ino" is a Arduino sketch
-- **PRA32-U2/M/P** (PRA32-U2 Multi-Timbre Edition with Panel) (Optional)
-    - Uncomment out `//#define PRA32_U2_USE_CONTROL_PANEL`
-    - Prev Key + Next Key: Push to go to the next synth (channel)
-        - "$0" -> "$1" -> ... -> "$6" -> "$0"
-        - "$0" to "$3": Basic Channel + 0 to + 3 (Mono)
-        - "$D" to "$F": Basic Channel - 3 to - 1 (Layering)
+
+
+## [PRA32-U2/P](./README-PRA32-U2-P.md) (PRA32-U2 with Panel) (Optional)
 
 
 ## License
