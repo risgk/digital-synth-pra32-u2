@@ -455,7 +455,7 @@ public:
 
 #if defined(ARDUINO_ARCH_RP2040)
 #if defined(PRA32_U2_USE_EMULATED_EEPROM)
-    EEPROM.begin(2048);
+    EEPROM.begin(3072);
 
 #if !defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
     for (uint32_t program_number = 0; program_number <= USER_PROGRAM_NUMBER_MAX; ++program_number) {
@@ -1603,6 +1603,9 @@ if (m_voice_mode == VOICE_POLYPHONIC) {
       osc_output   [3] = m_osc      .process<3, SYNTH_ID, RESTRICT_SAW, RESTRICT_SQR_WT>(noise_int15);
       filter_output[3] = m_filter[3].process(osc_output   [3]);
       amp_output   [3] = m_amp   [3].process(filter_output[3]);
+} else {
+      amp_output   [2] = 0;
+      amp_output   [3] = 0;
 }
 
       m_secondary_core_processing_result = amp_output[2] + amp_output[3];
