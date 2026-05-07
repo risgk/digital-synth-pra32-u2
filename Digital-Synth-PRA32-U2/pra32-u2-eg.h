@@ -77,9 +77,14 @@ public:
     m_state = STATE_ATTACK;
   }
 
-  INLINE void note_off() {
+  INLINE void note_off(boolean sound_off = false) {
     m_state = STATE_IDLE;
     m_note_on_velocity = 0;
+
+    if (sound_off) {
+      m_level = 0;
+      m_level_out = 0;
+    }
   }
 
   INLINE int16_t get_output() {
