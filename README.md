@@ -248,7 +248,7 @@ graph LR
         - Basic Channel + 1 (Default 2): Sub Synth 1, Mono; The default program is #1; The FX parameters are disabled
         - Basic Channel + 2 (Default 3): Sub Synth 2, Mono; The default program is #2; The FX parameters are disabled
         - Basic Channel + 3 (Default 4): Sub Synth 3, Mono; The default program is #3; The FX parameters are disabled
-    - Basic Channels + 1 to + 3 (Sub Synths) are processed *only if Basic Channel + 0 (Main Synth) is in Mono modes*
+        - *Basic Channels + 1 to + 3 (Sub Synths) are processed only if Basic Channel + 0 (Main Synth) is in Mono modes*
     - Layering
         - Basic Channel - 3 (Default 14): Control Basic Channel + 0 and + 1 simultaneously
             - Results of Program Change: Program # + 0 for Basic Channel + 0 and Program # + 1 for Basic Channel + 1
