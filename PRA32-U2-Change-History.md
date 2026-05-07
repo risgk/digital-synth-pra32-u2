@@ -8,6 +8,7 @@
         - Sub Synths are processed only if Main Synth is in monophonic modes
     - PRA32-U2/M: Change the default programs from #4-7 to #0-3
     - PRA32-U2/M: Officially support **PRA32-U2/M** (PRA32-U2 Multi-Timbre Edition) and **PRA32-U2/M/P**
+    - PRA32-U2/M: All Sound Off when switching to/from Multi-Timbral mode
     - Reduce CPU usage in monophonic modes
     - Improve customizability
     - Improve the code
