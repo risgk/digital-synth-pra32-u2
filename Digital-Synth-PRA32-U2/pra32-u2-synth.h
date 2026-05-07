@@ -855,7 +855,7 @@ public:
     }
   }
 
-  void all_notes_off() {
+  void all_notes_off(boolean all_sound_off = false) {
     m_sustain_pedal = false;
     m_note_on_number[0] = NOTE_NUMBER_INVALID;
     m_note_on_number[1] = NOTE_NUMBER_INVALID;
@@ -876,14 +876,14 @@ public:
 
     m_last_note_on_index = 3;
 
-    m_eg[0].note_off();
-    m_eg[1].note_off();
-    m_eg[2].note_off();
-    m_eg[3].note_off();
-    m_eg[4].note_off();
-    m_eg[5].note_off();
-    m_eg[6].note_off();
-    m_eg[7].note_off();
+    m_eg[0].note_off(all_sound_off);
+    m_eg[1].note_off(all_sound_off);
+    m_eg[2].note_off(all_sound_off);
+    m_eg[3].note_off(all_sound_off);
+    m_eg[4].note_off(all_sound_off);
+    m_eg[5].note_off(all_sound_off);
+    m_eg[6].note_off(all_sound_off);
+    m_eg[7].note_off(all_sound_off);
 
     control_change(SUSTAIN_PEDAL   , 0  );
   }
@@ -1182,7 +1182,7 @@ if constexpr (NO_FX == false) {
       break;
 
     case ALL_SOUND_OFF  :
-      all_notes_off();
+      all_notes_off(true);
       break;
 
     case RESET_ALL_CTRLS:
@@ -1692,7 +1692,7 @@ if constexpr (RESTRICT_POLY_AND_CORES == false) {
     uint8_t new_voice_mode = voice_mode_table[index];
     if (m_voice_mode != new_voice_mode) {
       m_voice_mode = new_voice_mode;
-      all_notes_off();
+      all_notes_off(true);
     }
   }
 
