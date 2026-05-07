@@ -123,6 +123,11 @@ public:
     m_breath_controller = (controller_value * 16384) / 127;
   }
 
+  INLINE void reset() {
+    m_z_1 = 0;
+    m_z_2 = 0;
+  }
+
   INLINE void process_at_low_rate(uint8_t count, int16_t eg_input, int16_t lfo_input, uint16_t osc_pitch) {
     update_coefs(eg_input, lfo_input, osc_pitch);
   }

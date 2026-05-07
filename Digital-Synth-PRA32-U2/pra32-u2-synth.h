@@ -876,6 +876,18 @@ public:
 
     m_last_note_on_index = 3;
 
+    if (all_sound_off) {
+      m_filter[0].reset();
+      m_filter[1].reset();
+      m_filter[2].reset();
+      m_filter[3].reset();
+
+      m_amp[0].reset();
+      m_amp[1].reset();
+      m_amp[2].reset();
+      m_amp[3].reset();
+    }
+
     m_eg[0].note_off(all_sound_off);
     m_eg[1].note_off(all_sound_off);
     m_eg[2].note_off(all_sound_off);
