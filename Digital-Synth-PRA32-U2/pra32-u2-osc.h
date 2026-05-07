@@ -824,9 +824,9 @@ if constexpr (RESTRICT_SQR_WT == false) {
     int32_t effective_new;
 
     if (m_osc1_shape_effective[N] <= m_osc1_shape[N]) {
-      effective_new = m_osc1_shape[N]           - (((m_osc1_shape[N] - m_osc1_shape_effective[N]) * 252) >> 8);
+      effective_new = m_osc1_shape[N]           - (((m_osc1_shape[N] - m_osc1_shape_effective[N]) * 248) >> 8);
     } else {
-      effective_new = m_osc1_shape_effective[N] + (((m_osc1_shape[N] - m_osc1_shape_effective[N]) *   4) >> 8);
+      effective_new = m_osc1_shape_effective[N] + (((m_osc1_shape[N] - m_osc1_shape_effective[N]) *   8) >> 8);
     }
 
     m_osc1_shape_effective[N] = effective_new;
