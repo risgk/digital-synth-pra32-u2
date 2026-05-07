@@ -821,15 +821,14 @@ if constexpr (RESTRICT_SQR_WT == false) {
 
   template <uint8_t N>
   INLINE void update_osc1_shape_effective() {
-    int32_t effective_new_candidate;
+    int32_t effective_new;
 
     if (m_osc1_shape_effective[N] <= m_osc1_shape[N]) {
-      effective_new_candidate = m_osc1_shape[N]           - (((m_osc1_shape[N] - m_osc1_shape_effective[N]) * 252) >> 8);
+      effective_new = m_osc1_shape[N]           - (((m_osc1_shape[N] - m_osc1_shape_effective[N]) * 252) >> 8);
     } else {
-      effective_new_candidate = m_osc1_shape_effective[N] + (((m_osc1_shape[N] - m_osc1_shape_effective[N]) *   4) >> 8);
+      effective_new = m_osc1_shape_effective[N] + (((m_osc1_shape[N] - m_osc1_shape_effective[N]) *   4) >> 8);
     }
 
-    volatile int32_t effective_new = clamp(effective_new_candidate, (m_osc1_shape_effective[N] - 0x0100), (m_osc1_shape_effective[N] + 0x0100));
     m_osc1_shape_effective[N] = effective_new;
   }
 
