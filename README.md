@@ -1,20 +1,24 @@
-# Digital Synth PRA32-U2 v2.13.0
+# Digital Synth PRA32-U2 v2.14.0
 
-- 2026-05-02 ISGK Instruments
+- 2026-05-09 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 
 ## Overview
 
-- 4-Voice Polyphonic Synthesizer for Raspberry Pi Pico 2/RP2350
+- **PRA32-U2** is a 4-Voice Polyphonic Synthesizer for Raspberry Pi Pico 2/RP2350
     - Built-in Chorus and Delay FX
     - Controlled by MIDI -- PRA32-U2 is a MIDI sound module
     - Having the function of writing the parameters to the user programs and the flash
     - PRA32-U2 is an upgraded model of PRA32-U (for Raspberry Pi Pico/RP2040), but some specifications differ
 - Modifiable with Arduino IDE and Arduino-Pico (by Earle F. Philhower, III)
 - An **I2S DAC** hardware (e.g. Pimoroni Pico Audio Pack) is required
-- Prebuilt UF2 files ("bin")
-    - "Digital-Synth-PRA32-U2-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico and Pimoroni Pico Audio Pack
+- Optional
+    - **[PRA32-U2/M](#pra32-u2m-pra32-u2-multi-timbre-edition-optional)** (PRA32-U2 Multi-Timbre Edition) can also be configured
+    - **[PRA32-U2/P](./README-PRA32-U2-P.md)** (PRA32-U2 with Panel) and **PRA32-U2/M/P** (PRA32-U2 Multi-Timbre Edition with Panel) can also be configured by adding certain parts
+- Prebuilt UF2 files (in the "bin" directory)
+    - PRA32-U2: "Digital-Synth-PRA32-U2-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico 2 and Pimoroni Pico Audio Pack
+    - PRA32-U2/M: "Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico 2 and Pimoroni Pico Audio Pack
 
 ![PRA32-U2 (Pico Audio Pack)](./pra32-u2-pico-audio-pack.jpg)
 
@@ -159,25 +163,25 @@
 - We recommend using Google Chrome, which implements Web MIDI API
 - Select "Digital Synth PRA32-U2" in the list "MIDI Out"
 - Functions
-    - PRA32-U2 Editor converts Program Changes (#0-7 for user presets, #8-15 for factory presets) into Control Changes
+    - PRA32-U2 Editor converts Program Changes (#0-15 for user presets, #16-31 for factory presets) into Control Changes
     - When Program Change #127 is entered or Control Change #111 is changed from Off (63 or lower) to On (64 or higher), "Random Synth" is processed
-    - PRA32-U2 Editor stores the current control values and the user presets (#0-7) in a Web browser (localStorage)
-    - Current parameter values and user presets (#0-7) can be imported/exported from/to JSON files
+    - PRA32-U2 Editor stores the current control values and the user presets (#0-15) in a Web browser (localStorage)
+    - Current parameter values and user presets (#0-15) can be imported/exported from/to JSON files
 - When not using PRA32-U2 Editor
     - PRA32-U2 can also be controlled by MIDI without using PRA32-U2 Editor
     - Refer to "PRA32-U2-MIDI-Implementation-Chart.txt" for the supported functions
     - The default program is #0
-    - Programs #0-15 can be modified by editing "pra32-u2-program-table.h"
+    - Programs #0-31 can be modified by editing "pra32-u2-program-table.h"
     - PRA32-U2 Editor functions related to parameter writing
-        - Write: Write the current parameters to PRA32-U2 (Program #8-15 and the flash)
+        - Write: Write the current parameters to PRA32-U2 (Program #0-15 and the flash)
         - Program Change: Send Program Change to PRA32-U2 directry
           (NOTE: The current parameters of PRA32-U2 will not be updated)
 
 
 ## Examples of Option Combinations
 
-- PRA32-U2 (USB MIDI Device, I2S), Default
-- PRA32-U2 (USB MIDI Device, UART MIDI, I2S)
+- PRA32-U2 (USB MIDI Device, I2S)
+- PRA32-U2 (USB MIDI Device, UART MIDI, I2S), Default
 - PRA32-U2 (USB MIDI Device, PWM Audio) (CURRENTLY NOT RECOMMENDED)
 - PRA32-U2/P (PRA32-U2 with Panel) (USB MIDI Device, UART MIDI, I2S, Control Panel)
 
@@ -236,17 +240,15 @@ graph LR
     - Actually, it is necessary to use Raspberry Pi Pico 2 (instead of Raspberry Pi Pico)
 
 
-## [PRA32-U2/P](./README-PRA32-U2-P.md) (PRA32-U2 with Panel) (Optional)
-
-
-## PRA32-U2/M (PRA32-U2 Multi-Timbre Edition) (Optional) (Experimental)
+## PRA32-U2/M (PRA32-U2 Multi-Timbre Edition) (Optional)
 
 - Features
-    - Mode 4 (Omni Off, Mono) (M=4)
-        - Basic Channel + 0 (Default 1): The default program is #4; The FX parameters apply to all channels
-        - Basic Channel + 1 (Default 2): The default program is #5; The FX parameters are disabled
-        - Basic Channel + 2 (Default 3): The default program is #6; The FX parameters are disabled
-        - Basic Channel + 3 (Default 4): The default program is #7; The FX parameters are disabled
+    - Synths
+        - Basic Channel + 0 (Default 1): Main Synth, Poly or Mono; The default program is #0; The FX parameters apply to all channels
+        - Basic Channel + 1 (Default 2): Sub Synth 1, Mono; The default program is #1; The FX parameters are disabled
+        - Basic Channel + 2 (Default 3): Sub Synth 2, Mono; The default program is #2; The FX parameters are disabled
+        - Basic Channel + 3 (Default 4): Sub Synth 3, Mono; The default program is #3; The FX parameters are disabled
+        - *Basic Channels + 1 to + 3 (Sub Synths) are processed only if Basic Channel + 0 (Main Synth) is in Mono modes*
     - Layering
         - Basic Channel - 3 (Default 14): Control Basic Channel + 0 and + 1 simultaneously
             - Results of Program Change: Program # + 0 for Basic Channel + 0 and Program # + 1 for Basic Channel + 1
@@ -255,28 +257,23 @@ graph LR
         - Basic Channel - 1 (Default 16): Control Basic Channel + 0, + 1, + 2, and + 3 simultaneously
             - Results of Program Change: Program # + 0 for Basic Channel + 0, Program # + 1 for Basic Channel + 1, Program # + 2 for Basic Channel + 2, and Program # + 3 for Basic Channel + 3
         - Not to use this feature, comment out `#define PRA32_U2_ENABLE_LAYERING` in "Digital-Synth-PRA32-U2-M.ino"
-- Prebuilt UF2 files ("bin")
-    - "Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico and Pimoroni Pico Audio Pack
 - How to modify
     - Copy all files in the "Digital-Synth-PRA32-U2" folder, except for "Digital-Synth-PRA32-U2.ino", to the "Digital-Synth-PRA32-U2-M" folder
     - "Digital-Synth-PRA32-U2-M.ino" is a Arduino sketch
-- **PRA32-U2/M/P** (Optional) (Experimental)
-    - Uncomment out `//#define PRA32_U2_USE_CONTROL_PANEL`
-    - Prev Key + Next Key: Push to go to the next synth (channel)
-        - "$0" -> "$1" -> ... -> "$6" -> "$0"
-        - "$0" to "$3": Basic Channel + 0 to Basic Channel + 3 (Mono)
-        - "$4" to "$6": Basic Channel - 3 to Basic Channel - 1 (Layering)
+
+
+## [PRA32-U2/P](./README-PRA32-U2-P.md) (PRA32-U2 with Panel) (Optional)
 
 
 ## License
 
 ![CC0](http://i.creativecommons.org/p/zero/1.0/88x31.png)
 
-**Digital Synth PRA32-U2 v2.13.0 by ISGK Instruments (Ryo Ishigaki)**
+**Digital Synth PRA32-U2 v2.14.0 by ISGK Instruments (Ryo Ishigaki)**
 
 To the extent possible under law, ISGK Instruments (Ryo Ishigaki)
 has waived all copyright and related or neighboring rights
-to Digital Synth PRA32-U2 v2.13.0.
+to Digital Synth PRA32-U2 v2.14.0.
 
 You should have received a copy of the CC0 legalcode along with this
 work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.

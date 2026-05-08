@@ -2,7 +2,7 @@
  * Digital Synth PRA32-U2/M
  */
 
-#define PRA32_U2_VERSION                       "v2.13.0   "
+#define PRA32_U2_VERSION                       "v2.14.0   "
 
 //#define PRA32_U2_USE_DEBUG_PRINT
 
@@ -41,7 +41,7 @@
 #define PRA32_U2_PWM_AUDIO_L_PIN               (28)
 #define PRA32_U2_PWM_AUDIO_R_PIN               (27)
 
-//#define PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING
+#define PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING
 //#define PRA32_U2_ENABLE_POLY_ON_1_CORE
 
 #define PRA32_U2_USE_EMULATED_EEPROM
@@ -95,10 +95,11 @@ uint8_t g_midi_ch = PRA32_U2_MIDI_CH;
 #include "pra32-u2-common.h"
 #include "pra32-u2-synth.h"
 
-PRA32_U2_Synth<false, true,  true, 0> g_synth;
-PRA32_U2_Synth<true,  true,  true, 1> g_sub_1_synth;
-PRA32_U2_Synth<true,  false, true, 2> g_sub_2_synth;
-PRA32_U2_Synth<true,  false, true, 3> g_sub_3_synth;
+boolean g_synth_is_in_polyphonic_mode = true;
+PRA32_U2_Synth<false, true,  true, 0, false, false> g_synth;
+PRA32_U2_Synth<true,  true,  true, 1, false, true>  g_sub_1_synth;
+PRA32_U2_Synth<true,  false, true, 2, false, true>  g_sub_2_synth;
+PRA32_U2_Synth<true,  false, true, 3, false, true>  g_sub_3_synth;
 
 #include <MIDI.h>
 #if defined(PRA32_U2_USE_USB_MIDI)
@@ -171,16 +172,27 @@ void __not_in_flash_func(loop1)() {
     int16_t sub_3_synth_output_r;
     int32_t sub_3_synth_output_l_int32;
     int32_t sub_3_synth_output_r_int32;
-    sub_3_synth_output_l = g_sub_3_synth.process(0, 0, sub_3_synth_output_r, sub_3_synth_output_l_int32, sub_3_synth_output_r_int32);
+    if (g_synth_is_in_polyphonic_mode == false) {
+      sub_3_synth_output_l = g_sub_3_synth.process(0, 0, sub_3_synth_output_r, sub_3_synth_output_l_int32, sub_3_synth_output_r_int32);
+    }
     static_cast<void>(sub_3_synth_output_l);
     static_cast<void>(sub_3_synth_output_r);
 
     int16_t sub_1_synth_output_l;
     int16_t sub_1_synth_output_r;
-    sub_1_synth_output_l = g_sub_1_synth.process<false, true>(sub_3_synth_output_l_int32, sub_3_synth_output_r_int32,
-                                                              sub_1_synth_output_r, s_secondary_core_processing_result_l, s_secondary_core_processing_result_r);
+    if (g_synth_is_in_polyphonic_mode == false) {
+      sub_1_synth_output_l = g_sub_1_synth.process<false, true>(sub_3_synth_output_l_int32, sub_3_synth_output_r_int32,
+                                                                sub_1_synth_output_r, s_secondary_core_processing_result_l, s_secondary_core_processing_result_r);
+    } else {
+      s_secondary_core_processing_result_l = 0;
+      s_secondary_core_processing_result_r = 0;
+    }
     static_cast<void>(sub_1_synth_output_l);
     static_cast<void>(sub_1_synth_output_r);
+
+    while (processed == false) {
+      processed = g_synth.secondary_core_process();
+    }
 
     s_secondary_core_processing_request = 0;
     processed = true;
@@ -349,6 +361,14 @@ void __not_in_flash_func(loop)() {
 
   PRA32_U2_ControlPanel_update_control();
 
+  boolean mode = g_synth.is_in_polyphonic_mode();
+  if (g_synth_is_in_polyphonic_mode != mode) {
+    g_synth_is_in_polyphonic_mode = mode;
+    g_sub_1_synth.all_notes_off(true);
+    g_sub_2_synth.all_notes_off(true);
+    g_sub_3_synth.all_notes_off(true);
+  }
+
 #if defined(PRA32_U2_USE_DEBUG_PRINT)
   uint32_t debug_measurement_start1_us = micros();
 #endif  // defined(PRA32_U2_USE_DEBUG_PRINT)
@@ -360,9 +380,11 @@ void __not_in_flash_func(loop)() {
 
     int16_t sub_2_synth_output_l;
     int16_t sub_2_synth_output_r;
-    int32_t sub_2_synth_output_l_int32;
-    int32_t sub_2_synth_output_r_int32;
-    sub_2_synth_output_l = g_sub_2_synth.process(0, 0, sub_2_synth_output_r, sub_2_synth_output_l_int32, sub_2_synth_output_r_int32);
+    int32_t sub_2_synth_output_l_int32 = 0;
+    int32_t sub_2_synth_output_r_int32 = 0;
+    if (g_synth_is_in_polyphonic_mode == false) {
+      sub_2_synth_output_l = g_sub_2_synth.process(0, 0, sub_2_synth_output_r, sub_2_synth_output_l_int32, sub_2_synth_output_r_int32);
+    }
     static_cast<void>(sub_2_synth_output_l);
     static_cast<void>(sub_2_synth_output_r);
 

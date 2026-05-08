@@ -49,6 +49,10 @@ PRA32_U2_Amp()
     m_breath_controller = controller_value;
   }
 
+  INLINE void reset() {
+    m_gain_mod_input = 0;
+  }
+
   INLINE void process_at_low_rate(int16_t gain_mod_input) {
     update_gain_effective();
     m_gain_mod_input = gain_mod_input << 2;
