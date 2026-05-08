@@ -1,5 +1,19 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v2.14.0 (2026-05-09):
+    - Change the smoothing method for oscillator shape modulation
+    - Increase the smoothing speed for filter cutoff modulation
+    - Change the programs #0-15 to user presets and #16-31 to factory presets
+    - Improve "All Sound OFF" behavior
+    - Reduce CPU usage in monophonic modes
+    - PRA32-U2/M: Enable polyphonic mode for Basic Channel + 0 (Main Synth)
+        - Sub Synths are processed only if Main Synth is in monophonic modes
+    - PRA32-U2/M: Change the default programs from #4-7 to #0-3
+    - PRA32-U2/M: All Sound Off when switching to/from Multi-Timbral mode
+    - PRA32-U2/M: Officially support **PRA32-U2/M** (PRA32-U2 Multi-Timbre Edition) and **PRA32-U2/M/P**
+    - Improve customizability
+    - Improve the code
+    - Tested with Arduino-Pico version 5.6.0
 - v2.13.0 (2026-05-02):
     - **Enable UART MIDI by default**
         - GP4 and GP5 pins are used by UART1 TX and UART1 RX

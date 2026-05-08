@@ -77,6 +77,8 @@ static char s_display_buffer[8][21 + 1] = {
   "                     ",
 };
 
+static char s_hex_chars[] = "0123456789ABCDEF";
+
 
 extern void handleNoteOn(byte channel, byte pitch, byte velocity);
 extern void handleNoteOff(byte channel, byte pitch, byte velocity);
@@ -207,7 +209,7 @@ static INLINE void PRA32_U2_ControlPanel_calc_value_display_pitch(uint8_t pitch,
   if (quotient == 0) {
     value_display_text[2] = '-';
   } else {
-    value_display_text[2] = '0' + quotient - 1;
+    value_display_text[2] = s_hex_chars[quotient - 1];
   }
 }
 
@@ -254,12 +256,12 @@ static INLINE void PRA32_U2_ControlPanel_update_page() {
 
 #if (PRA32_U2_NUMBER_OF_SYNTHS > 1)
   s_display_buffer[0][13] = '$';
-  s_display_buffer[0][14] = '0' + s_current_synth;
+  s_display_buffer[0][14] = s_hex_chars[getTargetMIDICh(s_current_synth) - 1];
 #endif  // (PRA32_U2_NUMBER_OF_SYNTHS > 1)
 
 #if defined(PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN) || defined(PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN)
   s_display_buffer[0][16] = '#';
-  s_display_buffer[0][17] = '0' + s_current_program[s_current_synth];
+  s_display_buffer[0][17] = s_hex_chars[s_current_program[s_current_synth]];
 #endif  // defined(PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN) || defined(PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN)
 
   s_display_draw_counter = -1;
@@ -432,7 +434,7 @@ static INLINE void PRA32_U2_ControlPanel_seq_clock() {
       }
     } while (((s_seq_step & 0x07) != 0) && (((1 << ((s_seq_step & 0x07) - 1)) & s_seq_act_steps) == 0));
 
-    s_display_buffer[0][20] = '0' + (s_seq_step & 0x07);
+    s_display_buffer[0][20] = s_hex_chars[s_seq_step & 0x07];
 
     if (update_scale) {
       s_index_scale     = PRA32_U2_ControlPanel_get_index_scale();
@@ -568,7 +570,7 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
       if (s_adc_control_catched[adc_number]) {
         g_synth.control_change(s_adc_control_target[adc_number], adc_control_value_new);
       }
-    } else if ((s_adc_control_target[adc_number] >= RD_PROGRAM_0) && (s_adc_control_target[adc_number] <= RD_PROGRAM_15)) {
+    } else if ((s_adc_control_target[adc_number] >= RD_PROGRAM_0) && (s_adc_control_target[adc_number] <= RD_PROGRAM_31)) {
       static boolean s_ready_to_read[PROGRAM_NUMBER_MAX + 1] = {};
       uint8_t program_number_to_read = s_adc_control_target[adc_number] - RD_PROGRAM_0;
       if (s_adc_control_value[adc_number] <= 32) {
@@ -858,6 +860,22 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case  RD_PROGRAM_13  :
   case  RD_PROGRAM_14  :
   case  RD_PROGRAM_15  :
+  case  RD_PROGRAM_16  :
+  case  RD_PROGRAM_17  :
+  case  RD_PROGRAM_18  :
+  case  RD_PROGRAM_19  :
+  case  RD_PROGRAM_20  :
+  case  RD_PROGRAM_21  :
+  case  RD_PROGRAM_22  :
+  case  RD_PROGRAM_23  :
+  case  RD_PROGRAM_24  :
+  case  RD_PROGRAM_25  :
+  case  RD_PROGRAM_26  :
+  case  RD_PROGRAM_27  :
+  case  RD_PROGRAM_28  :
+  case  RD_PROGRAM_29  :
+  case  RD_PROGRAM_30  :
+  case  RD_PROGRAM_31  :
   case  WR_PROGRAM_0   :
   case  WR_PROGRAM_1   :
   case  WR_PROGRAM_2   :
@@ -1014,9 +1032,8 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
 
 
 INLINE void PRA32_U2_ControlPanel_setup() {
-  s_current_program[0] = (PROGRAM_NUMBER_DEFAULT + ((PRA32_U2_NUMBER_OF_SYNTHS > 1) * 4) + 0) & USER_PROGRAM_NUMBER_MAX;
-  for (uint32_t i = 1; i < PRA32_U2_NUMBER_OF_SYNTHS; ++i) {
-    s_current_program[i] = (s_current_program[i - 1] + 1) & USER_PROGRAM_NUMBER_MAX;
+  for (uint32_t i = 0; i < PRA32_U2_NUMBER_OF_SYNTHS; ++i) {
+    s_current_program[i] = (i + PROGRAM_NUMBER_DEFAULT + getTargetMIDICh(s_current_synth) - 1) & USER_PROGRAM_NUMBER_MAX;
   }
 
 #if defined(PRA32_U2_KEY_INPUT_PREV_KEY_PIN)
@@ -1255,7 +1272,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
             }
 
             s_current_synth = (s_current_synth + 1) >= PRA32_U2_NUMBER_OF_SYNTHS ? 0 : (s_current_synth + 1);
-            s_display_buffer[0][14] = '0' + s_current_synth;
+            s_display_buffer[0][14] = s_hex_chars[getTargetMIDICh(s_current_synth) - 1];
 
             s_prev_key_long_pressed = true;
             s_next_key_long_pressed = true;
@@ -1340,7 +1357,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
             }
 
             s_current_synth = (s_current_synth + 1) >= PRA32_U2_NUMBER_OF_SYNTHS ? 0 : (s_current_synth + 1);
-            s_display_buffer[0][14] = '0' + s_current_synth;
+            s_display_buffer[0][14] = s_hex_chars[getTargetMIDICh(s_current_synth) - 1];
 
             s_prev_key_long_pressed = true;
             s_next_key_long_pressed = true;
@@ -1428,7 +1445,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
               --s_current_program[s_current_synth];
             }
             handleProgramChange(getTargetMIDICh(s_current_synth), s_current_program[s_current_synth]);
-            s_display_buffer[0][17] = '0' + s_current_program[s_current_synth];
+            s_display_buffer[0][17] = s_hex_chars[s_current_program[s_current_synth]];
           }
 #endif  // defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
         }
@@ -1446,7 +1463,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
             --s_current_program[s_current_synth];
           }
           handleProgramChange(getTargetMIDICh(s_current_synth), s_current_program[s_current_synth]);
-          s_display_buffer[0][17] = '0' + s_current_program[s_current_synth];
+          s_display_buffer[0][17] = s_hex_chars[s_current_program[s_current_synth]];
           return;
         }
       }
@@ -1472,7 +1489,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
               ++s_current_program[s_current_synth];
             }
             handleProgramChange(getTargetMIDICh(s_current_synth), s_current_program[s_current_synth]);
-            s_display_buffer[0][17] = '0' + s_current_program[s_current_synth];
+            s_display_buffer[0][17] = s_hex_chars[s_current_program[s_current_synth]];
           }
 #endif  // defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
         }
@@ -1490,7 +1507,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
             ++s_current_program[s_current_synth];
           }
           handleProgramChange(getTargetMIDICh(s_current_synth), s_current_program[s_current_synth]);
-          s_display_buffer[0][17] = '0' + s_current_program[s_current_synth];
+          s_display_buffer[0][17] = s_hex_chars[s_current_program[s_current_synth]];
           return;
         }
       }

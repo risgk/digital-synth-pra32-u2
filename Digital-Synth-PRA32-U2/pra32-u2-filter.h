@@ -123,6 +123,11 @@ public:
     m_breath_controller = (controller_value * 16384) / 127;
   }
 
+  INLINE void reset() {
+    m_z_1 = 0;
+    m_z_2 = 0;
+  }
+
   INLINE void process_at_low_rate(uint8_t count, int16_t eg_input, int16_t lfo_input, uint16_t osc_pitch) {
     update_coefs(eg_input, lfo_input, osc_pitch);
   }
@@ -159,12 +164,12 @@ private:
     cutoff_candidate += (((osc_pitch - (60 << 8)) * m_cutoff_pitch_amt) + (1 << ((10 - 1) - 2))) >> (10 - 2);
     cutoff_candidate += (m_breath_controller * m_cutoff_breath_amt) >> (14 - 2);
 
-    volatile int32_t cutoff_target = clamp(cutoff_candidate, 0, ((254 << 2) + 1)) << 8;
+    volatile int32_t cutoff_target = clamp(cutoff_candidate, 0, ((254 << 2) + 1)) << (7 - FILTER_TABLE_CUTOFF_EXT_BITS);
 
     if (m_cutoff_current <= cutoff_target) {
-      m_cutoff_current =   cutoff_target  - (((cutoff_target - m_cutoff_current) * 252) >> 8);
+      m_cutoff_current =   cutoff_target  - (((cutoff_target - m_cutoff_current) * 248) >> 8);
     } else {
-      m_cutoff_current = m_cutoff_current + (((cutoff_target - m_cutoff_current) *   4) >> 8);
+      m_cutoff_current = m_cutoff_current + (((cutoff_target - m_cutoff_current) *   8) >> 8);
     }
 
     m_resonance_current += (m_resonance_current < m_resonance_target);
@@ -176,7 +181,7 @@ private:
     // Uncached, untranslated XIP access -- bypass QMI address translation
     filter_table = reinterpret_cast<const int32_t*>(reinterpret_cast<uintptr_t>(filter_table) | 0x1c000000u);
 #endif
-    size_t index = ((((m_cutoff_current + (1 << (8 - 1))) >> 8) + ((1 << (2 - FILTER_TABLE_CUTOFF_EXT_BITS)) >> 1))
+    size_t index = ((((m_cutoff_current + (1 << ((7 - FILTER_TABLE_CUTOFF_EXT_BITS) - 1))) >> (7 - FILTER_TABLE_CUTOFF_EXT_BITS)) + ((1 << (2 - FILTER_TABLE_CUTOFF_EXT_BITS)) >> 1))
                     >> (2 - FILTER_TABLE_CUTOFF_EXT_BITS)) * 3;
     m_b_2_over_a_0 = filter_table[index + 0];
     m_a_1_over_a_0 = filter_table[index + 1];
