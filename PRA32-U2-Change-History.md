@@ -1,5 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v2.14.1 (2026-??-??):
+    - Rename the Preset #27 "El Organ" to "Elec Organ"
 - v2.14.0 (2026-05-09):
     - Change the smoothing method for oscillator shape modulation
     - Increase the smoothing speed for filter cutoff modulation
