@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v2.14.1 (2026-??-??):
+    - Reset Osc and LFO phase on All Sound Off
     - Rename the Preset #27 "El Organ" to "Elec Organ"
     - Fix the MIDI Implementation Chart
     - Tested with Arduino-Pico version 5.6.0
