@@ -186,9 +186,12 @@ function setupControls() {
         input.value = param.value;
 
         const synthParam = synthNode.parameters.get(param.id);
-        input.addEventListener('input', (e) => {
-            synthParam.value = parseFloat(e.target.value);
-        });
+        if (synthParam) {
+            synthParam.value = param.value;
+            input.addEventListener('input', (e) => {
+                synthParam.value = parseFloat(e.target.value);
+            });
+        }
 
         group.appendChild(label);
         group.appendChild(input);
