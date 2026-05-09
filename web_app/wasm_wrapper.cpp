@@ -11,14 +11,14 @@ uint8_t g_midi_ch = 0;
 void digitalWrite(uint8_t pin, uint8_t val) {}
 
 #define PRA32_U2_USE_EMULATED_EEPROM 1
-#define PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S 0
+//#define PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S 0
 
 #include "pra32-u2-synth.h"
 #include <emscripten.h>
 
 PRA32_U2_Synth<false, false, false, 4> synth;
 
-const int BLOCK_SIZE = 128;
+const int BLOCK_SIZE = 4096;
 int16_t outputBufferLeft[BLOCK_SIZE];
 int16_t outputBufferRight[BLOCK_SIZE];
 

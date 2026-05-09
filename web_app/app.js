@@ -87,12 +87,11 @@ function setupControls() {
     });
 
     document.getElementById('delayTime').addEventListener('input', (e) => {
-        sendCC(12, parseInt(e.target.value));
+        sendCC(90, parseInt(e.target.value));
     });
 
     document.getElementById('osc1shape').addEventListener('input', (e) => {
-        sendCC(19, parseInt(e.target.value));
-    });
+        sendCC(14, parseInt(e.target.value));
     });
 
     const bitCrushParam = synthNode.parameters.get('bitCrush');
@@ -224,7 +223,7 @@ function onMIDIMessage(message) {
         // Update UI if we have a matching control
         if (data1 === 74) updateSlider('cutoff', data2);
         if (data1 === 71) updateSlider('resonance', data2);
-        if (data1 === 12) updateSlider('delayTime', data2);
+        if (data1 === 90) updateSlider('delayTime', data2);
         if (data1 === 14) updateSlider('osc1shape', data2);
     }
 }
