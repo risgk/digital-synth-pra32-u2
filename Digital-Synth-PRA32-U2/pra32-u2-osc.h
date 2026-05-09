@@ -458,6 +458,11 @@ public:
   }
 
   template <uint8_t N>
+  INLINE void reset() {
+    m_phase[N] = 0;
+  }
+
+  template <uint8_t N>
   INLINE void process_at_low_rate(uint32_t count, int16_t lfo_level, int16_t eg_level, int16_t noise_int15) {
     update_pitch_current<N>();
     update_osc1_shape<N>(lfo_level, eg_level);
