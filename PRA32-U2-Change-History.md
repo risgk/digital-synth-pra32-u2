@@ -2,6 +2,8 @@
 
 - v2.14.1 (2026-??-??):
     - Rename the Preset #27 "El Organ" to "Elec Organ"
+    - Fix the MIDI Implementation Chart
+    - Tested with Arduino-Pico version 5.6.0
 - v2.14.0 (2026-05-09):
     - Change the smoothing method for oscillator shape modulation
     - Increase the smoothing speed for filter cutoff modulation
