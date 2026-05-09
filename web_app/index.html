@@ -21,8 +21,8 @@
             border: 4px solid #444;
             border-radius: 10px;
             padding: 30px;
-            width: 80%;
-            max-width: 600px;
+            width: 90%;
+            max-width: 1200px;
             box-shadow: 10px 10px 0px #000;
         }
 
@@ -36,9 +36,15 @@
 
         .controls {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(4, 1fr);
             gap: 20px;
             margin-top: 20px;
+        }
+
+        @media (max-width: 800px) {
+            .controls {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
 
         .control-group {
@@ -136,32 +142,8 @@
 
         <div id="status">Status: Waiting to start...</div>
 
-        <div class="controls">
-            <div class="control-group">
-                <label for="cutoff">Cutoff (CC 74)</label>
-                <input type="range" id="cutoff" min="0" max="127" value="64">
-            </div>
-            <div class="control-group">
-                <label for="resonance">Resonance (CC 71)</label>
-                <input type="range" id="resonance" min="0" max="127" value="0">
-            </div>
-            <div class="control-group">
-                <label for="delayTime">Delay Time (CC 90)</label>
-                <input type="range" id="delayTime" min="0" max="127" value="64">
-            </div>
-            <div class="control-group">
-                <label for="osc1shape">Osc1 Shape (CC 14)</label>
-                <input type="range" id="osc1shape" min="0" max="127" value="0">
-            </div>
-
-            <div class="control-group">
-                <label for="bitCrush">Hacker: Bitcrush</label>
-                <input type="range" id="bitCrush" min="0" max="1" step="0.01" value="0">
-            </div>
-            <div class="control-group">
-                <label for="pwmSimulate">Hacker: PWM Noise</label>
-                <input type="range" id="pwmSimulate" min="0" max="1" step="0.01" value="0">
-            </div>
+        <div id="synth-controls" class="controls">
+            <!-- Controls generated in JS -->
         </div>
 
         <div class="keyboard" id="keyboard">

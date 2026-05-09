@@ -27,6 +27,7 @@ extern "C" {
 EMSCRIPTEN_KEEPALIVE
 void initSynth() {
     synth.initialize();
+    synth.program_change(15); // Load Initial preset
 }
 
 EMSCRIPTEN_KEEPALIVE
