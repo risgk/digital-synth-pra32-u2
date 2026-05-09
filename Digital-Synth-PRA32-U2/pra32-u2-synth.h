@@ -877,6 +877,13 @@ public:
     m_last_note_on_index = 3;
 
     if (all_sound_off) {
+      m_lfo.reset();
+
+      m_osc.reset<0>();
+      m_osc.reset<1>();
+      m_osc.reset<2>();
+      m_osc.reset<3>();
+
       m_filter[0].reset();
       m_filter[1].reset();
       m_filter[2].reset();
