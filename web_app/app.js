@@ -132,6 +132,8 @@ const synthParameters = [
   { id: 'delayFeedback', name: 'DELAY FEEDBACK', cc: 92, value: 64 }
 ];
 
+const ccToParam = new Map(synthParameters.map(p => [p.cc, p]));
+
 function setupControls() {
     const controlsDiv = document.getElementById('synth-controls');
     controlsDiv.innerHTML = ''; // Clear initial layout
@@ -186,12 +188,9 @@ function setupControls() {
         input.value = param.value;
 
         const synthParam = synthNode.parameters.get(param.id);
-        if (synthParam) {
-            synthParam.value = param.value;
-            input.addEventListener('input', (e) => {
-                synthParam.value = parseFloat(e.target.value);
-            });
-        }
+        input.addEventListener('input', (e) => {
+            synthParam.value = parseFloat(e.target.value);
+        });
 
         group.appendChild(label);
         group.appendChild(input);
@@ -315,7 +314,7 @@ function onMIDIMessage(message) {
         sendCC(data1, data2);
 
         // Update UI if we have a matching control
-        const param = synthParameters.find(p => p.cc === data1);
+        const param = ccToParam.get(data1);
         if (param) {
             updateSlider(param.id, data2);
         }
