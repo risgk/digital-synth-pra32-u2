@@ -77,31 +77,124 @@ function sendNoteOff(note) {
     }
 }
 
+const synthParameters = [
+  { id: 'osc1Wave', name: 'OSC 1 WAVE', cc: 102, value: 0 },
+  { id: 'mixerSubOsc', name: 'MIXER SUB OSC', cc: 23, value: 64 },
+  { id: 'osc1Shape', name: 'OSC 1 SHAPE', cc: 19, value: 0 },
+  { id: 'osc1Morph', name: 'OSC 1 MORPH', cc: 20, value: 0 },
+  { id: 'osc2Wave', name: 'OSC 2 WAVE', cc: 104, value: 0 },
+  { id: 'mixerOscMix', name: 'MIXER OSC MIX', cc: 21, value: 0 },
+  { id: 'osc2Coarse', name: 'OSC 2 COARSE', cc: 85, value: 64 },
+  { id: 'osc2Pitch', name: 'OSC 2 PITCH', cc: 76, value: 64 },
+  { id: 'filterCutoff', name: 'FILTER CUTOFF', cc: 74, value: 127 },
+  { id: 'filterReso', name: 'FILTER RESO', cc: 71, value: 0 },
+  { id: 'filterEgAmt', name: 'FILTER EG AMT', cc: 24, value: 64 },
+  { id: 'filterKeyTrk', name: 'FILTER KEY TRK', cc: 9, value: 64 },
+  { id: 'egAttack', name: 'EG ATTACK', cc: 73, value: 0 },
+  { id: 'egDecay', name: 'EG DECAY', cc: 75, value: 0 },
+  { id: 'egSustain', name: 'EG SUSTAIN', cc: 30, value: 127 },
+  { id: 'egRelease', name: 'EG RELEASE', cc: 72, value: 0 },
+  { id: 'egOscAmt', name: 'EG OSC AMT', cc: 89, value: 64 },
+  { id: 'egOscDst', name: 'EG OSC DST', cc: 8, value: 0 },
+  { id: 'voiceMode', name: 'VOICE MODE', cc: 18, value: 127 },
+  { id: 'portamento', name: 'PORTAMENTO', cc: 5, value: 0 },
+  { id: 'lfoWave', name: 'LFO WAVE', cc: 33, value: 0 },
+  { id: 'lfoFadeTime', name: 'LFO FADE TIME', cc: 56, value: 0 },
+  { id: 'lfoRate', name: 'LFO RATE', cc: 3, value: 80 },
+  { id: 'lfoDepth', name: 'LFO DEPTH', cc: 17, value: 0 },
+  { id: 'lfoOscAmt', name: 'LFO OSC AMT', cc: 13, value: 64 },
+  { id: 'lfoOscDst', name: 'LFO OSC DST', cc: 103, value: 0 },
+  { id: 'lfoFilterAmt', name: 'LFO FILTER AMT', cc: 25, value: 64 },
+  { id: 'ampGain', name: 'AMP GAIN', cc: 15, value: 100 },
+  { id: 'ampAttack', name: 'AMP ATTACK', cc: 52, value: 0 },
+  { id: 'ampDecay', name: 'AMP DECAY', cc: 53, value: 0 },
+  { id: 'ampSustain', name: 'AMP SUSTAIN', cc: 54, value: 127 },
+  { id: 'ampRelease', name: 'AMP RELEASE', cc: 55, value: 0 },
+  { id: 'filterMode', name: 'FILTER MODE', cc: 39, value: 0 },
+  { id: 'pBendRange', name: 'P BEND RANGE', cc: 57, value: 2 },
+  { id: 'egAmpMod', name: 'EG AMP MOD', cc: 36, value: 0 },
+  { id: 'relEqDecay', name: 'REL EQ DECAY', cc: 105, value: 0 },
+  { id: 'bthFilterAmt', name: 'BTH FILTER AMT', cc: 60, value: 64 },
+  { id: 'bthAmpMod', name: 'BTH AMP MOD', cc: 61, value: 0 },
+  { id: 'egVelSens', name: 'EG VEL SENS', cc: 62, value: 0 },
+  { id: 'ampVelSens', name: 'AMP VEL SENS', cc: 63, value: 0 },
+  { id: 'aftTLfoAmt', name: 'AFT T LFO AMT', cc: 109, value: 0 },
+  { id: 'voiceAsgnMode', name: 'VOICE ASGN MODE', cc: 110, value: 0 },
+  { id: 'pan', name: 'PAN', cc: 10, value: 64 },
+  { id: 'oscDrift', name: 'OSC DRIFT', cc: 82, value: 32 },
+  { id: 'oscSawWMode', name: 'OSC SAW W MODE', cc: 83, value: 127 },
+  { id: 'chorusMix', name: 'CHORUS MIX', cc: 93, value: 0 },
+  { id: 'chorusRate', name: 'CHORUS RATE', cc: 58, value: 64 },
+  { id: 'chorusDepth', name: 'CHORUS DEPTH', cc: 59, value: 64 },
+  { id: 'delayLevel', name: 'DELAY LEVEL', cc: 94, value: 0 },
+  { id: 'delayMode', name: 'DELAY MODE', cc: 35, value: 0 },
+  { id: 'delayTime', name: 'DELAY TIME', cc: 90, value: 87 },
+  { id: 'delayFeedback', name: 'DELAY FEEDBACK', cc: 92, value: 64 }
+];
+
+const ccToParam = new Map(synthParameters.map(p => [p.cc, p]));
+
 function setupControls() {
-    document.getElementById('cutoff').addEventListener('input', (e) => {
-        sendCC(74, parseInt(e.target.value));
+    const controlsDiv = document.getElementById('synth-controls');
+    controlsDiv.innerHTML = ''; // Clear initial layout
+
+    synthParameters.forEach(param => {
+        const group = document.createElement('div');
+        group.className = 'control-group';
+
+        const label = document.createElement('label');
+        label.htmlFor = param.id;
+        label.textContent = `${param.name} (CC ${param.cc})`;
+
+        const input = document.createElement('input');
+        input.type = 'range';
+        input.id = param.id;
+        input.min = 0;
+        input.max = 127;
+        input.value = param.value;
+
+        input.addEventListener('input', (e) => {
+            sendCC(param.cc, parseInt(e.target.value));
+        });
+
+        // Sync initial value immediately
+        sendCC(param.cc, param.value);
+
+        group.appendChild(label);
+        group.appendChild(input);
+        controlsDiv.appendChild(group);
     });
 
-    document.getElementById('resonance').addEventListener('input', (e) => {
-        sendCC(71, parseInt(e.target.value));
-    });
+    // Hacker Controls
+    const hackerControls = [
+        { id: 'bitCrush', name: 'Hacker: Bitcrush', min: 0, max: 1, step: 0.01, value: 0 },
+        { id: 'pwmSimulate', name: 'Hacker: PWM Noise', min: 0, max: 1, step: 0.01, value: 0 }
+    ];
 
-    document.getElementById('delayTime').addEventListener('input', (e) => {
-        sendCC(90, parseInt(e.target.value));
-    });
+    hackerControls.forEach(param => {
+        const group = document.createElement('div');
+        group.className = 'control-group';
 
-    document.getElementById('osc1shape').addEventListener('input', (e) => {
-        sendCC(14, parseInt(e.target.value));
-    });
+        const label = document.createElement('label');
+        label.htmlFor = param.id;
+        label.textContent = param.name;
 
-    const bitCrushParam = synthNode.parameters.get('bitCrush');
-    document.getElementById('bitCrush').addEventListener('input', (e) => {
-        bitCrushParam.value = parseFloat(e.target.value);
-    });
+        const input = document.createElement('input');
+        input.type = 'range';
+        input.id = param.id;
+        input.min = param.min;
+        input.max = param.max;
+        input.step = param.step;
+        input.value = param.value;
 
-    const pwmSimulateParam = synthNode.parameters.get('pwmSimulate');
-    document.getElementById('pwmSimulate').addEventListener('input', (e) => {
-        pwmSimulateParam.value = parseFloat(e.target.value);
+        const synthParam = synthNode.parameters.get(param.id);
+        input.addEventListener('input', (e) => {
+            synthParam.value = parseFloat(e.target.value);
+        });
+
+        group.appendChild(label);
+        group.appendChild(input);
+        controlsDiv.appendChild(group);
     });
 
     // Keyboard
@@ -221,10 +314,10 @@ function onMIDIMessage(message) {
         sendCC(data1, data2);
 
         // Update UI if we have a matching control
-        if (data1 === 74) updateSlider('cutoff', data2);
-        if (data1 === 71) updateSlider('resonance', data2);
-        if (data1 === 90) updateSlider('delayTime', data2);
-        if (data1 === 14) updateSlider('osc1shape', data2);
+        const param = ccToParam.get(data1);
+        if (param) {
+            updateSlider(param.id, data2);
+        }
     }
 }
 
