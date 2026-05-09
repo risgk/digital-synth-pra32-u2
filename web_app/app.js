@@ -91,7 +91,8 @@ function setupControls() {
     });
 
     document.getElementById('osc1shape').addEventListener('input', (e) => {
-        sendCC(14, parseInt(e.target.value));
+        sendCC(19, parseInt(e.target.value));
+    });
     });
 
     const bitCrushParam = synthNode.parameters.get('bitCrush');
