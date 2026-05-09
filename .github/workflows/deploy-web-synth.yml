@@ -1,0 +1,43 @@
+name: Deploy Web Synth
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Emscripten
+        uses: mymindstorm/setup-emsdk@v14
+
+      - name: Compile WASM Wrapper
+        run: |
+          cd web_app
+          emcc wasm_wrapper.cpp -I../Digital-Synth-PRA32-U2 -I. -O3 --no-entry -s STANDALONE_WASM=1 -s EXPORTED_FUNCTIONS="['_initSynth', '_processAudioBlock', '_noteOn', '_noteOff', '_controlChange', '_getLeftBuffer', '_getRightBuffer']" -o synth.wasm
+
+      - name: Prepare dist folder
+        run: |
+          mkdir dist
+          cp web_app/index.html dist/
+          cp web_app/app.js dist/
+          cp web_app/synth-processor.js dist/
+          cp web_app/synth.wasm dist/
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
