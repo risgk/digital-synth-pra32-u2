@@ -77,6 +77,29 @@ function sendNoteOff(note) {
     }
 }
 
+let factoryPresets = null;
+
+async function loadPresets() {
+    try {
+        const response = await fetch('data/presets.json');
+        const data = await response.json();
+
+        // Transform the arrays from the json to the format we need
+        factoryPresets = {};
+        for (const key in data) {
+            if (!key.startsWith('_')) {
+                const paramName = key.trim();
+                factoryPresets[paramName] = data[key][1]; // The actual presets are in the second array
+            }
+        }
+    } catch (e) {
+        console.error("Failed to load presets", e);
+    }
+}
+
+// Load presets immediately
+loadPresets();
+
 const synthParameters = [
   { id: 'osc1Wave', name: 'OSC 1 WAVE', cc: 102, value: 0 },
   { id: 'mixerSubOsc', name: 'MIXER SUB OSC', cc: 23, value: 64 },
@@ -165,6 +188,38 @@ function setupControls() {
         controlsDiv.appendChild(group);
     });
 
+    // Preset selection
+    const presetSelect = document.getElementById('preset-select');
+    if (presetSelect) {
+        presetSelect.addEventListener('change', (e) => {
+            const presetIndex = parseInt(e.target.value);
+
+            if (presetIndex < 0) {
+                // Restore to init preset (preset 0)
+                synthParameters.forEach(param => {
+                    const paramKeyName = param.name.replace(/ /g, '_');
+                    if (factoryPresets[paramKeyName] && factoryPresets[paramKeyName][0] !== undefined) {
+                        const newValue = factoryPresets[paramKeyName][0];
+                        param.value = newValue;
+                        updateSlider(param.id, newValue);
+                        sendCC(param.cc, newValue);
+                    }
+                });
+                return;
+            }
+
+            synthParameters.forEach(param => {
+                const paramKeyName = param.name.replace(/ /g, '_');
+                if (factoryPresets[paramKeyName] && factoryPresets[paramKeyName][presetIndex] !== undefined) {
+                    const newValue = factoryPresets[paramKeyName][presetIndex];
+                    param.value = newValue;
+                    updateSlider(param.id, newValue);
+                    sendCC(param.cc, newValue);
+                }
+            });
+        });
+    }
+
     // Hacker Controls
     const hackerControls = [
         { id: 'bitCrush', name: 'Hacker: Bitcrush', min: 0, max: 1, step: 0.01, value: 0 },
@@ -221,15 +276,27 @@ function setupControls() {
         el.className = `key ${k.type}`;
         el.dataset.note = baseNote + k.note;
 
-        el.addEventListener('mousedown', () => {
+        el.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
             sendNoteOn(baseNote + k.note);
             el.classList.add('active');
         });
-        el.addEventListener('mouseup', () => {
-            sendNoteOff(baseNote + k.note);
-            el.classList.remove('active');
+        el.addEventListener('pointerup', (e) => {
+            e.preventDefault();
+            if(el.classList.contains('active')) {
+                sendNoteOff(baseNote + k.note);
+                el.classList.remove('active');
+            }
         });
-        el.addEventListener('mouseleave', () => {
+        el.addEventListener('pointercancel', (e) => {
+            e.preventDefault();
+            if(el.classList.contains('active')) {
+                sendNoteOff(baseNote + k.note);
+                el.classList.remove('active');
+            }
+        });
+        el.addEventListener('pointerleave', (e) => {
+            e.preventDefault();
             if(el.classList.contains('active')) {
                 sendNoteOff(baseNote + k.note);
                 el.classList.remove('active');
