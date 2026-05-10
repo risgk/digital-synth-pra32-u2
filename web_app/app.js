@@ -77,73 +77,28 @@ function sendNoteOff(note) {
     }
 }
 
-const factoryPresets = {
-  "OSC_1_WAVE"     : [ 0  , 0  , 76 , 127, 0  , 25 , 0  , 0  ],
-  "MIXER_SUB_OSC"  : [ 64 , 64 , 64 , 64 , 127, 96 , 127, 64 ],
-  "OSC_1_SHAPE"    : [ 64 , 64 , 0  , 0  , 64 , 64 , 0  , 0  ],
-  "OSC_1_MORPH"    : [ 0  , 127, 108, 64 , 0  , 127, 0  , 0  ],
+let factoryPresets = null;
 
-  "OSC_2_WAVE"     : [ 0  , 0  , 0  , 0  , 0  , 25 , 0  , 0  ],
-  "MIXER_OSC_MIX"  : [ 64 , 0  , 64 , 0  , 64 , 0  , 64 , 0  ],
-  "OSC_2_COARSE"   : [ 64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ],
-  "OSC_2_PITCH"    : [ 72 , 72 , 72 , 72 , 66 , 72 , 66 , 64 ],
+async function loadPresets() {
+    try {
+        const response = await fetch('data/presets.json');
+        const data = await response.json();
 
-  "FILTER_CUTOFF"  : [ 112, 112, 88 , 127, 88 , 112, 40 , 127],
-  "FILTER_RESO"    : [ 48 , 48 , 48 , 48 , 48 , 48 , 80 , 0  ],
-  "FILTER_EG_AMT"  : [ 40 , 64 , 64 , 64 , 76 , 64 , 88 , 64 ],
-  "FILTER_KEY_TRK" : [ 96 , 96 , 96 , 96 , 64 , 64 , 64 , 64 ],
+        // Transform the arrays from the json to the format we need
+        factoryPresets = {};
+        for (const key in data) {
+            if (!key.startsWith('_')) {
+                const paramName = key.trim();
+                factoryPresets[paramName] = data[key][1]; // The actual presets are in the second array
+            }
+        }
+    } catch (e) {
+        console.error("Failed to load presets", e);
+    }
+}
 
-  "EG_ATTACK"      : [ 96 , 32 , 32 , 32 , 32 , 32 , 32 , 0  ],
-  "EG_DECAY"       : [ 96 , 32 , 96 , 32 , 32 , 96 , 100, 0  ],
-  "EG_SUSTAIN"     : [ 0  , 127, 0  , 127, 127, 0  , 0  , 127],
-  "EG_RELEASE"     : [ 32 , 32 , 32 , 32 , 32 , 32 , 32 , 0  ],
-
-  "EG_OSC_AMT"     : [ 64 , 64 , 72 , 64 , 64 , 72 , 64 , 64 ],
-  "EG_OSC_DST"     : [ 0  , 0  , 127, 0  , 0  , 127, 0  , 0  ],
-  "VOICE_MODE"     : [ 0  , 0  , 0  , 0  , 127, 76 , 76 , 127],
-  "PORTAMENTO"     : [ 48 , 0  , 0  , 0  , 48 , 48 , 0  , 0  ],
-
-  "LFO_WAVE"       : [ 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ],
-  "LFO_FADE_TIME"  : [ 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ],
-  "LFO_RATE"       : [ 80 , 80 , 80 , 80 , 80 , 80 , 80 , 80 ],
-  "LFO_DEPTH"      : [ 0  , 0  , 0  , 127, 8  , 0  , 0  , 0  ],
-
-  "LFO_OSC_AMT"    : [ 64 , 64 , 64 , 64 , 96 , 72 , 64 , 64 ],
-  "LFO_OSC_DST"    : [ 0  , 0  , 127, 0  , 0  , 127, 0  , 0  ],
-  "LFO_FILTER_AMT" : [ 76 , 76 , 76 , 64 , 64 , 64 , 76 , 64 ],
-  "AMP_GAIN"       : [ 100, 100, 120, 100, 100, 90 , 110, 100],
-
-  "AMP_ATTACK"     : [ 32 , 32 , 32 , 32 , 32 , 32 , 32 , 0  ],
-  "AMP_DECAY"      : [ 32 , 32 , 32 , 32 , 32 , 32 , 32 , 0  ],
-  "AMP_SUSTAIN"    : [ 127, 127, 127, 127, 127, 127, 127, 127],
-  "AMP_RELEASE"    : [ 32 , 32 , 32 , 32 , 32 , 32 , 32 , 0  ],
-
-  "FILTER_MODE"    : [ 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ],
-  "P_BEND_RANGE"   : [ 2  , 2  , 2  , 2  , 2  , 2  , 2  , 2  ],
-  "EG_AMP_MOD"     : [ 0  , 127, 127, 127, 0  , 0  , 127, 0  ],
-  "REL_EQ_DECAY"   : [ 127, 127, 127, 127, 127, 127, 127, 0  ],
-
-  "BTH_FILTER_AMT" : [ 64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ],
-  "BTH_AMP_MOD"    : [ 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ],
-  "EG_VEL_SENS"    : [ 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ],
-  "AMP_VEL_SENS"   : [ 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ],
-
-  "AFT_T_LFO_AMT"  : [ 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ],
-  "VOICE_ASGN_MODE": [ 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ],
-  "PAN"            : [ 64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ],
-
-  "OSC_DRIFT"      : [ 32 , 32 , 32 , 32 , 32 , 32 , 32 , 32 ],
-  "OSC_SAW_W_MODE" : [ 127, 127, 127, 127, 127, 127, 127, 127],
-
-  "CHORUS_MIX"     : [ 127, 127, 127, 127, 127, 127, 127, 0  ],
-  "CHORUS_RATE"    : [ 64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ],
-  "CHORUS_DEPTH"   : [ 64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ],
-
-  "DELAY_LEVEL"    : [ 64 , 64 , 64 , 64 , 64 , 64 , 64 , 0  ],
-  "DELAY_MODE"     : [ 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ],
-  "DELAY_TIME"     : [ 87 , 87 , 87 , 87 , 87 , 87 , 87 , 87 ],
-  "DELAY_FEEDBACK" : [ 64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ]
-};
+// Load presets immediately
+loadPresets();
 
 const synthParameters = [
   { id: 'osc1Wave', name: 'OSC 1 WAVE', cc: 102, value: 0 },
@@ -238,7 +193,20 @@ function setupControls() {
     if (presetSelect) {
         presetSelect.addEventListener('change', (e) => {
             const presetIndex = parseInt(e.target.value);
-            if (presetIndex < 0) return;
+
+            if (presetIndex < 0) {
+                // Restore to init preset (preset 0)
+                synthParameters.forEach(param => {
+                    const paramKeyName = param.name.replace(/ /g, '_');
+                    if (factoryPresets[paramKeyName] && factoryPresets[paramKeyName][0] !== undefined) {
+                        const newValue = factoryPresets[paramKeyName][0];
+                        param.value = newValue;
+                        updateSlider(param.id, newValue);
+                        sendCC(param.cc, newValue);
+                    }
+                });
+                return;
+            }
 
             synthParameters.forEach(param => {
                 const paramKeyName = param.name.replace(/ /g, '_');
