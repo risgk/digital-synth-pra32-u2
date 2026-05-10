@@ -3,6 +3,7 @@
 - v2.14.1 (2026-??-??):
     - Reset Osc and LFO phase on All Sound Off
     - Rename the Preset #27 "El Organ" to "Elec Organ"
+    - Improve the code for smoothing
     - Fix the MIDI Implementation Chart
     - Tested with Arduino-Pico version 5.6.0
 - v2.14.0 (2026-05-09):
