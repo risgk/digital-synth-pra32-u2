@@ -77,6 +77,74 @@ function sendNoteOff(note) {
     }
 }
 
+const factoryPresets = {
+  "OSC_1_WAVE"     : [ 0  , 0  , 76 , 127, 0  , 25 , 0  , 0  ],
+  "MIXER_SUB_OSC"  : [ 64 , 64 , 64 , 64 , 127, 96 , 127, 64 ],
+  "OSC_1_SHAPE"    : [ 64 , 64 , 0  , 0  , 64 , 64 , 0  , 0  ],
+  "OSC_1_MORPH"    : [ 0  , 127, 108, 64 , 0  , 127, 0  , 0  ],
+
+  "OSC_2_WAVE"     : [ 0  , 0  , 0  , 0  , 0  , 25 , 0  , 0  ],
+  "MIXER_OSC_MIX"  : [ 64 , 0  , 64 , 0  , 64 , 0  , 64 , 0  ],
+  "OSC_2_COARSE"   : [ 64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ],
+  "OSC_2_PITCH"    : [ 72 , 72 , 72 , 72 , 66 , 72 , 66 , 64 ],
+
+  "FILTER_CUTOFF"  : [ 112, 112, 88 , 127, 88 , 112, 40 , 127],
+  "FILTER_RESO"    : [ 48 , 48 , 48 , 48 , 48 , 48 , 80 , 0  ],
+  "FILTER_EG_AMT"  : [ 40 , 64 , 64 , 64 , 76 , 64 , 88 , 64 ],
+  "FILTER_KEY_TRK" : [ 96 , 96 , 96 , 96 , 64 , 64 , 64 , 64 ],
+
+  "EG_ATTACK"      : [ 96 , 32 , 32 , 32 , 32 , 32 , 32 , 0  ],
+  "EG_DECAY"       : [ 96 , 32 , 96 , 32 , 32 , 96 , 100, 0  ],
+  "EG_SUSTAIN"     : [ 0  , 127, 0  , 127, 127, 0  , 0  , 127],
+  "EG_RELEASE"     : [ 32 , 32 , 32 , 32 , 32 , 32 , 32 , 0  ],
+
+  "EG_OSC_AMT"     : [ 64 , 64 , 72 , 64 , 64 , 72 , 64 , 64 ],
+  "EG_OSC_DST"     : [ 0  , 0  , 127, 0  , 0  , 127, 0  , 0  ],
+  "VOICE_MODE"     : [ 0  , 0  , 0  , 0  , 127, 76 , 76 , 127],
+  "PORTAMENTO"     : [ 48 , 0  , 0  , 0  , 48 , 48 , 0  , 0  ],
+
+  "LFO_WAVE"       : [ 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ],
+  "LFO_FADE_TIME"  : [ 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ],
+  "LFO_RATE"       : [ 80 , 80 , 80 , 80 , 80 , 80 , 80 , 80 ],
+  "LFO_DEPTH"      : [ 0  , 0  , 0  , 127, 8  , 0  , 0  , 0  ],
+
+  "LFO_OSC_AMT"    : [ 64 , 64 , 64 , 64 , 96 , 72 , 64 , 64 ],
+  "LFO_OSC_DST"    : [ 0  , 0  , 127, 0  , 0  , 127, 0  , 0  ],
+  "LFO_FILTER_AMT" : [ 76 , 76 , 76 , 64 , 64 , 64 , 76 , 64 ],
+  "AMP_GAIN"       : [ 100, 100, 120, 100, 100, 90 , 110, 100],
+
+  "AMP_ATTACK"     : [ 32 , 32 , 32 , 32 , 32 , 32 , 32 , 0  ],
+  "AMP_DECAY"      : [ 32 , 32 , 32 , 32 , 32 , 32 , 32 , 0  ],
+  "AMP_SUSTAIN"    : [ 127, 127, 127, 127, 127, 127, 127, 127],
+  "AMP_RELEASE"    : [ 32 , 32 , 32 , 32 , 32 , 32 , 32 , 0  ],
+
+  "FILTER_MODE"    : [ 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ],
+  "P_BEND_RANGE"   : [ 2  , 2  , 2  , 2  , 2  , 2  , 2  , 2  ],
+  "EG_AMP_MOD"     : [ 0  , 127, 127, 127, 0  , 0  , 127, 0  ],
+  "REL_EQ_DECAY"   : [ 127, 127, 127, 127, 127, 127, 127, 0  ],
+
+  "BTH_FILTER_AMT" : [ 64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ],
+  "BTH_AMP_MOD"    : [ 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ],
+  "EG_VEL_SENS"    : [ 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ],
+  "AMP_VEL_SENS"   : [ 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ],
+
+  "AFT_T_LFO_AMT"  : [ 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ],
+  "VOICE_ASGN_MODE": [ 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ],
+  "PAN"            : [ 64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ],
+
+  "OSC_DRIFT"      : [ 32 , 32 , 32 , 32 , 32 , 32 , 32 , 32 ],
+  "OSC_SAW_W_MODE" : [ 127, 127, 127, 127, 127, 127, 127, 127],
+
+  "CHORUS_MIX"     : [ 127, 127, 127, 127, 127, 127, 127, 0  ],
+  "CHORUS_RATE"    : [ 64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ],
+  "CHORUS_DEPTH"   : [ 64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ],
+
+  "DELAY_LEVEL"    : [ 64 , 64 , 64 , 64 , 64 , 64 , 64 , 0  ],
+  "DELAY_MODE"     : [ 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ],
+  "DELAY_TIME"     : [ 87 , 87 , 87 , 87 , 87 , 87 , 87 , 87 ],
+  "DELAY_FEEDBACK" : [ 64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ]
+};
+
 const synthParameters = [
   { id: 'osc1Wave', name: 'OSC 1 WAVE', cc: 102, value: 0 },
   { id: 'mixerSubOsc', name: 'MIXER SUB OSC', cc: 23, value: 64 },
@@ -165,6 +233,25 @@ function setupControls() {
         controlsDiv.appendChild(group);
     });
 
+    // Preset selection
+    const presetSelect = document.getElementById('preset-select');
+    if (presetSelect) {
+        presetSelect.addEventListener('change', (e) => {
+            const presetIndex = parseInt(e.target.value);
+            if (presetIndex < 0) return;
+
+            synthParameters.forEach(param => {
+                const paramKeyName = param.name.replace(/ /g, '_');
+                if (factoryPresets[paramKeyName] && factoryPresets[paramKeyName][presetIndex] !== undefined) {
+                    const newValue = factoryPresets[paramKeyName][presetIndex];
+                    param.value = newValue;
+                    updateSlider(param.id, newValue);
+                    sendCC(param.cc, newValue);
+                }
+            });
+        });
+    }
+
     // Hacker Controls
     const hackerControls = [
         { id: 'bitCrush', name: 'Hacker: Bitcrush', min: 0, max: 1, step: 0.01, value: 0 },
@@ -221,15 +308,27 @@ function setupControls() {
         el.className = `key ${k.type}`;
         el.dataset.note = baseNote + k.note;
 
-        el.addEventListener('mousedown', () => {
+        el.addEventListener('pointerdown', (e) => {
+            e.preventDefault();
             sendNoteOn(baseNote + k.note);
             el.classList.add('active');
         });
-        el.addEventListener('mouseup', () => {
-            sendNoteOff(baseNote + k.note);
-            el.classList.remove('active');
+        el.addEventListener('pointerup', (e) => {
+            e.preventDefault();
+            if(el.classList.contains('active')) {
+                sendNoteOff(baseNote + k.note);
+                el.classList.remove('active');
+            }
         });
-        el.addEventListener('mouseleave', () => {
+        el.addEventListener('pointercancel', (e) => {
+            e.preventDefault();
+            if(el.classList.contains('active')) {
+                sendNoteOff(baseNote + k.note);
+                el.classList.remove('active');
+            }
+        });
+        el.addEventListener('pointerleave', (e) => {
+            e.preventDefault();
             if(el.classList.contains('active')) {
                 sendNoteOff(baseNote + k.note);
                 el.classList.remove('active');

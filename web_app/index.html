@@ -114,6 +114,9 @@
             border: 1px solid #000;
             cursor: pointer;
             box-sizing: border-box;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         .key.black {
@@ -141,6 +144,21 @@
         <button id="start-btn">INIT AUDIO ENGINE</button>
 
         <div id="status">Status: Waiting to start...</div>
+
+        <div style="margin-top: 20px; text-align: center;">
+            <label for="preset-select" style="margin-right: 10px;">PRESET:</label>
+            <select id="preset-select" style="background: #444; color: #00ff00; border: 1px solid #00ff00; padding: 5px; font-family: inherit; font-weight: bold; cursor: pointer;">
+                <option value="-1">-- Custom / Default --</option>
+                <option value="0">0: Initialization</option>
+                <option value="1">1: Sync Lead</option>
+                <option value="2">2: Synth Brass</option>
+                <option value="3">3: Pluck Synth</option>
+                <option value="4">4: Mono Synth</option>
+                <option value="5">5: Synth Bass 1</option>
+                <option value="6">6: Synth Bass 2</option>
+                <option value="7">7: Synth Bass 3</option>
+            </select>
+        </div>
 
         <div id="synth-controls" class="controls">
             <!-- Controls generated in JS -->
