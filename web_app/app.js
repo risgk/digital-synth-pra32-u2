@@ -266,82 +266,126 @@ function setupControls(presetsLoaded) {
     });
 
     // Keyboard
+    const isMobileLayout = window.matchMedia('(max-width: 900px)').matches;
+    const keyboardKeyCount = isMobileLayout ? 25 : 13;
+    let octaveOffset = 0;
+    const octaveMin = -2;
+    const octaveMax = 3;
     const baseNote = 60; // C4
     const keyboardDiv = document.getElementById('keyboard');
-    const keys = [
-        { type: 'white', note: 0, key: 'a' },
-        { type: 'black', note: 1, key: 'w' },
-        { type: 'white', note: 2, key: 's' },
-        { type: 'black', note: 3, key: 'e' },
-        { type: 'white', note: 4, key: 'd' },
-        { type: 'white', note: 5, key: 'f' },
-        { type: 'black', note: 6, key: 't' },
-        { type: 'white', note: 7, key: 'g' },
-        { type: 'black', note: 8, key: 'y' },
-        { type: 'white', note: 9, key: 'h' },
-        { type: 'black', note: 10, key: 'u' },
-        { type: 'white', note: 11, key: 'j' },
-        { type: 'white', note: 12, key: 'k' },
-    ];
+    keyboardDiv.classList.toggle('mobile', isMobileLayout);
+    const keyPattern = ['white', 'black', 'white', 'black', 'white', 'white', 'black', 'white', 'black', 'white', 'black', 'white'];
+    const desktopKeys = ['a', 'w', 's', 'e', 'd', 'f', 't', 'g', 'y', 'h', 'u', 'j', 'k'];
+    const keys = [];
+    for (let i = 0; i < keyboardKeyCount; i += 1) {
+        keys.push({
+            type: keyPattern[i % 12],
+            note: i,
+            key: desktopKeys[i]
+        });
+    }
+
+    function getNoteValue(noteOffset) {
+        return baseNote + noteOffset + (octaveOffset * 12);
+    }
 
     keys.forEach(k => {
         const el = document.createElement('div');
         el.className = `key ${k.type}`;
-        el.dataset.note = baseNote + k.note;
+        el.dataset.noteOffset = k.note;
+        el.dataset.note = getNoteValue(k.note);
 
         el.addEventListener('pointerdown', (e) => {
             e.preventDefault();
-            sendNoteOn(baseNote + k.note);
+            sendNoteOn(getNoteValue(k.note));
             el.classList.add('active');
         });
         el.addEventListener('pointerup', (e) => {
             e.preventDefault();
             if(el.classList.contains('active')) {
-                sendNoteOff(baseNote + k.note);
+                sendNoteOff(getNoteValue(k.note));
                 el.classList.remove('active');
             }
         });
         el.addEventListener('pointercancel', (e) => {
             e.preventDefault();
             if(el.classList.contains('active')) {
-                sendNoteOff(baseNote + k.note);
+                sendNoteOff(getNoteValue(k.note));
                 el.classList.remove('active');
             }
         });
         el.addEventListener('pointerleave', (e) => {
             e.preventDefault();
             if(el.classList.contains('active')) {
-                sendNoteOff(baseNote + k.note);
+                sendNoteOff(getNoteValue(k.note));
                 el.classList.remove('active');
             }
         });
         keyboardDiv.appendChild(el);
     });
 
+    const octaveControls = document.getElementById('octave-controls');
+    const octaveDisplay = document.getElementById('octave-display');
+    const octaveDownBtn = document.getElementById('octave-down');
+    const octaveUpBtn = document.getElementById('octave-up');
+    const updateOctaveDisplay = () => {
+        octaveDisplay.textContent = `C${4 + octaveOffset}`;
+        octaveDownBtn.disabled = octaveOffset <= octaveMin;
+        octaveUpBtn.disabled = octaveOffset >= octaveMax;
+    };
+
+    if (isMobileLayout && octaveControls && octaveDisplay && octaveDownBtn && octaveUpBtn) {
+        const refreshKeyNotes = () => {
+            document.querySelectorAll('.key[data-note-offset]').forEach((el) => {
+                const noteOffset = parseInt(el.dataset.noteOffset);
+                el.dataset.note = getNoteValue(noteOffset);
+            });
+            updateOctaveDisplay();
+        };
+
+        octaveDownBtn.addEventListener('click', () => {
+            if (octaveOffset > octaveMin) {
+                octaveOffset -= 1;
+                refreshKeyNotes();
+            }
+        });
+
+        octaveUpBtn.addEventListener('click', () => {
+            if (octaveOffset < octaveMax) {
+                octaveOffset += 1;
+                refreshKeyNotes();
+            }
+        });
+
+        updateOctaveDisplay();
+    }
+
     // PC Keyboard mapping
     const keyMap = {};
     keys.forEach(k => {
-        keyMap[k.key] = baseNote + k.note;
+        if (k.key) keyMap[k.key] = k.note;
     });
 
     const activeNotes = {};
     window.addEventListener('keydown', (e) => {
         if (e.repeat) return;
-        const note = keyMap[e.key];
-        if (note !== undefined) {
+        const noteOffset = keyMap[e.key];
+        if (noteOffset !== undefined) {
+            const note = getNoteValue(noteOffset);
             sendNoteOn(note);
-            activeNotes[note] = true;
-            const el = document.querySelector(`.key[data-note="${note}"]`);
+            activeNotes[noteOffset] = true;
+            const el = document.querySelector(`.key[data-note-offset="${noteOffset}"]`);
             if (el) el.classList.add('active');
         }
     });
 
     window.addEventListener('keyup', (e) => {
-        const note = keyMap[e.key];
-        if (note !== undefined && activeNotes[note]) {
+        const noteOffset = keyMap[e.key];
+        if (noteOffset !== undefined && activeNotes[noteOffset]) {
+            const note = getNoteValue(noteOffset);
             sendNoteOff(note);
-            delete activeNotes[note];
-            const el = document.querySelector(`.key[data-note="${note}"]`);
+            delete activeNotes[noteOffset];
+            const el = document.querySelector(`.key[data-note-offset="${noteOffset}"]`);
             if (el) el.classList.remove('active');
         }
     });
