@@ -266,82 +266,159 @@ function setupControls(presetsLoaded) {
     });
 
     // Keyboard
+    const mobileMediaQuery = window.matchMedia('(max-width: 900px)');
+    let isMobileLayout = mobileMediaQuery.matches;
+    let octaveOffset = 0;
+    const octaveMin = -2;
+    const octaveMax = 3;
     const baseNote = 60; // C4
     const keyboardDiv = document.getElementById('keyboard');
-    const keys = [
-        { type: 'white', note: 0, key: 'a' },
-        { type: 'black', note: 1, key: 'w' },
-        { type: 'white', note: 2, key: 's' },
-        { type: 'black', note: 3, key: 'e' },
-        { type: 'white', note: 4, key: 'd' },
-        { type: 'white', note: 5, key: 'f' },
-        { type: 'black', note: 6, key: 't' },
-        { type: 'white', note: 7, key: 'g' },
-        { type: 'black', note: 8, key: 'y' },
-        { type: 'white', note: 9, key: 'h' },
-        { type: 'black', note: 10, key: 'u' },
-        { type: 'white', note: 11, key: 'j' },
-        { type: 'white', note: 12, key: 'k' },
-    ];
+    const keyPattern = ['white', 'black', 'white', 'black', 'white', 'white', 'black', 'white', 'black', 'white', 'black', 'white'];
+    const desktopKeys = ['a', 'w', 's', 'e', 'd', 'f', 't', 'g', 'y', 'h', 'u', 'j', 'k'];
+    let keys = [];
 
-    keys.forEach(k => {
-        const el = document.createElement('div');
-        el.className = `key ${k.type}`;
-        el.dataset.note = baseNote + k.note;
+    function getNoteValue(noteOffset) {
+        return baseNote + noteOffset + (octaveOffset * 12);
+    }
 
-        el.addEventListener('pointerdown', (e) => {
-            e.preventDefault();
-            sendNoteOn(baseNote + k.note);
-            el.classList.add('active');
-        });
-        el.addEventListener('pointerup', (e) => {
-            e.preventDefault();
-            if(el.classList.contains('active')) {
-                sendNoteOff(baseNote + k.note);
+    const activePointerNotes = new Map();
+
+    const octaveControls = document.getElementById('octave-controls');
+    const octaveDisplay = document.getElementById('octave-display');
+    const octaveDownBtn = document.getElementById('octave-down');
+    const octaveUpBtn = document.getElementById('octave-up');
+    const updateOctaveDisplay = () => {
+        octaveDisplay.textContent = `C${4 + octaveOffset}`;
+        octaveDownBtn.disabled = octaveOffset <= octaveMin;
+        octaveUpBtn.disabled = octaveOffset >= octaveMax;
+    };
+
+    const refreshKeyNotes = () => {
+            document.querySelectorAll('.key').forEach((el) => {
                 el.classList.remove('active');
+                if (el.dataset.noteOffset) {
+                    const noteOffset = parseInt(el.dataset.noteOffset, 10);
+                    if (activePointerNotes.has(el)) {
+                        sendNoteOff(activePointerNotes.get(el));
+                        activePointerNotes.delete(el);
+                    }
+                    delete activeNotes[noteOffset];
+                    el.dataset.activeNote = '';
+                    el.dataset.note = getNoteValue(noteOffset);
+                }
+            });
+            if (isMobileLayout) {
+                updateOctaveDisplay();
+            }
+    };
+
+    const updateOctaveControlsVisibility = () => {
+        if (!octaveControls) return;
+        octaveControls.style.display = isMobileLayout ? 'flex' : 'none';
+    };
+
+    const buildKeyboard = () => {
+        keyboardDiv.innerHTML = '';
+        keyboardDiv.classList.toggle('mobile', isMobileLayout);
+        keys = [];
+        const keyboardKeyCount = isMobileLayout ? 25 : 13;
+        for (let i = 0; i < keyboardKeyCount; i += 1) {
+            keys.push({
+                type: keyPattern[i % 12],
+                note: i,
+                key: desktopKeys[i]
+            });
+        }
+        keys.forEach(k => {
+            const el = document.createElement('div');
+            el.className = `key ${k.type}`;
+            el.dataset.noteOffset = k.note;
+            el.dataset.note = getNoteValue(k.note);
+            el.dataset.activeNote = '';
+
+            const handleRelease = (e) => {
+                e.preventDefault();
+                const activeNote = parseInt(el.dataset.activeNote, 10);
+                if (!Number.isNaN(activeNote)) {
+                    sendNoteOff(activeNote);
+                    activePointerNotes.delete(el);
+                    el.dataset.activeNote = '';
+                    el.classList.remove('active');
+                }
+            };
+
+            el.addEventListener('pointerdown', (e) => {
+                e.preventDefault();
+                const activeNote = getNoteValue(k.note);
+                el.dataset.activeNote = `${activeNote}`;
+                activePointerNotes.set(el, activeNote);
+                sendNoteOn(activeNote);
+                el.classList.add('active');
+            });
+            el.addEventListener('pointerup', handleRelease);
+            el.addEventListener('pointercancel', handleRelease);
+            el.addEventListener('pointerleave', handleRelease);
+            keyboardDiv.appendChild(el);
+        });
+    };
+
+    buildKeyboard();
+    updateOctaveControlsVisibility();
+
+    if (octaveControls && octaveDisplay && octaveDownBtn && octaveUpBtn) {
+        if (isMobileLayout) updateOctaveDisplay();
+
+        octaveDownBtn.addEventListener('click', () => {
+            if (!isMobileLayout) return;
+            if (octaveOffset > octaveMin) {
+                octaveOffset -= 1;
+                refreshKeyNotes();
             }
         });
-        el.addEventListener('pointercancel', (e) => {
-            e.preventDefault();
-            if(el.classList.contains('active')) {
-                sendNoteOff(baseNote + k.note);
-                el.classList.remove('active');
+
+        octaveUpBtn.addEventListener('click', () => {
+            if (!isMobileLayout) return;
+            if (octaveOffset < octaveMax) {
+                octaveOffset += 1;
+                refreshKeyNotes();
             }
         });
-        el.addEventListener('pointerleave', (e) => {
-            e.preventDefault();
-            if(el.classList.contains('active')) {
-                sendNoteOff(baseNote + k.note);
-                el.classList.remove('active');
-            }
-        });
-        keyboardDiv.appendChild(el);
-    });
+    }
 
     // PC Keyboard mapping
     const keyMap = {};
-    keys.forEach(k => {
-        keyMap[k.key] = baseNote + k.note;
+    desktopKeys.forEach((key, index) => {
+        keyMap[key] = index;
     });
 
     const activeNotes = {};
+    mobileMediaQuery.addEventListener('change', (e) => {
+        isMobileLayout = e.matches;
+        refreshKeyNotes();
+        buildKeyboard();
+        updateOctaveControlsVisibility();
+        if (isMobileLayout) updateOctaveDisplay();
+    });
+
     window.addEventListener('keydown', (e) => {
         if (e.repeat) return;
-        const note = keyMap[e.key];
-        if (note !== undefined) {
+        const noteOffset = keyMap[e.key];
+        if (noteOffset !== undefined) {
+            const note = getNoteValue(noteOffset);
             sendNoteOn(note);
-            activeNotes[note] = true;
-            const el = document.querySelector(`.key[data-note="${note}"]`);
+            activeNotes[noteOffset] = note;
+            const el = document.querySelector(`.key[data-note-offset="${noteOffset}"]`);
             if (el) el.classList.add('active');
         }
     });
 
     window.addEventListener('keyup', (e) => {
-        const note = keyMap[e.key];
-        if (note !== undefined && activeNotes[note]) {
-            sendNoteOff(note);
-            delete activeNotes[note];
-            const el = document.querySelector(`.key[data-note="${note}"]`);
+        const noteOffset = keyMap[e.key];
+        const activeNote = activeNotes[noteOffset];
+        if (noteOffset !== undefined && activeNote !== undefined) {
+            sendNoteOff(activeNote);
+            delete activeNotes[noteOffset];
+            const el = document.querySelector(`.key[data-note-offset="${noteOffset}"]`);
             if (el) el.classList.remove('active');
         }
     });
