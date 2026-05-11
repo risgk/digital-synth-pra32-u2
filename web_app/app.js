@@ -33,14 +33,15 @@ startBtn.addEventListener('click', async () => {
         const wasmBytes = await loadWasm();
 
         // Wait for processor to say it's loaded
-        synthNode.port.onmessage = (e) => {
+        synthNode.port.onmessage = async (e) => {
             if (e.data.type === 'wasmLoaded') {
                 isAudioInitialized = true;
                 statusDiv.textContent = 'Status: ENGINE RUNNING | MIDI READY';
                 startBtn.style.display = 'none';
 
                 setupMidi();
-                setupControls();
+                const presetsLoaded = await loadPresets();
+                setupControls(presetsLoaded);
             }
         };
 
@@ -84,21 +85,26 @@ async function loadPresets() {
         const response = await fetch('data/presets.json');
         const data = await response.json();
 
-        // Transform the arrays from the json to the format we need
+        // Store both "current" values (index 0) and factory preset bank (index 1).
         factoryPresets = {};
         for (const key in data) {
             if (!key.startsWith('_')) {
                 const paramName = key.trim();
-                factoryPresets[paramName] = data[key][1]; // The actual presets are in the second array
+                const currentValues = Array.isArray(data[key]?.[0]) ? data[key][0] : [];
+                const presetBank = Array.isArray(data[key]?.[1]) ? data[key][1] : [];
+                factoryPresets[paramName] = {
+                    current: currentValues,
+                    presets: presetBank,
+                };
             }
         }
+
+        return true;
     } catch (e) {
-        console.error("Failed to load presets", e);
+        console.error('Failed to load presets', e);
+        return false;
     }
 }
-
-// Load presets immediately
-loadPresets();
 
 const synthParameters = [
   { id: 'osc1Wave', name: 'OSC 1 WAVE', cc: 102, value: 0 },
@@ -157,7 +163,7 @@ const synthParameters = [
 
 const ccToParam = new Map(synthParameters.map(p => [p.cc, p]));
 
-function setupControls() {
+function setupControls(presetsLoaded) {
     const controlsDiv = document.getElementById('synth-controls');
     controlsDiv.innerHTML = ''; // Clear initial layout
 
@@ -194,12 +200,18 @@ function setupControls() {
         presetSelect.addEventListener('change', (e) => {
             const presetIndex = parseInt(e.target.value);
 
+            if (!presetsLoaded || !factoryPresets) {
+                console.warn('Preset bank not loaded; preset change ignored.');
+                return;
+            }
+
             if (presetIndex < 0) {
-                // Restore to init preset (preset 0)
+                // Restore to current/init value from presets.json first array.
                 synthParameters.forEach(param => {
                     const paramKeyName = param.name.replace(/ /g, '_');
-                    if (factoryPresets[paramKeyName] && factoryPresets[paramKeyName][0] !== undefined) {
-                        const newValue = factoryPresets[paramKeyName][0];
+                    const presetData = factoryPresets[paramKeyName];
+                    if (presetData && presetData.current[0] !== undefined) {
+                        const newValue = presetData.current[0];
                         param.value = newValue;
                         updateSlider(param.id, newValue);
                         sendCC(param.cc, newValue);
@@ -210,8 +222,9 @@ function setupControls() {
 
             synthParameters.forEach(param => {
                 const paramKeyName = param.name.replace(/ /g, '_');
-                if (factoryPresets[paramKeyName] && factoryPresets[paramKeyName][presetIndex] !== undefined) {
-                    const newValue = factoryPresets[paramKeyName][presetIndex];
+                const presetData = factoryPresets[paramKeyName];
+                if (presetData && presetData.presets[presetIndex] !== undefined) {
+                    const newValue = presetData.presets[presetIndex];
                     param.value = newValue;
                     updateSlider(param.id, newValue);
                     sendCC(param.cc, newValue);
