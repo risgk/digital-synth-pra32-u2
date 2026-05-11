@@ -266,63 +266,22 @@ function setupControls(presetsLoaded) {
     });
 
     // Keyboard
-    const isMobileLayout = window.matchMedia('(max-width: 900px)').matches;
-    const keyboardKeyCount = isMobileLayout ? 25 : 13;
+    const mobileMediaQuery = window.matchMedia('(max-width: 900px)');
+    let isMobileLayout = mobileMediaQuery.matches;
     let octaveOffset = 0;
     const octaveMin = -2;
     const octaveMax = 3;
     const baseNote = 60; // C4
     const keyboardDiv = document.getElementById('keyboard');
-    keyboardDiv.classList.toggle('mobile', isMobileLayout);
     const keyPattern = ['white', 'black', 'white', 'black', 'white', 'white', 'black', 'white', 'black', 'white', 'black', 'white'];
     const desktopKeys = ['a', 'w', 's', 'e', 'd', 'f', 't', 'g', 'y', 'h', 'u', 'j', 'k'];
-    const keys = [];
-    for (let i = 0; i < keyboardKeyCount; i += 1) {
-        keys.push({
-            type: keyPattern[i % 12],
-            note: i,
-            key: desktopKeys[i]
-        });
-    }
+    let keys = [];
 
     function getNoteValue(noteOffset) {
         return baseNote + noteOffset + (octaveOffset * 12);
     }
 
-    keys.forEach(k => {
-        const el = document.createElement('div');
-        el.className = `key ${k.type}`;
-        el.dataset.noteOffset = k.note;
-        el.dataset.note = getNoteValue(k.note);
-
-        el.addEventListener('pointerdown', (e) => {
-            e.preventDefault();
-            sendNoteOn(getNoteValue(k.note));
-            el.classList.add('active');
-        });
-        el.addEventListener('pointerup', (e) => {
-            e.preventDefault();
-            if(el.classList.contains('active')) {
-                sendNoteOff(getNoteValue(k.note));
-                el.classList.remove('active');
-            }
-        });
-        el.addEventListener('pointercancel', (e) => {
-            e.preventDefault();
-            if(el.classList.contains('active')) {
-                sendNoteOff(getNoteValue(k.note));
-                el.classList.remove('active');
-            }
-        });
-        el.addEventListener('pointerleave', (e) => {
-            e.preventDefault();
-            if(el.classList.contains('active')) {
-                sendNoteOff(getNoteValue(k.note));
-                el.classList.remove('active');
-            }
-        });
-        keyboardDiv.appendChild(el);
-    });
+    const activePointerNotes = new Map();
 
     const octaveControls = document.getElementById('octave-controls');
     const octaveDisplay = document.getElementById('octave-display');
@@ -334,16 +293,83 @@ function setupControls(presetsLoaded) {
         octaveUpBtn.disabled = octaveOffset >= octaveMax;
     };
 
-    if (isMobileLayout && octaveControls && octaveDisplay && octaveDownBtn && octaveUpBtn) {
-        const refreshKeyNotes = () => {
-            document.querySelectorAll('.key[data-note-offset]').forEach((el) => {
-                const noteOffset = parseInt(el.dataset.noteOffset);
-                el.dataset.note = getNoteValue(noteOffset);
+    const refreshKeyNotes = () => {
+            document.querySelectorAll('.key').forEach((el) => {
+                el.classList.remove('active');
+                if (el.dataset.noteOffset) {
+                    const noteOffset = parseInt(el.dataset.noteOffset, 10);
+                    if (activePointerNotes.has(el)) {
+                        sendNoteOff(activePointerNotes.get(el));
+                        activePointerNotes.delete(el);
+                    }
+                    delete activeNotes[noteOffset];
+                    el.dataset.activeNote = '';
+                    el.dataset.note = getNoteValue(noteOffset);
+                }
             });
-            updateOctaveDisplay();
-        };
+            if (isMobileLayout) {
+                updateOctaveDisplay();
+            }
+    };
+
+    const updateOctaveControlsVisibility = () => {
+        if (!octaveControls) return;
+        octaveControls.style.display = isMobileLayout ? 'flex' : 'none';
+    };
+
+    const buildKeyboard = () => {
+        keyboardDiv.innerHTML = '';
+        keyboardDiv.classList.toggle('mobile', isMobileLayout);
+        keys = [];
+        const keyboardKeyCount = isMobileLayout ? 25 : 13;
+        for (let i = 0; i < keyboardKeyCount; i += 1) {
+            keys.push({
+                type: keyPattern[i % 12],
+                note: i,
+                key: desktopKeys[i]
+            });
+        }
+        keys.forEach(k => {
+            const el = document.createElement('div');
+            el.className = `key ${k.type}`;
+            el.dataset.noteOffset = k.note;
+            el.dataset.note = getNoteValue(k.note);
+            el.dataset.activeNote = '';
+
+            const handleRelease = (e) => {
+                e.preventDefault();
+                const activeNote = parseInt(el.dataset.activeNote, 10);
+                if (!Number.isNaN(activeNote)) {
+                    sendNoteOff(activeNote);
+                    activePointerNotes.delete(el);
+                    el.dataset.activeNote = '';
+                    el.classList.remove('active');
+                }
+            };
+
+            el.addEventListener('pointerdown', (e) => {
+                e.preventDefault();
+                const activeNote = getNoteValue(k.note);
+                el.dataset.activeNote = `${activeNote}`;
+                activePointerNotes.set(el, activeNote);
+                sendNoteOn(activeNote);
+                el.classList.add('active');
+            });
+            el.addEventListener('pointerup', handleRelease);
+            el.addEventListener('pointercancel', handleRelease);
+            el.addEventListener('pointerleave', handleRelease);
+            keyboardDiv.appendChild(el);
+        });
+    };
+
+    buildKeyboard();
+    updateOctaveControlsVisibility();
+
+    if (octaveControls && octaveDisplay && octaveDownBtn && octaveUpBtn) {
+        if (isMobileLayout) updateOctaveDisplay();
 
         octaveDownBtn.addEventListener('click', () => {
+            if (!isMobileLayout) return;
             if (octaveOffset > octaveMin) {
                 octaveOffset -= 1;
                 refreshKeyNotes();
@@ -351,29 +377,36 @@ function setupControls(presetsLoaded) {
         });
 
         octaveUpBtn.addEventListener('click', () => {
+            if (!isMobileLayout) return;
             if (octaveOffset < octaveMax) {
                 octaveOffset += 1;
                 refreshKeyNotes();
             }
         });
-
-        updateOctaveDisplay();
     }
 
     // PC Keyboard mapping
     const keyMap = {};
-    keys.forEach(k => {
-        if (k.key) keyMap[k.key] = k.note;
+    desktopKeys.forEach((key, index) => {
+        keyMap[key] = index;
     });
 
     const activeNotes = {};
+    mobileMediaQuery.addEventListener('change', (e) => {
+        isMobileLayout = e.matches;
+        refreshKeyNotes();
+        buildKeyboard();
+        updateOctaveControlsVisibility();
+        if (isMobileLayout) updateOctaveDisplay();
+    });
+
     window.addEventListener('keydown', (e) => {
         if (e.repeat) return;
         const noteOffset = keyMap[e.key];
         if (noteOffset !== undefined) {
             const note = getNoteValue(noteOffset);
             sendNoteOn(note);
-            activeNotes[noteOffset] = true;
+            activeNotes[noteOffset] = note;
             const el = document.querySelector(`.key[data-note-offset="${noteOffset}"]`);
             if (el) el.classList.add('active');
         }
@@ -381,9 +414,9 @@ function setupControls(presetsLoaded) {
 
     window.addEventListener('keyup', (e) => {
         const noteOffset = keyMap[e.key];
-        if (noteOffset !== undefined && activeNotes[noteOffset]) {
-            const note = getNoteValue(noteOffset);
-            sendNoteOff(note);
+        const activeNote = activeNotes[noteOffset];
+        if (noteOffset !== undefined && activeNote !== undefined) {
+            sendNoteOff(activeNote);
             delete activeNotes[noteOffset];
             const el = document.querySelector(`.key[data-note-offset="${noteOffset}"]`);
             if (el) el.classList.remove('active');
