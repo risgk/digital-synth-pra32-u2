@@ -36,6 +36,18 @@ const uint16_t COLOR_EDIT_ACCENT     = COLOR_BLACK;
 const int DISPLAY_WIDTH   = PRA32_U2_ST7789_WIDTH;
 const int HEADER_Y        = 0;
 const int HEADER_HEIGHT   = 14;
+const int HEADER_TEXT_Y   = 3;
+const int HEADER_NAV_X    = 2;
+const int HEADER_PAGE_X   = 44;
+const int HEADER_PAGE_WIDTH = 152;
+const int HEADER_MODE_X   = 198;
+const int HEADER_STATUS_X = 240;
+const int CHAR_WIDTH      = 6;
+const int FOOTER_STATUS_X = 214;
+const int FOOTER_TEXT_Y   = 66;
+const int HEADER_PAGE_MAX_CHARS = HEADER_PAGE_WIDTH / CHAR_WIDTH;
+const int HEADER_STATUS_MAX_CHARS = (DISPLAY_WIDTH - HEADER_STATUS_X) / CHAR_WIDTH;
+const int FOOTER_STATUS_MAX_CHARS = (DISPLAY_WIDTH - FOOTER_STATUS_X) / CHAR_WIDTH;
 const int MAIN_Y          = 18;
 const int CARD_WIDTH      = 90;
 const int CARD_HEIGHT     = 42;
@@ -134,6 +146,39 @@ bool same_header(const PRA32_U2_UI_RenderFrame& a, const PRA32_U2_UI_RenderFrame
          std::strncmp(a.status_text, b.status_text, sizeof(a.status_text)) == 0;
 }
 
+size_t bounded_strlen(const char* text, size_t max_len) {
+  return strnlen(text, max_len);
+}
+
+size_t chars_that_fit(int width) {
+  if (width <= 0) {
+    return 0;
+  }
+  return static_cast<size_t>(width / CHAR_WIDTH);
+}
+
+void print_truncated_text(const char* text, size_t text_capacity, size_t max_chars) {
+  const size_t length = bounded_strlen(text, text_capacity);
+  if (max_chars == 0) {
+    return;
+  }
+  if (length <= max_chars) {
+    g_st7789.write(reinterpret_cast<const uint8_t*>(text), length);
+    return;
+  }
+  if (max_chars == 1) {
+    g_st7789.print("~");
+    return;
+  }
+  g_st7789.write(reinterpret_cast<const uint8_t*>(text), max_chars - 1);
+  g_st7789.print("~");
+}
+
+bool status_fits_header(const PRA32_U2_UI_RenderFrame& frame) {
+  const size_t max_chars = chars_that_fit(DISPLAY_WIDTH - HEADER_STATUS_X);
+  return bounded_strlen(frame.status_text, sizeof(frame.status_text)) <= max_chars;
+}
+
 bool has_confirm_overlay(const PRA32_U2_UI_RenderFrame& frame) {
   return frame.state == PRA32_U2_UI_State_ActionConfirm;
 }
@@ -194,7 +239,10 @@ void PRA32_U2_UI_RenderST7789_draw(const PRA32_U2_UI_RenderFrame& frame) {
   }
   if (!g_prev_frame_valid ||
       (g_prev_frame.state != frame.state) ||
-      (g_prev_frame.confirm_selected != frame.confirm_selected)) {
+      (g_prev_frame.confirm_selected != frame.confirm_selected) ||
+      (status_fits_header(g_prev_frame) != status_fits_header(frame)) ||
+      (!status_fits_header(frame) &&
+       std::strncmp(g_prev_frame.status_text, frame.status_text, sizeof(frame.status_text)) != 0)) {
     dirty |= PRA32_U2_UI_RenderDirty_Footer;
   }
   if (!g_prev_frame_valid ||
@@ -210,23 +258,25 @@ void PRA32_U2_UI_RenderST7789_draw(const PRA32_U2_UI_RenderFrame& frame) {
     g_st7789.setTextSize(1);
     g_st7789.setTextColor(COLOR_HEADER_TEXT);
 
-    g_st7789.setCursor(2, 3);
+    g_st7789.setCursor(HEADER_NAV_X, HEADER_TEXT_Y);
     g_st7789.print(static_cast<char>('A' + frame.page_group));
     g_st7789.print("-");
     g_st7789.print(frame.page_index);
     g_st7789.print("/");
     g_st7789.print(frame.page_count ? frame.page_count - 1 : 0);
 
-    g_st7789.setCursor(44, 3);
-    g_st7789.print(frame.page_name);
+    g_st7789.setCursor(HEADER_PAGE_X, HEADER_TEXT_Y);
+    print_truncated_text(frame.page_name, sizeof(frame.page_name), chars_that_fit(HEADER_PAGE_WIDTH));
 
-    g_st7789.setCursor(198, 3);
+    g_st7789.setCursor(HEADER_MODE_X, HEADER_TEXT_Y);
     g_st7789.print(frame.mode_text);
     g_st7789.print(" ");
     g_st7789.print(state_short_text(frame.state));
 
-    g_st7789.setCursor(240, 3);
-    g_st7789.print(frame.status_text);
+    if (status_fits_header(frame)) {
+      g_st7789.setCursor(HEADER_STATUS_X, HEADER_TEXT_Y);
+      print_truncated_text(frame.status_text, sizeof(frame.status_text), chars_that_fit(DISPLAY_WIDTH - HEADER_STATUS_X));
+    }
   }
 
   for (uint8_t index = 0; index < 3; ++index) {
@@ -337,6 +387,12 @@ void PRA32_U2_UI_RenderST7789_draw(const PRA32_U2_UI_RenderFrame& frame) {
 
   if ((dirty & PRA32_U2_UI_RenderDirty_Footer) != 0) {
     draw_footer_help(frame.state, frame.confirm_selected);
+    if (!status_fits) {
+      g_st7789.setTextSize(1);
+      g_st7789.setTextColor(COLOR_FOOTER_TEXT);
+      g_st7789.setCursor(FOOTER_STATUS_X, FOOTER_TEXT_Y);
+      print_truncated_text(frame.status_text, sizeof(frame.status_text), FOOTER_STATUS_MAX_CHARS);
+    }
   }
 
   g_prev_frame = frame;
