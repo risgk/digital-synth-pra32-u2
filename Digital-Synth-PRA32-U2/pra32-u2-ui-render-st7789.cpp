@@ -30,8 +30,8 @@ const uint16_t COLOR_HELP_BG       = ST77XX_BLACK;
 const uint16_t COLOR_CARD_BG_NORMAL  = 0x18E3;
 const uint16_t COLOR_CARD_BG_ACTION  = 0x3000;
 const uint16_t COLOR_CARD_BG_FOCUS   = 0x2104;
-const uint16_t COLOR_CARD_BG_EDIT    = 0x39A7;
-const uint16_t COLOR_EDIT_ACCENT     = 0xFFE0;
+const uint16_t COLOR_CARD_BG_EDIT    = COLOR_WHITE;
+const uint16_t COLOR_EDIT_ACCENT     = COLOR_BLACK;
 
 const int DISPLAY_WIDTH   = PRA32_U2_ST7789_WIDTH;
 const int HEADER_Y        = 0;
@@ -187,7 +187,9 @@ void PRA32_U2_UI_RenderST7789_draw(const PRA32_U2_UI_RenderFrame& frame) {
   if (!g_prev_frame_valid || !same_header(g_prev_frame, frame)) {
     dirty |= PRA32_U2_UI_RenderDirty_Header;
   }
-  if (!g_prev_frame_valid || (g_prev_frame.page_group != frame.page_group)) {
+  if (!g_prev_frame_valid ||
+      (g_prev_frame.page_group != frame.page_group) ||
+      (g_prev_frame.state != frame.state)) {
     dirty |= PRA32_U2_UI_RenderDirty_Main;
   }
   if (!g_prev_frame_valid ||
@@ -255,27 +257,21 @@ void PRA32_U2_UI_RenderST7789_draw(const PRA32_U2_UI_RenderFrame& frame) {
     uint16_t border_color = group_color;
     uint16_t text_color = COLOR_CARD_TEXT;
 
-    if (item.type == PRA32_U2_UI_FocusItemType_Action) {
-      card_bg = COLOR_CARD_BG_ACTION;
-      border_color = COLOR_DANGER;
-    }
-
-    if (item.focused) {
-      card_bg = (item.type == PRA32_U2_UI_FocusItemType_Action) ? COLOR_CARD_BG_ACTION : COLOR_CARD_BG_FOCUS;
-      border_color = COLOR_WHITE;
-      text_color = COLOR_CARD_TEXT;
-    }
-
     if (is_item_edit) {
       card_bg = COLOR_CARD_BG_EDIT;
       border_color = COLOR_EDIT_ACCENT;
       text_color = COLOR_BLACK;
-    }
-
-    if (is_action_confirm_focus) {
+    } else if (is_action_confirm_focus) {
       card_bg = COLOR_CARD_BG_ACTION;
       border_color = COLOR_DANGER;
       text_color = COLOR_WHITE;
+    } else if (item.focused) {
+      card_bg = (item.type == PRA32_U2_UI_FocusItemType_Action) ? COLOR_CARD_BG_ACTION : COLOR_CARD_BG_FOCUS;
+      border_color = COLOR_WHITE;
+      text_color = COLOR_CARD_TEXT;
+    } else if (item.type == PRA32_U2_UI_FocusItemType_Action) {
+      card_bg = COLOR_CARD_BG_ACTION;
+      border_color = COLOR_DANGER;
     }
 
     g_st7789.fillRect(x, y, w, h, card_bg);
@@ -291,11 +287,22 @@ void PRA32_U2_UI_RenderST7789_draw(const PRA32_U2_UI_RenderFrame& frame) {
     g_st7789.setCursor(x + 4, y + 4);
     g_st7789.print(static_cast<char>('A' + item.source_index));
     g_st7789.print(":");
-    g_st7789.print(item.short_label);
+    if (is_item_edit) {
+      const size_t label_len = strnlen(item.short_label, sizeof(item.short_label));
+      const size_t max_chars = 6;
+      for (size_t i = 0; i < label_len && i < max_chars; ++i) {
+        g_st7789.print(item.short_label[i]);
+      }
+      if (label_len > max_chars) {
+        g_st7789.print("~");
+      }
+    } else {
+      g_st7789.print(item.short_label);
+    }
 
     if (is_item_edit) {
       g_st7789.fillRect(x + w - 28, y + 2, 24, 8, COLOR_EDIT_ACCENT);
-      g_st7789.setTextColor(COLOR_BLACK);
+      g_st7789.setTextColor(COLOR_WHITE);
       g_st7789.setCursor(x + w - 26, y + 3);
       g_st7789.print("EDIT");
       g_st7789.setTextColor(text_color);
