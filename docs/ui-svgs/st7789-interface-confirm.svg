@@ -6,22 +6,23 @@
   <text x="198" y="10" font-family="monospace" font-size="8" fill="#FFF">PLY Cfm</text>
   <text x="240" y="10" font-family="monospace" font-size="8" fill="#FFF">USB</text>
 
-  <rect x="4" y="18" width="90" height="42" fill="#181C18" stroke="#FFA500"/>
+  <rect x="4" y="18" width="90" height="42" fill="#3000" stroke="#F800"/>
   <text x="8" y="29" font-family="monospace" font-size="8" fill="#FFF">A:PGM NO</text>
   <text x="8" y="41" font-family="monospace" font-size="8" fill="#FFF">Bank 2 (37)</text>
-  <rect x="8" y="50" width="82" height="6" fill="none" stroke="#FFA500"/>
-  <rect x="9" y="51" width="24" height="4" fill="#FFA500"/>
+  <rect x="8" y="50" width="82" height="6" fill="none" stroke="#F800"/>
+  <rect x="9" y="51" width="24" height="4" fill="#F800"/>
 
-  <rect x="98" y="18" width="90" height="42" fill="#FF0000" stroke="#FFF"/>
-  <text x="102" y="29" font-family="monospace" font-size="8" fill="#000">B:WR PGM 3</text>
-  <text x="102" y="41" font-family="monospace" font-size="8" fill="#000">1 (1)</text>
-  <text x="102" y="56" font-family="monospace" font-size="8" fill="#000" xml:space="preserve">[YES] no </text>
+  <rect x="98" y="18" width="90" height="42" fill="#3000" stroke="#F800"/>
+  <rect x="100" y="20" width="86" height="38" fill="none" stroke="#F800"/>
+  <text x="102" y="29" font-family="monospace" font-size="8" fill="#FFF">B:WR PGM 3</text>
+  <text x="102" y="41" font-family="monospace" font-size="8" fill="#FFF">1 (1)</text>
+  <text x="102" y="56" font-family="monospace" font-size="8" fill="#FFF" xml:space="preserve">[YES] no </text>
 
-  <rect x="192" y="18" width="90" height="42" fill="#310000" stroke="#FF0000"/>
+  <rect x="192" y="18" width="90" height="42" fill="#3000" stroke="#F800"/>
   <text x="196" y="29" font-family="monospace" font-size="8" fill="#FFF">C:RD PGM 3</text>
   <text x="196" y="41" font-family="monospace" font-size="8" fill="#FFF">0 (0)</text>
 
-  <rect x="0" y="60" width="284" height="4" fill="#FF0000"/>
+  <rect x="0" y="60" width="284" height="4" fill="#F800"/>
   <rect x="0" y="64" width="284" height="12" fill="#000"/>
   <text x="2" y="73" font-family="monospace" font-size="8" fill="#FFF">Turn:No/Yes  Click:Exec  Hold:Back</text>
 </svg>
