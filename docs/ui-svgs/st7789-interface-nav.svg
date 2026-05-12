@@ -6,19 +6,20 @@
   <text x="198" y="10" font-family="monospace" font-size="8" fill="#FFF">PLY Nav</text>
   <text x="240" y="10" font-family="monospace" font-size="8" fill="#FFF">USB</text>
 
-  <rect x="4" y="18" width="90" height="42" fill="#FFF" stroke="#FFF"/>
-  <text x="8" y="29" font-family="monospace" font-size="8" fill="#000">A:VCO-1</text>
-  <text x="8" y="41" font-family="monospace" font-size="8" fill="#000">Saw (96)</text>
-  <rect x="8" y="50" width="82" height="6" fill="none" stroke="#000"/>
-  <rect x="9" y="51" width="62" height="4" fill="#000"/>
+  <rect x="4" y="18" width="90" height="42" fill="#2104" stroke="#FFF"/>
+  <rect x="5" y="19" width="88" height="40" fill="none" stroke="#FFF"/>
+  <text x="8" y="29" font-family="monospace" font-size="8" fill="#FFF">A:VCO-1</text>
+  <text x="8" y="41" font-family="monospace" font-size="8" fill="#FFF">Saw (96)</text>
+  <rect x="8" y="50" width="82" height="6" fill="none" stroke="#FFF"/>
+  <rect x="9" y="51" width="62" height="4" fill="#FFF"/>
 
-  <rect x="98" y="18" width="90" height="42" fill="#181C18" stroke="#007DFF"/>
+  <rect x="98" y="18" width="90" height="42" fill="#18E3" stroke="#007DFF"/>
   <text x="102" y="29" font-family="monospace" font-size="8" fill="#FFF">B:VCO-2</text>
   <text x="102" y="41" font-family="monospace" font-size="8" fill="#FFF">Sine (48)</text>
   <rect x="102" y="50" width="82" height="6" fill="none" stroke="#007DFF"/>
   <rect x="103" y="51" width="31" height="4" fill="#007DFF"/>
 
-  <rect x="192" y="18" width="90" height="42" fill="#181C18" stroke="#007DFF"/>
+  <rect x="192" y="18" width="90" height="42" fill="#18E3" stroke="#007DFF"/>
   <text x="196" y="29" font-family="monospace" font-size="8" fill="#FFF">C:MIX</text>
   <text x="196" y="41" font-family="monospace" font-size="8" fill="#FFF">Center (64)</text>
   <rect x="196" y="50" width="82" height="6" fill="none" stroke="#007DFF"/>
