@@ -29,6 +29,9 @@ const uint16_t COLOR_FOCUS_TEXT    = ST77XX_BLACK;
 const uint16_t COLOR_HELP_BG       = ST77XX_BLACK;
 const uint16_t COLOR_CARD_BG_NORMAL  = 0x18E3;
 const uint16_t COLOR_CARD_BG_ACTION  = 0x3000;
+const uint16_t COLOR_CARD_BG_FOCUS   = 0x2104;
+const uint16_t COLOR_CARD_BG_EDIT    = 0x39A7;
+const uint16_t COLOR_EDIT_ACCENT     = 0xFFE0;
 
 const int DISPLAY_WIDTH   = PRA32_U2_ST7789_WIDTH;
 const int HEADER_Y        = 0;
@@ -242,8 +245,15 @@ void PRA32_U2_UI_RenderST7789_draw(const PRA32_U2_UI_RenderFrame& frame) {
       continue;
     }
 
+    const bool is_item_edit = (frame.state == PRA32_U2_UI_State_ItemEdit) && item.focused;
+    const bool is_action_confirm_focus =
+      (frame.state == PRA32_U2_UI_State_ActionConfirm) &&
+      (item.type == PRA32_U2_UI_FocusItemType_Action) &&
+      item.focused;
+
     uint16_t card_bg = COLOR_CARD_BG_NORMAL;
     uint16_t border_color = group_color;
+    uint16_t text_color = COLOR_CARD_TEXT;
 
     if (item.type == PRA32_U2_UI_FocusItemType_Action) {
       card_bg = COLOR_CARD_BG_ACTION;
@@ -251,18 +261,45 @@ void PRA32_U2_UI_RenderST7789_draw(const PRA32_U2_UI_RenderFrame& frame) {
     }
 
     if (item.focused) {
-      card_bg = (item.type == PRA32_U2_UI_FocusItemType_Action) ? COLOR_DANGER : COLOR_WHITE;
+      card_bg = (item.type == PRA32_U2_UI_FocusItemType_Action) ? COLOR_CARD_BG_ACTION : COLOR_CARD_BG_FOCUS;
       border_color = COLOR_WHITE;
+      text_color = COLOR_CARD_TEXT;
+    }
+
+    if (is_item_edit) {
+      card_bg = COLOR_CARD_BG_EDIT;
+      border_color = COLOR_EDIT_ACCENT;
+      text_color = COLOR_BLACK;
+    }
+
+    if (is_action_confirm_focus) {
+      card_bg = COLOR_CARD_BG_ACTION;
+      border_color = COLOR_DANGER;
+      text_color = COLOR_WHITE;
     }
 
     g_st7789.fillRect(x, y, w, h, card_bg);
     g_st7789.drawRect(x, y, w, h, border_color);
+    if (item.focused && !is_item_edit && !is_action_confirm_focus) {
+      g_st7789.drawRect(x + 1, y + 1, w - 2, h - 2, border_color);
+    }
+    if (is_item_edit || is_action_confirm_focus) {
+      g_st7789.drawRect(x + 2, y + 2, w - 4, h - 4, border_color);
+    }
 
-    g_st7789.setTextColor(item.focused ? COLOR_FOCUS_TEXT : COLOR_CARD_TEXT);
+    g_st7789.setTextColor(text_color);
     g_st7789.setCursor(x + 4, y + 4);
     g_st7789.print(static_cast<char>('A' + item.source_index));
     g_st7789.print(":");
     g_st7789.print(item.short_label);
+
+    if (is_item_edit) {
+      g_st7789.fillRect(x + w - 28, y + 2, 24, 8, COLOR_EDIT_ACCENT);
+      g_st7789.setTextColor(COLOR_BLACK);
+      g_st7789.setCursor(x + w - 26, y + 3);
+      g_st7789.print("EDIT");
+      g_st7789.setTextColor(text_color);
+    }
 
     g_st7789.setCursor(x + 4, y + 16);
     if (item.has_value_text) {
@@ -278,9 +315,11 @@ void PRA32_U2_UI_RenderST7789_draw(const PRA32_U2_UI_RenderFrame& frame) {
       const int bar_x = x + 4;
       const int bar_y = y + 32;
       const int bar_w = w - 8;
+      const int bar_h = is_item_edit ? 8 : 6;
+      const int bar_fill_h = is_item_edit ? 6 : 4;
       const int fill_w = (bar_w * item.value) / 127;
-      g_st7789.drawRect(bar_x, bar_y, bar_w, 6, item.focused ? COLOR_FOCUS_TEXT : border_color);
-      g_st7789.fillRect(bar_x + 1, bar_y + 1, fill_w, 4, item.focused ? COLOR_FOCUS_TEXT : border_color);
+      g_st7789.drawRect(bar_x, bar_y, bar_w, bar_h, border_color);
+      g_st7789.fillRect(bar_x + 1, bar_y + 1, fill_w, bar_fill_h, border_color);
     } else if (frame.state == PRA32_U2_UI_State_ActionConfirm && item.focused) {
       g_st7789.setCursor(x + 4, y + 31);
       g_st7789.print(frame.confirm_selected ? "[YES] no " : " yes [NO]");
