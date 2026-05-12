@@ -387,11 +387,11 @@ void PRA32_U2_UI_RenderST7789_draw(const PRA32_U2_UI_RenderFrame& frame) {
 
   if ((dirty & PRA32_U2_UI_RenderDirty_Footer) != 0) {
     draw_footer_help(frame.state, frame.confirm_selected);
-    if (!status_fits_header(frame)) {
+    if (!status_fits) {
       g_st7789.setTextSize(1);
       g_st7789.setTextColor(COLOR_FOOTER_TEXT);
-      g_st7789.setCursor(FOOTER_STATUS_X, 66);
-      print_truncated_text(frame.status_text, sizeof(frame.status_text), chars_that_fit(DISPLAY_WIDTH - FOOTER_STATUS_X));
+      g_st7789.setCursor(FOOTER_STATUS_X, FOOTER_TEXT_Y);
+      print_truncated_text(frame.status_text, sizeof(frame.status_text), FOOTER_STATUS_MAX_CHARS);
     }
   }
 
