@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v2.14.1 (2026-??-??):
+- v2.14.1 (2026-05-13):
     - Fix the "EG Mod Dst [P|P|2P|2P|F|1S]"
     - Reset Osc and LFO phase on All Sound Off
     - Rename the Preset #27 "El Organ" to "Elec Organ"
