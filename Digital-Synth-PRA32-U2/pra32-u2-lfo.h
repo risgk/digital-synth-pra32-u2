@@ -134,6 +134,10 @@ public:
     return lfo_level;
   }
 
+  INLINE void reset() {
+    m_lfo_phase = 0x00000000;
+  }
+
   INLINE void process_at_low_rate(uint8_t count, int16_t noise_int15) {
     static_cast<void>(count);
 
