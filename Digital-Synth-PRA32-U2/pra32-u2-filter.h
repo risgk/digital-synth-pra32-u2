@@ -166,11 +166,7 @@ private:
 
     volatile int32_t cutoff_target = clamp(cutoff_candidate, 0, ((254 << 2) + 1)) << (7 - FILTER_TABLE_CUTOFF_EXT_BITS);
 
-    if (m_cutoff_current <= cutoff_target) {
-      m_cutoff_current =   cutoff_target  - (((cutoff_target - m_cutoff_current) * 248) >> 8);
-    } else {
-      m_cutoff_current = m_cutoff_current + (((cutoff_target - m_cutoff_current) *   8) >> 8);
-    }
+    m_cutoff_current = cutoff_target - (((cutoff_target - m_cutoff_current) * 248) / 256);
 
     m_resonance_current += (m_resonance_current < m_resonance_target);
     m_resonance_current -= (m_resonance_current > m_resonance_target);
