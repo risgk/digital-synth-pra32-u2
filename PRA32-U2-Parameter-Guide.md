@@ -192,7 +192,7 @@
     - Cutoff
         - -60 (4): -120 (min)
         - +60 (124): +120 (max)
-- EG Mod Dst [P|F|2P|2P|1S|1S], LFO Mod Dst [P|F|2P|2P|1S|1S]
+- EG Mod Dst [P|P|2P|2P|F|1S], LFO Mod Dst [P|P|2P|2P|F|1S]
     - 0 (0-12): Osc 1 & 2 Pitch
     - 25 (13-38): Osc 1 & 2 Pitch
     - 51 (39-63): Osc 2 Pitch
