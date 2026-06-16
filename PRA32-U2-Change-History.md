@@ -1,5 +1,8 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v2.14.2 (2026-06-16):
+    - Fix Note On with velocity 0 not treated as Note Off
+    - Tested with Arduino-Pico version 5.6.0
 - v2.14.1 (2026-05-13):
     - Fix the "EG Mod Dst [P|P|2P|2P|F|1S]"
     - Reset Osc and LFO phase on All Sound Off
