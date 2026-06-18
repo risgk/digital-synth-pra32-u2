@@ -1,5 +1,8 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v2.14.3 (2026-**-**):
+    - PRA32-U2/M: Change the default basic channel to 2
+    - Tested with Arduino-Pico version 5.6.0
 - v2.14.2 (2026-06-16):
     - Fix Note On with velocity 0 not treated as Note Off
     - Tested with Arduino-Pico version 5.6.0
