@@ -244,17 +244,17 @@ graph LR
 
 - Features
     - Synths
-        - Basic Channel + 0 (Default 1): Main Synth, Poly or Mono; The default program is #0; The FX parameters apply to all channels
-        - Basic Channel + 1 (Default 2): Sub Synth 1, Mono; The default program is #1; The FX parameters are disabled
-        - Basic Channel + 2 (Default 3): Sub Synth 2, Mono; The default program is #2; The FX parameters are disabled
-        - Basic Channel + 3 (Default 4): Sub Synth 3, Mono; The default program is #3; The FX parameters are disabled
+        - Basic Channel + 0 (Default 2): Main Synth, Poly or Mono; The default program is #0; The FX parameters apply to all channels
+        - Basic Channel + 1 (Default 3): Sub Synth 1, Mono; The default program is #1; The FX parameters are disabled
+        - Basic Channel + 2 (Default 4): Sub Synth 2, Mono; The default program is #2; The FX parameters are disabled
+        - Basic Channel + 3 (Default 5): Sub Synth 3, Mono; The default program is #3; The FX parameters are disabled
         - *Basic Channels + 1 to + 3 (Sub Synths) are processed only if Basic Channel + 0 (Main Synth) is in Mono modes*
     - Layering
-        - Basic Channel - 3 (Default 14): Control Basic Channel + 0 and + 1 simultaneously
+        - Basic Channel - 3 (Default 15): Control Basic Channel + 0 and + 1 simultaneously
             - Results of Program Change: Program # + 0 for Basic Channel + 0 and Program # + 1 for Basic Channel + 1
-        - Basic Channel - 2 (Default 15): Control Basic Channel + 2 and + 3 simultaneously
+        - Basic Channel - 2 (Default 16): Control Basic Channel + 2 and + 3 simultaneously
             - Results of Program Change: Program # + 0 for Basic Channel + 2 and Program # + 1 for Basic Channel + 3
-        - Basic Channel - 1 (Default 16): Control Basic Channel + 0, + 1, + 2, and + 3 simultaneously
+        - Basic Channel - 1 (Default 1): Control Basic Channel + 0, + 1, + 2, and + 3 simultaneously
             - Results of Program Change: Program # + 0 for Basic Channel + 0, Program # + 1 for Basic Channel + 1, Program # + 2 for Basic Channel + 2, and Program # + 3 for Basic Channel + 3
         - Not to use this feature, comment out `#define PRA32_U2_ENABLE_LAYERING` in "Digital-Synth-PRA32-U2-M.ino"
 - How to modify
