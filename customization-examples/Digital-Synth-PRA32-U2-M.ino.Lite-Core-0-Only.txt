@@ -26,7 +26,7 @@
 #define PRA32_U2_UART_MIDI_TX_PIN              (4)
 #define PRA32_U2_UART_MIDI_RX_PIN              (5)
 
-#define PRA32_U2_MIDI_CH                       (0)  // 0-based
+#define PRA32_U2_MIDI_CH                       (1)  // 0-based
 
 // for Pimoroni Pico Audio Pack (PIM544)
 #define PRA32_U2_I2S_DAC_MUTE_OFF_PIN          (22)
