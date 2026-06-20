@@ -102,14 +102,18 @@ PRA32_U2_Synth<true,  false, true, 2, false, true>  g_sub_2_synth;
 PRA32_U2_Synth<true,  false, true, 3, false, true>  g_sub_3_synth;
 
 #include <MIDI.h>
+struct MySettings : public midi::DefaultSettings {
+  static const long BaudRate = PRA32_U2_UART_MIDI_SPEED;
+  static const bool HandleNullVelocityNoteOnAsNoteOff = false;
+};
 #if defined(PRA32_U2_USE_USB_MIDI)
 #include <Adafruit_TinyUSB.h>
 Adafruit_USBD_MIDI usbd_midi;
-MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usbd_midi, USB_MIDI);
+MIDI_CREATE_CUSTOM_INSTANCE(Adafruit_USBD_MIDI, usbd_midi, USB_MIDI, MySettings);
 #endif  // defined(PRA32_U2_USE_USB_MIDI)
 
 #if defined(PRA32_U2_USE_UART_MIDI)
-MIDI_CREATE_INSTANCE(HardwareSerial, PRA32_U2_UART_MIDI_SERIAL, UART_MIDI);
+MIDI_CREATE_CUSTOM_INSTANCE(HardwareSerial, PRA32_U2_UART_MIDI_SERIAL, UART_MIDI, MySettings);
 #endif
 
 #include "pra32-u2-control-panel.h"
@@ -445,7 +449,7 @@ void __not_in_flash_func(loop)() {
 void __not_in_flash_func(handleNoteOn)(byte channel, byte pitch, byte velocity)
 {
   if (velocity == 0) {
-    return handleNoteOff(channel, pitch, 0);  // It is required for some reason
+    return handleNoteOff(channel, pitch, 64);
   }
 
   if ((channel - 1) == g_midi_ch) {
