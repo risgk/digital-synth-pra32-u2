@@ -450,32 +450,25 @@ void __not_in_flash_func(handleNoteOn)(byte channel, byte pitch, byte velocity)
 void __not_in_flash_func(handleNoteOff)(byte channel, byte pitch, byte velocity)
 {
   if ((channel - 1) == g_midi_ch) {
-    (void) velocity;
-    g_synth.note_off(pitch);
+    g_synth.note_off(pitch, velocity);
   } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
-    (void) velocity;
-    g_sub_1_synth.note_off(pitch);
+    g_sub_1_synth.note_off(pitch, velocity);
   } else if ((channel - 1) == ((g_midi_ch + 2) & 0x0F)) {
-    (void) velocity;
-    g_sub_2_synth.note_off(pitch);
+    g_sub_2_synth.note_off(pitch, velocity);
   } else if ((channel - 1) == ((g_midi_ch + 3) & 0x0F)) {
-    (void) velocity;
-    g_sub_3_synth.note_off(pitch);
+    g_sub_3_synth.note_off(pitch, velocity);
 #if defined(PRA32_U2_ENABLE_LAYERING)
   } else if ((channel - 1) == ((g_midi_ch - 3) & 0x0F)) {
-    (void) velocity;
-    g_synth.note_off(pitch);
-    g_sub_1_synth.note_off(pitch);
+    g_synth.note_off(pitch, velocity);
+    g_sub_1_synth.note_off(pitch, velocity);
   } else if ((channel - 1) == ((g_midi_ch - 2) & 0x0F)) {
-    (void) velocity;
-    g_sub_2_synth.note_off(pitch);
-    g_sub_3_synth.note_off(pitch);
+    g_sub_2_synth.note_off(pitch, velocity);
+    g_sub_3_synth.note_off(pitch, velocity);
   } else if ((channel - 1) == ((g_midi_ch - 1) & 0x0F)) {
-    (void) velocity;
-    g_synth.note_off(pitch);
-    g_sub_1_synth.note_off(pitch);
-    g_sub_2_synth.note_off(pitch);
-    g_sub_3_synth.note_off(pitch);
+    g_synth.note_off(pitch, velocity);
+    g_sub_1_synth.note_off(pitch, velocity);
+    g_sub_2_synth.note_off(pitch, velocity);
+    g_sub_3_synth.note_off(pitch, velocity);
 #endif  // defined(PRA32_U2_ENABLE_LAYERING)
   }
 }

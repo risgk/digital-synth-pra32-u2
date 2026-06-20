@@ -522,7 +522,7 @@ public:
 
   /* INLINE */ void __not_in_flash_func(note_on)(uint8_t note_number, uint8_t velocity) {
     if (velocity == 0) {
-      note_off(note_number);
+      note_off(note_number, 64);
       return;
     }
 
@@ -744,7 +744,7 @@ public:
     }
   }
 
-  /* INLINE */ void __not_in_flash_func(note_off)(uint8_t note_number) {
+  /* INLINE */ void __not_in_flash_func(note_off)(uint8_t note_number, uint8_t velocity) {
     if (m_note_on_total_count == 0) {
       return;
     }
@@ -808,8 +808,8 @@ public:
         m_osc.note_off<0>();
 
         if (m_voice_mode == VOICE_POLYPHONIC) {
-          m_eg[0].note_off();
-          m_eg[1].note_off();
+          m_eg[0].note_off(velocity);
+          m_eg[1].note_off(velocity);
         }
       }
     } else if (m_note_on_number[1] == note_number) {
@@ -819,8 +819,8 @@ public:
         m_osc.note_off<1>();
 
         if (m_voice_mode == VOICE_POLYPHONIC) {
-          m_eg[2].note_off();
-          m_eg[3].note_off();
+          m_eg[2].note_off(velocity);
+          m_eg[3].note_off(velocity);
         }
       }
     } else if (m_note_on_number[2] == note_number) {
@@ -830,8 +830,8 @@ public:
         m_osc.note_off<2>();
 
         if (m_voice_mode == VOICE_POLYPHONIC) {
-          m_eg[4].note_off();
-          m_eg[5].note_off();
+          m_eg[4].note_off(velocity);
+          m_eg[5].note_off(velocity);
         }
       }
     } else if (m_note_on_number[3] == note_number) {
@@ -841,16 +841,16 @@ public:
         m_osc.note_off<3>();
 
         if (m_voice_mode == VOICE_POLYPHONIC) {
-          m_eg[6].note_off();
-          m_eg[7].note_off();
+          m_eg[6].note_off(velocity);
+          m_eg[7].note_off(velocity);
         }
       }
     }
 
     if (m_note_on_total_count == 0) {
       if (m_voice_mode != VOICE_POLYPHONIC) {
-        m_eg[0].note_off();
-        m_eg[1].note_off();
+        m_eg[0].note_off(velocity);
+        m_eg[1].note_off(velocity);
       }
     }
   }
@@ -895,14 +895,14 @@ public:
       m_amp[3].reset();
     }
 
-    m_eg[0].note_off(all_sound_off);
-    m_eg[1].note_off(all_sound_off);
-    m_eg[2].note_off(all_sound_off);
-    m_eg[3].note_off(all_sound_off);
-    m_eg[4].note_off(all_sound_off);
-    m_eg[5].note_off(all_sound_off);
-    m_eg[6].note_off(all_sound_off);
-    m_eg[7].note_off(all_sound_off);
+    m_eg[0].note_off(64, all_sound_off);
+    m_eg[1].note_off(64, all_sound_off);
+    m_eg[2].note_off(64, all_sound_off);
+    m_eg[3].note_off(64, all_sound_off);
+    m_eg[4].note_off(64, all_sound_off);
+    m_eg[5].note_off(64, all_sound_off);
+    m_eg[6].note_off(64, all_sound_off);
+    m_eg[7].note_off(64, all_sound_off);
 
     control_change(SUSTAIN_PEDAL   , 0  );
   }
@@ -1169,16 +1169,16 @@ if constexpr (NO_FX == false) {
       m_amp[3].set_breath_mod(controller_value);
       break;
     case EG_VEL_SENS    :
-      m_eg[0].set_velocity_sensitivity(controller_value);
-      m_eg[2].set_velocity_sensitivity(controller_value);
-      m_eg[4].set_velocity_sensitivity(controller_value);
-      m_eg[6].set_velocity_sensitivity(controller_value);
+      m_eg[0].set_note_on_velocity_sensitivity(controller_value);
+      m_eg[2].set_note_on_velocity_sensitivity(controller_value);
+      m_eg[4].set_note_on_velocity_sensitivity(controller_value);
+      m_eg[6].set_note_on_velocity_sensitivity(controller_value);
       break;
     case AMP_VEL_SENS   :
-      m_eg[1].set_velocity_sensitivity(controller_value);
-      m_eg[3].set_velocity_sensitivity(controller_value);
-      m_eg[5].set_velocity_sensitivity(controller_value);
-      m_eg[7].set_velocity_sensitivity(controller_value);
+      m_eg[1].set_note_on_velocity_sensitivity(controller_value);
+      m_eg[3].set_note_on_velocity_sensitivity(controller_value);
+      m_eg[5].set_note_on_velocity_sensitivity(controller_value);
+      m_eg[7].set_note_on_velocity_sensitivity(controller_value);
       break;
 
     case EXPRESSION     :
@@ -1743,8 +1743,8 @@ if constexpr (RESTRICT_POLY_AND_CORES == false) {
           m_osc.note_off<0>();
 
           if (m_voice_mode == VOICE_POLYPHONIC) {
-            m_eg[0].note_off();
-            m_eg[1].note_off();
+            m_eg[0].note_off(64);
+            m_eg[1].note_off(64);
           }
         }
       }
@@ -1756,8 +1756,8 @@ if constexpr (RESTRICT_POLY_AND_CORES == false) {
           m_osc.note_off<1>();
 
           if (m_voice_mode == VOICE_POLYPHONIC) {
-            m_eg[2].note_off();
-            m_eg[3].note_off();
+            m_eg[2].note_off(64);
+            m_eg[3].note_off(64);
           }
         }
       }
@@ -1769,8 +1769,8 @@ if constexpr (RESTRICT_POLY_AND_CORES == false) {
           m_osc.note_off<2>();
 
           if (m_voice_mode == VOICE_POLYPHONIC) {
-            m_eg[4].note_off();
-            m_eg[5].note_off();
+            m_eg[4].note_off(64);
+            m_eg[5].note_off(64);
           }
         }
       }
@@ -1782,16 +1782,16 @@ if constexpr (RESTRICT_POLY_AND_CORES == false) {
           m_osc.note_off<3>();
 
           if (m_voice_mode == VOICE_POLYPHONIC) {
-            m_eg[6].note_off();
-            m_eg[7].note_off();
+            m_eg[6].note_off(64);
+            m_eg[7].note_off(64);
           }
         }
       }
 
       if (m_note_on_total_count == 0) {
         if (m_voice_mode != VOICE_POLYPHONIC) {
-          m_eg[0].note_off();
-          m_eg[1].note_off();
+          m_eg[0].note_off(64);
+          m_eg[1].note_off(64);
         }
       }
     }

@@ -18,11 +18,12 @@ class PRA32_U2_EG {
   int32_t m_attack_coef;
   int32_t m_decay_coef;
   int32_t m_sustain;
+  int32_t m_release;
   int32_t m_release_coef;
-  uint8_t m_velocity_sensitivity;
-  uint8_t m_note_on_velocity;
+  uint8_t m_note_on_velocity_sensitivity;
   int32_t m_attack_level;
   int32_t m_sustain_level;
+  uint8_t m_note_off_velocity_sensitivity;
 
 public:
   PRA32_U2_EG()
@@ -32,11 +33,12 @@ public:
   , m_attack_coef()
   , m_decay_coef()
   , m_sustain()
+  , m_release()
   , m_release_coef()
-  , m_velocity_sensitivity()
-  , m_note_on_velocity()
+  , m_note_on_velocity_sensitivity()
   , m_attack_level()
   , m_sustain_level()
+  , m_note_off_velocity_sensitivity()
   {
     m_state = STATE_IDLE;
     set_attack(0);
@@ -59,27 +61,29 @@ public:
   }
 
   INLINE void set_release(uint8_t controller_value) {
-    m_release_coef = g_eg_attack_release_coef_table[controller_value];
+    m_release = controller_value;
   }
 
-  INLINE void set_velocity_sensitivity(uint8_t controller_value) {
-    m_velocity_sensitivity = (controller_value + 1) >> 1;
+  INLINE void set_note_on_velocity_sensitivity(uint8_t controller_value) {
+    m_note_on_velocity_sensitivity = (controller_value + 1) >> 1;
+  }
+
+  INLINE void set_note_off_velocity_sensitivity(uint8_t controller_value) {
+    m_note_off_velocity_sensitivity = (controller_value + 1) >> 1;
   }
 
   INLINE void note_on(uint8_t velocity) {
-    if (velocity <= 127) {
-      m_note_on_velocity = velocity;
-    }
-
-    m_attack_level = ((((m_note_on_velocity * m_velocity_sensitivity) +
-                        (127 * (64 - m_velocity_sensitivity))) * 16384) / 127) << (EG_LEVEL_MAX_BITS - 20);
+    m_attack_level = ((((velocity * m_note_on_velocity_sensitivity) +
+                        (127 * (64 - m_note_on_velocity_sensitivity))) * 16384) / 127) << (EG_LEVEL_MAX_BITS - 20);
     m_sustain_level = (m_attack_level >> 6) * m_sustain;
     m_state = STATE_ATTACK;
   }
 
-  INLINE void note_off(boolean sound_off = false) {
+  INLINE void note_off(uint8_t velocity, boolean sound_off = false) {
+    int32_t release = m_release + ((((127 - velocity) * m_note_off_velocity_sensitivity)) >> 6);
+    release = minimum(release, 127);
+    m_release_coef = g_eg_attack_release_coef_table[release];
     m_state = STATE_IDLE;
-    m_note_on_velocity = 0;
 
     if (sound_off) {
       m_level = 0;

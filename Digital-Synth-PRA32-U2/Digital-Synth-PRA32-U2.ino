@@ -375,8 +375,7 @@ void __not_in_flash_func(handleNoteOn)(byte channel, byte pitch, byte velocity)
 void __not_in_flash_func(handleNoteOff)(byte channel, byte pitch, byte velocity)
 {
   if ((channel - 1) == g_midi_ch) {
-    (void) velocity;
-    g_synth.note_off(pitch);
+    g_synth.note_off(pitch, velocity);
   }
 }
 
