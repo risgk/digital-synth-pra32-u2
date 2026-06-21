@@ -36,6 +36,7 @@ jobs:
           cp web_app/app.js dist/
           cp web_app/synth-processor.js dist/
           cp web_app/synth.wasm dist/
+          cp -r web_app/data dist/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
