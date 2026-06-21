@@ -7,7 +7,7 @@
     - PRA32-U2/M: Fix the current synth (MIDI channel) "$" display
     - Revert "Fix Note On with velocity 0 not treated as Note Off"
         - This fix was not needed
-    - Tested with Arduino-Pico version 5.6.0
+    - Tested with Arduino-Pico version 5.6.1
 - v2.14.2 (2026-06-16):
     - Fix Note On with velocity 0 not treated as Note Off
     - Tested with Arduino-Pico version 5.6.0
