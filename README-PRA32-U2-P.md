@@ -138,82 +138,83 @@
 
 ### Table of GUI Pages
 
-| Page           | Parameter A         | Parameter B      |
-| :------------- | :------------------ | :--------------- |
-| A-00 Info      | PRA32-U2/P          | v2.14.2          |
-| A-01 Voice     | Voice Mode          | Voice Asgn Mode  |
-| A-02 Pitch     | Portamento          | Pitch Bend Range |
-| A-03 Osc a     | Osc 1 Wave          | Mixer Noise/Sub  |
-| A-04 Osc b     | Osc 1 Shape         | Osc 1 Morph      |
-| A-05 Osc c     | Osc 2 Wave          | Mixer Osc Mix    |
-| A-06 Osc d     | Osc 2 Coarse        | Osc 2 Pitch      |
-| A-07 Osc e     | Osc Drift           | Osc Saw W Mode   |
-| A-08 Filter a  | Filter Cutoff       | Filter Resonance |
-| A-09 Filter b  | Filter EG Amt       | Filter Key Track |
-| A-10 Filter c  | Filter Mode         |                  |
-| A-11 EG a      | EG Attack           | EG Decay         |
-| A-12 EG b      | EG Sustain          | EG Release       |
-| A-13 EG c      | EG Amp Mod          | Release = Decay  |
-| A-14 EG d      | EG Mod Amt          | EG Mod Dst       |
-| A-15 EG e      | EG Filter Amt       | EG Velo Sens     |
-| A-16 Amp a     | Amp Attack          | Amp Decay        |
-| A-17 Amp b     | Amp Sustain         | Amp Release      |
-| A-18 Amp c     | Amp Gain            | Amp Velo Sens    |
-| A-19 Panner    | Pan                 |                  |
-| A-20 LFO a     | LFO Wave            | LFO Fade Time    |
-| A-21 LFO b     | LFO Rate            | LFO Depth        |
-| A-22 LFO c     | LFO Mod Amt         | LFO Mod Dst      |
-| A-23 LFO d     | LFO Filter Amt      |                  |
-| A-24 Breath    | Breath Filter Amt   | Breath Amp Mod   |
-| A-25 Aft Touch | Aft Touch LFO Amt   |                  |
-| A-26 Chorus a  | Chorus Level        |                  |
-| A-27 Chorus b  | Chorus Rate         | Chorus Depth     |
-| A-28 Delay a   | Delay Level         | Delay Mode       |
-| A-29 Delay b   | Delay Time          | Delay Feedback   |
-| B-00 Panel a   | Panel Play Mode     | MIDI Basic Ch    |
-| B-01 Panel b   | Panel Play Pitch    | Panel Play Velo  |
-| B-02 Panel c   | Panel Scale         | Panel Pitch Ofst |
-| B-03 Panel d   | Panel Transpose     |                  |
-| B-04 Seq a     | Seq Step Note       | Seq Clock Src    |
-| B-05 Seq b     | Seq Transpose       | Seq T/Rx St/Sp   |
-| B-06 Seq c     | Seq Tempo           | Seq Gate Time    |
-| B-07 Seq d     | Seq Mode            | Seq Num Steps    |
-| B-08 Seq e     | Seq On Steps        | Seq Act Steps    |
-| B-09 Seq f     | Seq Rand Pitch      | Seq Rand Velo    |
-| B-10 Seq 0     | Seq Pitch 0         | Seq Velo 0       |
-| B-11 Seq 1     | Seq Pitch 1         | Seq Velo 1       |
-| B-12 Seq 2     | Seq Pitch 2         | Seq Velo 2       |
-| B-13 Seq 3     | Seq Pitch 3         | Seq Velo 3       |
-| B-14 Seq 4     | Seq Pitch 4         | Seq Velo 4       |
-| B-15 Seq 5     | Seq Pitch 5         | Seq Velo 5       |
-| B-16 Seq 6     | Seq Pitch 6         | Seq Velo 6       |
-| B-17 Seq 7     | Seq Pitch 7         | Seq Velo 7       |
-| B-18 Control a | Modulation          | Expression       |
-| B-19 Control b | Breath Controller   | Sustain Pedal    |
-| B-20 Control c | Panic               |                  |
-| C-00 Write 0   | Write Program 0     | Write Program 1  |
-| C-01 Write 2   | Write Program 2     | Write Program 3  |
-| C-02 Write 4   | Write Program 4     | Write Program 5  |
-| C-03 Write 6   | Write Program 6     | Write Program 7  |
-| C-04 Write 8   | Write Program 8     | Write Program 9  |
-| C-05 Write 10  | Write Program 10    | Write Program 11 |
-| C-06 Write 12  | Write Program 12    | Write Program 13 |
-| C-07 Write 14  | Write Program 14    | Write Program 15 |
-| C-08 Write a   | Write Panel Prms    |                  |
-| D-00 Read 0    | Read Program 0      | Read Program 1   |
-| D-01 Read 2    | Read Program 2      | Read Program 3   |
-| D-02 Read 4    | Read Program 4      | Read Program 5   |
-| D-03 Read 6    | Read Program 6      | Read Program 7   |
-| D-04 Read 8    | Read Program 8      | Read Program 9   |
-| D-05 Read 10   | Read Program 10     | Read Program 11  |
-| D-06 Read 12   | Read Program 12     | Read Program 13  |
-| D-07 Read 14   | Read Program 14     | Read Program 15  |
-| D-08 Read 16   | Read Program 16     | Read Program 17  |
-| D-09 Read 18   | Read Program 18     | Read Program 19  |
-| D-10 Read 20   | Read Program 20     | Read Program 21  |
-| D-11 Read 22   | Read Program 22     | Read Program 23  |
-| D-12 Read 24   | Read Program 24     | Read Program 25  |
-| D-13 Read 26   | Read Program 26     | Read Program 27  |
-| D-14 Read 28   | Read Program 28     | Read Program 29  |
-| D-15 Read 30   | Read Program 30     | Read Program 31  |
-| D-16 Read a    | Read Panel Prms     | Init Panel Prms  |
+| Page           | Parameter A         | Parameter B       |
+| :------------- | :------------------ | :---------------- |
+| A-00 Info      | PRA32-U2/P          | v2.14.2           |
+| A-01 Voice     | Voice Mode          | Voice Asgn Mode   |
+| A-02 Pitch     | Portamento          | Pitch Bend Range  |
+| A-03 Osc a     | Osc 1 Wave          | Mixer Noise/Sub   |
+| A-04 Osc b     | Osc 1 Shape         | Osc 1 Morph       |
+| A-05 Osc c     | Osc 2 Wave          | Mixer Osc Mix     |
+| A-06 Osc d     | Osc 2 Coarse        | Osc 2 Pitch       |
+| A-07 Osc e     | Osc Drift           | Osc Saw W Mode    |
+| A-08 Filter a  | Filter Cutoff       | Filter Resonance  |
+| A-09 Filter b  | Filter EG Amt       | Filter Key Track  |
+| A-10 Filter c  | Filter Mode         |                   |
+| A-11 EG a      | EG Attack           | EG Decay          |
+| A-12 EG b      | EG Sustain          | EG Release        |
+| A-13 EG c      | EG Amp Mod          | Release = Decay   |
+| A-14 EG d      | EG Mod Amt          | EG Mod Dst        |
+| A-15 EG e      | EG Filter Amt       | EG Velo Sens      |
+| A-16 EG f      |                     | Release Velo Sens |
+| A-17 Amp a     | Amp Attack          | Amp Decay         |
+| A-18 Amp b     | Amp Sustain         | Amp Release       |
+| A-19 Amp c     | Amp Gain            | Amp Velo Sens     |
+| A-20 Panner    | Pan                 |                   |
+| A-21 LFO a     | LFO Wave            | LFO Fade Time     |
+| A-22 LFO b     | LFO Rate            | LFO Depth         |
+| A-23 LFO c     | LFO Mod Amt         | LFO Mod Dst       |
+| A-24 LFO d     | LFO Filter Amt      |                   |
+| A-25 Breath    | Breath Filter Amt   | Breath Amp Mod    |
+| A-26 Aft Touch | Aft Touch LFO Amt   |                   |
+| A-27 Chorus a  | Chorus Level        |                   |
+| A-28 Chorus b  | Chorus Rate         | Chorus Depth      |
+| A-29 Delay a   | Delay Level         | Delay Mode        |
+| A-30 Delay b   | Delay Time          | Delay Feedback    |
+| B-00 Panel a   | Panel Play Mode     | MIDI Basic Ch     |
+| B-01 Panel b   | Panel Play Pitch    | Panel Play Velo   |
+| B-02 Panel c   | Panel Scale         | Panel Pitch Ofst  |
+| B-03 Panel d   | Panel Transpose     |                   |
+| B-04 Seq a     | Seq Step Note       | Seq Clock Src     |
+| B-05 Seq b     | Seq Transpose       | Seq T/Rx St/Sp    |
+| B-06 Seq c     | Seq Tempo           | Seq Gate Time     |
+| B-07 Seq d     | Seq Mode            | Seq Num Steps     |
+| B-08 Seq e     | Seq On Steps        | Seq Act Steps     |
+| B-09 Seq f     | Seq Rand Pitch      | Seq Rand Velo     |
+| B-10 Seq 0     | Seq Pitch 0         | Seq Velo 0        |
+| B-11 Seq 1     | Seq Pitch 1         | Seq Velo 1        |
+| B-12 Seq 2     | Seq Pitch 2         | Seq Velo 2        |
+| B-13 Seq 3     | Seq Pitch 3         | Seq Velo 3        |
+| B-14 Seq 4     | Seq Pitch 4         | Seq Velo 4        |
+| B-15 Seq 5     | Seq Pitch 5         | Seq Velo 5        |
+| B-16 Seq 6     | Seq Pitch 6         | Seq Velo 6        |
+| B-17 Seq 7     | Seq Pitch 7         | Seq Velo 7        |
+| B-18 Control a | Modulation          | Expression        |
+| B-19 Control b | Breath Controller   | Sustain Pedal     |
+| B-20 Control c | Panic               |                   |
+| C-00 Write 0   | Write Program 0     | Write Program 1   |
+| C-01 Write 2   | Write Program 2     | Write Program 3   |
+| C-02 Write 4   | Write Program 4     | Write Program 5   |
+| C-03 Write 6   | Write Program 6     | Write Program 7   |
+| C-04 Write 8   | Write Program 8     | Write Program 9   |
+| C-05 Write 10  | Write Program 10    | Write Program 11  |
+| C-06 Write 12  | Write Program 12    | Write Program 13  |
+| C-07 Write 14  | Write Program 14    | Write Program 15  |
+| C-08 Write a   | Write Panel Prms    |                   |
+| D-00 Read 0    | Read Program 0      | Read Program 1    |
+| D-01 Read 2    | Read Program 2      | Read Program 3    |
+| D-02 Read 4    | Read Program 4      | Read Program 5    |
+| D-03 Read 6    | Read Program 6      | Read Program 7    |
+| D-04 Read 8    | Read Program 8      | Read Program 9    |
+| D-05 Read 10   | Read Program 10     | Read Program 11   |
+| D-06 Read 12   | Read Program 12     | Read Program 13   |
+| D-07 Read 14   | Read Program 14     | Read Program 15   |
+| D-08 Read 16   | Read Program 16     | Read Program 17   |
+| D-09 Read 18   | Read Program 18     | Read Program 19   |
+| D-10 Read 20   | Read Program 20     | Read Program 21   |
+| D-11 Read 22   | Read Program 22     | Read Program 23   |
+| D-12 Read 24   | Read Program 24     | Read Program 25   |
+| D-13 Read 26   | Read Program 26     | Read Program 27   |
+| D-14 Read 28   | Read Program 28     | Read Program 29   |
+| D-15 Read 30   | Read Program 30     | Read Program 31   |
+| D-16 Read a    | Read Panel Prms     | Init Panel Prms   |

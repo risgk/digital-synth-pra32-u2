@@ -117,7 +117,7 @@ const AMP_VEL_SENS    = 63;
 const AFT_T_LFO_AMT   = 109;
 const VOICE_ASGN_MODE = 110;
 const PAN             = 10;
-
+const REL_VEL_SENS    = 81;
 
 const OSC_DRIFT       = 82;
 const OSC_SAW_W_MODE  = 83;
@@ -213,7 +213,7 @@ var controlNumberToStringMap = new Map([
   [ AFT_T_LFO_AMT  , "AFT_T_LFO_AMT  " ],
   [ VOICE_ASGN_MODE, "VOICE_ASGN_MODE" ],
   [ PAN            , "PAN            " ],
-
+  [ REL_VEL_SENS   , "REL_VEL_SENS   " ],
 
   [ OSC_DRIFT      , "OSC_DRIFT      " ],
   [ OSC_SAW_W_MODE , "OSC_SAW_W_MODE " ],
@@ -285,7 +285,7 @@ var controllersInLocalStorage = [
   AFT_T_LFO_AMT  ,
   VOICE_ASGN_MODE,
   PAN            ,
-
+  REL_VEL_SENS   ,
 
   OSC_DRIFT      ,
   OSC_SAW_W_MODE ,
@@ -359,7 +359,7 @@ presetControllers[AMP_VEL_SENS   ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   
 presetControllers[AFT_T_LFO_AMT  ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 presetControllers[VOICE_ASGN_MODE] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 presetControllers[PAN            ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
-
+presetControllers[REL_VEL_SENS   ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 
 presetControllers[OSC_DRIFT      ] = [32 , 32 , 32 , 32 , 32 , 32 , 32 , 32 ,   32 , 32 , 32 , 32 , 32 , 32 , 32 , 32 ];
 presetControllers[OSC_SAW_W_MODE ] = [127, 127, 127, 127, 127, 127, 127, 127,   127, 127, 127, 127, 127, 127, 127, 127];
@@ -887,6 +887,7 @@ function setRandom() {
         (i != AFT_T_LFO_AMT  ) &&
         (i != VOICE_ASGN_MODE) &&
         (i != PAN            ) &&
+        (i != REL_VEL_SENS   ) &&
         (i != OSC_DRIFT      ) &&
         (i != OSC_SAW_W_MODE )) {
       onChangeControlChange(i, rand(128));
@@ -1114,7 +1115,7 @@ function fileExport() {
   str += fileExportOneLine(AFT_T_LFO_AMT  );
   str += fileExportOneLine(VOICE_ASGN_MODE);
   str += fileExportOneLine(PAN            );
-  str += "\n";
+  str += fileExportOneLine(REL_VEL_SENS   );
   str += "\n";
   str += fileExportOneLine(OSC_DRIFT      );
   str += fileExportOneLine(OSC_SAW_W_MODE );
@@ -1661,6 +1662,7 @@ function getStoredCCValueString(index, number) {
 <td colspan="3"><b>After Touch</b> LFO Amt             </td>
 <td colspan="3">Voice Assign Mode [1|2]         </td>
 <td colspan="3">Pan                             </td>
+<td colspan="3">Release Velocity Sensitivity    </td>
 </tr>
 <tr>
 <td><input  id="inputAFT_T_LFO_AMT  "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(AFT_T_LFO_AMT  , value)"></td>
@@ -1672,6 +1674,9 @@ function getStoredCCValueString(index, number) {
 <td><input  id="inputPAN            "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(PAN            , value)"></td>
 <td><span    id="spanPAN            " >-</span></td>
 <td><span   id="span2PAN            " >-</span></td>
+<td><input  id="inputREL_VEL_SENS   "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(REL_VEL_SENS   , value)"></td>
+<td><span    id="spanREL_VEL_SENS   " >-</span></td>
+<td><span   id="span2REL_VEL_SENS   " >-</span></td>
 </tr>
 <tr>
 <td colspan="3"><b>Osc</b> Drift                       </td>

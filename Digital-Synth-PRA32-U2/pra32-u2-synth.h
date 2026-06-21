@@ -81,7 +81,7 @@ static uint8_t s_program_table_parameters[] = {
   AFT_T_LFO_AMT  ,
   VOICE_ASGN_MODE,
   PAN            ,
-
+  REL_VEL_SENS   ,
 
   OSC_DRIFT      ,
   OSC_SAW_W_MODE ,
@@ -389,7 +389,7 @@ public:
     std::memcpy(m_program_table[AFT_T_LFO_AMT  ], g_preset_table_AFT_T_LFO_AMT  , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[VOICE_ASGN_MODE], g_preset_table_VOICE_ASGN_MODE, sizeof(m_program_table[0]));
     std::memcpy(m_program_table[PAN            ], g_preset_table_PAN            , sizeof(m_program_table[0]));
-
+    std::memcpy(m_program_table[REL_VEL_SENS   ], g_preset_table_REL_VEL_SENS   , sizeof(m_program_table[0]));
 
     std::memcpy(m_program_table[OSC_DRIFT      ], g_preset_table_OSC_DRIFT      , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[OSC_SAW_W_MODE ], g_preset_table_OSC_SAW_W_MODE , sizeof(m_program_table[0]));
@@ -1121,6 +1121,18 @@ if constexpr (NO_FX == false) {
 
     case PAN            :
       m_panner.set_pan(controller_value);
+      break;
+
+    case REL_VEL_SENS   :
+      m_eg[0].set_note_off_velocity_sensitivity(controller_value);
+      m_eg[2].set_note_off_velocity_sensitivity(controller_value);
+      m_eg[4].set_note_off_velocity_sensitivity(controller_value);
+      m_eg[6].set_note_off_velocity_sensitivity(controller_value);
+
+      m_eg[1].set_note_off_velocity_sensitivity(controller_value);
+      m_eg[3].set_note_off_velocity_sensitivity(controller_value);
+      m_eg[5].set_note_off_velocity_sensitivity(controller_value);
+      m_eg[7].set_note_off_velocity_sensitivity(controller_value);
       break;
 
     case OSC_DRIFT      :
