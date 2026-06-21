@@ -258,13 +258,14 @@
     - 0 (0-31): Off
     - 64 (32-95): Quadratic Curve
     - 127 (96-127): Liniear Curve
-- EG Velocity Sensitivity
-- Amp Velocity Sensitivity
+- EG Velocity Sensitivity: Decreases the EG level as note on velocity decreases
+- Amp Velocity Sensitivity: Decreases the Amp EG level as note on velocity decreases
 - After Touch LFO Amt
 - Voice Assign Mode [1|2]
     - 0 (0-63): Mode 1, Free voice with next number has priority in Polyphonic Mode, Release is effective
     - 127 (64-127): Mode 2, Free voice with small number has priority in Polyphonic Mode, Portamento is effective
 - Pan
+- Release Velocity Sensitivity: Increases the release time as note off velocity decreases
 - Osc Drift
 - Osc Saw Wave Mode [Str|Cur]
     - 0 (0-63): Straight Saw Wave
