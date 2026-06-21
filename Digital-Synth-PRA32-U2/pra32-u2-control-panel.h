@@ -1865,6 +1865,9 @@ INLINE void PRA32_U2_ControlPanel_update_display(uint32_t loop_counter) {
   } else if (control_number == PANEL_MIDI_CH  ) {
     uint8_t midi_ch = g_synth.current_controller_value(PANEL_MIDI_CH  ) >> 3;
     g_midi_ch = midi_ch;
+#if (PRA32_U2_NUMBER_OF_SYNTHS > 1)
+    s_display_buffer[0][14] = s_hex_chars[getTargetMIDICh(s_current_synth) - 1];
+#endif  // (PRA32_U2_NUMBER_OF_SYNTHS > 1)
   }
 
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL_ANALOG_INPUT)
