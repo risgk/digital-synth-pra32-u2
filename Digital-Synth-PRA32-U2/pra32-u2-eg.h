@@ -80,6 +80,7 @@ public:
   }
 
   INLINE void note_off(uint8_t velocity, boolean sound_off = false) {
+    velocity = velocity + ((!velocity) * 64);  // velocity = ((velocity == 0) ? 64 : velocity);
     int32_t release = m_release + ((((64 - velocity) * m_note_off_velocity_sensitivity)) >> 6);
     release = clamp(release, 0, 127);
     m_release_coef = g_eg_attack_release_coef_table[release];
