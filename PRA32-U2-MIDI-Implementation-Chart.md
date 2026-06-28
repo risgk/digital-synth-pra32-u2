@@ -1,6 +1,6 @@
 ```
-  [Polyphonic Synthesizer]                                        Date: 2026-06-16                      
-  Model: Digital Synth PRA32-U2   MIDI Implementation Chart       Version: 2.14.2                       
+  [Polyphonic Synthesizer]                                        Date: 2026-06-28                      
+  Model: Digital Synth PRA32-U2   MIDI Implementation Chart       Version: 2.15.0                       
 +-------------------------------+---------------+---------------+--------------------------------------+
 | Function...                   | Transmitted   | Recognized    | Remarks                              |
 +-------------------------------+---------------+---------------+--------------------------------------+
@@ -15,7 +15,7 @@
 | Number       : True Voice     | ************* | 0-127         |                                      |
 +-------------------------------+---------------+---------------+--------------------------------------+
 | Velocity     Note ON          | x             | o             |                                      |
-|              Note OFF         | x             | x             |                                      |
+|              Note OFF         | x             | o             |                                      |
 +-------------------------------+---------------+---------------+--------------------------------------+
 | After        Key's            | x             | o             |                                      |
 | Touch        Ch's             | x             | o             |                                      |
@@ -81,7 +81,7 @@
 |                           109 | x             | o             | After Touch LFO Amt                  |
 |                           110 | x             | o             | Voice Assign Mode [1|2]              |
 |                            10 | x             | o             | Pan                                  |
-|                               |               |               |                                      |
+|                            81 | x             | o             | Release Velocity Sensitivity         |
 |                               |               |               |                                      |
 |                            82 | x             | o             | Osc Drift                            |
 |                            83 | x             | o             | Osc Saw Wave Mode [Str|Cur]          |

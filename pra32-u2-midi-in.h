@@ -39,7 +39,7 @@ public:
         if (!is_data_byte(m_first_data)) {
           m_first_data = b;
         } else if (b == 0) {
-          m_synth->note_off(m_first_data);
+          m_synth->note_off(m_first_data, 64);
           m_first_data = DATA_BYTE_INVALID;
         } else {
           m_synth->note_on(m_first_data, b);
@@ -49,7 +49,7 @@ public:
         if (!is_data_byte(m_first_data)) {
           m_first_data = b;
         } else {
-          m_synth->note_off(m_first_data);
+          m_synth->note_off(m_first_data, b);
           m_first_data = DATA_BYTE_INVALID;
         }
       } else if (m_running_status == (CONTROL_CHANGE | PRA32_U2_MIDI_CH)) {
