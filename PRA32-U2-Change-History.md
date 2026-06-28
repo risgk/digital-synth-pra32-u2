@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v2.15.0 (2026-**-**):
+- v2.15.0 (2026-06-28):
     - Adding the "Release Velocity Sensitivity" parameter
     - Treat Note On with velocity 0 as Note Off with velocity 64
     - Fix the default program when the basic channel is not 1
