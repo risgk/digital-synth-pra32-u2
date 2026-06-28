@@ -2,7 +2,7 @@
  * Digital Synth PRA32-U2/M
  */
 
-#define PRA32_U2_VERSION                       "v2.14.2   "
+#define PRA32_U2_VERSION                       "v2.15.0   "
 
 //#define PRA32_U2_USE_DEBUG_PRINT
 
@@ -102,14 +102,18 @@ PRA32_U2_Synth<true,  false, true, 2, false, true>  g_sub_2_synth;
 PRA32_U2_Synth<true,  false, true, 3, false, true>  g_sub_3_synth;
 
 #include <MIDI.h>
+struct MySettings : public midi::DefaultSettings {
+  static const long BaudRate = PRA32_U2_UART_MIDI_SPEED;
+  static const bool HandleNullVelocityNoteOnAsNoteOff = false;
+};
 #if defined(PRA32_U2_USE_USB_MIDI)
 #include <Adafruit_TinyUSB.h>
 Adafruit_USBD_MIDI usbd_midi;
-MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usbd_midi, USB_MIDI);
+MIDI_CREATE_CUSTOM_INSTANCE(Adafruit_USBD_MIDI, usbd_midi, USB_MIDI, MySettings);
 #endif  // defined(PRA32_U2_USE_USB_MIDI)
 
 #if defined(PRA32_U2_USE_UART_MIDI)
-MIDI_CREATE_INSTANCE(HardwareSerial, PRA32_U2_UART_MIDI_SERIAL, UART_MIDI);
+MIDI_CREATE_CUSTOM_INSTANCE(HardwareSerial, PRA32_U2_UART_MIDI_SERIAL, UART_MIDI, MySettings);
 #endif
 
 #include "pra32-u2-control-panel.h"
@@ -444,10 +448,6 @@ void __not_in_flash_func(loop)() {
 
 void __not_in_flash_func(handleNoteOn)(byte channel, byte pitch, byte velocity)
 {
-  if (velocity == 0) {
-    return handleNoteOff(channel, pitch, 0);  // It is required for some reason
-  }
-
   if ((channel - 1) == g_midi_ch) {
     g_synth.note_on(pitch, velocity);
   } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
@@ -475,32 +475,25 @@ void __not_in_flash_func(handleNoteOn)(byte channel, byte pitch, byte velocity)
 void __not_in_flash_func(handleNoteOff)(byte channel, byte pitch, byte velocity)
 {
   if ((channel - 1) == g_midi_ch) {
-    (void) velocity;
-    g_synth.note_off(pitch);
+    g_synth.note_off(pitch, velocity);
   } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
-    (void) velocity;
-    g_sub_1_synth.note_off(pitch);
+    g_sub_1_synth.note_off(pitch, velocity);
   } else if ((channel - 1) == ((g_midi_ch + 2) & 0x0F)) {
-    (void) velocity;
-    g_sub_2_synth.note_off(pitch);
+    g_sub_2_synth.note_off(pitch, velocity);
   } else if ((channel - 1) == ((g_midi_ch + 3) & 0x0F)) {
-    (void) velocity;
-    g_sub_3_synth.note_off(pitch);
+    g_sub_3_synth.note_off(pitch, velocity);
 #if defined(PRA32_U2_ENABLE_LAYERING)
   } else if ((channel - 1) == ((g_midi_ch - 3) & 0x0F)) {
-    (void) velocity;
-    g_synth.note_off(pitch);
-    g_sub_1_synth.note_off(pitch);
+    g_synth.note_off(pitch, velocity);
+    g_sub_1_synth.note_off(pitch, velocity);
   } else if ((channel - 1) == ((g_midi_ch - 2) & 0x0F)) {
-    (void) velocity;
-    g_sub_2_synth.note_off(pitch);
-    g_sub_3_synth.note_off(pitch);
+    g_sub_2_synth.note_off(pitch, velocity);
+    g_sub_3_synth.note_off(pitch, velocity);
   } else if ((channel - 1) == ((g_midi_ch - 1) & 0x0F)) {
-    (void) velocity;
-    g_synth.note_off(pitch);
-    g_sub_1_synth.note_off(pitch);
-    g_sub_2_synth.note_off(pitch);
-    g_sub_3_synth.note_off(pitch);
+    g_synth.note_off(pitch, velocity);
+    g_sub_1_synth.note_off(pitch, velocity);
+    g_sub_2_synth.note_off(pitch, velocity);
+    g_sub_3_synth.note_off(pitch, velocity);
 #endif  // defined(PRA32_U2_ENABLE_LAYERING)
   }
 }

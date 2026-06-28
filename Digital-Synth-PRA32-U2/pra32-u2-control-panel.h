@@ -1033,7 +1033,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
 
 INLINE void PRA32_U2_ControlPanel_setup() {
   for (uint32_t i = 0; i < PRA32_U2_NUMBER_OF_SYNTHS; ++i) {
-    s_current_program[i] = (i + PROGRAM_NUMBER_DEFAULT + getTargetMIDICh(s_current_synth) - 1) & USER_PROGRAM_NUMBER_MAX;
+    s_current_program[i] = (i + PROGRAM_NUMBER_DEFAULT + s_current_synth) & USER_PROGRAM_NUMBER_MAX;
   }
 
 #if defined(PRA32_U2_KEY_INPUT_PREV_KEY_PIN)
@@ -1865,6 +1865,9 @@ INLINE void PRA32_U2_ControlPanel_update_display(uint32_t loop_counter) {
   } else if (control_number == PANEL_MIDI_CH  ) {
     uint8_t midi_ch = g_synth.current_controller_value(PANEL_MIDI_CH  ) >> 3;
     g_midi_ch = midi_ch;
+#if (PRA32_U2_NUMBER_OF_SYNTHS > 1)
+    s_display_buffer[0][14] = s_hex_chars[getTargetMIDICh(s_current_synth) - 1];
+#endif  // (PRA32_U2_NUMBER_OF_SYNTHS > 1)
   }
 
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL_ANALOG_INPUT)

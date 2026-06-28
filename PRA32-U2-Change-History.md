@@ -1,5 +1,13 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v2.15.0 (2026-06-28):
+    - Adding the "Release Velocity Sensitivity" parameter
+    - Treat Note On with velocity 0 as Note Off with velocity 64
+    - Fix the default program when the basic channel is not 1
+    - PRA32-U2/M: Fix the current synth (MIDI channel) "$" display
+    - Revert "Fix Note On with velocity 0 not treated as Note Off"
+        - This fix was not needed
+    - Tested with Arduino-Pico version 5.6.1
 - v2.14.2 (2026-06-16):
     - Fix Note On with velocity 0 not treated as Note Off
     - Tested with Arduino-Pico version 5.6.0
