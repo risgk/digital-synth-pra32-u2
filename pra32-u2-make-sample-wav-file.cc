@@ -39,8 +39,9 @@ int main(int argc, char *argv[]) {
     for (uint16_t i = 0; i < r; i++) {
       int32_t synth_output_l_int32;
       int32_t synth_output_r_int32;
+      int16_t synth_output_l;
       int16_t synth_output_r;
-      int16_t synth_output_l = g_synth.process(0, 0, synth_output_r, synth_output_l_int32, synth_output_r_int32);
+      synth_output_l = g_synth.process(0, 0, synth_output_r, synth_output_l_int32, synth_output_r_int32);
       static_cast<void>(synth_output_l);
       static_cast<void>(synth_output_r);
       g_wav_file_out.write(synth_output_l_int32, synth_output_r_int32);

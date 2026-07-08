@@ -319,11 +319,11 @@ void __not_in_flash_func(loop)() {
 
   int32_t left_buffer[PRA32_U2_I2S_BUFFER_WORDS];
   int32_t right_buffer[PRA32_U2_I2S_BUFFER_WORDS];
-  int16_t synth_output_l;
-  int16_t synth_output_r;
-  int32_t synth_output_l_int32;
-  int32_t synth_output_r_int32;
   for (uint32_t i = 0; i < PRA32_U2_I2S_BUFFER_WORDS; i++) {
+    int16_t synth_output_l;
+    int16_t synth_output_r;
+    int32_t synth_output_l_int32;
+    int32_t synth_output_r_int32;
     synth_output_l = g_synth.process(0, 0, synth_output_r, synth_output_l_int32, synth_output_r_int32);
     static_cast<void>(synth_output_l);
     static_cast<void>(synth_output_r);
