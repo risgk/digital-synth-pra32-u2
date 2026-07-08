@@ -377,8 +377,8 @@ void __not_in_flash_func(loop)() {
   uint32_t debug_measurement_start1_us = micros();
 #endif  // defined(PRA32_U2_USE_DEBUG_PRINT)
 
-  int16_t left_buffer[PRA32_U2_I2S_BUFFER_WORDS];
-  int16_t right_buffer[PRA32_U2_I2S_BUFFER_WORDS];
+  int32_t left_buffer[PRA32_U2_I2S_BUFFER_WORDS];
+  int32_t right_buffer[PRA32_U2_I2S_BUFFER_WORDS];
   for (uint32_t i = 0; i < PRA32_U2_I2S_BUFFER_WORDS; i++) {
     s_secondary_core_processing_request = 1;
 
