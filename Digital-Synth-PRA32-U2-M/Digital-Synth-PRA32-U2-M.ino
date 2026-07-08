@@ -273,7 +273,7 @@ void __not_in_flash_func(setup)() {
   if (PRA32_U2_I2S_SWAP_BCLK_AND_LRCLK_PINS) {
     g_i2s_output.swapClocks();
   }
-  g_i2s_output.setBitsPerSample(16);
+  g_i2s_output.setBitsPerSample(24);
   g_i2s_output.setBuffers(PRA32_U2_I2S_BUFFERS, PRA32_U2_I2S_BUFFER_WORDS);
   g_i2s_output.begin();
 #endif  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
@@ -404,8 +404,16 @@ void __not_in_flash_func(loop)() {
       ;
     }
 
-    left_buffer[i] = g_synth.process<true, false>(synth_output_l_int32 + s_secondary_core_processing_result_l, synth_output_r_int32 + s_secondary_core_processing_result_r,
-                                                  right_buffer[i], synth_output_l_int32, synth_output_r_int32);
+    int16_t synth_fx_output_l;
+    int16_t synth_fx_output_r;
+    int32_t synth_fx_output_l_int32;
+    int32_t synth_fx_output_r_int32;
+    synth_fx_output_l = g_synth.process<true, false>(synth_output_l_int32 + s_secondary_core_processing_result_l, synth_output_r_int32 + s_secondary_core_processing_result_r,
+                                                     synth_fx_output_r, synth_fx_output_l_int32, synth_fx_output_r_int32);
+    static_cast<void>(synth_fx_output_l);
+    static_cast<void>(synth_fx_output_r);
+    left_buffer[i] = synth_fx_output_l_int32 << 8;
+    right_buffer[i] = synth_fx_output_r_int32 << 8;
   }
 
 #if defined(PRA32_U2_USE_DEBUG_PRINT)
@@ -415,22 +423,22 @@ void __not_in_flash_func(loop)() {
 #if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
   for (uint32_t i = 0; i < PRA32_U2_I2S_BUFFER_WORDS; i++) {
 #if ((PRA32_U2_PWM_AUDIO_L_PIN + 1) == PRA32_U2_PWM_AUDIO_R_PIN) && ((PRA32_U2_PWM_AUDIO_L_PIN % 2) == 0)
-    g_pwm_l.write(left_buffer[i]);
-    g_pwm_l.write(right_buffer[i]);
+    g_pwm_l.write(left_buffer[i] >> 16);
+    g_pwm_l.write(right_buffer[i] >> 16);
 #elif ((PRA32_U2_PWM_AUDIO_R_PIN + 1) == PRA32_U2_PWM_AUDIO_L_PIN) && ((PRA32_U2_PWM_AUDIO_R_PIN % 2) == 0)
-    g_pwm_r.write(right_buffer[i]);
-    g_pwm_r.write(left_buffer[i]);
+    g_pwm_r.write(right_buffer[i] >> 16);
+    g_pwm_r.write(left_buffer[i] >> 16);
 #else
-    g_pwm_l.write(left_buffer[i]);
-    g_pwm_r.write(right_buffer[i]);
+    g_pwm_l.write(left_buffer[i] >> 16);
+    g_pwm_r.write(right_buffer[i] >> 16);
 #endif
   }
 #else  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
   for (uint32_t i = 0; i < PRA32_U2_I2S_BUFFER_WORDS; i++) {
     if (PRA32_U2_I2S_SWAP_LEFT_AND_RIGHT) {
-      g_i2s_output.write16(right_buffer[i], left_buffer[i]);
+      g_i2s_output.write24(right_buffer[i], left_buffer[i]);
     } else {
-      g_i2s_output.write16(left_buffer[i], right_buffer[i]);
+      g_i2s_output.write24(left_buffer[i], right_buffer[i]);
     }
   }
 #endif  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
