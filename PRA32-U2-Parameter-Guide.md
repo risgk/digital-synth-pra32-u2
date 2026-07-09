@@ -299,7 +299,7 @@
     - 87: 250 ms = eighth note time at 120 BPM
     - 93: 270 ms
     - 102: 300 ms = eighth note time at 100 BPM
-    - 112: 333.3 ms (max)
+    - 114: 340 ms (max)
 - Delay Feedback
     - 0: Feedback 0% (min)
     - 64: Feedback 25%
