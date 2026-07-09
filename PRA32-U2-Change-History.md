@@ -5,6 +5,7 @@
     - PRA32-U2 Editor: Adjust the layout
     - PRA32-U2/P: Increase `PRA32_U2_KEY_ANTI_CHATTERING_WAIT`
     - Add `SoftwareSerial` explanation to README
+    - Improve customizability
     - Tested with Arduino-Pico version 5.6.1
 - v2.15.0 (2026-06-28):
     - Adding the "Release Velocity Sensitivity" parameter
