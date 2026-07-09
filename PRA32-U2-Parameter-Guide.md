@@ -294,11 +294,13 @@
     - 42: 100 ms = eighth note time at 300 BPM
     - 57: 150 ms = eighth note time at 200 BPM
     - 62: 166.7 ms = eighth note time at 180 BPM
+    - 63: 170 ms
     - 64: 173.3 ms
     - 72: 200 ms = eighth note time at 150 BPM
     - 87: 250 ms = eighth note time at 120 BPM
     - 93: 270 ms
     - 102: 300 ms = eighth note time at 100 BPM
+    - 112: 333.3 ms
     - 114: 340 ms (max)
 - Delay Feedback
     - 0: Feedback 0% (min)
