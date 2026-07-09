@@ -42,10 +42,11 @@ uint8_t g_midi_ch = PRA32_U2_MIDI_CH;
 #include "pra32-u2-common.h"
 #include "pra32-u2-synth.h"
 
-PRA32_U2_Synth<false, true,  true, 0> g_synth;
-PRA32_U2_Synth<true,  true,  true, 1> g_sub_1_synth;
-PRA32_U2_Synth<true,  true,  true, 2> g_sub_2_synth;
-PRA32_U2_Synth<true,  false, true, 3> g_sub_3_synth;
+boolean g_synth_is_in_polyphonic_mode = true;
+PRA32_U2_Synth<false, true,  true, 0, false, false> g_synth;
+PRA32_U2_Synth<true,  true,  true, 1, false, true>  g_sub_1_synth;
+PRA32_U2_Synth<true,  true,  true, 2, false, true>  g_sub_2_synth;
+PRA32_U2_Synth<true,  false, true, 3, false, true>  g_sub_3_synth;
 
 #if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
 #include <PWMAudio.h>
@@ -128,6 +129,14 @@ void __not_in_flash_func(setup)() {
 void __not_in_flash_func(loop)() {
   // TODO
 
+  boolean mode = g_synth.is_in_polyphonic_mode();
+  if (g_synth_is_in_polyphonic_mode != mode) {
+    g_synth_is_in_polyphonic_mode = mode;
+    g_sub_1_synth.all_notes_off(true);
+    g_sub_2_synth.all_notes_off(true);
+    g_sub_3_synth.all_notes_off(true);
+  }
+
   int32_t left_buffer[PRA32_U2_I2S_BUFFER_WORDS];
   int32_t right_buffer[PRA32_U2_I2S_BUFFER_WORDS];
   for (uint32_t i = 0; i < PRA32_U2_I2S_BUFFER_WORDS; i++) {
@@ -135,7 +144,9 @@ void __not_in_flash_func(loop)() {
     int16_t sub_3_synth_output_r;
     int32_t sub_3_synth_output_l_int32;
     int32_t sub_3_synth_output_r_int32;
-    sub_3_synth_output_l = g_sub_3_synth.process<false, false, true, true>(0, 0, sub_3_synth_output_r, sub_3_synth_output_l_int32, sub_3_synth_output_r_int32);
+    if (g_synth_is_in_polyphonic_mode == false) {
+      sub_3_synth_output_l = g_sub_3_synth.process<false, false, true, true>(0, 0, sub_3_synth_output_r, sub_3_synth_output_l_int32, sub_3_synth_output_r_int32);
+    }
     static_cast<void>(sub_3_synth_output_l);
     static_cast<void>(sub_3_synth_output_r);
 
@@ -143,7 +154,9 @@ void __not_in_flash_func(loop)() {
     int16_t sub_2_synth_output_r;
     int32_t sub_2_synth_output_l_int32;
     int32_t sub_2_synth_output_r_int32;
-    sub_2_synth_output_l = g_sub_2_synth.process<false, false, true, true>(sub_3_synth_output_r_int32, sub_3_synth_output_l_int32, sub_2_synth_output_r, sub_2_synth_output_l_int32, sub_2_synth_output_r_int32);
+    if (g_synth_is_in_polyphonic_mode == false) {
+      sub_2_synth_output_l = g_sub_2_synth.process<false, false, true, true>(sub_3_synth_output_r_int32, sub_3_synth_output_l_int32, sub_2_synth_output_r, sub_2_synth_output_l_int32, sub_2_synth_output_r_int32);
+    }
     static_cast<void>(sub_2_synth_output_l);
     static_cast<void>(sub_2_synth_output_r);
 
@@ -151,7 +164,9 @@ void __not_in_flash_func(loop)() {
     int16_t sub_1_synth_output_r;
     int32_t sub_1_synth_output_l_int32;
     int32_t sub_1_synth_output_r_int32;
-    sub_1_synth_output_l = g_sub_1_synth.process<false, false, true, true>(sub_2_synth_output_r_int32, sub_2_synth_output_l_int32, sub_1_synth_output_r, sub_1_synth_output_l_int32, sub_1_synth_output_r_int32);
+    if (g_synth_is_in_polyphonic_mode == false) {
+      sub_1_synth_output_l = g_sub_1_synth.process<false, false, true, true>(sub_2_synth_output_r_int32, sub_2_synth_output_l_int32, sub_1_synth_output_r, sub_1_synth_output_l_int32, sub_1_synth_output_r_int32);
+    }
     static_cast<void>(sub_1_synth_output_l);
     static_cast<void>(sub_1_synth_output_r);
 
