@@ -16,7 +16,7 @@
 - Optional
     - **[PRA32-U2/M](#pra32-u2m-pra32-u2-multi-timbre-edition-optional)** (PRA32-U2 Multi-Timbre Edition) can also be configured
     - **[PRA32-U2/P](./README-PRA32-U2-P.md)** (PRA32-U2 with Panel) and **PRA32-U2/M/P** (PRA32-U2 Multi-Timbre Edition with Panel) can also be configured by adding certain parts
-- Prebuilt UF2 files (in the "bin" directory)
+- Prebuilt UF2 files (in the "bin" folder)
     - PRA32-U2: "Digital-Synth-PRA32-U2-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico 2 and Pimoroni Pico Audio Pack
     - PRA32-U2/M: "Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico 2 and Pimoroni Pico Audio Pack
 
@@ -193,14 +193,6 @@
           (NOTE: The current parameters of PRA32-U2 will not be updated)
 
 
-## Examples of Option Combinations
-
-- PRA32-U2 (USB MIDI Device, I2S)
-- PRA32-U2 (USB MIDI Device, UART MIDI, I2S), Default
-- PRA32-U2 (USB MIDI Device, PWM Audio) (CURRENTLY NOT RECOMMENDED)
-- PRA32-U2/P (PRA32-U2 with Panel) (USB MIDI Device, UART MIDI, I2S, Control Panel)
-
-
 ## [Parameter Guide](./PRA32-U2-Parameter-Guide.md)
 
 
@@ -279,6 +271,20 @@ graph LR
 
 ## [PRA32-U2/P](./README-PRA32-U2-P.md) (PRA32-U2 with Panel) (Optional)
 
+
+## Customization Examples
+
+- Files in the "customization-examples" folder
+- **Digital Synth PRA32-U2 (Lite)**
+    - Osc 1 Shape and Morph are disabled in Saw, Sqr, and WT
+    - Runs on a single core
+    - "Digital-Synth-PRA32-U2.ino.Lite-Core-0-Only.txt"
+    - "Digital-Synth-PRA32-U2.ino.Lite-Core-1-Only.txt"
+- **Digital Synth PRA32-U2/M (Lite)**
+    - Osc 1 Shape and Morph are disabled in Saw, Sqr, and WT
+    - Runs on a single core
+    - "Digital-Synth-PRA32-U2-M.ino.Lite-Core-0-Only.txt"
+    - "Digital-Synth-PRA32-U2-M.ino.Lite-Core-1-Only.txt"
 
 ## License
 
