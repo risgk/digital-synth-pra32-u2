@@ -4,6 +4,7 @@
     - Increase the I2S DAC bit depth to **24 bits**
     - PRA32-U2 Editor: Adjust the layout
     - PRA32-U2/P: Increase `PRA32_U2_KEY_ANTI_CHATTERING_WAIT`
+    - PRA32-U2/P: Change the Seq Tempo range to BPM 30-240
     - Add `SoftwareSerial` explanation to README
     - Improve customizability
     - Fix Parameter Guide
