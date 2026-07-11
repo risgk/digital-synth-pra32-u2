@@ -218,6 +218,7 @@ class PRA32_U2_Synth {
 
   uint8_t           m_note_queue[4];
   uint8_t           m_note_on_number[4];
+  uint8_t           m_note_asgn_number[4];
   uint32_t          m_note_on_count[128];
   uint32_t          m_note_on_total_count;
   uint8_t           m_last_note_on_index;
@@ -274,6 +275,7 @@ public:
 
   , m_note_queue()
   , m_note_on_number()
+  , m_note_asgn_number()
   , m_note_on_count()
   , m_note_on_total_count()
   , m_last_note_on_index(3)
@@ -321,6 +323,10 @@ public:
     m_note_on_number[1] = NOTE_NUMBER_INVALID;
     m_note_on_number[2] = NOTE_NUMBER_INVALID;
     m_note_on_number[3] = NOTE_NUMBER_INVALID;
+    m_note_asgn_number[0] = m_note_on_number[0];
+    m_note_asgn_number[1] = m_note_on_number[1];
+    m_note_asgn_number[2] = m_note_on_number[2];
+    m_note_asgn_number[3] = m_note_on_number[3];
 
     set_voice_mode(VOICE_MONOPHONIC);
 
@@ -539,6 +545,8 @@ public:
         if (m_note_on_number[0] == NOTE_NUMBER_INVALID) {
           m_note_on_number[0] = note_number;
 
+          m_note_asgn_number[0] = m_note_on_number[0];
+
           if (m_voice_mode == VOICE_LEGATO_PORTA) {
             m_osc.set_portamento<0>(0);
           } else {
@@ -554,6 +562,11 @@ public:
           m_note_on_number[1] = m_note_on_number[0];
           m_note_on_number[0] = note_number;
 
+          m_note_asgn_number[3] = m_note_on_number[3];
+          m_note_asgn_number[2] = m_note_on_number[2];
+          m_note_asgn_number[1] = m_note_on_number[1];
+          m_note_asgn_number[0] = m_note_on_number[0];
+
           m_osc.set_portamento<0>(m_portamento);
           m_osc.note_on<0>(note_number);
         }
@@ -565,6 +578,11 @@ public:
         m_note_on_number[2] = m_note_on_number[1];
         m_note_on_number[1] = m_note_on_number[0];
         m_note_on_number[0] = note_number;
+
+        m_note_asgn_number[3] = m_note_on_number[3];
+        m_note_asgn_number[2] = m_note_on_number[2];
+        m_note_asgn_number[1] = m_note_on_number[1];
+        m_note_asgn_number[0] = m_note_on_number[0];
 
         m_osc.set_portamento<0>(m_portamento);
         m_osc.note_on<0>(note_number);
@@ -628,50 +646,78 @@ public:
         m_eg[1].note_on(velocity);
       }
     } else {
-      uint8_t note_on_osc_index;
+      uint8_t note_on_osc_index = 0xFF;
 
-      if (m_voice_asgn_mode == 1) {
-        switch (m_last_note_on_index) {
-        default:
-          if        (m_note_on_number[1] == NOTE_NUMBER_INVALID) {
-            note_on_osc_index = 1;
-          } else if (m_note_on_number[2] == NOTE_NUMBER_INVALID) {
-            note_on_osc_index = 2;
-          } else if (m_note_on_number[3] == NOTE_NUMBER_INVALID) {
-            note_on_osc_index = 3;
-          } else if (m_note_on_number[0] == NOTE_NUMBER_INVALID) {
-            note_on_osc_index = 0;
-          } else {
-            note_on_osc_index = m_note_queue[0];
+      if ((m_voice_asgn_mode == 3) || (m_voice_asgn_mode == 4)) {
+        // Reuse note-off voices
+        if        (m_note_asgn_number[0] == note_number) {
+          note_on_osc_index = 0;
+        } else if (m_note_asgn_number[1] == note_number) {
+          note_on_osc_index = 1;
+        } else if (m_note_asgn_number[2] == note_number) {
+          note_on_osc_index = 2;
+        } else if (m_note_asgn_number[3] == note_number) {
+          note_on_osc_index = 3;
+        }
+      }
+
+      if (note_on_osc_index >= 4) {
+        if ((m_voice_asgn_mode == 1) || (m_voice_asgn_mode == 3)) {
+          switch (m_last_note_on_index) {
+          default:
+            if        (m_note_on_number[1] == NOTE_NUMBER_INVALID) {
+              note_on_osc_index = 1;
+            } else if (m_note_on_number[2] == NOTE_NUMBER_INVALID) {
+              note_on_osc_index = 2;
+            } else if (m_note_on_number[3] == NOTE_NUMBER_INVALID) {
+              note_on_osc_index = 3;
+            } else if (m_note_on_number[0] == NOTE_NUMBER_INVALID) {
+              note_on_osc_index = 0;
+            } else {
+              note_on_osc_index = m_note_queue[0];
+            }
+            break;
+          case 1:
+            if        (m_note_on_number[2] == NOTE_NUMBER_INVALID) {
+              note_on_osc_index = 2;
+            } else if (m_note_on_number[3] == NOTE_NUMBER_INVALID) {
+              note_on_osc_index = 3;
+            } else if (m_note_on_number[0] == NOTE_NUMBER_INVALID) {
+              note_on_osc_index = 0;
+            } else if (m_note_on_number[1] == NOTE_NUMBER_INVALID) {
+              note_on_osc_index = 1;
+            } else {
+              note_on_osc_index = m_note_queue[0];
+            }
+            break;
+          case 2:
+            if        (m_note_on_number[3] == NOTE_NUMBER_INVALID) {
+              note_on_osc_index = 3;
+            } else if (m_note_on_number[0] == NOTE_NUMBER_INVALID) {
+              note_on_osc_index = 0;
+            } else if (m_note_on_number[1] == NOTE_NUMBER_INVALID) {
+              note_on_osc_index = 1;
+            } else if (m_note_on_number[2] == NOTE_NUMBER_INVALID) {
+              note_on_osc_index = 2;
+            } else {
+              note_on_osc_index = m_note_queue[0];
+            }
+            break;
+          case 3:
+            if        (m_note_on_number[0] == NOTE_NUMBER_INVALID) {
+              note_on_osc_index = 0;
+            } else if (m_note_on_number[1] == NOTE_NUMBER_INVALID) {
+              note_on_osc_index = 1;
+            } else if (m_note_on_number[2] == NOTE_NUMBER_INVALID) {
+              note_on_osc_index = 2;
+            } else if (m_note_on_number[3] == NOTE_NUMBER_INVALID) {
+              note_on_osc_index = 3;
+            } else {
+              note_on_osc_index = m_note_queue[0];
+            }
+            break;
           }
-          break;
-        case 1:
-          if        (m_note_on_number[2] == NOTE_NUMBER_INVALID) {
-            note_on_osc_index = 2;
-          } else if (m_note_on_number[3] == NOTE_NUMBER_INVALID) {
-            note_on_osc_index = 3;
-          } else if (m_note_on_number[0] == NOTE_NUMBER_INVALID) {
-            note_on_osc_index = 0;
-          } else if (m_note_on_number[1] == NOTE_NUMBER_INVALID) {
-            note_on_osc_index = 1;
-          } else {
-            note_on_osc_index = m_note_queue[0];
-          }
-          break;
-        case 2:
-          if        (m_note_on_number[3] == NOTE_NUMBER_INVALID) {
-            note_on_osc_index = 3;
-          } else if (m_note_on_number[0] == NOTE_NUMBER_INVALID) {
-            note_on_osc_index = 0;
-          } else if (m_note_on_number[1] == NOTE_NUMBER_INVALID) {
-            note_on_osc_index = 1;
-          } else if (m_note_on_number[2] == NOTE_NUMBER_INVALID) {
-            note_on_osc_index = 2;
-          } else {
-            note_on_osc_index = m_note_queue[0];
-          }
-          break;
-        case 3:
+        } else /* if ((m_voice_asgn_mode == 2) || (m_voice_asgn_mode == 4)) */ {
           if        (m_note_on_number[0] == NOTE_NUMBER_INVALID) {
             note_on_osc_index = 0;
           } else if (m_note_on_number[1] == NOTE_NUMBER_INVALID) {
@@ -683,19 +729,6 @@ public:
           } else {
             note_on_osc_index = m_note_queue[0];
           }
-          break;
-        }
-      } else /* if (m_voice_asgn_mode == 2) */{
-        if        (m_note_on_number[0] == NOTE_NUMBER_INVALID) {
-          note_on_osc_index = 0;
-        } else if (m_note_on_number[1] == NOTE_NUMBER_INVALID) {
-          note_on_osc_index = 1;
-        } else if (m_note_on_number[2] == NOTE_NUMBER_INVALID) {
-          note_on_osc_index = 2;
-        } else if (m_note_on_number[3] == NOTE_NUMBER_INVALID) {
-          note_on_osc_index = 3;
-        } else {
-          note_on_osc_index = m_note_queue[0];
         }
       }
 
@@ -706,6 +739,8 @@ public:
       ++m_note_on_count[note_number];
 
       m_note_on_number[note_on_osc_index] = note_number;
+
+      m_note_asgn_number[note_on_osc_index] = m_note_on_number[note_on_osc_index];
 
       switch (note_on_osc_index) {
       default:
@@ -861,6 +896,10 @@ public:
     m_note_on_number[1] = NOTE_NUMBER_INVALID;
     m_note_on_number[2] = NOTE_NUMBER_INVALID;
     m_note_on_number[3] = NOTE_NUMBER_INVALID;
+    m_note_asgn_number[0] = NOTE_NUMBER_INVALID;
+    m_note_asgn_number[1] = NOTE_NUMBER_INVALID;
+    m_note_asgn_number[2] = NOTE_NUMBER_INVALID;
+    m_note_asgn_number[3] = NOTE_NUMBER_INVALID;
     for (uint8_t i = 0; i < (sizeof(m_note_on_count) / sizeof(m_note_on_count[0])); ++i) {
       m_note_on_count[i] = 0;
     }
