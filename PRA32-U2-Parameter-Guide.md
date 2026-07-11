@@ -261,9 +261,13 @@
 - EG Velocity Sensitivity: Decreases the EG level as note on velocity decreases
 - Amp Velocity Sensitivity: Decreases the Amp EG level as note on velocity decreases
 - After Touch LFO Amt
-- Voice Assign Mode [1|2]
-    - 0 (0-63): Mode 1, Free voice with next number has priority in Polyphonic Mode, Release is effective
-    - 127 (64-127): Mode 2, Free voice with small number has priority in Polyphonic Mode, Portamento is effective
+- Voice Assign Mode [1|1|3|3|4|2]
+    - 0 (0-12): Mode 1, Free voice with next number has priority in Polyphonic Mode (Round Robin), Release is effective
+    - 25 (13-38): Mode 1, Free voice with next number has priority in Polyphonic Mode (Round Robin), Release is effective
+    - 51 (39-63): Mode 3, Reuse note-off voices, Free voice with next number has priority in Polyphonic Mode (Round Robin), Release is effective
+    - 76 (64-88): Mode 3, Reuse note-off voices, Free voice with next number has priority in Polyphonic Mode (Round Robin), Release is effective
+    - 102 (89-114): Mode 4, Reuse note-off voices, Free voice with small number has priority in Polyphonic Mode, Portamento is effective
+    - 127 (115-127): Mode 2, Free voice with small number has priority in Polyphonic Mode, Portamento is effective
 - Pan
 - Release Velocity Sensitivity: Increases the release time as note off velocity decreases
 - Osc Drift

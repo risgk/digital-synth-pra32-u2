@@ -545,8 +545,6 @@ public:
         if (m_note_on_number[0] == NOTE_NUMBER_INVALID) {
           m_note_on_number[0] = note_number;
 
-          m_note_asgn_number[0] = m_note_on_number[0];
-
           if (m_voice_mode == VOICE_LEGATO_PORTA) {
             m_osc.set_portamento<0>(0);
           } else {
@@ -1155,7 +1153,17 @@ if constexpr (NO_FX == false) {
       break;
 
     case VOICE_ASGN_MODE:
-      m_voice_asgn_mode = (controller_value < 64) ? 1 : 2;
+      {
+        static uint8_t voice_asgn_mode_table[6] = { 1, 1, 3, 3, 4, 2, };
+
+        int32_t index = ((controller_value * 10) + 127) / 254;
+
+        uint8_t new_voice_asgn_mode = voice_asgn_mode_table[index];
+        if (m_voice_asgn_mode != new_voice_asgn_mode) {
+          m_voice_asgn_mode = new_voice_asgn_mode;
+          all_notes_off(true);
+        }
+      }
       break;
 
     case PAN            :

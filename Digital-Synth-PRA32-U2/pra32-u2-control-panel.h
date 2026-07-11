@@ -816,8 +816,8 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
     break;
   case VOICE_ASGN_MODE :
     {
-      char ary[2][5] = {"  1","  2"};
-      uint32_t index = ((controller_value * 2) + 127) / 254;
+      char ary[6][5] = {"  1","  1","  3","  3","  4","  2"};
+      uint32_t index = ((controller_value * 10) + 127) / 254;
       std::strcpy(value_display_text, ary[index]);
       result = true;
     }
