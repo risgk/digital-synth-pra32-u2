@@ -178,6 +178,11 @@ const uint8_t   VOICE_MONOPHONIC   = 76;
 const uint8_t   VOICE_LEGATO       = 102;
 const uint8_t   VOICE_LEGATO_PORTA = 127;
 
+const uint8_t   VOICE_ASGN_MODE_1  = 0;
+const uint8_t   VOICE_ASGN_MODE_3  = 76;
+const uint8_t   VOICE_ASGN_MODE_4  = 102;
+const uint8_t   VOICE_ASGN_MODE_2  = 127;
+
 
 const uint8_t   PANEL_SCALE     = 128 + 8;
 const uint8_t   PANEL_TRANSPOSE = 128 + 9;
