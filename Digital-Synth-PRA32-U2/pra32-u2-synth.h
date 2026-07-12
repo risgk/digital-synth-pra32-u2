@@ -1092,11 +1092,11 @@ if constexpr (NO_FX == false) {
       break;
 
     case OSC_2_COARSE   :
-      m_osc.set_osc2_pitch(controller_value);
+      m_osc.set_osc2_coarse(controller_value);
       break;
 
     case OSC_2_PITCH    :
-      m_osc.set_osc2_detune(controller_value);
+      m_osc.set_osc2_pitch(controller_value);
       break;
 
     case EG_OSC_AMT     :
@@ -1252,11 +1252,11 @@ if constexpr (NO_FX == false) {
       break;
 
     case COARSE_TUNE    :
-      // TODO
+      m_osc.set_coarse_tune(controller_value);
       break;
 
     case FINE_TUNE      :
-      // TODO
+      m_osc.set_fine_tune(controller_value);
       break;
 
     case ALL_NOTES_OFF  :
