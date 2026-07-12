@@ -36,9 +36,6 @@
         - Panel Play Pitch in Normal Mode, Seq Pitch Ofst (Offset) in Step Sequencer Mode
         - Not to use this, comment out `#define PRA32_U2_KEY_INPUT_PLAY_KEY_PIN          (20)` in "Digital-Synth-PRA32-U2.ino"
 - NOTE: Using a USB cable with ferrite cores is recommended to prevent ADCs from being affected by USB MIDI communication noise, and UART MIDI control is also recommended
-- NOTE: To use the M5Stack [Unit Angle](https://shop.m5stack.com/products/angle-unit) (SKU: U005), modify "Digital-Synth-PRA32-U2.ino" as follows:
-    - `#define PRA32_U2_ANALOG_INPUT_CORRECTION         (-1388)`
-    - `#define PRA32_U2_ANALOG_INPUT_DENOMINATOR        (327)`
 
 
 ### PRA32-U2/M/P (PRA32-U2 Multi-Timbre Edition with Panel) (Optional)
