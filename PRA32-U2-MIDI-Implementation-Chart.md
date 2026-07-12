@@ -85,8 +85,8 @@
 |                               |               |               |                                      |
 |                            82 | x             | o             | Osc Drift                            |
 |                            83 | x             | o             | Osc Saw Wave Mode [Str|Cur]          |
-|                               |               |               |                                      |
-|                               |               |               |                                      |
+|                            86 | x             | o             | Coarse Tune [-|+]                    |
+|                            70 | x             | o             | Fine Tune [-|+]                      |
 |                               |               |               |                                      |
 |                            93 | x             | o             | Chorus Level                         |
 |                               |               |               |                                      |
