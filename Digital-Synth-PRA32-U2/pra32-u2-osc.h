@@ -58,8 +58,10 @@ class PRA32_U2_Osc {
   uint8_t        m_mixer_osc_mix_control_effective;
   int16_t        m_osc1_gain;
   int16_t        m_osc2_gain;
-  int8_t         m_osc2_pitch;
-  int16_t        m_osc2_detune;
+  int8_t         m_osc2_coarse;
+  int16_t        m_osc2_pitch;
+  int8_t         m_coarse_tune;
+  int8_t         m_fine_tune;
 
   uint8_t        m_phase_high;
   int32_t        m_osc1_shape_control;
@@ -103,8 +105,10 @@ public:
   , m_mixer_osc_mix_control_effective()
   , m_osc1_gain()
   , m_osc2_gain()
+  , m_osc2_coarse()
   , m_osc2_pitch()
-  , m_osc2_detune()
+  , m_coarse_tune()
+  , m_fine_tune()
 
   , m_phase_high()
   , m_osc1_shape_control()
@@ -125,8 +129,10 @@ public:
     m_portamento_coef[3] = 0;
 
     set_mixer_osc_mix(0);
-    set_osc2_pitch   (0);
-    set_osc2_detune  (0);
+    set_osc2_coarse  (64);
+    set_osc2_pitch   (64);
+    set_coarse_tune  (64);
+    set_fine_tune    (64);
 
     m_waveform_index[0] = 0;
     m_waveform_index[1] = 0;
@@ -340,18 +346,18 @@ public:
     m_mixer_osc_mix_control = ((controller_value + 1) >> 1) << 1;
   }
 
-  INLINE void set_osc2_pitch(uint8_t controller_value) {
+  INLINE void set_osc2_coarse(uint8_t controller_value) {
     if (controller_value < 4) {
-      m_osc2_pitch = -60;
+      m_osc2_coarse = -60;
     } else if (controller_value < 124) {
-      m_osc2_pitch = controller_value - 64;
+      m_osc2_coarse = controller_value - 64;
     } else {
-      m_osc2_pitch = 60;
+      m_osc2_coarse = 60;
     }
   }
 
-  INLINE void set_osc2_detune(uint8_t controller_value) {
-    static int16_t m_osc2_detune_table[128] = {
+  INLINE void set_osc2_pitch(uint8_t controller_value) {
+    static int16_t m_osc2_pitch_table[128] = {
       -3072, -3072, -3072, -3072, -3072, -3072, -3072, -3072,
       -3072, -3072, -2944, -2816, -2688, -2560, -2432, -2304,
       -2176, -2048, -1920, -1792, -1664, -1536, -1408, -1280,
@@ -370,7 +376,15 @@ public:
       +3072, +3072, +3072, +3072, +3072, +3072, +3072, +3072,
     };
 
-    m_osc2_detune = m_osc2_detune_table[controller_value];
+    m_osc2_pitch = m_osc2_pitch_table[controller_value];
+  }
+
+  INLINE void set_coarse_tune(uint8_t controller_value) {
+    m_coarse_tune = controller_value - 64;
+  }
+
+  INLINE void set_fine_tune(uint8_t controller_value) {
+    m_fine_tune = controller_value - 64;
   }
 
   INLINE void set_drift(uint8_t controller_value) {
@@ -737,35 +751,27 @@ if constexpr (RESTRICT_SQR_WT == false) {
     } else {
       pitch_eg_amt = m_pitch_eg_amt[0];
     }
-    uint16_t pitch_temp =  (64 << 8) + (m_pitch_current[N & 0x03] >> (16 - 2)) + m_pitch_bend_normalized + ((eg_level * pitch_eg_amt) >> 14);
+    int32_t pitch_temp = (m_pitch_current[N & 0x03] >> (16 - 2)) + m_pitch_bend_normalized + ((eg_level * pitch_eg_amt) >> 14);
 
-    uint8_t coarse = high_byte(pitch_temp);
-    if (coarse < (NOTE_NUMBER_MIN + 64)) {
-      pitch_temp = ((NOTE_NUMBER_MIN + 64) << 8);
-    } else if (coarse >= (NOTE_NUMBER_MAX + 64)) {
-      pitch_temp = ((NOTE_NUMBER_MAX + 64) << 8);
-    }
+    pitch_temp += (m_coarse_tune << 8) + (m_fine_tune << 2);
 
     if (N >= 4) {
       pitch_temp += (lfo_level * m_pitch_lfo_amt[1]) >> 14;
-      pitch_temp += (m_osc2_pitch << 8) + m_osc2_detune;
+      pitch_temp += (m_osc2_coarse << 8) + m_osc2_pitch;
     } else {
       pitch_temp += (lfo_level * m_pitch_lfo_amt[0]) >> 14;
     }
 
-    coarse = high_byte(pitch_temp);
-    if (coarse < (NOTE_NUMBER_MIN + 64)) {
+    if (pitch_temp < (NOTE_NUMBER_MIN << 8)) {
       pitch_temp = NOTE_NUMBER_MIN << 8;
-    } else if (coarse >= (NOTE_NUMBER_MAX + 64)) {
+    } else if (pitch_temp >= (NOTE_NUMBER_MAX << 8)) {
       pitch_temp = NOTE_NUMBER_MAX << 8;
-    } else {
-      pitch_temp -= (64 << 8);
     }
 
     pitch_temp += 128;  // For g_osc_tune_table[]
 
 
-    coarse = high_byte(pitch_temp);
+    uint8_t coarse = high_byte(static_cast<uint16_t>(pitch_temp));
     m_freq_base[N] = g_osc_freq_table[coarse - NOTE_NUMBER_MIN];
     if (N >= 4) {
       m_wave_table_temp[N]      = get_wave_table(m_waveform[1], coarse);
