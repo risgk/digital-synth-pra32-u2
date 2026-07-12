@@ -85,8 +85,8 @@ static uint8_t s_program_table_parameters[] = {
 
   OSC_DRIFT      ,
   OSC_SAW_W_MODE ,
-
-
+  COARSE_TUNE    ,
+  FINE_TUNE      ,
 
   CHORUS_MIX     ,
   CHORUS_RATE    ,
@@ -399,8 +399,8 @@ public:
 
     std::memcpy(m_program_table[OSC_DRIFT      ], g_preset_table_OSC_DRIFT      , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[OSC_SAW_W_MODE ], g_preset_table_OSC_SAW_W_MODE , sizeof(m_program_table[0]));
-
-
+    std::memcpy(m_program_table[COARSE_TUNE    ], g_preset_table_COARSE_TUNE    , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[FINE_TUNE      ], g_preset_table_FINE_TUNE      , sizeof(m_program_table[0]));
 
     std::memcpy(m_program_table[CHORUS_MIX     ], g_preset_table_CHORUS_MIX     , sizeof(m_program_table[0]));
 
@@ -1249,6 +1249,14 @@ if constexpr (NO_FX == false) {
 
     case BTH_CONTROLLER :
       set_breath_controller(controller_value);
+      break;
+
+    case COARSE_TUNE    :
+      // TODO
+      break;
+
+    case FINE_TUNE      :
+      // TODO
       break;
 
     case ALL_NOTES_OFF  :
