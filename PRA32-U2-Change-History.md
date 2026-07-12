@@ -2,6 +2,7 @@
 
 - v2.16.0 (2026-**-**):
     - Increase the I2S DAC bit depth to **24 bits**
+    - Change the control number of After Touch LFO Amt (109 -> 37)
     - Add Voice Assign Mode 3 and 4
     - PRA32-U2 Editor: Adjust the layout
     - PRA32-U2/P: Increase `PRA32_U2_KEY_ANTI_CHATTERING_WAIT`
