@@ -118,8 +118,8 @@ REL_VEL_SENS    = 81
 
 OSC_DRIFT       = 82
 OSC_SAW_W_MODE  = 83
-
-
+COARSE_TUNE     = 86
+FINE_TUNE       = 70
 
 CHORUS_MIX      = 93
 
