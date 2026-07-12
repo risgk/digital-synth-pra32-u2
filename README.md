@@ -97,46 +97,53 @@
     - Define `PRA32_U2_I2S_DAC_MUTE_OFF_PIN` and connect this pin to the I2S DAC mute off pin to reduce click noise when writing the parameters to the flash
 - The default setting is for Pimoroni [Pico Audio Pack](https://shop.pimoroni.com/products/pico-audio-pack) (PIM544)
     - [Adafruit PCM5102 I2S DAC](https://www.adafruit.com/product/6250) (Product ID: 6250), [Adafruit PCM5100 I2S DAC](https://www.adafruit.com/product/6251) (Product ID: 6251), and GY-PCM5102 (PCM5102A I2S DAC Module) can also be used
-```
-#define PRA32_U2_I2S_DAC_MUTE_OFF_PIN          (22)
-#define PRA32_U2_I2S_DATA_PIN                  (9)
-//#define PRA32_U2_I2S_MCLK_PIN                  (0)
-//#define PRA32_U2_I2S_MCLK_MULT                 (0)
-#define PRA32_U2_I2S_BCLK_PIN                  (10)  // LRCLK Pin is PRA32_U2_I2S_BCLK_PIN + 1
-#define PRA32_U2_I2S_SWAP_BCLK_AND_LRCLK_PINS  (false)
-#define PRA32_U2_I2S_SWAP_LEFT_AND_RIGHT       (false)
-```
+
+    ```
+    #define PRA32_U2_I2S_DAC_MUTE_OFF_PIN          (22)
+    #define PRA32_U2_I2S_DATA_PIN                  (9)
+    //#define PRA32_U2_I2S_MCLK_PIN                  (0)
+    //#define PRA32_U2_I2S_MCLK_MULT                 (0)
+    #define PRA32_U2_I2S_BCLK_PIN                  (10)  // LRCLK Pin is PRA32_U2_I2S_BCLK_PIN + 1
+    #define PRA32_U2_I2S_SWAP_BCLK_AND_LRCLK_PINS  (false)
+    #define PRA32_U2_I2S_SWAP_LEFT_AND_RIGHT       (false)
+    ```
+
 - The following is setting is for [Pimoroni Pico VGA Demo Base](https://shop.pimoroni.com/products/pimoroni-pico-vga-demo-base) (PIM553)
-```
-//#define PRA32_U2_I2S_DAC_MUTE_OFF_PIN          (0)
-#define PRA32_U2_I2S_DATA_PIN                  (26)
-//#define PRA32_U2_I2S_MCLK_PIN                  (0)
-//#define PRA32_U2_I2S_MCLK_MULT                 (0)
-#define PRA32_U2_I2S_BCLK_PIN                  (27)  // LRCLK Pin is is PRA32_U2_I2S_BCLK_PIN + 1
-#define PRA32_U2_I2S_SWAP_BCLK_AND_LRCLK_PINS  (false)
-#define PRA32_U2_I2S_SWAP_LEFT_AND_RIGHT       (false)
-```
+
+    ```
+    //#define PRA32_U2_I2S_DAC_MUTE_OFF_PIN          (0)
+    #define PRA32_U2_I2S_DATA_PIN                  (26)
+    //#define PRA32_U2_I2S_MCLK_PIN                  (0)
+    //#define PRA32_U2_I2S_MCLK_MULT                 (0)
+    #define PRA32_U2_I2S_BCLK_PIN                  (27)  // LRCLK Pin is is PRA32_U2_I2S_BCLK_PIN + 1
+    #define PRA32_U2_I2S_SWAP_BCLK_AND_LRCLK_PINS  (false)
+    #define PRA32_U2_I2S_SWAP_LEFT_AND_RIGHT       (false)
+    ```
+
 - The following is setting is for [Waveshare Pico-Audio](https://www.waveshare.com/wiki/Pico-Audio) Initial Version (WAVESHARE-20167)
-```
-//#define PRA32_U2_I2S_DAC_MUTE_OFF_PIN          (0)
-#define PRA32_U2_I2S_DATA_PIN                  (26)
-//#define PRA32_U2_I2S_MCLK_PIN                  (0)
-//#define PRA32_U2_I2S_MCLK_MULT                 (0)
-#define PRA32_U2_I2S_BCLK_PIN                  (27)  // LRCLK Pin is is PRA32_U2_I2S_BCLK_PIN + 1
-#define PRA32_U2_I2S_SWAP_BCLK_AND_LRCLK_PINS  (false)
-#define PRA32_U2_I2S_SWAP_LEFT_AND_RIGHT       (true)
-```
+
+    ```
+    //#define PRA32_U2_I2S_DAC_MUTE_OFF_PIN          (0)
+    #define PRA32_U2_I2S_DATA_PIN                  (26)
+    //#define PRA32_U2_I2S_MCLK_PIN                  (0)
+    //#define PRA32_U2_I2S_MCLK_MULT                 (0)
+    #define PRA32_U2_I2S_BCLK_PIN                  (27)  // LRCLK Pin is is PRA32_U2_I2S_BCLK_PIN + 1
+    #define PRA32_U2_I2S_SWAP_BCLK_AND_LRCLK_PINS  (false)
+    #define PRA32_U2_I2S_SWAP_LEFT_AND_RIGHT       (true)
+    ```
+
 - The following is setting is for [Waveshare Pico-Audio](https://www.waveshare.com/wiki/Pico-Audio) Rev2.1 Version (WAVESHARE-20167) (CURRENTLY NOT RECOMMENDED)
     - NOTE: No sound unless using Arduino-Pico 4.4.0
-```
-//#define PRA32_U2_I2S_DAC_MUTE_OFF_PIN          (0)
-#define PRA32_U2_I2S_DATA_PIN                  (22)
-#define PRA32_U2_I2S_MCLK_PIN                  (26)
-#define PRA32_U2_I2S_MCLK_MULT                 (256)
-#define PRA32_U2_I2S_BCLK_PIN                  (27)  // LRCLK Pin is is PRA32_U2_I2S_BCLK_PIN + 1
-#define PRA32_U2_I2S_SWAP_BCLK_AND_LRCLK_PINS  (true)
-#define PRA32_U2_I2S_SWAP_LEFT_AND_RIGHT       (true)
-```
+
+    ```
+    //#define PRA32_U2_I2S_DAC_MUTE_OFF_PIN          (0)
+    #define PRA32_U2_I2S_DATA_PIN                  (22)
+    #define PRA32_U2_I2S_MCLK_PIN                  (26)
+    #define PRA32_U2_I2S_MCLK_MULT                 (256)
+    #define PRA32_U2_I2S_BCLK_PIN                  (27)  // LRCLK Pin is is PRA32_U2_I2S_BCLK_PIN + 1
+    #define PRA32_U2_I2S_SWAP_BCLK_AND_LRCLK_PINS  (true)
+    #define PRA32_U2_I2S_SWAP_LEFT_AND_RIGHT       (true)
+    ```
 
 
 #### PWM Audio (Optional) (CURRENTLY NOT RECOMMENDED)
@@ -152,10 +159,12 @@
 - Uncomment out `//#define PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S`
   in "Digital-Synth-PRA32-U2.ino" and modify `PRA32_U2_PWM_AUDIO_L_PIN` and `PRA32_U2_PWM_AUDIO_R_PIN`
 - The following is setting is for Pimoroni Pico VGA Demo Base (PIM553)
-```
-#define PRA32_U2_PWM_AUDIO_L_PIN               (28)
-#define PRA32_U2_PWM_AUDIO_R_PIN               (27)
-```
+
+    ```
+    #define PRA32_U2_PWM_AUDIO_L_PIN               (28)
+    #define PRA32_U2_PWM_AUDIO_R_PIN               (27)
+    ```
+
 - KNOWN ISSUE: When using PWM Audio, signal discontinuity (missing a sample) occurs about every 80 ms in each L and R channel
     - Click noise is particularly noticeable in the high frequency band and sine waves
 
