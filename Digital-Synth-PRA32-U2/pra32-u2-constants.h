@@ -118,8 +118,8 @@ const uint8_t   REL_VEL_SENS    = 81;
 
 const uint8_t   OSC_DRIFT       = 82;
 const uint8_t   OSC_SAW_W_MODE  = 83;
-
-
+const uint8_t   COARSE_TUNE     = 86;
+const uint8_t   FINE_TUNE       = 70;
 
 const uint8_t   CHORUS_MIX      = 93;
 
