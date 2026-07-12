@@ -90,7 +90,9 @@
     - -41 (23): -5 semitone
     - -33 (31): -1 semitone
     - -32 (32): -50 cent
+    - -1 (63): -1.5625 cent
     - +0 (64): +0 cent
+    - +1 (65): +1.5625 cent
     - +32 (96): +50 cent
     - +33 (97): +1 semitone
     - +45 (109): +7 semitone
@@ -166,7 +168,9 @@
         - -43 (21): -12 semitone
         - -33 (31): -2 semitone
         - -32 (32): -100 cent
+        - -1 (63): -3.125 cent
         - +0 (64): +0 cent
+        - +1 (65): +3.125 cent
         - +32 (96): +100 cent
         - +33 (97): +2 semitone
         - +43 (107): +12 semitone
@@ -274,6 +278,18 @@
 - Osc Saw Wave Mode [Str|Cur]
     - 0 (0-63): Straight Saw Wave
     - 127 (64-127): Curved Saw Wave, This does not affect the Pulse Wave
+- Coarse Tune [-|+]
+    - -64 (0): -64 semitone
+    - -1 (63): -1 semitone
+    - +0 (64): +0 semitone
+    - +1 (65): +1 semitone
+    - +63 (127): +63 semitone
+- Fine Tune [-|+]
+    - -64 (0): -100 cent
+    - -1 (63): -1.5625 cent
+    - +0 (64): +0 cent
+    - +1 (65): +1.5625 cent
+    - +63 (127): +98.4375 cent
 - Chorus Level: Chorus Send Level
 - Chorus Rate
     - 0: LFO Frequency 0.012 Hz (min)
