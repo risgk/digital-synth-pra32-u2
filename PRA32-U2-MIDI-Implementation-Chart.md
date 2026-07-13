@@ -41,7 +41,7 @@
 |                            74 | x             | o             | Filter Cutoff                        |
 |                            71 | x             | o             | Filter Resonance                     |
 |                            24 | x             | o             | Filter EG Amt [-|+]                  |
-|                             9 | x             | o             | Filter Key Track [-|+] $1            |
+|                             9 | x             | o             | Filter Key Track [-|+]               |
 |                               |               |               |                                      |
 |                            73 | x             | o             | EG Attack                            |
 |                            75 | x             | o             | EG Decay                             |
