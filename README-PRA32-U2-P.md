@@ -78,7 +78,7 @@
     - Seq Clock Src [Int|Ext]: Internal, External (Rx MIDI Clock)
     - Seq Pitch Ofst (Offset) [-|+]: Offset Seq Pitch 0-7 (min -60 to max +60)
     - Seq T/Rx St/Sp (Transmit/Receive Start/Stop): Off, On
-    - Seq Tempo: BPM 30-240
+    - Seq Tempo: 30-240 BPM
     - Seq Gate Time [1/6|2/6|3/6|4/6|5/6|6/6]
     - Seq Mode [Fwd|Rvs|Bnc]: Forward, Reverse, Bounce
     - Seq Num Steps (Number of Steps): 1-32 (current step mod 8 is used as the index for Seq Pitch and Seq Velo)
