@@ -81,7 +81,7 @@
 |                            37 | x             | o             | After Touch LFO Amt                  |
 |                           110 | x             | o             | Voice Assign Mode [1|1|3|3|4|2]      |
 |                            10 | x             | o             | Pan                                  |
-|                            81 | x             | o             | Release Velocity Sensitivity         |
+|                            81 | x             | o             | Release Off Velocity Sensitivity     |
 |                               |               |               |                                      |
 |                            82 | x             | o             | Osc Drift                            |
 |                            83 | x             | o             | Osc Saw Wave Mode [Str|Cur]          |
