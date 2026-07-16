@@ -157,7 +157,7 @@
 | A-14 EG c      | EG Amp Mod          | Release = Decay   |
 | A-15 EG d      | EG Mod Amt          | EG Mod Dst        |
 | A-16 EG e      | EG Filter Amt       | EG Velo Sens      |
-| A-17 EG f      |                     | Release Velo Sens |
+| A-17 EG f      |                     | Rel Off Velo Sens |
 | A-18 Amp a     | Amp Attack          | Amp Decay         |
 | A-19 Amp b     | Amp Sustain         | Amp Release       |
 | A-20 Amp c     | Amp Gain            | Amp Velo Sens     |
