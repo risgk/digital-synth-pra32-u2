@@ -5,6 +5,7 @@
     - **Change** the control number of After Touch LFO Amt from 109 to 37
     - Add Coarse Tune and Fine Tune parameters
     - Add Voice Assign Mode 3 and 4, and **change** the default from Mode 1 to 3
+    - **Rename** "Release Velocity Sensitivity" to "Release Off Velocity Sensitivity"
     - PRA32-U2 Editor: Adjust the layout
     - PRA32-U2/P: Increase `PRA32_U2_KEY_ANTI_CHATTERING_WAIT`
     - PRA32-U2/P: **Change** the Seq Tempo range from 56-300 to 30-240 BPM
