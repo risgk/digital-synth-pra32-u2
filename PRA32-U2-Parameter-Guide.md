@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 Parameter Guide v2.15.0
+# Digital Synth PRA32-U2 Parameter Guide v2.16.0
 
-- 2026-06-28 ISGK Instruments
+- 2026-07-17 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 ## Control Change Parameters
@@ -90,7 +90,9 @@
     - -41 (23): -5 semitone
     - -33 (31): -1 semitone
     - -32 (32): -50 cent
+    - -1 (63): -1.5625 cent
     - +0 (64): +0 cent
+    - +1 (65): +1.5625 cent
     - +32 (96): +50 cent
     - +33 (97): +1 semitone
     - +45 (109): +7 semitone
@@ -166,7 +168,9 @@
         - -43 (21): -12 semitone
         - -33 (31): -2 semitone
         - -32 (32): -100 cent
+        - -1 (63): -3.125 cent
         - +0 (64): +0 cent
+        - +1 (65): +3.125 cent
         - +32 (96): +100 cent
         - +33 (97): +2 semitone
         - +43 (107): +12 semitone
@@ -261,15 +265,31 @@
 - EG Velocity Sensitivity: Decreases the EG level as note on velocity decreases
 - Amp Velocity Sensitivity: Decreases the Amp EG level as note on velocity decreases
 - After Touch LFO Amt
-- Voice Assign Mode [1|2]
-    - 0 (0-63): Mode 1, Free voice with next number has priority in Polyphonic Mode, Release is effective
-    - 127 (64-127): Mode 2, Free voice with small number has priority in Polyphonic Mode, Portamento is effective
+- Voice Assign Mode [1|1|3|3|4|2]: In Polyphonic Mode,
+    - 0 (0-12): Mode 1, Free voice with next number has priority (Round Robin), Release is effective
+    - 25 (13-38): Mode 1, Free voice with next number has priority (Round Robin), Release is effective
+    - 51 (39-63): Mode 3, Reuse note-off voices, Free voice with next number has priority (Round Robin), Release and polyphonic after touch are effective
+    - 76 (64-88): Mode 3, Reuse note-off voices, Free voice with next number has priority (Round Robin), Release and polyphonic after touch are effective
+    - 102 (89-114): Mode 4, Reuse note-off voices, Free voice with small number has priority, Portamento and polyphonic after touch are effective
+    - 127 (115-127): Mode 2, Free voice with small number has priority, Portamento is effective
 - Pan
-- Release Velocity Sensitivity: Increases the release time as note off velocity decreases
+- Release Off Velocity Sensitivity: Increases the release time as note off velocity decreases
 - Osc Drift
 - Osc Saw Wave Mode [Str|Cur]
     - 0 (0-63): Straight Saw Wave
     - 127 (64-127): Curved Saw Wave, This does not affect the Pulse Wave
+- Coarse Tune [-|+]
+    - -64 (0): -64 semitone
+    - -1 (63): -1 semitone
+    - +0 (64): +0 semitone
+    - +1 (65): +1 semitone
+    - +63 (127): +63 semitone
+- Fine Tune [-|+]
+    - -64 (0): -100 cent
+    - -1 (63): -1.5625 cent
+    - +0 (64): +0 cent
+    - +1 (65): +1.5625 cent
+    - +63 (127): +98.4375 cent
 - Chorus Level: Chorus Send Level
 - Chorus Rate
     - 0: LFO Frequency 0.012 Hz (min)
@@ -294,12 +314,14 @@
     - 42: 100 ms = eighth note time at 300 BPM
     - 57: 150 ms = eighth note time at 200 BPM
     - 62: 166.7 ms = eighth note time at 180 BPM
+    - 63: 170 ms
     - 64: 173.3 ms
     - 72: 200 ms = eighth note time at 150 BPM
     - 87: 250 ms = eighth note time at 120 BPM
     - 93: 270 ms
     - 102: 300 ms = eighth note time at 100 BPM
-    - 112: 333.3 ms (max)
+    - 112: 333.3 ms
+    - 114: 340 ms (max)
 - Delay Feedback
     - 0: Feedback 0% (min)
     - 64: Feedback 25%

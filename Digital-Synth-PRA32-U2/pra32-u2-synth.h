@@ -85,8 +85,8 @@ static uint8_t s_program_table_parameters[] = {
 
   OSC_DRIFT      ,
   OSC_SAW_W_MODE ,
-
-
+  COARSE_TUNE    ,
+  FINE_TUNE      ,
 
   CHORUS_MIX     ,
   CHORUS_RATE    ,
@@ -218,6 +218,7 @@ class PRA32_U2_Synth {
 
   uint8_t           m_note_queue[4];
   uint8_t           m_note_on_number[4];
+  uint8_t           m_note_asgn_number[4];
   uint32_t          m_note_on_count[128];
   uint32_t          m_note_on_total_count;
   uint8_t           m_last_note_on_index;
@@ -274,6 +275,7 @@ public:
 
   , m_note_queue()
   , m_note_on_number()
+  , m_note_asgn_number()
   , m_note_on_count()
   , m_note_on_total_count()
   , m_last_note_on_index(3)
@@ -321,6 +323,10 @@ public:
     m_note_on_number[1] = NOTE_NUMBER_INVALID;
     m_note_on_number[2] = NOTE_NUMBER_INVALID;
     m_note_on_number[3] = NOTE_NUMBER_INVALID;
+    m_note_asgn_number[0] = m_note_on_number[0];
+    m_note_asgn_number[1] = m_note_on_number[1];
+    m_note_asgn_number[2] = m_note_on_number[2];
+    m_note_asgn_number[3] = m_note_on_number[3];
 
     set_voice_mode(VOICE_MONOPHONIC);
 
@@ -393,8 +399,8 @@ public:
 
     std::memcpy(m_program_table[OSC_DRIFT      ], g_preset_table_OSC_DRIFT      , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[OSC_SAW_W_MODE ], g_preset_table_OSC_SAW_W_MODE , sizeof(m_program_table[0]));
-
-
+    std::memcpy(m_program_table[COARSE_TUNE    ], g_preset_table_COARSE_TUNE    , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[FINE_TUNE      ], g_preset_table_FINE_TUNE      , sizeof(m_program_table[0]));
 
     std::memcpy(m_program_table[CHORUS_MIX     ], g_preset_table_CHORUS_MIX     , sizeof(m_program_table[0]));
 
@@ -554,6 +560,11 @@ public:
           m_note_on_number[1] = m_note_on_number[0];
           m_note_on_number[0] = note_number;
 
+          m_note_asgn_number[3] = m_note_on_number[3];
+          m_note_asgn_number[2] = m_note_on_number[2];
+          m_note_asgn_number[1] = m_note_on_number[1];
+          m_note_asgn_number[0] = m_note_on_number[0];
+
           m_osc.set_portamento<0>(m_portamento);
           m_osc.note_on<0>(note_number);
         }
@@ -565,6 +576,11 @@ public:
         m_note_on_number[2] = m_note_on_number[1];
         m_note_on_number[1] = m_note_on_number[0];
         m_note_on_number[0] = note_number;
+
+        m_note_asgn_number[3] = m_note_on_number[3];
+        m_note_asgn_number[2] = m_note_on_number[2];
+        m_note_asgn_number[1] = m_note_on_number[1];
+        m_note_asgn_number[0] = m_note_on_number[0];
 
         m_osc.set_portamento<0>(m_portamento);
         m_osc.note_on<0>(note_number);
@@ -628,50 +644,78 @@ public:
         m_eg[1].note_on(velocity);
       }
     } else {
-      uint8_t note_on_osc_index;
+      uint8_t note_on_osc_index = 0xFF;
 
-      if (m_voice_asgn_mode == 1) {
-        switch (m_last_note_on_index) {
-        default:
-          if        (m_note_on_number[1] == NOTE_NUMBER_INVALID) {
-            note_on_osc_index = 1;
-          } else if (m_note_on_number[2] == NOTE_NUMBER_INVALID) {
-            note_on_osc_index = 2;
-          } else if (m_note_on_number[3] == NOTE_NUMBER_INVALID) {
-            note_on_osc_index = 3;
-          } else if (m_note_on_number[0] == NOTE_NUMBER_INVALID) {
-            note_on_osc_index = 0;
-          } else {
-            note_on_osc_index = m_note_queue[0];
+      if ((m_voice_asgn_mode == 3) || (m_voice_asgn_mode == 4)) {
+        // Reuse note-off voices
+        if        (m_note_asgn_number[0] == note_number) {
+          note_on_osc_index = 0;
+        } else if (m_note_asgn_number[1] == note_number) {
+          note_on_osc_index = 1;
+        } else if (m_note_asgn_number[2] == note_number) {
+          note_on_osc_index = 2;
+        } else if (m_note_asgn_number[3] == note_number) {
+          note_on_osc_index = 3;
+        }
+      }
+
+      if (note_on_osc_index >= 4) {
+        if ((m_voice_asgn_mode == 1) || (m_voice_asgn_mode == 3)) {
+          switch (m_last_note_on_index) {
+          default:
+            if        (m_note_on_number[1] == NOTE_NUMBER_INVALID) {
+              note_on_osc_index = 1;
+            } else if (m_note_on_number[2] == NOTE_NUMBER_INVALID) {
+              note_on_osc_index = 2;
+            } else if (m_note_on_number[3] == NOTE_NUMBER_INVALID) {
+              note_on_osc_index = 3;
+            } else if (m_note_on_number[0] == NOTE_NUMBER_INVALID) {
+              note_on_osc_index = 0;
+            } else {
+              note_on_osc_index = m_note_queue[0];
+            }
+            break;
+          case 1:
+            if        (m_note_on_number[2] == NOTE_NUMBER_INVALID) {
+              note_on_osc_index = 2;
+            } else if (m_note_on_number[3] == NOTE_NUMBER_INVALID) {
+              note_on_osc_index = 3;
+            } else if (m_note_on_number[0] == NOTE_NUMBER_INVALID) {
+              note_on_osc_index = 0;
+            } else if (m_note_on_number[1] == NOTE_NUMBER_INVALID) {
+              note_on_osc_index = 1;
+            } else {
+              note_on_osc_index = m_note_queue[0];
+            }
+            break;
+          case 2:
+            if        (m_note_on_number[3] == NOTE_NUMBER_INVALID) {
+              note_on_osc_index = 3;
+            } else if (m_note_on_number[0] == NOTE_NUMBER_INVALID) {
+              note_on_osc_index = 0;
+            } else if (m_note_on_number[1] == NOTE_NUMBER_INVALID) {
+              note_on_osc_index = 1;
+            } else if (m_note_on_number[2] == NOTE_NUMBER_INVALID) {
+              note_on_osc_index = 2;
+            } else {
+              note_on_osc_index = m_note_queue[0];
+            }
+            break;
+          case 3:
+            if        (m_note_on_number[0] == NOTE_NUMBER_INVALID) {
+              note_on_osc_index = 0;
+            } else if (m_note_on_number[1] == NOTE_NUMBER_INVALID) {
+              note_on_osc_index = 1;
+            } else if (m_note_on_number[2] == NOTE_NUMBER_INVALID) {
+              note_on_osc_index = 2;
+            } else if (m_note_on_number[3] == NOTE_NUMBER_INVALID) {
+              note_on_osc_index = 3;
+            } else {
+              note_on_osc_index = m_note_queue[0];
+            }
+            break;
           }
-          break;
-        case 1:
-          if        (m_note_on_number[2] == NOTE_NUMBER_INVALID) {
-            note_on_osc_index = 2;
-          } else if (m_note_on_number[3] == NOTE_NUMBER_INVALID) {
-            note_on_osc_index = 3;
-          } else if (m_note_on_number[0] == NOTE_NUMBER_INVALID) {
-            note_on_osc_index = 0;
-          } else if (m_note_on_number[1] == NOTE_NUMBER_INVALID) {
-            note_on_osc_index = 1;
-          } else {
-            note_on_osc_index = m_note_queue[0];
-          }
-          break;
-        case 2:
-          if        (m_note_on_number[3] == NOTE_NUMBER_INVALID) {
-            note_on_osc_index = 3;
-          } else if (m_note_on_number[0] == NOTE_NUMBER_INVALID) {
-            note_on_osc_index = 0;
-          } else if (m_note_on_number[1] == NOTE_NUMBER_INVALID) {
-            note_on_osc_index = 1;
-          } else if (m_note_on_number[2] == NOTE_NUMBER_INVALID) {
-            note_on_osc_index = 2;
-          } else {
-            note_on_osc_index = m_note_queue[0];
-          }
-          break;
-        case 3:
+        } else /* if ((m_voice_asgn_mode == 2) || (m_voice_asgn_mode == 4)) */ {
           if        (m_note_on_number[0] == NOTE_NUMBER_INVALID) {
             note_on_osc_index = 0;
           } else if (m_note_on_number[1] == NOTE_NUMBER_INVALID) {
@@ -683,19 +727,6 @@ public:
           } else {
             note_on_osc_index = m_note_queue[0];
           }
-          break;
-        }
-      } else /* if (m_voice_asgn_mode == 2) */{
-        if        (m_note_on_number[0] == NOTE_NUMBER_INVALID) {
-          note_on_osc_index = 0;
-        } else if (m_note_on_number[1] == NOTE_NUMBER_INVALID) {
-          note_on_osc_index = 1;
-        } else if (m_note_on_number[2] == NOTE_NUMBER_INVALID) {
-          note_on_osc_index = 2;
-        } else if (m_note_on_number[3] == NOTE_NUMBER_INVALID) {
-          note_on_osc_index = 3;
-        } else {
-          note_on_osc_index = m_note_queue[0];
         }
       }
 
@@ -706,6 +737,8 @@ public:
       ++m_note_on_count[note_number];
 
       m_note_on_number[note_on_osc_index] = note_number;
+
+      m_note_asgn_number[note_on_osc_index] = m_note_on_number[note_on_osc_index];
 
       switch (note_on_osc_index) {
       default:
@@ -861,6 +894,10 @@ public:
     m_note_on_number[1] = NOTE_NUMBER_INVALID;
     m_note_on_number[2] = NOTE_NUMBER_INVALID;
     m_note_on_number[3] = NOTE_NUMBER_INVALID;
+    m_note_asgn_number[0] = NOTE_NUMBER_INVALID;
+    m_note_asgn_number[1] = NOTE_NUMBER_INVALID;
+    m_note_asgn_number[2] = NOTE_NUMBER_INVALID;
+    m_note_asgn_number[3] = NOTE_NUMBER_INVALID;
     for (uint8_t i = 0; i < (sizeof(m_note_on_count) / sizeof(m_note_on_count[0])); ++i) {
       m_note_on_count[i] = 0;
     }
@@ -1055,11 +1092,11 @@ if constexpr (NO_FX == false) {
       break;
 
     case OSC_2_COARSE   :
-      m_osc.set_osc2_pitch(controller_value);
+      m_osc.set_osc2_coarse(controller_value);
       break;
 
     case OSC_2_PITCH    :
-      m_osc.set_osc2_detune(controller_value);
+      m_osc.set_osc2_pitch(controller_value);
       break;
 
     case EG_OSC_AMT     :
@@ -1116,7 +1153,17 @@ if constexpr (NO_FX == false) {
       break;
 
     case VOICE_ASGN_MODE:
-      m_voice_asgn_mode = (controller_value < 64) ? 1 : 2;
+      {
+        static uint8_t voice_asgn_mode_table[6] = { 1, 1, 3, 3, 4, 2, };
+
+        int32_t index = ((controller_value * 10) + 127) / 254;
+
+        uint8_t new_voice_asgn_mode = voice_asgn_mode_table[index];
+        if (m_voice_asgn_mode != new_voice_asgn_mode) {
+          m_voice_asgn_mode = new_voice_asgn_mode;
+          all_notes_off(true);
+        }
+      }
       break;
 
     case PAN            :
@@ -1202,6 +1249,14 @@ if constexpr (NO_FX == false) {
 
     case BTH_CONTROLLER :
       set_breath_controller(controller_value);
+      break;
+
+    case COARSE_TUNE    :
+      m_osc.set_coarse_tune(controller_value);
+      break;
+
+    case FINE_TUNE      :
+      m_osc.set_fine_tune(controller_value);
       break;
 
     case ALL_NOTES_OFF  :
@@ -1570,49 +1625,11 @@ if constexpr (EXT_OUTPUT) {
     audio_output_l_int32 = synth_output_l;
 }
 
-#if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
     int16_t synth_output_l_int16 = (synth_output_l >> 8);
     int16_t synth_output_r_int16 = (synth_output_r >> 8);
-
-#if defined(PRA32_U2_USE_PWM_AUDIO_DITHERING_INSTEAD_OF_ERROR_DIFFUSION)
-    // Dithering
-    right_output_int16 = synth_output_r_int16 + (((noise_int15 + 16384) >> 11) - 8);
-    return               synth_output_l_int16 + (((noise_int15 + 16384) >> 11) - 8);
-#else  // defined(PRA32_U2_USE_PWM_AUDIO_DITHERING_INSTEAD_OF_ERROR_DIFFUSION)
-    // Error diffusion
-    static uint16_t s_output_error_l = 0;
-    static uint16_t s_output_error_r = 0;
-
-    uint32_t pwm_audio_l = synth_output_l_int16 + 0x8000;
-    uint32_t pwm_audio_r = synth_output_r_int16 + 0x8000;
-    pwm_audio_l +=  ((noise_int15 + 16384) >> 14);
-    pwm_audio_r += !((noise_int15 + 16384) >> 14);
-    pwm_audio_l *= 3125;
-    pwm_audio_r *= 3125;
-    pwm_audio_l += s_output_error_l;
-    pwm_audio_r += s_output_error_r;
-
-    volatile uint16_t prev_output_error_l = s_output_error_l;
-    volatile uint16_t prev_output_error_r = s_output_error_r;
-    s_output_error_l = pwm_audio_l & 0xFFFF;
-    s_output_error_r = pwm_audio_r & 0xFFFF;
-
-    right_output_int16 = synth_output_r_int16 + (prev_output_error_r > s_output_error_r) * 22;
-    return               synth_output_l_int16 + (prev_output_error_l > s_output_error_l) * 22;
-#endif  // defined(PRA32_U2_USE_PWM_AUDIO_DITHERING_INSTEAD_OF_ERROR_DIFFUSION)
-#else  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
-#if 1
-    // Dithering
-    int16_t synth_output_l_int16 = ((synth_output_l + ((noise_int15 + 16384) >> 7)) >> 8);
-    int16_t synth_output_r_int16 = ((synth_output_r + ((noise_int15 + 16384) >> 7)) >> 8);
-#else
-    int16_t synth_output_l_int16 = (synth_output_l >> 8);
-    int16_t synth_output_r_int16 = (synth_output_r >> 8);
-#endif
 
     right_output_int16 = synth_output_r_int16;
     return               synth_output_l_int16;
-#endif  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
   }
 
   template <boolean RESTRICT_SAW = false, boolean RESTRICT_SQR_WT = false>

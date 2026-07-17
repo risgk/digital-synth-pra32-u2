@@ -17,9 +17,9 @@ uint8_t g_midi_ch = PRA32_U2_MIDI_CH;
 #include "./pra32-u2-midi-in.h"
 #include "./pra32-u2-wav-file-out.h"
 
-PRA32_U2_Synth<>    g_synth;
-PRA32_U2_MIDIIn     g_midi_in;
-PRA32_U2_WAVFileOut g_wav_file_out;
+PRA32_U2_Synth<false, false, true> g_synth;
+PRA32_U2_MIDIIn                    g_midi_in;
+PRA32_U2_WAVFileOut                g_wav_file_out;
 
 const uint16_t RECORDING_SEC = 60;
 const uint16_t SERIAL_SPEED_38400 = 38400;
@@ -37,9 +37,14 @@ int main(int argc, char *argv[]) {
     g_midi_in.receive_midi_byte(c);
     uint16_t r = SAMPLING_RATE / (SERIAL_SPEED_38400 / 10);
     for (uint16_t i = 0; i < r; i++) {
-      int16_t right_level;
-      int16_t left_level = g_synth.process(0, 0, right_level);
-      g_wav_file_out.write(left_level, right_level);
+      int32_t synth_output_l_int32;
+      int32_t synth_output_r_int32;
+      int16_t synth_output_l;
+      int16_t synth_output_r;
+      synth_output_l = g_synth.process(0, 0, synth_output_r, synth_output_l_int32, synth_output_r_int32);
+      static_cast<void>(synth_output_l);
+      static_cast<void>(synth_output_r);
+      g_wav_file_out.write(synth_output_l_int32, synth_output_r_int32);
     }
   }
 

@@ -111,15 +111,15 @@ const uint8_t   BTH_AMP_MOD     = 61;
 const uint8_t   EG_VEL_SENS     = 62;
 const uint8_t   AMP_VEL_SENS    = 63;
 
-const uint8_t   AFT_T_LFO_AMT   = 109;
+const uint8_t   AFT_T_LFO_AMT   = 37;
 const uint8_t   VOICE_ASGN_MODE = 110;
 const uint8_t   PAN             = 10;
 const uint8_t   REL_VEL_SENS    = 81;
 
 const uint8_t   OSC_DRIFT       = 82;
 const uint8_t   OSC_SAW_W_MODE  = 83;
-
-
+const uint8_t   COARSE_TUNE     = 86;
+const uint8_t   FINE_TUNE       = 70;
 
 const uint8_t   CHORUS_MIX      = 93;
 
@@ -177,6 +177,11 @@ const uint8_t   VOICE_POLYPHONIC   = 0;
 const uint8_t   VOICE_MONOPHONIC   = 76;
 const uint8_t   VOICE_LEGATO       = 102;
 const uint8_t   VOICE_LEGATO_PORTA = 127;
+
+const uint8_t   VOICE_ASGN_MODE_1  = 0;
+const uint8_t   VOICE_ASGN_MODE_3  = 76;
+const uint8_t   VOICE_ASGN_MODE_4  = 102;
+const uint8_t   VOICE_ASGN_MODE_2  = 127;
 
 
 const uint8_t   PANEL_SCALE     = 128 + 8;
