@@ -153,6 +153,7 @@
     - 32: 20 ms
     - 64: 200 ms
     - 96: 2 s
+    - 126: 17.3 s
     - 127: 18.6 s
 - EG Mod Amt [-|+], LFO Mod Amt [-|+]
     - Pitch
