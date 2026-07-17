@@ -3,7 +3,11 @@
 #include "pra32-u2-common.h"
 
 class PRA32_U2_DelayFx {
+#if !defined(PRA32_U2_LIMIT_DELAY_TIME_TO_SAVE_MEM)
   static const uint16_t DELAY_BUFF_SIZE = 16384;
+#else  // !defined(PRA32_U2_LIMIT_DELAY_TIME_TO_SAVE_MEM)
+  static const uint16_t DELAY_BUFF_SIZE = 8192;
+#endif  // !defined(PRA32_U2_LIMIT_DELAY_TIME_TO_SAVE_MEM)
 
   int32_t  m_delay_buff[2][DELAY_BUFF_SIZE];
   uint16_t m_delay_wp[2];
@@ -40,7 +44,7 @@ public:
 
     set_delay_level   (0  );
     set_delay_feedback(64 );
-    set_delay_time    (93 );
+    set_delay_time    (87 );
 
     m_delay_time_effective = m_delay_time;
   }
@@ -54,6 +58,7 @@ public:
   }
 
   INLINE void set_delay_time(uint8_t controller_value) {
+#if !defined(PRA32_U2_LIMIT_DELAY_TIME_TO_SAVE_MEM)
     static uint16_t delay_time_table[128] = {
          48,    96,   144,   192,   240,   288,   384,   480,
         576,   672,   768,   864,   960,  1056,  1152,  1248,
@@ -72,6 +77,26 @@ public:
       16160, 16320, 16320, 16320, 16320, 16320, 16320, 16320,
       16320, 16320, 16320, 16320, 16320, 16320, 16320, 16320,
     };
+#else  // !defined(PRA32_U2_LIMIT_DELAY_TIME_TO_SAVE_MEM)
+    static uint16_t delay_time_table[128] = {
+         48,    96,   144,   192,   240,   288,   384,   480,
+        576,   672,   768,   864,   960,  1056,  1152,  1248,
+       1344,  1440,  1536,  1632,  1728,  1824,  1920,  2016,
+       2112,  2208,  2304,  2400,  2560,  2720,  2880,  3040,
+       3200,  3360,  3520,  3680,  3840,  4000,  4160,  4320,
+       4480,  4640,  4800,  4960,  5120,  5280,  5440,  5600,
+       5760,  5920,  6080,  6240,  6400,  6560,  6720,  6880,
+       7040,  7200,  7360,  7520,  7680,  7840,  8000,  8160,
+       8160,  8160,  8160,  8160,  8160,  8160,  8160,  8160,
+       8160,  8160,  8160,  8160,  8160,  8160,  8160,  8160,
+       8160,  8160,  8160,  8160,  8160,  8160,  8160,  8160,
+       8160,  8160,  8160,  8160,  8160,  8160,  8160,  8160,
+       8160,  8160,  8160,  8160,  8160,  8160,  8160,  8160,
+       8160,  8160,  8160,  8160,  8160,  8160,  8160,  8160,
+       8160,  8160,  8160,  8160,  8160,  8160,  8160,  8160,
+       8160,  8160,  8160,  8160,  8160,  8160,  8160,  8160,
+    };
+#endif  // !defined(PRA32_U2_LIMIT_DELAY_TIME_TO_SAVE_MEM)
 
     m_delay_time = delay_time_table[controller_value];
   }

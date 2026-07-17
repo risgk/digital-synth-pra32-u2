@@ -2,7 +2,7 @@
  * Digital Synth PRA32-U2
  */
 
-#define PRA32_U2_VERSION                       "v2.15.0   "
+#define PRA32_U2_VERSION                       "v2.16.0   "
 
 //#define PRA32_U2_USE_DEBUG_PRINT
 
@@ -46,6 +46,8 @@
 
 #define PRA32_U2_USE_EMULATED_EEPROM
 
+//#define PRA32_U2_LIMIT_DELAY_TIME_TO_SAVE_MEM
+
 #define PRA32_U2_NUMBER_OF_SYNTHS              (1)
 
 ////////////////////////////////////////////////////////////////
@@ -61,7 +63,7 @@
 //#define PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN    (17)
 //#define PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN     (19)
 //#define PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN         (21)
-#define PRA32_U2_KEY_ANTI_CHATTERING_WAIT        (15)
+#define PRA32_U2_KEY_ANTI_CHATTERING_WAIT        (25)
 #define PRA32_U2_KEY_LONG_PRESS_WAIT             (375)
 
 #define PRA32_U2_USE_CONTROL_PANEL_ANALOG_INPUT  // Use ADC0, ADC1, and ADC2
@@ -89,7 +91,7 @@ uint8_t g_midi_ch = PRA32_U2_MIDI_CH;
 #include "pra32-u2-common.h"
 #include "pra32-u2-synth.h"
 
-PRA32_U2_Synth<> g_synth;
+PRA32_U2_Synth<false, false, true> g_synth;
 
 #include <MIDI.h>
 struct MySettings : public midi::DefaultSettings {
@@ -224,7 +226,7 @@ void __not_in_flash_func(setup)() {
   if (PRA32_U2_I2S_SWAP_BCLK_AND_LRCLK_PINS) {
     g_i2s_output.swapClocks();
   }
-  g_i2s_output.setBitsPerSample(16);
+  g_i2s_output.setBitsPerSample(24);
   g_i2s_output.setBuffers(PRA32_U2_I2S_BUFFERS, PRA32_U2_I2S_BUFFER_WORDS);
   g_i2s_output.begin();
 #endif  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
@@ -317,10 +319,18 @@ void __not_in_flash_func(loop)() {
   uint32_t debug_measurement_start1_us = micros();
 #endif  // defined(PRA32_U2_USE_DEBUG_PRINT)
 
-  int16_t left_buffer[PRA32_U2_I2S_BUFFER_WORDS];
-  int16_t right_buffer[PRA32_U2_I2S_BUFFER_WORDS];
+  int32_t left_buffer[PRA32_U2_I2S_BUFFER_WORDS];
+  int32_t right_buffer[PRA32_U2_I2S_BUFFER_WORDS];
   for (uint32_t i = 0; i < PRA32_U2_I2S_BUFFER_WORDS; i++) {
-    left_buffer[i] = g_synth.process(0, 0, right_buffer[i]);
+    int16_t synth_output_l;
+    int16_t synth_output_r;
+    int32_t synth_output_l_int32;
+    int32_t synth_output_r_int32;
+    synth_output_l = g_synth.process(0, 0, synth_output_r, synth_output_l_int32, synth_output_r_int32);
+    static_cast<void>(synth_output_l);
+    static_cast<void>(synth_output_r);
+    left_buffer[i] = synth_output_l_int32 << 8;
+    right_buffer[i] = synth_output_r_int32 << 8;
   }
 
 #if defined(PRA32_U2_USE_DEBUG_PRINT)
@@ -330,22 +340,22 @@ void __not_in_flash_func(loop)() {
 #if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
   for (uint32_t i = 0; i < PRA32_U2_I2S_BUFFER_WORDS; i++) {
 #if ((PRA32_U2_PWM_AUDIO_L_PIN + 1) == PRA32_U2_PWM_AUDIO_R_PIN) && ((PRA32_U2_PWM_AUDIO_L_PIN % 2) == 0)
-    g_pwm_l.write(left_buffer[i]);
-    g_pwm_l.write(right_buffer[i]);
+    g_pwm_l.write(left_buffer[i] >> 16);
+    g_pwm_l.write(right_buffer[i] >> 16);
 #elif ((PRA32_U2_PWM_AUDIO_R_PIN + 1) == PRA32_U2_PWM_AUDIO_L_PIN) && ((PRA32_U2_PWM_AUDIO_R_PIN % 2) == 0)
-    g_pwm_r.write(right_buffer[i]);
-    g_pwm_r.write(left_buffer[i]);
+    g_pwm_r.write(right_buffer[i] >> 16);
+    g_pwm_r.write(left_buffer[i] >> 16);
 #else
-    g_pwm_l.write(left_buffer[i]);
-    g_pwm_r.write(right_buffer[i]);
+    g_pwm_l.write(left_buffer[i] >> 16);
+    g_pwm_r.write(right_buffer[i] >> 16);
 #endif
   }
 #else  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
   for (uint32_t i = 0; i < PRA32_U2_I2S_BUFFER_WORDS; i++) {
     if (PRA32_U2_I2S_SWAP_LEFT_AND_RIGHT) {
-      g_i2s_output.write16(right_buffer[i], left_buffer[i]);
+      g_i2s_output.write24(right_buffer[i], left_buffer[i]);
     } else {
-      g_i2s_output.write16(left_buffer[i], right_buffer[i]);
+      g_i2s_output.write24(left_buffer[i], right_buffer[i]);
     }
   }
 #endif  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)

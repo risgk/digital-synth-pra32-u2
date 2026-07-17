@@ -27,24 +27,28 @@ public:
     fwrite("\x01\x00\x02\x00", 1, 4, m_file);
     uint32_t a[1] = {SAMPLING_RATE};
     fwrite(a, 4, 1, m_file);
-    a[0] = {SAMPLING_RATE * 4};
+    a[0] = {SAMPLING_RATE * 6};
     fwrite(a, 4, 1, m_file);
-    fwrite("\x04\x00\x10\x00", 1, 4, m_file);
+    fwrite("\x06\x00\x18\x00", 1, 4, m_file);
     fwrite("data", 1, 4, m_file);
     fwrite("\x00\x00\x00\x00", 1, 4, m_file);
-    m_max_size = (SAMPLING_RATE) * 2 * sec;
+    m_max_size = (SAMPLING_RATE) * 3 * sec;
     m_data_size = 0;
     m_closed = false;
   }
 
-  INLINE void write(int16_t left, int16_t right) {
+  INLINE void write(int32_t left24, int32_t right24) {
     if (m_data_size < m_max_size) {
-      int16_t l[1] = {left};
-      int16_t r[1] = {right};
-      fwrite(l, 2, 1, m_file);
-      fwrite(r, 2, 1, m_file);
-      m_data_size += 2;
-      m_data_size += 2;
+      uint8_t l[3] = {static_cast<uint8_t>((left24  >>  0) & 0xFF),
+                      static_cast<uint8_t>((left24  >>  8) & 0xFF),
+                      static_cast<uint8_t>((left24  >> 16) & 0xFF)};
+      uint8_t r[3] = {static_cast<uint8_t>((right24 >>  0) & 0xFF),
+                      static_cast<uint8_t>((right24 >>  8) & 0xFF),
+                      static_cast<uint8_t>((right24 >> 16) & 0xFF)};
+      fwrite(l, 3, 1, m_file);
+      fwrite(r, 3, 1, m_file);
+      m_data_size += 3;
+      m_data_size += 3;
     } else {
       close();
       m_closed = true;

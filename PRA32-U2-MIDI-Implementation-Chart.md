@@ -1,6 +1,6 @@
 ```
-  [Polyphonic Synthesizer]                                        Date: 2026-06-28                      
-  Model: Digital Synth PRA32-U2   MIDI Implementation Chart       Version: 2.15.0                       
+  [Polyphonic Synthesizer]                                        Date: 2026-07-17                      
+  Model: Digital Synth PRA32-U2   MIDI Implementation Chart       Version: 2.16.0                       
 +-------------------------------+---------------+---------------+--------------------------------------+
 | Function...                   | Transmitted   | Recognized    | Remarks                              |
 +-------------------------------+---------------+---------------+--------------------------------------+
@@ -41,7 +41,7 @@
 |                            74 | x             | o             | Filter Cutoff                        |
 |                            71 | x             | o             | Filter Resonance                     |
 |                            24 | x             | o             | Filter EG Amt [-|+]                  |
-|                             9 | x             | o             | Filter Key Track [-|+] $1            |
+|                             9 | x             | o             | Filter Key Track [-|+]               |
 |                               |               |               |                                      |
 |                            73 | x             | o             | EG Attack                            |
 |                            75 | x             | o             | EG Decay                             |
@@ -78,15 +78,15 @@
 |                            62 | x             | o             | EG Velocity Sensitivity              |
 |                            63 | x             | o             | Amp Velocity Sensitivity             |
 |                               |               |               |                                      |
-|                           109 | x             | o             | After Touch LFO Amt                  |
-|                           110 | x             | o             | Voice Assign Mode [1|2]              |
+|                            37 | x             | o             | After Touch LFO Amt                  |
+|                           110 | x             | o             | Voice Assign Mode [1|1|3|3|4|2]      |
 |                            10 | x             | o             | Pan                                  |
-|                            81 | x             | o             | Release Velocity Sensitivity         |
+|                            81 | x             | o             | Release Off Velocity Sensitivity     |
 |                               |               |               |                                      |
 |                            82 | x             | o             | Osc Drift                            |
 |                            83 | x             | o             | Osc Saw Wave Mode [Str|Cur]          |
-|                               |               |               |                                      |
-|                               |               |               |                                      |
+|                            86 | x             | o             | Coarse Tune [-|+]                    |
+|                            70 | x             | o             | Fine Tune [-|+]                      |
 |                               |               |               |                                      |
 |                            93 | x             | o             | Chorus Level                         |
 |                               |               |               |                                      |

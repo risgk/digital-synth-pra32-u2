@@ -214,10 +214,14 @@ static INLINE void PRA32_U2_ControlPanel_calc_value_display_pitch(uint8_t pitch,
 }
 
 static INLINE uint32_t PRA32_U2_ControlPanel_calc_bpm(uint8_t tempo_control_value) {
-  uint32_t bpm = (tempo_control_value * 2) + 56;
+  int32_t bpm = (tempo_control_value * 2) - 8;
 
-  if (bpm > 300) {
-    bpm = 300;
+  if (bpm > 240) {
+    bpm = 240;
+  }
+
+  if (bpm < 30) {
+    bpm = 30;
   }
 
   return bpm;
@@ -697,6 +701,8 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case LFO_FILTER_AMT  :
   case BTH_FILTER_AMT  :
   case PAN             :
+  case COARSE_TUNE     :
+  case FINE_TUNE       :
   case PANEL_TRANSPOSE :
     {
       std::sprintf(value_display_text, "%+3d", static_cast<int>(controller_value) - 64);
@@ -812,8 +818,8 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
     break;
   case VOICE_ASGN_MODE :
     {
-      char ary[2][5] = {"  1","  2"};
-      uint32_t index = ((controller_value * 2) + 127) / 254;
+      char ary[6][5] = {"  1","  1","  3","  3","  4","  2"};
+      uint32_t index = ((controller_value * 10) + 127) / 254;
       std::strcpy(value_display_text, ary[index]);
       result = true;
     }
