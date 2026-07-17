@@ -1,7 +1,5 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v2.16.1 (2026-??-??):
-    - Tested with Arduino-Pico version 5.7.0
 - v2.16.0 (2026-07-17):
     - Increase the I2S DAC bit depth to **24 bits**
     - **Change** the control number of After Touch LFO Amt from 109 to 37
