@@ -26,7 +26,40 @@
 ## [Change History](./PRA32-U2-Change-History.md)
 
 
-## Preparation for modification
+## [Parameter Guide](./PRA32-U2-Parameter-Guide.md)
+
+
+## [MIDI Implementation Chart](./PRA32-U2-MIDI-Implementation-Chart.md)
+
+
+## Synthesizer Block Diagram
+
+```mermaid
+graph LR
+    subgraph V1[Voice 1]
+        V1O1[Osc 1 w/ Sub Osc] --> V1OM[Osc Mixer]
+        V1O2[Osc 2] --> V1OM
+        V1OM --> V1F[Filter]
+        V1F --> V1A[Amp]
+        E[EG] -.-> V1O1 & V1O2 & V1F
+        V1AE[Amp EG] -.-> V1A
+    end
+    V1A --> VM[Voice Mixer]
+    V2[Voice 2] & V3[Voice 3] & V4[Voice 4] --> VM
+    VM --> P[Panner] --> C[Chorus FX] --> D[Delay FX] --> AO[Audio Out]
+    P --> C --> D --> AO
+    N[Noise Gen]  --> V1O2 & V1OM & V2 & V3 & V4
+    N -.-> L[LFO w/ S/H]
+    L -.-> V1O1 & V1O2 & V1F & V2 & V3 & V4
+```
+
+
+## Wave Table Graphs
+
+![Wave Table Graphs](./pra32-u2-wave-table-graphs.png)
+
+
+## Preparation for Modification
 
 - Please install **Arduino IDE**
     - NOTE: Large noise is generated during the sketch upload if other than Update Method: "Default (UF2)" is used
@@ -202,60 +235,6 @@
           (NOTE: The current parameters of PRA32-U2 will not be updated)
 
 
-## [Parameter Guide](./PRA32-U2-Parameter-Guide.md)
-
-
-## [MIDI Implementation Chart](./PRA32-U2-MIDI-Implementation-Chart.md)
-
-
-## Synthesizer Block Diagram
-
-```mermaid
-graph LR
-    subgraph V1[Voice 1]
-        V1O1[Osc 1 w/ Sub Osc] --> V1OM[Osc Mixer]
-        V1O2[Osc 2] --> V1OM
-        V1OM --> V1F[Filter]
-        V1F --> V1A[Amp]
-        E[EG] -.-> V1O1 & V1O2 & V1F
-        V1AE[Amp EG] -.-> V1A
-    end
-    V1A --> VM[Voice Mixer]
-    V2[Voice 2] & V3[Voice 3] & V4[Voice 4] --> VM
-    VM --> P[Panner] --> C[Chorus FX] --> D[Delay FX] --> AO[Audio Out]
-    P --> C --> D --> AO
-    N[Noise Gen]  --> V1O2 & V1OM & V2 & V3 & V4
-    N -.-> L[LFO w/ S/H]
-    L -.-> V1O1 & V1O2 & V1F & V2 & V3 & V4
-```
-
-
-## Wave Table Graphs
-
-![Wave Table Graphs](./pra32-u2-wave-table-graphs.png)
-
-
-## Simple Circuit for PWM Audio (Optional) (CURRENTLY NOT RECOMMENDED)
-
-### Circuit Diagram
-
-![Circuit Diagram](./pra32-u2-pwm-audio-circuit-diagram.png)
-
-- This image was created with Fritzing.
-    - Actually, it is necessary to use Raspberry Pi Pico 2 (instead of Raspberry Pi Pico)
-- Adding 10 uF electrolytic capacitors (AC coupling capacitors) will cut the DC components of the audio outputs.
-- NOTE: Connect an amplifier or an active speaker to the audio jack.
-  Connecting a headphone or a passive speaker may cause a large current to flow and damage the devices.
-
-
-### Actual Wiring Diagram
-
-![Actual Wiring Diagram](./pra32-u2-pwm-audio-bread-board.png)
-
-- This image was created with Fritzing.
-    - Actually, it is necessary to use Raspberry Pi Pico 2 (instead of Raspberry Pi Pico)
-
-
 ## PRA32-U2/M (PRA32-U2 Multi-Timbre Edition) (Optional)
 
 - Features
@@ -281,6 +260,27 @@ graph LR
 ## [PRA32-U2/P](./README-PRA32-U2-P.md) (PRA32-U2 with Panel) (Optional)
 
 
+## Simple Circuit for PWM Audio (Optional) (CURRENTLY NOT RECOMMENDED)
+
+### Circuit Diagram
+
+![Circuit Diagram](./pra32-u2-pwm-audio-circuit-diagram.png)
+
+- This image was created with Fritzing.
+    - Actually, it is necessary to use Raspberry Pi Pico 2 (instead of Raspberry Pi Pico)
+- Adding 10 uF electrolytic capacitors (AC coupling capacitors) will cut the DC components of the audio outputs.
+- NOTE: Connect an amplifier or an active speaker to the audio jack.
+  Connecting a headphone or a passive speaker may cause a large current to flow and damage the devices.
+
+
+### Actual Wiring Diagram
+
+![Actual Wiring Diagram](./pra32-u2-pwm-audio-bread-board.png)
+
+- This image was created with Fritzing.
+    - Actually, it is necessary to use Raspberry Pi Pico 2 (instead of Raspberry Pi Pico)
+
+
 ## Customization Examples
 
 - Files in the "customization-examples" folder
@@ -294,6 +294,7 @@ graph LR
     - Runs on a single core
     - "Digital-Synth-PRA32-U2-M.ino.Lite-Core-0-Only.txt"
     - "Digital-Synth-PRA32-U2-M.ino.Lite-Core-1-Only.txt"
+
 
 ## License
 
