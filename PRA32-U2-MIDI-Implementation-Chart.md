@@ -75,8 +75,8 @@
 |                               |               |               |                                      |
 |                            60 | x             | o             | Breath Filter Amt [-|+]              |
 |                            61 | x             | o             | Breath Amp Mod [Off|Qad|Lin]         |
-|                            62 | x             | o             | EG Velo Sens                         |
-|                            63 | x             | o             | Amp Velo Sens                        |
+|                            62 | x             | o             | EG Level Velo Sens                   |
+|                            63 | x             | o             | Amp Level Velo Sens                  |
 |                               |               |               |                                      |
 |                            37 | x             | o             | After Touch LFO Amt                  |
 |                           110 | x             | o             | Voice Assign Mode [1|1|3|3|4|2]      |
