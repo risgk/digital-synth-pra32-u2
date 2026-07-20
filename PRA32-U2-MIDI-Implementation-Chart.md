@@ -75,13 +75,13 @@
 |                               |               |               |                                      |
 |                            60 | x             | o             | Breath Filter Amt [-|+]              |
 |                            61 | x             | o             | Breath Amp Mod [Off|Qad|Lin]         |
-|                            62 | x             | o             | EG Velocity Sensitivity              |
-|                            63 | x             | o             | Amp Velocity Sensitivity             |
+|                            62 | x             | o             | EG Velo Sens                         |
+|                            63 | x             | o             | Amp Velo Sens                        |
 |                               |               |               |                                      |
 |                            37 | x             | o             | After Touch LFO Amt                  |
 |                           110 | x             | o             | Voice Assign Mode [1|1|3|3|4|2]      |
 |                            10 | x             | o             | Pan                                  |
-|                            81 | x             | o             | Release Off Velocity Sensitivity     |
+|                            81 | x             | o             | Release Off Velo Sens                |
 |                               |               |               |                                      |
 |                            82 | x             | o             | Osc Drift                            |
 |                            83 | x             | o             | Osc Saw Wave Mode [Str|Cur]          |
