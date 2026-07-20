@@ -255,7 +255,7 @@
 - Release = Decay [Off|On]
     - 0 (0-63): Off
     - 127 (64-127): On, EG Release = EG Decay and Amp Release = Amp Decay
-        - NOTE: EG Velocity Sensitivity and Amp Velocity Sensitivity works independently
+        - NOTE: EG Velo Sens and Amp Velo Sens works independently
 - Breath Filter Amt [-|+]
     - -60 (4): -120 (min)
     - +60 (124): +120 (max)
@@ -263,8 +263,8 @@
     - 0 (0-31): Off
     - 64 (32-95): Quadratic Curve
     - 127 (96-127): Liniear Curve
-- EG Velocity Sensitivity: Decreases the EG level as note on velocity decreases
-- Amp Velocity Sensitivity: Decreases the Amp EG level as note on velocity decreases
+- EG Velo Sens: EG Velocity Sensitivity, Decreases the EG level as note on velocity decreases
+- Amp Velo Sens: Amp Velocity Sensitivity, Decreases the Amp EG level as note on velocity decreases
 - After Touch LFO Amt
 - Voice Assign Mode [1|1|3|3|4|2]: In Polyphonic Mode,
     - 0 (0-12): Mode 1, Free voice with next number has priority (Round Robin), Release is effective
@@ -274,7 +274,7 @@
     - 102 (89-114): Mode 4, Reuse note-off voices, Free voice with small number has priority, Portamento and polyphonic after touch are effective
     - 127 (115-127): Mode 2, Free voice with small number has priority, Portamento is effective
 - Pan
-- Release Off Velocity Sensitivity: Increases the release time as note off velocity decreases
+- Release Off Velo Sens: Release Off Velocity Sensitivity, Increases the release time as note off velocity decreases
 - Osc Drift
 - Osc Saw Wave Mode [Str|Cur]
     - 0 (0-63): Straight Saw Wave
