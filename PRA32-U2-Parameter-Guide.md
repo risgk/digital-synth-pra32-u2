@@ -255,7 +255,7 @@
 - Release = Decay [Off|On]
     - 0 (0-63): Off
     - 127 (64-127): On, EG Release = EG Decay and Amp Release = Amp Decay
-        - NOTE: EG Velo Sens, Amp Velo Sens, and EG Release Off Velo Sens works independently
+        - NOTE: EG Level Velo Sens, Amp Level Velo Sens, and EG Release Off Velo Sens works independently
 - Breath Filter Amt [-|+]
     - -60 (4): -120 (min)
     - +60 (124): +120 (max)
@@ -263,8 +263,8 @@
     - 0 (0-31): Off
     - 64 (32-95): Quadratic Curve
     - 127 (96-127): Liniear Curve
-- EG Velo Sens: EG Velocity Sensitivity, Decreases the EG level as note on velocity decreases
-- Amp Velo Sens: Amp Velocity Sensitivity, Decreases the Amp EG level as note on velocity decreases
+- EG Level Velo Sens: EG Level Velocity Sensitivity, Decreases the EG level as note on velocity decreases
+- Amp Level Velo Sens: Amp Level Velocity Sensitivity, Decreases the Amp EG level as note on velocity decreases
 - After Touch LFO Amt
 - Voice Assign Mode [1|1|3|3|4|2]: In Polyphonic Mode,
     - 0 (0-12): Mode 1, Free voice with next number has priority (Round Robin), Release is effective
