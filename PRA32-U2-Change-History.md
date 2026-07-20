@@ -1,9 +1,9 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v2.16.1 (2026-??-??):
-    - **Change** "EG Amp Mod" to use EG output instead of Amp EG output (not Amp ADSR = EG ADSR)
-    - **Rename** "EG/Amp Velocity Sensitivity" to "EG/Amp Level Velo Sens"
-    - **Change** "Release Off Velocity Sensitivity" to "EG Release Off Velo Sens"
+- v2.17.0 (2026-??-??):
+    - Change "EG Amp Mod" to use EG output instead of Amp EG output (not Amp ADSR = EG ADSR)
+    - Rename "EG/Amp Velocity Sensitivity" to "EG/Amp Level Velo Sens"
+    - Change "Release Off Velocity Sensitivity" to "EG Release Off Velo Sens"
     - Improve documentation
     - Tested with Arduino-Pico version 5.7.0
 - v2.16.0 (2026-07-17):
