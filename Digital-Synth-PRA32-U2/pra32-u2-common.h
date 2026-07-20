@@ -37,3 +37,8 @@ static INLINE int32_t clamp(int32_t value, int32_t minimum_value, int32_t maximu
     + ((value <= maximum_value) && (value >= minimum_value)) * value;
   return result;
 }
+
+template <typename T>
+T branchless_conditional(bool condition, T a, T b) {
+    return condition * a + (!condition) * b;
+}

@@ -1023,36 +1023,36 @@ public:
 
     case EG_ATTACK      :
       m_controller_value_eg_attack   = controller_value;
-      update_eg_and_amp_eg();
+      update_eg();
       break;
     case EG_DECAY       :
       m_controller_value_eg_decay    = controller_value;
-      update_eg_and_amp_eg();
+      update_eg();
       break;
     case EG_SUSTAIN     :
       m_controller_value_eg_sustain  = controller_value;
-      update_eg_and_amp_eg();
+      update_eg();
       break;
     case EG_RELEASE     :
       m_controller_value_eg_release  = controller_value;
-      update_eg_and_amp_eg();
+      update_eg();
       break;
 
     case AMP_ATTACK     :
       m_controller_value_amp_attack  = controller_value;
-      update_eg_and_amp_eg();
+      update_amp_eg();
       break;
     case AMP_DECAY      :
       m_controller_value_amp_decay   = controller_value;
-      update_eg_and_amp_eg();
+      update_amp_eg();
       break;
     case AMP_SUSTAIN    :
       m_controller_value_amp_sustain = controller_value;
-      update_eg_and_amp_eg();
+      update_amp_eg();
       break;
     case AMP_RELEASE    :
       m_controller_value_amp_release = controller_value;
-      update_eg_and_amp_eg();
+      update_amp_eg();
       break;
 
     case CHORUS_DEPTH   :
@@ -1126,12 +1126,12 @@ if constexpr (NO_FX == false) {
 
     case EG_AMP_MOD     :
       m_controller_value_eg_amp_mod   = controller_value;
-      update_eg_and_amp_eg();
       break;
 
     case REL_EQ_DECAY   :
       m_controller_value_rel_eq_decay = controller_value;
-      update_eg_and_amp_eg();
+      update_eg();
+      update_amp_eg();
       break;
 
     case FILTER_MODE    :
@@ -1446,7 +1446,7 @@ if constexpr (BYPASS_SYNTH == false) {
         int16_t lfo_output = m_lfo.get_output<0>();
         m_osc.process_at_low_rate<0>(m_count >> 2, lfo_output, m_eg[0].get_output(), noise_int15);
         m_filter[0].process_at_low_rate(m_count >> 2, m_eg[0].get_output(), lfo_output, m_osc.get_osc_pitch(0));
-        m_amp[0].process_at_low_rate(m_eg[1].get_output());
+        m_amp[0].process_at_low_rate(branchless_conditional(m_controller_value_eg_amp_mod >= 64, m_eg[0].get_output(), m_eg[1].get_output()));
       }
       break;
     case 0x01:
@@ -1461,7 +1461,7 @@ if (m_voice_mode == VOICE_POLYPHONIC) {
         int16_t lfo_output = m_lfo.get_output<1>();
         m_osc.process_at_low_rate<1>(m_count >> 2, lfo_output, m_eg[2].get_output(), noise_int15);
         m_filter[1].process_at_low_rate(m_count >> 2, m_eg[2].get_output(), lfo_output, m_osc.get_osc_pitch(1));
-        m_amp[1].process_at_low_rate(m_eg[3].get_output());
+        m_amp[1].process_at_low_rate(branchless_conditional(m_controller_value_eg_amp_mod >= 64, m_eg[2].get_output(), m_eg[3].get_output()));
 }
 }
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)
@@ -1479,7 +1479,7 @@ if (m_voice_mode == VOICE_POLYPHONIC) {
         int16_t lfo_output = m_lfo.get_output<2>();
         m_osc.process_at_low_rate<2>(m_count >> 2, lfo_output, m_eg[4].get_output(), noise_int15);
         m_filter[2].process_at_low_rate(m_count >> 2, m_eg[4].get_output(), lfo_output, m_osc.get_osc_pitch(2));
-        m_amp[2].process_at_low_rate(m_eg[5].get_output());
+        m_amp[2].process_at_low_rate(branchless_conditional(m_controller_value_eg_amp_mod >= 64, m_eg[4].get_output(), m_eg[5].get_output()));
 }
 }
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)
@@ -1499,7 +1499,7 @@ if (m_voice_mode == VOICE_POLYPHONIC) {
         int16_t lfo_output = m_lfo.get_output<3>();
         m_osc.process_at_low_rate<3>(m_count >> 2, lfo_output, m_eg[6].get_output(), noise_int15);
         m_filter[3].process_at_low_rate(m_count >> 2, m_eg[6].get_output(), lfo_output, m_osc.get_osc_pitch(3));
-        m_amp[3].process_at_low_rate(m_eg[7].get_output());
+        m_amp[3].process_at_low_rate(branchless_conditional(m_controller_value_eg_amp_mod >= 64, m_eg[6].get_output(), m_eg[7].get_output()));
 }
 }
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)
@@ -1893,101 +1893,61 @@ if constexpr (RESTRICT_POLY_AND_CORES == false) {
     }
   }
 
-  INLINE void update_eg_and_amp_eg() {
-    if (m_controller_value_eg_amp_mod >= 64) {
-      m_eg[0].set_attack  (m_controller_value_eg_attack);
-      m_eg[1].set_attack  (m_controller_value_eg_attack);
-      m_eg[2].set_attack  (m_controller_value_eg_attack);
-      m_eg[3].set_attack  (m_controller_value_eg_attack);
-      m_eg[4].set_attack  (m_controller_value_eg_attack);
-      m_eg[5].set_attack  (m_controller_value_eg_attack);
-      m_eg[6].set_attack  (m_controller_value_eg_attack);
-      m_eg[7].set_attack  (m_controller_value_eg_attack);
+  INLINE void update_eg() {
+    m_eg[0].set_attack  (m_controller_value_eg_attack);
+    m_eg[2].set_attack  (m_controller_value_eg_attack);
+    m_eg[4].set_attack  (m_controller_value_eg_attack);
+    m_eg[6].set_attack  (m_controller_value_eg_attack);
 
-      m_eg[0].set_decay   (m_controller_value_eg_decay);
-      m_eg[1].set_decay   (m_controller_value_eg_decay);
-      m_eg[2].set_decay   (m_controller_value_eg_decay);
-      m_eg[3].set_decay   (m_controller_value_eg_decay);
-      m_eg[4].set_decay   (m_controller_value_eg_decay);
-      m_eg[5].set_decay   (m_controller_value_eg_decay);
-      m_eg[6].set_decay   (m_controller_value_eg_decay);
-      m_eg[7].set_decay   (m_controller_value_eg_decay);
+    m_eg[0].set_decay   (m_controller_value_eg_decay);
+    m_eg[2].set_decay   (m_controller_value_eg_decay);
+    m_eg[4].set_decay   (m_controller_value_eg_decay);
+    m_eg[6].set_decay   (m_controller_value_eg_decay);
 
-      m_eg[0].set_sustain (m_controller_value_eg_sustain);
-      m_eg[1].set_sustain (m_controller_value_eg_sustain);
-      m_eg[2].set_sustain (m_controller_value_eg_sustain);
-      m_eg[3].set_sustain (m_controller_value_eg_sustain);
-      m_eg[4].set_sustain (m_controller_value_eg_sustain);
-      m_eg[5].set_sustain (m_controller_value_eg_sustain);
-      m_eg[6].set_sustain (m_controller_value_eg_sustain);
-      m_eg[7].set_sustain (m_controller_value_eg_sustain);
+    m_eg[0].set_sustain (m_controller_value_eg_sustain);
+    m_eg[2].set_sustain (m_controller_value_eg_sustain);
+    m_eg[4].set_sustain (m_controller_value_eg_sustain);
+    m_eg[6].set_sustain (m_controller_value_eg_sustain);
 
-      if (m_controller_value_rel_eq_decay >= 64) {
-        m_eg[0].set_release (m_controller_value_eg_decay);
-        m_eg[1].set_release (m_controller_value_eg_decay);
-        m_eg[2].set_release (m_controller_value_eg_decay);
-        m_eg[3].set_release (m_controller_value_eg_decay);
-        m_eg[4].set_release (m_controller_value_eg_decay);
-        m_eg[5].set_release (m_controller_value_eg_decay);
-        m_eg[6].set_release (m_controller_value_eg_decay);
-        m_eg[7].set_release (m_controller_value_eg_decay);
-      } else {
-        m_eg[0].set_release (m_controller_value_eg_release);
-        m_eg[1].set_release (m_controller_value_eg_release);
-        m_eg[2].set_release (m_controller_value_eg_release);
-        m_eg[3].set_release (m_controller_value_eg_release);
-        m_eg[4].set_release (m_controller_value_eg_release);
-        m_eg[5].set_release (m_controller_value_eg_release);
-        m_eg[6].set_release (m_controller_value_eg_release);
-        m_eg[7].set_release (m_controller_value_eg_release);
-      }
+    if (m_controller_value_rel_eq_decay >= 64) {
+      m_eg[0].set_release (m_controller_value_eg_decay);
+      m_eg[2].set_release (m_controller_value_eg_decay);
+      m_eg[4].set_release (m_controller_value_eg_decay);
+      m_eg[6].set_release (m_controller_value_eg_decay);
     } else {
-      m_eg[0].set_attack  (m_controller_value_eg_attack);
-      m_eg[1].set_attack  (m_controller_value_amp_attack);
-      m_eg[2].set_attack  (m_controller_value_eg_attack);
-      m_eg[3].set_attack  (m_controller_value_amp_attack);
-      m_eg[4].set_attack  (m_controller_value_eg_attack);
-      m_eg[5].set_attack  (m_controller_value_amp_attack);
-      m_eg[6].set_attack  (m_controller_value_eg_attack);
-      m_eg[7].set_attack  (m_controller_value_amp_attack);
+      m_eg[0].set_release (m_controller_value_eg_release);
+      m_eg[2].set_release (m_controller_value_eg_release);
+      m_eg[4].set_release (m_controller_value_eg_release);
+      m_eg[6].set_release (m_controller_value_eg_release);
+    }
+  }
 
-      m_eg[0].set_decay   (m_controller_value_eg_decay);
-      m_eg[1].set_decay   (m_controller_value_amp_decay);
-      m_eg[2].set_decay   (m_controller_value_eg_decay);
-      m_eg[3].set_decay   (m_controller_value_amp_decay);
-      m_eg[4].set_decay   (m_controller_value_eg_decay);
-      m_eg[5].set_decay   (m_controller_value_amp_decay);
-      m_eg[6].set_decay   (m_controller_value_eg_decay);
-      m_eg[7].set_decay   (m_controller_value_amp_decay);
+  INLINE void update_amp_eg() {
+    m_eg[1].set_attack  (m_controller_value_amp_attack);
+    m_eg[3].set_attack  (m_controller_value_amp_attack);
+    m_eg[5].set_attack  (m_controller_value_amp_attack);
+    m_eg[7].set_attack  (m_controller_value_amp_attack);
 
-      m_eg[0].set_sustain (m_controller_value_eg_sustain);
-      m_eg[1].set_sustain (m_controller_value_amp_sustain);
-      m_eg[2].set_sustain (m_controller_value_eg_sustain);
-      m_eg[3].set_sustain (m_controller_value_amp_sustain);
-      m_eg[4].set_sustain (m_controller_value_eg_sustain);
-      m_eg[5].set_sustain (m_controller_value_amp_sustain);
-      m_eg[6].set_sustain (m_controller_value_eg_sustain);
-      m_eg[7].set_sustain (m_controller_value_amp_sustain);
+    m_eg[1].set_decay   (m_controller_value_amp_decay);
+    m_eg[3].set_decay   (m_controller_value_amp_decay);
+    m_eg[5].set_decay   (m_controller_value_amp_decay);
+    m_eg[7].set_decay   (m_controller_value_amp_decay);
 
-      if (m_controller_value_rel_eq_decay >= 64) {
-        m_eg[0].set_release (m_controller_value_eg_decay);
-        m_eg[1].set_release (m_controller_value_amp_decay);
-        m_eg[2].set_release (m_controller_value_eg_decay);
-        m_eg[3].set_release (m_controller_value_amp_decay);
-        m_eg[4].set_release (m_controller_value_eg_decay);
-        m_eg[5].set_release (m_controller_value_amp_decay);
-        m_eg[6].set_release (m_controller_value_eg_decay);
-        m_eg[7].set_release (m_controller_value_amp_decay);
-      } else {
-        m_eg[0].set_release (m_controller_value_eg_release);
-        m_eg[1].set_release (m_controller_value_amp_release);
-        m_eg[2].set_release (m_controller_value_eg_release);
-        m_eg[3].set_release (m_controller_value_amp_release);
-        m_eg[4].set_release (m_controller_value_eg_release);
-        m_eg[5].set_release (m_controller_value_amp_release);
-        m_eg[6].set_release (m_controller_value_eg_release);
-        m_eg[7].set_release (m_controller_value_amp_release);
-      }
+    m_eg[1].set_sustain (m_controller_value_amp_sustain);
+    m_eg[3].set_sustain (m_controller_value_amp_sustain);
+    m_eg[5].set_sustain (m_controller_value_amp_sustain);
+    m_eg[7].set_sustain (m_controller_value_amp_sustain);
+
+    if (m_controller_value_rel_eq_decay >= 64) {
+      m_eg[1].set_release (m_controller_value_amp_decay);
+      m_eg[3].set_release (m_controller_value_amp_decay);
+      m_eg[5].set_release (m_controller_value_amp_decay);
+      m_eg[7].set_release (m_controller_value_amp_decay);
+    } else {
+      m_eg[1].set_release (m_controller_value_amp_release);
+      m_eg[3].set_release (m_controller_value_amp_release);
+      m_eg[5].set_release (m_controller_value_amp_release);
+      m_eg[7].set_release (m_controller_value_amp_release);
     }
   }
 };
