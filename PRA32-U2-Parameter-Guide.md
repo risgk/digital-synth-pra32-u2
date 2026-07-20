@@ -255,7 +255,7 @@
 - Release = Decay [Off|On]
     - 0 (0-63): Off
     - 127 (64-127): On, EG Release = EG Decay and Amp Release = Amp Decay
-        - NOTE: EG Velo Sens and Amp Velo Sens works independently
+        - NOTE: EG Velo Sens, Amp Velo Sens, and EG Release Off Velo Sens works independently
 - Breath Filter Amt [-|+]
     - -60 (4): -120 (min)
     - +60 (124): +120 (max)
@@ -274,7 +274,7 @@
     - 102 (89-114): Mode 4, Reuse note-off voices, Free voice with small number has priority, Portamento and polyphonic after touch are effective
     - 127 (115-127): Mode 2, Free voice with small number has priority, Portamento is effective
 - Pan
-- Release Off Velo Sens: Release Off Velocity Sensitivity, Increases the release time as note off velocity decreases
+- EG Release Off Velo Sens: EG Release Off Velocity Sensitivity, Increases the release time as note off velocity decreases
 - Osc Drift
 - Osc Saw Wave Mode [Str|Cur]
     - 0 (0-63): Straight Saw Wave
