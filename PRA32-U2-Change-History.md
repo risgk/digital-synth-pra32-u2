@@ -1,8 +1,8 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v2.16.1 (2026-??-??):
-    - **Rename** "EG/Amp/Release Off Velocity Sensitivity" to "EG/Amp/Release Off Velo Sens"
-    - **Change** "Release Off Velo Sens" to "EG Release Off Velo Sens"
+    - **Rename** "EG/Amp Velocity Sensitivity" to "EG/Amp Level Velo Sens"
+    - **Change** "Release Off Velocity Sensitivity" to "EG Release Off Velo Sens"
     - Improve documentation
     - Tested with Arduino-Pico version 5.7.0
 - v2.16.0 (2026-07-17):
