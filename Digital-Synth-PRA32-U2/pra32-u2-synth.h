@@ -1175,11 +1175,6 @@ if constexpr (NO_FX == false) {
       m_eg[2].set_note_off_velocity_sensitivity(controller_value);
       m_eg[4].set_note_off_velocity_sensitivity(controller_value);
       m_eg[6].set_note_off_velocity_sensitivity(controller_value);
-
-      m_eg[1].set_note_off_velocity_sensitivity(controller_value);
-      m_eg[3].set_note_off_velocity_sensitivity(controller_value);
-      m_eg[5].set_note_off_velocity_sensitivity(controller_value);
-      m_eg[7].set_note_off_velocity_sensitivity(controller_value);
       break;
 
     case OSC_DRIFT      :
