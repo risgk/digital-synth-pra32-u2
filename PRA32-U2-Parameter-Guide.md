@@ -251,11 +251,10 @@
     - 60: 60 semitone (max)
 - EG Amp Mod [Off|On]
     - 0 (0-63): Off
-    - 127 (64-127): On, Amp ADSR = EG ADSR
+    - 127 (64-127): On
 - Release = Decay [Off|On]
     - 0 (0-63): Off
     - 127 (64-127): On, EG Release = EG Decay and Amp Release = Amp Decay
-        - NOTE: EG Level Velo Sens, Amp Level Velo Sens, and EG Release Off Velo Sens works independently
 - Breath Filter Amt [-|+]
     - -60 (4): -120 (min)
     - +60 (124): +120 (max)
