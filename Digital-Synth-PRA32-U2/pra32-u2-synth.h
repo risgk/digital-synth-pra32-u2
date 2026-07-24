@@ -156,10 +156,10 @@ const uint8_t   DEFAULT_PANEL_PLAY_VELO = 100;
 const uint8_t   DEFAULT_PANEL_PIT_OFST  = 64 ;
 
 
-const uint8_t   DEFAULT_SEQ_PITCH_0     = 64 ;
-const uint8_t   DEFAULT_SEQ_PITCH_1     = 82 ;
-const uint8_t   DEFAULT_SEQ_PITCH_2     = 97 ;
-const uint8_t   DEFAULT_SEQ_PITCH_3     = 117;
+const uint8_t   DEFAULT_SEQ_PITCH_0     = 4  ;
+const uint8_t   DEFAULT_SEQ_PITCH_1     = 22 ;
+const uint8_t   DEFAULT_SEQ_PITCH_2     = 37 ;
+const uint8_t   DEFAULT_SEQ_PITCH_3     = 57 ;
 
 const uint8_t   DEFAULT_SEQ_PITCH_4     = 72 ;
 const uint8_t   DEFAULT_SEQ_PITCH_5     = 89 ;
