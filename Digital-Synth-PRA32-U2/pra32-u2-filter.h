@@ -129,6 +129,7 @@ public:
   }
 
   INLINE void process_at_low_rate(uint8_t count, int16_t eg_input, int16_t lfo_input, uint16_t osc_pitch) {
+    static_cast<void>(count);
     update_coefs(eg_input, lfo_input, osc_pitch);
   }
 
