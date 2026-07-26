@@ -282,6 +282,8 @@ static INLINE uint8_t PRA32_U2_ControlPanel_adc_control_value_candidate(uint32_t
   adc_control_value_candidate = (s_adc_current_value[adc_number] / PRA32_U2_ANALOG_INPUT_DENOMINATOR);
 #endif  // defined(PRA32_U2_ANALOG_INPUT_REVERSED)
 
+#else  // defined(PRA32_U2_USE_CONTROL_PANEL)
+  static_cast<void>(adc_number);
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 
   if (adc_control_value_candidate > 127) {
@@ -676,6 +678,9 @@ static INLINE void PRA32_U2_ControlPanel_set_draw_position(uint8_t x, uint8_t y)
                                static_cast<uint8_t>(0x10 + ((x * 6) >> 4)),
                                static_cast<uint8_t>(0x00 + ((x * 6) & 0x0F))};
   i2c_write_blocking(PRA32_U2_OLED_DISPLAY_I2C, PRA32_U2_OLED_DISPLAY_I2C_ADDRESS, commands, sizeof(commands), false);
+#else  // defined(PRA32_U2_USE_CONTROL_PANEL)
+  static_cast<void>(x);
+  static_cast<void>(y);
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 }
 
@@ -684,6 +689,8 @@ static INLINE void PRA32_U2_ControlPanel_draw_character(uint8_t c) {
   uint8_t data[] = {0x40,  0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
   std::memcpy(&data[1], g_control_panel_font_table[c], 6);
   i2c_write_blocking(PRA32_U2_OLED_DISPLAY_I2C, PRA32_U2_OLED_DISPLAY_I2C_ADDRESS, data, sizeof(data), false);
+#else  // defined(PRA32_U2_USE_CONTROL_PANEL)
+  static_cast<void>(c);
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 }
 
