@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v3.0.0 (2026-??-??):
+- v2.17.0 (2026-??-??):
     - Switch filter soft clipping from cubic to quadratic
     - Change "EG Amp Mod" to use EG output instead of Amp EG output (not Amp ADSR = EG ADSR)
     - Rename "EG/Amp Velocity Sensitivity" to "EG/Amp Level Velo Sens"
