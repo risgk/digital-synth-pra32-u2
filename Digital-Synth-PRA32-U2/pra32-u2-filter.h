@@ -12,7 +12,7 @@ static const uint8_t FILTER_CALC_SCALING_BITS = 4;
 
 static INLINE int32_t soft_clip(int32_t value) {
     // Note: Without anti-aliasing (oversampling)
-#if 1
+
     // cubic clipping
     int32_t sign_mask = -static_cast<int32_t>(value < 0);
     int32_t abs_value = (value ^ sign_mask) - sign_mask;
@@ -25,18 +25,7 @@ static INLINE int32_t soft_clip(int32_t value) {
     int32_t cubic_term = x3 / 3;
     int32_t clamped_positive = clamped_abs - cubic_term;
     int32_t clamped = (clamped_positive ^ sign_mask) - sign_mask;
-#else
-    // quadratic clipping
-    int32_t sign_mask = -static_cast<int32_t>(value < 0); 
-    int32_t abs_value = (value ^ sign_mask) - sign_mask;
-    int32_t one = (1 << 23) << FILTER_CALC_SCALING_BITS;
-    int32_t two = one << 1;
-    int32_t cond_mask = -static_cast<int32_t>(abs_value > two);
-    int32_t clamped_abs = abs_value ^ ((abs_value ^ two) & cond_mask);
-    int32_t quad = multiply_shift_right(clamped_abs, clamped_abs, 25 + FILTER_CALC_SCALING_BITS);
-    int32_t clamped_positive = clamped_abs - quad;
-    int32_t clamped = (clamped_positive ^ sign_mask) - sign_mask;
-#endif
+
     return clamped;
 }
 
