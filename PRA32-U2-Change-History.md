@@ -6,7 +6,6 @@
     - Change "Release Off Velocity Sensitivity" to "EG Release Off Velo Sens"
     - PRA32-U2/P: Change the initial values of "Seq Pitch 0/1/2/3"
     - Improve the code
-    - Improve customizability
     - Improve documentation
     - Tested with Arduino-Pico version 6.0.0
 - v2.16.0 (2026-07-17):
