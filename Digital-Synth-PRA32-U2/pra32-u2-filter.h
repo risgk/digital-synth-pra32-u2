@@ -1,9 +1,9 @@
 #pragma once
 
 // refs https://webaudio.github.io/Audio-EQ-Cookbook/Audio-EQ-Cookbook.txt
+// refs https://jatinchowdhury18.medium.com/complex-nonlinearities-episode-4-nonlinear-biquad-filters-ae6b3f23cb0e
 // refs https://www.willpirkle.com/fx-book/project-gallery/
 // refs https://www.willpirkle.com/synthlabdm/
-// refs https://jatinchowdhury18.medium.com/complex-nonlinearities-episode-4-nonlinear-biquad-filters-ae6b3f23cb0e
 
 #include "pra32-u2-common.h"
 #include "pra32-u2-filter-table.h"
