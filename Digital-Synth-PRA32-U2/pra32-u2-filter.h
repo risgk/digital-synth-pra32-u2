@@ -3,7 +3,6 @@
 // refs https://webaudio.github.io/Audio-EQ-Cookbook/Audio-EQ-Cookbook.txt
 // refs https://jatinchowdhury18.medium.com/complex-nonlinearities-episode-4-nonlinear-biquad-filters-ae6b3f23cb0e
 
-#include <cstdlib>
 #include "pra32-u2-common.h"
 #include "pra32-u2-filter-table.h"
 
@@ -11,8 +10,6 @@ static const uint8_t FILTER_CALC_SCALING_BITS = 4;
 
 static INLINE int32_t soft_clip(int32_t value) {
     // Note: Without anti-aliasing (oversampling)
-#if 1
-    // cubic clip
     int32_t one       = (1 << 23) << FILTER_CALC_SCALING_BITS;
     int32_t two_three = one * 2 / 3;
     volatile int32_t clamped =
@@ -22,16 +19,6 @@ static INLINE int32_t soft_clip(int32_t value) {
         (value - (multiply_shift_right(multiply_shift_right(
                   value << (5 - FILTER_CALC_SCALING_BITS), value << 4, 32)
                         << (5 - FILTER_CALC_SCALING_BITS), value << 4, 32) / 3));
-#else
-    // quadratic clip
-    int32_t one = (1 << 23) << FILTER_CALC_SCALING_BITS;
-    int32_t two = one << 1;
-    volatile int32_t clamped =
-         (value >  (+two))                       * (+two)
-      +                       (value <  (-two))  * (-two)
-      + ((value <= (+two)) && (value >= (-two))) * (value);
-    clamped -= multiply_shift_right(clamped << (5 - FILTER_CALC_SCALING_BITS), std::abs(clamped << 4), 32) >> 2;
-#endif
     return clamped;
 }
 
