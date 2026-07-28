@@ -32,9 +32,9 @@ static INLINE int32_t maximum(int32_t value_0, int32_t value_1) {
 
 static INLINE int32_t clamp(int32_t value, int32_t minimum_value, int32_t maximum_value) {
   volatile int32_t result =
-       (value >  maximum_value)                              * maximum_value
-    +                              (value <  minimum_value)  * minimum_value
-    + ((value <= maximum_value) && (value >= minimum_value)) * value;
+       (value >  maximum_value)                             * maximum_value
+    +                             (value <  minimum_value)  * minimum_value
+    + ((value <= maximum_value) & (value >= minimum_value)) * value;
   return result;
 }
 
