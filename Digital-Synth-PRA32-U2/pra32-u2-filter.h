@@ -14,15 +14,17 @@ static INLINE int32_t soft_clip(int32_t value) {
     // Note: Without anti-aliasing (oversampling)
 #if 1
     // cubic clipping
-    int32_t one       = (1 << 23) << FILTER_CALC_SCALING_BITS;
-    int32_t two_three = one * 2 / 3;
-    volatile int32_t clamped =
-         (value >  (+one))                       * (+two_three)
-      +                       (value <  (-one))  * (-two_three)
-      + ((value <= (+one)) && (value >= (-one))) *
-        (value - (multiply_shift_right(multiply_shift_right(
-                  value << (5 - FILTER_CALC_SCALING_BITS), value << 4, 32)
-                        << (5 - FILTER_CALC_SCALING_BITS), value << 4, 32) / 3));
+    int32_t sign_mask = -static_cast<int32_t>(value < 0);
+    int32_t abs_value = (value ^ sign_mask) - sign_mask;
+    int32_t one = (1 << 23) << FILTER_CALC_SCALING_BITS;
+    int32_t two_three = (one * 2) / 3;
+    int32_t cond_mask = -static_cast<int32_t>(abs_value > one);
+    int32_t clamped_abs = abs_value ^ ((abs_value ^ one) & cond_mask);
+    int32_t x2 = multiply_shift_right(clamped_abs << (5 - FILTER_CALC_SCALING_BITS), clamped_abs << 4, 32);
+    int32_t x3 = multiply_shift_right(x2 << (5 - FILTER_CALC_SCALING_BITS), clamped_abs << 4, 32);
+    int32_t cubic_term = x3 / 3;
+    int32_t clamped_positive = clamped_abs - cubic_term;
+    int32_t clamped = (clamped_positive ^ sign_mask) - sign_mask;
 #else
     // quadratic clipping
     int32_t sign_mask = -static_cast<int32_t>(value < 0); 
