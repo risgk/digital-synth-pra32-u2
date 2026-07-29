@@ -11,40 +11,40 @@
 static const uint8_t FILTER_CALC_SCALING_BITS = 4;
 
 static INLINE int32_t soft_clip(int32_t value) {
-    // Note: Without anti-aliasing (oversampling)
+  // Note: Without anti-aliasing (oversampling)
 
-    // cubic clipping
-    int32_t sign_mask = -static_cast<int32_t>(value < 0);
-    int32_t abs_value = (value ^ sign_mask) - sign_mask;
-    int32_t one = (1 << 23) << FILTER_CALC_SCALING_BITS;
-    int32_t two_three = (one * 2) / 3;
-    int32_t cond_mask = -static_cast<int32_t>(abs_value > one);
-    int32_t clamped_abs = abs_value ^ ((abs_value ^ one) & cond_mask);
-    int32_t x2 = multiply_shift_right(clamped_abs << (5 - FILTER_CALC_SCALING_BITS), clamped_abs << 4, 32);
-    int32_t x3 = multiply_shift_right(x2 << (5 - FILTER_CALC_SCALING_BITS), clamped_abs << 4, 32);
-    int32_t cubic_term = x3 / 3;
-    int32_t clamped_positive = clamped_abs - cubic_term;
-    int32_t clamped = (clamped_positive ^ sign_mask) - sign_mask;
+  // cubic clipping
+  int32_t sign_mask = -static_cast<int32_t>(value < 0);
+  int32_t abs_value = (value ^ sign_mask) - sign_mask;
+  int32_t one = (1 << 23) << FILTER_CALC_SCALING_BITS;
+  int32_t two_three = (one * 2) / 3;
+  int32_t cond_mask = -static_cast<int32_t>(abs_value > one);
+  int32_t clamped_abs = abs_value ^ ((abs_value ^ one) & cond_mask);
+  int32_t x2 = multiply_shift_right(clamped_abs << (5 - FILTER_CALC_SCALING_BITS), clamped_abs << 4, 32);
+  int32_t x3 = multiply_shift_right(x2 << (5 - FILTER_CALC_SCALING_BITS), clamped_abs << 4, 32);
+  int32_t cubic_term = x3 / 3;
+  int32_t clamped_positive = clamped_abs - cubic_term;
+  int32_t clamped = (clamped_positive ^ sign_mask) - sign_mask;
 
-    return clamped;
+  return clamped;
 }
 
 class PRA32_U2_Filter {
-  int32_t         m_b_2_over_a_0;
-  int32_t         m_a_1_over_a_0;
-  int32_t         m_a_2_over_a_0;
-  int32_t         m_z_1;
-  int32_t         m_z_2;
-  uint8_t         m_resonance_target;
-  uint8_t         m_resonance_current;
-  int32_t         m_cutoff_current;
-  int32_t         m_cutoff_control;
-  int16_t         m_cutoff_eg_amt[2];
-  int16_t         m_cutoff_lfo_amt[2];
-  int16_t         m_cutoff_pitch_amt;
-  uint8_t         m_filter_mode;
-  int16_t         m_cutoff_breath_amt;
-  int16_t         m_breath_controller;
+  int32_t m_b_2_over_a_0;
+  int32_t m_a_1_over_a_0;
+  int32_t m_a_2_over_a_0;
+  int32_t m_z_1;
+  int32_t m_z_2;
+  uint8_t m_resonance_target;
+  uint8_t m_resonance_current;
+  int32_t m_cutoff_current;
+  int32_t m_cutoff_control;
+  int16_t m_cutoff_eg_amt[2];
+  int16_t m_cutoff_lfo_amt[2];
+  int16_t m_cutoff_pitch_amt;
+  uint8_t m_filter_mode;
+  int16_t m_cutoff_breath_amt;
+  int16_t m_breath_controller;
 
 public:
   PRA32_U2_Filter()
@@ -173,11 +173,8 @@ private:
     cutoff_candidate += (m_breath_controller * m_cutoff_breath_amt) >> (14 - 2);
 
     volatile int32_t cutoff_target = clamp(cutoff_candidate, 0, ((254 << 2) + 1)) << (7 - FILTER_TABLE_CUTOFF_EXT_BITS);
-
     m_cutoff_current = cutoff_target - (((cutoff_target - m_cutoff_current) * 248) / 256);
-
-    m_resonance_current += (m_resonance_current < m_resonance_target);
-    m_resonance_current -= (m_resonance_current > m_resonance_target);
+    m_resonance_current = approach(m_resonance_current, m_resonance_target, 1);
 
     uint8_t resonance_index = (m_resonance_current + ((1 << (3 - FILTER_TABLE_RESO_EXT_BITS)) >> 1)) >> (3 - FILTER_TABLE_RESO_EXT_BITS);
     const int32_t* filter_table = g_filter_tables[resonance_index];

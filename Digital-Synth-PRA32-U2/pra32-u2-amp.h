@@ -69,12 +69,8 @@ PRA32_U2_Amp()
 
 private:
   INLINE void update_gain_effective() {
-    m_gain_control_effective += (m_gain_control_effective < m_gain_control);
-    m_gain_control_effective -= (m_gain_control_effective > m_gain_control);
-
-    m_expression_control_effective += (m_expression_control_effective < m_expression_control);
-    m_expression_control_effective -= (m_expression_control_effective > m_expression_control);
-
+    m_gain_control_effective = approach(m_gain_control_effective, m_gain_control, 1);
+    m_expression_control_effective = approach(m_expression_control_effective, m_expression_control, 1);
     m_gain_linear = ((((m_gain_control_effective * m_gain_control_effective) * 16384) / 16129) *
                      (((m_expression_control_effective * m_expression_control_effective) * 16384) / 16129)) >> (14 - 2);
   }

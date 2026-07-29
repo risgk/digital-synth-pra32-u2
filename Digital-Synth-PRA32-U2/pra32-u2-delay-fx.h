@@ -106,15 +106,11 @@ public:
   }
 
   INLINE void process_at_low_rate(uint8_t count) {
-    m_delay_level_effective += (m_delay_level_effective < m_delay_level);
-    m_delay_level_effective -= (m_delay_level_effective > m_delay_level);
-
-    m_delay_feedback_effective += (m_delay_feedback_effective < m_delay_feedback);
-    m_delay_feedback_effective -= (m_delay_feedback_effective > m_delay_feedback);
+    m_delay_level_effective = approach(m_delay_level_effective, m_delay_level, 1);
+    m_delay_feedback_effective = approach(m_delay_feedback_effective, m_delay_feedback, 1);
 
     if ((count & 0x01) == 0) {
-      m_delay_time_effective += (m_delay_time_effective < m_delay_time);
-      m_delay_time_effective -= (m_delay_time_effective > m_delay_time);
+      m_delay_time_effective = approach(m_delay_time_effective, m_delay_time, 1);
     }
   }
 
