@@ -79,15 +79,9 @@ public:
   INLINE void process_at_low_rate(uint8_t count) {
 #if 1
     static_cast<void>(count);
-
-    m_chorus_level_control_effective += (m_chorus_level_control_effective < m_chorus_level_control);
-    m_chorus_level_control_effective -= (m_chorus_level_control_effective > m_chorus_level_control);
-
-    m_chorus_depth_control_effective += (m_chorus_depth_control_effective < m_chorus_depth_control);
-    m_chorus_depth_control_effective -= (m_chorus_depth_control_effective > m_chorus_depth_control);
-
-    m_chorus_delay_time_control_effective += (m_chorus_delay_time_control_effective < m_chorus_delay_time_control);
-    m_chorus_delay_time_control_effective -= (m_chorus_delay_time_control_effective > m_chorus_delay_time_control);
+    m_chorus_level_control_effective = approach(m_chorus_level_control_effective, m_chorus_level_control, 1);
+    m_chorus_depth_control_effective = approach(m_chorus_depth_control_effective, m_chorus_depth_control, 1);
+    m_chorus_delay_time_control_effective = approach(m_chorus_delay_time_control_effective, m_chorus_delay_time_control, 1);
 
     uint16_t chorus_depth_control_effective_limited;
     if (m_chorus_delay_time_control_effective < (64 << 6)) {

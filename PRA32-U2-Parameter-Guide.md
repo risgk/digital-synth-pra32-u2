@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 Parameter Guide v2.16.0
+# Digital Synth PRA32-U2 Parameter Guide v2.17.0
 
-- 2026-07-17 ISGK Instruments
+- 2026-08-02 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 ## Control Change Parameters
@@ -153,6 +153,7 @@
     - 32: 20 ms
     - 64: 200 ms
     - 96: 2 s
+    - 126: 17.3 s
     - 127: 18.6 s
 - EG Mod Amt [-|+], LFO Mod Amt [-|+]
     - Pitch
@@ -250,11 +251,10 @@
     - 60: 60 semitone (max)
 - EG Amp Mod [Off|On]
     - 0 (0-63): Off
-    - 127 (64-127): On, Amp ADSR = EG ADSR
+    - 127 (64-127): On
 - Release = Decay [Off|On]
     - 0 (0-63): Off
     - 127 (64-127): On, EG Release = EG Decay and Amp Release = Amp Decay
-        - NOTE: EG Velocity Sensitivity and Amp Velocity Sensitivity works independently
 - Breath Filter Amt [-|+]
     - -60 (4): -120 (min)
     - +60 (124): +120 (max)
@@ -262,8 +262,8 @@
     - 0 (0-31): Off
     - 64 (32-95): Quadratic Curve
     - 127 (96-127): Liniear Curve
-- EG Velocity Sensitivity: Decreases the EG level as note on velocity decreases
-- Amp Velocity Sensitivity: Decreases the Amp EG level as note on velocity decreases
+- EG Level Velo Sens: EG Level Velocity Sensitivity, Decreases the EG level as note on velocity decreases
+- Amp Level Velo Sens: Amp Level Velocity Sensitivity, Decreases the Amp EG level as note on velocity decreases
 - After Touch LFO Amt
 - Voice Assign Mode [1|1|3|3|4|2]: In Polyphonic Mode,
     - 0 (0-12): Mode 1, Free voice with next number has priority (Round Robin), Release is effective
@@ -273,7 +273,7 @@
     - 102 (89-114): Mode 4, Reuse note-off voices, Free voice with small number has priority, Portamento and polyphonic after touch are effective
     - 127 (115-127): Mode 2, Free voice with small number has priority, Portamento is effective
 - Pan
-- Release Off Velocity Sensitivity: Increases the release time as note off velocity decreases
+- EG Release Off Velo Sens: EG Release Off Velocity Sensitivity, Increases the release time as note off velocity decreases
 - Osc Drift
 - Osc Saw Wave Mode [Str|Cur]
     - 0 (0-63): Straight Saw Wave

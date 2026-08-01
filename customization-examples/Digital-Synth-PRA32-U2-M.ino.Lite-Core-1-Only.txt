@@ -4,7 +4,7 @@
  * - Synth 0 to 3: Osc 1 Shape and Morph are disabled in Saw, Sqr, and WT
  */
 
-#define PRA32_U2_VERSION                       "v2.16.0   "
+#define PRA32_U2_VERSION                       "v2.17.0   "
 
 #define PRA32_U2_MIDI_CH                       (0)  // 0-based
 
@@ -107,12 +107,10 @@ void __not_in_flash_func(setup)() {
 #if defined(ARDUINO_RASPBERRY_PI_PICO) || defined(ARDUINO_RASPBERRY_PI_PICO_2)
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, HIGH);
-#endif  // defined(ARDUINO_RASPBERRY_PI_PICO) || defined(ARDUINO_RASPBERRY_PI_PICO_2)
 
-#if defined(ARDUINO_RASPBERRY_PI_PICO) || defined(ARDUINO_RASPBERRY_PI_PICO_W) || defined(ARDUINO_RASPBERRY_PI_PICO_2) || defined(ARDUINO_RASPBERRY_PI_PICO_2W)
   pinMode(23, OUTPUT);  // RT6150 (PMIC) Power Save Pin
   digitalWrite(23, HIGH);
-#endif  // defined(ARDUINO_RASPBERRY_PI_PICO) || defined(ARDUINO_RASPBERRY_PI_PICO_W) || defined(ARDUINO_RASPBERRY_PI_PICO_2) || defined(ARDUINO_RASPBERRY_PI_PICO_2W)
+#endif  // defined(ARDUINO_RASPBERRY_PI_PICO) || defined(ARDUINO_RASPBERRY_PI_PICO_2)
 
 #if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
 #else  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)

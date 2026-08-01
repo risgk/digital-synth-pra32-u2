@@ -51,9 +51,7 @@ PRA32_U2_Panner()
 
 private:
   INLINE void update_gain_effective() {
-    m_pan_control_effective += (m_pan_control_effective < m_pan_control);
-    m_pan_control_effective -= (m_pan_control_effective > m_pan_control);
-
+    m_pan_control_effective = approach(m_pan_control_effective, m_pan_control, 1);
     m_gain_linear_l = m_pan_table[128 - m_pan_control_effective];
     m_gain_linear_r = m_pan_table[m_pan_control_effective];
   }
