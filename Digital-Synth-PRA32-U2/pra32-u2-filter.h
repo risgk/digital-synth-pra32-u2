@@ -2,6 +2,8 @@
 
 // refs https://webaudio.github.io/Audio-EQ-Cookbook/Audio-EQ-Cookbook.txt
 // refs https://jatinchowdhury18.medium.com/complex-nonlinearities-episode-4-nonlinear-biquad-filters-ae6b3f23cb0e
+// refs https://www.willpirkle.com/fx-book/project-gallery/
+// refs https://www.willpirkle.com/synthlabdm/
 
 #include "pra32-u2-common.h"
 #include "pra32-u2-filter-table.h"
@@ -9,35 +11,40 @@
 static const uint8_t FILTER_CALC_SCALING_BITS = 4;
 
 static INLINE int32_t soft_clip(int32_t value) {
-    // Note: Without anti-aliasing (oversampling)
-    int32_t one       = (1 << 23) << FILTER_CALC_SCALING_BITS;
-    int32_t two_three = one * 2 / 3;
-    volatile int32_t clamped =
-         (value >  (+one))                       * (+two_three)
-      +                       (value <  (-one))  * (-two_three)
-      + ((value <= (+one)) && (value >= (-one))) *
-        (value - (multiply_shift_right(multiply_shift_right(
-                  value << (5 - FILTER_CALC_SCALING_BITS), value << 4, 32)
-                        << (5 - FILTER_CALC_SCALING_BITS), value << 4, 32) / 3));
-    return clamped;
+  // Note: Without anti-aliasing (oversampling)
+
+  // cubic clipping
+  int32_t sign_mask = -static_cast<int32_t>(value < 0);
+  int32_t abs_value = (value ^ sign_mask) - sign_mask;
+  int32_t one = (1 << 23) << FILTER_CALC_SCALING_BITS;
+  int32_t two_three = (one * 2) / 3;
+  int32_t cond_mask = -static_cast<int32_t>(abs_value > one);
+  int32_t clamped_abs = abs_value ^ ((abs_value ^ one) & cond_mask);
+  int32_t x2 = multiply_shift_right(clamped_abs << (5 - FILTER_CALC_SCALING_BITS), clamped_abs << 4, 32);
+  int32_t x3 = multiply_shift_right(x2 << (5 - FILTER_CALC_SCALING_BITS), clamped_abs << 4, 32);
+  int32_t cubic_term = x3 / 3;
+  int32_t clamped_positive = clamped_abs - cubic_term;
+  int32_t clamped = (clamped_positive ^ sign_mask) - sign_mask;
+
+  return clamped;
 }
 
 class PRA32_U2_Filter {
-  int32_t         m_b_2_over_a_0;
-  int32_t         m_a_1_over_a_0;
-  int32_t         m_a_2_over_a_0;
-  int32_t         m_z_1;
-  int32_t         m_z_2;
-  uint8_t         m_resonance_target;
-  uint8_t         m_resonance_current;
-  int32_t         m_cutoff_current;
-  int32_t         m_cutoff_control;
-  int16_t         m_cutoff_eg_amt[2];
-  int16_t         m_cutoff_lfo_amt[2];
-  int16_t         m_cutoff_pitch_amt;
-  uint8_t         m_filter_mode;
-  int16_t         m_cutoff_breath_amt;
-  int16_t         m_breath_controller;
+  int32_t m_b_2_over_a_0;
+  int32_t m_a_1_over_a_0;
+  int32_t m_a_2_over_a_0;
+  int32_t m_z_1;
+  int32_t m_z_2;
+  uint8_t m_resonance_target;
+  uint8_t m_resonance_current;
+  int32_t m_cutoff_current;
+  int32_t m_cutoff_control;
+  int16_t m_cutoff_eg_amt[2];
+  int16_t m_cutoff_lfo_amt[2];
+  int16_t m_cutoff_pitch_amt;
+  uint8_t m_filter_mode;
+  int16_t m_cutoff_breath_amt;
+  int16_t m_breath_controller;
 
 public:
   PRA32_U2_Filter()
@@ -129,6 +136,7 @@ public:
   }
 
   INLINE void process_at_low_rate(uint8_t count, int16_t eg_input, int16_t lfo_input, uint16_t osc_pitch) {
+    static_cast<void>(count);
     update_coefs(eg_input, lfo_input, osc_pitch);
   }
 
@@ -165,11 +173,8 @@ private:
     cutoff_candidate += (m_breath_controller * m_cutoff_breath_amt) >> (14 - 2);
 
     volatile int32_t cutoff_target = clamp(cutoff_candidate, 0, ((254 << 2) + 1)) << (7 - FILTER_TABLE_CUTOFF_EXT_BITS);
-
     m_cutoff_current = cutoff_target - (((cutoff_target - m_cutoff_current) * 248) / 256);
-
-    m_resonance_current += (m_resonance_current < m_resonance_target);
-    m_resonance_current -= (m_resonance_current > m_resonance_target);
+    m_resonance_current = approach(m_resonance_current, m_resonance_target, 1);
 
     uint8_t resonance_index = (m_resonance_current + ((1 << (3 - FILTER_TABLE_RESO_EXT_BITS)) >> 1)) >> (3 - FILTER_TABLE_RESO_EXT_BITS);
     const int32_t* filter_table = g_filter_tables[resonance_index];
