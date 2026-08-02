@@ -109,9 +109,9 @@ public:
     m_delay_level_effective = approach(m_delay_level_effective, m_delay_level, 1);
     m_delay_feedback_effective = approach(m_delay_feedback_effective, m_delay_feedback, 1);
 
-    if ((count & 0x01) == 0) {
-      m_delay_time_effective = approach(m_delay_time_effective, m_delay_time, 1);
-    }
+    const int32_t is_even = (count & 0x01) ^ 1;
+    const auto next_approach_val = approach(m_delay_time_effective, m_delay_time, 1);
+    m_delay_time_effective = (next_approach_val * is_even) + (m_delay_time_effective * (is_even ^ 1));
   }
 
   INLINE int32_t process(int32_t left_input_int24, int32_t right_input_int24, int32_t& right_output_int24) {
@@ -124,15 +124,13 @@ public:
     int32_t left_send  = multiply_shift_right(left_input_int24,  m_delay_level_effective, 8);
     int32_t right_send = multiply_shift_right(right_input_int24, m_delay_level_effective, 8);
 
-    if (m_delay_mode >= 64) {
-      // Ping Pong Delay
-      left_feedback  = multiply_shift_right((((left_send + right_send) >> 1) + right_delay), (m_delay_feedback_effective << 8), 16);
-      right_feedback = multiply_shift_right((                                  left_delay ), (m_delay_feedback_effective << 8), 16);
-    } else {
-      // Stereo Delay
-      left_feedback  = multiply_shift_right((left_send  + left_delay ), (m_delay_feedback_effective << 8), 16);
-      right_feedback = multiply_shift_right((right_send + right_delay), (m_delay_feedback_effective << 8), 16);
-    }
+    const int32_t left_final_in  = (m_delay_mode >= 64) ? (((left_send + right_send) >> 1) + right_delay)
+                                                        : (left_send  + left_delay);
+    const int32_t right_final_in = (m_delay_mode >= 64) ? (left_delay)
+                                                        : (right_send + right_delay);
+    const int32_t feedback_gain = m_delay_feedback_effective << 8;
+    left_feedback  = multiply_shift_right(left_final_in,  feedback_gain, 16);
+    right_feedback = multiply_shift_right(right_final_in, feedback_gain, 16);
 
     int32_t curr_sample_to_push_0 = left_feedback;
     int32_t curr_sample_to_push_1 = right_feedback;
