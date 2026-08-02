@@ -36,13 +36,7 @@ PRA32_U2_Amp()
   }
 
   INLINE void set_breath_mod(uint8_t controller_value) {
-    if (controller_value >= 96) {
-      m_breath_mod = 2;
-    } else if (controller_value >= 32) {
-      m_breath_mod = 1;
-    } else {
-      m_breath_mod = 0;
-    }
+    m_breath_mod = (controller_value >= 32) + (controller_value >= 96);
   }
 
   INLINE void set_breath_controller(uint8_t controller_value) {
@@ -76,12 +70,12 @@ private:
   }
 
   INLINE void update_breath_controller_effective() {
-    if (m_breath_mod == 2) {
-      m_breath_gain_linear = ((m_breath_controller * 16384) / 127) << 2;
-    } else if (m_breath_mod == 1) {
-      m_breath_gain_linear = (((m_breath_controller * m_breath_controller) * 16384) / 16129) << 2;
-    } else {
-      m_breath_gain_linear = 16384 << 2;
-    }
+    const int32_t val_mod_2 = (m_breath_controller * 16384) / 127;
+    const int32_t val_mod_1 = ((m_breath_controller * m_breath_controller) * 16384) / 16129;
+    const int32_t val_mod_0 = 16384;
+
+    m_breath_gain_linear = ((val_mod_2 * (m_breath_mod == 2)) + 
+                            (val_mod_1 * (m_breath_mod == 1)) + 
+                            (val_mod_0 * (m_breath_mod == 0))) << 2;
   }
 };
