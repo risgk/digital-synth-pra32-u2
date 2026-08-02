@@ -58,7 +58,7 @@ class PRA32_U2_Osc {
   uint8_t        m_mixer_osc_mix_control_effective;
   int16_t        m_osc1_gain;
   int16_t        m_osc2_gain;
-  int8_t         m_osc2_coarse;
+  int32_t        m_osc2_coarse;
   int16_t        m_osc2_pitch;
   int8_t         m_coarse_tune;
   int8_t         m_fine_tune;
@@ -280,13 +280,9 @@ public:
   }
 
   INLINE void set_mixer_sub_osc_control(uint8_t controller_value) {
-    if (controller_value == 1) {
-      controller_value = 0;
-    } else if (controller_value == 127) {
-      controller_value = 128;
-    }
-
-    m_mixer_noise_sub_osc_control = controller_value - 64;
+    m_mixer_noise_sub_osc_control =
+      ((controller_value == 1)   ? 0   :
+      ((controller_value == 127) ? 128 : controller_value)) - 64;
   }
 
   INLINE int16_t get_pitch_mod_amt_table(uint8_t controller_value) {
@@ -318,13 +314,9 @@ public:
   }
 
   INLINE void set_shape_eg_amt(uint8_t controller_value) {
-    if (controller_value == 1) {
-      controller_value = 0;
-    } else if (controller_value == 127) {
-      controller_value = 128;
-    }
-
-    m_shape_eg_amt = ((controller_value - 64) << 1);
+    m_shape_eg_amt =
+      (((controller_value == 1)   ? 0   :
+       ((controller_value == 127) ? 128 : controller_value)) - 64) << 1;
   }
 
   template <uint8_t N>
@@ -333,13 +325,9 @@ public:
   }
 
   INLINE void set_shape_lfo_amt(uint8_t controller_value) {
-    if (controller_value == 1) {
-      controller_value = 0;
-    } else if (controller_value == 127) {
-      controller_value = 128;
-    }
-
-    m_shape_lfo_amt = -((controller_value - 64) << 1);
+    m_shape_lfo_amt =
+      -((((controller_value == 1)   ? 0   :
+         ((controller_value == 127) ? 128 : controller_value)) - 64) << 1);
   }
 
   INLINE void set_mixer_osc_mix(uint8_t controller_value) {
@@ -347,13 +335,7 @@ public:
   }
 
   INLINE void set_osc2_coarse(uint8_t controller_value) {
-    if (controller_value < 4) {
-      m_osc2_coarse = -60;
-    } else if (controller_value < 124) {
-      m_osc2_coarse = controller_value - 64;
-    } else {
-      m_osc2_coarse = 60;
-    }
+    m_osc2_coarse = clamp(controller_value - 64, -60, +60);
   }
 
   INLINE void set_osc2_pitch(uint8_t controller_value) {
@@ -423,16 +405,7 @@ public:
 
   template <uint8_t N>
   INLINE void note_on(uint8_t note_number) {
-    uint8_t n;
-    if (note_number < NOTE_NUMBER_MIN) {
-      n = NOTE_NUMBER_MIN;
-    } else if (note_number > NOTE_NUMBER_MAX) {
-      n = NOTE_NUMBER_MAX;
-    } else {
-      n = note_number;
-    }
-
-    m_pitch_target[N] = (n << (24 - 2));
+    m_pitch_target[N] = clamp(note_number, NOTE_NUMBER_MIN, NOTE_NUMBER_MAX) << (24 - 2);
     if (m_portamento_coef[N] == 0) {
       m_pitch_current[N] = m_pitch_target[N];
     }
@@ -459,16 +432,8 @@ public:
   }
 
   INLINE uint16_t get_osc_pitch(uint8_t index) {
-    uint16_t shifted_pitch = (64 << 8) + (m_pitch_current[index] >> (16 - 2)) + m_pitch_bend_normalized;
-    uint16_t osc_pitch;
-    if (shifted_pitch > (64 << 8) + (NOTE_NUMBER_MAX << 8)) {
-      osc_pitch = (NOTE_NUMBER_MAX << 8);
-    } else if (shifted_pitch < (64 << 8) + (NOTE_NUMBER_MIN << 8)) {
-      osc_pitch = (NOTE_NUMBER_MIN << 8);
-    } else {
-      osc_pitch = (m_pitch_current[index] >> (16 - 2)) + m_pitch_bend_normalized;
-    }
-    return osc_pitch;
+    return clamp((m_pitch_current[index] >> (16 - 2)) + m_pitch_bend_normalized,
+                 NOTE_NUMBER_MIN << 8, NOTE_NUMBER_MAX << 8);
   }
 
   template <uint8_t N>
@@ -762,11 +727,7 @@ if constexpr (RESTRICT_SQR_WT == false) {
       pitch_temp += (lfo_level * m_pitch_lfo_amt[0]) >> 14;
     }
 
-    if (pitch_temp < (NOTE_NUMBER_MIN << 8)) {
-      pitch_temp = NOTE_NUMBER_MIN << 8;
-    } else if (pitch_temp >= (NOTE_NUMBER_MAX << 8)) {
-      pitch_temp = NOTE_NUMBER_MAX << 8;
-    }
+    pitch_temp = clamp(pitch_temp, NOTE_NUMBER_MIN << 8, NOTE_NUMBER_MAX << 8);
 
     pitch_temp += 128;  // For g_osc_tune_table[]
 
