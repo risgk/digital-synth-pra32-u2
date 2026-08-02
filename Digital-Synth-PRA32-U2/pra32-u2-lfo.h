@@ -73,17 +73,12 @@ public:
   template <uint32_t LFO_RATE_OFFSET = 0>
   INLINE void set_lfo_rate(uint8_t controller_value) {
     m_lfo_rate = g_lfo_rate_table[controller_value];
-    if (m_lfo_rate > 0) {
-      m_lfo_rate += LFO_RATE_OFFSET;
-    }
+    m_lfo_rate += (m_lfo_rate > 0) * LFO_RATE_OFFSET;
   }
 
   template <uint8_t N>
   INLINE void set_lfo_depth(uint8_t controller_value) {
-    if (controller_value == 127) {
-      controller_value = 128;
-    }
-
+    controller_value += (controller_value == 127);
     m_lfo_depth[N] = controller_value;
   }
 
@@ -92,45 +87,33 @@ public:
   }
 
   INLINE void set_pressure_amt(uint8_t controller_value) {
-    if (controller_value == 127) {
-      controller_value = 128;
-    }
-
+    controller_value += (controller_value == 127);
     m_pressure_amt = controller_value;
   }
 
   template <uint8_t N>
   INLINE void set_pressure(uint8_t pressure) {
-    if (pressure == 127) {
-      pressure = 128;
-    }
-
+    pressure += (pressure == 127);
     m_pressure[N] = pressure;
   }
 
   INLINE void trigger_lfo() {
-    if (   (m_lfo_waveform == LFO_WAVEFORM_SAW_DOWN)
-        || (m_lfo_waveform == LFO_WAVEFORM_RANDOM)
-        || (m_lfo_waveform == LFO_WAVEFORM_SQUARE)) {
-      m_lfo_phase = 0x00000000;
-      m_sampled_noise_int15 = m_noise_int15;
-    }
+    const int32_t is_matched = (m_lfo_waveform == LFO_WAVEFORM_SAW_DOWN) | 
+                               (m_lfo_waveform == LFO_WAVEFORM_RANDOM)   | 
+                               (m_lfo_waveform == LFO_WAVEFORM_SQUARE);
+    const uint32_t match_mask = -is_matched; 
+    m_lfo_phase &= ~match_mask;
+    m_sampled_noise_int15 ^= (m_sampled_noise_int15 ^ m_noise_int15) & match_mask;
 
-    if (m_lfo_fade_coef > LFO_FADE_COEF_OFF) {
-      m_lfo_fade_level = 0;
-    }
+    m_lfo_fade_level *= (m_lfo_fade_coef <= LFO_FADE_COEF_OFF);
   }
 
   template <uint8_t N>
   INLINE int16_t get_output() {
-    int16_t lfo_depth = high_byte((m_lfo_depth[0] << 1) * m_lfo_fade_level) + m_lfo_depth[1]
+    int32_t lfo_depth = high_byte((m_lfo_depth[0] << 1) * m_lfo_fade_level) + m_lfo_depth[1]
                         + ((m_pressure_amt * m_pressure[N]) >> 7);
-    if (lfo_depth > 128) {
-      lfo_depth = 128;
-    }
-
+    lfo_depth = minimum(lfo_depth, 128);
     int16_t lfo_level = (lfo_depth * m_lfo_wave_level) >> 7;
-
     return lfo_level;
   }
 
@@ -152,13 +135,9 @@ private:
 
     switch (m_lfo_waveform) {
     case LFO_WAVEFORM_TRIANGLE:
-      level = static_cast<int16_t>(phase >> 8) >> 1;
-      if (level < -(64 << 7)) {
-        level = -(64 << 7) - (level + (64 << 7));
-      } else if (level < (64 << 7)) {
-        // do nothing
-      } else {
-        level = (64 << 7) - (level - (64 << 7));
+      {
+        int16_t raw_saw = static_cast<int16_t>(phase >> 8);
+        level = (std::abs(raw_saw) - (64 << 7)); 
       }
       break;
     case LFO_WAVEFORM_SINE:
@@ -177,17 +156,14 @@ private:
       }
       break;
     case LFO_WAVEFORM_RANDOM:
-      if (phase < m_lfo_rate) {
-        m_sampled_noise_int15 = m_noise_int15;
+      {
+        const int32_t mask = -(phase < m_lfo_rate);
+        m_sampled_noise_int15 ^= (m_sampled_noise_int15 ^ m_noise_int15) & mask;
+        level = m_sampled_noise_int15 >> 1;
       }
-      level = m_sampled_noise_int15 >> 1;
       break;
     case LFO_WAVEFORM_SQUARE:
-      if (phase < 0x800000) {
-        level = 128 << 7;
-      } else {
-        level = 0;
-      }
+      level = (phase < 0x800000) << 14;
       break;
     case LFO_WAVEFORM_RED_NOISE:
       level = (m_prev_noise_int15 + m_noise_int15) >> 2;
