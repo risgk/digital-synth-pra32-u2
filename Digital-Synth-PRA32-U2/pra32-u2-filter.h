@@ -149,10 +149,7 @@ public:
     m_z_2       = soft_clip(        (multiply_shift_right(m_b_2_over_a_0, x_0,      32) << (32 - FILTER_TABLE_FRACTION_BITS))
                                   - (multiply_shift_right(m_a_2_over_a_0, y_0,      32) << (32 - FILTER_TABLE_FRACTION_BITS)));
 
-    if (m_filter_mode >= 64) {
-      // high pass
-      y_0 = x_0 - y_0;
-    }
+    y_0 = (m_filter_mode >= 64) ? (x_0 - y_0) : y_0;
 #else
     int32_t y_0 = audio_input_int24 << FILTER_CALC_SCALING_BITS;
 #endif

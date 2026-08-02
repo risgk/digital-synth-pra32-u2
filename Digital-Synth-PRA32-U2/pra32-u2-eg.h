@@ -86,10 +86,9 @@ public:
     m_release_coef = g_eg_attack_release_coef_table[release];
     m_state = STATE_IDLE;
 
-    if (sound_off) {
-      m_level = 0;
-      m_level_out = 0;
-    }
+    const uint32_t keep_mask = -static_cast<int32_t>(sound_off ^ 1);
+    m_level &= keep_mask;
+    m_level_out = m_level >> 16;
   }
 
   INLINE int16_t get_output() {
