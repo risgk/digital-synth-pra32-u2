@@ -2,6 +2,7 @@
 
 - v2.17.1 (2026-??-??):
     - Improve the code
+    - Fix documentation
     - Tested with Arduino-Pico version 6.0.0
 - v2.17.0 (2026-08-02):
     - Change "EG Amp Mod" to use EG output instead of Amp EG output (not Amp ADSR = EG ADSR)
