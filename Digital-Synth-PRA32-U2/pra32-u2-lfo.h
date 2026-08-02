@@ -175,12 +175,10 @@ private:
 
   INLINE void update_lfo_wave_level() {
     --m_lfo_fade_cnt;
-    if (m_lfo_fade_cnt == 0) {
-      m_lfo_fade_cnt = m_lfo_fade_coef;
-      if (m_lfo_fade_level < LFO_FADE_LEVEL_MAX) {
-        m_lfo_fade_level += 1;
-      }
-    }
+
+    const int32_t is_zero = (m_lfo_fade_cnt == 0);
+    m_lfo_fade_cnt = (m_lfo_fade_coef * is_zero) + (m_lfo_fade_cnt * (is_zero ^ 1));
+    m_lfo_fade_level += (is_zero & (m_lfo_fade_level < LFO_FADE_LEVEL_MAX));
 
     m_lfo_phase += m_lfo_rate;
     m_lfo_phase &= 0x00FFFFFF;
