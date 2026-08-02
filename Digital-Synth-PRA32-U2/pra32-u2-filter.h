@@ -154,7 +154,7 @@ public:
       y_0 = x_0 - y_0;
     }
 #else
-    volatile int32_t y_0 = audio_input_int24 << FILTER_CALC_SCALING_BITS;
+    int32_t y_0 = audio_input_int24 << FILTER_CALC_SCALING_BITS;
 #endif
 
     return y_0 >> FILTER_CALC_SCALING_BITS;
@@ -171,7 +171,7 @@ private:
     cutoff_candidate += (((osc_pitch - (60 << 8)) * m_cutoff_pitch_amt) + (1 << ((10 - 1) - 2))) >> (10 - 2);
     cutoff_candidate += (m_breath_controller * m_cutoff_breath_amt) >> (14 - 2);
 
-    volatile int32_t cutoff_target = clamp(cutoff_candidate, 0, ((254 << 2) + 1)) << (7 - FILTER_TABLE_CUTOFF_EXT_BITS);
+    int32_t cutoff_target = clamp(cutoff_candidate, 0, ((254 << 2) + 1)) << (7 - FILTER_TABLE_CUTOFF_EXT_BITS);
     m_cutoff_current = cutoff_target - (((cutoff_target - m_cutoff_current) * 248) / 256);
     m_resonance_current = approach(m_resonance_current, m_resonance_target, 1);
 
