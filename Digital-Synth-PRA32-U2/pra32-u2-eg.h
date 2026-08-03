@@ -15,30 +15,36 @@ class PRA32_U2_EG {
   uint8_t m_state;
   int32_t m_level;
   int16_t m_level_out;
+  int32_t m_attack;
+  int32_t m_decay;
   int32_t m_attack_coef;
   int32_t m_decay_coef;
   int32_t m_sustain;
   int32_t m_release;
   int32_t m_release_coef;
-  uint8_t m_note_on_velocity_sensitivity;
+  uint8_t m_level_note_on_velocity_sensitivity;
   int32_t m_attack_level;
   int32_t m_sustain_level;
-  uint8_t m_note_off_velocity_sensitivity;
+  int32_t m_attack_decay_note_on_velocity_sensitivity;
+  int32_t m_release_note_off_velocity_sensitivity;
 
 public:
   PRA32_U2_EG()
   : m_state()
   , m_level()
   , m_level_out()
+  , m_attack()
+  , m_decay()
   , m_attack_coef()
   , m_decay_coef()
   , m_sustain()
   , m_release()
   , m_release_coef()
-  , m_note_on_velocity_sensitivity()
+  , m_level_note_on_velocity_sensitivity()
   , m_attack_level()
   , m_sustain_level()
-  , m_note_off_velocity_sensitivity()
+  , m_attack_decay_note_on_velocity_sensitivity()
+  , m_release_note_off_velocity_sensitivity()
   {
     m_state = STATE_IDLE;
     set_attack(0);
@@ -48,11 +54,11 @@ public:
   }
 
   INLINE void set_attack(uint8_t controller_value) {
-    m_attack_coef = g_eg_attack_release_coef_table[controller_value + 16];
+    m_attack = controller_value;
   }
 
   INLINE void set_decay(uint8_t controller_value) {
-    m_decay_coef = g_eg_decay_coef_table[controller_value];
+    m_decay = controller_value;
   }
 
   INLINE void set_sustain(uint8_t controller_value) {
@@ -64,24 +70,38 @@ public:
     m_release = controller_value;
   }
 
-  INLINE void set_note_on_velocity_sensitivity(uint8_t controller_value) {
-    m_note_on_velocity_sensitivity = (controller_value + 1) >> 1;
+  INLINE void set_level_note_on_velocity_sensitivity(uint8_t controller_value) {
+    m_level_note_on_velocity_sensitivity = (controller_value + 1) >> 1;
   }
 
-  INLINE void set_note_off_velocity_sensitivity(uint8_t controller_value) {
-    m_note_off_velocity_sensitivity = (controller_value + 1) >> 1;
+  INLINE void set_attack_decay_note_on_velocity_sensitivity(uint8_t controller_value) {
+    m_attack_decay_note_on_velocity_sensitivity = ((controller_value - 63) >> 1) << 1;
+  }
+
+  INLINE void set_release_note_off_velocity_sensitivity(uint8_t controller_value) {
+    m_release_note_off_velocity_sensitivity = ((controller_value - 63) >> 1) << 1;
   }
 
   INLINE void note_on(uint8_t velocity) {
-    m_attack_level = ((((velocity * m_note_on_velocity_sensitivity) +
-                        (127 * (64 - m_note_on_velocity_sensitivity))) * 16384) / 127) << (EG_LEVEL_MAX_BITS - 20);
+    m_attack_level = ((((velocity * m_level_note_on_velocity_sensitivity) +
+                        (127 * (64 - m_level_note_on_velocity_sensitivity))) * 16384) / 127)
+                     << (EG_LEVEL_MAX_BITS - 20);
     m_sustain_level = (m_attack_level >> 6) * m_sustain;
+
+    int32_t attack = m_attack + ((((64 - velocity) * m_attack_decay_note_on_velocity_sensitivity)) >> 6);
+    attack = clamp(attack, 0, 127);
+    m_attack_coef = g_eg_attack_release_coef_table[attack + 16];
+
+    int32_t decay = m_decay + ((((64 - velocity) * m_attack_decay_note_on_velocity_sensitivity)) >> 6);
+    decay = clamp(decay, 0, 127);
+    m_decay_coef = g_eg_decay_coef_table[decay];
+
     m_state = STATE_ATTACK;
   }
 
   INLINE void note_off(uint8_t velocity, boolean sound_off = false) {
     velocity = velocity + ((!velocity) * 64);  // velocity = ((velocity == 0) ? 64 : velocity);
-    int32_t release = m_release + ((((64 - velocity) * m_note_off_velocity_sensitivity)) >> 6);
+    int32_t release = m_release + ((((64 - velocity) * m_release_note_off_velocity_sensitivity)) >> 6);
     release = clamp(release, 0, 127);
     m_release_coef = g_eg_attack_release_coef_table[release];
     m_state = STATE_IDLE;
