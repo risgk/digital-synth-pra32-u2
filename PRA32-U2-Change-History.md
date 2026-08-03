@@ -3,6 +3,7 @@
 - v2.17.1 (2026-??-??):
     - Add "EG Att/Dec Velo Sens [-|+]"
     - Change "EG Release Off Velo Sens" to "EG Rel Velo Sens [-|+]"
+    - Fix "pra32-u2-prog-factory-presets.json"
     - Improve the code
     - Improve performance
     - Fix documentation
