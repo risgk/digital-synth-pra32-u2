@@ -114,12 +114,17 @@ AMP_VEL_SENS    = 63
 AFT_T_LFO_AMT   = 37
 VOICE_ASGN_MODE = 110
 PAN             = 10
-REL_VEL_SENS    = 81
+
 
 OSC_DRIFT       = 82
 OSC_SAW_W_MODE  = 83
 COARSE_TUNE     = 86
 FINE_TUNE       = 70
+
+A_D_VEL_SENS    = 51
+REL_VEL_SENS    = 81
+
+
 
 CHORUS_MIX      = 93
 

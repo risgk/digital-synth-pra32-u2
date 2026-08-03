@@ -273,7 +273,6 @@
     - 102 (89-114): Mode 4, Reuse note-off voices, Free voice with small number has priority, Portamento and polyphonic after touch are effective
     - 127 (115-127): Mode 2, Free voice with small number has priority, Portamento is effective
 - Pan
-- EG Release Off Velo Sens: EG Release Off Velocity Sensitivity, Increases the release time as note off velocity decreases
 - Osc Drift
 - Osc Saw Wave Mode [Str|Cur]
     - 0 (0-63): Straight Saw Wave
@@ -290,6 +289,8 @@
     - +0 (64): +0 cent
     - +1 (65): +1.5625 cent
     - +63 (127): +98.4375 cent
+- EG Att/Dec Velo Sens [-|+]: EG Attack/Release Velocity Sensitivity, Increases or decreases the attack/release time as note on velocity decreases
+- EG Rel Velo Sens [-|+]: EG Release Velocity Sensitivity, Increases or decreases the release time as note off velocity decreases
 - Chorus Level: Chorus Send Level
 - Chorus Rate
     - 0: LFO Frequency 0.012 Hz (min)
