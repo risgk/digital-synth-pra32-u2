@@ -1,6 +1,8 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v2.17.1 (2026-??-??):
+    - Add "EG Att/Dec Velo Sens [-|+]"
+    - Change "EG Release Off Velo Sens" to "EG Rel Velo Sens [-|+]"
     - Improve the code
     - Improve performance
     - Fix documentation
