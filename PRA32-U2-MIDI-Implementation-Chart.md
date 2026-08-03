@@ -81,12 +81,17 @@
 |                            37 | x             | o             | After Touch LFO Amt                  |
 |                           110 | x             | o             | Voice Assign Mode [1|1|3|3|4|2]      |
 |                            10 | x             | o             | Pan                                  |
-|                            81 | x             | o             | EG Release Off Velo Sens             |
+|                               |               |               |                                      |
 |                               |               |               |                                      |
 |                            82 | x             | o             | Osc Drift                            |
 |                            83 | x             | o             | Osc Saw Wave Mode [Str|Cur]          |
 |                            86 | x             | o             | Coarse Tune [-|+]                    |
 |                            70 | x             | o             | Fine Tune [-|+]                      |
+|                               |               |               |                                      |
+|                            51 | x             | o             | EG Att/Dec Velo Sens [-|+]           |
+|                            81 | x             | o             | EG Rel Velo Sens [-|+]               |
+|                               |               |               |                                      |
+|                               |               |               |                                      |
 |                               |               |               |                                      |
 |                            93 | x             | o             | Chorus Level                         |
 |                               |               |               |                                      |
