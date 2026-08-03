@@ -755,6 +755,8 @@ function updateDisplayOfControl(number, value) {
   case PAN             :
   case COARSE_TUNE     :
   case FINE_TUNE       :
+  case A_D_VEL_SENS    :
+  case REL_VEL_SENS    :
     if (value >= 64) {
       dispValue = "+" + String(value - 64);
     } else {
