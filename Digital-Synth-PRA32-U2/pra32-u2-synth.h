@@ -1180,11 +1180,34 @@ if constexpr (NO_FX == false) {
       m_panner.set_pan(controller_value);
       break;
 
+    case A_D_VEL_SENS   :
+      // EG
+      m_eg[0].set_attack_decay_note_on_velocity_sensitivity(controller_value);
+      m_eg[2].set_attack_decay_note_on_velocity_sensitivity(controller_value);
+      m_eg[4].set_attack_decay_note_on_velocity_sensitivity(controller_value);
+      m_eg[6].set_attack_decay_note_on_velocity_sensitivity(controller_value);
+#if 0
+      // Amp EG
+      m_eg[1].set_attack_decay_note_on_velocity_sensitivity(controller_value);
+      m_eg[3].set_attack_decay_note_on_velocity_sensitivity(controller_value);
+      m_eg[5].set_attack_decay_note_on_velocity_sensitivity(controller_value);
+      m_eg[7].set_attack_decay_note_on_velocity_sensitivity(controller_value);
+#endif
+      break;
+
     case REL_VEL_SENS   :
-      m_eg[0].set_note_off_velocity_sensitivity(controller_value);
-      m_eg[2].set_note_off_velocity_sensitivity(controller_value);
-      m_eg[4].set_note_off_velocity_sensitivity(controller_value);
-      m_eg[6].set_note_off_velocity_sensitivity(controller_value);
+      // EG
+      m_eg[0].set_release_note_off_velocity_sensitivity(controller_value);
+      m_eg[2].set_release_note_off_velocity_sensitivity(controller_value);
+      m_eg[4].set_release_note_off_velocity_sensitivity(controller_value);
+      m_eg[6].set_release_note_off_velocity_sensitivity(controller_value);
+#if 0
+      // Amp EG
+      m_eg[1].set_release_note_off_velocity_sensitivity(controller_value);
+      m_eg[3].set_release_note_off_velocity_sensitivity(controller_value);
+      m_eg[5].set_release_note_off_velocity_sensitivity(controller_value);
+      m_eg[7].set_release_note_off_velocity_sensitivity(controller_value);
+#endif
       break;
 
     case OSC_DRIFT      :
@@ -1233,16 +1256,16 @@ if constexpr (NO_FX == false) {
       m_amp[3].set_breath_mod(controller_value);
       break;
     case EG_VEL_SENS    :
-      m_eg[0].set_note_on_velocity_sensitivity(controller_value);
-      m_eg[2].set_note_on_velocity_sensitivity(controller_value);
-      m_eg[4].set_note_on_velocity_sensitivity(controller_value);
-      m_eg[6].set_note_on_velocity_sensitivity(controller_value);
+      m_eg[0].set_level_note_on_velocity_sensitivity(controller_value);
+      m_eg[2].set_level_note_on_velocity_sensitivity(controller_value);
+      m_eg[4].set_level_note_on_velocity_sensitivity(controller_value);
+      m_eg[6].set_level_note_on_velocity_sensitivity(controller_value);
       break;
     case AMP_VEL_SENS   :
-      m_eg[1].set_note_on_velocity_sensitivity(controller_value);
-      m_eg[3].set_note_on_velocity_sensitivity(controller_value);
-      m_eg[5].set_note_on_velocity_sensitivity(controller_value);
-      m_eg[7].set_note_on_velocity_sensitivity(controller_value);
+      m_eg[1].set_level_note_on_velocity_sensitivity(controller_value);
+      m_eg[3].set_level_note_on_velocity_sensitivity(controller_value);
+      m_eg[5].set_level_note_on_velocity_sensitivity(controller_value);
+      m_eg[7].set_level_note_on_velocity_sensitivity(controller_value);
       break;
 
     case EXPRESSION     :

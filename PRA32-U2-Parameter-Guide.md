@@ -289,8 +289,8 @@
     - +0 (64): +0 cent
     - +1 (65): +1.5625 cent
     - +63 (127): +98.4375 cent
-- EG Att/Dec Velo Sens [-|+]: EG Attack/Release Velocity Sensitivity, Increases or decreases the attack/release time as note on velocity decreases
-- EG Rel Velo Sens [-|+]: EG Release Velocity Sensitivity, Increases or decreases the release time as note off velocity decreases
+- EG Att/Dec Velo Sens [-|+]: EG Attack/Release Velocity Sensitivity, Modulates the attack/release time by note on velocity
+- EG Rel Velo Sens [-|+]: EG Release Velocity Sensitivity, Modulates the release time by note off velocity
 - Chorus Level: Chorus Send Level
 - Chorus Rate
     - 0: LFO Frequency 0.012 Hz (min)
