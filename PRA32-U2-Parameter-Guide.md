@@ -255,13 +255,8 @@
 - Release = Decay [Off|On]
     - 0 (0-63): Off
     - 127 (64-127): On, EG Release = EG Decay and Amp Release = Amp Decay
-- Breath Filter Amt [-|+]
-    - -60 (4): -120 (min)
-    - +60 (124): +120 (max)
-- Breath Amp Mod [Off|Qad|Lin]
-    - 0 (0-31): Off
-    - 64 (32-95): Quadratic Curve
-    - 127 (96-127): Liniear Curve
+- EG Att/Dec Velo Sens [-|+]: EG Attack/Release Velocity Sensitivity, Modulates the attack/release time by note on velocity
+- EG Rel Velo Sens [-|+]: EG Release Velocity Sensitivity, Modulates the release time by note off velocity
 - EG Level Velo Sens: EG Level Velocity Sensitivity, Decreases the EG level as note on velocity decreases
 - Amp Level Velo Sens: Amp Level Velocity Sensitivity, Decreases the Amp EG level as note on velocity decreases
 - After Touch LFO Amt
@@ -289,8 +284,13 @@
     - +0 (64): +0 cent
     - +1 (65): +1.5625 cent
     - +63 (127): +98.4375 cent
-- EG Att/Dec Velo Sens [-|+]: EG Attack/Release Velocity Sensitivity, Modulates the attack/release time by note on velocity
-- EG Rel Velo Sens [-|+]: EG Release Velocity Sensitivity, Modulates the release time by note off velocity
+- Breath Filter Amt [-|+]
+    - -60 (4): -120 (min)
+    - +60 (124): +120 (max)
+- Breath Amp Mod [Off|Qad|Lin]
+    - 0 (0-31): Off
+    - 64 (32-95): Quadratic Curve
+    - 127 (96-127): Liniear Curve
 - Chorus Level: Chorus Send Level
 - Chorus Rate
     - 0: LFO Frequency 0.012 Hz (min)
