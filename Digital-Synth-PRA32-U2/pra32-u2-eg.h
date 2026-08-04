@@ -27,6 +27,8 @@ class PRA32_U2_EG {
   int32_t m_sustain_level;
   int32_t m_attack_decay_note_on_velocity_sensitivity;
   int32_t m_release_note_off_velocity_sensitivity;
+  uint8_t m_note_on_velocity;
+  uint8_t m_note_off_velocity;
 
 public:
   PRA32_U2_EG()
@@ -45,6 +47,8 @@ public:
   , m_sustain_level()
   , m_attack_decay_note_on_velocity_sensitivity()
   , m_release_note_off_velocity_sensitivity()
+  , m_note_on_velocity()
+  , m_note_off_velocity()
   {
     m_state = STATE_IDLE;
     set_attack(0);
@@ -55,19 +59,22 @@ public:
 
   INLINE void set_attack(uint8_t controller_value) {
     m_attack = controller_value;
+    update_attack_coef();
   }
 
   INLINE void set_decay(uint8_t controller_value) {
     m_decay = controller_value;
+    update_decay_coef();
   }
 
   INLINE void set_sustain(uint8_t controller_value) {
     m_sustain = (controller_value + 1) >> 1;
-    m_sustain_level = (m_attack_level >> 6) * m_sustain;
+    update_sustain_level();
   }
 
   INLINE void set_release(uint8_t controller_value) {
     m_release = controller_value;
+    update_release_coef();
   }
 
   INLINE void set_level_note_on_velocity_sensitivity(uint8_t controller_value) {
@@ -83,29 +90,23 @@ public:
   }
 
   INLINE void note_on(uint8_t velocity) {
-    m_attack_level = ((((velocity * m_level_note_on_velocity_sensitivity) +
+    m_note_on_velocity = velocity;
+
+    update_attack_coef();
+    update_decay_coef();
+
+    m_attack_level = ((((m_note_on_velocity * m_level_note_on_velocity_sensitivity) +
                         (127 * (64 - m_level_note_on_velocity_sensitivity))) * 16384) / 127)
                      << (EG_LEVEL_MAX_BITS - 20);
-    m_sustain_level = (m_attack_level >> 6) * m_sustain;
-
-    int32_t attack = m_attack + ((((64 - velocity) * m_attack_decay_note_on_velocity_sensitivity)) >> 6);
-    attack = clamp(attack, 0, 127);
-    m_attack_coef = g_eg_attack_decay_release_coef_table[attack + 16];
-
-    int32_t decay = m_decay + ((((64 - velocity) * m_attack_decay_note_on_velocity_sensitivity)) >> 6);
-    decay = clamp(decay, 0, 127);
-    m_decay_coef = g_eg_attack_decay_release_coef_table[decay];
-    m_decay_coef = (m_decay_coef & -(decay != 127)) | (0x40000000 & -(decay == 127));
+    update_sustain_level();
 
     m_state = STATE_ATTACK;
   }
 
   INLINE void note_off(uint8_t velocity, boolean sound_off = false) {
-    velocity = velocity + ((!velocity) * 64);  // velocity = ((velocity == 0) ? 64 : velocity);
-    int32_t release = m_release + ((((64 - velocity) * m_release_note_off_velocity_sensitivity)) >> 6);
-    release = clamp(release, 0, 127);
-    m_release_coef = g_eg_attack_decay_release_coef_table[release];
-    m_state = STATE_IDLE;
+    m_note_off_velocity = velocity;
+
+    update_release_coef();
 
     const uint32_t keep_mask = -static_cast<int32_t>(sound_off ^ 1);
     m_level &= keep_mask;
@@ -139,5 +140,30 @@ public:
 
     m_level_out = m_level >> 16;
 #endif
+  }
+
+private:
+  INLINE void update_attack_coef() {
+    int32_t attack = m_attack + ((((64 - m_note_on_velocity) * m_attack_decay_note_on_velocity_sensitivity)) >> 6);
+    attack = clamp(attack, 0, 127);
+    m_attack_coef = g_eg_attack_decay_release_coef_table[attack + 16];
+  }
+
+  INLINE void update_decay_coef() {
+    int32_t decay = m_decay + ((((64 - m_note_on_velocity) * m_attack_decay_note_on_velocity_sensitivity)) >> 6);
+    decay = clamp(decay, 0, 127);
+    m_decay_coef = g_eg_attack_decay_release_coef_table[decay];
+    m_decay_coef = (m_decay_coef & -(decay != 127)) | (0x40000000 & -(decay == 127));
+  }
+
+  INLINE void update_sustain_level() {
+    m_sustain_level = (m_attack_level >> 6) * m_sustain;
+  }
+
+  INLINE void update_release_coef() {
+    m_note_off_velocity = m_note_off_velocity + ((!m_note_off_velocity) * 64);
+    int32_t release = m_release + ((((64 - m_note_off_velocity) * m_release_note_off_velocity_sensitivity)) >> 6);
+    release = clamp(release, 0, 127);
+    m_release_coef = g_eg_attack_decay_release_coef_table[release];
   }
 };
