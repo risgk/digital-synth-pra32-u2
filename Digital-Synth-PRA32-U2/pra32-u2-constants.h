@@ -106,8 +106,8 @@ const uint8_t   P_BEND_RANGE    = 57;
 const uint8_t   EG_AMP_MOD      = 36;
 const uint8_t   REL_EQ_DECAY    = 105;
 
-const uint8_t   BTH_FILTER_AMT  = 60;
-const uint8_t   BTH_AMP_MOD     = 61;
+const uint8_t   A_D_VEL_SENS    = 51;
+const uint8_t   REL_VEL_SENS    = 81;
 const uint8_t   EG_VEL_SENS     = 62;
 const uint8_t   AMP_VEL_SENS    = 63;
 
@@ -121,8 +121,8 @@ const uint8_t   OSC_SAW_W_MODE  = 83;
 const uint8_t   COARSE_TUNE     = 86;
 const uint8_t   FINE_TUNE       = 70;
 
-const uint8_t   A_D_VEL_SENS    = 51;
-const uint8_t   REL_VEL_SENS    = 81;
+const uint8_t   BTH_FILTER_AMT  = 60;
+const uint8_t   BTH_AMP_MOD     = 61;
 
 
 

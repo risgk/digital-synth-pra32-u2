@@ -73,8 +73,8 @@ static uint8_t s_program_table_parameters[] = {
   REL_EQ_DECAY   ,
   P_BEND_RANGE   ,
 
-  BTH_FILTER_AMT ,
-  BTH_AMP_MOD    ,
+  A_D_VEL_SENS   ,
+  REL_VEL_SENS   ,
   EG_VEL_SENS    ,
   AMP_VEL_SENS   ,
 
@@ -88,8 +88,8 @@ static uint8_t s_program_table_parameters[] = {
   COARSE_TUNE    ,
   FINE_TUNE      ,
 
-  A_D_VEL_SENS   ,
-  REL_VEL_SENS   ,
+  BTH_FILTER_AMT ,
+  BTH_AMP_MOD    ,
 
 
 
@@ -392,8 +392,8 @@ public:
     std::memcpy(m_program_table[EG_AMP_MOD     ], g_preset_table_EG_AMP_MOD     , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[REL_EQ_DECAY   ], g_preset_table_REL_EQ_DECAY   , sizeof(m_program_table[0]));
 
-    std::memcpy(m_program_table[BTH_FILTER_AMT ], g_preset_table_BTH_FILTER_AMT , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[BTH_AMP_MOD    ], g_preset_table_BTH_AMP_MOD    , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[A_D_VEL_SENS   ], g_preset_table_A_D_VEL_SENS   , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[REL_VEL_SENS   ], g_preset_table_REL_VEL_SENS   , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[EG_VEL_SENS    ], g_preset_table_EG_VEL_SENS    , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[AMP_VEL_SENS   ], g_preset_table_AMP_VEL_SENS   , sizeof(m_program_table[0]));
 
@@ -407,8 +407,8 @@ public:
     std::memcpy(m_program_table[COARSE_TUNE    ], g_preset_table_COARSE_TUNE    , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[FINE_TUNE      ], g_preset_table_FINE_TUNE      , sizeof(m_program_table[0]));
 
-    std::memcpy(m_program_table[A_D_VEL_SENS   ], g_preset_table_A_D_VEL_SENS   , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[REL_VEL_SENS   ], g_preset_table_REL_VEL_SENS   , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[BTH_FILTER_AMT ], g_preset_table_BTH_FILTER_AMT , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[BTH_AMP_MOD    ], g_preset_table_BTH_AMP_MOD    , sizeof(m_program_table[0]));
 
 
 

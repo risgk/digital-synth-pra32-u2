@@ -73,8 +73,8 @@
 |                            36 | x             | o             | EG Amp Mod [Off|On]                  |
 |                           105 | x             | o             | Release = Decay [Off|On]             |
 |                               |               |               |                                      |
-|                            60 | x             | o             | Breath Filter Amt [-|+]              |
-|                            61 | x             | o             | Breath Amp Mod [Off|Qad|Lin]         |
+|                            51 | x             | o             | EG Att/Dec Velo Sens [-|+]           |
+|                            81 | x             | o             | EG Rel Velo Sens [-|+]               |
 |                            62 | x             | o             | EG Level Velo Sens                   |
 |                            63 | x             | o             | Amp Level Velo Sens                  |
 |                               |               |               |                                      |
@@ -88,8 +88,8 @@
 |                            86 | x             | o             | Coarse Tune [-|+]                    |
 |                            70 | x             | o             | Fine Tune [-|+]                      |
 |                               |               |               |                                      |
-|                            51 | x             | o             | EG Att/Dec Velo Sens [-|+]           |
-|                            81 | x             | o             | EG Rel Velo Sens [-|+]               |
+|                            60 | x             | o             | Breath Filter Amt [-|+]              |
+|                            61 | x             | o             | Breath Amp Mod [Off|Qad|Lin]         |
 |                               |               |               |                                      |
 |                               |               |               |                                      |
 |                               |               |               |                                      |
