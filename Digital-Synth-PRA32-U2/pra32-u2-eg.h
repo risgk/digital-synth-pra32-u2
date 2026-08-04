@@ -104,7 +104,7 @@ public:
   }
 
   INLINE void note_off(uint8_t velocity, boolean sound_off = false) {
-    m_note_off_velocity = velocity;
+    m_note_off_velocity = velocity + ((!velocity) * 64);
 
     update_release_coef();
 
@@ -161,7 +161,6 @@ private:
   }
 
   INLINE void update_release_coef() {
-    m_note_off_velocity = m_note_off_velocity + ((!m_note_off_velocity) * 64);
     int32_t release = m_release + ((((64 - m_note_off_velocity) * m_release_note_off_velocity_sensitivity)) >> 6);
     release = clamp(release, 0, 127);
     m_release_coef = g_eg_attack_decay_release_coef_table[release];
