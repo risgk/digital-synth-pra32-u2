@@ -90,11 +90,12 @@ public:
 
     int32_t attack = m_attack + ((((64 - velocity) * m_attack_decay_note_on_velocity_sensitivity)) >> 6);
     attack = clamp(attack, 0, 127);
-    m_attack_coef = g_eg_attack_release_coef_table[attack + 16];
+    m_attack_coef = g_eg_attack_decay_release_coef_table[attack + 16];
 
     int32_t decay = m_decay + ((((64 - velocity) * m_attack_decay_note_on_velocity_sensitivity)) >> 6);
     decay = clamp(decay, 0, 127);
-    m_decay_coef = g_eg_decay_coef_table[decay];
+    m_decay_coef = g_eg_attack_decay_release_coef_table[decay];
+    m_decay_coef = (m_decay_coef & -(decay != 127)) | (0x40000000 & -(decay == 127));
 
     m_state = STATE_ATTACK;
   }
@@ -103,7 +104,7 @@ public:
     velocity = velocity + ((!velocity) * 64);  // velocity = ((velocity == 0) ? 64 : velocity);
     int32_t release = m_release + ((((64 - velocity) * m_release_note_off_velocity_sensitivity)) >> 6);
     release = clamp(release, 0, 127);
-    m_release_coef = g_eg_attack_release_coef_table[release];
+    m_release_coef = g_eg_attack_decay_release_coef_table[release];
     m_state = STATE_IDLE;
 
     const uint32_t keep_mask = -static_cast<int32_t>(sound_off ^ 1);
