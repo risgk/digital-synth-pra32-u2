@@ -830,8 +830,8 @@ public:
 
           if (m_voice_mode == VOICE_MONOPHONIC) {
             m_lfo.trigger_lfo();
-            m_eg[0].note_on(255);
-            m_eg[1].note_on(255);
+            m_eg[0].note_on(64);
+            m_eg[1].note_on(64);
           }
         }
       } else if (m_note_on_number[1] == note_number) {
