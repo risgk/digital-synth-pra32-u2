@@ -108,6 +108,8 @@ public:
 
     update_release_coef();
 
+    m_state = STATE_IDLE;
+
     const uint32_t keep_mask = -static_cast<int32_t>(sound_off ^ 1);
     m_level &= keep_mask;
     m_level_out = m_level >> 16;
