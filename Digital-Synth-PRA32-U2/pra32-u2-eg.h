@@ -90,7 +90,7 @@ public:
   }
 
   INLINE void note_on(uint8_t velocity) {
-    m_note_on_velocity = velocity;
+    m_note_on_velocity = (velocity <= 127) ? velocity : m_note_on_velocity;
 
     update_attack_coef();
     update_decay_coef();
