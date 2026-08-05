@@ -117,7 +117,7 @@
 - Filter EG Amt [-|+], LFO Filter Amt [-|+]
     - -60 (4): -120 (min)
     - +60 (124): +120 (max)
-- Filter Key Track [-|+] $1
+- Filter Key Track [-|+]
     - 0 (0-3): -1.000 (min)
     - 8 (4-11): -0.875
     - 16 (12-19): -0.750
