@@ -101,7 +101,7 @@ public:
   }
 
   INLINE void set_attack_decay_pitch_amt(uint8_t controller_value) {
-    m_attack_decay_pitch_amt = -(((controller_value - 63) >> 1) << 1);
+    m_attack_decay_pitch_amt = ((controller_value - 63) >> 1) << 1;
   }
 
   INLINE void note_on(uint8_t velocity, uint16_t osc_pitch = (60 << 8)) {
