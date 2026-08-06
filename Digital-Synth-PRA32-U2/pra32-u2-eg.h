@@ -162,16 +162,16 @@ public:
 
 private:
   INLINE void update_attack_coef() {
-    int32_t attack = m_attack * (1 << EG_TABLE_EXT_BITS) +
-                     ((((64 - m_note_on_velocity) * m_attack_decay_note_on_velocity_sensitivity)) >> (6 - EG_TABLE_EXT_BITS));
+    int32_t attack = m_attack * (1 << EG_TABLE_EXT_BITS);
+    attack += ((((64 - m_note_on_velocity) * m_attack_decay_note_on_velocity_sensitivity)) >> (6 - EG_TABLE_EXT_BITS));
     attack += ((m_osc_pitch - (60 << 8)) * m_attack_decay_pitch_amt) >> (14 - EG_TABLE_EXT_BITS);
     attack = clamp(attack, 0, 127 * (1 << EG_TABLE_EXT_BITS));
     m_attack_coef = g_eg_attack_decay_release_coef_table[attack + 16 * (1 << EG_TABLE_EXT_BITS)];
   }
 
   INLINE void update_decay_coef() {
-    int32_t decay = m_decay * (1 << EG_TABLE_EXT_BITS) +
-                    ((((64 - m_note_on_velocity) * m_attack_decay_note_on_velocity_sensitivity)) >> (6 - EG_TABLE_EXT_BITS));
+    int32_t decay = m_decay * (1 << EG_TABLE_EXT_BITS);
+    decay += ((((64 - m_note_on_velocity) * m_attack_decay_note_on_velocity_sensitivity)) >> (6 - EG_TABLE_EXT_BITS));
     decay += ((m_osc_pitch - (60 << 8)) * m_attack_decay_pitch_amt) >> (14 - EG_TABLE_EXT_BITS);
     decay = clamp(decay, 0, 126 * (1 << EG_TABLE_EXT_BITS));
     m_decay_coef = g_eg_attack_decay_release_coef_table[decay];
@@ -188,15 +188,15 @@ private:
     int32_t release;
 
     if (m_release_eq_decay) {
-      release = m_decay * (1 << EG_TABLE_EXT_BITS) +
-                ((((64 - m_note_on_velocity) * m_attack_decay_note_on_velocity_sensitivity)) >> (6 - EG_TABLE_EXT_BITS));
+      release = m_decay * (1 << EG_TABLE_EXT_BITS);
+      release += ((((64 - m_note_on_velocity) * m_attack_decay_note_on_velocity_sensitivity)) >> (6 - EG_TABLE_EXT_BITS));
       release += ((m_osc_pitch - (60 << 8)) * m_attack_decay_pitch_amt) >> (14 - EG_TABLE_EXT_BITS);
-      release = clamp(release, 0, 127 * (1 << EG_TABLE_EXT_BITS));
     } else {
-      release = m_release * (1 << EG_TABLE_EXT_BITS) +
-                ((((64 - m_note_off_velocity) * m_release_note_off_velocity_sensitivity)) >> (6 - EG_TABLE_EXT_BITS));
-      release = clamp(release, 0, 127 * (1 << EG_TABLE_EXT_BITS));
+      release = m_release * (1 << EG_TABLE_EXT_BITS);
     }
+
+    release += ((((64 - m_note_off_velocity) * m_release_note_off_velocity_sensitivity)) >> (6 - EG_TABLE_EXT_BITS));
+    release  = clamp(release, 0, 127 * (1 << EG_TABLE_EXT_BITS));
 
     m_release_coef = g_eg_attack_decay_release_coef_table[release];
   }
