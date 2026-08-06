@@ -31,6 +31,7 @@ class PRA32_U2_EG {
   uint8_t  m_note_off_velocity;
   uint16_t m_osc_pitch;
   int32_t  m_attack_decay_pitch_amt;
+  boolean  m_release_eq_decay;
 
 public:
   PRA32_U2_EG()
@@ -49,10 +50,11 @@ public:
   , m_sustain_level()
   , m_attack_decay_note_on_velocity_sensitivity()
   , m_release_note_off_velocity_sensitivity()
-  , m_note_on_velocity()
-  , m_note_off_velocity()
+  , m_note_on_velocity(64)
+  , m_note_off_velocity(64)
   , m_osc_pitch(60 << 8)
   , m_attack_decay_pitch_amt()
+  , m_release_eq_decay()
   {
     m_state = STATE_IDLE;
     set_attack(0);
@@ -78,6 +80,11 @@ public:
 
   INLINE void set_release(uint8_t controller_value) {
     m_release = controller_value;
+    update_release_coef();
+  }
+
+  INLINE void set_release_eq_decay(uint8_t controller_value) {
+    m_release_eq_decay = (controller_value >= 64);
     update_release_coef();
   }
 
@@ -166,10 +173,11 @@ private:
     int32_t decay = m_decay * (1 << EG_TABLE_EXT_BITS) +
                     ((((64 - m_note_on_velocity) * m_attack_decay_note_on_velocity_sensitivity)) >> (6 - EG_TABLE_EXT_BITS));
     decay += ((m_osc_pitch - (60 << 8)) * m_attack_decay_pitch_amt * (-7)) >> (17 - EG_TABLE_EXT_BITS);
-    decay = clamp(decay, 0, 127 * (1 << EG_TABLE_EXT_BITS));
+    decay = clamp(decay, 0, 126 * (1 << EG_TABLE_EXT_BITS));
     m_decay_coef = g_eg_attack_decay_release_coef_table[decay];
-    m_decay_coef = (m_decay_coef & -(decay != 127 * (1 << EG_TABLE_EXT_BITS))) |
-                   (0x40000000 & -(decay == 127 * (1 << EG_TABLE_EXT_BITS)));
+
+    m_decay_coef = (m_decay_coef & -(m_decay != 127)) |
+                   (0x40000000   & -(m_decay == 127));
   }
 
   INLINE void update_sustain_level() {
@@ -177,9 +185,19 @@ private:
   }
 
   INLINE void update_release_coef() {
-    int32_t release = m_release * (1 << EG_TABLE_EXT_BITS) +
-                      ((((64 - m_note_off_velocity) * m_release_note_off_velocity_sensitivity)) >> (6 - EG_TABLE_EXT_BITS));
-    release = clamp(release, 0, 127 * (1 << EG_TABLE_EXT_BITS));
+    int32_t release;
+
+    if (m_release_eq_decay) {
+      release = m_decay * (1 << EG_TABLE_EXT_BITS) +
+                ((((64 - m_note_on_velocity) * m_attack_decay_note_on_velocity_sensitivity)) >> (6 - EG_TABLE_EXT_BITS));
+      release += ((m_osc_pitch - (60 << 8)) * m_attack_decay_pitch_amt * (-7)) >> (17 - EG_TABLE_EXT_BITS);
+      release = clamp(release, 0, 127 * (1 << EG_TABLE_EXT_BITS));
+    } else {
+      release = m_release * (1 << EG_TABLE_EXT_BITS) +
+                ((((64 - m_note_off_velocity) * m_release_note_off_velocity_sensitivity)) >> (6 - EG_TABLE_EXT_BITS));
+      release = clamp(release, 0, 127 * (1 << EG_TABLE_EXT_BITS));
+    }
+
     m_release_coef = g_eg_attack_decay_release_coef_table[release];
   }
 };
