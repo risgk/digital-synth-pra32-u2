@@ -89,7 +89,9 @@ public:
     m_release_note_off_velocity_sensitivity = ((controller_value - 63) >> 1) << 1;
   }
 
-  INLINE void note_on(uint8_t velocity) {
+  INLINE void note_on(uint8_t velocity, uint16_t osc_pitch = (60 << 8)) {
+    static_cast<void>(osc_pitch);
+
     m_note_on_velocity = (velocity <= 127) ? velocity : m_note_on_velocity;
 
     update_attack_coef();
