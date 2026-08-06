@@ -256,7 +256,17 @@
     - 0 (0-63): Off
     - 127 (64-127): On, EG Release = EG Decay and Amp Release = Amp Decay
 - EG Att/Dec Velo Sens [-|+]: EG Attack/Release Velocity Sensitivity, Modulates the attack/decay times by note on velocity
+    - -64 (0): -100% (+63 to -63)
+    - -32 (31-32): -50% (+31.5 to -31.5)
+    - +0 (63-64): +0% (-0 to +0)
+    - +32 (95-96): +50% (-31.5 to +31.5)
+    - +63 (127): +100% (-63 to +63)
 - EG Rel Velo Sens [-|+]: EG Release Velocity Sensitivity, Modulates the release time by note off velocity
+    - -64 (0): -100% (+63 to -63)
+    - -32 (31-32): -50% (+31.5 to -31.5)
+    - +0 (63-64): +0% (-0 to +0)
+    - +32 (95-96): +50% (-31.5 to +31.5)
+    - +63 (127): +100% (-63 to +63)
 - EG Level Velo Sens: EG Level Velocity Sensitivity, Decreases the EG level as note on velocity decreases
 - Amp Level Velo Sens: Amp Level Velocity Sensitivity, Decreases the Amp EG level as note on velocity decreases
 - After Touch LFO Amt
