@@ -158,20 +158,21 @@
 | A-15 EG d      | EG Mod Amt           | EG Mod Dst           |
 | A-16 EG e      | EG Filter Amt        | EG Level Velo Sens   |
 | A-17 EG f      | EG Att/Dec Velo Sens | EG Rel Velo Sens     |
-| A-18 Amp a     | Amp Attack           | Amp Decay            |
-| A-19 Amp b     | Amp Sustain          | Amp Release          |
-| A-20 Amp c     | Amp Gain             | Amp Level Velo Sens  |
-| A-21 Panner    | Pan                  |                      |
-| A-22 LFO a     | LFO Wave             | LFO Fade Time        |
-| A-23 LFO b     | LFO Rate             | LFO Depth            |
-| A-24 LFO c     | LFO Mod Amt          | LFO Mod Dst          |
-| A-25 LFO d     | LFO Filter Amt       |                      |
-| A-26 Breath    | Breath Filter Amt    | Breath Amp Mod       |
-| A-27 Aft Touch | Aft Touch LFO Amt    |                      |
-| A-28 Chorus a  | Chorus Level         |                      |
-| A-29 Chorus b  | Chorus Rate          | Chorus Depth         |
-| A-30 Delay a   | Delay Level          | Delay Mode           |
-| A-31 Delay b   | Delay Time           | Delay Feedback       |
+| A-18 EG g      | EG Att/Dec Key Track |                      |
+| A-19 Amp a     | Amp Attack           | Amp Decay            |
+| A-20 Amp b     | Amp Sustain          | Amp Release          |
+| A-21 Amp c     | Amp Gain             | Amp Level Velo Sens  |
+| A-22 Panner    | Pan                  |                      |
+| A-23 LFO a     | LFO Wave             | LFO Fade Time        |
+| A-24 LFO b     | LFO Rate             | LFO Depth            |
+| A-25 LFO c     | LFO Mod Amt          | LFO Mod Dst          |
+| A-26 LFO d     | LFO Filter Amt       |                      |
+| A-27 Breath    | Breath Filter Amt    | Breath Amp Mod       |
+| A-28 Aft Touch | Aft Touch LFO Amt    |                      |
+| A-29 Chorus a  | Chorus Level         |                      |
+| A-30 Chorus b  | Chorus Rate          | Chorus Depth         |
+| A-31 Delay a   | Delay Level          | Delay Mode           |
+| A-32 Delay b   | Delay Time           | Delay Feedback       |
 | B-00 Panel a   | Panel Play Mode      | MIDI Basic Ch        |
 | B-01 Panel b   | Panel Play Pitch     | Panel Play Velo      |
 | B-02 Panel c   | Panel Scale          | Panel Pitch Ofst     |
