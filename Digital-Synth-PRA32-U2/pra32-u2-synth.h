@@ -562,8 +562,9 @@ public:
           }
           m_osc.note_on<0>(note_number);
           m_lfo.trigger_lfo();
-          m_eg[0].note_on(velocity);
-          m_eg[1].note_on(velocity);
+          uint16_t osc_pitch_0 = m_osc.get_osc_pitch(0);
+          m_eg[0].note_on(velocity, osc_pitch_0);
+          m_eg[1].note_on(velocity, osc_pitch_0);
         } else {
           m_note_on_number[3] = m_note_on_number[2];
           m_note_on_number[2] = m_note_on_number[1];
@@ -595,8 +596,9 @@ public:
         m_osc.set_portamento<0>(m_portamento);
         m_osc.note_on<0>(note_number);
         m_lfo.trigger_lfo();
-        m_eg[0].note_on(velocity);
-        m_eg[1].note_on(velocity);
+        uint16_t osc_pitch_0 = m_osc.get_osc_pitch(0);
+        m_eg[0].note_on(velocity, osc_pitch_0);
+        m_eg[1].note_on(velocity, osc_pitch_0);
       }
     } else if (m_note_on_number[0] == note_number) {
       ++m_note_on_total_count;
@@ -606,8 +608,9 @@ public:
       m_osc.note_on<0>(note_number);
       m_last_note_on_index = 0;
 
-      m_eg[0].note_on(velocity);
-      m_eg[1].note_on(velocity);
+      uint16_t osc_pitch_0 = m_osc.get_osc_pitch(0);
+      m_eg[0].note_on(velocity, osc_pitch_0);
+      m_eg[1].note_on(velocity, osc_pitch_0);
     } else if (m_note_on_number[1] == note_number) {
       ++m_note_on_total_count;
       ++m_note_on_count[note_number];
@@ -617,11 +620,13 @@ public:
       m_last_note_on_index = 1;
 
       if (m_voice_mode == VOICE_POLYPHONIC) {
-        m_eg[2].note_on(velocity);
-        m_eg[3].note_on(velocity);
+        uint16_t osc_pitch_1 = m_osc.get_osc_pitch(1);
+        m_eg[2].note_on(velocity, osc_pitch_1);
+        m_eg[3].note_on(velocity, osc_pitch_1);
       } else {
-        m_eg[0].note_on(velocity);
-        m_eg[1].note_on(velocity);
+        uint16_t osc_pitch_0 = m_osc.get_osc_pitch(0);
+        m_eg[0].note_on(velocity, osc_pitch_0);
+        m_eg[1].note_on(velocity, osc_pitch_0);
       }
     } else if (m_note_on_number[2] == note_number) {
       ++m_note_on_total_count;
@@ -632,11 +637,13 @@ public:
       m_last_note_on_index = 2;
 
       if (m_voice_mode == VOICE_POLYPHONIC) {
-        m_eg[4].note_on(velocity);
-        m_eg[5].note_on(velocity);
+        uint16_t osc_pitch_2 = m_osc.get_osc_pitch(2);
+        m_eg[4].note_on(velocity, osc_pitch_2);
+        m_eg[5].note_on(velocity, osc_pitch_2);
       } else {
-        m_eg[0].note_on(velocity);
-        m_eg[1].note_on(velocity);
+        uint16_t osc_pitch_0 = m_osc.get_osc_pitch(0);
+        m_eg[0].note_on(velocity, osc_pitch_0);
+        m_eg[1].note_on(velocity, osc_pitch_0);
       }
     } else if (m_note_on_number[3] == note_number) {
       ++m_note_on_total_count;
@@ -647,11 +654,13 @@ public:
       m_last_note_on_index = 3;
 
       if (m_voice_mode == VOICE_POLYPHONIC) {
-        m_eg[6].note_on(velocity);
-        m_eg[7].note_on(velocity);
+        uint16_t osc_pitch_3 = m_osc.get_osc_pitch(3);
+        m_eg[6].note_on(velocity, osc_pitch_3);
+        m_eg[7].note_on(velocity, osc_pitch_3);
       } else {
-        m_eg[0].note_on(velocity);
-        m_eg[1].note_on(velocity);
+        uint16_t osc_pitch_0 = m_osc.get_osc_pitch(0);
+        m_eg[0].note_on(velocity, osc_pitch_0);
+        m_eg[1].note_on(velocity, osc_pitch_0);
       }
     } else {
       uint8_t note_on_osc_index = 0xFF;
@@ -778,11 +787,13 @@ public:
       }
 
       if (m_voice_mode == VOICE_POLYPHONIC) {
-        m_eg[(note_on_osc_index << 1) + 0].note_on(velocity);
-        m_eg[(note_on_osc_index << 1) + 1].note_on(velocity);
+        uint16_t osc_pitch = m_osc.get_osc_pitch(note_on_osc_index);
+        m_eg[(note_on_osc_index << 1) + 0].note_on(velocity, osc_pitch);
+        m_eg[(note_on_osc_index << 1) + 1].note_on(velocity, osc_pitch);
       } else {
-        m_eg[0].note_on(velocity);
-        m_eg[1].note_on(velocity);
+        uint16_t osc_pitch_0 = m_osc.get_osc_pitch(0);
+        m_eg[0].note_on(velocity, osc_pitch_0);
+        m_eg[1].note_on(velocity, osc_pitch_0);
       }
     }
   }
@@ -830,8 +841,9 @@ public:
 
           if (m_voice_mode == VOICE_MONOPHONIC) {
             m_lfo.trigger_lfo();
-            m_eg[0].note_on(255);
-            m_eg[1].note_on(255);
+            uint16_t osc_pitch_0 = m_osc.get_osc_pitch(0);
+            m_eg[0].note_on(255, osc_pitch_0);
+            m_eg[1].note_on(255, osc_pitch_0);
           }
         }
       } else if (m_note_on_number[1] == note_number) {
