@@ -115,7 +115,7 @@ AMP_VEL_SENS    = 63
 AFT_T_LFO_AMT   = 37
 VOICE_ASGN_MODE = 110
 PAN             = 10
-
+A_D_KEY_TRK     = 16
 
 OSC_DRIFT       = 82
 OSC_SAW_W_MODE  = 83
