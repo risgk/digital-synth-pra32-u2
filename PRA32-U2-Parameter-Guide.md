@@ -269,6 +269,11 @@
     - 127 (115-127): Mode 2, Free voice with small number has priority, Portamento is effective
 - Pan
 - EG Att/Dec Key Track [-|+]: Modulates the attack/decay times based on oscillator pitch at note-on
+    - -64 (0): Delta Value = -12 / octave (Delta Second = 0.42x / octave)
+    - -32 (31-32): Delta Value = -6 / octave (Delta Second = 0.65x / octave)
+    - +0 (63-64): Delta Value = +0 / octave (Delta Second = 1x / octave)
+    - +32 (95-96): Delta Value = +6 / octave (Delta Second = 1.54x / octave)
+    - +63 (127): Delta Value = +12 / octave (Delta Second = 2.37x / octave)
 - Osc Drift
 - Osc Saw Wave Mode [Str|Cur]
     - 0 (0-63): Straight Saw Wave
