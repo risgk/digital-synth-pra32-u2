@@ -78,10 +78,10 @@ static uint8_t s_program_table_parameters[] = {
   EG_VEL_SENS    ,
   AMP_VEL_SENS   ,
 
-
+  A_D_KEY_TRK    ,
   VOICE_ASGN_MODE,
   PAN            ,
-  A_D_KEY_TRK    ,
+
 
   OSC_DRIFT      ,
   OSC_SAW_W_MODE ,
@@ -379,10 +379,10 @@ public:
     std::memcpy(m_program_table[EG_VEL_SENS    ], g_preset_table_EG_VEL_SENS    , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[AMP_VEL_SENS   ], g_preset_table_AMP_VEL_SENS   , sizeof(m_program_table[0]));
 
-
+    std::memcpy(m_program_table[A_D_KEY_TRK    ], g_preset_table_A_D_KEY_TRK    , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[VOICE_ASGN_MODE], g_preset_table_VOICE_ASGN_MODE, sizeof(m_program_table[0]));
     std::memcpy(m_program_table[PAN            ], g_preset_table_PAN            , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[A_D_KEY_TRK    ], g_preset_table_A_D_KEY_TRK    , sizeof(m_program_table[0]));
+
 
     std::memcpy(m_program_table[OSC_DRIFT      ], g_preset_table_OSC_DRIFT      , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[OSC_SAW_W_MODE ], g_preset_table_OSC_SAW_W_MODE , sizeof(m_program_table[0]));

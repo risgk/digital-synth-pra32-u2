@@ -112,10 +112,10 @@ const uint8_t   REL_VEL_SENS    = 81;
 const uint8_t   EG_VEL_SENS     = 62;
 const uint8_t   AMP_VEL_SENS    = 63;
 
-
+const uint8_t   A_D_KEY_TRK     = 16;
 const uint8_t   VOICE_ASGN_MODE = 110;
 const uint8_t   PAN             = 10;
-const uint8_t   A_D_KEY_TRK     = 16;
+
 
 const uint8_t   OSC_DRIFT       = 82;
 const uint8_t   OSC_SAW_W_MODE  = 83;

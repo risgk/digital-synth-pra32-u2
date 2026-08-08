@@ -269,14 +269,6 @@
     - +63 (127): +100% (-63 to +63)
 - EG Level Velo Sens: EG Level Velocity Sensitivity, Decreases the EG level as note on velocity decreases
 - Amp Level Velo Sens: Amp Level Velocity Sensitivity, Decreases the Amp EG level as note on velocity decreases
-- Voice Assign Mode [1|1|3|3|4|2]: In Polyphonic Mode,
-    - 0 (0-12): Mode 1, Free voice with next number has priority (Round Robin), Release is effective
-    - 25 (13-38): Mode 1, Free voice with next number has priority (Round Robin), Release is effective
-    - 51 (39-63): Mode 3, Reuse note-off voices, Free voice with next number has priority (Round Robin), Release and polyphonic after touch are effective
-    - 76 (64-88): Mode 3, Reuse note-off voices, Free voice with next number has priority (Round Robin), Release and polyphonic after touch are effective
-    - 102 (89-114): Mode 4, Reuse note-off voices, Free voice with small number has priority, Portamento and polyphonic after touch are effective
-    - 127 (115-127): Mode 2, Free voice with small number has priority, Portamento is effective
-- Pan
 - EG Att/Dec Key Track [-|+]: Modulates the attack/decay times based on oscillator pitch at note-on
     - -64 (0): Delta Value = -12 / octave (Delta Second = 0.42x / octave)
     - -52 (11-12): Delta Value = -9.75 / octave (Delta Second = 0.50x / octave)
@@ -285,6 +277,14 @@
     - +32 (95-96): Delta Value = +6 / octave (Delta Second = 1.54x / octave)
     - +52 (115-116): Delta Value = +9.75 / octave (Delta Second = 2.02x / octave)
     - +63 (127): Delta Value = +12 / octave (Delta Second = 2.37x / octave)
+- Voice Assign Mode [1|1|3|3|4|2]: In Polyphonic Mode,
+    - 0 (0-12): Mode 1, Free voice with next number has priority (Round Robin), Release is effective
+    - 25 (13-38): Mode 1, Free voice with next number has priority (Round Robin), Release is effective
+    - 51 (39-63): Mode 3, Reuse note-off voices, Free voice with next number has priority (Round Robin), Release and polyphonic after touch are effective
+    - 76 (64-88): Mode 3, Reuse note-off voices, Free voice with next number has priority (Round Robin), Release and polyphonic after touch are effective
+    - 102 (89-114): Mode 4, Reuse note-off voices, Free voice with small number has priority, Portamento and polyphonic after touch are effective
+    - 127 (115-127): Mode 2, Free voice with small number has priority, Portamento is effective
+- Pan
 - Osc Drift
 - Osc Saw Wave Mode [Str|Cur]
     - 0 (0-63): Straight Saw Wave
