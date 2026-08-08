@@ -78,7 +78,7 @@
 |                            62 | x             | o             | EG Level Velo Sens                   |
 |                            63 | x             | o             | Amp Level Velo Sens                  |
 |                               |               |               |                                      |
-|                            37 | x             | o             | After Touch LFO Amt                  |
+|                               |               |               |                                      |
 |                           110 | x             | o             | Voice Assign Mode [1|1|3|3|4|2]      |
 |                            10 | x             | o             | Pan                                  |
 |                            16 | x             | o             | EG Att/Dec Key Track [-|+]           |
@@ -90,7 +90,7 @@
 |                               |               |               |                                      |
 |                            60 | x             | o             | Breath Filter Amt [-|+]              |
 |                            61 | x             | o             | Breath Amp Mod [Off|Qad|Lin]         |
-|                               |               |               |                                      |
+|                            37 | x             | o             | After Touch LFO Amt                  |
 |                               |               |               |                                      |
 |                               |               |               |                                      |
 |                            93 | x             | o             | Chorus Level                         |
