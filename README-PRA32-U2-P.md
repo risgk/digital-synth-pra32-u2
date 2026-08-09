@@ -143,8 +143,8 @@
 | A-00 Info      | PRA32-U2/P           | v2.17.0              |
 | A-01 Voice     | Voice Mode           | Voice Asgn Mode      |
 | A-02 Pitch a   | Portamento           | Pitch Bend Range     |
-| A-03 Pitch b   | Coarse Tune          | Fine Tune            |
-| A-04 Pitch c   | Stretch Tune         |                      |
+| A-03 Pitch b   | Stretch Tune         |                      |
+| A-04 Pitch c   | Coarse Tune          | Fine Tune            |
 | A-05 Osc a     | Osc 1 Wave           | Mixer Noise/Sub      |
 | A-06 Osc b     | Osc 1 Shape          | Osc 1 Morph          |
 | A-07 Osc c     | Osc 2 Wave           | Mixer Osc Mix        |

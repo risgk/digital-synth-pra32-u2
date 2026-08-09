@@ -1203,10 +1203,6 @@ if constexpr (NO_FX == false) {
       m_panner.set_pan(controller_value);
       break;
 
-    case STRETCH_TUNE   :
-      // TODO
-      break;
-
     case A_D_KEY_TRK    :
       // EG
       m_eg[0].set_attack_decay_pitch_amt(controller_value);
@@ -1319,6 +1315,10 @@ if constexpr (NO_FX == false) {
 
     case BTH_CONTROLLER :
       set_breath_controller(controller_value);
+      break;
+
+    case STRETCH_TUNE   :
+      m_osc.set_stretch_tune(controller_value);
       break;
 
     case COARSE_TUNE    :
