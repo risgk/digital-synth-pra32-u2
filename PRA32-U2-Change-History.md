@@ -1,10 +1,10 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v2.17.1 (2026-??-??):
-    - Add "Stretch Tune [-|+]" (Default: +16)
     - Add "EG Att/Dec Velo Sens [-|+]"
     - Change "EG Release Off Velo Sens" to "EG Rel Velo Sens [-|+]"
     - Add "EG Att/Dec Key Track [-|+]"
+    - Add "Stretch Tune [-|+]"
     - Fix Velo Sens behaviour in Voice Mode Mon (Monophonic)
     - Fix EG Release behaviour
     - Fix "pra32-u2-prog-factory-presets.json"
