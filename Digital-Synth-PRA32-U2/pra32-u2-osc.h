@@ -60,6 +60,7 @@ class PRA32_U2_Osc {
   int16_t        m_osc2_gain;
   int32_t        m_osc2_coarse;
   int16_t        m_osc2_pitch;
+  int8_t         m_stretch_tune;
   int8_t         m_coarse_tune;
   int8_t         m_fine_tune;
 
@@ -107,6 +108,7 @@ public:
   , m_osc2_gain()
   , m_osc2_coarse()
   , m_osc2_pitch()
+  , m_stretch_tune()
   , m_coarse_tune()
   , m_fine_tune()
 
@@ -131,6 +133,7 @@ public:
     set_mixer_osc_mix(0);
     set_osc2_coarse  (64);
     set_osc2_pitch   (64);
+    set_stretch_tune (64);
     set_coarse_tune  (64);
     set_fine_tune    (64);
 
@@ -359,6 +362,10 @@ public:
     };
 
     m_osc2_pitch = m_osc2_pitch_table[controller_value];
+  }
+
+  INLINE void set_stretch_tune(uint8_t controller_value) {
+    m_stretch_tune = controller_value - 64;
   }
 
   INLINE void set_coarse_tune(uint8_t controller_value) {
@@ -716,9 +723,10 @@ if constexpr (RESTRICT_SQR_WT == false) {
     } else {
       pitch_eg_amt = m_pitch_eg_amt[0];
     }
-    int32_t pitch_temp = (m_pitch_current[N & 0x03] >> (16 - 2)) + m_pitch_bend_normalized + ((eg_level * pitch_eg_amt) >> 14);
 
+    int32_t pitch_temp = (m_pitch_current[N & 0x03] >> (16 - 2)) + m_pitch_bend_normalized + ((eg_level * pitch_eg_amt) >> 14);
     pitch_temp += (m_coarse_tune << 8) + (m_fine_tune << 2);
+    pitch_temp += ((pitch_temp - (60 << 8)) * m_stretch_tune) >> 13;
 
     if (N >= 4) {
       pitch_temp += (lfo_level * m_pitch_lfo_amt[1]) >> 14;
