@@ -4,6 +4,7 @@
     - Add "EG Att/Dec Velo Sens [-|+]"
     - Change "EG Release Off Velo Sens" to "EG Rel Velo Sens [-|+]"
     - Add "EG Att/Dec Key Track [-|+]"
+    - Add "Stretch Tune [-|+]"
     - Fix Velo Sens behaviour in Voice Mode Mon (Monophonic)
     - Fix EG Release behaviour
     - Fix "pra32-u2-prog-factory-presets.json"
