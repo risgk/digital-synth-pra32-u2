@@ -285,6 +285,11 @@
     - 102 (89-114): Mode 4, Reuse note-off voices, Free voice with small number has priority, Portamento and polyphonic after touch are effective
     - 127 (115-127): Mode 2, Free voice with small number has priority, Portamento is effective
 - Pan
+- Stretch Tune [-|+]
+    - 0: +0 cent at note number 108, -0 cent at note number 12
+    - 32: +9.4 cent at note number 108, -9.4 cent at note number 12
+    - 64: +18.8 cent at note number 108, -18.8 cent at note number 12
+    - 127: +37.2 cent at note number 108, -37.2 cent at note number 12
 - Osc Drift
 - Osc Saw Wave Mode [Str|Cur]
     - 0 (0-63): Straight Saw Wave
