@@ -81,7 +81,7 @@ static uint8_t s_program_table_parameters[] = {
   A_D_KEY_TRK    ,
   VOICE_ASGN_MODE,
   PAN            ,
-
+  STRETCH_TUNE   ,
 
   OSC_DRIFT      ,
   OSC_SAW_W_MODE ,
@@ -382,7 +382,7 @@ public:
     std::memcpy(m_program_table[A_D_KEY_TRK    ], g_preset_table_A_D_KEY_TRK    , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[VOICE_ASGN_MODE], g_preset_table_VOICE_ASGN_MODE, sizeof(m_program_table[0]));
     std::memcpy(m_program_table[PAN            ], g_preset_table_PAN            , sizeof(m_program_table[0]));
-
+    std::memcpy(m_program_table[STRETCH_TUNE   ], g_preset_table_STRETCH_TUNE   , sizeof(m_program_table[0]));
 
     std::memcpy(m_program_table[OSC_DRIFT      ], g_preset_table_OSC_DRIFT      , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[OSC_SAW_W_MODE ], g_preset_table_OSC_SAW_W_MODE , sizeof(m_program_table[0]));
@@ -1201,6 +1201,10 @@ if constexpr (NO_FX == false) {
 
     case PAN            :
       m_panner.set_pan(controller_value);
+      break;
+
+    case STRETCH_TUNE   :
+      // TODO
       break;
 
     case A_D_KEY_TRK    :
