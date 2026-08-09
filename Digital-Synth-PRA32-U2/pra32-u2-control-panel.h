@@ -709,6 +709,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case BTH_FILTER_AMT  :
   case A_D_KEY_TRK     :
   case PAN             :
+  case STRETCH_TUNE    :
   case COARSE_TUNE     :
   case FINE_TUNE       :
   case A_D_VEL_SENS    :
