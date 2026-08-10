@@ -2,13 +2,13 @@
 
 - v2.17.1 (2026-??-??):
     - Add "Stretch Tune [-|+]" (Default: +16)
-    - Modify the factory presets
     - Add "EG Att/Dec Velo Sens [-|+]"
     - Change "EG Release Off Velo Sens" to "EG Rel Velo Sens [-|+]"
     - Add "EG Att/Dec Key Track [-|+]"
     - Fix Velo Sens behaviour in Voice Mode Mon (Monophonic)
     - Fix EG Release behaviour
     - Fix "pra32-u2-prog-factory-presets.json"
+    - Modify the factory presets
     - PRA32-U2 Editor: Rename the factory presets
     - PRA32-U2 Editor: Change the layout
     - Improve the code
