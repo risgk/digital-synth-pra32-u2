@@ -439,8 +439,11 @@ public:
   }
 
   INLINE uint16_t get_osc_pitch(uint8_t index) {
-    return clamp((m_pitch_current[index] >> (16 - 2)) + m_pitch_bend_normalized,
-                 NOTE_NUMBER_MIN << 8, NOTE_NUMBER_MAX << 8);
+    int32_t pitch_temp = (m_pitch_current[index] >> (16 - 2)) + m_pitch_bend_normalized;
+    pitch_temp += (m_coarse_tune << 8) + (m_fine_tune << 2);
+    pitch_temp += ((pitch_temp - (60 << 8)) * m_stretch_tune) >> 13;
+    pitch_temp = clamp(pitch_temp, NOTE_NUMBER_MIN << 8, NOTE_NUMBER_MAX << 8);
+    return pitch_temp;
   }
 
   template <uint8_t N>
@@ -717,16 +720,19 @@ if constexpr (RESTRICT_SQR_WT == false) {
 
   template <uint8_t N>
   INLINE void update_freq_base(int16_t lfo_level, int16_t eg_level) {
+    int32_t pitch_temp = (m_pitch_current[N & 0x03] >> (16 - 2)) + m_pitch_bend_normalized;
+    pitch_temp += (m_coarse_tune << 8) + (m_fine_tune << 2);
+    pitch_temp += ((pitch_temp - (60 << 8)) * m_stretch_tune) >> 13;
+    pitch_temp = clamp(pitch_temp, NOTE_NUMBER_MIN << 8, NOTE_NUMBER_MAX << 8);
+
+
     int16_t pitch_eg_amt;
     if (N >= 4) {
       pitch_eg_amt = m_pitch_eg_amt[1];
     } else {
       pitch_eg_amt = m_pitch_eg_amt[0];
     }
-
-    int32_t pitch_temp = (m_pitch_current[N & 0x03] >> (16 - 2)) + m_pitch_bend_normalized + ((eg_level * pitch_eg_amt) >> 14);
-    pitch_temp += (m_coarse_tune << 8) + (m_fine_tune << 2);
-    pitch_temp += ((pitch_temp - (60 << 8)) * m_stretch_tune) >> 13;
+    pitch_temp += ((eg_level * pitch_eg_amt) >> 14);;
 
     if (N >= 4) {
       pitch_temp += (lfo_level * m_pitch_lfo_amt[1]) >> 14;
