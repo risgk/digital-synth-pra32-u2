@@ -73,20 +73,25 @@ static uint8_t s_program_table_parameters[] = {
   REL_EQ_DECAY   ,
   P_BEND_RANGE   ,
 
-  BTH_FILTER_AMT ,
-  BTH_AMP_MOD    ,
+  A_D_VEL_SENS   ,
+  REL_VEL_SENS   ,
   EG_VEL_SENS    ,
   AMP_VEL_SENS   ,
 
-  AFT_T_LFO_AMT  ,
+  A_D_KEY_TRK    ,
   VOICE_ASGN_MODE,
   PAN            ,
-  REL_VEL_SENS   ,
+  STRETCH_TUNE   ,
 
   OSC_DRIFT      ,
   OSC_SAW_W_MODE ,
   COARSE_TUNE    ,
   FINE_TUNE      ,
+
+  BTH_FILTER_AMT ,
+  BTH_AMP_MOD    ,
+  AFT_T_LFO_AMT  ,
+
 
   CHORUS_MIX     ,
   CHORUS_RATE    ,
@@ -236,16 +241,7 @@ class PRA32_U2_Synth {
   uint8_t           m_lfo_osc_amt;
   uint8_t           m_lfo_osc_dst;
 
-  uint8_t           m_controller_value_eg_attack;
-  uint8_t           m_controller_value_eg_decay;
-  uint8_t           m_controller_value_eg_sustain;
-  uint8_t           m_controller_value_eg_release;
-  uint8_t           m_controller_value_amp_attack;
-  uint8_t           m_controller_value_amp_decay;
-  uint8_t           m_controller_value_amp_sustain;
-  uint8_t           m_controller_value_amp_release;
   uint8_t           m_controller_value_eg_amp_mod;
-  uint8_t           m_controller_value_rel_eq_decay;
 
   uint8_t           m_program_number_to_write;
   uint8_t           m_wr_prog_to_flash_cc_value;
@@ -293,16 +289,7 @@ public:
   , m_lfo_osc_amt()
   , m_lfo_osc_dst()
 
-  , m_controller_value_eg_attack(0)
-  , m_controller_value_eg_decay(127)
-  , m_controller_value_eg_sustain(0)
-  , m_controller_value_eg_release(0)
-  , m_controller_value_amp_attack(0)
-  , m_controller_value_amp_decay(127)
-  , m_controller_value_amp_sustain(0)
-  , m_controller_value_amp_release(0)
   , m_controller_value_eg_amp_mod(0)
-  , m_controller_value_rel_eq_decay(0)
 
   , m_program_number_to_write(8)
   , m_wr_prog_to_flash_cc_value(0)
@@ -387,20 +374,25 @@ public:
     std::memcpy(m_program_table[EG_AMP_MOD     ], g_preset_table_EG_AMP_MOD     , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[REL_EQ_DECAY   ], g_preset_table_REL_EQ_DECAY   , sizeof(m_program_table[0]));
 
-    std::memcpy(m_program_table[BTH_FILTER_AMT ], g_preset_table_BTH_FILTER_AMT , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[BTH_AMP_MOD    ], g_preset_table_BTH_AMP_MOD    , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[A_D_VEL_SENS   ], g_preset_table_A_D_VEL_SENS   , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[REL_VEL_SENS   ], g_preset_table_REL_VEL_SENS   , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[EG_VEL_SENS    ], g_preset_table_EG_VEL_SENS    , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[AMP_VEL_SENS   ], g_preset_table_AMP_VEL_SENS   , sizeof(m_program_table[0]));
 
-    std::memcpy(m_program_table[AFT_T_LFO_AMT  ], g_preset_table_AFT_T_LFO_AMT  , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[A_D_KEY_TRK    ], g_preset_table_A_D_KEY_TRK    , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[VOICE_ASGN_MODE], g_preset_table_VOICE_ASGN_MODE, sizeof(m_program_table[0]));
     std::memcpy(m_program_table[PAN            ], g_preset_table_PAN            , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[REL_VEL_SENS   ], g_preset_table_REL_VEL_SENS   , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[STRETCH_TUNE   ], g_preset_table_STRETCH_TUNE   , sizeof(m_program_table[0]));
 
     std::memcpy(m_program_table[OSC_DRIFT      ], g_preset_table_OSC_DRIFT      , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[OSC_SAW_W_MODE ], g_preset_table_OSC_SAW_W_MODE , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[COARSE_TUNE    ], g_preset_table_COARSE_TUNE    , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[FINE_TUNE      ], g_preset_table_FINE_TUNE      , sizeof(m_program_table[0]));
+
+    std::memcpy(m_program_table[BTH_FILTER_AMT ], g_preset_table_BTH_FILTER_AMT , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[BTH_AMP_MOD    ], g_preset_table_BTH_AMP_MOD    , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[AFT_T_LFO_AMT  ], g_preset_table_AFT_T_LFO_AMT  , sizeof(m_program_table[0]));
+
 
     std::memcpy(m_program_table[CHORUS_MIX     ], g_preset_table_CHORUS_MIX     , sizeof(m_program_table[0]));
 
@@ -552,8 +544,9 @@ public:
           }
           m_osc.note_on<0>(note_number);
           m_lfo.trigger_lfo();
-          m_eg[0].note_on(velocity);
-          m_eg[1].note_on(velocity);
+          uint16_t osc_pitch_0 = m_osc.get_osc_pitch(0);
+          m_eg[0].note_on(velocity, osc_pitch_0);
+          m_eg[1].note_on(velocity, osc_pitch_0);
         } else {
           m_note_on_number[3] = m_note_on_number[2];
           m_note_on_number[2] = m_note_on_number[1];
@@ -585,8 +578,9 @@ public:
         m_osc.set_portamento<0>(m_portamento);
         m_osc.note_on<0>(note_number);
         m_lfo.trigger_lfo();
-        m_eg[0].note_on(velocity);
-        m_eg[1].note_on(velocity);
+        uint16_t osc_pitch_0 = m_osc.get_osc_pitch(0);
+        m_eg[0].note_on(velocity, osc_pitch_0);
+        m_eg[1].note_on(velocity, osc_pitch_0);
       }
     } else if (m_note_on_number[0] == note_number) {
       ++m_note_on_total_count;
@@ -596,8 +590,9 @@ public:
       m_osc.note_on<0>(note_number);
       m_last_note_on_index = 0;
 
-      m_eg[0].note_on(velocity);
-      m_eg[1].note_on(velocity);
+      uint16_t osc_pitch_0 = m_osc.get_osc_pitch(0);
+      m_eg[0].note_on(velocity, osc_pitch_0);
+      m_eg[1].note_on(velocity, osc_pitch_0);
     } else if (m_note_on_number[1] == note_number) {
       ++m_note_on_total_count;
       ++m_note_on_count[note_number];
@@ -607,11 +602,13 @@ public:
       m_last_note_on_index = 1;
 
       if (m_voice_mode == VOICE_POLYPHONIC) {
-        m_eg[2].note_on(velocity);
-        m_eg[3].note_on(velocity);
+        uint16_t osc_pitch_1 = m_osc.get_osc_pitch(1);
+        m_eg[2].note_on(velocity, osc_pitch_1);
+        m_eg[3].note_on(velocity, osc_pitch_1);
       } else {
-        m_eg[0].note_on(velocity);
-        m_eg[1].note_on(velocity);
+        uint16_t osc_pitch_0 = m_osc.get_osc_pitch(0);
+        m_eg[0].note_on(velocity, osc_pitch_0);
+        m_eg[1].note_on(velocity, osc_pitch_0);
       }
     } else if (m_note_on_number[2] == note_number) {
       ++m_note_on_total_count;
@@ -622,11 +619,13 @@ public:
       m_last_note_on_index = 2;
 
       if (m_voice_mode == VOICE_POLYPHONIC) {
-        m_eg[4].note_on(velocity);
-        m_eg[5].note_on(velocity);
+        uint16_t osc_pitch_2 = m_osc.get_osc_pitch(2);
+        m_eg[4].note_on(velocity, osc_pitch_2);
+        m_eg[5].note_on(velocity, osc_pitch_2);
       } else {
-        m_eg[0].note_on(velocity);
-        m_eg[1].note_on(velocity);
+        uint16_t osc_pitch_0 = m_osc.get_osc_pitch(0);
+        m_eg[0].note_on(velocity, osc_pitch_0);
+        m_eg[1].note_on(velocity, osc_pitch_0);
       }
     } else if (m_note_on_number[3] == note_number) {
       ++m_note_on_total_count;
@@ -637,11 +636,13 @@ public:
       m_last_note_on_index = 3;
 
       if (m_voice_mode == VOICE_POLYPHONIC) {
-        m_eg[6].note_on(velocity);
-        m_eg[7].note_on(velocity);
+        uint16_t osc_pitch_3 = m_osc.get_osc_pitch(3);
+        m_eg[6].note_on(velocity, osc_pitch_3);
+        m_eg[7].note_on(velocity, osc_pitch_3);
       } else {
-        m_eg[0].note_on(velocity);
-        m_eg[1].note_on(velocity);
+        uint16_t osc_pitch_0 = m_osc.get_osc_pitch(0);
+        m_eg[0].note_on(velocity, osc_pitch_0);
+        m_eg[1].note_on(velocity, osc_pitch_0);
       }
     } else {
       uint8_t note_on_osc_index = 0xFF;
@@ -768,11 +769,13 @@ public:
       }
 
       if (m_voice_mode == VOICE_POLYPHONIC) {
-        m_eg[(note_on_osc_index << 1) + 0].note_on(velocity);
-        m_eg[(note_on_osc_index << 1) + 1].note_on(velocity);
+        uint16_t osc_pitch = m_osc.get_osc_pitch(note_on_osc_index);
+        m_eg[(note_on_osc_index << 1) + 0].note_on(velocity, osc_pitch);
+        m_eg[(note_on_osc_index << 1) + 1].note_on(velocity, osc_pitch);
       } else {
-        m_eg[0].note_on(velocity);
-        m_eg[1].note_on(velocity);
+        uint16_t osc_pitch_0 = m_osc.get_osc_pitch(0);
+        m_eg[0].note_on(velocity, osc_pitch_0);
+        m_eg[1].note_on(velocity, osc_pitch_0);
       }
     }
   }
@@ -820,8 +823,9 @@ public:
 
           if (m_voice_mode == VOICE_MONOPHONIC) {
             m_lfo.trigger_lfo();
-            m_eg[0].note_on(255);
-            m_eg[1].note_on(255);
+            uint16_t osc_pitch_0 = m_osc.get_osc_pitch(0);
+            m_eg[0].note_on(255, osc_pitch_0);
+            m_eg[1].note_on(255, osc_pitch_0);
           }
         }
       } else if (m_note_on_number[1] == note_number) {
@@ -1022,37 +1026,59 @@ public:
       break;
 
     case EG_ATTACK      :
-      m_controller_value_eg_attack   = controller_value;
-      update_eg();
+      m_eg[0].set_attack  (controller_value);
+      m_eg[2].set_attack  (controller_value);
+      m_eg[4].set_attack  (controller_value);
+      m_eg[6].set_attack  (controller_value);
       break;
+
     case EG_DECAY       :
-      m_controller_value_eg_decay    = controller_value;
-      update_eg();
+      m_eg[0].set_decay   (controller_value);
+      m_eg[2].set_decay   (controller_value);
+      m_eg[4].set_decay   (controller_value);
+      m_eg[6].set_decay   (controller_value);
       break;
+
     case EG_SUSTAIN     :
-      m_controller_value_eg_sustain  = controller_value;
-      update_eg();
+      m_eg[0].set_sustain (controller_value);
+      m_eg[2].set_sustain (controller_value);
+      m_eg[4].set_sustain (controller_value);
+      m_eg[6].set_sustain (controller_value);
       break;
+
     case EG_RELEASE     :
-      m_controller_value_eg_release  = controller_value;
-      update_eg();
+      m_eg[0].set_release (controller_value);
+      m_eg[2].set_release (controller_value);
+      m_eg[4].set_release (controller_value);
+      m_eg[6].set_release (controller_value);
       break;
 
     case AMP_ATTACK     :
-      m_controller_value_amp_attack  = controller_value;
-      update_amp_eg();
+      m_eg[1].set_attack  (controller_value);
+      m_eg[3].set_attack  (controller_value);
+      m_eg[5].set_attack  (controller_value);
+      m_eg[7].set_attack  (controller_value);
       break;
+
     case AMP_DECAY      :
-      m_controller_value_amp_decay   = controller_value;
-      update_amp_eg();
+      m_eg[1].set_decay   (controller_value);
+      m_eg[3].set_decay   (controller_value);
+      m_eg[5].set_decay   (controller_value);
+      m_eg[7].set_decay   (controller_value);
       break;
+
     case AMP_SUSTAIN    :
-      m_controller_value_amp_sustain = controller_value;
-      update_amp_eg();
+      m_eg[1].set_sustain (controller_value);
+      m_eg[3].set_sustain (controller_value);
+      m_eg[5].set_sustain (controller_value);
+      m_eg[7].set_sustain (controller_value);
       break;
+
     case AMP_RELEASE    :
-      m_controller_value_amp_release = controller_value;
-      update_amp_eg();
+      m_eg[1].set_release (controller_value);
+      m_eg[3].set_release (controller_value);
+      m_eg[5].set_release (controller_value);
+      m_eg[7].set_release (controller_value);
       break;
 
     case CHORUS_DEPTH   :
@@ -1129,9 +1155,16 @@ if constexpr (NO_FX == false) {
       break;
 
     case REL_EQ_DECAY   :
-      m_controller_value_rel_eq_decay = controller_value;
-      update_eg();
-      update_amp_eg();
+      // EG
+      m_eg[0].set_release_eq_decay(controller_value);
+      m_eg[2].set_release_eq_decay(controller_value);
+      m_eg[4].set_release_eq_decay(controller_value);
+      m_eg[6].set_release_eq_decay(controller_value);
+      // Amp EG
+      m_eg[1].set_release_eq_decay(controller_value);
+      m_eg[3].set_release_eq_decay(controller_value);
+      m_eg[5].set_release_eq_decay(controller_value);
+      m_eg[7].set_release_eq_decay(controller_value);
       break;
 
     case FILTER_MODE    :
@@ -1170,11 +1203,49 @@ if constexpr (NO_FX == false) {
       m_panner.set_pan(controller_value);
       break;
 
+    case A_D_KEY_TRK    :
+      // EG
+      m_eg[0].set_attack_decay_pitch_amt(controller_value);
+      m_eg[2].set_attack_decay_pitch_amt(controller_value);
+      m_eg[4].set_attack_decay_pitch_amt(controller_value);
+      m_eg[6].set_attack_decay_pitch_amt(controller_value);
+#if 0
+      // Amp EG
+      m_eg[1].set_attack_decay_pitch_amt(controller_value);
+      m_eg[3].set_attack_decay_pitch_amt(controller_value);
+      m_eg[5].set_attack_decay_pitch_amt(controller_value);
+      m_eg[7].set_attack_decay_pitch_amt(controller_value);
+#endif
+      break;
+
+    case A_D_VEL_SENS   :
+      // EG
+      m_eg[0].set_attack_decay_note_on_velocity_sensitivity(controller_value);
+      m_eg[2].set_attack_decay_note_on_velocity_sensitivity(controller_value);
+      m_eg[4].set_attack_decay_note_on_velocity_sensitivity(controller_value);
+      m_eg[6].set_attack_decay_note_on_velocity_sensitivity(controller_value);
+#if 0
+      // Amp EG
+      m_eg[1].set_attack_decay_note_on_velocity_sensitivity(controller_value);
+      m_eg[3].set_attack_decay_note_on_velocity_sensitivity(controller_value);
+      m_eg[5].set_attack_decay_note_on_velocity_sensitivity(controller_value);
+      m_eg[7].set_attack_decay_note_on_velocity_sensitivity(controller_value);
+#endif
+      break;
+
     case REL_VEL_SENS   :
-      m_eg[0].set_note_off_velocity_sensitivity(controller_value);
-      m_eg[2].set_note_off_velocity_sensitivity(controller_value);
-      m_eg[4].set_note_off_velocity_sensitivity(controller_value);
-      m_eg[6].set_note_off_velocity_sensitivity(controller_value);
+      // EG
+      m_eg[0].set_release_note_off_velocity_sensitivity(controller_value);
+      m_eg[2].set_release_note_off_velocity_sensitivity(controller_value);
+      m_eg[4].set_release_note_off_velocity_sensitivity(controller_value);
+      m_eg[6].set_release_note_off_velocity_sensitivity(controller_value);
+#if 0
+      // Amp EG
+      m_eg[1].set_release_note_off_velocity_sensitivity(controller_value);
+      m_eg[3].set_release_note_off_velocity_sensitivity(controller_value);
+      m_eg[5].set_release_note_off_velocity_sensitivity(controller_value);
+      m_eg[7].set_release_note_off_velocity_sensitivity(controller_value);
+#endif
       break;
 
     case OSC_DRIFT      :
@@ -1223,16 +1294,16 @@ if constexpr (NO_FX == false) {
       m_amp[3].set_breath_mod(controller_value);
       break;
     case EG_VEL_SENS    :
-      m_eg[0].set_note_on_velocity_sensitivity(controller_value);
-      m_eg[2].set_note_on_velocity_sensitivity(controller_value);
-      m_eg[4].set_note_on_velocity_sensitivity(controller_value);
-      m_eg[6].set_note_on_velocity_sensitivity(controller_value);
+      m_eg[0].set_level_note_on_velocity_sensitivity(controller_value);
+      m_eg[2].set_level_note_on_velocity_sensitivity(controller_value);
+      m_eg[4].set_level_note_on_velocity_sensitivity(controller_value);
+      m_eg[6].set_level_note_on_velocity_sensitivity(controller_value);
       break;
     case AMP_VEL_SENS   :
-      m_eg[1].set_note_on_velocity_sensitivity(controller_value);
-      m_eg[3].set_note_on_velocity_sensitivity(controller_value);
-      m_eg[5].set_note_on_velocity_sensitivity(controller_value);
-      m_eg[7].set_note_on_velocity_sensitivity(controller_value);
+      m_eg[1].set_level_note_on_velocity_sensitivity(controller_value);
+      m_eg[3].set_level_note_on_velocity_sensitivity(controller_value);
+      m_eg[5].set_level_note_on_velocity_sensitivity(controller_value);
+      m_eg[7].set_level_note_on_velocity_sensitivity(controller_value);
       break;
 
     case EXPRESSION     :
@@ -1244,6 +1315,10 @@ if constexpr (NO_FX == false) {
 
     case BTH_CONTROLLER :
       set_breath_controller(controller_value);
+      break;
+
+    case STRETCH_TUNE   :
+      m_osc.set_stretch_tune(controller_value);
       break;
 
     case COARSE_TUNE    :
@@ -1890,64 +1965,6 @@ if constexpr (RESTRICT_POLY_AND_CORES == false) {
       m_filter[1].set_cutoff_lfo_amt(1, 64);
       m_filter[2].set_cutoff_lfo_amt(1, 64);
       m_filter[3].set_cutoff_lfo_amt(1, 64);
-    }
-  }
-
-  INLINE void update_eg() {
-    m_eg[0].set_attack  (m_controller_value_eg_attack);
-    m_eg[2].set_attack  (m_controller_value_eg_attack);
-    m_eg[4].set_attack  (m_controller_value_eg_attack);
-    m_eg[6].set_attack  (m_controller_value_eg_attack);
-
-    m_eg[0].set_decay   (m_controller_value_eg_decay);
-    m_eg[2].set_decay   (m_controller_value_eg_decay);
-    m_eg[4].set_decay   (m_controller_value_eg_decay);
-    m_eg[6].set_decay   (m_controller_value_eg_decay);
-
-    m_eg[0].set_sustain (m_controller_value_eg_sustain);
-    m_eg[2].set_sustain (m_controller_value_eg_sustain);
-    m_eg[4].set_sustain (m_controller_value_eg_sustain);
-    m_eg[6].set_sustain (m_controller_value_eg_sustain);
-
-    if (m_controller_value_rel_eq_decay >= 64) {
-      m_eg[0].set_release (m_controller_value_eg_decay);
-      m_eg[2].set_release (m_controller_value_eg_decay);
-      m_eg[4].set_release (m_controller_value_eg_decay);
-      m_eg[6].set_release (m_controller_value_eg_decay);
-    } else {
-      m_eg[0].set_release (m_controller_value_eg_release);
-      m_eg[2].set_release (m_controller_value_eg_release);
-      m_eg[4].set_release (m_controller_value_eg_release);
-      m_eg[6].set_release (m_controller_value_eg_release);
-    }
-  }
-
-  INLINE void update_amp_eg() {
-    m_eg[1].set_attack  (m_controller_value_amp_attack);
-    m_eg[3].set_attack  (m_controller_value_amp_attack);
-    m_eg[5].set_attack  (m_controller_value_amp_attack);
-    m_eg[7].set_attack  (m_controller_value_amp_attack);
-
-    m_eg[1].set_decay   (m_controller_value_amp_decay);
-    m_eg[3].set_decay   (m_controller_value_amp_decay);
-    m_eg[5].set_decay   (m_controller_value_amp_decay);
-    m_eg[7].set_decay   (m_controller_value_amp_decay);
-
-    m_eg[1].set_sustain (m_controller_value_amp_sustain);
-    m_eg[3].set_sustain (m_controller_value_amp_sustain);
-    m_eg[5].set_sustain (m_controller_value_amp_sustain);
-    m_eg[7].set_sustain (m_controller_value_amp_sustain);
-
-    if (m_controller_value_rel_eq_decay >= 64) {
-      m_eg[1].set_release (m_controller_value_amp_decay);
-      m_eg[3].set_release (m_controller_value_amp_decay);
-      m_eg[5].set_release (m_controller_value_amp_decay);
-      m_eg[7].set_release (m_controller_value_amp_decay);
-    } else {
-      m_eg[1].set_release (m_controller_value_amp_release);
-      m_eg[3].set_release (m_controller_value_amp_release);
-      m_eg[5].set_release (m_controller_value_amp_release);
-      m_eg[7].set_release (m_controller_value_amp_release);
     }
   }
 };

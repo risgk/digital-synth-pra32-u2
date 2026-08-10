@@ -1,6 +1,6 @@
 ```
-  [Polyphonic Synthesizer]                                        Date: 2026-08-02                      
-  Model: Digital Synth PRA32-U2   MIDI Implementation Chart       Version: 2.17.0                       
+  [Polyphonic Synthesizer]                                        Date: 2026-08-10                      
+  Model: Digital Synth PRA32-U2   MIDI Implementation Chart       Version: 2.18.0                       
 +-------------------------------+---------------+---------------+--------------------------------------+
 | Function...                   | Transmitted   | Recognized    | Remarks                              |
 +-------------------------------+---------------+---------------+--------------------------------------+
@@ -73,20 +73,25 @@
 |                            36 | x             | o             | EG Amp Mod [Off|On]                  |
 |                           105 | x             | o             | Release = Decay [Off|On]             |
 |                               |               |               |                                      |
-|                            60 | x             | o             | Breath Filter Amt [-|+]              |
-|                            61 | x             | o             | Breath Amp Mod [Off|Qad|Lin]         |
+|                            51 | x             | o             | EG Att/Dec Velo Sens [-|+]           |
+|                            81 | x             | o             | EG Rel Velo Sens [-|+]               |
 |                            62 | x             | o             | EG Level Velo Sens                   |
 |                            63 | x             | o             | Amp Level Velo Sens                  |
 |                               |               |               |                                      |
-|                            37 | x             | o             | After Touch LFO Amt                  |
+|                            16 | x             | o             | EG Att/Dec Key Track [-|+]           |
 |                           110 | x             | o             | Voice Assign Mode [1|1|3|3|4|2]      |
 |                            10 | x             | o             | Pan                                  |
-|                            81 | x             | o             | EG Release Off Velo Sens             |
+|                            22 | x             | o             | Stretch Tune [-|+]                   |
 |                               |               |               |                                      |
 |                            82 | x             | o             | Osc Drift                            |
 |                            83 | x             | o             | Osc Saw Wave Mode [Str|Cur]          |
 |                            86 | x             | o             | Coarse Tune [-|+]                    |
 |                            70 | x             | o             | Fine Tune [-|+]                      |
+|                               |               |               |                                      |
+|                            60 | x             | o             | Breath Filter Amt [-|+]              |
+|                            61 | x             | o             | Breath Amp Mod [Off|Qad|Lin]         |
+|                            37 | x             | o             | After Touch LFO Amt                  |
+|                               |               |               |                                      |
 |                               |               |               |                                      |
 |                            93 | x             | o             | Chorus Level                         |
 |                               |               |               |                                      |

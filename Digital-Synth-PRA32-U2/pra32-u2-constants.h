@@ -33,6 +33,7 @@ const int8_t    FILTER_TABLE_RESO_EXT_BITS   = 2;
 const uint8_t   EG_CONTROL_INTERVAL          = 0x10;
 const int8_t    EG_LEVEL_MAX_BITS            = 30;
 const int32_t   EG_LEVEL_MAX                 = 0x01 << EG_LEVEL_MAX_BITS;
+const int8_t    EG_TABLE_EXT_BITS            = 3;
 
 
 const uint8_t   DATA_BYTE_MAX         = 0x7F;
@@ -106,20 +107,25 @@ const uint8_t   P_BEND_RANGE    = 57;
 const uint8_t   EG_AMP_MOD      = 36;
 const uint8_t   REL_EQ_DECAY    = 105;
 
-const uint8_t   BTH_FILTER_AMT  = 60;
-const uint8_t   BTH_AMP_MOD     = 61;
+const uint8_t   A_D_VEL_SENS    = 51;
+const uint8_t   REL_VEL_SENS    = 81;
 const uint8_t   EG_VEL_SENS     = 62;
 const uint8_t   AMP_VEL_SENS    = 63;
 
-const uint8_t   AFT_T_LFO_AMT   = 37;
+const uint8_t   A_D_KEY_TRK     = 16;
 const uint8_t   VOICE_ASGN_MODE = 110;
 const uint8_t   PAN             = 10;
-const uint8_t   REL_VEL_SENS    = 81;
+const uint8_t   STRETCH_TUNE    = 22;
 
 const uint8_t   OSC_DRIFT       = 82;
 const uint8_t   OSC_SAW_W_MODE  = 83;
 const uint8_t   COARSE_TUNE     = 86;
 const uint8_t   FINE_TUNE       = 70;
+
+const uint8_t   BTH_FILTER_AMT  = 60;
+const uint8_t   BTH_AMP_MOD     = 61;
+const uint8_t   AFT_T_LFO_AMT   = 37;
+
 
 const uint8_t   CHORUS_MIX      = 93;
 

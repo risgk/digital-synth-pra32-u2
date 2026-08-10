@@ -41,7 +41,7 @@ td.keyh {
 }
 </style>
 <script>
-const APP_NAME_VERSION = "PRA32-U2 Editor v2.17.0";
+const APP_NAME_VERSION = "PRA32-U2 Editor v2.18.0";
 
 const USER_PROGRAM_NUMBER_MAX      = 15;
 const PROGRAM_NUMBER_MAX           = 31;
@@ -109,20 +109,25 @@ const P_BEND_RANGE    = 57;
 const EG_AMP_MOD      = 36;
 const REL_EQ_DECAY    = 105;
 
-const BTH_FILTER_AMT  = 60;
-const BTH_AMP_MOD     = 61;
+const A_D_VEL_SENS    = 51;
+const REL_VEL_SENS    = 81;
 const EG_VEL_SENS     = 62;
 const AMP_VEL_SENS    = 63;
 
-const AFT_T_LFO_AMT   = 37;
+const A_D_KEY_TRK     = 16;
 const VOICE_ASGN_MODE = 110;
 const PAN             = 10;
-const REL_VEL_SENS    = 81;
+const STRETCH_TUNE    = 22;
 
 const OSC_DRIFT       = 82;
 const OSC_SAW_W_MODE  = 83;
 const COARSE_TUNE     = 86;
 const FINE_TUNE       = 70;
+
+const BTH_FILTER_AMT  = 60;
+const BTH_AMP_MOD     = 61;
+const AFT_T_LFO_AMT   = 37;
+
 
 const CHORUS_MIX      = 93;
 
@@ -205,20 +210,25 @@ var controlNumberToStringMap = new Map([
   [ EG_AMP_MOD     , "EG_AMP_MOD     " ],
   [ REL_EQ_DECAY   , "REL_EQ_DECAY   " ],
 
-  [ BTH_FILTER_AMT , "BTH_FILTER_AMT " ],
-  [ BTH_AMP_MOD    , "BTH_AMP_MOD    " ],
+  [ A_D_VEL_SENS   , "A_D_VEL_SENS   " ],
+  [ REL_VEL_SENS   , "REL_VEL_SENS   " ],
   [ EG_VEL_SENS    , "EG_VEL_SENS    " ],
   [ AMP_VEL_SENS   , "AMP_VEL_SENS   " ],
 
-  [ AFT_T_LFO_AMT  , "AFT_T_LFO_AMT  " ],
+  [ A_D_KEY_TRK    , "A_D_KEY_TRK    " ],
   [ VOICE_ASGN_MODE, "VOICE_ASGN_MODE" ],
   [ PAN            , "PAN            " ],
-  [ REL_VEL_SENS   , "REL_VEL_SENS   " ],
+  [ STRETCH_TUNE   , "STRETCH_TUNE   " ],
 
   [ OSC_DRIFT      , "OSC_DRIFT      " ],
   [ OSC_SAW_W_MODE , "OSC_SAW_W_MODE " ],
   [ COARSE_TUNE    , "COARSE_TUNE    " ],
   [ FINE_TUNE      , "FINE_TUNE      " ],
+
+  [ BTH_FILTER_AMT , "BTH_FILTER_AMT " ],
+  [ BTH_AMP_MOD    , "BTH_AMP_MOD    " ],
+  [ AFT_T_LFO_AMT  , "AFT_T_LFO_AMT  " ],
+
 
   [ CHORUS_MIX     , "CHORUS_MIX     " ],
 
@@ -277,20 +287,25 @@ var controllersInLocalStorage = [
   EG_AMP_MOD     ,
   REL_EQ_DECAY   ,
 
-  BTH_FILTER_AMT ,
-  BTH_AMP_MOD    ,
+  A_D_VEL_SENS   ,
+  REL_VEL_SENS   ,
   EG_VEL_SENS    ,
   AMP_VEL_SENS   ,
 
-  AFT_T_LFO_AMT  ,
+  A_D_KEY_TRK    ,
   VOICE_ASGN_MODE,
   PAN            ,
-  REL_VEL_SENS   ,
+  STRETCH_TUNE   ,
 
   OSC_DRIFT      ,
   OSC_SAW_W_MODE ,
   COARSE_TUNE    ,
   FINE_TUNE      ,
+
+  BTH_FILTER_AMT ,
+  BTH_AMP_MOD    ,
+  AFT_T_LFO_AMT  ,
+
 
   CHORUS_MIX     ,
 
@@ -321,10 +336,10 @@ presetControllers[FILTER_RESO    ] = [48 , 48 , 48 , 48 , 48 , 48 , 80 , 0  ,   
 presetControllers[FILTER_EG_AMT  ] = [40 , 64 , 64 , 64 , 76 , 64 , 88 , 64 ,   76 , 64 , 64 , 64 , 76 , 76 , 76 , 64 ];
 presetControllers[FILTER_KEY_TRK ] = [96 , 96 , 96 , 96 , 64 , 64 , 64 , 64 ,   96 , 96 , 96 , 96 , 64 , 64 , 64 , 64 ];
 
-presetControllers[EG_ATTACK      ] = [96 , 32 , 32 , 32 , 32 , 32 , 32 , 0  ,   48 , 64 , 32 , 32 , 32 , 32 , 32 , 0  ];
-presetControllers[EG_DECAY       ] = [96 , 32 , 96 , 32 , 32 , 96 , 96 , 0  ,   80 , 64 , 96 , 32 , 32 , 32 , 32 , 0  ];
+presetControllers[EG_ATTACK      ] = [96 , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   48 , 64 , 0  , 0  , 0  , 0  , 0  , 0  ];
+presetControllers[EG_DECAY       ] = [96 , 0  , 96 , 0  , 0  , 96 , 96 , 0  ,   80 , 64 , 96 , 0  , 0  , 0  , 0  , 0  ];
 presetControllers[EG_SUSTAIN     ] = [0  , 127, 0  , 127, 127, 0  , 0  , 127,   0  , 127, 0  , 127, 127, 127, 127, 127];
-presetControllers[EG_RELEASE     ] = [32 , 32 , 32 , 32 , 32 , 32 , 32 , 0  ,   32 , 32 , 32 , 32 , 32 , 32 , 32 , 0  ];
+presetControllers[EG_RELEASE     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 
 presetControllers[EG_OSC_AMT     ] = [64 , 64 , 72 , 64 , 64 , 72 , 64 , 64 ,   72 , 64 , 72 , 64 , 64 , 64 , 64 , 64 ];
 presetControllers[EG_OSC_DST     ] = [0  , 0  , 127, 0  , 0  , 127, 0  , 0  ,   76 , 0  , 127, 127, 0  , 0  , 127, 0  ];
@@ -341,30 +356,35 @@ presetControllers[LFO_OSC_DST    ] = [0  , 0  , 127, 0  , 0  , 127, 0  , 0  ,   
 presetControllers[LFO_FILTER_AMT ] = [76 , 76 , 76 , 64 , 64 , 64 , 76 , 64 ,   76 , 76 , 64 , 76 , 64 , 64 , 64 , 64 ];
 presetControllers[AMP_GAIN       ] = [100, 100, 120, 100, 100, 90 , 110, 100,   110, 100, 100, 100, 100, 90 , 90 , 100];
 
-presetControllers[AMP_ATTACK     ] = [32 , 32 , 32 , 32 , 32 , 32 , 32 , 0  ,   32 , 32 , 32 , 32 , 32 , 32 , 32 , 0  ];
-presetControllers[AMP_DECAY      ] = [32 , 32 , 32 , 32 , 32 , 32 , 32 , 0  ,   32 , 32 , 32 , 32 , 32 , 32 , 32 , 0  ];
+presetControllers[AMP_ATTACK     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+presetControllers[AMP_DECAY      ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 presetControllers[AMP_SUSTAIN    ] = [127, 127, 127, 127, 127, 127, 127, 127,   127, 127, 127, 127, 127, 127, 127, 127];
-presetControllers[AMP_RELEASE    ] = [32 , 32 , 32 , 32 , 32 , 32 , 32 , 0  ,   32 , 32 , 32 , 32 , 32 , 32 , 32 , 0  ];
+presetControllers[AMP_RELEASE    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 
 presetControllers[FILTER_MODE    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 presetControllers[P_BEND_RANGE   ] = [2  , 2  , 2  , 2  , 2  , 2  , 2  , 2  ,   2  , 2  , 2  , 2  , 2  , 2  , 2  , 2  ];
-presetControllers[EG_AMP_MOD     ] = [0  , 127, 127, 127, 0  , 0  , 127, 0  ,   0  , 127, 127, 127, 0  , 0  , 0  , 0  ];
-presetControllers[REL_EQ_DECAY   ] = [127, 127, 127, 127, 127, 127, 127, 0  ,   127, 127, 127, 127, 127, 127, 127, 0  ];
+presetControllers[EG_AMP_MOD     ] = [0  , 127, 127, 127, 127, 0  , 127, 127,   0  , 127, 127, 127, 127, 127, 127, 127];
+presetControllers[REL_EQ_DECAY   ] = [127, 127, 127, 127, 127, 127, 127, 127,   127, 127, 127, 127, 127, 127, 127, 127];
 
-presetControllers[BTH_FILTER_AMT ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
-presetControllers[BTH_AMP_MOD    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+presetControllers[A_D_VEL_SENS   ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
+presetControllers[REL_VEL_SENS   ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 presetControllers[EG_VEL_SENS    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 presetControllers[AMP_VEL_SENS   ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 
-presetControllers[AFT_T_LFO_AMT  ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+presetControllers[A_D_KEY_TRK    ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 presetControllers[VOICE_ASGN_MODE] = [76 , 76 , 76 , 76 , 76 , 76 , 76 , 76 ,   76 , 76 , 76 , 76 , 76 , 76 , 76 , 76 ];
 presetControllers[PAN            ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
-presetControllers[REL_VEL_SENS   ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+presetControllers[STRETCH_TUNE   ] = [80 , 80 , 80 , 80 , 80 , 80 , 80 , 80 ,   80 , 80 , 80 , 80 , 80 , 80 , 80 , 80 ];
 
 presetControllers[OSC_DRIFT      ] = [32 , 32 , 32 , 32 , 32 , 32 , 32 , 32 ,   32 , 32 , 32 , 32 , 32 , 32 , 32 , 32 ];
 presetControllers[OSC_SAW_W_MODE ] = [127, 127, 127, 127, 127, 127, 127, 127,   127, 127, 127, 127, 127, 127, 127, 127];
 presetControllers[COARSE_TUNE    ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 presetControllers[FINE_TUNE      ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
+
+presetControllers[BTH_FILTER_AMT ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
+presetControllers[BTH_AMP_MOD    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+presetControllers[AFT_T_LFO_AMT  ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+
 
 presetControllers[CHORUS_MIX     ] = [127, 127, 127, 127, 127, 127, 127, 0  ,   127, 127, 127, 127, 127, 127, 127, 0  ];
 
@@ -731,10 +751,14 @@ function updateDisplayOfControl(number, value) {
   case EG_OSC_AMT      :
   case LFO_OSC_AMT     :
   case LFO_FILTER_AMT  :
-  case BTH_FILTER_AMT  :
+  case A_D_VEL_SENS    :
+  case REL_VEL_SENS    :
+  case A_D_KEY_TRK     :
   case PAN             :
+  case STRETCH_TUNE    :
   case COARSE_TUNE     :
   case FINE_TUNE       :
+  case BTH_FILTER_AMT  :
     if (value >= 64) {
       dispValue = "+" + String(value - 64);
     } else {
@@ -882,18 +906,21 @@ function setRandom() {
         (i != DELAY_TIME     ) &&
         (i != DELAY_FEEDBACK ) &&
         (i != DELAY_MODE     ) &&
-        (i != BTH_FILTER_AMT ) &&
-        (i != BTH_AMP_MOD    ) &&
+        (i != A_D_VEL_SENS   ) &&
+        (i != REL_VEL_SENS   ) &&
         (i != EG_VEL_SENS    ) &&
         (i != AMP_VEL_SENS   ) &&
-        (i != AFT_T_LFO_AMT  ) &&
         (i != VOICE_ASGN_MODE) &&
+        (i != A_D_KEY_TRK    ) &&
         (i != PAN            ) &&
-        (i != REL_VEL_SENS   ) &&
+        (i != STRETCH_TUNE   ) &&
         (i != OSC_DRIFT      ) &&
         (i != OSC_SAW_W_MODE ) &&
         (i != COARSE_TUNE    ) &&
-        (i != FINE_TUNE      )) {
+        (i != FINE_TUNE      ) &&
+        (i != BTH_FILTER_AMT ) &&
+        (i != BTH_AMP_MOD    ) &&
+        (i != AFT_T_LFO_AMT  )) {
       onChangeControlChange(i, rand(128));
     }
   });
@@ -1111,20 +1138,25 @@ function fileExport() {
   str += fileExportOneLine(EG_AMP_MOD     );
   str += fileExportOneLine(REL_EQ_DECAY   );
   str += "\n";
-  str += fileExportOneLine(BTH_FILTER_AMT );
-  str += fileExportOneLine(BTH_AMP_MOD    );
+  str += fileExportOneLine(A_D_VEL_SENS   );
+  str += fileExportOneLine(REL_VEL_SENS   );
   str += fileExportOneLine(EG_VEL_SENS    );
   str += fileExportOneLine(AMP_VEL_SENS   );
   str += "\n";
-  str += fileExportOneLine(AFT_T_LFO_AMT  );
+  str += fileExportOneLine(A_D_KEY_TRK    );
   str += fileExportOneLine(VOICE_ASGN_MODE);
   str += fileExportOneLine(PAN            );
-  str += fileExportOneLine(REL_VEL_SENS   );
+  str += fileExportOneLine(STRETCH_TUNE   );
   str += "\n";
   str += fileExportOneLine(OSC_DRIFT      );
   str += fileExportOneLine(OSC_SAW_W_MODE );
   str += fileExportOneLine(COARSE_TUNE    );
   str += fileExportOneLine(FINE_TUNE      );
+  str += "\n";
+  str += fileExportOneLine(BTH_FILTER_AMT );
+  str += fileExportOneLine(BTH_AMP_MOD    );
+  str += fileExportOneLine(AFT_T_LFO_AMT  );
+  str += "\n";
   str += "\n";
   str += fileExportOneLine(CHORUS_MIX     );
   str += "\n";
@@ -1240,38 +1272,38 @@ function getStoredCCValueString(index, number) {
 <table>
 <tr><td>Factory Preset</td>
     <td></td>
-    <td><input type="button" value="#20 Saw Lead"         onclick="preset(20)"></td>
+    <td><input type="button" value="#20 Saw Lead"   onclick="preset(20)"></td>
     <td></td>
-    <td><input type="button" value="#21 Sync Lead"        onclick="preset(21)"></td>
+    <td><input type="button" value="#21 Sync Lead"  onclick="preset(21)"></td>
     <td></td>
-    <td><input type="button" value="#22 Synth Bass"       onclick="preset(22)"></td>
+    <td><input type="button" value="#22 Synth Bass" onclick="preset(22)"></td>
     <td></td>
-    <td><input type="button" value="#23 Initial"          onclick="preset(23)"></td>
+    <td><input type="button" value="#23 Initial"    onclick="preset(23)"></td>
     <td>&nbsp;&nbsp;</td>
-    <td><input type="button" value="#28 Fifth Lead"       onclick="preset(28)"></td>
+    <td><input type="button" value="#28 Fifth Lead" onclick="preset(28)"></td>
     <td></td>
-    <td><input type="button" value="#29 Square Lead"      onclick="preset(29)"></td>
+    <td><input type="button" value="#29 Sqr Lead"   onclick="preset(29)"></td>
     <td></td>
-    <td><input type="button" value="#30 PWM Lead"         onclick="preset(30)"></td>
+    <td><input type="button" value="#30 PWM Lead"   onclick="preset(30)"></td>
     <td></td>
-    <td><input type="button" value="#31 ---"              onclick="preset(31)"></td></tr>
+    <td><input type="button" value="#31 ---"        onclick="preset(31)"></td></tr>
 <tr><td>(from Browser)</td>
     <td></td>
-    <td><input type="button" value="#16 Synth Pad"        onclick="preset(16)"></td>
+    <td><input type="button" value="#16 Synth Pad"  onclick="preset(16)"></td>
     <td></td>
-    <td><input type="button" value="#17 Multi Saw Pad"    onclick="preset(17)"></td>
+    <td><input type="button" value="#17 M Saw Pad"  onclick="preset(17)"></td>
     <td></td>
-    <td><input type="button" value="#18 FM Piano"         onclick="preset(18)"></td>
+    <td><input type="button" value="#18 FM Piano"   onclick="preset(18)"></td>
     <td></td>
-    <td><input type="button" value="#19 Simple"           onclick="preset(19)"></td>
+    <td><input type="button" value="#19 Simple"     onclick="preset(19)"></td>
     <td>&nbsp;&nbsp;</td>
-    <td><input type="button" value="#24 Synth Brass"      onclick="preset(24)"></td>
+    <td><input type="button" value="#24 Synth Brs"  onclick="preset(24)"></td>
     <td></td>
-    <td><input type="button" value="#25 Synth Str"        onclick="preset(25)"></td>
+    <td><input type="button" value="#25 Synth Str"  onclick="preset(25)"></td>
     <td></td>
-    <td><input type="button" value="#26 WT Pad"           onclick="preset(26)"></td>
+    <td><input type="button" value="#26 WT Pad"     onclick="preset(26)"></td>
     <td></td>
-    <td><input type="button" value="#27 Elec Organ"       onclick="preset(27)"</td></tr>
+    <td><input type="button" value="#27 Elec Organ" onclick="preset(27)"</td></tr>
 <tr><td>&nbsp;</td></tr>
 </table>
 
@@ -1372,6 +1404,8 @@ function getStoredCCValueString(index, number) {
 <tr><td>&nbsp;</td></tr>
 </table>
 
+<details>
+<summary><font color="green">Details</font></summary>
 <table>
 <tr><td><font color="green">Program Change</font></td>
     <td></td>
@@ -1446,6 +1480,7 @@ function getStoredCCValueString(index, number) {
     <td><input type="button" value="#11"     onclick="writeParameters(11)"   style="color:green"></td>
     </tr>
 </table>
+</details>
 
 <table>
 <tr>
@@ -1646,18 +1681,18 @@ function getStoredCCValueString(index, number) {
 <td colspan="12"><hr></td>
 </tr>
 <tr>
-<td colspan="3"><b>Breath</b> Filter Amt [-|+]         </td>
-<td colspan="3"><b>Breath</b> Amp Mod [Off|Qad|Lin]    </td>
+<td colspan="3"><b>EG</b> Att/Dec Velo Sens [-|+]      </td>
+<td colspan="3"><b>EG</b> Rel Velo Sens [-|+]          </td>
 <td colspan="3"><b>EG</b> Level Velo Sens              </td>
 <td colspan="3"><b>Amp</b> Level Velo Sens             </td>
 </tr>
 <tr>
-<td><input  id="inputBTH_FILTER_AMT "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(BTH_FILTER_AMT , value)"></td>
-<td><span    id="spanBTH_FILTER_AMT " >-</span></td>
-<td><span   id="span2BTH_FILTER_AMT " >-</span></td>
-<td><input  id="inputBTH_AMP_MOD    "  type="range" list="3 markers" min="0" max="127" step="1" oninput="onChangeControlChange(BTH_AMP_MOD    , value)"></td>
-<td><span    id="spanBTH_AMP_MOD    " >-</span></td>
-<td><span   id="span2BTH_AMP_MOD    " >-</span></td>
+<td><input  id="inputA_D_VEL_SENS   "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(A_D_VEL_SENS   , value)"></td>
+<td><span    id="spanA_D_VEL_SENS   " >-</span></td>
+<td><span   id="span2A_D_VEL_SENS   " >-</span></td>
+<td><input  id="inputREL_VEL_SENS   "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(REL_VEL_SENS   , value)"></td>
+<td><span    id="spanREL_VEL_SENS   " >-</span></td>
+<td><span   id="span2REL_VEL_SENS   " >-</span></td>
 <td><input  id="inputEG_VEL_SENS    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(EG_VEL_SENS    , value)"></td>
 <td><span    id="spanEG_VEL_SENS    " >-</span></td>
 <td><span   id="span2EG_VEL_SENS    " >-</span></td>
@@ -1666,24 +1701,24 @@ function getStoredCCValueString(index, number) {
 <td><span   id="span2AMP_VEL_SENS   " >-</span></td>
 </tr>
 <tr>
-<td colspan="3"><b>After Touch</b> LFO Amt             </td>
+<td colspan="3"><b>EG</b> Att/Dec Key Track [-|+]      </td>
 <td colspan="3">Voice Assign Mode [1|1|3|3|4|2] </td>
 <td colspan="3">Pan                             </td>
-<td colspan="3"><b>EG</b> Release Off Velo Sens        </td>
+<td colspan="3">Stretch Tune [-|+]              </td>
 </tr>
 <tr>
-<td><input  id="inputAFT_T_LFO_AMT  "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(AFT_T_LFO_AMT  , value)"></td>
-<td><span    id="spanAFT_T_LFO_AMT  " >-</span></td>
-<td><span   id="span2AFT_T_LFO_AMT  " >-</span></td>
+<td><input  id="inputA_D_KEY_TRK    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(A_D_KEY_TRK    , value)"></td>
+<td><span    id="spanA_D_KEY_TRK    " >-</span></td>
+<td><span   id="span2A_D_KEY_TRK    " >-</span></td>
 <td><input  id="inputVOICE_ASGN_MODE"  type="range" list="6 markers" min="0" max="127" step="1" oninput="onChangeControlChange(VOICE_ASGN_MODE, value)"></td>
 <td><span    id="spanVOICE_ASGN_MODE" >-</span></td>
 <td><span   id="span2VOICE_ASGN_MODE" >-</span></td>
 <td><input  id="inputPAN            "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(PAN            , value)"></td>
 <td><span    id="spanPAN            " >-</span></td>
 <td><span   id="span2PAN            " >-</span></td>
-<td><input  id="inputREL_VEL_SENS   "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(REL_VEL_SENS   , value)"></td>
-<td><span    id="spanREL_VEL_SENS   " >-</span></td>
-<td><span   id="span2REL_VEL_SENS   " >-</span></td>
+<td><input  id="inputSTRETCH_TUNE   "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(STRETCH_TUNE   , value)"></td>
+<td><span    id="spanSTRETCH_TUNE   " >-</span></td>
+<td><span   id="span2STRETCH_TUNE   " >-</span></td>
 </tr>
 <tr>
 <td colspan="3"><b>Osc</b> Drift                       </td>
@@ -1704,6 +1739,22 @@ function getStoredCCValueString(index, number) {
 <td><input  id="inputFINE_TUNE      "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(FINE_TUNE      , value)"></td>
 <td><span    id="spanFINE_TUNE      " >-</span></td>
 <td><span   id="span2FINE_TUNE      " >-</span></td>
+</tr>
+<tr>
+<td colspan="3"><b>Breath</b> Filter Amt [-|+]         </td>
+<td colspan="3"><b>Breath</b> Amp Mod [Off|Qad|Lin]    </td>
+<td colspan="3"><b>After Touch</b> LFO Amt             </td>
+</tr>
+<tr>
+<td><input  id="inputBTH_FILTER_AMT "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(BTH_FILTER_AMT , value)"></td>
+<td><span    id="spanBTH_FILTER_AMT " >-</span></td>
+<td><span   id="span2BTH_FILTER_AMT " >-</span></td>
+<td><input  id="inputBTH_AMP_MOD    "  type="range" list="3 markers" min="0" max="127" step="1" oninput="onChangeControlChange(BTH_AMP_MOD    , value)"></td>
+<td><span    id="spanBTH_AMP_MOD    " >-</span></td>
+<td><span   id="span2BTH_AMP_MOD    " >-</span></td>
+<td><input  id="inputAFT_T_LFO_AMT  "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(AFT_T_LFO_AMT  , value)"></td>
+<td><span    id="spanAFT_T_LFO_AMT  " >-</span></td>
+<td><span   id="span2AFT_T_LFO_AMT  " >-</span></td>
 </tr>
 <tr>
 <td colspan="12"><hr></td>

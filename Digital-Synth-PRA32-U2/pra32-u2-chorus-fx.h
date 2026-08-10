@@ -52,11 +52,7 @@ public:
   }
 
   INLINE void set_chorus_depth(uint8_t controller_value) {
-    if (controller_value < 126) {
-      m_chorus_depth_control = controller_value << 6;
-    } else {
-      m_chorus_depth_control = 126 << 6;
-    }
+    m_chorus_depth_control = minimum(controller_value, 126) << 6;
   }
 
   INLINE void set_chorus_rate(uint8_t controller_value) {
@@ -83,20 +79,11 @@ public:
     m_chorus_depth_control_effective = approach(m_chorus_depth_control_effective, m_chorus_depth_control, 1);
     m_chorus_delay_time_control_effective = approach(m_chorus_delay_time_control_effective, m_chorus_delay_time_control, 1);
 
-    uint16_t chorus_depth_control_effective_limited;
-    if (m_chorus_delay_time_control_effective < (64 << 6)) {
-      if (m_chorus_depth_control_effective > (m_chorus_delay_time_control_effective << 1)) {
-        chorus_depth_control_effective_limited = (m_chorus_delay_time_control_effective << 1);
-      } else {
-        chorus_depth_control_effective_limited = m_chorus_depth_control_effective;
-      }
-    } else {
-      if (m_chorus_depth_control_effective > (((127 << 6) - m_chorus_delay_time_control_effective) << 1)) {
-        chorus_depth_control_effective_limited = (((127 << 6) - m_chorus_delay_time_control_effective) << 1);
-      } else {
-        chorus_depth_control_effective_limited = m_chorus_depth_control_effective;
-      }
-    }
+    uint16_t chorus_depth_control_effective_limited = std::min({
+      m_chorus_depth_control_effective,
+      static_cast<uint16_t>(m_chorus_delay_time_control_effective << 1),
+      static_cast<uint16_t>(((127 << 6) - m_chorus_delay_time_control_effective) << 1)
+    });
 
     m_chorus_lfo_phase += m_chorus_rate_control;
     m_chorus_lfo_phase &= 0x00FFFFFF;
@@ -160,15 +147,8 @@ private:
   }
 
   INLINE int16_t get_chorus_lfo_wave_level(uint32_t phase) {
-    int16_t triangle_wave_level = 0;
     phase = (phase >> 9);
-
-    if (phase < 0x00004000) {
-      triangle_wave_level = phase - (512 << 4);
-    } else {
-      triangle_wave_level = (1535 << 4) - phase;
-    }
-
+    int16_t triangle_wave_level = (512 << 4) - std::abs(static_cast<int32_t>(phase) - 0x00004000);
     return triangle_wave_level;
   }
 };

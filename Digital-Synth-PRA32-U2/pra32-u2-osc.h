@@ -58,8 +58,9 @@ class PRA32_U2_Osc {
   uint8_t        m_mixer_osc_mix_control_effective;
   int16_t        m_osc1_gain;
   int16_t        m_osc2_gain;
-  int8_t         m_osc2_coarse;
+  int32_t        m_osc2_coarse;
   int16_t        m_osc2_pitch;
+  int8_t         m_stretch_tune;
   int8_t         m_coarse_tune;
   int8_t         m_fine_tune;
 
@@ -107,6 +108,7 @@ public:
   , m_osc2_gain()
   , m_osc2_coarse()
   , m_osc2_pitch()
+  , m_stretch_tune()
   , m_coarse_tune()
   , m_fine_tune()
 
@@ -131,6 +133,7 @@ public:
     set_mixer_osc_mix(0);
     set_osc2_coarse  (64);
     set_osc2_pitch   (64);
+    set_stretch_tune (64);
     set_coarse_tune  (64);
     set_fine_tune    (64);
 
@@ -280,13 +283,9 @@ public:
   }
 
   INLINE void set_mixer_sub_osc_control(uint8_t controller_value) {
-    if (controller_value == 1) {
-      controller_value = 0;
-    } else if (controller_value == 127) {
-      controller_value = 128;
-    }
-
-    m_mixer_noise_sub_osc_control = controller_value - 64;
+    m_mixer_noise_sub_osc_control =
+      ((controller_value == 1)   ? 0   :
+      ((controller_value == 127) ? 128 : controller_value)) - 64;
   }
 
   INLINE int16_t get_pitch_mod_amt_table(uint8_t controller_value) {
@@ -318,13 +317,9 @@ public:
   }
 
   INLINE void set_shape_eg_amt(uint8_t controller_value) {
-    if (controller_value == 1) {
-      controller_value = 0;
-    } else if (controller_value == 127) {
-      controller_value = 128;
-    }
-
-    m_shape_eg_amt = ((controller_value - 64) << 1);
+    m_shape_eg_amt =
+      (((controller_value == 1)   ? 0   :
+       ((controller_value == 127) ? 128 : controller_value)) - 64) << 1;
   }
 
   template <uint8_t N>
@@ -333,13 +328,9 @@ public:
   }
 
   INLINE void set_shape_lfo_amt(uint8_t controller_value) {
-    if (controller_value == 1) {
-      controller_value = 0;
-    } else if (controller_value == 127) {
-      controller_value = 128;
-    }
-
-    m_shape_lfo_amt = -((controller_value - 64) << 1);
+    m_shape_lfo_amt =
+      -((((controller_value == 1)   ? 0   :
+         ((controller_value == 127) ? 128 : controller_value)) - 64) << 1);
   }
 
   INLINE void set_mixer_osc_mix(uint8_t controller_value) {
@@ -347,13 +338,7 @@ public:
   }
 
   INLINE void set_osc2_coarse(uint8_t controller_value) {
-    if (controller_value < 4) {
-      m_osc2_coarse = -60;
-    } else if (controller_value < 124) {
-      m_osc2_coarse = controller_value - 64;
-    } else {
-      m_osc2_coarse = 60;
-    }
+    m_osc2_coarse = clamp(controller_value - 64, -60, +60);
   }
 
   INLINE void set_osc2_pitch(uint8_t controller_value) {
@@ -377,6 +362,10 @@ public:
     };
 
     m_osc2_pitch = m_osc2_pitch_table[controller_value];
+  }
+
+  INLINE void set_stretch_tune(uint8_t controller_value) {
+    m_stretch_tune = controller_value - 64;
   }
 
   INLINE void set_coarse_tune(uint8_t controller_value) {
@@ -423,16 +412,7 @@ public:
 
   template <uint8_t N>
   INLINE void note_on(uint8_t note_number) {
-    uint8_t n;
-    if (note_number < NOTE_NUMBER_MIN) {
-      n = NOTE_NUMBER_MIN;
-    } else if (note_number > NOTE_NUMBER_MAX) {
-      n = NOTE_NUMBER_MAX;
-    } else {
-      n = note_number;
-    }
-
-    m_pitch_target[N] = (n << (24 - 2));
+    m_pitch_target[N] = clamp(note_number, NOTE_NUMBER_MIN, NOTE_NUMBER_MAX) << (24 - 2);
     if (m_portamento_coef[N] == 0) {
       m_pitch_current[N] = m_pitch_target[N];
     }
@@ -459,16 +439,8 @@ public:
   }
 
   INLINE uint16_t get_osc_pitch(uint8_t index) {
-    uint16_t shifted_pitch = (64 << 8) + (m_pitch_current[index] >> (16 - 2)) + m_pitch_bend_normalized;
-    uint16_t osc_pitch;
-    if (shifted_pitch > (64 << 8) + (NOTE_NUMBER_MAX << 8)) {
-      osc_pitch = (NOTE_NUMBER_MAX << 8);
-    } else if (shifted_pitch < (64 << 8) + (NOTE_NUMBER_MIN << 8)) {
-      osc_pitch = (NOTE_NUMBER_MIN << 8);
-    } else {
-      osc_pitch = (m_pitch_current[index] >> (16 - 2)) + m_pitch_bend_normalized;
-    }
-    return osc_pitch;
+    return clamp((m_pitch_current[index] >> (16 - 2)) + m_pitch_bend_normalized,
+                 NOTE_NUMBER_MIN << 8, NOTE_NUMBER_MAX << 8);
   }
 
   template <uint8_t N>
@@ -595,7 +567,7 @@ private:
     if (m_waveform[0] == WAVEFORM_SINE) {
       // For Sine Wave (wave_3)
       uint16_t osc1_phase_modulation_depth = maximum(m_osc1_shape_effective[N] - (128 << 8), 0);
-      volatile int32_t phase_modulation_frequency_ratio_candidate = (((m_osc1_morph_control_effective + 2) >> 2) << 1) + 2;
+      int32_t phase_modulation_frequency_ratio_candidate = (((m_osc1_morph_control_effective + 2) >> 2) << 1) + 2;
       m_osc1_phase_modulation_frequency_ratio[N] = (m_osc1_phase_modulation_frequency_ratio[N] * (1 - new_period_osc1)) + (phase_modulation_frequency_ratio_candidate * new_period_osc1);
 
       uint32_t phase_3 = (((m_phase[N] >> 1) & 0x01FFFFFF) * m_osc1_phase_modulation_frequency_ratio[N]) >> 1;
@@ -607,7 +579,7 @@ private:
       result += (wave_0 * m_osc1_gain * OSC_LEVEL) >> 10;
     } else if ((m_waveform[0] == WAVEFORM_SAW) || (m_waveform[0] == WAVEFORM_SAW2)) {
 if constexpr (RESTRICT_SAW == false) {
-      volatile int32_t phase_modulation_depth = maximum(m_osc1_shape_effective[N] - (128 << 8), 0);
+      int32_t phase_modulation_depth = maximum(m_osc1_shape_effective[N] - (128 << 8), 0);
 
       uint32_t freq_shape_morph =
         ((static_cast<int32_t>((m_freq[N] >> 1) * g_osc_tune_table[(((phase_modulation_depth + 512) >> 10) + 1 + 128) >> (8 - OSC_TUNE_TABLE_STEPS_BITS)]) >>
@@ -751,9 +723,10 @@ if constexpr (RESTRICT_SQR_WT == false) {
     } else {
       pitch_eg_amt = m_pitch_eg_amt[0];
     }
-    int32_t pitch_temp = (m_pitch_current[N & 0x03] >> (16 - 2)) + m_pitch_bend_normalized + ((eg_level * pitch_eg_amt) >> 14);
 
+    int32_t pitch_temp = (m_pitch_current[N & 0x03] >> (16 - 2)) + m_pitch_bend_normalized + ((eg_level * pitch_eg_amt) >> 14);
     pitch_temp += (m_coarse_tune << 8) + (m_fine_tune << 2);
+    pitch_temp += ((pitch_temp - (60 << 8)) * m_stretch_tune) >> 13;
 
     if (N >= 4) {
       pitch_temp += (lfo_level * m_pitch_lfo_amt[1]) >> 14;
@@ -762,11 +735,7 @@ if constexpr (RESTRICT_SQR_WT == false) {
       pitch_temp += (lfo_level * m_pitch_lfo_amt[0]) >> 14;
     }
 
-    if (pitch_temp < (NOTE_NUMBER_MIN << 8)) {
-      pitch_temp = NOTE_NUMBER_MIN << 8;
-    } else if (pitch_temp >= (NOTE_NUMBER_MAX << 8)) {
-      pitch_temp = NOTE_NUMBER_MAX << 8;
-    }
+    pitch_temp = clamp(pitch_temp, NOTE_NUMBER_MIN << 8, NOTE_NUMBER_MAX << 8);
 
     pitch_temp += 128;  // For g_osc_tune_table[]
 
@@ -779,7 +748,7 @@ if constexpr (RESTRICT_SQR_WT == false) {
       m_wave_table_temp[N]      = get_wave_table(m_waveform[0], coarse);
       m_wave_table_temp[N + 16] = get_wave_table(WAVEFORM_SAW,  coarse);
 
-      volatile int32_t coarse_sub = maximum((coarse - 12), NOTE_NUMBER_MIN);
+      int32_t coarse_sub = maximum((coarse - 12), NOTE_NUMBER_MIN);
       m_wave_table_temp[N + 12] = get_wave_table(WAVEFORM_SINE, coarse_sub);
 #if 1
       m_wave_table[N + 12]      = m_wave_table_temp[N + 12];
@@ -819,8 +788,8 @@ if constexpr (RESTRICT_SQR_WT == false) {
 
   template <uint8_t N>
   INLINE void update_osc1_shape(int16_t lfo_level, int16_t eg_level) {
-    volatile int32_t osc1_shape = (128 << 8) + m_osc1_shape_control
-                                  + ((eg_level * m_shape_eg_amt) >> 5) - ((lfo_level * m_shape_lfo_amt) >> 5);
+    int32_t osc1_shape = (128 << 8) + m_osc1_shape_control
+                         + ((eg_level * m_shape_eg_amt) >> 5) - ((lfo_level * m_shape_lfo_amt) >> 5);
     osc1_shape = clamp(osc1_shape, (0 << 8), (256 << 8));
     m_osc1_shape[N] = osc1_shape;
   }
