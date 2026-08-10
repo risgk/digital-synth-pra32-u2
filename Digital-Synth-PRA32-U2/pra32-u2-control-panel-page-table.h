@@ -1,7 +1,7 @@
 #pragma once
 
 const uint8_t   PAGE_GROUP_DEFAULT   = 0;
-const uint8_t   PAGE_INDEX_DEFAULT_A = 9;
+const uint8_t   PAGE_INDEX_DEFAULT_A = 10;
 const uint8_t   PAGE_INDEX_DEFAULT_B = 2;
 const uint8_t   PAGE_INDEX_DEFAULT_C = 0;
 const uint8_t   PAGE_INDEX_DEFAULT_D = 0;
