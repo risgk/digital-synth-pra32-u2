@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v2.18.0 (2026-??-??):
+- v2.18.0 (2026-08-10):
     - Add "Stretch Tune [-|+]" (Default: +16)
     - Modify the factory presets
     - Add "EG Att/Dec Velo Sens [-|+]"
