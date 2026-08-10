@@ -1,5 +1,9 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v2.18.1 (2026-??-??):
+    - Fix Key Track of Filter/EG to be affected by Coarse/Fine/Stretch Tune
+    - Fix Stretch Tune to not be affected by EG pitch modulation
+    - Tested with Arduino-Pico version 6.0.0
 - v2.18.0 (2026-08-10):
     - Add "Stretch Tune [-|+]" (Default: +16)
     - Modify the factory presets
