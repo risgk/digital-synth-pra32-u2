@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 Parameter Guide v2.17.0
+# Digital Synth PRA32-U2 Parameter Guide v2.18.0
 
-- 2026-08-02 ISGK Instruments
+- 2026-08-10 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 ## Control Change Parameters
@@ -117,7 +117,7 @@
 - Filter EG Amt [-|+], LFO Filter Amt [-|+]
     - -60 (4): -120 (min)
     - +60 (124): +120 (max)
-- Filter Key Track [-|+] $1
+- Filter Key Track [-|+]
     - 0 (0-3): -1.000 (min)
     - 8 (4-11): -0.875
     - 16 (12-19): -0.750
@@ -255,16 +255,28 @@
 - Release = Decay [Off|On]
     - 0 (0-63): Off
     - 127 (64-127): On, EG Release = EG Decay and Amp Release = Amp Decay
-- Breath Filter Amt [-|+]
-    - -60 (4): -120 (min)
-    - +60 (124): +120 (max)
-- Breath Amp Mod [Off|Qad|Lin]
-    - 0 (0-31): Off
-    - 64 (32-95): Quadratic Curve
-    - 127 (96-127): Liniear Curve
+- EG Att/Dec Velo Sens [-|+]: EG Attack/Release Velocity Sensitivity, Modulates the attack/decay times by note on velocity
+    - -64 (0): -100% (+63 to -63)
+    - -32 (31-32): -50% (+31.5 to -31.5)
+    - +0 (63-64): +0% (-0 to +0)
+    - +32 (95-96): +50% (-31.5 to +31.5)
+    - +63 (127): +100% (-63 to +63)
+- EG Rel Velo Sens [-|+]: EG Release Velocity Sensitivity, Modulates the release time by note off velocity
+    - -64 (0): -100% (+63 to -63)
+    - -32 (31-32): -50% (+31.5 to -31.5)
+    - +0 (63-64): +0% (-0 to +0)
+    - +32 (95-96): +50% (-31.5 to +31.5)
+    - +63 (127): +100% (-63 to +63)
 - EG Level Velo Sens: EG Level Velocity Sensitivity, Decreases the EG level as note on velocity decreases
 - Amp Level Velo Sens: Amp Level Velocity Sensitivity, Decreases the Amp EG level as note on velocity decreases
-- After Touch LFO Amt
+- EG Att/Dec Key Track [-|+]: Modulates the attack/decay times based on oscillator pitch at note-on
+    - -64 (0): Delta Value = -12 / octave (Delta Second = 0.42x / octave)
+    - -52 (11-12): Delta Value = -9.75 / octave (Delta Second = 0.50x / octave)
+    - -32 (31-32): Delta Value = -6 / octave (Delta Second = 0.65x / octave)
+    - +0 (63-64): Delta Value = +0 / octave (Delta Second = 1x / octave)
+    - +32 (95-96): Delta Value = +6 / octave (Delta Second = 1.54x / octave)
+    - +52 (115-116): Delta Value = +9.75 / octave (Delta Second = 2.02x / octave)
+    - +63 (127): Delta Value = +12 / octave (Delta Second = 2.37x / octave)
 - Voice Assign Mode [1|1|3|3|4|2]: In Polyphonic Mode,
     - 0 (0-12): Mode 1, Free voice with next number has priority (Round Robin), Release is effective
     - 25 (13-38): Mode 1, Free voice with next number has priority (Round Robin), Release is effective
@@ -273,7 +285,11 @@
     - 102 (89-114): Mode 4, Reuse note-off voices, Free voice with small number has priority, Portamento and polyphonic after touch are effective
     - 127 (115-127): Mode 2, Free voice with small number has priority, Portamento is effective
 - Pan
-- EG Release Off Velo Sens: EG Release Off Velocity Sensitivity, Increases the release time as note off velocity decreases
+- Stretch Tune [-|+]
+    - 0: +0 cent at note number 108 (-0 cent at note number 12)
+    - 32: +9.4 cent at note number 108 (-9.4 cent at note number 12)
+    - 64: +18.8 cent at note number 108 (-18.8 cent at note number 12)
+    - 127: +37.2 cent at note number 108 (-37.2 cent at note number 12)
 - Osc Drift
 - Osc Saw Wave Mode [Str|Cur]
     - 0 (0-63): Straight Saw Wave
@@ -290,6 +306,14 @@
     - +0 (64): +0 cent
     - +1 (65): +1.5625 cent
     - +63 (127): +98.4375 cent
+- Breath Filter Amt [-|+]
+    - -60 (4): -120 (min)
+    - +60 (124): +120 (max)
+- Breath Amp Mod [Off|Qad|Lin]
+    - 0 (0-31): Off
+    - 64 (32-95): Quadratic Curve
+    - 127 (96-127): Liniear Curve
+- After Touch LFO Amt
 - Chorus Level: Chorus Send Level
 - Chorus Rate
     - 0: LFO Frequency 0.012 Hz (min)

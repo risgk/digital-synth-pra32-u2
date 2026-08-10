@@ -1,5 +1,20 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v2.18.0 (2026-08-10):
+    - Add "Stretch Tune [-|+]" (Default: +16)
+    - Modify the factory presets
+    - Add "EG Att/Dec Velo Sens [-|+]"
+    - Change "EG Release Off Velo Sens" to "EG Rel Velo Sens [-|+]"
+    - Add "EG Att/Dec Key Track [-|+]"
+    - Fix Velo Sens behaviour in Voice Mode Mon (Monophonic)
+    - Fix EG Release behaviour
+    - Fix "pra32-u2-prog-factory-presets.json"
+    - PRA32-U2 Editor: Rename the factory presets
+    - PRA32-U2 Editor: Change the layout
+    - Improve the code
+    - Improve performance
+    - Fix documentation
+    - Tested with Arduino-Pico version 6.0.0
 - v2.17.0 (2026-08-02):
     - Change "EG Amp Mod" to use EG output instead of Amp EG output (not Amp ADSR = EG ADSR)
     - Rename "EG/Amp Velocity Sensitivity" to "EG/Amp Level Velo Sens"
