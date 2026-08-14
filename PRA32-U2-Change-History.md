@@ -1,8 +1,10 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v2.18.3 (2026-??-??):
+    - Improve documentation
+    - Tested with Arduino-Pico version 6.0.0
 - v2.18.2 (2026-08-11):
     - PRA32-U2/P: Fix the initial page to "A-10 Filter a"
-    - Improve documentation
     - Tested with Arduino-Pico version 6.0.0
 - v2.18.1 (2026-08-10):
     - Fix Key Track of Filter/EG to be affected by Coarse/Fine/Stretch Tune
