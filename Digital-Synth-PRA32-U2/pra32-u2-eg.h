@@ -74,7 +74,7 @@ public:
   }
 
   INLINE void set_sustain(uint8_t controller_value) {
-    m_sustain = (controller_value + 1) >> 1;
+    m_sustain = (controller_value == 127) ? 128 : controller_value;
     update_sustain_level();
   }
 
@@ -181,7 +181,7 @@ private:
   }
 
   INLINE void update_sustain_level() {
-    m_sustain_level = (m_attack_level >> 6) * m_sustain;
+    m_sustain_level = (m_attack_level >> 5) * m_sustain;
   }
 
   INLINE void update_release_coef() {
