@@ -271,11 +271,8 @@ public:
   }
 
   INLINE void set_osc1_shape_control(uint8_t controller_value) {
-    if (controller_value == 127) {
-      controller_value = 128;
-    }
-
-    m_osc1_shape_control = controller_value << 8;
+    m_osc1_shape_control =
+      ((controller_value == 127) ? 128 : controller_value) << 8;
   }
 
   INLINE void set_osc1_morph_control(uint8_t controller_value) {
