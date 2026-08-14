@@ -148,6 +148,7 @@
     - 96: 2 s
     - 126: 17.3 s
     - 127: No Decay
+- EG Sustain, Amp Sustain
 - EG Release, Amp Release
     - 0: 2 ms
     - 32: 20 ms
