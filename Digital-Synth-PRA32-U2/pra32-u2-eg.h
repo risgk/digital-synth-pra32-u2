@@ -181,7 +181,7 @@ private:
   }
 
   INLINE void update_sustain_level() {
-    m_sustain_level = (m_attack_level >> 5) * m_sustain;
+    m_sustain_level = (m_attack_level >> 7) * m_sustain;
   }
 
   INLINE void update_release_coef() {
