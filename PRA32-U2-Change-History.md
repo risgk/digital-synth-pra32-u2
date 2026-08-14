@@ -1,7 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v2.18.3 (2026-??-??):
-    - Fine-tune EG/Amp Sustain
+    - Fine-tune EG/Amp Sustain and Chorus/Delay Level
     - Refactor code
     - Improve documentation
     - Tested with Arduino-Pico version 6.0.0
