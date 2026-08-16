@@ -135,21 +135,21 @@
     - 112 (108-115): +0.750
     - 120 (116-123): +0.875
     - 127 (124-127): +1.000 (max)
-- EG Attack, Amp Attack: Attack Time
+- EG Attack, Amp Attack: Attack time
     - 0: 0.65 ms
     - 32: 6.5 ms
     - 64: 65 ms
     - 96: 650 ms
     - 127: 6.0 s
-- EG Decay, Amp Decay: Decay Time to 1/1024 (approx. -60 dB)
+- EG Decay, Amp Decay: Decay time to 1/1024 (approx. -60 dB)
     - 0: 2 ms
     - 32: 20 ms
     - 64: 200 ms
     - 96: 2 s
     - 126: 17.3 s
     - 127: No Decay
-- EG Sustain, Amp Sustain: Sustain Level
-- EG Release, Amp Release: Release Time to 1/1024 (approx. -60 dB)
+- EG Sustain, Amp Sustain: Sustain level
+- EG Release, Amp Release: Release time to 1/1024 (approx. -60 dB)
     - 0: 2 ms
     - 32: 20 ms
     - 64: 200 ms
