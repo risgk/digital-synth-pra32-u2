@@ -140,7 +140,7 @@
     - 32: 6.33 ms
     - 64: 63.3 ms
     - 96: 633 ms
-    - 127: 6.33 s
+    - 127: 5.92 s
 - EG Decay, Amp Decay: Decay time to 1/1024 (approx. -60 dB)
     - 0: 2 ms
     - 32: 20 ms
