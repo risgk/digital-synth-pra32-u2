@@ -136,11 +136,11 @@
     - 120 (116-123): +0.875
     - 127 (124-127): +1.000 (max)
 - EG Attack, Amp Attack: Attack time
-    - 0: 0.65 ms
-    - 32: 6.5 ms
-    - 64: 65 ms
-    - 96: 650 ms
-    - 127: 6.0 s
+    - 0: 0.633 ms
+    - 32: 6.33 ms
+    - 64: 63.3 ms
+    - 96: 633 ms
+    - 127: 6.33 s
 - EG Decay, Amp Decay: Decay time to 1/1024 (approx. -60 dB)
     - 0: 2 ms
     - 32: 20 ms
