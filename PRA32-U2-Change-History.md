@@ -1,8 +1,8 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v2.18.3 (2026-??-??):
-    - Stop EG/Amp Decay from becoming No Decay at CC value 127
+- v2.19.0 (2026-??-??):
     - Change EG/Amp Attack time range to 1 ms - 10 s
+    - Stop EG/Amp Decay from becoming No Decay at CC value 127
     - Change max Decay & Release time to 10 s
     - Change max LFO Fade Time to 10 s
     - Fine-tune EG/Amp Sustain and Chorus/Delay Level
