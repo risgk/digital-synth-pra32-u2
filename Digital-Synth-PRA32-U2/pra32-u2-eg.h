@@ -64,12 +64,12 @@ public:
   }
 
   INLINE void set_attack(uint8_t controller_value) {
-    m_attack = controller_value;
+    m_attack = (controller_value == 127) ? 128 : controller_value;
     update_attack_coef();
   }
 
   INLINE void set_decay(uint8_t controller_value) {
-    m_decay = controller_value;
+    m_decay = (controller_value == 127) ? 128 : controller_value;
     update_decay_coef();
   }
 
@@ -79,7 +79,7 @@ public:
   }
 
   INLINE void set_release(uint8_t controller_value) {
-    m_release = controller_value;
+    m_release = (controller_value == 127) ? 128 : controller_value;
     update_release_coef();
   }
 
