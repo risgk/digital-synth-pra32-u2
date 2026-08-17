@@ -17,7 +17,7 @@
 - Mixer Noise/Sub Osc [N|S]
     - -63 (1): Noise 100% (min)
     - -62 (2): Noise 96.9%
-    - -63 (3): Noise 95.3%
+    - -61 (3): Noise 95.3%
     - -1 (63): Noise 1.6%
     - +0 (64): 0%
     - +1 (65): Sub Osc 1.6%
