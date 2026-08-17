@@ -175,9 +175,10 @@ private:
     decay += ((m_osc_pitch - (60 << 8)) * m_attack_decay_pitch_amt) >> (14 - EG_TABLE_EXT_BITS);
     decay = clamp(decay, 0, 126 * (1 << EG_TABLE_EXT_BITS));
     m_decay_coef = g_eg_attack_decay_release_coef_table[decay];
-
+#if 0
     m_decay_coef = (m_decay_coef & -(m_decay != 127)) |
-                   (0x40000000   & -(m_decay == 127));
+                   (0x40000000   & -(m_decay == 127)); /* No Decay */
+#endif
   }
 
   INLINE void update_sustain_level() {

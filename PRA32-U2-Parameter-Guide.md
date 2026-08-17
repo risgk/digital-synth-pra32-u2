@@ -143,21 +143,14 @@
     - 64: 63.3 ms
     - 96: 633 ms
     - 127: 5.92 s
-- EG Decay, Amp Decay: Decay time to 1/1024 (approx. -60 dB)
-    - 0: 2 ms
-    - 32: 20 ms
-    - 64: 200 ms
-    - 96: 2 s
-    - 126: 17.3 s
-    - 127: No Decay
-- EG Sustain, Amp Sustain: Sustain level
-- EG Release, Amp Release: Release time to 1/1024 (approx. -60 dB)
+- EG Decay, EG Release, Amp Decay, Amp Release: Time to 1/1024 (approx. -60 dB)
     - 0: 2 ms
     - 32: 20 ms
     - 64: 200 ms
     - 96: 2 s
     - 126: 17.3 s
     - 127: 18.6 s
+- EG Sustain, Amp Sustain: Sustain level
 - EG Mod Amt [-|+], LFO Mod Amt [-|+]
     - Pitch
         - -63 (1): -10 oct (min)
