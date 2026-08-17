@@ -2,6 +2,7 @@
 
 - v2.18.3 (2026-??-??):
     - Stop EG/Amp Decay from becoming No Decay at CC value 127
+    - Change max EG/Amp Attack time to 6 s and Decay & Release time to 10 s
     - Fine-tune EG/Amp Sustain and Chorus/Delay Level
     - Refactor code
     - Improve documentation
