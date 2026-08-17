@@ -222,8 +222,9 @@
     - 127 (115-127): Square Wave (Key Trigger On, 0.0 to 1.0)
 - LFO Fade Time
     - 0: 0.00 ms (min)
-    - 1: 9.60 ms
+    - 32: 98.2 ms
     - 64: 1.00 s
+    - 96: 3.06 s
     - 126: 9.31 s
     - 127: 10.0 s (max)
 - LFO Rate
