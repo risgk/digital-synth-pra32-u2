@@ -221,10 +221,11 @@
     - 102 (89-114): Sample & Hold (Key Trigger On, -0.5 to +0.5)
     - 127 (115-127): Square Wave (Key Trigger On, 0.0 to 1.0)
 - LFO Fade Time
-    - 0: 0 ms (min)
-    - 1: 9.6 ms
-    - 64: 1.0 s
-    - 127: 9.6 s (max)
+    - 0: 0.00 ms (min)
+    - 1: 9.60 ms
+    - 64: 1.00 s
+    - 126: 9.31 s
+    - 127: 10.0 s (max)
 - LFO Rate
     - 0: 0.0 Hz (min)
     - 1: 0.072 Hz

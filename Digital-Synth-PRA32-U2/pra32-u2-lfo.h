@@ -78,23 +78,20 @@ public:
 
   template <uint8_t N>
   INLINE void set_lfo_depth(uint8_t controller_value) {
-    controller_value += (controller_value == 127);
-    m_lfo_depth[N] = controller_value;
+    m_lfo_depth[N] = (controller_value == 127) ? 128 : controller_value;
   }
 
   INLINE void set_lfo_fade_time(uint8_t controller_value) {
-    m_lfo_fade_coef = g_lfo_fade_coef_table[controller_value];
+    m_lfo_fade_coef = g_lfo_fade_coef_table[(controller_value == 127) ? 128 : controller_value];
   }
 
   INLINE void set_pressure_amt(uint8_t controller_value) {
-    controller_value += (controller_value == 127);
-    m_pressure_amt = controller_value;
+    m_pressure_amt = (controller_value == 127) ? 128 : controller_value;
   }
 
   template <uint8_t N>
   INLINE void set_pressure(uint8_t pressure) {
-    pressure += (pressure == 127);
-    m_pressure[N] = pressure;
+    m_pressure[N] = (pressure == 127) ? 128 : pressure;
   }
 
   INLINE void trigger_lfo() {
