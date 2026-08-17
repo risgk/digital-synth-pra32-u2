@@ -2,7 +2,8 @@
 
 - v2.18.3 (2026-??-??):
     - Stop EG/Amp Decay from becoming No Decay at CC value 127
-    - Change max EG/Amp Attack time to 6 s and Decay & Release time to 10 s
+    - Change EG/Amp Attack time range to 1 ms - 10 s
+    - Change max Decay & Release time to 10 s
     - Change max LFO Fade Time to 10 s
     - Fine-tune EG/Amp Sustain and Chorus/Delay Level
     - Refactor code
