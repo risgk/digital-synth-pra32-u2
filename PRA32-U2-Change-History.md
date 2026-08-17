@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v2.18.3 (2026-??-??):
+    - Stop EG/Amp Decay from becoming No Decay at CC value 127
     - Fine-tune EG/Amp Sustain and Chorus/Delay Level
     - Refactor code
     - Improve documentation
