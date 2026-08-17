@@ -8,7 +8,7 @@ OCTAVES = 10
 
 def generate_filter_lpf_table(res_id, name, q)
   $file.printf("const int32_t g_filter_lpf_table_%s[] = {\n  ", name)
-  (0..((DATA_BYTE_MAX * 2) << FILTER_TABLE_CUTOFF_EXT_BITS) + 1).each do |i|
+  (0..((128 * 2) << FILTER_TABLE_CUTOFF_EXT_BITS) + 1).each do |i|
     f_idx = [[-2 << FILTER_TABLE_CUTOFF_EXT_BITS, i - ((1 * 2) << FILTER_TABLE_CUTOFF_EXT_BITS)].max,
               252 << FILTER_TABLE_CUTOFF_EXT_BITS].min
     f_0 = (2.0 ** ((f_idx / 2.0 / (1 << FILTER_TABLE_CUTOFF_EXT_BITS)) / (120.0 / OCTAVES))) * ((A4_FREQ * 2.0) * 16.0) * 2.0 / (2.0 ** (OCTAVES.to_f + 1.0))
@@ -32,7 +32,7 @@ def generate_filter_lpf_table(res_id, name, q)
     printf("i: %d, f_idx: %d, f_0_over_f_s: %f, f_0: %f, res_id: %d, q: %f, g: %f, q_mul_g: %f\n", i, f_idx, f_0_over_f_s, f_0, res_id, q, input_gain, q * input_gain)
 
     $file.printf("%+11d, %+11d, %+11d,", b_2_over_a_0_gain, a_1_over_a_0, a_2_over_a_0)
-    if i == (((DATA_BYTE_MAX * 2) << FILTER_TABLE_CUTOFF_EXT_BITS) + 1)
+    if i == (((128 * 2) << FILTER_TABLE_CUTOFF_EXT_BITS) + 1)
       $file.printf("\n")
     elsif i % 2 == (2 - 1)
       $file.printf("\n  ")
@@ -53,9 +53,7 @@ $file.printf("const int32_t* g_filter_tables[] = {\n  ")
 (0..16 * (1 << FILTER_TABLE_RESO_EXT_BITS)).each do |res_index|
   res_id = res_index
   $file.printf("g_filter_lpf_table_%-2d,", res_id)
-  if res_index == DATA_BYTE_MAX
-    $file.printf("\n")
-  elsif res_index % 4 == 3
+  if res_index % 4 == 3
     $file.printf("\n  ")
   else
     $file.printf(" ")
