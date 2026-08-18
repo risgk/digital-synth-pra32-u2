@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v2.19.0 (2026-??-??):
+    - Fine-tune mapping for 6-option parameters
     - Change EG/Amp Attack time range to 1 ms - 10 s
     - Stop EG/Amp Decay from becoming No Decay at CC value 127
     - Change max Decay & Release time to 10 s
