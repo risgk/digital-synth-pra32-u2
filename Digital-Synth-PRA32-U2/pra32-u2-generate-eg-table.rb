@@ -7,7 +7,7 @@ $file.printf("#pragma once\n\n")
 $file.printf("int32_t g_eg_attack_coef_table[] = {\n  ")
 (0..128 * (2 ** EG_TABLE_EXT_BITS) + 16 * (2 ** EG_TABLE_EXT_BITS)).each do |i|
   time = i
-  attack_time_sec = 0.001 * (10.0 ** (time / (31.75 * (2 ** EG_TABLE_EXT_BITS))))
+  attack_time_sec = 0.001 * (10.0 ** (time / (32.0 * (2 ** EG_TABLE_EXT_BITS))))
   eg_coef = (0.5 ** (1.0 / ((SAMPLING_RATE / 4.0) * attack_time_sec))) * 0x40000000
   eg_coef = eg_coef.round
 
