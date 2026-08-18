@@ -2,11 +2,11 @@
 
 - v2.19.0 (2026-??-??):
     - Fine-tune mapping for 6-option parameters
+    - Fine-tune EG/Amp Sustain and Chorus/Delay Level
     - Change EG/Amp Attack time range to 1 ms - 10 s
     - Change EG/Amp Decay & Release time range to 3 ms - 30 s
     - Stop EG/Amp Decay from becoming No Decay at CC value 127
     - Change max LFO Fade Time to 10 s
-    - Fine-tune EG/Amp Sustain and Chorus/Delay Level
     - Refactor code
     - Improve documentation
     - Tested with Arduino-Pico version 6.0.0
