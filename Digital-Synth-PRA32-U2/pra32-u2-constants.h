@@ -159,33 +159,33 @@ const uint8_t   MONO_MODE_ON    = 126;
 const uint8_t   POLY_MODE_ON    = 127;
 
 const uint8_t   OSC_WAVE_SAW       = 0;
-const uint8_t   OSC_WAVE_SQUARE    = 25;
+const uint8_t   OSC_WAVE_SQUARE    = 26;
 const uint8_t   OSC_WAVE_TRIANGLE  = 51;
-const uint8_t   OSC_WAVE_SINE      = 76;
+const uint8_t   OSC_WAVE_SINE      = 77;
 const uint8_t   OSC_WAVE_1_W_T     = 102;
 const uint8_t   OSC_WAVE_2_O_1     = 102;
 const uint8_t   OSC_WAVE_1_PULSE   = 127;
 const uint8_t   OSC_WAVE_2_NOISE   = 127;
 
 const uint8_t   MOD_DST_PITCH      = 0;
-const uint8_t   MOD_DST_CUTOFF     = 25;
-const uint8_t   MOD_DST_PITCH_2    = 76;
+const uint8_t   MOD_DST_CUTOFF     = 26;
+const uint8_t   MOD_DST_PITCH_2    = 77;
 const uint8_t   MOD_DST_SHAPE_1    = 127;
 
 const uint8_t   LFO_WAVE_TRIANGLE  = 0;
-const uint8_t   LFO_WAVE_SINE      = 25;
+const uint8_t   LFO_WAVE_SINE      = 26;
 const uint8_t   LFO_WAVE_RED_NOISE = 51;
-const uint8_t   LFO_WAVE_SAW_DOWN  = 76;
+const uint8_t   LFO_WAVE_SAW_DOWN  = 77;
 const uint8_t   LFO_WAVE_S_AND_H   = 102;
 const uint8_t   LFO_WAVE_SQUARE    = 127;
 
 const uint8_t   VOICE_POLYPHONIC   = 0;
-const uint8_t   VOICE_MONOPHONIC   = 76;
+const uint8_t   VOICE_MONOPHONIC   = 77;
 const uint8_t   VOICE_LEGATO       = 102;
 const uint8_t   VOICE_LEGATO_PORTA = 127;
 
 const uint8_t   VOICE_ASGN_MODE_1  = 0;
-const uint8_t   VOICE_ASGN_MODE_3  = 76;
+const uint8_t   VOICE_ASGN_MODE_3  = 77;
 const uint8_t   VOICE_ASGN_MODE_4  = 102;
 const uint8_t   VOICE_ASGN_MODE_2  = 127;
 

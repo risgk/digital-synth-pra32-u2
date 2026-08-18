@@ -65,7 +65,7 @@ public:
       LFO_WAVEFORM_SQUARE,
     };
 
-    int32_t index = ((controller_value * 10) + 127) / 254;
+    int32_t index = ((controller_value * 10) + 128) >> 8;
 
     m_lfo_waveform = lfo_waveform_table[index];
   }
