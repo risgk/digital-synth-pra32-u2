@@ -142,7 +142,7 @@
     - 32: 10.0 ms
     - 64: 100 ms
     - 96: 1.00 s
-    - 126: 9.30 s
+    - 126: 8.67 s
     - 127: 10.0 s
 - EG Decay, EG Release, Amp Decay, Amp Release: Time to 1/1024 (approx. -60 dB)
     - 0: 2.00 ms
