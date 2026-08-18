@@ -252,7 +252,7 @@ public:
       },
     };
 
-    int32_t index = ((controller_value * 10) + 127) / 254;
+    int32_t index = ((controller_value * 10) + 128) >> 8;
 
     m_waveform_index[N] = index;
     m_waveform[N] = waveform_tables[N][index];
@@ -533,7 +533,7 @@ private:
       &g_osc_wave_shape_table_5,
     };
 
-    uint32_t index = ((osc1_morph_control * 10) + 127) / 254;
+    uint32_t index = ((osc1_morph_control * 10) + 128) >> 8;
 
     return wave_shape_table[index];
   }

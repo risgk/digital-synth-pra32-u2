@@ -9,11 +9,11 @@
     - $2 : Disabled if Osc 1 Wave is Tri (Triangle Wave)
 - Osc 1 Wave [Saw|Sqr|Tri|Sin|WT|Pls]
     - 0 (0-12): Saw Wave
-    - 25 (13-38): Square Wave
+    - 26 (13-38): Square Wave
     - 51 (39-63): Triangle Wave
-    - 76 (64-88): Sine Wave
-    - 102 (89-114): Wave Tables with Constraints
-    - 127 (115-127): Pulse Wave
+    - 77 (64-89): Sine Wave
+    - 102 (90-115): Wave Tables with Constraints
+    - 127 (116-127): Pulse Wave
 - Mixer Noise/Sub Osc [N|S]
     - -63 (1): Noise 100% (min)
     - -62 (2): Noise 96.9%
@@ -57,11 +57,11 @@
         - 127 (126-127): Ratio 16.5 (max)
     - Wave Tables with Constraints
         - 0 (0-12): Wave Table 0 (Sync Pulse 1/8)
-        - 25 (13-38): Wave Table 1 (Sync Pulse 1/4)
+        - 26 (13-38): Wave Table 1 (Sync Pulse 1/4)
         - 51 (39-63): Wave Table 2 (Serial Sync 8/3)
-        - 76 (64-88): Wave Table 3 (Sync & Ring)
-        - 102 (89-114): Wave Table 4 (8+0 to 0+8)
-        - 127 (115-127): Wave Table 5 (6+0 to 0+10)
+        - 77 (64-89): Wave Table 3 (Sync & Ring)
+        - 102 (90-115): Wave Table 4 (8+0 to 0+8)
+        - 127 (116-127): Wave Table 5 (6+0 to 0+10)
     - Pulse Wave
         - 0: Pulse 100% = Saw 100% + Reverse Saw 100% (min)
         - 32: Pulse 50% + Saw 50% = Saw 100% + Reverse Saw 50%
@@ -70,17 +70,17 @@
         - 127: Saw 100% + Saw 100% (max)
 - Osc 2 Wave [Saw|Sqr|Tri|Sin|O1|Nos]
     - 0 (0-12): Saw Wave
-    - 25 (13-38): Square Wave
+    - 26 (13-38): Square Wave
     - 51 (39-63): Triangle Wave
-    - 76 (64-88): Sine Wave
-    - 102 (89-114): Same as Osc 1 Wave
+    - 77 (64-89): Sine Wave
+    - 102 (90-115): Same as Osc 1 Wave
         - Saw Wave
         - Square Wave
         - Triangle Wave
         - Sine Wave
         - Square Wave
         - Square Wave
-    - 127 (115-127): White Noise
+    - 127 (116-127): White Noise
 - Mixer Osc Mix [1|2]
 - Osc 2 Coarse [-|+]
     - -60 (4): -60 semitone (min)
@@ -196,18 +196,18 @@
         - +60 (124): +120 (max)
 - EG Mod Dst [P|P|2P|2P|F|1S], LFO Mod Dst [P|P|2P|2P|F|1S]
     - 0 (0-12): Osc 1 & 2 Pitch
-    - 25 (13-38): Osc 1 & 2 Pitch
+    - 26 (13-38): Osc 1 & 2 Pitch
     - 51 (39-63): Osc 2 Pitch
-    - 76 (64-88): Osc 2 Pitch
-    - 102 (89-114): Filter Cutoff
-    - 127 (115-127): Osc 1 Shape
+    - 77 (64-89): Osc 2 Pitch
+    - 102 (90-115): Filter Cutoff
+    - 127 (116-127): Osc 1 Shape
 - Voice Mode [Pol|Pol|Mon|Mon|LP|Lgt]
     - 0 (0-12): Polyphonic (LFO Single Trigger)
-    - 25 (13-38): Polyphonic (LFO Single Trigger)
+    - 26 (13-38): Polyphonic (LFO Single Trigger)
     - 51 (39-63): Monophonic (EG & LFO Multi Trigger)
-    - 76 (64-88): Monophonic (EG & LFO Multi Trigger)
-    - 102 (89-114): Legato Portamento (Monophonic, EG & LFO Single Trigger, Auto Portamento)
-    - 127 (115-127): Legato (Monophonic, EG & LFO Single Trigger)
+    - 77 (64-89): Monophonic (EG & LFO Multi Trigger)
+    - 102 (90-115): Legato Portamento (Monophonic, EG & LFO Single Trigger, Auto Portamento)
+    - 127 (116-127): Legato (Monophonic, EG & LFO Single Trigger)
 - Portamento
     - 0: Portamento Time 0 ms
     - 1: Portamento Time 1.1 ms
@@ -215,11 +215,11 @@
     - 127: Portamento Time 9.3 s
 - LFO Wave [Tri|Sin|Nos|Saw|S&H|Sqr]
     - 0 (0-12): Triangle Wave (Key Trigger Off, -0.5 to +0.5)
-    - 25 (13-38): Sine Wave (Key Trigger Off, -0.5 to +0.5)
+    - 26 (13-38): Sine Wave (Key Trigger Off, -0.5 to +0.5)
     - 51 (39-63): Red Noise (Key Trigger Off, -0.5 to +0.5)
-    - 76 (64-88): Saw Wave (Key Trigger On, -0.5 to +0.5)
-    - 102 (89-114): Sample & Hold (Key Trigger On, -0.5 to +0.5)
-    - 127 (115-127): Square Wave (Key Trigger On, 0.0 to 1.0)
+    - 77 (64-89): Saw Wave (Key Trigger On, -0.5 to +0.5)
+    - 102 (90-115): Sample & Hold (Key Trigger On, -0.5 to +0.5)
+    - 127 (116-127): Square Wave (Key Trigger On, 0.0 to 1.0)
 - LFO Fade Time
     - 0: 0.00 ms (min)
     - 32: 98.2 ms
@@ -278,11 +278,11 @@
     - +63 (127): Delta Value = +12 / octave (Delta Second = 2.37x / octave)
 - Voice Assign Mode [1|1|3|3|4|2]: In Polyphonic Mode,
     - 0 (0-12): Mode 1, Free voice with next number has priority (Round Robin), Release is effective
-    - 25 (13-38): Mode 1, Free voice with next number has priority (Round Robin), Release is effective
+    - 26 (13-38): Mode 1, Free voice with next number has priority (Round Robin), Release is effective
     - 51 (39-63): Mode 3, Reuse note-off voices, Free voice with next number has priority (Round Robin), Release and polyphonic after touch are effective
-    - 76 (64-88): Mode 3, Reuse note-off voices, Free voice with next number has priority (Round Robin), Release and polyphonic after touch are effective
-    - 102 (89-114): Mode 4, Reuse note-off voices, Free voice with small number has priority, Portamento and polyphonic after touch are effective
-    - 127 (115-127): Mode 2, Free voice with small number has priority, Portamento is effective
+    - 77 (64-89): Mode 3, Reuse note-off voices, Free voice with next number has priority (Round Robin), Release and polyphonic after touch are effective
+    - 102 (90-115): Mode 4, Reuse note-off voices, Free voice with small number has priority, Portamento and polyphonic after touch are effective
+    - 127 (116-127): Mode 2, Free voice with small number has priority, Portamento is effective
 - Pan
 - Stretch Tune [-|+]
     - 0: +0 cent at note number 108 (-0 cent at note number 12)
