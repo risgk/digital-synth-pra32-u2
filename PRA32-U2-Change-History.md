@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v2.19.0 (2026-??-??):
+    - Refactor Osc to use linear interpolation for freq table lookup and Multi Saw process
     - Fine-tune mapping for 6-option parameters
     - Fine-tune EG/Amp Sustain and Chorus/Delay Level
     - Change EG/Amp Attack time range to 1 ms - 10 s
