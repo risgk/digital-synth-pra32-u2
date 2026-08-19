@@ -33,7 +33,6 @@ FILTER_TABLE_RESO_EXT_BITS   = 2
 EG_CONTROL_INTERVAL          = 0x10
 EG_LEVEL_MAX_BITS            = 30
 EG_LEVEL_MAX                 = 0x01 << EG_LEVEL_MAX_BITS
-EG_TABLE_EXT_BITS            = 3
 
 
 DATA_BYTE_MAX         = 0x7F
