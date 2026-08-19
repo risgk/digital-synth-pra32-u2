@@ -6,6 +6,7 @@
     - Change EG/Amp Attack time range to 1 ms - 10 s
     - Change EG/Amp Decay & Release time range to 3 ms - 30 s
     - Stop EG/Amp Decay from becoming No Decay at CC value 127
+    - Refactor EG to use linear interpolation and remove EG_TABLE_EXT_BIT
     - Change max LFO Fade Time to 10 s
     - Refactor code
     - Improve documentation
