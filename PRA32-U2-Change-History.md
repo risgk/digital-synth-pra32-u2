@@ -9,6 +9,7 @@
     - Stop EG/Amp Decay from becoming No Decay at CC value 127
     - Refactor EG to use linear interpolation and remove EG_TABLE_EXT_BIT
     - Change max LFO Fade Time to 10 s
+    - Modify the factory presets
     - Refactor code
     - Improve documentation
     - Tested with Arduino-Pico version 6.0.0
