@@ -161,20 +161,30 @@ public:
   }
 
 private:
+  // Linear interpolation helper for Q8 fractional value
+  INLINE int32_t lerp_coef(int32_t table_val_q8, const int32_t* table) {
+    int32_t idx = table_val_q8 >> 8;
+    int32_t frac = table_val_q8 & 0xFF;
+    
+    // Completely branchless now
+    int64_t diff = static_cast<int64_t>(table[idx + 1]) - table[idx];
+    return table[idx] + static_cast<int32_t>((diff * frac) >> 8);
+  }
+
   INLINE void update_attack_coef() {
-    int32_t attack = m_attack * (1 << EG_TABLE_EXT_BITS);
-    attack += ((((m_note_on_velocity - 64) * m_attack_decay_note_on_velocity_sensitivity)) >> (6 - EG_TABLE_EXT_BITS));
-    attack += ((m_osc_pitch - (60 << 8)) * m_attack_decay_pitch_amt) >> (14 - EG_TABLE_EXT_BITS);
-    attack = clamp(attack, 0, 128 * (1 << EG_TABLE_EXT_BITS));
-    m_attack_coef = g_eg_attack_coef_table[attack];
+    int32_t attack = m_attack << 8;
+    attack += ((m_note_on_velocity - 64) * m_attack_decay_note_on_velocity_sensitivity) << 2;
+    attack += ((m_osc_pitch - (60 << 8)) * m_attack_decay_pitch_amt) >> 6;
+    attack = clamp(attack, 0, 128 << 8);
+    m_attack_coef = lerp_coef(attack, g_eg_attack_coef_table);
   }
 
   INLINE void update_decay_coef() {
-    int32_t decay = m_decay * (1 << EG_TABLE_EXT_BITS);
-    decay += ((((m_note_on_velocity - 64) * m_attack_decay_note_on_velocity_sensitivity)) >> (6 - EG_TABLE_EXT_BITS));
-    decay += ((m_osc_pitch - (60 << 8)) * m_attack_decay_pitch_amt) >> (14 - EG_TABLE_EXT_BITS);
-    decay = clamp(decay, 0, 128 * (1 << EG_TABLE_EXT_BITS));
-    m_decay_coef = g_eg_decay_release_coef_table[decay];
+    int32_t decay = m_decay << 8;
+    decay += ((m_note_on_velocity - 64) * m_attack_decay_note_on_velocity_sensitivity) << 2;
+    decay += ((m_osc_pitch - (60 << 8)) * m_attack_decay_pitch_amt) >> 6;
+    decay = clamp(decay, 0, 128 << 8);
+    m_decay_coef = lerp_coef(decay, g_eg_decay_release_coef_table);
 #if 0
     m_decay_coef = (m_decay_coef & -(m_decay != 128)) |
                    (0x40000000   & -(m_decay == 128)); /* No Decay */
@@ -189,16 +199,16 @@ private:
     int32_t release;
 
     if (m_release_eq_decay) {
-      release = m_decay * (1 << EG_TABLE_EXT_BITS);
-      release += ((((m_note_on_velocity - 64) * m_attack_decay_note_on_velocity_sensitivity)) >> (6 - EG_TABLE_EXT_BITS));
-      release += ((m_osc_pitch - (60 << 8)) * m_attack_decay_pitch_amt) >> (14 - EG_TABLE_EXT_BITS);
+      release = m_decay << 8;
+      release += ((m_note_on_velocity - 64) * m_attack_decay_note_on_velocity_sensitivity) << 2;
+      release += ((m_osc_pitch - (60 << 8)) * m_attack_decay_pitch_amt) >> 6;
     } else {
-      release = m_release * (1 << EG_TABLE_EXT_BITS);
+      release = m_release << 8;
     }
 
-    release += ((((m_note_off_velocity - 64) * m_release_note_off_velocity_sensitivity)) >> (6 - EG_TABLE_EXT_BITS));
-    release  = clamp(release, 0, 128 * (1 << EG_TABLE_EXT_BITS));
+    release += ((m_note_off_velocity - 64) * m_release_note_off_velocity_sensitivity) << 2;
+    release  = clamp(release, 0, 128 << 8);
 
-    m_release_coef = g_eg_decay_release_coef_table[release];
+    m_release_coef = lerp_coef(release, g_eg_decay_release_coef_table);
   }
 };
