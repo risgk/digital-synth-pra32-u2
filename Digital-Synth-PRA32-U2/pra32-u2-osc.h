@@ -581,25 +581,19 @@ private:
 if constexpr (RESTRICT_SAW == false) {
       int32_t phase_modulation_depth = maximum(m_osc1_shape_effective[N] - (128 << 8), 0);
 
-      // 1. Calculate the original table index
+      // 1. Calculate the original table index from depth
       int32_t detune_idx = (((phase_modulation_depth + 512) >> 10) + 1 + 128);
 
-      // 2. Get the current pitch in Q8 format (Exactly matching update_freq_base)
-      int32_t pitch_base_q8 = (m_pitch_current[N & 0x03] >> (16 - 2)) + m_pitch_bend_normalized;
-      pitch_base_q8 += (m_coarse_tune << 8) + (m_fine_tune << 2);
-      pitch_base_q8 += ((pitch_base_q8 - (60 << 8)) * m_stretch_tune) >> 13;
-      pitch_base_q8 = clamp(pitch_base_q8, NOTE_NUMBER_MIN << 8, NOTE_NUMBER_MAX << 8);
+      // 2. Generate the exact equivalent of the tune table value without the table.
+      // The original table value changes by approx. 9.458 per step from the center (128).
+      // This linear approximation accurately preserves the signed difference (positive/negative).
+      int32_t osc_tune_value = (detune_idx - 128) * 310 >> 5;
 
-      // 3. Calculate detuned pitch (1 step of detune_idx equals exactly 2 steps in Q8 pitch)
-      int32_t pitch_detuned_q8 = pitch_base_q8 + ((detune_idx - 128) << 1);
-      pitch_detuned_q8 = clamp(pitch_detuned_q8, NOTE_NUMBER_MIN << 8, NOTE_NUMBER_MAX << 8);
+      const int8_t MORPH_TUNE_DENOM_BITS = 15;
 
-      // 4. Calculate the frequency delta (f_detuned - f_base) via branchless lerp
-      uint32_t freq_detuned = lerp_freq(pitch_detuned_q8);
-      int32_t freq_delta = static_cast<int32_t>(freq_detuned) - static_cast<int32_t>(m_freq_base[N]);
-
-      // 5. Apply the identical original bit-shifting and phase accumulation
-      uint32_t freq_shape_morph = ((freq_delta >> 1) >> 0) << 1;
+      // 3. Keep the original multiplication structure to maintain correct phase accumulation
+      uint32_t freq_shape_morph =
+        ((static_cast<int32_t>((m_freq[N] >> 1) * osc_tune_value) >> MORPH_TUNE_DENOM_BITS) >> 0) << 1;
       freq_shape_morph += (N + 4);
       m_phase_shape_morph[N] += freq_shape_morph;
 
@@ -617,7 +611,6 @@ if constexpr (RESTRICT_SAW == false) {
       int32_t multi_saw_mix = (m_osc1_morph_control_effective + 1) >> 1;
       result += (((  ( multi_saw_mix       * (((wave_0_0 + wave_0_1 + wave_0_2 + wave_0_3 + wave_0_4 + wave_0_5 + wave_0_6) << 1) / 5))
                    + ((64 - multi_saw_mix) *    wave_0)) >> 6) * m_osc1_gain * OSC_LEVEL) >> 10;
-
 } else {
       int32_t wave_0 = get_wave_level(m_wave_table[N], m_phase[N]);
       result += (wave_0 * m_osc1_gain * OSC_LEVEL) >> 10;
