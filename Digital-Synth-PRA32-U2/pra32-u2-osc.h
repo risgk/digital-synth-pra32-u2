@@ -584,16 +584,17 @@ if constexpr (RESTRICT_SAW == false) {
       // 1. Calculate the original table index from depth
       int32_t detune_idx = (((phase_modulation_depth + 512) >> 10) + 1 + 128);
 
-      // 2. Generate the exact equivalent of the tune table value without the table.
-      // The original table value changes by approx. 9.458 per step from the center (128).
-      // This linear approximation accurately preserves the signed difference (positive/negative).
-      int32_t osc_tune_value = (detune_idx - 128) * 310 >> 5;
+      // 2. Generate the precise equivalent of the tune table value without the table.
+      // The original table has a strict slope of approx. 9.3175 per step from the center (128).
+      // This high-precision scaling (* 2385 >> 8) matches the original detune speed perfectly.
+      int32_t osc_tune_value = ((detune_idx - 128) * 2385) >> 8;
 
       const int8_t MORPH_TUNE_DENOM_BITS = 15;
 
       // 3. Keep the original multiplication structure to maintain correct phase accumulation
       uint32_t freq_shape_morph =
-        ((static_cast<int32_t>((m_freq[N] >> 1) * osc_tune_value) >> MORPH_TUNE_DENOM_BITS) >> 0) << 1;
+        ((static_cast<int32_t>(m_freq[N] >> 1) * osc_tune_value) >> MORPH_TUNE_DENOM_BITS);
+      freq_shape_morph = (freq_shape_morph >> 0) << 1;
       freq_shape_morph += (N + 4);
       m_phase_shape_morph[N] += freq_shape_morph;
 
