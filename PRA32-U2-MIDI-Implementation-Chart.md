@@ -1,6 +1,6 @@
 ```
-  [Polyphonic Synthesizer]                                        Date: 2026-08-11                      
-  Model: Digital Synth PRA32-U2   MIDI Implementation Chart       Version: 2.18.2                       
+  [Polyphonic Synthesizer]                                        Date: 2026-08-22                      
+  Model: Digital Synth PRA32-U2   MIDI Implementation Chart       Version: 2.19.0                       
 +-------------------------------+---------------+---------------+--------------------------------------+
 | Function...                   | Transmitted   | Recognized    | Remarks                              |
 +-------------------------------+---------------+---------------+--------------------------------------+
