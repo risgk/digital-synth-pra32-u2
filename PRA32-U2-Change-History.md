@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v2.19.0 (2026-??-??):
+    - Improve latency from 5.3 ms to 2.7 ms
     - Refactor Osc to use linear interpolation for freq table lookup and Multi Saw process
     - Smooth EG Amt parameters via 16-bit fixed point while keeping EG input raw
     - Change EG/Amp Attack time range to 1 ms - 10 s
