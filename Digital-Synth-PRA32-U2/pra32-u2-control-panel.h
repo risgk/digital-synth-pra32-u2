@@ -1134,22 +1134,21 @@ INLINE void PRA32_U2_ControlPanel_update_analog_inputs(uint32_t loop_counter) {
   static_cast<void>(loop_counter);
 
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
-
 #if defined(PRA32_U2_USE_CONTROL_PANEL_ANALOG_INPUT)
   static int32_t s_adc_total_value = 0;
-  switch (loop_counter & 0x3F) {
-  case 0x10:
+  switch (loop_counter & 0x7F) {
+  case 0x20:
     adc_select_input(0);
     s_adc_total_value  = PRA32_U2_ANALOG_INPUT_CORRECTION;
     s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
     break;
-  case 0x14:
+  case 0x28:
     s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
     break;
-  case 0x18:
+  case 0x30:
     s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
     break;
-  case 0x1C:
+  case 0x38:
     s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
     if        (s_adc_current_value[0]                                   >= s_adc_total_value + PRA32_U2_ANALOG_INPUT_THRESHOLD) {
       s_adc_current_value[0] = s_adc_total_value;
@@ -1157,18 +1156,18 @@ INLINE void PRA32_U2_ControlPanel_update_analog_inputs(uint32_t loop_counter) {
       s_adc_current_value[0] = s_adc_total_value;
     }
     break;
-  case 0x20:
+  case 0x40:
     adc_select_input(1);
     s_adc_total_value  = PRA32_U2_ANALOG_INPUT_CORRECTION;
     s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
     break;
-  case 0x24:
+  case 0x48:
     s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
     break;
-  case 0x28:
+  case 0x50:
     s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
     break;
-  case 0x2C:
+  case 0x58:
     s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
     if        (s_adc_current_value[1]                                   >= s_adc_total_value + PRA32_U2_ANALOG_INPUT_THRESHOLD) {
       s_adc_current_value[1] = s_adc_total_value;
@@ -1176,18 +1175,18 @@ INLINE void PRA32_U2_ControlPanel_update_analog_inputs(uint32_t loop_counter) {
       s_adc_current_value[1] = s_adc_total_value;
     }
     break;
-  case 0x30:
+  case 0x60:
     adc_select_input(2);
     s_adc_total_value  = PRA32_U2_ANALOG_INPUT_CORRECTION;
     s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
     break;
-  case 0x34:
+  case 0x68:
     s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
     break;
-  case 0x38:
+  case 0x70:
     s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
     break;
-  case 0x3C:
+  case 0x78:
     s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
     if        (s_adc_current_value[2]                                   >= s_adc_total_value + PRA32_U2_ANALOG_INPUT_THRESHOLD) {
       s_adc_current_value[2] = s_adc_total_value;
@@ -1723,7 +1722,7 @@ INLINE void PRA32_U2_ControlPanel_update_display(uint32_t loop_counter) {
   static uint32_t s_display_draw_position_y = 0;
   static bool     s_display_draw_position_update = false;
 
-  if ((loop_counter & 0x3F) == 0x00) {
+  if ((loop_counter & 0x7F) == 0x00) {
     if (s_display_draw_position_update) {
       PRA32_U2_ControlPanel_draw_character(s_display_buffer[s_display_draw_position_y][s_display_draw_position_x]);
       s_display_draw_position_update = false;
@@ -1853,7 +1852,7 @@ INLINE void PRA32_U2_ControlPanel_update_display(uint32_t loop_counter) {
     }
   } else if (control_number == SEQ_TEMPO      ) {
     uint32_t bpm = PRA32_U2_ControlPanel_calc_bpm(g_synth.current_controller_value(SEQ_TEMPO      ));
-    s_seq_count_increment = bpm * 8192;
+    s_seq_count_increment = bpm * 4096;
   } else if (control_number == SEQ_CLOCK_SRC  ) {
     uint32_t controller_value = g_synth.current_controller_value(SEQ_CLOCK_SRC  );
     uint32_t index = ((controller_value * 2) + 128) >> 8;
