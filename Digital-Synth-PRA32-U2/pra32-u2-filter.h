@@ -38,8 +38,11 @@ class PRA32_U2_Filter {
   uint8_t m_resonance_current;
   int32_t m_cutoff_current;
   int32_t m_cutoff_control;
-  int16_t m_cutoff_eg_amt[2];
-  int16_t m_cutoff_lfo_amt[2];
+  int32_t m_cutoff_control_current;    // Smooth state variable for the manual cutoff knob
+  int16_t m_cutoff_eg_amt_target[2];
+  int16_t m_cutoff_eg_amt_current[2];  // Smooth state variables for the EG Amt knobs
+  int16_t m_cutoff_lfo_amt_target[2];
+  int16_t m_cutoff_lfo_amt_current[2]; // Smooth state variables for the LFO Amt knobs
   int16_t m_cutoff_pitch_amt;
   uint8_t m_filter_mode;
   int16_t m_cutoff_breath_amt;
@@ -56,8 +59,11 @@ public:
   , m_resonance_current()
   , m_cutoff_current()
   , m_cutoff_control()
-  , m_cutoff_eg_amt()
-  , m_cutoff_lfo_amt()
+  , m_cutoff_control_current()
+  , m_cutoff_eg_amt_target()
+  , m_cutoff_eg_amt_current()
+  , m_cutoff_lfo_amt_target()
+  , m_cutoff_lfo_amt_current()
   , m_cutoff_pitch_amt()
   , m_filter_mode()
   , m_cutoff_breath_amt()
@@ -70,6 +76,13 @@ public:
     set_cutoff_lfo_amt(0, 64);
     set_cutoff_lfo_amt(1, 64);
     set_cutoff_pitch_amt(0);
+
+    // Bootstrap initial smooth states to prevent sudden filter sweeps on power-up
+    m_cutoff_control_current = m_cutoff_control << (7 - FILTER_TABLE_CUTOFF_EXT_BITS);
+    m_cutoff_eg_amt_current[0] = m_cutoff_eg_amt_target[0];
+    m_cutoff_eg_amt_current[1] = m_cutoff_eg_amt_target[1];
+    m_cutoff_lfo_amt_current[0] = m_cutoff_lfo_amt_target[0];
+    m_cutoff_lfo_amt_current[1] = m_cutoff_lfo_amt_target[1];
 
     update_coefs(0, 0, 60 << 8);
   }
@@ -106,11 +119,11 @@ public:
   }
 
   INLINE void set_cutoff_eg_amt(uint8_t index, uint8_t controller_value) {
-    m_cutoff_eg_amt[index] = get_cutoff_mod_amt(controller_value) << 1;
+    m_cutoff_eg_amt_target[index] = get_cutoff_mod_amt(controller_value) << 1;
   }
 
   INLINE void set_cutoff_lfo_amt(uint8_t index, uint8_t controller_value) {
-    m_cutoff_lfo_amt[index] = get_cutoff_mod_amt(controller_value) << 1;
+    m_cutoff_lfo_amt_target[index] = get_cutoff_mod_amt(controller_value) << 1;
   }
 
   INLINE void set_cutoff_pitch_amt(uint8_t controller_value) {
@@ -121,7 +134,7 @@ public:
     m_filter_mode = controller_value;
   }
 
-  INLINE void set_cutoff_breath_amt(uint8_t controller_value) {;
+  INLINE void set_cutoff_breath_amt(uint8_t controller_value) {
     m_cutoff_breath_amt = get_cutoff_mod_amt(controller_value) << 1;
   }
 
@@ -159,17 +172,32 @@ public:
 
 private:
   INLINE void update_coefs(int16_t eg_input, int16_t lfo_input, uint16_t osc_pitch) {
-    int16_t cutoff_candidate = m_cutoff_control;
-    cutoff_candidate += (m_cutoff_eg_amt[0] * eg_input) >> (14 - 2);
-    cutoff_candidate += (m_cutoff_eg_amt[1] * eg_input) >> (14 - 2);
+    // 1. Smooth all real-time manual knob parameters simultaneously to eliminate zipper noise
+    int32_t cutoff_control_target = m_cutoff_control << (7 - FILTER_TABLE_CUTOFF_EXT_BITS);
+    m_cutoff_control_current = cutoff_control_target - (((cutoff_control_target - m_cutoff_control_current) * 248) / 256);
 
-    cutoff_candidate += (lfo_input * m_cutoff_lfo_amt[0]) >> (14 - 2);
-    cutoff_candidate += (lfo_input * m_cutoff_lfo_amt[1]) >> (14 - 2);
+    m_cutoff_eg_amt_current[0] = m_cutoff_eg_amt_target[0] - (((m_cutoff_eg_amt_target[0] - m_cutoff_eg_amt_current[0]) * 248) / 256);
+    m_cutoff_eg_amt_current[1] = m_cutoff_eg_amt_target[1] - (((m_cutoff_eg_amt_target[1] - m_cutoff_eg_amt_current[1]) * 248) / 256);
+
+    m_cutoff_lfo_amt_current[0] = m_cutoff_lfo_amt_target[0] - (((m_cutoff_lfo_amt_target[0] - m_cutoff_lfo_amt_current[0]) * 248) / 256);
+    m_cutoff_lfo_amt_current[1] = m_cutoff_lfo_amt_target[1] - (((m_cutoff_lfo_amt_target[1] - m_cutoff_lfo_amt_current[1]) * 248) / 256);
+
+    // 2. Extract smoothed base control value and scale back to candidate calculation space
+    int16_t cutoff_candidate = static_cast<int16_t>(m_cutoff_control_current >> (7 - FILTER_TABLE_CUTOFF_EXT_BITS));
+    
+    // 3. Inject raw dynamic modulation signals multiplied by the *smoothed* Amt coefficients
+    cutoff_candidate += (m_cutoff_eg_amt_current[0] * eg_input) >> (14 - 2);
+    cutoff_candidate += (m_cutoff_eg_amt_current[1] * eg_input) >> (14 - 2);
+
+    cutoff_candidate += (lfo_input * m_cutoff_lfo_amt_current[0]) >> (14 - 2);
+    cutoff_candidate += (lfo_input * m_cutoff_lfo_amt_current[1]) >> (14 - 2);
+    
+    // Static / controller pitch modulations (No dynamic smoothing required here)
     cutoff_candidate += (((osc_pitch - (60 << 8)) * m_cutoff_pitch_amt) + (1 << ((10 - 1) - 2))) >> (10 - 2);
     cutoff_candidate += (m_breath_controller * m_cutoff_breath_amt) >> (14 - 2);
 
-    int32_t cutoff_target = clamp(cutoff_candidate, 0, ((254 << 2) + 1)) << (7 - FILTER_TABLE_CUTOFF_EXT_BITS);
-    m_cutoff_current = cutoff_target - (((cutoff_target - m_cutoff_current) * 248) / 256);
+    // 4. Bound and lock final composite values into active table index registers
+    m_cutoff_current = clamp(cutoff_candidate, 0, ((254 << 2) + 1)) << (7 - FILTER_TABLE_CUTOFF_EXT_BITS);
     m_resonance_current = approach(m_resonance_current, m_resonance_target, 1);
 
     uint8_t resonance_index = (m_resonance_current + ((1 << (3 - FILTER_TABLE_RESO_EXT_BITS)) >> 1)) >> (3 - FILTER_TABLE_RESO_EXT_BITS);
