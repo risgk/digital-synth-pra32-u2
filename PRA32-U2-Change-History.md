@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v2.19.0 (2026-??-??):
+- v2.19.0 (2026-08-22):
     - Double the oscillator output levels
     - Improve latency from 5.3 ms to 2.7 ms
     - Refactor Osc to use linear interpolation for freq table lookup and Multi Saw process
