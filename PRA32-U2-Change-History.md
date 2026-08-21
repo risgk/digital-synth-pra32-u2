@@ -2,13 +2,14 @@
 
 - v2.19.0 (2026-??-??):
     - Refactor Osc to use linear interpolation for freq table lookup and Multi Saw process
-    - Fine-tune mapping for 6-option parameters
-    - Fine-tune EG/Amp Sustain and Chorus/Delay Level
+    - Improve filter: Smooth EG/LFO Amt instead of the modulation result
     - Change EG/Amp Attack time range to 1 ms - 10 s
     - Change EG/Amp Decay & Release time range to 3 ms - 30 s
     - Stop EG/Amp Decay from becoming No Decay at CC value 127
     - Refactor EG to use linear interpolation and remove EG_TABLE_EXT_BIT
     - Change max LFO Fade Time to 10 s
+    - Fine-tune mapping for 6-option parameters
+    - Fine-tune EG/Amp Sustain and Chorus/Delay Level
     - Modify the factory presets
     - Refactor code
     - Improve documentation
