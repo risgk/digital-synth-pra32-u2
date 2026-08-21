@@ -712,7 +712,7 @@ if constexpr (RESTRICT_SQR_WT == false) {
       result += (wave_2 * m_osc2_gain * OSC_LEVEL) >> 10;
     }
 
-    return result;
+    return result << 1;
   }
 
   template <uint8_t N>
