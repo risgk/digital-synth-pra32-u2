@@ -1,5 +1,21 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v2.19.0 (2026-08-22):
+    - Double the oscillator output levels
+    - Improve latency from 5.3 ms to 2.7 ms
+    - Refactor Osc to use linear interpolation for freq table lookup and Multi Saw process
+    - Smooth EG Amt parameters via 16-bit fixed point while keeping EG input raw
+    - Change EG/Amp Attack time range to 1 ms - 10 s
+    - Change EG/Amp Decay & Release time range to 3 ms - 30 s
+    - Stop EG/Amp Decay from becoming No Decay at CC value 127
+    - Refactor EG to use linear interpolation and remove EG_TABLE_EXT_BIT
+    - Change max LFO Fade Time to 10 s
+    - Fine-tune mapping for 6-option parameters
+    - Fine-tune EG/Amp Sustain and Chorus/Delay Level
+    - Modify the factory presets
+    - Refactor code
+    - Improve documentation
+    - Tested with Arduino-Pico version 6.0.0
 - v2.18.2 (2026-08-11):
     - PRA32-U2/P: Fix the initial page to "A-10 Filter a"
     - Tested with Arduino-Pico version 6.0.0

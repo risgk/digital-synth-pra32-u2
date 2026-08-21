@@ -93,7 +93,7 @@ extern byte getTargetMIDICh(byte synth);
 static INLINE uint8_t PRA32_U2_ControlPanel_get_index_scale()
 {
   uint8_t controller_value = g_synth.current_controller_value(PANEL_SCALE    );
-  uint8_t index_scale = ((controller_value * 10) + 127) / 254;
+  uint8_t index_scale = ((controller_value * 10) + 128) >> 8;
 //if (controller_value < 6) { index_scale = controller_value; }
   return index_scale;
 }
@@ -754,7 +754,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case OSC_1_WAVE      :
     {
       char ary[6][5] = {"Saw","Sqr","Tri","Sin"," WT","Pls"};
-      uint32_t index = ((controller_value * 10) + 127) / 254;
+      uint32_t index = ((controller_value * 10) + 128) >> 8;
       std::strcpy(value_display_text, ary[index]);
       result = true;
     }
@@ -762,7 +762,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case OSC_2_WAVE      :
     {
       char ary[6][5] = {"Saw","Sqr","Tri","Sin"," O1","Nos"};
-      uint32_t index = ((controller_value * 10) + 127) / 254;
+      uint32_t index = ((controller_value * 10) + 128) >> 8;
       std::strcpy(value_display_text, ary[index]);
       result = true;
     }
@@ -771,7 +771,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case LFO_OSC_DST     :
     {
       char ary[6][5] = {"  P","  P"," 2P"," 2P","  F"," 1S"};
-      uint32_t index = ((controller_value * 10) + 127) / 254;
+      uint32_t index = ((controller_value * 10) + 128) >> 8;
       std::strcpy(value_display_text, ary[index]);
       result = true;
     }
@@ -779,7 +779,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case VOICE_MODE      :
     {
       char ary[6][5] = {"Pol","Pol","Mon","Mon"," LP","Lgt"};
-      uint32_t index = ((controller_value * 10) + 127) / 254;
+      uint32_t index = ((controller_value * 10) + 128) >> 8;
       std::strcpy(value_display_text, ary[index]);
       result = true;
     }
@@ -787,7 +787,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case LFO_WAVE        :
     {
       char ary[6][5] = {"Tri","Sin","Nos","Saw","S&H","Sqr"};
-      uint32_t index = ((controller_value * 10) + 127) / 254;
+      uint32_t index = ((controller_value * 10) + 128) >> 8;
       std::strcpy(value_display_text, ary[index]);
       result = true;
     }
@@ -795,7 +795,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case FILTER_MODE     :
     {
       char ary[2][5] = {" LP"," HP"};
-      uint32_t index = ((controller_value * 2) + 127) / 254;
+      uint32_t index = ((controller_value * 2) + 128) >> 8;
       std::strcpy(value_display_text, ary[index]);
       result = true;
     }
@@ -806,7 +806,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case SEQ_TRX_ST_SP   :
     {
       char ary[2][5] = {"Off"," On"};
-      uint32_t index = ((controller_value * 2) + 127) / 254;
+      uint32_t index = ((controller_value * 2) + 128) >> 8;
       std::strcpy(value_display_text, ary[index]);
       result = true;
     }
@@ -814,7 +814,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case OSC_SAW_W_MODE  :
     {
       char ary[2][5] = {"Str","Cur"};
-      uint32_t index = ((controller_value * 2) + 127) / 254;
+      uint32_t index = ((controller_value * 2) + 128) >> 8;
       std::strcpy(value_display_text, ary[index]);
       result = true;
     }
@@ -822,7 +822,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case BTH_AMP_MOD     :
     {
       char ary[3][5] = {"Off","Qad","Lin"};
-      uint32_t index = ((controller_value * 4) + 127) / 254;
+      uint32_t index = ((controller_value * 4) + 128) >> 8;
       std::strcpy(value_display_text, ary[index]);
       result = true;
     }
@@ -830,7 +830,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case VOICE_ASGN_MODE :
     {
       char ary[6][5] = {"  1","  1","  3","  3","  4","  2"};
-      uint32_t index = ((controller_value * 10) + 127) / 254;
+      uint32_t index = ((controller_value * 10) + 128) >> 8;
       std::strcpy(value_display_text, ary[index]);
       result = true;
     }
@@ -838,7 +838,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case DELAY_MODE      :
     {
       char ary[2][5] = {"  S","  P"};
-      uint32_t index = ((controller_value * 2) + 127) / 254;
+      uint32_t index = ((controller_value * 2) + 128) >> 8;
       std::strcpy(value_display_text, ary[index]);
       result = true;
     }
@@ -958,7 +958,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case PANEL_PLAY_MODE:
     {
       char ary[2][5] = {"Nrm","Seq"};
-      uint32_t index = ((controller_value * 2) + 127) / 254;
+      uint32_t index = ((controller_value * 2) + 128) >> 8;
       std::strcpy(value_display_text, ary[index]);
       result = true;
     }
@@ -972,7 +972,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
     break;
   case SEQ_CLOCK_SRC  :
     {
-      uint32_t index = ((controller_value * 2) + 127) / 254;
+      uint32_t index = ((controller_value * 2) + 128) >> 8;
 
       if (index == 0) {
         value_display_text[0] = 'I';
@@ -990,7 +990,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case SEQ_GATE_TIME  :
     {
       char ary[6][5] = {"1/6","2/6","3/6","4/6","5/6","6/6"};
-      uint32_t index = ((controller_value * 10) + 127) / 254;
+      uint32_t index = ((controller_value * 10) + 128) >> 8;
       std::strcpy(value_display_text, ary[index]);
       result = true;
     }
@@ -998,7 +998,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case SEQ_STEP_NOTE   :
     {
       char ary[3][5] = {"  4","  8"," 16"};
-      uint32_t index = ((controller_value * 4) + 127) / 254;
+      uint32_t index = ((controller_value * 4) + 128) >> 8;
       std::strcpy(value_display_text, ary[index]);
       result = true;
     }
@@ -1015,7 +1015,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case SEQ_MODE       :
     {
       char ary[3][5] = {"Fwd","Rvs","Bnc"};
-      uint32_t index = ((controller_value * 4) + 127) / 254;
+      uint32_t index = ((controller_value * 4) + 128) >> 8;
       std::strcpy(value_display_text, ary[index]);
       result = true;
     }
@@ -1134,22 +1134,21 @@ INLINE void PRA32_U2_ControlPanel_update_analog_inputs(uint32_t loop_counter) {
   static_cast<void>(loop_counter);
 
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
-
 #if defined(PRA32_U2_USE_CONTROL_PANEL_ANALOG_INPUT)
   static int32_t s_adc_total_value = 0;
-  switch (loop_counter & 0x3F) {
-  case 0x10:
+  switch (loop_counter & 0x7F) {
+  case 0x20:
     adc_select_input(0);
     s_adc_total_value  = PRA32_U2_ANALOG_INPUT_CORRECTION;
     s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
     break;
-  case 0x14:
+  case 0x28:
     s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
     break;
-  case 0x18:
+  case 0x30:
     s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
     break;
-  case 0x1C:
+  case 0x38:
     s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
     if        (s_adc_current_value[0]                                   >= s_adc_total_value + PRA32_U2_ANALOG_INPUT_THRESHOLD) {
       s_adc_current_value[0] = s_adc_total_value;
@@ -1157,18 +1156,18 @@ INLINE void PRA32_U2_ControlPanel_update_analog_inputs(uint32_t loop_counter) {
       s_adc_current_value[0] = s_adc_total_value;
     }
     break;
-  case 0x20:
+  case 0x40:
     adc_select_input(1);
     s_adc_total_value  = PRA32_U2_ANALOG_INPUT_CORRECTION;
     s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
     break;
-  case 0x24:
+  case 0x48:
     s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
     break;
-  case 0x28:
+  case 0x50:
     s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
     break;
-  case 0x2C:
+  case 0x58:
     s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
     if        (s_adc_current_value[1]                                   >= s_adc_total_value + PRA32_U2_ANALOG_INPUT_THRESHOLD) {
       s_adc_current_value[1] = s_adc_total_value;
@@ -1176,18 +1175,18 @@ INLINE void PRA32_U2_ControlPanel_update_analog_inputs(uint32_t loop_counter) {
       s_adc_current_value[1] = s_adc_total_value;
     }
     break;
-  case 0x30:
+  case 0x60:
     adc_select_input(2);
     s_adc_total_value  = PRA32_U2_ANALOG_INPUT_CORRECTION;
     s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
     break;
-  case 0x34:
+  case 0x68:
     s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
     break;
-  case 0x38:
+  case 0x70:
     s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
     break;
-  case 0x3C:
+  case 0x78:
     s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
     if        (s_adc_current_value[2]                                   >= s_adc_total_value + PRA32_U2_ANALOG_INPUT_THRESHOLD) {
       s_adc_current_value[2] = s_adc_total_value;
@@ -1723,7 +1722,7 @@ INLINE void PRA32_U2_ControlPanel_update_display(uint32_t loop_counter) {
   static uint32_t s_display_draw_position_y = 0;
   static bool     s_display_draw_position_update = false;
 
-  if ((loop_counter & 0x3F) == 0x00) {
+  if ((loop_counter & 0x7F) == 0x00) {
     if (s_display_draw_position_update) {
       PRA32_U2_ControlPanel_draw_character(s_display_buffer[s_display_draw_position_y][s_display_draw_position_x]);
       s_display_draw_position_update = false;
@@ -1839,7 +1838,7 @@ INLINE void PRA32_U2_ControlPanel_update_display(uint32_t loop_counter) {
     PRA32_U2_ControlPanel_update_pitch(false);
   } else if (control_number == PANEL_PLAY_MODE) {
     uint8_t controller_value = g_synth.current_controller_value(PANEL_PLAY_MODE);
-    uint8_t index = ((controller_value * 2) + 127) / 254;
+    uint8_t index = ((controller_value * 2) + 128) >> 8;
 
     if (s_play_mode != index) {
       s_play_mode = index;
@@ -1853,18 +1852,18 @@ INLINE void PRA32_U2_ControlPanel_update_display(uint32_t loop_counter) {
     }
   } else if (control_number == SEQ_TEMPO      ) {
     uint32_t bpm = PRA32_U2_ControlPanel_calc_bpm(g_synth.current_controller_value(SEQ_TEMPO      ));
-    s_seq_count_increment = bpm * 8192;
+    s_seq_count_increment = bpm * 4096;
   } else if (control_number == SEQ_CLOCK_SRC  ) {
     uint32_t controller_value = g_synth.current_controller_value(SEQ_CLOCK_SRC  );
-    uint32_t index = ((controller_value * 2) + 127) / 254;
+    uint32_t index = ((controller_value * 2) + 128) >> 8;
     s_seq_clock_src_external = index;
   } else if (control_number == SEQ_GATE_TIME  ) {
     uint8_t controller_value = g_synth.current_controller_value(SEQ_GATE_TIME  );
-    s_seq_gate_time = (((controller_value * 10) + 127) / 254) + 1;
+    s_seq_gate_time = (((controller_value * 10) + 128) >> 8) + 1;
   } else if (control_number == SEQ_STEP_NOTE  ) {
     uint8_t ary[3] = {24, 12, 6};
     uint8_t controller_value = g_synth.current_controller_value(SEQ_STEP_NOTE  );
-    uint32_t index = ((controller_value * 4) + 127) / 254;
+    uint32_t index = ((controller_value * 4) + 128) >> 8;
     s_seq_step_clock_candidate = ary[index];
   } else if (control_number == SEQ_NUM_STEPS  ) {
     int32_t last_step = g_synth.current_controller_value(SEQ_NUM_STEPS  );
@@ -1873,7 +1872,7 @@ INLINE void PRA32_U2_ControlPanel_update_display(uint32_t loop_counter) {
     s_seq_last_step = last_step;
   } else if (control_number == SEQ_MODE       ) {
     uint8_t controller_value = g_synth.current_controller_value(SEQ_MODE       );
-    uint32_t index = ((controller_value * 4) + 127) / 254;
+    uint32_t index = ((controller_value * 4) + 128) >> 8;
     s_seq_mode = index;
   } else if (control_number == SEQ_ON_STEPS   ) {
     s_seq_on_steps = g_synth.current_controller_value(SEQ_ON_STEPS   );
