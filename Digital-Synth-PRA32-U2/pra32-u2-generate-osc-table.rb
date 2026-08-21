@@ -66,11 +66,14 @@ def freq_from_note_number(note_number, pr = false)
 end
 
 $file.printf("uint32_t g_osc_freq_table[] = {\n  ")
-(NOTE_NUMBER_MIN..NOTE_NUMBER_MAX).each do |note_number|
-  freq = freq_from_note_number(note_number, true)
+# Loop extended to NOTE_NUMBER_MAX + 1 (0..128) for safe linear interpolation (idx + 1)
+(NOTE_NUMBER_MIN..NOTE_NUMBER_MAX + 1).each do |note_number|
+  # Clamp the index 128 to NOTE_NUMBER_MAX to duplicate the last frequency entry as a guard
+  target_note = note_number > NOTE_NUMBER_MAX ? NOTE_NUMBER_MAX : note_number
+  freq = freq_from_note_number(target_note, (note_number <= NOTE_NUMBER_MAX))
 
   $file.printf("0x%08X,", freq)
-  if note_number == DATA_BYTE_MAX
+  if note_number == NOTE_NUMBER_MAX + 1
     $file.printf("\n")
   elsif note_number % 12 == (12 - 1)
     $file.printf("\n  ")
@@ -80,24 +83,14 @@ $file.printf("uint32_t g_osc_freq_table[] = {\n  ")
 end
 $file.printf("};\n\n")
 
+# Re-calculate max_tune_rate with hardcoded constants to preserve original harmonics restriction
 max_tune_rate = -Float::INFINITY
-$file.printf("int16_t g_osc_tune_table[] = {\n  ")
-(0..(1 << OSC_TUNE_TABLE_STEPS_BITS) - 1).each do |i|
-  tune_rate = ((2.0 ** ((i - (1 << (OSC_TUNE_TABLE_STEPS_BITS - 1))) / (12.0 * (1 << OSC_TUNE_TABLE_STEPS_BITS)))) *
-               (1 << OSC_TUNE_DENOMINATOR_BITS) / 1.0).round -
-              (1 << OSC_TUNE_DENOMINATOR_BITS) / 1.0
+(0..(1 << 8) - 1).each do |i|
+  tune_rate = ((2.0 ** ((i - (1 << (8 - 1))) / (12.0 * (1 << 8)))) *
+               (1 << 15) / 1.0).round -
+              (1 << 15) / 1.0
   max_tune_rate = tune_rate if max_tune_rate < tune_rate
-
-  $file.printf("%5d,", tune_rate)
-  if i == (1 << OSC_TUNE_TABLE_STEPS_BITS) - 1
-    $file.printf("\n")
-  elsif i % 8 == 7
-    $file.printf("\n  ")
-  else
-    $file.printf(" ")
-  end
 end
-$file.printf("};\n\n")
 
 def generate_osc_wave_table(name, last, amp)
   $file.printf("int16_t g_osc_#{name}_wave_table_h%d[] = {\n  ", last)
@@ -126,7 +119,7 @@ end
 $osc_harmonics_restriction_table = []
 
 (NOTE_NUMBER_MIN..NOTE_NUMBER_MAX).each do |note_number|
-  correction = (max_tune_rate.to_f + (1 << OSC_TUNE_DENOMINATOR_BITS)) / (1 << OSC_TUNE_DENOMINATOR_BITS)
+  correction = (max_tune_rate.to_f + (1 << 15)) / (1 << 15)
   freq = freq_from_note_number(((note_number + (3 - 1)) / 3) * 3) * correction
   freq = freq.floor
   bit = 1

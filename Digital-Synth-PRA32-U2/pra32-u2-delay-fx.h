@@ -50,7 +50,7 @@ public:
   }
 
   INLINE void set_delay_level(uint8_t controller_value) {
-    m_delay_level = ((controller_value + 1) >> 1) << 2;
+    m_delay_level = (controller_value == 127) ? 128 : controller_value;
   }
 
   INLINE void set_delay_feedback(uint8_t controller_value) {
@@ -121,8 +121,8 @@ public:
     int32_t left_feedback;
     int32_t right_feedback;
 
-    int32_t left_send  = multiply_shift_right(left_input_int24,  m_delay_level_effective, 8);
-    int32_t right_send = multiply_shift_right(right_input_int24, m_delay_level_effective, 8);
+    int32_t left_send  = multiply_shift_right(left_input_int24,  m_delay_level_effective << 1, 8);
+    int32_t right_send = multiply_shift_right(right_input_int24, m_delay_level_effective << 1, 8);
 
     const int32_t left_final_in  = (m_delay_mode >= 64) ? (((left_send + right_send) >> 1) + right_delay)
                                                         : (left_send  + left_delay);

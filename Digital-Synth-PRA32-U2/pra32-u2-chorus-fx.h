@@ -64,7 +64,7 @@ public:
   }
 
   INLINE void set_chorus_level(uint8_t controller_value) {
-    m_chorus_level_control = (controller_value + 1) >> 1;
+    m_chorus_level_control = (controller_value == 127) ? 128 : controller_value;
   }
 
   template <uint8_t N>
@@ -101,8 +101,8 @@ public:
     int32_t eff_sample_0 = delay_buff_get(0, get_chorus_delay_time<0>());
     int32_t eff_sample_1 = delay_buff_get(1, get_chorus_delay_time<1>());
 
-    int32_t curr_sample_to_push_0 = (left_input_int24  * m_chorus_level_control_effective) >> 6;
-    int32_t curr_sample_to_push_1 = (right_input_int24 * m_chorus_level_control_effective) >> 6;
+    int32_t curr_sample_to_push_0 = (left_input_int24  * m_chorus_level_control_effective) >> 7;
+    int32_t curr_sample_to_push_1 = (right_input_int24 * m_chorus_level_control_effective) >> 7;
 
 #if 0
     // Do not apply LPF to the delay component

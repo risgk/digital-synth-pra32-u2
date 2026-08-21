@@ -1189,7 +1189,7 @@ if constexpr (NO_FX == false) {
       {
         static uint8_t voice_asgn_mode_table[6] = { 1, 1, 3, 3, 4, 2, };
 
-        int32_t index = ((controller_value * 10) + 127) / 254;
+        int32_t index = ((controller_value * 10) + 128) >> 8;
 
         uint8_t new_voice_asgn_mode = voice_asgn_mode_table[index];
         if (m_voice_asgn_mode != new_voice_asgn_mode) {
@@ -1805,7 +1805,7 @@ if constexpr (RESTRICT_POLY_AND_CORES == false) {
     };
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)
 
-    int32_t index = ((controller_value * 10) + 127) / 254;
+    int32_t index = ((controller_value * 10) + 128) >> 8;
 
     uint8_t new_voice_mode = voice_mode_table[index];
     if (m_voice_mode != new_voice_mode) {
