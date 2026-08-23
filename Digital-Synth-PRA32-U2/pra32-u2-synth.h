@@ -995,13 +995,13 @@ public:
       m_osc.set_osc_waveform<1>(controller_value);
       break;
     case OSC_1_SHAPE    :
-      m_osc.set_osc1_shape_control(controller_value);
+      m_osc.set_osc1_shape(controller_value);
       break;
     case OSC_1_MORPH    :
-      m_osc.set_osc1_morph_control(controller_value);
+      m_osc.set_osc1_morph(controller_value);
       break;
     case MIXER_SUB_OSC  :
-      m_osc.set_mixer_sub_osc_control(controller_value);
+      m_osc.set_mixer_sub_osc(controller_value);
       break;
 
     case LFO_RATE       :

@@ -12,12 +12,12 @@ class PRA32_U2_DelayFx {
   int32_t  m_delay_buff[2][DELAY_BUFF_SIZE];
   uint16_t m_delay_wp[2];
 
-  uint16_t m_delay_level;
-  uint16_t m_delay_level_effective;
-  uint8_t  m_delay_feedback;
-  uint8_t  m_delay_feedback_effective;
-  uint16_t m_delay_time;
-  uint16_t m_delay_time_effective;
+  uint16_t m_delay_level_target;
+  uint16_t m_delay_level_current;
+  uint8_t  m_delay_feedback_target;
+  uint8_t  m_delay_feedback_current;
+  uint16_t m_delay_time_target;
+  uint16_t m_delay_time_current;
   uint8_t  m_delay_mode;
 
   int32_t  m_prev_sample_to_push_0;
@@ -28,12 +28,12 @@ public:
   : m_delay_buff()
   , m_delay_wp()
 
-  , m_delay_level()
-  , m_delay_level_effective()
-  , m_delay_feedback()
-  , m_delay_feedback_effective()
-  , m_delay_time()
-  , m_delay_time_effective()
+  , m_delay_level_target()
+  , m_delay_level_current()
+  , m_delay_feedback_target()
+  , m_delay_feedback_current()
+  , m_delay_time_target()
+  , m_delay_time_current()
   , m_delay_mode()
 
   , m_prev_sample_to_push_0()
@@ -46,15 +46,15 @@ public:
     set_delay_feedback(64 );
     set_delay_time    (87 );
 
-    m_delay_time_effective = m_delay_time;
+    m_delay_time_current = m_delay_time_target;
   }
 
   INLINE void set_delay_level(uint8_t controller_value) {
-    m_delay_level = (controller_value == 127) ? 128 : controller_value;
+    m_delay_level_target = (controller_value == 127) ? 128 : controller_value;
   }
 
   INLINE void set_delay_feedback(uint8_t controller_value) {
-    m_delay_feedback = controller_value;
+    m_delay_feedback_target = controller_value;
   }
 
   INLINE void set_delay_time(uint8_t controller_value) {
@@ -98,7 +98,7 @@ public:
     };
 #endif  // !defined(PRA32_U2_LIMIT_DELAY_TIME_TO_SAVE_MEM)
 
-    m_delay_time = delay_time_table[controller_value];
+    m_delay_time_target = delay_time_table[controller_value];
   }
 
   INLINE void set_delay_mode(uint8_t controller_value) {
@@ -106,29 +106,29 @@ public:
   }
 
   INLINE void process_at_low_rate(uint8_t count) {
-    m_delay_level_effective = approach_exp(m_delay_level_effective, m_delay_level, 2048);
-    m_delay_feedback_effective = approach_exp(m_delay_feedback_effective, m_delay_feedback, 2048);
+    m_delay_level_current = approach_exp(m_delay_level_current, m_delay_level_target, 2048);
+    m_delay_feedback_current = approach_exp(m_delay_feedback_current, m_delay_feedback_target, 2048);
 
     const int32_t is_even = (count & 0x01) ^ 1;
-    const auto next_approach_val = approach_exp(m_delay_time_effective, m_delay_time, 2048);
-    m_delay_time_effective = (next_approach_val * is_even) + (m_delay_time_effective * (is_even ^ 1));
+    const auto next_approach_val = approach_exp(m_delay_time_current, m_delay_time_target, 2048);
+    m_delay_time_current = (next_approach_val * is_even) + (m_delay_time_current * (is_even ^ 1));
   }
 
   INLINE int32_t process(int32_t left_input_int24, int32_t right_input_int24, int32_t& right_output_int24) {
-    int32_t left_delay   = delay_buff_get<0>(m_delay_time_effective);
-    int32_t right_delay  = delay_buff_get<1>(m_delay_time_effective);
+    int32_t left_delay   = delay_buff_get<0>(m_delay_time_current);
+    int32_t right_delay  = delay_buff_get<1>(m_delay_time_current);
 
     int32_t left_feedback;
     int32_t right_feedback;
 
-    int32_t left_send  = multiply_shift_right(left_input_int24,  m_delay_level_effective << 1, 8);
-    int32_t right_send = multiply_shift_right(right_input_int24, m_delay_level_effective << 1, 8);
+    int32_t left_send  = multiply_shift_right(left_input_int24,  m_delay_level_current << 1, 8);
+    int32_t right_send = multiply_shift_right(right_input_int24, m_delay_level_current << 1, 8);
 
     const int32_t left_final_in  = (m_delay_mode >= 64) ? (((left_send + right_send) >> 1) + right_delay)
                                                         : (left_send  + left_delay);
     const int32_t right_final_in = (m_delay_mode >= 64) ? (left_delay)
                                                         : (right_send + right_delay);
-    const int32_t feedback_gain = m_delay_feedback_effective << 8;
+    const int32_t feedback_gain = m_delay_feedback_current << 8;
     left_feedback  = multiply_shift_right(left_final_in,  feedback_gain, 16);
     right_feedback = multiply_shift_right(right_final_in, feedback_gain, 16);
 
