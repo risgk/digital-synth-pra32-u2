@@ -8,14 +8,14 @@ class PRA32_U2_ChorusFx {
   int32_t  m_delay_buff[2][DELAY_BUFF_SIZE];
   uint16_t m_delay_wp[2];
 
-  uint16_t m_chorus_level_control;
-  uint16_t m_chorus_level_control_effective;
-  uint16_t m_chorus_depth_control;
-  uint16_t m_chorus_depth_control_effective;
-  uint32_t m_chorus_rate_control;
-  uint16_t m_chorus_delay_time_control;
-  uint16_t m_chorus_delay_time_control_effective;
-  uint8_t  m_chorus_depth_control_actual;
+  uint16_t m_chorus_level_target;
+  uint16_t m_chorus_level_current;
+  uint16_t m_chorus_depth_target;
+  uint16_t m_chorus_depth_current;
+  uint32_t m_chorus_rate;
+  uint16_t m_chorus_delay_time_target;
+  uint16_t m_chorus_delay_time_current;
+  uint8_t  m_chorus_depth_actual;
   uint32_t m_chorus_lfo_phase;
   uint16_t m_chorus_delay_time[2];
 
@@ -27,13 +27,13 @@ public:
   : m_delay_buff()
   , m_delay_wp()
 
-  , m_chorus_level_control()
-  , m_chorus_level_control_effective()
-  , m_chorus_depth_control()
-  , m_chorus_depth_control_effective()
-  , m_chorus_rate_control()
-  , m_chorus_delay_time_control()
-  , m_chorus_delay_time_control_effective()
+  , m_chorus_level_target()
+  , m_chorus_level_current()
+  , m_chorus_depth_target()
+  , m_chorus_depth_current()
+  , m_chorus_rate()
+  , m_chorus_delay_time_target()
+  , m_chorus_delay_time_current()
   , m_chorus_lfo_phase()
   , m_chorus_delay_time()
 
@@ -47,24 +47,24 @@ public:
     set_chorus_rate      (64 );
     set_chorus_delay_time(64 );
 
-    m_chorus_depth_control_effective = 64 << 6;
-    m_chorus_delay_time_control_effective = 64 << 6;
+    m_chorus_depth_current = 64 << 6;
+    m_chorus_delay_time_current = 64 << 6;
   }
 
   INLINE void set_chorus_depth(uint8_t controller_value) {
-    m_chorus_depth_control = minimum(controller_value, 126) << 6;
+    m_chorus_depth_target = minimum(controller_value, 126) << 6;
   }
 
   INLINE void set_chorus_rate(uint8_t controller_value) {
-    m_chorus_rate_control = g_chorus_rate_table[controller_value];
+    m_chorus_rate = g_chorus_rate_table[controller_value];
   }
 
   INLINE void set_chorus_delay_time(uint8_t controller_value) {
-    m_chorus_delay_time_control = controller_value << 6;
+    m_chorus_delay_time_target = controller_value << 6;
   }
 
   INLINE void set_chorus_level(uint8_t controller_value) {
-    m_chorus_level_control = (controller_value == 127) ? 128 : controller_value;
+    m_chorus_level_target = (controller_value == 127) ? 128 : controller_value;
   }
 
   template <uint8_t N>
@@ -75,25 +75,25 @@ public:
   INLINE void process_at_low_rate(uint8_t count) {
 #if 1
     static_cast<void>(count);
-    m_chorus_level_control_effective = approach_exp(m_chorus_level_control_effective, m_chorus_level_control, 2048);
-    m_chorus_depth_control_effective = approach_exp(m_chorus_depth_control_effective, m_chorus_depth_control, 2048);
-    m_chorus_delay_time_control_effective = approach_exp(m_chorus_delay_time_control_effective, m_chorus_delay_time_control, 2048);
+    m_chorus_level_current = approach_exp(m_chorus_level_current, m_chorus_level_target, 2048);
+    m_chorus_depth_current = approach_exp(m_chorus_depth_current, m_chorus_depth_target, 2048);
+    m_chorus_delay_time_current = approach_exp(m_chorus_delay_time_current, m_chorus_delay_time_target, 2048);
 
-    uint16_t chorus_depth_control_effective_limited = std::min({
-      m_chorus_depth_control_effective,
-      static_cast<uint16_t>(m_chorus_delay_time_control_effective << 1),
-      static_cast<uint16_t>(((127 << 6) - m_chorus_delay_time_control_effective) << 1)
+    uint16_t chorus_depth_current_limited = std::min({
+      m_chorus_depth_current,
+      static_cast<uint16_t>(m_chorus_delay_time_current << 1),
+      static_cast<uint16_t>(((127 << 6) - m_chorus_delay_time_current) << 1)
     });
 
-    m_chorus_lfo_phase += m_chorus_rate_control;
+    m_chorus_lfo_phase += m_chorus_rate;
     m_chorus_lfo_phase &= 0x00FFFFFF;
 
     int16_t chorus_lfo_wave_level = get_chorus_lfo_wave_level(m_chorus_lfo_phase);
 
-    int16_t chorus_lfo_level = (chorus_lfo_wave_level * chorus_depth_control_effective_limited) >> 14;
+    int16_t chorus_lfo_level = (chorus_lfo_wave_level * chorus_depth_current_limited) >> 14;
 
-    m_chorus_delay_time[0] = m_chorus_delay_time_control_effective - chorus_lfo_level;
-    m_chorus_delay_time[1] = m_chorus_delay_time_control_effective + chorus_lfo_level;
+    m_chorus_delay_time[0] = m_chorus_delay_time_current - chorus_lfo_level;
+    m_chorus_delay_time[1] = m_chorus_delay_time_current + chorus_lfo_level;
 #endif
   }
 
@@ -101,8 +101,8 @@ public:
     int32_t eff_sample_0 = delay_buff_get(0, get_chorus_delay_time<0>());
     int32_t eff_sample_1 = delay_buff_get(1, get_chorus_delay_time<1>());
 
-    int32_t curr_sample_to_push_0 = (left_input_int24  * m_chorus_level_control_effective) >> 7;
-    int32_t curr_sample_to_push_1 = (right_input_int24 * m_chorus_level_control_effective) >> 7;
+    int32_t curr_sample_to_push_0 = (left_input_int24  * m_chorus_level_current) >> 7;
+    int32_t curr_sample_to_push_1 = (right_input_int24 * m_chorus_level_current) >> 7;
 
 #if 0
     // Do not apply LPF to the delay component

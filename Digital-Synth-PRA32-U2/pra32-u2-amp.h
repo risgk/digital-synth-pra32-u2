@@ -3,10 +3,10 @@
 #include "pra32-u2-common.h"
 
 class PRA32_U2_Amp {
-  int16_t m_gain_control;
-  int16_t m_gain_control_effective;
-  int16_t m_expression_control;
-  int16_t m_expression_control_effective;
+  int16_t m_gain_target;
+  int16_t m_gain_current;
+  int16_t m_expression_target;
+  int16_t m_expression_current;
   int32_t m_gain_linear;
   int32_t m_gain_mod_input;
   uint8_t m_breath_mod;
@@ -15,10 +15,10 @@ class PRA32_U2_Amp {
 
 public:
 PRA32_U2_Amp()
-  : m_gain_control(127)
-  , m_gain_control_effective(0)
-  , m_expression_control(127)
-  , m_expression_control_effective(0)
+  : m_gain_target(127)
+  , m_gain_current(0)
+  , m_expression_target(127)
+  , m_expression_current(0)
   , m_gain_linear()
   , m_gain_mod_input(0)
   , m_breath_mod()
@@ -28,11 +28,11 @@ PRA32_U2_Amp()
   }
 
   INLINE void set_gain(uint8_t controller_value) {
-    m_gain_control = controller_value;
+    m_gain_target = controller_value;
   }
 
   INLINE void set_expression(uint8_t controller_value) {
-    m_expression_control = controller_value;
+    m_expression_target = controller_value;
   }
 
   INLINE void set_breath_mod(uint8_t controller_value) {
@@ -48,7 +48,7 @@ PRA32_U2_Amp()
   }
 
   INLINE void process_at_low_rate(int16_t gain_mod_input) {
-    update_gain_effective();
+    update_gain_current();
     m_gain_mod_input = gain_mod_input << 2;
     update_breath_controller_effective();
   }
@@ -62,11 +62,11 @@ PRA32_U2_Amp()
   }
 
 private:
-  INLINE void update_gain_effective() {
-    m_gain_control_effective = approach_exp(m_gain_control_effective, m_gain_control, 2048);
-    m_expression_control_effective = approach_exp(m_expression_control_effective, m_expression_control, 2048);
-    m_gain_linear = ((((m_gain_control_effective * m_gain_control_effective) * 16384) / 16129) *
-                     (((m_expression_control_effective * m_expression_control_effective) * 16384) / 16129)) >> (14 - 2);
+  INLINE void update_gain_current() {
+    m_gain_current = approach_exp(m_gain_current, m_gain_target, 2048);
+    m_expression_current = approach_exp(m_expression_current, m_expression_target, 2048);
+    m_gain_linear = ((((m_gain_current * m_gain_current) * 16384) / 16129) *
+                     (((m_expression_current * m_expression_current) * 16384) / 16129)) >> (14 - 2);
   }
 
   INLINE void update_breath_controller_effective() {
