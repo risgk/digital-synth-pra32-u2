@@ -40,6 +40,7 @@ class PRA32_U2_Filter {
   int32_t m_cutoff_target;
   int16_t m_cutoff_eg_amt_target[2];
   int32_t m_cutoff_eg_amt_current_x16[2]; // Smooth state variables for the EG Amt knobs (16-bit fixed point)
+  int32_t m_cutoff_eg_mod_current;
   int16_t m_cutoff_lfo_amt[2];
   int16_t m_cutoff_pitch_amt;
   uint8_t m_filter_mode;
@@ -60,6 +61,7 @@ public:
   , m_cutoff_target()
   , m_cutoff_eg_amt_target()
   , m_cutoff_eg_amt_current_x16()
+  , m_cutoff_eg_mod_current()
   , m_cutoff_lfo_amt()
   , m_cutoff_pitch_amt()
   , m_filter_mode()
@@ -79,6 +81,7 @@ public:
     m_cutoff_base_current = m_cutoff_target;
     m_cutoff_eg_amt_current_x16[0] = static_cast<int32_t>(m_cutoff_eg_amt_target[0]) << 16;
     m_cutoff_eg_amt_current_x16[1] = static_cast<int32_t>(m_cutoff_eg_amt_target[1]) << 16;
+    m_cutoff_eg_mod_current = 0;
     m_cutoff_current = m_cutoff_base_current;
 
     update_coefs(0, 0, 60 << 8);
@@ -145,6 +148,7 @@ public:
     m_cutoff_base_current = 0;
     m_cutoff_eg_amt_current_x16[0] = 0;
     m_cutoff_eg_amt_current_x16[1] = 0;
+    m_cutoff_eg_mod_current = 0;
   }
 
   INLINE void process_at_low_rate(uint8_t count, int16_t eg_input, int16_t lfo_input, uint16_t osc_pitch) {
@@ -191,10 +195,13 @@ private:
       m_cutoff_eg_amt_current_x16[i] = approach_exp(m_cutoff_eg_amt_current_x16[i], eg_amt_target_x16[i], 2048);
     }
 
-    // 3. Inject raw EG inputs multiplied by the *smoothed* EG Amt coefficients onto the smoothed base cutoff
-    int32_t cutoff_candidate_ext = (m_cutoff_base_current + (1 << (5 - 1))) >> 5;
-    cutoff_candidate_ext += (static_cast<int16_t>(m_cutoff_eg_amt_current_x16[0] >> 16) * eg_input) >> (14 - 2);
-    cutoff_candidate_ext += (static_cast<int16_t>(m_cutoff_eg_amt_current_x16[1] >> 16) * eg_input) >> (14 - 2);
+    // 3. Smooth the EG cutoff modulation and add it to the base cutoff
+    int32_t eg_mod_target = 0;
+    eg_mod_target += ((static_cast<int16_t>(m_cutoff_eg_amt_current_x16[0] >> 16) * eg_input) >> (14 - 2)) << 5;
+    eg_mod_target += ((static_cast<int16_t>(m_cutoff_eg_amt_current_x16[1] >> 16) * eg_input) >> (14 - 2)) << 5;
+    m_cutoff_eg_mod_current = approach_exp(m_cutoff_eg_mod_current, eg_mod_target, 8192);
+
+    int32_t cutoff_candidate_ext = (m_cutoff_base_current + m_cutoff_eg_mod_current + (1 << (5 - 1))) >> 5;
 
     // 4. Bound and lock final composite values into active table index registers
     m_cutoff_current = clamp(cutoff_candidate_ext, 0, ((254 << 2) + 1)) << (7 - FILTER_TABLE_CUTOFF_EXT_BITS);
