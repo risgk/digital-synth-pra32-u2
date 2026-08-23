@@ -29,6 +29,9 @@ static INLINE int32_t soft_clip(int32_t value) {
 }
 
 class PRA32_U2_Filter {
+  static const int32_t SMOOTH_RATE     = 2048;
+  static const int32_t EG_MOD_SMOOTH_RATE = 8192;
+
   int32_t m_b_2_over_a_0;
   int32_t m_a_1_over_a_0;
   int32_t m_a_2_over_a_0;
@@ -185,27 +188,27 @@ private:
 
     // 2. Smooth the integrated base modulation target and EG Amt parameters simultaneously
     int32_t base_target = clamp(base_candidate, 0, (((254 << 2) + 1) << 5));
-    m_cutoff_base_current = approach_exp(m_cutoff_base_current, base_target, 2048);
+    m_cutoff_base_current = approach_exp(m_cutoff_base_current, base_target, SMOOTH_RATE);
 
     int32_t eg_amt_target_x16[2] = {
       static_cast<int32_t>(m_cutoff_eg_amt_target[0]) << 16,
       static_cast<int32_t>(m_cutoff_eg_amt_target[1]) << 16
     };
     for (int i = 0; i < 2; ++i) {
-      m_cutoff_eg_amt_current_x16[i] = approach_exp(m_cutoff_eg_amt_current_x16[i], eg_amt_target_x16[i], 2048);
+      m_cutoff_eg_amt_current_x16[i] = approach_exp(m_cutoff_eg_amt_current_x16[i], eg_amt_target_x16[i], SMOOTH_RATE);
     }
 
     // 3. Smooth the EG cutoff modulation and add it to the base cutoff
     int32_t eg_mod_target = 0;
     eg_mod_target += ((static_cast<int16_t>(m_cutoff_eg_amt_current_x16[0] >> 16) * eg_input) >> (14 - 2)) << 5;
     eg_mod_target += ((static_cast<int16_t>(m_cutoff_eg_amt_current_x16[1] >> 16) * eg_input) >> (14 - 2)) << 5;
-    m_cutoff_eg_mod_current = approach_exp(m_cutoff_eg_mod_current, eg_mod_target, 8192);
+    m_cutoff_eg_mod_current = approach_exp(m_cutoff_eg_mod_current, eg_mod_target, EG_MOD_SMOOTH_RATE);
 
     int32_t cutoff_candidate_ext = (m_cutoff_base_current + m_cutoff_eg_mod_current + (1 << (5 - 1))) >> 5;
 
     // 4. Bound and lock final composite values into active table index registers
     m_cutoff_current = clamp(cutoff_candidate_ext, 0, ((254 << 2) + 1)) << (7 - FILTER_TABLE_CUTOFF_EXT_BITS);
-    m_resonance_current = approach_exp(m_resonance_current, m_resonance_target, 2048);
+    m_resonance_current = approach_exp(m_resonance_current, m_resonance_target, SMOOTH_RATE);
 
     uint8_t resonance_index = (m_resonance_current + ((1 << (3 - FILTER_TABLE_RESO_EXT_BITS)) >> 1)) >> (3 - FILTER_TABLE_RESO_EXT_BITS);
     const int32_t* filter_table = g_filter_tables[resonance_index];

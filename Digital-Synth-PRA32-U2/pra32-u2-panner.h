@@ -9,6 +9,7 @@
 
 class PRA32_U2_Panner {
   static const uint8_t OSC_PAN_TABLE_LENGTH = 129;
+  static const int32_t SMOOTH_RATE = 2048;
 
   int32_t m_pan_table[OSC_PAN_TABLE_LENGTH];
   int16_t m_pan_target;
@@ -51,7 +52,7 @@ PRA32_U2_Panner()
 
 private:
   INLINE void update_gain_current() {
-    m_pan_current = approach_exp(m_pan_current, m_pan_target, 2048);
+    m_pan_current = approach_exp(m_pan_current, m_pan_target, SMOOTH_RATE);
     m_gain_linear_l = m_pan_table[128 - m_pan_current];
     m_gain_linear_r = m_pan_table[m_pan_current];
   }
