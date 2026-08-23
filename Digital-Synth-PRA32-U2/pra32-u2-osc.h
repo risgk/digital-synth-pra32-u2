@@ -803,12 +803,12 @@ if constexpr (RESTRICT_SQR_WT == false) {
   }
 
   INLINE void update_osc1_morph_control_effective() {
-    m_osc1_morph_control_effective = approach(m_osc1_morph_control_effective, m_osc1_morph_control, 1);
+    m_osc1_morph_control_effective = approach_exp(m_osc1_morph_control_effective, m_osc1_morph_control, 2048);
   }
 
   INLINE void update_mixer_control_effective() {
-    m_mixer_osc_mix_control_effective = approach(m_mixer_osc_mix_control_effective, m_mixer_osc_mix_control, 1);
-    m_mixer_noise_sub_osc_control_effective = approach(m_mixer_noise_sub_osc_control_effective, m_mixer_noise_sub_osc_control, 1);
+    m_mixer_osc_mix_control_effective = approach_exp(m_mixer_osc_mix_control_effective, m_mixer_osc_mix_control, 2048);
+    m_mixer_noise_sub_osc_control_effective = approach_exp(m_mixer_noise_sub_osc_control_effective, m_mixer_noise_sub_osc_control, 2048);
     m_osc1_gain = m_mix_table[(OSC_MIX_TABLE_LENGTH - 1) - ((m_mixer_osc_mix_control_effective + 1) >> 1)];
     m_osc2_gain = m_mix_table[                             ((m_mixer_osc_mix_control_effective + 1) >> 1)];
   }

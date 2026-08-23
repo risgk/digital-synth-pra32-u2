@@ -106,11 +106,11 @@ public:
   }
 
   INLINE void process_at_low_rate(uint8_t count) {
-    m_delay_level_effective = approach(m_delay_level_effective, m_delay_level, 1);
-    m_delay_feedback_effective = approach(m_delay_feedback_effective, m_delay_feedback, 1);
+    m_delay_level_effective = approach_exp(m_delay_level_effective, m_delay_level, 2048);
+    m_delay_feedback_effective = approach_exp(m_delay_feedback_effective, m_delay_feedback, 2048);
 
     const int32_t is_even = (count & 0x01) ^ 1;
-    const auto next_approach_val = approach(m_delay_time_effective, m_delay_time, 1);
+    const auto next_approach_val = approach_exp(m_delay_time_effective, m_delay_time, 2048);
     m_delay_time_effective = (next_approach_val * is_even) + (m_delay_time_effective * (is_even ^ 1));
   }
 

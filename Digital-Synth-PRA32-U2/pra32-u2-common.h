@@ -33,6 +33,10 @@ static INLINE int32_t approach(int32_t current_value, int32_t target_value, int3
   return std::clamp(target_value, current_value - delta, current_value + delta);
 }
 
+static INLINE int32_t approach_exp(int32_t current_value, int32_t target_value, int32_t rate) {
+  return target_value - (((target_value - current_value) * (65536 - rate)) / 65536);
+}
+
 template <typename T>
 T branchless_conditional(bool condition, T a, T b) {
   return (condition ? a : b);

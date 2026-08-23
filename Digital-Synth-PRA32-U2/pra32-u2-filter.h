@@ -199,7 +199,7 @@ private:
 
     // 4. Bound and lock final composite values into active table index registers
     m_cutoff_current = clamp(cutoff_candidate_ext, 0, ((254 << 2) + 1)) << (7 - FILTER_TABLE_CUTOFF_EXT_BITS);
-    m_resonance_current = approach(m_resonance_current, m_resonance_target, 1);
+    m_resonance_current = approach_exp(m_resonance_current, m_resonance_target, 2048);
 
     uint8_t resonance_index = (m_resonance_current + ((1 << (3 - FILTER_TABLE_RESO_EXT_BITS)) >> 1)) >> (3 - FILTER_TABLE_RESO_EXT_BITS);
     const int32_t* filter_table = g_filter_tables[resonance_index];
