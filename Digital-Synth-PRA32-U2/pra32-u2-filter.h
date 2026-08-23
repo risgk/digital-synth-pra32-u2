@@ -42,7 +42,7 @@ class PRA32_U2_Filter {
   int32_t m_cutoff_current;
   int32_t m_cutoff_target;
   int16_t m_cutoff_eg_amt_target[2];
-  int32_t m_cutoff_eg_amt_current_x16[2]; // Smooth state variables for the EG Amt knobs (16-bit fixed point)
+  int32_t m_cutoff_eg_amt_current[2];
   int32_t m_cutoff_eg_mod_current;
   int16_t m_cutoff_lfo_amt[2];
   int16_t m_cutoff_pitch_amt;
@@ -63,7 +63,7 @@ public:
   , m_cutoff_current()
   , m_cutoff_target()
   , m_cutoff_eg_amt_target()
-  , m_cutoff_eg_amt_current_x16()
+  , m_cutoff_eg_amt_current()
   , m_cutoff_eg_mod_current()
   , m_cutoff_lfo_amt()
   , m_cutoff_pitch_amt()
@@ -82,8 +82,8 @@ public:
 
     // Bootstrap initial smooth states to prevent sudden filter sweeps on power-up
     m_cutoff_base_current = m_cutoff_target;
-    m_cutoff_eg_amt_current_x16[0] = static_cast<int32_t>(m_cutoff_eg_amt_target[0]) << 16;
-    m_cutoff_eg_amt_current_x16[1] = static_cast<int32_t>(m_cutoff_eg_amt_target[1]) << 16;
+    m_cutoff_eg_amt_current[0] = static_cast<int32_t>(m_cutoff_eg_amt_target[0]) << 16;
+    m_cutoff_eg_amt_current[1] = static_cast<int32_t>(m_cutoff_eg_amt_target[1]) << 16;
     m_cutoff_eg_mod_current = 0;
     m_cutoff_current = m_cutoff_base_current;
 
@@ -149,8 +149,8 @@ public:
     m_z_1 = 0;
     m_z_2 = 0;
     m_cutoff_base_current = 0;
-    m_cutoff_eg_amt_current_x16[0] = 0;
-    m_cutoff_eg_amt_current_x16[1] = 0;
+    m_cutoff_eg_amt_current[0] = 0;
+    m_cutoff_eg_amt_current[1] = 0;
     m_cutoff_eg_mod_current = 0;
   }
 
@@ -190,18 +190,18 @@ private:
     int32_t base_target = clamp(base_candidate, 0, (((254 << 2) + 1) << 5));
     m_cutoff_base_current = approach_exp(m_cutoff_base_current, base_target, SMOOTH_RATE);
 
-    int32_t eg_amt_target_x16[2] = {
+    int32_t eg_amt_target[2] = {
       static_cast<int32_t>(m_cutoff_eg_amt_target[0]) << 16,
       static_cast<int32_t>(m_cutoff_eg_amt_target[1]) << 16
     };
     for (int i = 0; i < 2; ++i) {
-      m_cutoff_eg_amt_current_x16[i] = approach_exp(m_cutoff_eg_amt_current_x16[i], eg_amt_target_x16[i], SMOOTH_RATE);
+      m_cutoff_eg_amt_current[i] = approach_exp(m_cutoff_eg_amt_current[i], eg_amt_target[i], SMOOTH_RATE);
     }
 
     // 3. Smooth the EG cutoff modulation and add it to the base cutoff
     int32_t eg_mod_target = 0;
-    eg_mod_target += ((static_cast<int16_t>(m_cutoff_eg_amt_current_x16[0] >> 16) * eg_input) >> (14 - 2)) << 5;
-    eg_mod_target += ((static_cast<int16_t>(m_cutoff_eg_amt_current_x16[1] >> 16) * eg_input) >> (14 - 2)) << 5;
+    eg_mod_target += ((static_cast<int16_t>(m_cutoff_eg_amt_current[0] >> 16) * eg_input) >> (14 - 2)) << 5;
+    eg_mod_target += ((static_cast<int16_t>(m_cutoff_eg_amt_current[1] >> 16) * eg_input) >> (14 - 2)) << 5;
     m_cutoff_eg_mod_current = approach_exp(m_cutoff_eg_mod_current, eg_mod_target, EG_MOD_SMOOTH_RATE);
 
     int32_t cutoff_candidate_ext = (m_cutoff_base_current + m_cutoff_eg_mod_current + (1 << (5 - 1))) >> 5;
