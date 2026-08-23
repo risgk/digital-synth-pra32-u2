@@ -4,6 +4,7 @@
 
 class PRA32_U2_ChorusFx {
   static const uint16_t DELAY_BUFF_SIZE = 512;
+  static const int32_t  SMOOTH_RATE     = 2048;
 
   int32_t  m_delay_buff[2][DELAY_BUFF_SIZE];
   uint16_t m_delay_wp[2];
@@ -75,9 +76,9 @@ public:
   INLINE void process_at_low_rate(uint8_t count) {
 #if 1
     static_cast<void>(count);
-    m_chorus_level_current = approach_exp(m_chorus_level_current, m_chorus_level_target, 2048);
-    m_chorus_depth_current = approach_exp(m_chorus_depth_current, m_chorus_depth_target, 2048);
-    m_chorus_delay_time_current = approach_exp(m_chorus_delay_time_current, m_chorus_delay_time_target, 2048);
+    m_chorus_level_current = approach_exp(m_chorus_level_current, m_chorus_level_target, SMOOTH_RATE);
+    m_chorus_depth_current = approach_exp(m_chorus_depth_current, m_chorus_depth_target, SMOOTH_RATE);
+    m_chorus_delay_time_current = approach_exp(m_chorus_delay_time_current, m_chorus_delay_time_target, SMOOTH_RATE);
 
     uint16_t chorus_depth_current_limited = std::min({
       m_chorus_depth_current,

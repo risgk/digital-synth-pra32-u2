@@ -31,6 +31,9 @@ class PRA32_U2_Osc {
 
   static const int8_t  OSC_LEVEL              = 72;
 
+  static const int32_t SMOOTH_RATE            = 2048;
+  static const int32_t EG_MOD_SMOOTH_RATE     = 8192;
+
   uint16_t       m_drift;
   boolean        m_saw_wave_mode_curved;
   int32_t        m_portamento_coef[4];
@@ -823,12 +826,12 @@ if constexpr (RESTRICT_SQR_WT == false) {
   }
 
   INLINE void update_osc1_morph_current() {
-    m_osc1_morph_current = approach_exp(m_osc1_morph_current, m_osc1_morph_target, 2048);
+    m_osc1_morph_current = approach_exp(m_osc1_morph_current, m_osc1_morph_target, SMOOTH_RATE);
   }
 
   INLINE void update_mixer_current() {
-    m_mixer_osc_mix_current = approach_exp(m_mixer_osc_mix_current, m_mixer_osc_mix_target, 2048);
-    m_mixer_noise_sub_osc_current = approach_exp(m_mixer_noise_sub_osc_current, m_mixer_noise_sub_osc_target, 2048);
+    m_mixer_osc_mix_current = approach_exp(m_mixer_osc_mix_current, m_mixer_osc_mix_target, SMOOTH_RATE);
+    m_mixer_noise_sub_osc_current = approach_exp(m_mixer_noise_sub_osc_current, m_mixer_noise_sub_osc_target, SMOOTH_RATE);
     m_osc1_gain = m_mix_table[(OSC_MIX_TABLE_LENGTH - 1) - ((m_mixer_osc_mix_current + 1) >> 1)];
     m_osc2_gain = m_mix_table[                             ((m_mixer_osc_mix_current + 1) >> 1)];
   }
@@ -838,14 +841,14 @@ if constexpr (RESTRICT_SQR_WT == false) {
     int32_t osc1_shape = (128 << 8) + m_osc1_shape_target - ((lfo_level * m_shape_lfo_amt) >> 5);
     m_osc1_shape_target_value[N] = clamp(osc1_shape, (0 << 8), (256 << 8));
 
-    m_shape_eg_amt_current = approach_exp(m_shape_eg_amt_current, m_shape_eg_amt, 2048);
+    m_shape_eg_amt_current = approach_exp(m_shape_eg_amt_current, m_shape_eg_amt, SMOOTH_RATE);
     m_osc1_shape_eg_target[N] = (eg_level * m_shape_eg_amt_current) >> 5;
   }
 
   template <uint8_t N>
   INLINE void update_osc1_shape_effective() {
-    m_osc1_shape_base_current[N] = approach_exp(m_osc1_shape_base_current[N], m_osc1_shape_target_value[N], 2048);
-    m_osc1_shape_eg_current[N] = approach_exp(m_osc1_shape_eg_current[N], m_osc1_shape_eg_target[N], 8192);
+    m_osc1_shape_base_current[N] = approach_exp(m_osc1_shape_base_current[N], m_osc1_shape_target_value[N], SMOOTH_RATE);
+    m_osc1_shape_eg_current[N] = approach_exp(m_osc1_shape_eg_current[N], m_osc1_shape_eg_target[N], EG_MOD_SMOOTH_RATE);
     m_osc1_shape_current[N] = clamp(m_osc1_shape_base_current[N] + m_osc1_shape_eg_current[N], (0 << 8), (256 << 8));
   }
 

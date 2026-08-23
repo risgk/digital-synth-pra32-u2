@@ -9,6 +9,8 @@ class PRA32_U2_DelayFx {
   static const uint16_t DELAY_BUFF_SIZE = 8192;
 #endif  // !defined(PRA32_U2_LIMIT_DELAY_TIME_TO_SAVE_MEM)
 
+  static const int32_t SMOOTH_RATE = 2048;
+
   int32_t  m_delay_buff[2][DELAY_BUFF_SIZE];
   uint16_t m_delay_wp[2];
 
@@ -106,11 +108,11 @@ public:
   }
 
   INLINE void process_at_low_rate(uint8_t count) {
-    m_delay_level_current = approach_exp(m_delay_level_current, m_delay_level_target, 2048);
-    m_delay_feedback_current = approach_exp(m_delay_feedback_current, m_delay_feedback_target, 2048);
+    m_delay_level_current = approach_exp(m_delay_level_current, m_delay_level_target, SMOOTH_RATE);
+    m_delay_feedback_current = approach_exp(m_delay_feedback_current, m_delay_feedback_target, SMOOTH_RATE);
 
     const int32_t is_even = (count & 0x01) ^ 1;
-    const auto next_approach_val = approach_exp(m_delay_time_current, m_delay_time_target, 2048);
+    const auto next_approach_val = approach_exp(m_delay_time_current, m_delay_time_target, SMOOTH_RATE);
     m_delay_time_current = (next_approach_val * is_even) + (m_delay_time_current * (is_even ^ 1));
   }
 
