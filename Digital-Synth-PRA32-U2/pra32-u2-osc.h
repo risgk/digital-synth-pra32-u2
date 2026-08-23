@@ -69,12 +69,16 @@ class PRA32_U2_Osc {
   uint16_t       m_osc1_morph_control;
   uint16_t       m_osc1_morph_control_effective;
   int32_t        m_osc1_shape[4];
+  int32_t        m_osc1_shape_eg[4];
+  int32_t        m_osc1_shape_base_effective[4];
+  int32_t        m_osc1_shape_eg_effective[4];
   int32_t        m_osc1_shape_effective[4];
   uint16_t       m_osc1_phase_modulation_frequency_ratio[4];
   int8_t         m_mixer_noise_sub_osc_control;
   int8_t         m_mixer_noise_sub_osc_control_effective;
   int16_t        m_mix_table[OSC_MIX_TABLE_LENGTH];
   int16_t        m_shape_eg_amt;
+  int16_t        m_shape_eg_amt_effective;
   int16_t        m_shape_lfo_amt;
 
 public:
@@ -117,12 +121,16 @@ public:
   , m_osc1_morph_control()
   , m_osc1_morph_control_effective()
   , m_osc1_shape()
+  , m_osc1_shape_eg()
+  , m_osc1_shape_base_effective()
+  , m_osc1_shape_eg_effective()
   , m_osc1_shape_effective()
   , m_osc1_phase_modulation_frequency_ratio()
   , m_mixer_noise_sub_osc_control()
   , m_mixer_noise_sub_osc_control_effective()
   , m_mix_table()
   , m_shape_eg_amt()
+  , m_shape_eg_amt_effective()
   , m_shape_lfo_amt()
   {
     m_portamento_coef[0] = 0;
@@ -214,6 +222,18 @@ public:
     m_osc1_shape_effective[1] = 0;
     m_osc1_shape_effective[2] = 0;
     m_osc1_shape_effective[3] = 0;
+    m_osc1_shape_eg[0] = 0;
+    m_osc1_shape_eg[1] = 0;
+    m_osc1_shape_eg[2] = 0;
+    m_osc1_shape_eg[3] = 0;
+    m_osc1_shape_base_effective[0] = 0;
+    m_osc1_shape_base_effective[1] = 0;
+    m_osc1_shape_base_effective[2] = 0;
+    m_osc1_shape_base_effective[3] = 0;
+    m_osc1_shape_eg_effective[0] = 0;
+    m_osc1_shape_eg_effective[1] = 0;
+    m_osc1_shape_eg_effective[2] = 0;
+    m_osc1_shape_eg_effective[3] = 0;
 
     for (uint8_t i = 0; i < OSC_MIX_TABLE_LENGTH; ++i) {
       m_mix_table[i] = static_cast<int16_t>(sqrtf(static_cast<float>(i) /
@@ -815,15 +835,18 @@ if constexpr (RESTRICT_SQR_WT == false) {
 
   template <uint8_t N>
   INLINE void update_osc1_shape(int16_t lfo_level, int16_t eg_level) {
-    int32_t osc1_shape = (128 << 8) + m_osc1_shape_control
-                         + ((eg_level * m_shape_eg_amt) >> 5) - ((lfo_level * m_shape_lfo_amt) >> 5);
-    osc1_shape = clamp(osc1_shape, (0 << 8), (256 << 8));
-    m_osc1_shape[N] = osc1_shape;
+    int32_t osc1_shape = (128 << 8) + m_osc1_shape_control - ((lfo_level * m_shape_lfo_amt) >> 5);
+    m_osc1_shape[N] = clamp(osc1_shape, (0 << 8), (256 << 8));
+
+    m_shape_eg_amt_effective = approach_exp(m_shape_eg_amt_effective, m_shape_eg_amt, 2048);
+    m_osc1_shape_eg[N] = (eg_level * m_shape_eg_amt_effective) >> 5;
   }
 
   template <uint8_t N>
   INLINE void update_osc1_shape_effective() {
-    m_osc1_shape_effective[N] = approach_exp(m_osc1_shape_effective[N], m_osc1_shape[N], 2048);
+    m_osc1_shape_base_effective[N] = approach_exp(m_osc1_shape_base_effective[N], m_osc1_shape[N], 2048);
+    m_osc1_shape_eg_effective[N] = approach_exp(m_osc1_shape_eg_effective[N], m_osc1_shape_eg[N], 8192);
+    m_osc1_shape_effective[N] = clamp(m_osc1_shape_base_effective[N] + m_osc1_shape_eg_effective[N], (0 << 8), (256 << 8));
   }
 
   INLINE void update_pitch_bend() {
