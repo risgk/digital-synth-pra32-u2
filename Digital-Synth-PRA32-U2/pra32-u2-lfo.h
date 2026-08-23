@@ -111,10 +111,6 @@ public:
 
   template <uint8_t N>
   INLINE int16_t get_output() {
-    int32_t lfo_depth_target = high_byte((m_lfo_depth_target[0] << 1) * m_lfo_fade_level) + m_lfo_depth_target[1]
-                              + ((m_pressure_amt * m_pressure[N]) >> 7);
-    lfo_depth_target = minimum(lfo_depth_target, 128);
-    m_lfo_depth_result_current[N] = approach_exp(m_lfo_depth_result_current[N], lfo_depth_target, SMOOTH_RATE);
     int16_t lfo_level = (m_lfo_depth_result_current[N] * m_lfo_wave_level) >> 7;
     return lfo_level;
   }
@@ -126,12 +122,25 @@ public:
   INLINE void process_at_low_rate(uint8_t count, int16_t noise_int15) {
     static_cast<void>(count);
 
+    update_lfo_depth_current<0>();
+    update_lfo_depth_current<1>();
+    update_lfo_depth_current<2>();
+    update_lfo_depth_current<3>();
+
     m_prev_noise_int15 = m_noise_int15;
     m_noise_int15 = noise_int15;
     update_lfo_wave_level();
   }
 
 private:
+  template <uint8_t N>
+  INLINE void update_lfo_depth_current() {
+    int32_t lfo_depth_target = high_byte((m_lfo_depth_target[0] << 1) * m_lfo_fade_level) + m_lfo_depth_target[1]
+                              + ((m_pressure_amt * m_pressure[N]) >> 7);
+    lfo_depth_target = minimum(lfo_depth_target, 128);
+    m_lfo_depth_result_current[N] = approach_exp(m_lfo_depth_result_current[N], lfo_depth_target, SMOOTH_RATE);
+  }
+
   INLINE int16_t get_lfo_wave_level(uint32_t phase) {
     int16_t level = 0;
 
