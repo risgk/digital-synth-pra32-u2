@@ -181,12 +181,12 @@ private:
 
     // 2. Smooth the integrated base modulation target and EG Amt parameters simultaneously
     int32_t base_target = clamp(base_candidate, 0, ((254 << 2) + 1)) << (7 - FILTER_TABLE_CUTOFF_EXT_BITS);
-    m_cutoff_base_current = base_target - (((base_target - m_cutoff_base_current) * 248) / 256);
+    m_cutoff_base_current = approach_exp(m_cutoff_base_current, base_target, 2048);
 
     int32_t eg_amt_target_x16_0 = static_cast<int32_t>(m_cutoff_eg_amt_target[0]) << 16;
     int32_t eg_amt_target_x16_1 = static_cast<int32_t>(m_cutoff_eg_amt_target[1]) << 16;
-    m_cutoff_eg_amt_current_x16[0] = eg_amt_target_x16_0 - (((eg_amt_target_x16_0 - m_cutoff_eg_amt_current_x16[0]) * 63488) / 65536);
-    m_cutoff_eg_amt_current_x16[1] = eg_amt_target_x16_1 - (((eg_amt_target_x16_1 - m_cutoff_eg_amt_current_x16[1]) * 63488) / 65536);
+    m_cutoff_eg_amt_current_x16[0] = approach_exp(m_cutoff_eg_amt_current_x16[0], eg_amt_target_x16_0, 2048);
+    m_cutoff_eg_amt_current_x16[1] = approach_exp(m_cutoff_eg_amt_current_x16[1], eg_amt_target_x16_1, 2048);
 
     int16_t eg_amt_smooth[2];
     eg_amt_smooth[0] = static_cast<int16_t>(m_cutoff_eg_amt_current_x16[0] >> 16);

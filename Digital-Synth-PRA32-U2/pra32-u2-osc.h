@@ -823,11 +823,7 @@ if constexpr (RESTRICT_SQR_WT == false) {
 
   template <uint8_t N>
   INLINE void update_osc1_shape_effective() {
-    int32_t effective_new;
-
-    effective_new = m_osc1_shape[N] - (((m_osc1_shape[N] - m_osc1_shape_effective[N]) * 248) / 256);
-
-    m_osc1_shape_effective[N] = effective_new;
+    m_osc1_shape_effective[N] = approach_exp(m_osc1_shape_effective[N], m_osc1_shape[N], 2048);
   }
 
   INLINE void update_pitch_bend() {
