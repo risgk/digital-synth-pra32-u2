@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v2.20.0 (2026-08-23):
+    - Change latency from 2.7 ms to 4 ms for stability
     - Improve parameter smoothing
     - Improve performance
     - Improve customizability
