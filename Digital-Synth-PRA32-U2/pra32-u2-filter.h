@@ -29,6 +29,8 @@ static INLINE int32_t soft_clip(int32_t value) {
 }
 
 class PRA32_U2_Filter {
+  static const int32_t SMOOTH_RATE = 2048;
+
   int32_t m_b_2_over_a_0;
   int32_t m_a_1_over_a_0;
   int32_t m_a_2_over_a_0;
@@ -37,10 +39,11 @@ class PRA32_U2_Filter {
   uint8_t m_resonance_target;
   uint8_t m_resonance_current;
   int32_t m_cutoff_current;
-  int32_t m_cutoff_control;
+  int32_t m_cutoff_target;
   int16_t m_cutoff_eg_amt_target[2];
-  int32_t m_cutoff_eg_amt_current_x16[2]; // Smooth state variables for the EG Amt knobs (16-bit fixed point)
+  int32_t m_cutoff_eg_amt_current[2];
   int16_t m_cutoff_lfo_amt[2];
+  int16_t m_cutoff_lfo_amt_current[2];
   int16_t m_cutoff_pitch_amt;
   uint8_t m_filter_mode;
   int16_t m_cutoff_breath_amt;
@@ -57,10 +60,11 @@ public:
   , m_resonance_target()
   , m_resonance_current()
   , m_cutoff_current()
-  , m_cutoff_control()
+  , m_cutoff_target()
   , m_cutoff_eg_amt_target()
-  , m_cutoff_eg_amt_current_x16()
+  , m_cutoff_eg_amt_current()
   , m_cutoff_lfo_amt()
+  , m_cutoff_lfo_amt_current()
   , m_cutoff_pitch_amt()
   , m_filter_mode()
   , m_cutoff_breath_amt()
@@ -76,16 +80,18 @@ public:
     set_cutoff_pitch_amt(0);
 
     // Bootstrap initial smooth states to prevent sudden filter sweeps on power-up
-    m_cutoff_base_current = m_cutoff_control << (7 - FILTER_TABLE_CUTOFF_EXT_BITS);
-    m_cutoff_eg_amt_current_x16[0] = static_cast<int32_t>(m_cutoff_eg_amt_target[0]) << 16;
-    m_cutoff_eg_amt_current_x16[1] = static_cast<int32_t>(m_cutoff_eg_amt_target[1]) << 16;
+    m_cutoff_base_current = m_cutoff_target;
+    m_cutoff_eg_amt_current[0] = static_cast<int32_t>(m_cutoff_eg_amt_target[0]) << 16;
+    m_cutoff_eg_amt_current[1] = static_cast<int32_t>(m_cutoff_eg_amt_target[1]) << 16;
+    m_cutoff_lfo_amt_current[0] = 0;
+    m_cutoff_lfo_amt_current[1] = 0;
     m_cutoff_current = m_cutoff_base_current;
 
     update_coefs(0, 0, 60 << 8);
   }
 
   INLINE void set_cutoff(uint8_t controller_value) {
-    m_cutoff_control = controller_value << (1 + 2);
+    m_cutoff_target = static_cast<int32_t>(controller_value) << 8;
   }
 
   INLINE void set_resonance(uint8_t controller_value) {
@@ -143,8 +149,10 @@ public:
     m_z_1 = 0;
     m_z_2 = 0;
     m_cutoff_base_current = 0;
-    m_cutoff_eg_amt_current_x16[0] = 0;
-    m_cutoff_eg_amt_current_x16[1] = 0;
+    m_cutoff_eg_amt_current[0] = 0;
+    m_cutoff_eg_amt_current[1] = 0;
+    m_cutoff_lfo_amt_current[0] = 0;
+    m_cutoff_lfo_amt_current[1] = 0;
   }
 
   INLINE void process_at_low_rate(uint8_t count, int16_t eg_input, int16_t lfo_input, uint16_t osc_pitch) {
@@ -173,33 +181,38 @@ public:
 private:
   INLINE void update_coefs(int16_t eg_input, int16_t lfo_input, uint16_t osc_pitch) {
     // 1. Synthesize base cutoff and smoothable modulation signals (LFO, Pitch, Breath)
-    int16_t base_candidate = m_cutoff_control;
-    base_candidate += (lfo_input * m_cutoff_lfo_amt[0]) >> (14 - 2);
-    base_candidate += (lfo_input * m_cutoff_lfo_amt[1]) >> (14 - 2);
-    base_candidate += (((osc_pitch - (60 << 8)) * m_cutoff_pitch_amt) + (1 << ((10 - 1) - 2))) >> (10 - 2);
-    base_candidate += (m_breath_controller * m_cutoff_breath_amt) >> (14 - 2);
+    int32_t base_candidate = m_cutoff_target;
+    base_candidate += (((m_breath_controller * m_cutoff_breath_amt) >> (14 - 2)) << 5);
 
     // 2. Smooth the integrated base modulation target and EG Amt parameters simultaneously
-    int32_t base_target = clamp(base_candidate, 0, ((254 << 2) + 1)) << (7 - FILTER_TABLE_CUTOFF_EXT_BITS);
-    m_cutoff_base_current = base_target - (((base_target - m_cutoff_base_current) * 248) / 256);
+    int32_t base_target = clamp(base_candidate, 0, (((254 << 2) + 1) << 5));
+    m_cutoff_base_current = approach_exp(m_cutoff_base_current, base_target, SMOOTH_RATE);
 
-    int32_t eg_amt_target_x16_0 = static_cast<int32_t>(m_cutoff_eg_amt_target[0]) << 16;
-    int32_t eg_amt_target_x16_1 = static_cast<int32_t>(m_cutoff_eg_amt_target[1]) << 16;
-    m_cutoff_eg_amt_current_x16[0] = eg_amt_target_x16_0 - (((eg_amt_target_x16_0 - m_cutoff_eg_amt_current_x16[0]) * 63488) / 65536);
-    m_cutoff_eg_amt_current_x16[1] = eg_amt_target_x16_1 - (((eg_amt_target_x16_1 - m_cutoff_eg_amt_current_x16[1]) * 63488) / 65536);
+    int32_t lfo_mod_target = 0;
+    for (int i = 0; i < 2; ++i) {
+      m_cutoff_lfo_amt_current[i] = approach_exp(m_cutoff_lfo_amt_current[i], m_cutoff_lfo_amt[i], SMOOTH_RATE);
+      lfo_mod_target += (((lfo_input * m_cutoff_lfo_amt_current[i]) >> (14 - 2)) << 5);
+    }
 
-    int16_t eg_amt_smooth[2];
-    eg_amt_smooth[0] = static_cast<int16_t>(m_cutoff_eg_amt_current_x16[0] >> 16);
-    eg_amt_smooth[1] = static_cast<int16_t>(m_cutoff_eg_amt_current_x16[1] >> 16);
+    int32_t pitch_mod = ((((osc_pitch - (60 << 8)) * m_cutoff_pitch_amt) + (1 << ((10 - 1) - 2))) >> (10 - 2)) << 5;
 
-    // 3. Inject raw EG inputs multiplied by the *smoothed* EG Amt coefficients onto the smoothed base cutoff
-    int32_t cutoff_candidate_ext = m_cutoff_base_current >> (7 - FILTER_TABLE_CUTOFF_EXT_BITS);
-    cutoff_candidate_ext += (eg_amt_smooth[0] * eg_input) >> (14 - 2);
-    cutoff_candidate_ext += (eg_amt_smooth[1] * eg_input) >> (14 - 2);
+    int32_t eg_amt_target[2] = {
+      static_cast<int32_t>(m_cutoff_eg_amt_target[0]) << 16,
+      static_cast<int32_t>(m_cutoff_eg_amt_target[1]) << 16
+    };
+    for (int i = 0; i < 2; ++i) {
+      m_cutoff_eg_amt_current[i] = approach_exp(m_cutoff_eg_amt_current[i], eg_amt_target[i], SMOOTH_RATE);
+    }
+
+    // 3. Smooth the EG cutoff modulation and add it to the base cutoff
+    int32_t eg_mod_target = 0;
+    eg_mod_target += ((static_cast<int16_t>(m_cutoff_eg_amt_current[0] >> 16) * eg_input) >> (14 - 2)) << 5;
+    eg_mod_target += ((static_cast<int16_t>(m_cutoff_eg_amt_current[1] >> 16) * eg_input) >> (14 - 2)) << 5;
+    int32_t cutoff_candidate_ext = (m_cutoff_base_current + lfo_mod_target + pitch_mod + eg_mod_target + (1 << (5 - 1))) >> 5;
 
     // 4. Bound and lock final composite values into active table index registers
     m_cutoff_current = clamp(cutoff_candidate_ext, 0, ((254 << 2) + 1)) << (7 - FILTER_TABLE_CUTOFF_EXT_BITS);
-    m_resonance_current = approach(m_resonance_current, m_resonance_target, 1);
+    m_resonance_current = approach_exp(m_resonance_current, m_resonance_target, SMOOTH_RATE);
 
     uint8_t resonance_index = (m_resonance_current + ((1 << (3 - FILTER_TABLE_RESO_EXT_BITS)) >> 1)) >> (3 - FILTER_TABLE_RESO_EXT_BITS);
     const int32_t* filter_table = g_filter_tables[resonance_index];

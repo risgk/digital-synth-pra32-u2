@@ -2,7 +2,7 @@
  * Digital Synth PRA32-U2/M
  */
 
-#define PRA32_U2_VERSION                       "v2.19.0   "
+#define PRA32_U2_VERSION                       "v2.20.0   "
 
 //#define PRA32_U2_USE_DEBUG_PRINT
 
@@ -32,8 +32,8 @@
 #define PRA32_U2_I2S_SWAP_BCLK_AND_LRCLK_PINS  (false)
 #define PRA32_U2_I2S_SWAP_LEFT_AND_RIGHT       (false)
 
-#define PRA32_U2_I2S_BUFFERS                   (4)
-#define PRA32_U2_I2S_BUFFER_WORDS              (32)
+#define PRA32_U2_I2S_BUFFERS                   (2)
+#define PRA32_U2_I2S_BUFFER_WORDS              (64)
 
 //#define PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S  // Select CPU Speed: "150 MHz" in the Arduino IDE "Tools" menu
 
@@ -207,7 +207,7 @@ void __not_in_flash_func(loop1)() {
   if (processed) {
     static uint32_t s_loop_counter = 0;
     s_loop_counter++;
-    if (s_loop_counter >= 32 * 400) {
+    if (s_loop_counter >= 16 * 400) {
       s_loop_counter = 0;
     }
 
@@ -284,9 +284,9 @@ void __not_in_flash_func(setup)() {
   TinyUSB_Device_Init(0);
   USBDevice.setManufacturerDescriptor("ISGK Instruments");
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
-  USBDevice.setProductDescriptor("Digital Synth PRA32-U2/M/P");
+  USBDevice.setProductDescriptor("PRA32-U2/M/P");
 #else  // defined(PRA32_U2_USE_CONTROL_PANEL)
-  USBDevice.setProductDescriptor("Digital Synth PRA32-U2/M");
+  USBDevice.setProductDescriptor("PRA32-U2/M");
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
   USB_MIDI.setHandleNoteOn(handleNoteOn);
   USB_MIDI.setHandleNoteOff(handleNoteOff);
