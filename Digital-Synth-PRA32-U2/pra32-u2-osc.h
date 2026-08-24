@@ -852,11 +852,16 @@ if constexpr (RESTRICT_SQR_WT == false) {
     m_osc1_shape_current[N] = clamp(m_osc1_shape_base_current[N] + m_osc1_shape_lfo_target[N] + m_osc1_shape_eg_target[N], (0 << 8), (256 << 8));
 
     uint32_t shape = maximum(m_osc1_shape_current[N] - (128 << 8), 0);
-    const uint16_t (* sqr_shape_table)[OSC_WAVE_SHAPE_TABLE_LEN_X][OSC_WAVE_SHAPE_TABLE_LEN_Y] = &g_osc_sqr_shape_table;
-    const uint16_t (* wt_shape_table)[OSC_WAVE_SHAPE_TABLE_LEN_X][OSC_WAVE_SHAPE_TABLE_LEN_Y] = get_wave_shape_table(m_osc1_morph_current);
-    for (uint8_t i = 0; i < 16; ++i) {
-      m_osc1_sqr_shape_offset[N][i] = get_osc_wave_shape_data(sqr_shape_table, shape, i);
-      m_osc1_wt_shape_offset[N][i] = get_osc_wave_shape_data(wt_shape_table, shape, i);
+    if (m_waveform[0] == WAVEFORM_SQUARE) {
+      const uint16_t (* sqr_shape_table)[OSC_WAVE_SHAPE_TABLE_LEN_X][OSC_WAVE_SHAPE_TABLE_LEN_Y] = &g_osc_sqr_shape_table;
+      for (uint8_t i = 0; i < 16; ++i) {
+        m_osc1_sqr_shape_offset[N][i] = get_osc_wave_shape_data(sqr_shape_table, shape, i);
+      }
+    } else if (m_waveform[0] == WAVEFORM_1_WAVE_TABLE) {
+      const uint16_t (* wt_shape_table)[OSC_WAVE_SHAPE_TABLE_LEN_X][OSC_WAVE_SHAPE_TABLE_LEN_Y] = get_wave_shape_table(m_osc1_morph_current);
+      for (uint8_t i = 0; i < 16; ++i) {
+        m_osc1_wt_shape_offset[N][i] = get_osc_wave_shape_data(wt_shape_table, shape, i);
+      }
     }
   }
 
