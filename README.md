@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 v2.19.0
+# Digital Synth PRA32-U2 v2.20.0
 
-- 2026-08-22 ISGK Instruments
+- 2026-08-25 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 
@@ -81,7 +81,7 @@ graph LR
 
 - NOTE: Select USB Stack: "Adafruit TinyUSB" in the Arduino IDE "Tools" menu
 - To disable, comment out `#define PRA32_U2_USE_USB_MIDI` in "Digital-Synth-PRA32-U2.ino"
-- MIDI Device Name: "Digital Synth PRA32-U2"
+- MIDI Device Name: "PRA32-U2"
 
 
 #### UART MIDI
@@ -218,7 +218,7 @@ graph LR
 - "pra32-u2-editor.html": Editor (MIDI Controller) Application for PRA32-U2, HTML App (Web App)
     - Modify `PRA32_U2_MIDI_CH` to change the MIDI Channel
 - We recommend using Google Chrome, which implements Web MIDI API
-- Select "Digital Synth PRA32-U2" in the list "MIDI Out"
+- Select "PRA32-U2" in the list "MIDI Out"
 - Functions
     - PRA32-U2 Editor converts Program Changes (#0-15 for user presets, #16-31 for factory presets) into Control Changes
     - When Program Change #127 is entered or Control Change #111 is changed from Off (63 or lower) to On (64 or higher), "Random Synth" is processed
@@ -300,11 +300,11 @@ graph LR
 
 ![CC0](http://i.creativecommons.org/p/zero/1.0/88x31.png)
 
-**Digital Synth PRA32-U2 v2.19.0 by ISGK Instruments (Ryo Ishigaki)**
+**Digital Synth PRA32-U2 v2.20.0 by ISGK Instruments (Ryo Ishigaki)**
 
 To the extent possible under law, ISGK Instruments (Ryo Ishigaki)
 has waived all copyright and related or neighboring rights
-to Digital Synth PRA32-U2 v2.19.0.
+to Digital Synth PRA32-U2 v2.20.0.
 
 You should have received a copy of the CC0 legalcode along with this
 work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.

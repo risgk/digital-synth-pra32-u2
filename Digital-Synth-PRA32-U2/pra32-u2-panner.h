@@ -9,18 +9,19 @@
 
 class PRA32_U2_Panner {
   static const uint8_t OSC_PAN_TABLE_LENGTH = 129;
+  static const int32_t SMOOTH_RATE = 2048;
 
   int32_t m_pan_table[OSC_PAN_TABLE_LENGTH];
-  int16_t m_pan_control;
-  int16_t m_pan_control_effective;
+  int16_t m_pan_target;
+  int16_t m_pan_current;
   int32_t m_gain_linear_l;
   int32_t m_gain_linear_r;
 
 public:
 PRA32_U2_Panner()
   : m_pan_table()
-  , m_pan_control(64)
-  , m_pan_control_effective(64)
+  , m_pan_target(64)
+  , m_pan_current(64)
   , m_gain_linear_l(16384 << 2)
   , m_gain_linear_r(16384 << 2)
   {
@@ -33,11 +34,11 @@ PRA32_U2_Panner()
   }
 
   INLINE void set_pan(uint8_t controller_value) {
-    m_pan_control = controller_value;
+    m_pan_target = controller_value;
   }
 
   INLINE void process_at_low_rate() {
-    update_gain_effective();
+    update_gain_current();
   }
 
   INLINE int32_t process(int32_t audio_input_int24, int32_t& audio_output_r_int24) {
@@ -50,9 +51,9 @@ PRA32_U2_Panner()
   }
 
 private:
-  INLINE void update_gain_effective() {
-    m_pan_control_effective = approach(m_pan_control_effective, m_pan_control, 1);
-    m_gain_linear_l = m_pan_table[128 - m_pan_control_effective];
-    m_gain_linear_r = m_pan_table[m_pan_control_effective];
+  INLINE void update_gain_current() {
+    m_pan_current = approach_exp(m_pan_current, m_pan_target, SMOOTH_RATE);
+    m_gain_linear_l = m_pan_table[128 - m_pan_current];
+    m_gain_linear_r = m_pan_table[m_pan_current];
   }
 };
