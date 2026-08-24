@@ -11,6 +11,7 @@ class PRA32_U2_Amp {
   uint8_t m_breath_mod;
   uint8_t m_breath_controller;
   int32_t m_total_gain_linear_current;
+  int32_t m_output_gain_current;
 
 public:
 PRA32_U2_Amp()
@@ -20,6 +21,7 @@ PRA32_U2_Amp()
   , m_breath_mod()
   , m_breath_controller()
   , m_total_gain_linear_current()
+  , m_output_gain_current()
   {
   }
 
@@ -41,18 +43,17 @@ PRA32_U2_Amp()
 
   INLINE void reset() {
     m_gain_mod_input = 0;
+    m_output_gain_current = 0;
   }
 
   INLINE void process_at_low_rate(int16_t gain_mod_input) {
     update_total_gain_current();
     m_gain_mod_input = gain_mod_input << 2;
+    m_output_gain_current = multiply_shift_right(m_gain_mod_input, m_total_gain_linear_current, 16);
   }
 
   INLINE int32_t process(int32_t audio_input_int24) {
-    int32_t audio_output = audio_input_int24;
-    audio_output = multiply_shift_right(audio_output, m_gain_mod_input,            16);
-    audio_output = multiply_shift_right(audio_output, m_total_gain_linear_current, 16);
-    return audio_output;
+    return multiply_shift_right(audio_input_int24, m_output_gain_current, 16);
   }
 
 private:
