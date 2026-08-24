@@ -1,10 +1,8 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v2.20.0 (2026-08-23):
-    - Change latency from 2.7 ms to 4 ms for stability
     - Improve parameter smoothing
-    - Improve performance
-    - Improve customizability
+    - Improve stability
     - Tested with Arduino-Pico version 6.0.0
 - v2.19.0 (2026-08-22):
     - Double the oscillator output levels
