@@ -2,8 +2,7 @@
 
 - v2.20.0 (2026-08-23):
     - Improve parameter smoothing
-    - Improve performance
-    - Improve customizability
+    - Improve stability
     - Tested with Arduino-Pico version 6.0.0
 - v2.19.0 (2026-08-22):
     - Double the oscillator output levels
