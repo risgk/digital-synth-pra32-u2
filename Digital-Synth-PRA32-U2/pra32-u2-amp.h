@@ -3,13 +3,11 @@
 #include "pra32-u2-common.h"
 
 class PRA32_U2_Amp {
-  static const int32_t EG_MOD_SMOOTH_RATE = 65536;
   static const int32_t SMOOTH_RATE        = 2048;
 
   int16_t m_gain;
   int16_t m_expression;
-  int32_t m_gain_mod_input_target;
-  int32_t m_gain_mod_input_current;
+  int32_t m_gain_mod_input;
   uint8_t m_breath_mod;
   uint8_t m_breath_controller;
   int32_t m_total_gain_linear_current;
@@ -18,8 +16,7 @@ public:
 PRA32_U2_Amp()
   : m_gain(127)
   , m_expression(127)
-  , m_gain_mod_input_target(0)
-  , m_gain_mod_input_current(0)
+  , m_gain_mod_input(0)
   , m_breath_mod()
   , m_breath_controller()
   , m_total_gain_linear_current()
@@ -43,19 +40,17 @@ PRA32_U2_Amp()
   }
 
   INLINE void reset() {
-    m_gain_mod_input_target = 0;
-    m_gain_mod_input_current = 0;
+    m_gain_mod_input = 0;
   }
 
   INLINE void process_at_low_rate(int16_t gain_mod_input) {
     update_total_gain_current();
-    m_gain_mod_input_target = gain_mod_input << 2;
-    m_gain_mod_input_current = approach_exp(m_gain_mod_input_current, m_gain_mod_input_target, EG_MOD_SMOOTH_RATE);
+    m_gain_mod_input = gain_mod_input << 2;
   }
 
   INLINE int32_t process(int32_t audio_input_int24) {
     int32_t audio_output = audio_input_int24;
-    audio_output = multiply_shift_right(audio_output, m_gain_mod_input_current,   16);
+    audio_output = multiply_shift_right(audio_output, m_gain_mod_input,            16);
     audio_output = multiply_shift_right(audio_output, m_total_gain_linear_current, 16);
     return audio_output;
   }
