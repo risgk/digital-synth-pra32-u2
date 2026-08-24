@@ -33,7 +33,7 @@
 #define PRA32_U2_I2S_SWAP_LEFT_AND_RIGHT       (false)
 
 #define PRA32_U2_I2S_BUFFERS                   (4)
-#define PRA32_U2_I2S_BUFFER_WORDS              (32)
+#define PRA32_U2_I2S_BUFFER_WORDS              (64)
 
 //#define PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S  // Select CPU Speed: "150 MHz" in the Arduino IDE "Tools" menu
 
@@ -207,7 +207,7 @@ void __not_in_flash_func(loop1)() {
   if (processed) {
     static uint32_t s_loop_counter = 0;
     s_loop_counter++;
-    if (s_loop_counter >= 32 * 400) {
+    if (s_loop_counter >= 16 * 400) {
       s_loop_counter = 0;
     }
 
