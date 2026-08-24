@@ -29,8 +29,10 @@ static INLINE int32_t soft_clip(int32_t value) {
 }
 
 class PRA32_U2_Filter {
-  static const int32_t SMOOTH_RATE     = 2048;
-  static const int32_t EG_MOD_SMOOTH_RATE = 8192;
+  static const int32_t SMOOTH_RATE = 2048;
+  static const int32_t EG_MOD_SMOOTH_RATE = 65536;
+  static const int32_t LFO_MOD_SMOOTH_RATE = 65536;
+  static const int32_t PITCH_MOD_SMOOTH_RATE = 65536;
 
   int32_t m_b_2_over_a_0;
   int32_t m_a_1_over_a_0;
@@ -44,7 +46,10 @@ class PRA32_U2_Filter {
   int16_t m_cutoff_eg_amt_target[2];
   int32_t m_cutoff_eg_amt_current[2];
   int32_t m_cutoff_eg_mod_current;
+  int32_t m_cutoff_lfo_mod_current;
+  int32_t m_cutoff_pitch_mod_current;
   int16_t m_cutoff_lfo_amt[2];
+  int16_t m_cutoff_lfo_amt_current[2];
   int16_t m_cutoff_pitch_amt;
   uint8_t m_filter_mode;
   int16_t m_cutoff_breath_amt;
@@ -65,7 +70,10 @@ public:
   , m_cutoff_eg_amt_target()
   , m_cutoff_eg_amt_current()
   , m_cutoff_eg_mod_current()
+  , m_cutoff_lfo_mod_current()
+  , m_cutoff_pitch_mod_current()
   , m_cutoff_lfo_amt()
+  , m_cutoff_lfo_amt_current()
   , m_cutoff_pitch_amt()
   , m_filter_mode()
   , m_cutoff_breath_amt()
@@ -85,6 +93,10 @@ public:
     m_cutoff_eg_amt_current[0] = static_cast<int32_t>(m_cutoff_eg_amt_target[0]) << 16;
     m_cutoff_eg_amt_current[1] = static_cast<int32_t>(m_cutoff_eg_amt_target[1]) << 16;
     m_cutoff_eg_mod_current = 0;
+    m_cutoff_lfo_mod_current = 0;
+    m_cutoff_pitch_mod_current = 0;
+    m_cutoff_lfo_amt_current[0] = 0;
+    m_cutoff_lfo_amt_current[1] = 0;
     m_cutoff_current = m_cutoff_base_current;
 
     update_coefs(0, 0, 60 << 8);
@@ -152,6 +164,10 @@ public:
     m_cutoff_eg_amt_current[0] = 0;
     m_cutoff_eg_amt_current[1] = 0;
     m_cutoff_eg_mod_current = 0;
+    m_cutoff_lfo_mod_current = 0;
+    m_cutoff_pitch_mod_current = 0;
+    m_cutoff_lfo_amt_current[0] = 0;
+    m_cutoff_lfo_amt_current[1] = 0;
   }
 
   INLINE void process_at_low_rate(uint8_t count, int16_t eg_input, int16_t lfo_input, uint16_t osc_pitch) {
@@ -181,14 +197,21 @@ private:
   INLINE void update_coefs(int16_t eg_input, int16_t lfo_input, uint16_t osc_pitch) {
     // 1. Synthesize base cutoff and smoothable modulation signals (LFO, Pitch, Breath)
     int32_t base_candidate = m_cutoff_target;
-    base_candidate += (((lfo_input * m_cutoff_lfo_amt[0]) >> (14 - 2)) << 5);
-    base_candidate += (((lfo_input * m_cutoff_lfo_amt[1]) >> (14 - 2)) << 5);
-    base_candidate += (((( (osc_pitch - (60 << 8)) * m_cutoff_pitch_amt) + (1 << ((10 - 1) - 2))) >> (10 - 2)) << 5);
     base_candidate += (((m_breath_controller * m_cutoff_breath_amt) >> (14 - 2)) << 5);
 
     // 2. Smooth the integrated base modulation target and EG Amt parameters simultaneously
     int32_t base_target = clamp(base_candidate, 0, (((254 << 2) + 1) << 5));
     m_cutoff_base_current = approach_exp(m_cutoff_base_current, base_target, SMOOTH_RATE);
+
+    int32_t lfo_mod_target = 0;
+    for (int i = 0; i < 2; ++i) {
+      m_cutoff_lfo_amt_current[i] = approach_exp(m_cutoff_lfo_amt_current[i], m_cutoff_lfo_amt[i], SMOOTH_RATE);
+      lfo_mod_target += (((lfo_input * m_cutoff_lfo_amt_current[i]) >> (14 - 2)) << 5);
+    }
+    m_cutoff_lfo_mod_current = approach_exp(m_cutoff_lfo_mod_current, lfo_mod_target, LFO_MOD_SMOOTH_RATE);
+
+    int32_t pitch_mod_target = ((((osc_pitch - (60 << 8)) * m_cutoff_pitch_amt) + (1 << ((10 - 1) - 2))) >> (10 - 2)) << 5;
+    m_cutoff_pitch_mod_current = approach_exp(m_cutoff_pitch_mod_current, pitch_mod_target, PITCH_MOD_SMOOTH_RATE);
 
     int32_t eg_amt_target[2] = {
       static_cast<int32_t>(m_cutoff_eg_amt_target[0]) << 16,
@@ -204,7 +227,7 @@ private:
     eg_mod_target += ((static_cast<int16_t>(m_cutoff_eg_amt_current[1] >> 16) * eg_input) >> (14 - 2)) << 5;
     m_cutoff_eg_mod_current = approach_exp(m_cutoff_eg_mod_current, eg_mod_target, EG_MOD_SMOOTH_RATE);
 
-    int32_t cutoff_candidate_ext = (m_cutoff_base_current + m_cutoff_eg_mod_current + (1 << (5 - 1))) >> 5;
+    int32_t cutoff_candidate_ext = (m_cutoff_base_current + m_cutoff_lfo_mod_current + m_cutoff_pitch_mod_current + m_cutoff_eg_mod_current + (1 << (5 - 1))) >> 5;
 
     // 4. Bound and lock final composite values into active table index registers
     m_cutoff_current = clamp(cutoff_candidate_ext, 0, ((254 << 2) + 1)) << (7 - FILTER_TABLE_CUTOFF_EXT_BITS);
