@@ -75,6 +75,7 @@ class PRA32_U2_Osc {
   int32_t        m_osc1_shape_eg_target[4];
   int32_t        m_osc1_shape_base_current[4];
   int32_t        m_osc1_shape_current[4];
+  uint32_t       m_osc1_sqr_shape_offset[4][16];
   uint16_t       m_osc1_phase_modulation_frequency_ratio[4];
   int8_t         m_mixer_noise_sub_osc_target;
   int8_t         m_mixer_noise_sub_osc_current;
@@ -128,6 +129,7 @@ public:
   , m_osc1_shape_eg_target()
   , m_osc1_shape_base_current()
   , m_osc1_shape_current()
+  , m_osc1_sqr_shape_offset()
   , m_osc1_phase_modulation_frequency_ratio()
   , m_mixer_noise_sub_osc_target()
   , m_mixer_noise_sub_osc_current()
@@ -643,26 +645,23 @@ if constexpr (RESTRICT_SAW == false) {
 }
     } else if (m_waveform[0] == WAVEFORM_SQUARE) {
 if constexpr (RESTRICT_SQR_WT == false) {
-      uint32_t shape = maximum(m_osc1_shape_current[N] - (128 << 8), 0);
-      const uint16_t (* wave_shape_table)[OSC_WAVE_SHAPE_TABLE_LEN_X][OSC_WAVE_SHAPE_TABLE_LEN_Y] = &g_osc_sqr_shape_table;
-
       int32_t wave_0    = +get_wave_level(m_wave_table[N], m_phase[N]);
-      int32_t wave_0_0  = +get_wave_level(m_wave_table[N + 16], m_phase[N] - get_osc_wave_shape_data(wave_shape_table, shape, 0 ));
-      int32_t wave_0_1  = -get_wave_level(m_wave_table[N + 16], m_phase[N] - get_osc_wave_shape_data(wave_shape_table, shape, 1 ));
-      int32_t wave_0_2  = +get_wave_level(m_wave_table[N + 16], m_phase[N] - get_osc_wave_shape_data(wave_shape_table, shape, 2 ));
-      int32_t wave_0_3  = -get_wave_level(m_wave_table[N + 16], m_phase[N] - get_osc_wave_shape_data(wave_shape_table, shape, 3 ));
-      int32_t wave_0_4  = +get_wave_level(m_wave_table[N + 16], m_phase[N] - get_osc_wave_shape_data(wave_shape_table, shape, 4 ));
-      int32_t wave_0_5  = -get_wave_level(m_wave_table[N + 16], m_phase[N] - get_osc_wave_shape_data(wave_shape_table, shape, 5 ));
-      int32_t wave_0_6  = +get_wave_level(m_wave_table[N + 16], m_phase[N] - get_osc_wave_shape_data(wave_shape_table, shape, 6 ));
-      int32_t wave_0_7  = -get_wave_level(m_wave_table[N + 16], m_phase[N] - get_osc_wave_shape_data(wave_shape_table, shape, 7 ));
-      int32_t wave_0_8  = +get_wave_level(m_wave_table[N + 16], m_phase[N] - get_osc_wave_shape_data(wave_shape_table, shape, 8 ));
-      int32_t wave_0_9  = -get_wave_level(m_wave_table[N + 16], m_phase[N] - get_osc_wave_shape_data(wave_shape_table, shape, 9 ));
-      int32_t wave_0_10 = +get_wave_level(m_wave_table[N + 16], m_phase[N] - get_osc_wave_shape_data(wave_shape_table, shape, 10));
-      int32_t wave_0_11 = -get_wave_level(m_wave_table[N + 16], m_phase[N] - get_osc_wave_shape_data(wave_shape_table, shape, 11));
-      int32_t wave_0_12 = +get_wave_level(m_wave_table[N + 16], m_phase[N] - get_osc_wave_shape_data(wave_shape_table, shape, 12));
-      int32_t wave_0_13 = -get_wave_level(m_wave_table[N + 16], m_phase[N] - get_osc_wave_shape_data(wave_shape_table, shape, 13));
-      int32_t wave_0_14 = +get_wave_level(m_wave_table[N + 16], m_phase[N] - get_osc_wave_shape_data(wave_shape_table, shape, 14));
-      int32_t wave_0_15 = -get_wave_level(m_wave_table[N + 16], m_phase[N] - get_osc_wave_shape_data(wave_shape_table, shape, 15));
+      int32_t wave_0_0  = +get_wave_level(m_wave_table[N + 16], m_phase[N] - m_osc1_sqr_shape_offset[N][0 ]);
+      int32_t wave_0_1  = -get_wave_level(m_wave_table[N + 16], m_phase[N] - m_osc1_sqr_shape_offset[N][1 ]);
+      int32_t wave_0_2  = +get_wave_level(m_wave_table[N + 16], m_phase[N] - m_osc1_sqr_shape_offset[N][2 ]);
+      int32_t wave_0_3  = -get_wave_level(m_wave_table[N + 16], m_phase[N] - m_osc1_sqr_shape_offset[N][3 ]);
+      int32_t wave_0_4  = +get_wave_level(m_wave_table[N + 16], m_phase[N] - m_osc1_sqr_shape_offset[N][4 ]);
+      int32_t wave_0_5  = -get_wave_level(m_wave_table[N + 16], m_phase[N] - m_osc1_sqr_shape_offset[N][5 ]);
+      int32_t wave_0_6  = +get_wave_level(m_wave_table[N + 16], m_phase[N] - m_osc1_sqr_shape_offset[N][6 ]);
+      int32_t wave_0_7  = -get_wave_level(m_wave_table[N + 16], m_phase[N] - m_osc1_sqr_shape_offset[N][7 ]);
+      int32_t wave_0_8  = +get_wave_level(m_wave_table[N + 16], m_phase[N] - m_osc1_sqr_shape_offset[N][8 ]);
+      int32_t wave_0_9  = -get_wave_level(m_wave_table[N + 16], m_phase[N] - m_osc1_sqr_shape_offset[N][9 ]);
+      int32_t wave_0_10 = +get_wave_level(m_wave_table[N + 16], m_phase[N] - m_osc1_sqr_shape_offset[N][10]);
+      int32_t wave_0_11 = -get_wave_level(m_wave_table[N + 16], m_phase[N] - m_osc1_sqr_shape_offset[N][11]);
+      int32_t wave_0_12 = +get_wave_level(m_wave_table[N + 16], m_phase[N] - m_osc1_sqr_shape_offset[N][12]);
+      int32_t wave_0_13 = -get_wave_level(m_wave_table[N + 16], m_phase[N] - m_osc1_sqr_shape_offset[N][13]);
+      int32_t wave_0_14 = +get_wave_level(m_wave_table[N + 16], m_phase[N] - m_osc1_sqr_shape_offset[N][14]);
+      int32_t wave_0_15 = -get_wave_level(m_wave_table[N + 16], m_phase[N] - m_osc1_sqr_shape_offset[N][15]);
 
       int32_t sqr_sync_mix = (m_osc1_morph_current + 1) >> 1;
       result += (((  ( sqr_sync_mix       * (wave_0_0  + wave_0_1  + wave_0_2  + wave_0_3  + wave_0_4  + wave_0_5  + wave_0_6  + wave_0_7  +
@@ -852,6 +851,12 @@ if constexpr (RESTRICT_SQR_WT == false) {
   INLINE void update_osc1_shape_effective() {
     m_osc1_shape_base_current[N] = approach_exp(m_osc1_shape_base_current[N], m_osc1_shape_target_value[N], SMOOTH_RATE);
     m_osc1_shape_current[N] = clamp(m_osc1_shape_base_current[N] + m_osc1_shape_lfo_target[N] + m_osc1_shape_eg_target[N], (0 << 8), (256 << 8));
+
+    uint32_t shape = maximum(m_osc1_shape_current[N] - (128 << 8), 0);
+    const uint16_t (* wave_shape_table)[OSC_WAVE_SHAPE_TABLE_LEN_X][OSC_WAVE_SHAPE_TABLE_LEN_Y] = &g_osc_sqr_shape_table;
+    for (uint8_t i = 0; i < 16; ++i) {
+      m_osc1_sqr_shape_offset[N][i] = get_osc_wave_shape_data(wave_shape_table, shape, i);
+    }
   }
 
   INLINE void update_pitch_bend() {
