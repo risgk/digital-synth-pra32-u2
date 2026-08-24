@@ -81,7 +81,7 @@ graph LR
 
 - NOTE: Select USB Stack: "Adafruit TinyUSB" in the Arduino IDE "Tools" menu
 - To disable, comment out `#define PRA32_U2_USE_USB_MIDI` in "Digital-Synth-PRA32-U2.ino"
-- MIDI Device Name: "Digital Synth PRA32-U2"
+- MIDI Device Name: "PRA32-U2"
 
 
 #### UART MIDI
@@ -218,7 +218,7 @@ graph LR
 - "pra32-u2-editor.html": Editor (MIDI Controller) Application for PRA32-U2, HTML App (Web App)
     - Modify `PRA32_U2_MIDI_CH` to change the MIDI Channel
 - We recommend using Google Chrome, which implements Web MIDI API
-- Select "Digital Synth PRA32-U2" in the list "MIDI Out"
+- Select "PRA32-U2" in the list "MIDI Out"
 - Functions
     - PRA32-U2 Editor converts Program Changes (#0-15 for user presets, #16-31 for factory presets) into Control Changes
     - When Program Change #127 is entered or Control Change #111 is changed from Off (63 or lower) to On (64 or higher), "Random Synth" is processed
