@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v2.20.0 (2026-08-23):
+    - Change the USB device name from "Digital Synth PRA32-U2" to "PRA32-U2"
     - Improve parameter smoothing
     - Improve stability
     - Tested with Arduino-Pico version 6.0.0
