@@ -31,8 +31,9 @@ class PRA32_U2_Osc {
 
   static const int8_t  OSC_LEVEL              = 72;
 
-  static const int32_t SMOOTH_RATE            = 2048;
-  static const int32_t EG_MOD_SMOOTH_RATE     = 8192;
+  static const int32_t SMOOTH_RATE = 2048;
+  static const int32_t EG_MOD_SMOOTH_RATE = 65536;
+  static const int32_t LFO_MOD_SMOOTH_RATE = 65536;
 
   uint16_t       m_drift;
   boolean        m_saw_wave_mode_curved;
@@ -72,6 +73,8 @@ class PRA32_U2_Osc {
   uint16_t       m_osc1_morph_target;
   uint16_t       m_osc1_morph_current;
   int32_t        m_osc1_shape_target_value[4];
+  int32_t        m_osc1_shape_lfo_target[4];
+  int32_t        m_osc1_shape_lfo_current[4];
   int32_t        m_osc1_shape_eg_target[4];
   int32_t        m_osc1_shape_base_current[4];
   int32_t        m_osc1_shape_eg_current[4];
@@ -83,6 +86,7 @@ class PRA32_U2_Osc {
   int16_t        m_shape_eg_amt;
   int16_t        m_shape_eg_amt_current;
   int16_t        m_shape_lfo_amt;
+  int16_t        m_shape_lfo_amt_current;
 
 public:
   PRA32_U2_Osc()
@@ -124,6 +128,8 @@ public:
   , m_osc1_morph_target()
   , m_osc1_morph_current()
   , m_osc1_shape_target_value()
+  , m_osc1_shape_lfo_target()
+  , m_osc1_shape_lfo_current()
   , m_osc1_shape_eg_target()
   , m_osc1_shape_base_current()
   , m_osc1_shape_eg_current()
@@ -135,6 +141,7 @@ public:
   , m_shape_eg_amt()
   , m_shape_eg_amt_current()
   , m_shape_lfo_amt()
+  , m_shape_lfo_amt_current()
   {
     m_portamento_coef[0] = 0;
     m_portamento_coef[1] = 0;
@@ -225,6 +232,14 @@ public:
     m_osc1_shape_current[1] = 0;
     m_osc1_shape_current[2] = 0;
     m_osc1_shape_current[3] = 0;
+    m_osc1_shape_lfo_target[0] = 0;
+    m_osc1_shape_lfo_target[1] = 0;
+    m_osc1_shape_lfo_target[2] = 0;
+    m_osc1_shape_lfo_target[3] = 0;
+    m_osc1_shape_lfo_current[0] = 0;
+    m_osc1_shape_lfo_current[1] = 0;
+    m_osc1_shape_lfo_current[2] = 0;
+    m_osc1_shape_lfo_current[3] = 0;
     m_osc1_shape_eg_target[0] = 0;
     m_osc1_shape_eg_target[1] = 0;
     m_osc1_shape_eg_target[2] = 0;
@@ -503,6 +518,7 @@ public:
   INLINE void process_at_low_rate_global() {
     update_osc1_morph_current();
     update_mixer_current();
+    m_shape_lfo_amt_current = approach_exp(m_shape_lfo_amt_current, m_shape_lfo_amt, SMOOTH_RATE);
   }
 
   template <uint8_t N, uint32_t SYNTH_ID = 0, boolean RESTRICT_SAW = false, boolean RESTRICT_SQR_WT = false>
@@ -838,8 +854,9 @@ if constexpr (RESTRICT_SQR_WT == false) {
 
   template <uint8_t N>
   INLINE void update_osc1_shape(int16_t lfo_level, int16_t eg_level) {
-    int32_t osc1_shape = (128 << 8) + m_osc1_shape_target - ((lfo_level * m_shape_lfo_amt) >> 5);
+    int32_t osc1_shape = (128 << 8) + m_osc1_shape_target;
     m_osc1_shape_target_value[N] = clamp(osc1_shape, (0 << 8), (256 << 8));
+    m_osc1_shape_lfo_target[N] = -((lfo_level * m_shape_lfo_amt_current) >> 5);
 
     m_shape_eg_amt_current = approach_exp(m_shape_eg_amt_current, m_shape_eg_amt, SMOOTH_RATE);
     m_osc1_shape_eg_target[N] = (eg_level * m_shape_eg_amt_current) >> 5;
@@ -848,8 +865,9 @@ if constexpr (RESTRICT_SQR_WT == false) {
   template <uint8_t N>
   INLINE void update_osc1_shape_effective() {
     m_osc1_shape_base_current[N] = approach_exp(m_osc1_shape_base_current[N], m_osc1_shape_target_value[N], SMOOTH_RATE);
+    m_osc1_shape_lfo_current[N] = approach_exp(m_osc1_shape_lfo_current[N], m_osc1_shape_lfo_target[N], LFO_MOD_SMOOTH_RATE);
     m_osc1_shape_eg_current[N] = approach_exp(m_osc1_shape_eg_current[N], m_osc1_shape_eg_target[N], EG_MOD_SMOOTH_RATE);
-    m_osc1_shape_current[N] = clamp(m_osc1_shape_base_current[N] + m_osc1_shape_eg_current[N], (0 << 8), (256 << 8));
+    m_osc1_shape_current[N] = clamp(m_osc1_shape_base_current[N] + m_osc1_shape_lfo_current[N] + m_osc1_shape_eg_current[N], (0 << 8), (256 << 8));
   }
 
   INLINE void update_pitch_bend() {
