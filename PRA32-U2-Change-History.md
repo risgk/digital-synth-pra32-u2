@@ -1,5 +1,8 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v2.20.1 (2026-??-??):
+    - PRA32-U2 Editor: Stabilize layout across browsers/fonts/screens
+    - Tested with Arduino-Pico version 6.0.0
 - v2.20.0 (2026-08-25):
     - Change the USB device name from "Digital Synth PRA32-U2" to "PRA32-U2"
     - Improve parameter smoothing
