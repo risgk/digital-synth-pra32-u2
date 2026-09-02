@@ -43,6 +43,12 @@ td.sp-4 {
 }
 td.pad-l {
   padding-left: 8px;
+  white-space: nowrap;
+}
+/* Never let the "PRA32-U2 Editor vX.Y.Z" title break across lines --
+   the description text next to it can wrap instead. */
+#spanAppNameVersion {
+  white-space: nowrap;
 }
 /* Enough width for "(from Browser)" / "(to Browser)" so they don't wrap
    to a second line -- these were already tight even before zooming in. */
