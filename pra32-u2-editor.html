@@ -1,15 +1,78 @@
 <!DOCTYPE html>
+<html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PRA32-U2 Editor</title>
 <style>
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
 * {
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Yu Gothic UI", "Meiryo", sans-serif;
   font-size: 12px;
+  user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
 }
 table td {
   text-align: left;
+}
+/* Explicit widths for the parameter grid's 3-cell group (range input / value / value label),
+   replacing widths that used to be implied by an &nbsp;-padded header row. */
+td.col-ctrl {
+  width: 135px;
+}
+td.col-val {
+  width: 24px;
+}
+td.col-val2 {
+  width: 70px;
+}
+/* Horizontal gap cells, replacing widths that used to be implied by a run of &nbsp;. */
+td.sp-1 {
+  width: 8px;
+}
+td.sp-2 {
+  width: 16px;
+}
+td.sp-4 {
+  width: 32px;
+}
+td.pad-l {
+  padding-left: 8px;
+  white-space: nowrap;
+}
+/* Never let the "PRA32-U2 Editor vX.Y.Z" title break across lines --
+   the description text next to it can wrap instead. */
+#spanAppNameVersion {
+  white-space: nowrap;
+}
+/* Enough width for "(from Browser)" / "(to Browser)" so they don't wrap
+   to a second line -- these were already tight even before zooming in. */
+td.lbl-recall {
+  min-width: 92px;
+}
+td.lbl-store {
+  min-width: 78px;
+}
+td.lbl-midi {
+  min-width: 62px;
+}
+td.lbl-green {
+  min-width: 100px;
+}
+table.section {
+  margin-bottom: 14px;
+}
+/* Fixed layout for the parameter grid so its column widths come only from
+   col-ctrl/col-val/col-val2 above, not from a mix of content and hints that
+   the automatic table layout algorithm may weigh differently per environment. */
+table.param-grid {
+  table-layout: fixed;
+  width: 942px;
 }
 td.key {
   color: rgb(255,85,0);
@@ -39,9 +102,19 @@ td.keyh {
   height: 63px;
   border: 1px solid transparent;
 }
+.keyboard-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+}
+.keyboard-scroll table {
+  /* Keep the keys at their natural (fixed) size instead of shrinking to
+     fit a narrow screen -- the container scrolls horizontally instead. */
+  width: max-content;
+}
 </style>
 <script>
-const APP_NAME_VERSION = "PRA32-U2 Editor v2.20.0";
+const APP_NAME_VERSION = "PRA32-U2 Editor v2.20.1";
 
 const USER_PROGRAM_NUMBER_MAX      = 15;
 const PROGRAM_NUMBER_MAX           = 31;
@@ -1218,13 +1291,12 @@ function getStoredCCValueString(index, number) {
 </head>
 <body>
 
-<table>
-<tr><td><span id="spanAppNameVersion"></span></td><td>&nbsp;&nbsp;Digital Synth PRA32-U2 Editor Application (<a href="https://github.com/risgk/digital-synth-pra32-u2">View on GitHub</a>)</td></tr>
-<tr><td>&nbsp;</td></tr>
+<table class="section">
+<tr><td><span id="spanAppNameVersion"></span></td><td class="pad-l">Digital Synth PRA32-U2 Editor Application (<a href="https://github.com/risgk/digital-synth-pra32-u2">View on GitHub</a>)</td></tr>
 </table>
 
-<table>
-<tr><td>MIDI Ch</td>
+<table class="section">
+<tr><td class="lbl-midi">MIDI Ch</td>
     <td></td>
     <td><select id="selectMIDICh" size="1" onchange="onChangeMIDICh()">
       <option value="0">1</option>
@@ -1245,32 +1317,30 @@ function getStoredCCValueString(index, number) {
       <option value="15">16</option>
     </select></td>
     </tr>
-<tr><td>MIDI In 1</td>
+<tr><td class="lbl-midi">MIDI In 1</td>
     <td></td>
     <td><select id="selectInputPort1" size="1" onchange="onChangeInputPort1()"></select></td>
     <td></td>
-    <td>MIDI In 2</td>
+    <td class="lbl-midi">MIDI In 2</td>
     <td></td>
     <td><select id="selectInputPort2" size="1" onchange="onChangeInputPort2()"></select></td>
     <td></td>
-    <td>MIDI In 3</td>
+    <td class="lbl-midi">MIDI In 3</td>
     <td></td>
     <td><select id="selectInputPort3" size="1" onchange="onChangeInputPort3()"></select></td>
     <td></td>
-    <td>MIDI In 4</td>
+    <td class="lbl-midi">MIDI In 4</td>
     <td></td>
     <td><select id="selectInputPort4" size="1" onchange="onChangeInputPort4()"></select></td>
     </tr>
-<tr><td>MIDI Out</td>
+<tr><td class="lbl-midi">MIDI Out</td>
     <td></td>
     <td><select id="selectOutputPort" size="1" onchange="onChangeOutputPort()"></select></td>
     </tr>
-<tr><td>&nbsp;</td>
-    </tr>
 </table>
 
-<table>
-<tr><td>Factory Preset</td>
+<table class="section">
+<tr><td class="lbl-recall">Factory Preset</td>
     <td></td>
     <td><input type="button" value="#20 Saw Lead"   onclick="preset(20)"></td>
     <td></td>
@@ -1279,7 +1349,7 @@ function getStoredCCValueString(index, number) {
     <td><input type="button" value="#22 Synth Bass" onclick="preset(22)"></td>
     <td></td>
     <td><input type="button" value="#23 Initial"    onclick="preset(23)"></td>
-    <td>&nbsp;&nbsp;</td>
+    <td class="sp-2"></td>
     <td><input type="button" value="#28 Fifth Lead" onclick="preset(28)"></td>
     <td></td>
     <td><input type="button" value="#29 Sqr Lead"   onclick="preset(29)"></td>
@@ -1287,7 +1357,7 @@ function getStoredCCValueString(index, number) {
     <td><input type="button" value="#30 PWM Lead"   onclick="preset(30)"></td>
     <td></td>
     <td><input type="button" value="#31 ---"        onclick="preset(31)"></td></tr>
-<tr><td>(from Browser)</td>
+<tr><td class="lbl-recall">(from Browser)</td>
     <td></td>
     <td><input type="button" value="#16 Synth Pad"  onclick="preset(16)"></td>
     <td></td>
@@ -1296,7 +1366,7 @@ function getStoredCCValueString(index, number) {
     <td><input type="button" value="#18 FM Piano"   onclick="preset(18)"></td>
     <td></td>
     <td><input type="button" value="#19 Simple"     onclick="preset(19)"></td>
-    <td>&nbsp;&nbsp;</td>
+    <td class="sp-2"></td>
     <td><input type="button" value="#24 Synth Brs"  onclick="preset(24)"></td>
     <td></td>
     <td><input type="button" value="#25 Synth Str"  onclick="preset(25)"></td>
@@ -1304,20 +1374,19 @@ function getStoredCCValueString(index, number) {
     <td><input type="button" value="#26 WT Pad"     onclick="preset(26)"></td>
     <td></td>
     <td><input type="button" value="#27 Elec Organ" onclick="preset(27)"</td></tr>
-<tr><td>&nbsp;</td></tr>
 </table>
 
-<table>
+<table class="section">
 <tr><td>Misc</td>
     <td></td>
     <td><input type="button" value="Send Current"         onclick="sendCurrentParameters()"></td>
-    <td>&nbsp;</td>
+    <td class="sp-1"></td>
     <td><input type="button" value="Panic"                onclick="panic()"></td>
-    <td>&nbsp;</td>
+    <td class="sp-1"></td>
     <td><input type="button" value="Randomize Synth Prms" onclick="setRandom()"></td>
     <td></td>
     <td><input type="button" value="Randomize FX Prms"    onclick="setRandomChorus()"></td>
-    <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+    <td class="sp-4"></td>
     <td>File</td>
     <td></td>
     <td><input type="file" id="fileImportAll" style="display:none" accept=".json"/>
@@ -1325,13 +1394,12 @@ function getStoredCCValueString(index, number) {
     <td></td>
     <td><input type="file" id="fileImportCurrent" style="display:none" accept=".json"/>
         <input type="button" value="Import Current" onclick="fileImportCurrent()"></td>
-    <td>&nbsp;</td>
+    <td class="sp-1"></td>
     <td><input type="button" value="Export All"     onclick="fileExport()"></td></tr>
-<tr><td>&nbsp;</td></tr>
 </table>
 
-<table>
-<tr><td>Recall</td>
+<table class="section">
+<tr><td class="lbl-recall">Recall</td>
     <td></td>
     <td><input type="button" value="#4"     onclick="recallParameters(4)"></td>
     <td></td>
@@ -1340,7 +1408,7 @@ function getStoredCCValueString(index, number) {
     <td><input type="button" value="#6"     onclick="recallParameters(6)"></td>
     <td></td>
     <td><input type="button" value="#7"     onclick="recallParameters(7)"></td>
-    <td>&nbsp;&nbsp;</td>
+    <td class="sp-2"></td>
     <td><input type="button" value="#12"    onclick="recallParameters(12)"></td>
     <td></td>
     <td><input type="button" value="#13"    onclick="recallParameters(13)"></td>
@@ -1348,8 +1416,8 @@ function getStoredCCValueString(index, number) {
     <td><input type="button" value="#14"    onclick="recallParameters(14)"></td>
     <td></td>
     <td><input type="button" value="#15"    onclick="recallParameters(15)"></td>
-    <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
-    <td>Store</td>
+    <td class="sp-4"></td>
+    <td class="lbl-store">Store</td>
     <td></td>
     <td><input type="button" value="#4"     onclick="storeParameters(4)"></td>
     <td></td>
@@ -1358,7 +1426,7 @@ function getStoredCCValueString(index, number) {
     <td><input type="button" value="#6"     onclick="storeParameters(6)"></td>
     <td></td>
     <td><input type="button" value="#7"     onclick="storeParameters(7)"></td>
-    <td>&nbsp;&nbsp;</td>
+    <td class="sp-2"></td>
     <td><input type="button" value="#12"    onclick="storeParameters(12)" ></td>
     <td></td>
     <td><input type="button" value="#13"    onclick="storeParameters(13)" ></td>
@@ -1366,7 +1434,7 @@ function getStoredCCValueString(index, number) {
     <td><input type="button" value="#14"    onclick="storeParameters(14)"></td>
     <td></td>
     <td><input type="button" value="#15"    onclick="storeParameters(15)"></td></tr>
-<tr><td>(from Browser)</td>
+<tr><td class="lbl-recall">(from Browser)</td>
     <td></td>
     <td><input type="button" value="#0"     onclick="recallParameters(0)" ></td>
     <td></td>
@@ -1375,7 +1443,7 @@ function getStoredCCValueString(index, number) {
     <td><input type="button" value="#2"     onclick="recallParameters(2)"></td>
     <td></td>
     <td><input type="button" value="#3"     onclick="recallParameters(3)"></td>
-    <td>&nbsp;&nbsp;</td>
+    <td class="sp-2"></td>
     <td><input type="button" value="#8"     onclick="recallParameters(8)" ></td>
     <td></td>
     <td><input type="button" value="#9"     onclick="recallParameters(9)" ></td>
@@ -1383,8 +1451,8 @@ function getStoredCCValueString(index, number) {
     <td><input type="button" value="#10"    onclick="recallParameters(10)"></td>
     <td></td>
     <td><input type="button" value="#11"    onclick="recallParameters(11)"></td>
-    <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
-    <td>(to Browser)</td>
+    <td class="sp-4"></td>
+    <td class="lbl-store">(to Browser)</td>
     <td></td>
     <td><input type="button" value="#0"     onclick="storeParameters(0)" ></td>
     <td></td>
@@ -1393,7 +1461,7 @@ function getStoredCCValueString(index, number) {
     <td><input type="button" value="#2"     onclick="storeParameters(2)"></td>
     <td></td>
     <td><input type="button" value="#3"     onclick="storeParameters(3)"></td>
-    <td>&nbsp;&nbsp;</td>
+    <td class="sp-2"></td>
     <td><input type="button" value="#8"     onclick="storeParameters(8)" ></td>
     <td></td>
     <td><input type="button" value="#9"     onclick="storeParameters(9)" ></td>
@@ -1401,13 +1469,12 @@ function getStoredCCValueString(index, number) {
     <td><input type="button" value="#10"    onclick="storeParameters(10)"></td>
     <td></td>
     <td><input type="button" value="#11"    onclick="storeParameters(11)"></td></tr>
-<tr><td>&nbsp;</td></tr>
 </table>
 
 <details>
 <summary><font color="green">Details</font></summary>
-<table>
-<tr><td><font color="green">Program Change</font></td>
+<table class="section">
+<tr><td class="lbl-green"><font color="green">Program Change</font></td>
     <td></td>
     <td><input type="button" value="#4"      onclick="sendProgramChange(4)"  style="color:green"></td>
     <td></td>
@@ -1416,7 +1483,7 @@ function getStoredCCValueString(index, number) {
     <td><input type="button" value="#6"      onclick="sendProgramChange(6)"  style="color:green"></td>
     <td></td>
     <td><input type="button" value="#7"      onclick="sendProgramChange(7)"  style="color:green"></td>
-    <td>&nbsp;&nbsp;</td>
+    <td class="sp-2"></td>
     <td><input type="button" value="#12"     onclick="sendProgramChange(12)" style="color:green"></td>
     <td></td>
     <td><input type="button" value="#13"     onclick="sendProgramChange(13)" style="color:green"></td>
@@ -1424,7 +1491,7 @@ function getStoredCCValueString(index, number) {
     <td><input type="button" value="#14"     onclick="sendProgramChange(14)" style="color:green"></td>
     <td></td>
     <td><input type="button" value="#15"     onclick="sendProgramChange(15)" style="color:green"></td>
-    <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+    <td class="sp-4"></td>
     <td><font color="green">Write</font></td>
     <td></td>
     <td><input type="button" value="#4"      onclick="writeParameters(4)"    style="color:green"></td>
@@ -1434,7 +1501,7 @@ function getStoredCCValueString(index, number) {
     <td><input type="button" value="#6"      onclick="writeParameters(6)"    style="color:green"></td>
     <td></td>
     <td><input type="button" value="#7"      onclick="writeParameters(7)"    style="color:green"></td>
-    <td>&nbsp;&nbsp;</td>
+    <td class="sp-2"></td>
     <td><input type="button" value="#12"     onclick="writeParameters(12)"   style="color:green"></td>
     <td></td>
     <td><input type="button" value="#13"     onclick="writeParameters(13)"   style="color:green"></td>
@@ -1443,7 +1510,7 @@ function getStoredCCValueString(index, number) {
     <td></td>
     <td><input type="button" value="#15"     onclick="writeParameters(15)"   style="color:green"></td>
     </tr>
-<tr><td><font color="green">(to PRA32-U2)</font></td>
+<tr><td class="lbl-green"><font color="green">(to PRA32-U2)</font></td>
     <td></td>
     <td><input type="button" value="#0 "     onclick="sendProgramChange(0)"  style="color:green"></td>
     <td></td>
@@ -1452,7 +1519,7 @@ function getStoredCCValueString(index, number) {
     <td><input type="button" value="#2 "     onclick="sendProgramChange(2)"  style="color:green"></td>
     <td></td>
     <td><input type="button" value="#3 "     onclick="sendProgramChange(3)"  style="color:green"></td>
-    <td>&nbsp;&nbsp;</td>
+    <td class="sp-2"></td>
     <td><input type="button" value="#8 "     onclick="sendProgramChange(8)"  style="color:green"></td>
     <td></td>
     <td><input type="button" value="#9 "     onclick="sendProgramChange(9)"  style="color:green"></td>
@@ -1460,8 +1527,8 @@ function getStoredCCValueString(index, number) {
     <td><input type="button" value="#10"     onclick="sendProgramChange(10)" style="color:green"></td>
     <td></td>
     <td><input type="button" value="#11"     onclick="sendProgramChange(11)" style="color:green"></td>
-    <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
-    <td><font color="green">(to PRA32-U2)</font></td>
+    <td class="sp-4"></td>
+    <td class="lbl-green"><font color="green">(to PRA32-U2)</font></td>
     <td></td>
     <td><input type="button" value="#0"      onclick="writeParameters(0)"    style="color:green"></td>
     <td></td>
@@ -1470,7 +1537,7 @@ function getStoredCCValueString(index, number) {
     <td><input type="button" value="#2"      onclick="writeParameters(2)"    style="color:green"></td>
     <td></td>
     <td><input type="button" value="#3"      onclick="writeParameters(3)"    style="color:green"></td>
-    <td>&nbsp;&nbsp;</td>
+    <td class="sp-2"></td>
     <td><input type="button" value="#8 "     onclick="writeParameters(8)"    style="color:green"></td>
     <td></td>
     <td><input type="button" value="#9 "     onclick="writeParameters(9)"    style="color:green"></td>
@@ -1482,12 +1549,12 @@ function getStoredCCValueString(index, number) {
 </table>
 </details>
 
-<table>
+<table class="section param-grid">
 <tr>
-<td>&nbsp;</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-<td>&nbsp;</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-<td>&nbsp;</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-<td>&nbsp;</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+<td class="col-ctrl"></td><td class="col-val"></td><td class="col-val2"></td>
+<td class="col-ctrl"></td><td class="col-val"></td><td class="col-val2"></td>
+<td class="col-ctrl"></td><td class="col-val"></td><td class="col-val2"></td>
+<td class="col-ctrl"></td><td class="col-val"></td><td class="col-val2"></td>
 </tr>
 <tr>
 <td colspan="12"><hr></td>
@@ -1805,27 +1872,16 @@ function getStoredCCValueString(index, number) {
 <tr>
 <td colspan="12"><hr></td>
 </tr>
-<tr>
-<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>
-<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>
-<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>
-<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>
-</tr>
 </table>
 
-<table>
+<table class="section">
 <tr><td colspan="3">Software Kbd Transpose</td>
     </tr>
 <tr><td><input id="inputTranspose" type="range" list="skt" min="-48" max="60" step="12" oninput="onChangeTranspose(value)" ></td>
     <td><span id="spanTranspose" >-</span></td></tr>
-<tr>
-    <td>&nbsp;</td>
-    <td>&nbsp;</td>
-    <td></td>
-</tr>
-
 </table>
 
+<div class="keyboard-scroll">
 <table>
 <tr>
 <td class="keyh"></td>
@@ -1866,6 +1922,7 @@ function getStoredCCValueString(index, number) {
 <td class="key"  onContextmenu="return false" onmousedown="noteOn(72)" onmouseup="noteOff(72)" ontouchstart="noteOn(72)" ontouchend="noteOff(72)">C5</td>
 </tr>
 </table>
+</div>
 
 <datalist id="0 markers">
 </datalist>
