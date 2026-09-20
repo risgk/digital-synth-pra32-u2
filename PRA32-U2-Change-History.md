@@ -1,7 +1,8 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v2.20.2 (2026-??-??):
+- v2.21.0 (2026-??-??):
     - Change the debug print of the CPU processing time to show min and max
+    - Change the oscillator drift noise to a 1st-order IIR low-pass filter
     - Tested with Arduino-Pico version 6.0.0
 - v2.20.1 (2026-09-03):
     - PRA32-U2 Editor: Stabilize layout across browsers/fonts/screens
