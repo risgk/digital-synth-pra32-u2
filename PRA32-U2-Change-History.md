@@ -13,6 +13,7 @@
     - Change the EG/LFO/Noise control signals to Q23 fixed-point, the same scale as the audio
     - Improve the Amp envelope resolution by using the Q23 control signal directly
     - Improve the Filter precision by keeping the 2 bits the coefficient product used to drop
+    - Improve the Delay time resolution from 1 sample to 1/256 sample
     - Tested with Arduino-Pico version 6.0.0
 - v2.20.1 (2026-09-03):
     - PRA32-U2 Editor: Stabilize layout across browsers/fonts/screens
