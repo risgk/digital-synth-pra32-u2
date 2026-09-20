@@ -156,7 +156,7 @@ private:
     case LFO_WAVEFORM_TRIANGLE:
       {
         int16_t raw_saw = static_cast<int16_t>(phase >> 8);
-        level = (std::abs(raw_saw) - (64 << 7)); 
+        level = ((std::abs(raw_saw) >> 1) - (64 << 7));
       }
       break;
     case LFO_WAVEFORM_SINE:
