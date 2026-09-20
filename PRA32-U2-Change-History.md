@@ -9,6 +9,7 @@
     - Improve the Osc pitch resolution from Q8 to Q16 fixed-point
     - Improve the Osc output precision by shifting before the accumulation
     - Improve the Sub Osc/Noise level smoothing resolution
+    - Fix the LFO Triangle Wave level range to match the other LFO waveforms
     - Tested with Arduino-Pico version 6.0.0
 - v2.20.1 (2026-09-03):
     - PRA32-U2 Editor: Stabilize layout across browsers/fonts/screens
