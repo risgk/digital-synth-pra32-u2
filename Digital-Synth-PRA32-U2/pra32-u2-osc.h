@@ -52,7 +52,7 @@ class PRA32_U2_Osc {
   uint32_t       m_freq_base[4 * 2];
   int32_t        m_freq_offset[4 * 2];
   uint32_t       m_phase[4 * 2];
-  int16_t        m_prev_noise_int15[4 * 2];
+  int32_t        m_drift_noise[4 * 2];
   uint32_t       m_phase_shape_morph[4];
   boolean        m_osc_on[4];
 
@@ -107,7 +107,7 @@ public:
   , m_freq_base()
   , m_freq_offset()
   , m_phase()
-  , m_prev_noise_int15()
+  , m_drift_noise()
   , m_phase_shape_morph()
   , m_osc_on()
 
@@ -484,25 +484,14 @@ public:
     update_freq_base<N + 0>(lfo_level, eg_level);
     update_freq_base<N + 4>(lfo_level, eg_level);
 
-#if 1
-    switch (count & 0x1FFFF) {
-    case ((N * 0x04000) + 0x00000):
+    switch (count & 0x07) {
+    case ((N * 0x01) + 0x00):
       update_freq_offset<N + 0>(noise_int15);
       break;
-    case ((N * 0x04000) + 0x10000):
+    case ((N * 0x01) + 0x04):
       update_freq_offset<N + 4>(noise_int15);
       break;
     }
-#else
-    switch (count & 0xFFFF) {
-    case ((N * 0x2000) + 0x0000):
-      update_freq_offset<N + 0>(noise_int15);
-      break;
-    case ((N * 0x2000) + 0x8000):
-      update_freq_offset<N + 4>(noise_int15);
-      break;
-    }
-#endif
   }
 
   INLINE void process_at_low_rate_global() {
@@ -816,11 +805,10 @@ if constexpr (RESTRICT_SQR_WT == false) {
 
   template <uint8_t N>
   INLINE void update_freq_offset(int16_t noise_int15) {
-    m_freq_offset[N] = (N >> 2) << 1;
+    m_drift_noise[N] += ((static_cast<int32_t>(noise_int15) << 16) - m_drift_noise[N]) >> 14;
 
-    m_freq_offset[N] += (((static_cast<int32_t>(m_freq_base[N]) *
-                           ((noise_int15 >> 8) + (m_prev_noise_int15[N] >> 8))) >> 8) * m_drift) >> 16;
-    m_prev_noise_int15[N] = noise_int15;
+    m_freq_offset[N] = (N >> 2) << 1;
+    m_freq_offset[N] += (((static_cast<int32_t>(m_freq_base[N]) * (m_drift_noise[N] >> 16)) >> 8) * m_drift) >> 16;
 
     m_freq[N] = m_freq_base[N] + m_freq_offset[N];
   }
