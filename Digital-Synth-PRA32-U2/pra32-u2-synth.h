@@ -1501,7 +1501,7 @@ if constexpr (NO_FX == false) {
 
 template <boolean BYPASS_SYNTH = false, boolean BYPASS_FX = false, boolean RESTRICT_SAW = false, boolean RESTRICT_SQR_WT = false>
   /* INLINE */ int16_t __not_in_flash_func(process)(int32_t audio_input_l_int32, int32_t audio_input_r_int32, int16_t& right_output_int16, int32_t& audio_output_l_int32 = s_placeholder_int32, int32_t& audio_output_r_int32 = s_placeholder_int32) {
-    int16_t noise_int15;
+    int32_t noise_int23;
     int32_t panner_output_r;
     int32_t panner_output_l;
 
@@ -1509,17 +1509,17 @@ if constexpr (BYPASS_SYNTH == false) {
 
     ++m_count;
 
-    noise_int15 = m_noise_gen.process();
+    noise_int23 = m_noise_gen.process();
 
     switch (m_count & (0x04 - 1)) {
     case 0x00:
       {
-        m_lfo.process_at_low_rate(m_count >> 2, noise_int15);
+        m_lfo.process_at_low_rate(m_count >> 2, noise_int23);
 
         m_eg[0].process_at_low_rate();
         m_eg[1].process_at_low_rate();
-        int16_t lfo_output = m_lfo.get_output<0>();
-        m_osc.process_at_low_rate<0>(m_count >> 2, lfo_output, m_eg[0].get_output(), noise_int15);
+        int32_t lfo_output = m_lfo.get_output<0>();
+        m_osc.process_at_low_rate<0>(m_count >> 2, lfo_output, m_eg[0].get_output(), noise_int23);
         m_filter[0].process_at_low_rate(m_count >> 2, m_eg[0].get_output(), lfo_output, m_osc.get_osc_pitch(0));
         m_amp[0].process_at_low_rate(branchless_conditional(m_controller_value_eg_amp_mod >= 64, m_eg[0].get_output(), m_eg[1].get_output()));
       }
@@ -1533,8 +1533,8 @@ if constexpr (RESTRICT_POLY_AND_CORES == false) {
 if (m_voice_mode == VOICE_POLYPHONIC) {
         m_eg[2].process_at_low_rate();
         m_eg[3].process_at_low_rate();
-        int16_t lfo_output = m_lfo.get_output<1>();
-        m_osc.process_at_low_rate<1>(m_count >> 2, lfo_output, m_eg[2].get_output(), noise_int15);
+        int32_t lfo_output = m_lfo.get_output<1>();
+        m_osc.process_at_low_rate<1>(m_count >> 2, lfo_output, m_eg[2].get_output(), noise_int23);
         m_filter[1].process_at_low_rate(m_count >> 2, m_eg[2].get_output(), lfo_output, m_osc.get_osc_pitch(1));
         m_amp[1].process_at_low_rate(branchless_conditional(m_controller_value_eg_amp_mod >= 64, m_eg[2].get_output(), m_eg[3].get_output()));
 }
@@ -1551,8 +1551,8 @@ if constexpr (RESTRICT_POLY_AND_CORES == false) {
 if (m_voice_mode == VOICE_POLYPHONIC) {
         m_eg[4].process_at_low_rate();
         m_eg[5].process_at_low_rate();
-        int16_t lfo_output = m_lfo.get_output<2>();
-        m_osc.process_at_low_rate<2>(m_count >> 2, lfo_output, m_eg[4].get_output(), noise_int15);
+        int32_t lfo_output = m_lfo.get_output<2>();
+        m_osc.process_at_low_rate<2>(m_count >> 2, lfo_output, m_eg[4].get_output(), noise_int23);
         m_filter[2].process_at_low_rate(m_count >> 2, m_eg[4].get_output(), lfo_output, m_osc.get_osc_pitch(2));
         m_amp[2].process_at_low_rate(branchless_conditional(m_controller_value_eg_amp_mod >= 64, m_eg[4].get_output(), m_eg[5].get_output()));
 }
@@ -1571,8 +1571,8 @@ if constexpr (RESTRICT_POLY_AND_CORES == false) {
 if (m_voice_mode == VOICE_POLYPHONIC) {
         m_eg[6].process_at_low_rate();
         m_eg[7].process_at_low_rate();
-        int16_t lfo_output = m_lfo.get_output<3>();
-        m_osc.process_at_low_rate<3>(m_count >> 2, lfo_output, m_eg[6].get_output(), noise_int15);
+        int32_t lfo_output = m_lfo.get_output<3>();
+        m_osc.process_at_low_rate<3>(m_count >> 2, lfo_output, m_eg[6].get_output(), noise_int23);
         m_filter[3].process_at_low_rate(m_count >> 2, m_eg[6].get_output(), lfo_output, m_osc.get_osc_pitch(3));
         m_amp[3].process_at_low_rate(branchless_conditional(m_controller_value_eg_amp_mod >= 64, m_eg[6].get_output(), m_eg[7].get_output()));
 }
@@ -1592,19 +1592,19 @@ if constexpr (NO_FX == false) {
 
 #if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)
 if constexpr (RESTRICT_POLY_AND_CORES == false) {
-    m_secondary_core_processing_argument = noise_int15;
+    m_secondary_core_processing_argument = noise_int23;
     m_secondary_core_processing_request = 1;
 }
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)
 
-    osc_output   [0] = m_osc      .process<0, SYNTH_ID, RESTRICT_SAW, RESTRICT_SQR_WT>(noise_int15);
+    osc_output   [0] = m_osc      .process<0, SYNTH_ID, RESTRICT_SAW, RESTRICT_SQR_WT>(noise_int23);
     filter_output[0] = m_filter[0].process(osc_output   [0]);
     amp_output   [0] = m_amp   [0].process(filter_output[0]);
 
 #if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)
 if constexpr (RESTRICT_POLY_AND_CORES == false) {
 if (m_voice_mode == VOICE_POLYPHONIC) {
-    osc_output   [1] = m_osc      .process<1, SYNTH_ID, RESTRICT_SAW, RESTRICT_SQR_WT>(noise_int15);
+    osc_output   [1] = m_osc      .process<1, SYNTH_ID, RESTRICT_SAW, RESTRICT_SQR_WT>(noise_int23);
     filter_output[1] = m_filter[1].process(osc_output   [1]);
     amp_output   [1] = m_amp   [1].process(filter_output[1]);
 } else {
@@ -1655,7 +1655,7 @@ if constexpr (MONO_LEVEL_DOWN == false) {
 
 } else {
 
-    noise_int15 = m_noise_gen.get();
+    noise_int23 = m_noise_gen.get();
     panner_output_r = 0;
     panner_output_l = 0;
 
@@ -1707,18 +1707,18 @@ if constexpr (EXT_OUTPUT) {
     boolean processed = false;
 
     if (m_secondary_core_processing_request == 1) {
-      int16_t noise_int15 = static_cast<int16_t>(m_secondary_core_processing_argument);
+      int32_t noise_int23 = m_secondary_core_processing_argument;
 
       int32_t osc_output   [4];
       int32_t filter_output[4];
       int32_t amp_output   [4];
 
 if (m_voice_mode == VOICE_POLYPHONIC) {
-      osc_output   [2] = m_osc      .process<2, SYNTH_ID, RESTRICT_SAW, RESTRICT_SQR_WT>(noise_int15);
+      osc_output   [2] = m_osc      .process<2, SYNTH_ID, RESTRICT_SAW, RESTRICT_SQR_WT>(noise_int23);
       filter_output[2] = m_filter[2].process(osc_output   [2]);
       amp_output   [2] = m_amp   [2].process(filter_output[2]);
 
-      osc_output   [3] = m_osc      .process<3, SYNTH_ID, RESTRICT_SAW, RESTRICT_SQR_WT>(noise_int15);
+      osc_output   [3] = m_osc      .process<3, SYNTH_ID, RESTRICT_SAW, RESTRICT_SQR_WT>(noise_int23);
       filter_output[3] = m_filter[3].process(osc_output   [3]);
       amp_output   [3] = m_amp   [3].process(filter_output[3]);
 } else {
