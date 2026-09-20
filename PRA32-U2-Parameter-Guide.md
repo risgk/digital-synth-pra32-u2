@@ -233,6 +233,15 @@
     - 64: 2.7 Hz
     - 80: 6.9 Hz
     - 127: 103.8 Hz (max)
+- LFO Rate (Red Noise: sets the low-pass cutoff of the noise, the level stays the same)
+    - 0: No Modulation (min)
+    - 1: 0.015 Hz
+    - 32: 1.5 Hz
+    - 64: 189 Hz
+    - 80: 2.4 kHz
+    - 83: 5.1 kHz
+    - 84: Almost No Low-Pass Filtering
+    - 100: No Low-Pass Filtering (max)
 - LFO Depth
     - 0: 0% (min)
     - 1: 10.8%
