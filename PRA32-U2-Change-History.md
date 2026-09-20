@@ -4,6 +4,8 @@
     - Change the debug print of the CPU processing time to show min and max
     - Change the oscillator drift noise to a 1st-order IIR low-pass filter
     - Change the LFO Red Noise to a 1st-order IIR low-pass filter controlled by LFO Rate
+    - Change the low-pass filter for the Delay/Chorus delay component to a 1st-order IIR filter
+    - Improve the Chorus delay time resolution from 1/16 sample to 1/256 sample
     - Tested with Arduino-Pico version 6.0.0
 - v2.20.1 (2026-09-03):
     - PRA32-U2 Editor: Stabilize layout across browsers/fonts/screens
