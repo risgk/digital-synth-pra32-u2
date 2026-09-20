@@ -37,6 +37,12 @@ static INLINE int32_t approach_exp(int32_t current_value, int32_t target_value, 
   return target_value - (((target_value - current_value) * (65536 - rate)) / 65536);
 }
 
+// Same result as approach_exp, for value ranges where the 32-bit product would overflow
+static INLINE int32_t approach_exp_wide(int32_t current_value, int32_t target_value, int32_t rate) {
+  int64_t delta = static_cast<int64_t>(target_value - current_value) * (65536 - rate);
+  return target_value - static_cast<int32_t>((delta + ((delta >> 63) & 0xFFFF)) >> 16);
+}
+
 template <typename T>
 T branchless_conditional(bool condition, T a, T b) {
   return (condition ? a : b);
