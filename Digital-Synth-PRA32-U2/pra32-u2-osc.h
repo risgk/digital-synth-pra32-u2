@@ -477,7 +477,7 @@ public:
   }
 
   template <uint8_t N>
-  INLINE void process_at_low_rate(uint32_t count, int16_t lfo_level, int16_t eg_level, int16_t noise_int15) {
+  INLINE void process_at_low_rate(uint32_t count, int32_t lfo_level, int32_t eg_level, int32_t noise_int23) {
     update_pitch_current<N>();
     update_osc1_shape<N>(lfo_level, eg_level);
     update_osc1_shape_effective<N>();
@@ -486,10 +486,10 @@ public:
 
     switch (count & 0x07) {
     case ((N * 0x01) + 0x00):
-      update_freq_offset<N + 0>(noise_int15);
+      update_freq_offset<N + 0>(noise_int23);
       break;
     case ((N * 0x01) + 0x04):
-      update_freq_offset<N + 4>(noise_int15);
+      update_freq_offset<N + 4>(noise_int23);
       break;
     }
   }
@@ -501,9 +501,9 @@ public:
   }
 
   template <uint8_t N, uint32_t SYNTH_ID = 0, boolean RESTRICT_SAW = false, boolean RESTRICT_SQR_WT = false>
-  INLINE int32_t process(int16_t noise_int15) {
+  INLINE int32_t process(int32_t noise_int23) {
 #if 1
-    return process_osc<N, SYNTH_ID, RESTRICT_SAW, RESTRICT_SQR_WT>(noise_int15);
+    return process_osc<N, SYNTH_ID, RESTRICT_SAW, RESTRICT_SQR_WT>(noise_int23);
 #else
     return = 0;
 #endif
@@ -566,7 +566,7 @@ private:
   }
 
   template <uint8_t N, uint32_t SYNTH_ID = 0, boolean RESTRICT_SAW = false, boolean RESTRICT_SQR_WT = false>
-  INLINE int32_t process_osc(int16_t noise_int15) {
+  INLINE int32_t process_osc(int32_t noise_int23) {
     int32_t result = 0;
 
     m_phase[N] += m_freq[N];
@@ -707,7 +707,7 @@ if constexpr (RESTRICT_SQR_WT == false) {
       result += (wave_1 * m_mixer_noise_sub_osc_current * OSC_LEVEL) >> 9;
     } else {
       // Noise (wave_1)
-      int16_t wave_1 = noise_int15 >> 1;
+      int16_t wave_1 = noise_int23 >> 9;
       result += (wave_1 * -m_mixer_noise_sub_osc_current * OSC_LEVEL) >> 9;
     }
 
@@ -720,7 +720,7 @@ if constexpr (RESTRICT_SQR_WT == false) {
       result += (wave_2 * m_osc2_gain * OSC_LEVEL) >> 9;
     } else {
       // Noise (wave_2)
-      int16_t wave_2 = noise_int15 >> 1;
+      int16_t wave_2 = noise_int23 >> 9;
       result += (wave_2 * m_osc2_gain * OSC_LEVEL) >> 9;
     }
 
@@ -751,7 +751,11 @@ if constexpr (RESTRICT_SQR_WT == false) {
   }
 
   template <uint8_t N>
-  INLINE void update_freq_base(int16_t lfo_level, int16_t eg_level) {
+  INLINE void update_freq_base(int32_t lfo_level_q23, int32_t eg_level_q23) {
+    // 0. Round the Q23 control signals down to the resolution the Osc uses
+    int32_t lfo_level = (lfo_level_q23 + (1 << 7)) >> 8;
+    int32_t eg_level  = (eg_level_q23  + (1 << 7)) >> 8;
+
     // 1. Calculate base pitch in Q16 fixed-point
     int32_t pitch_temp = (m_pitch_current[N & 0x03] >> (8 - 2)) + m_pitch_bend_normalized;
     pitch_temp += (m_coarse_tune << 16) + (m_fine_tune << 10);
@@ -765,14 +769,14 @@ if constexpr (RESTRICT_SQR_WT == false) {
     } else {
       pitch_eg_amt = m_pitch_eg_amt[0];
     }
-    pitch_temp += ((eg_level * pitch_eg_amt) >> 6);
+    pitch_temp += ((eg_level * pitch_eg_amt) >> 7);
 
     // 3. Add LFO Modulation and Coarse/Pitch Offset for Osc 2
     if (N >= 4) {
-      pitch_temp += (lfo_level * m_pitch_lfo_amt[1]) >> 6;
+      pitch_temp += (lfo_level * m_pitch_lfo_amt[1]) >> 7;
       pitch_temp += (m_osc2_coarse << 16) + (m_osc2_pitch << 8);
     } else {
-      pitch_temp += (lfo_level * m_pitch_lfo_amt[0]) >> 6;
+      pitch_temp += (lfo_level * m_pitch_lfo_amt[0]) >> 7;
     }
 
     // 4. Clamp within the valid Note Number range
@@ -804,8 +808,8 @@ if constexpr (RESTRICT_SQR_WT == false) {
   }
 
   template <uint8_t N>
-  INLINE void update_freq_offset(int16_t noise_int15) {
-    m_drift_noise[N] += ((static_cast<int32_t>(noise_int15) << 16) - m_drift_noise[N]) >> 14;
+  INLINE void update_freq_offset(int32_t noise_int23) {
+    m_drift_noise[N] += ((noise_int23 << 8) - m_drift_noise[N]) >> 14;
 
     m_freq_offset[N] = (N >> 2) << 1;
     m_freq_offset[N] += (((static_cast<int32_t>(m_freq_base[N]) * (m_drift_noise[N] >> 16)) >> 8) * m_drift) >> 16;
@@ -825,13 +829,16 @@ if constexpr (RESTRICT_SQR_WT == false) {
   }
 
   template <uint8_t N>
-  INLINE void update_osc1_shape(int16_t lfo_level, int16_t eg_level) {
+  INLINE void update_osc1_shape(int32_t lfo_level_q23, int32_t eg_level_q23) {
+    int32_t lfo_level = (lfo_level_q23 + (1 << 7)) >> 8;
+    int32_t eg_level  = (eg_level_q23  + (1 << 7)) >> 8;
+
     int32_t osc1_shape = (128 << 8) + m_osc1_shape_target;
     m_osc1_shape_target_value[N] = clamp(osc1_shape, (0 << 8), (256 << 8));
-    m_osc1_shape_lfo_target[N] = -((lfo_level * m_shape_lfo_amt_current) >> 5);
+    m_osc1_shape_lfo_target[N] = -((lfo_level * m_shape_lfo_amt_current) >> 6);
 
     m_shape_eg_amt_current = approach_exp(m_shape_eg_amt_current, m_shape_eg_amt, SMOOTH_RATE);
-    m_osc1_shape_eg_target[N] = (eg_level * m_shape_eg_amt_current) >> 5;
+    m_osc1_shape_eg_target[N] = (eg_level * m_shape_eg_amt_current) >> 6;
   }
 
   template <uint8_t N>

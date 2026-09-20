@@ -14,7 +14,7 @@ class PRA32_U2_EG {
 
   uint8_t  m_state;
   int32_t  m_level;
-  int16_t  m_level_out;
+  int32_t  m_level_out;
   int32_t  m_attack;
   int32_t  m_decay;
   int32_t  m_attack_coef;
@@ -128,10 +128,10 @@ public:
 
     const uint32_t keep_mask = -static_cast<int32_t>(sound_off ^ 1);
     m_level &= keep_mask;
-    m_level_out = m_level >> 16;
+    m_level_out = m_level >> 7;
   }
 
-  INLINE int16_t get_output() {
+  INLINE int32_t get_output() {
     return m_level_out;
   }
 
@@ -156,7 +156,7 @@ public:
       break;
     }
 
-    m_level_out = m_level >> 16;
+    m_level_out = m_level >> 7;
 #endif
   }
 

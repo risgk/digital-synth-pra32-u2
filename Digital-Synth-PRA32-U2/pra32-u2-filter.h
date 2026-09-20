@@ -155,7 +155,7 @@ public:
     m_cutoff_lfo_amt_current[1] = 0;
   }
 
-  INLINE void process_at_low_rate(uint8_t count, int16_t eg_input, int16_t lfo_input, uint16_t osc_pitch) {
+  INLINE void process_at_low_rate(uint8_t count, int32_t eg_input, int32_t lfo_input, uint16_t osc_pitch) {
     static_cast<void>(count);
     update_coefs(eg_input, lfo_input, osc_pitch);
   }
@@ -164,11 +164,11 @@ public:
 #if 1
     // Nonlinear Biquad Filter, Transposed Direct Form-II
     int32_t x_0 = audio_input_int24 << FILTER_CALC_SCALING_BITS;
-    int32_t y_0 =           m_z_1 + (multiply_shift_right(m_b_2_over_a_0, x_0,      32) << (32 - FILTER_TABLE_FRACTION_BITS));
-    m_z_1       = soft_clip(m_z_2 + (multiply_shift_right(m_b_2_over_a_0, x_0 << 1, 32) << (32 - FILTER_TABLE_FRACTION_BITS))
-                                  - (multiply_shift_right(m_a_1_over_a_0, y_0,      32) << (32 - FILTER_TABLE_FRACTION_BITS)));
-    m_z_2       = soft_clip(        (multiply_shift_right(m_b_2_over_a_0, x_0,      32) << (32 - FILTER_TABLE_FRACTION_BITS))
-                                  - (multiply_shift_right(m_a_2_over_a_0, y_0,      32) << (32 - FILTER_TABLE_FRACTION_BITS)));
+    int32_t y_0 =           m_z_1 + multiply_shift_right(m_b_2_over_a_0, x_0,      FILTER_TABLE_FRACTION_BITS);
+    m_z_1       = soft_clip(m_z_2 + multiply_shift_right(m_b_2_over_a_0, x_0 << 1, FILTER_TABLE_FRACTION_BITS)
+                                  - multiply_shift_right(m_a_1_over_a_0, y_0,      FILTER_TABLE_FRACTION_BITS));
+    m_z_2       = soft_clip(        multiply_shift_right(m_b_2_over_a_0, x_0,      FILTER_TABLE_FRACTION_BITS)
+                                  - multiply_shift_right(m_a_2_over_a_0, y_0,      FILTER_TABLE_FRACTION_BITS));
 
     y_0 = (m_filter_mode >= 64) ? (x_0 - y_0) : y_0;
 #else
@@ -179,7 +179,11 @@ public:
   }
 
 private:
-  INLINE void update_coefs(int16_t eg_input, int16_t lfo_input, uint16_t osc_pitch) {
+  INLINE void update_coefs(int32_t eg_input_q23, int32_t lfo_input_q23, uint16_t osc_pitch) {
+    // 0. Round the Q23 control signals down to the resolution this filter actually uses
+    int32_t eg_input  = (eg_input_q23  + (1 << 7)) >> 8;
+    int32_t lfo_input = (lfo_input_q23 + (1 << 7)) >> 8;
+
     // 1. Synthesize base cutoff and smoothable modulation signals (LFO, Pitch, Breath)
     int32_t base_candidate = m_cutoff_target;
     base_candidate += (((m_breath_controller * m_cutoff_breath_amt) >> (14 - 2)) << 5);
@@ -191,7 +195,7 @@ private:
     int32_t lfo_mod_target = 0;
     for (int i = 0; i < 2; ++i) {
       m_cutoff_lfo_amt_current[i] = approach_exp(m_cutoff_lfo_amt_current[i], m_cutoff_lfo_amt[i], SMOOTH_RATE);
-      lfo_mod_target += (((lfo_input * m_cutoff_lfo_amt_current[i]) >> (14 - 2)) << 5);
+      lfo_mod_target += (((lfo_input * m_cutoff_lfo_amt_current[i]) >> (15 - 2)) << 5);
     }
 
     int32_t pitch_mod = ((((osc_pitch - (60 << 8)) * m_cutoff_pitch_amt) + (1 << ((10 - 1) - 2))) >> (10 - 2)) << 5;
@@ -206,8 +210,8 @@ private:
 
     // 3. Smooth the EG cutoff modulation and add it to the base cutoff
     int32_t eg_mod_target = 0;
-    eg_mod_target += ((static_cast<int16_t>(m_cutoff_eg_amt_current[0] >> 16) * eg_input) >> (14 - 2)) << 5;
-    eg_mod_target += ((static_cast<int16_t>(m_cutoff_eg_amt_current[1] >> 16) * eg_input) >> (14 - 2)) << 5;
+    eg_mod_target += ((static_cast<int16_t>(m_cutoff_eg_amt_current[0] >> 16) * eg_input) >> (15 - 2)) << 5;
+    eg_mod_target += ((static_cast<int16_t>(m_cutoff_eg_amt_current[1] >> 16) * eg_input) >> (15 - 2)) << 5;
     int32_t cutoff_candidate_ext = (m_cutoff_base_current + lfo_mod_target + pitch_mod + eg_mod_target + (1 << (5 - 1))) >> 5;
 
     // 4. Bound and lock final composite values into active table index registers
