@@ -78,8 +78,8 @@ class PRA32_U2_Osc {
   uint32_t       m_osc1_sqr_shape_offset[4][16];
   uint32_t       m_osc1_wt_shape_offset[4][16];
   uint16_t       m_osc1_phase_modulation_frequency_ratio[4];
-  int8_t         m_mixer_noise_sub_osc_target;
-  int8_t         m_mixer_noise_sub_osc_current;
+  int16_t        m_mixer_noise_sub_osc_target;
+  int16_t        m_mixer_noise_sub_osc_current;
   int16_t        m_mix_table[OSC_MIX_TABLE_LENGTH];
   int16_t        m_shape_eg_amt;
   int16_t        m_shape_eg_amt_current;
@@ -309,8 +309,8 @@ public:
 
   INLINE void set_mixer_sub_osc(uint8_t controller_value) {
     m_mixer_noise_sub_osc_target =
-      ((controller_value == 1)   ? 0   :
-      ((controller_value == 127) ? 128 : controller_value)) - 64;
+      (((controller_value == 1)   ? 0   :
+       ((controller_value == 127) ? 128 : controller_value)) - 64) << 4;
   }
 
   INLINE int16_t get_pitch_mod_amt_table(uint8_t controller_value) {
@@ -704,11 +704,11 @@ if constexpr (RESTRICT_SQR_WT == false) {
     if (m_mixer_noise_sub_osc_current >= 0) {
       // Sub Osc (wave_1)
       int16_t wave_1 = get_wave_level(m_wave_table[N + 12], m_phase[N] >> 1);
-      result += (wave_1 * m_mixer_noise_sub_osc_current * OSC_LEVEL) >> 5;
+      result += (wave_1 * m_mixer_noise_sub_osc_current * OSC_LEVEL) >> 9;
     } else {
       // Noise (wave_1)
       int16_t wave_1 = noise_int15 >> 1;
-      result += (wave_1 * -m_mixer_noise_sub_osc_current * OSC_LEVEL) >> 5;
+      result += (wave_1 * -m_mixer_noise_sub_osc_current * OSC_LEVEL) >> 9;
     }
 
     m_phase[N + 4] += m_freq[N + 4];
