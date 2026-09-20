@@ -6,6 +6,8 @@
     - Change the LFO Red Noise to a 1st-order IIR low-pass filter controlled by LFO Rate
     - Change the low-pass filter for the Delay/Chorus delay component to a 1st-order IIR filter
     - Improve the Chorus delay time resolution from 1/16 sample to 1/256 sample
+    - Improve the Osc pitch resolution from Q8 to Q16 fixed-point
+    - Improve the Osc output precision by shifting before the accumulation
     - Tested with Arduino-Pico version 6.0.0
 - v2.20.1 (2026-09-03):
     - PRA32-U2 Editor: Stabilize layout across browsers/fonts/screens
