@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 Parameter Guide v2.20.1
+# Digital Synth PRA32-U2 Parameter Guide v2.21.0
 
-- 2026-09-03 ISGK Instruments
+- 2026-09-22 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 ## Control Change Parameters
@@ -39,11 +39,11 @@
 - Osc 1 Morph $2
     - Saw Wave:
         - 0: Normal Saw 100% (min)
-        - 64: Normal Saw 50% + Multi Saw 50%
+        - 64 (63-64): Normal Saw 50% + Multi Saw 50%
         - 127: Multi Saw 100% (max)
     - Square Wave:
         - 0: Normal Square 100% (min)
-        - 64: Normal Square 50% + Sync Square 50%
+        - 64 (63-64): Normal Square 50% + Sync Square 50%
         - 127: Sync Square 100% (max)
     - Sine Wave (Frequency Modulation or Phase Modulation): Frequency Ratio of Modulator
         - 0 (0-1): Ratio 0.5 (min)
@@ -64,9 +64,9 @@
         - 127 (116-127): Wave Table 5 (6+0 to 0+10)
     - Pulse Wave
         - 0: Pulse 100% = Saw 100% + Reverse Saw 100% (min)
-        - 32: Pulse 50% + Saw 50% = Saw 100% + Reverse Saw 50%
-        - 64: Saw 100%
-        - 96: Saw 100% + Saw 50%
+        - 32 (31-32): Pulse 50% + Saw 50% = Saw 100% + Reverse Saw 50%
+        - 64 (63-64): Saw 100%
+        - 96 (95-96): Saw 100% + Saw 50%
         - 127: Saw 100% + Saw 100% (max)
 - Osc 2 Wave [Saw|Sqr|Tri|Sin|O1|Nos]
     - 0 (0-12): Saw Wave
@@ -82,6 +82,9 @@
         - Square Wave
     - 127 (116-127): White Noise
 - Mixer Osc Mix [1|2]
+    - 0: Osc 1 100% (min)
+    - 64 (63-64): Osc 1 50% + Osc 2 50%
+    - 127: Osc 2 100% (max)
 - Osc 2 Coarse [-|+]
     - -60 (4): -60 semitone (min)
     - +60 (124): +60 semitone (max)
@@ -233,6 +236,15 @@
     - 64: 2.7 Hz
     - 80: 6.9 Hz
     - 127: 103.8 Hz (max)
+- LFO Rate (Red Noise: sets the low-pass cutoff of the noise, the level stays the same)
+    - 0: 0.0 Hz (min)
+    - 1: 0.015 Hz
+    - 32: 1.5 Hz
+    - 64: 189 Hz
+    - 80: 2.4 kHz
+    - 83: 5.1 kHz
+    - 84: Almost No Low-Pass Filtering
+    - 100: No Low-Pass Filtering (max)
 - LFO Depth
     - 0: 0% (min)
     - 1: 10.8%

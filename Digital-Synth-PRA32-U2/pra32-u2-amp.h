@@ -46,14 +46,14 @@ PRA32_U2_Amp()
     m_output_gain_current = 0;
   }
 
-  INLINE void process_at_low_rate(int16_t gain_mod_input) {
+  INLINE void process_at_low_rate(int32_t gain_mod_input) {
     update_total_gain_current();
-    m_gain_mod_input = gain_mod_input << 2;
+    m_gain_mod_input = gain_mod_input;
     m_output_gain_current = multiply_shift_right(m_gain_mod_input, m_total_gain_linear_current, 16);
   }
 
   INLINE int32_t process(int32_t audio_input_int24) {
-    return multiply_shift_right(audio_input_int24, m_output_gain_current, 16);
+    return multiply_shift_right(audio_input_int24, m_output_gain_current, 23);
   }
 
 private:
