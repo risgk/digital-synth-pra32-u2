@@ -149,7 +149,7 @@
 | A-06 Osc b     | Osc 1 Shape          | Osc 1 Morph          |
 | A-07 Osc c     | Osc 2 Wave           | Mixer Osc Mix        |
 | A-08 Osc d     | Osc 2 Coarse         | Osc 2 Pitch          |
-| A-09 Osc e     | Osc Drift            | Osc Saw W Mode       |
+| A-09 Osc e     | Osc/Filter Drift     | Osc Saw W Mode       |
 | A-10 Filter a  | Filter Cutoff        | Filter Resonance     |
 | A-11 Filter b  | Filter EG Amt        | Filter Key Track     |
 | A-12 Filter c  | Filter Mode          |                      |

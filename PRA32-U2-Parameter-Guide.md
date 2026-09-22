@@ -301,7 +301,7 @@
     - 32: +9.4 cent at note number 108 (-9.4 cent at note number 12)
     - 64: +18.8 cent at note number 108 (-18.8 cent at note number 12)
     - 127: +37.2 cent at note number 108 (-37.2 cent at note number 12)
-- Osc Drift
+- Osc/Filter Drift
 - Osc Saw Wave Mode [Str|Cur]
     - 0 (0-63): Straight Saw Wave
     - 127 (64-127): Curved Saw Wave, This does not affect the Pulse Wave
