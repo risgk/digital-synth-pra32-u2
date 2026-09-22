@@ -843,7 +843,7 @@ if constexpr (RESTRICT_SQR_WT == false) {
 
   template <uint8_t N>
   INLINE void update_osc1_shape_effective() {
-    m_osc1_shape_base_current[N] = approach_exp(m_osc1_shape_base_current[N], m_osc1_shape_target_value[N], SMOOTH_RATE);
+    m_osc1_shape_base_current[N] = approach_exp_wide(m_osc1_shape_base_current[N], m_osc1_shape_target_value[N], SMOOTH_RATE);
     m_osc1_shape_current[N] = clamp(m_osc1_shape_base_current[N] + m_osc1_shape_lfo_target[N] + m_osc1_shape_eg_target[N], (0 << 8), (256 << 8));
 
     uint32_t shape = maximum(m_osc1_shape_current[N] - (128 << 8), 0);
