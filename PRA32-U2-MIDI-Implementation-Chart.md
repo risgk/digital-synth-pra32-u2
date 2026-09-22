@@ -83,7 +83,7 @@
 |                            10 | x             | o             | Pan                                  |
 |                            22 | x             | o             | Stretch Tune [-|+]                   |
 |                               |               |               |                                      |
-|                            82 | x             | o             | Osc Drift                            |
+|                            82 | x             | o             | Osc/Filter Drift                     |
 |                            83 | x             | o             | Osc Saw Wave Mode [Str|Cur]          |
 |                            86 | x             | o             | Coarse Tune [-|+]                    |
 |                            70 | x             | o             | Fine Tune [-|+]                      |
