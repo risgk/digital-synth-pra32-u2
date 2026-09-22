@@ -1,18 +1,18 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v2.21.0 (2026-??-??):
-    - Change the debug print of the CPU processing time to show min and max
+    - Fix the LFO Triangle Wave level range to match the other LFO waveforms
     - Change the oscillator drift noise to a 1st-order IIR low-pass filter
     - Change the LFO Red Noise to a 1st-order IIR low-pass filter controlled by LFO Rate
     - Change the low-pass filter for the Delay/Chorus delay component to a 1st-order IIR filter
-    - Improve the Chorus delay time resolution from 1/16 sample to 1/256 sample
-    - Improve the Osc pitch resolution from Q8 to Q16 fixed-point
-    - Improve the Osc output precision by shifting before the accumulation
-    - Improve the Sub Osc/Noise level smoothing resolution
-    - Fix the LFO Triangle Wave level range to match the other LFO waveforms
     - Change the EG/LFO/Noise control signals to Q23 fixed-point, the same scale as the audio
-    - Improve the Amp envelope resolution by using the Q23 control signal directly
+    - Change the debug print of the CPU processing time to show min and max
+    - Improve the Osc output precision by shifting before the accumulation
+    - Improve the Osc pitch resolution from Q8 to Q16 fixed-point
+    - Improve the Sub Osc/Noise level smoothing resolution
     - Improve the Filter precision by keeping the 2 bits the coefficient product used to drop
+    - Improve the Amp envelope resolution by using the Q23 control signal directly
+    - Improve the Chorus delay time resolution from 1/16 sample to 1/256 sample
     - Improve the Delay time resolution from 1 sample to 1/256 sample
     - Tested with Arduino-Pico version 6.0.0
 - v2.20.1 (2026-09-03):
