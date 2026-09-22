@@ -1250,6 +1250,10 @@ if constexpr (NO_FX == false) {
 
     case OSC_DRIFT      :
       m_osc.set_drift(controller_value);
+      m_filter[0].set_drift(controller_value);
+      m_filter[1].set_drift(controller_value);
+      m_filter[2].set_drift(controller_value);
+      m_filter[3].set_drift(controller_value);
       break;
 
     case OSC_SAW_W_MODE :
@@ -1520,7 +1524,7 @@ if constexpr (BYPASS_SYNTH == false) {
         m_eg[1].process_at_low_rate();
         int32_t lfo_output = m_lfo.get_output<0>();
         m_osc.process_at_low_rate<0>(m_count >> 2, lfo_output, m_eg[0].get_output(), noise_int23);
-        m_filter[0].process_at_low_rate(m_count >> 2, m_eg[0].get_output(), lfo_output, m_osc.get_osc_pitch(0));
+        m_filter[0].process_at_low_rate<0>(m_count >> 2, m_eg[0].get_output(), lfo_output, m_osc.get_osc_pitch(0), noise_int23);
         m_amp[0].process_at_low_rate(branchless_conditional(m_controller_value_eg_amp_mod >= 64, m_eg[0].get_output(), m_eg[1].get_output()));
       }
       break;
@@ -1535,7 +1539,7 @@ if (m_voice_mode == VOICE_POLYPHONIC) {
         m_eg[3].process_at_low_rate();
         int32_t lfo_output = m_lfo.get_output<1>();
         m_osc.process_at_low_rate<1>(m_count >> 2, lfo_output, m_eg[2].get_output(), noise_int23);
-        m_filter[1].process_at_low_rate(m_count >> 2, m_eg[2].get_output(), lfo_output, m_osc.get_osc_pitch(1));
+        m_filter[1].process_at_low_rate<1>(m_count >> 2, m_eg[2].get_output(), lfo_output, m_osc.get_osc_pitch(1), noise_int23);
         m_amp[1].process_at_low_rate(branchless_conditional(m_controller_value_eg_amp_mod >= 64, m_eg[2].get_output(), m_eg[3].get_output()));
 }
 }
@@ -1553,7 +1557,7 @@ if (m_voice_mode == VOICE_POLYPHONIC) {
         m_eg[5].process_at_low_rate();
         int32_t lfo_output = m_lfo.get_output<2>();
         m_osc.process_at_low_rate<2>(m_count >> 2, lfo_output, m_eg[4].get_output(), noise_int23);
-        m_filter[2].process_at_low_rate(m_count >> 2, m_eg[4].get_output(), lfo_output, m_osc.get_osc_pitch(2));
+        m_filter[2].process_at_low_rate<2>(m_count >> 2, m_eg[4].get_output(), lfo_output, m_osc.get_osc_pitch(2), noise_int23);
         m_amp[2].process_at_low_rate(branchless_conditional(m_controller_value_eg_amp_mod >= 64, m_eg[4].get_output(), m_eg[5].get_output()));
 }
 }
@@ -1573,7 +1577,7 @@ if (m_voice_mode == VOICE_POLYPHONIC) {
         m_eg[7].process_at_low_rate();
         int32_t lfo_output = m_lfo.get_output<3>();
         m_osc.process_at_low_rate<3>(m_count >> 2, lfo_output, m_eg[6].get_output(), noise_int23);
-        m_filter[3].process_at_low_rate(m_count >> 2, m_eg[6].get_output(), lfo_output, m_osc.get_osc_pitch(3));
+        m_filter[3].process_at_low_rate<3>(m_count >> 2, m_eg[6].get_output(), lfo_output, m_osc.get_osc_pitch(3), noise_int23);
         m_amp[3].process_at_low_rate(branchless_conditional(m_controller_value_eg_amp_mod >= 64, m_eg[6].get_output(), m_eg[7].get_output()));
 }
 }
