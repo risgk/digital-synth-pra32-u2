@@ -6,8 +6,12 @@ $file.printf("#pragma once\n\n")
 
 # Coefficients of the ZDF/TPT State Variable Filter
 #
-# Only one entry per controller value is generated (plus one guard entry for
-# the interpolation); the filter interpolates between the entries at run time
+# Only one entry per controller value is generated; the filter interpolates
+# between the entries at run time
+#
+# The tables end with a guard entry that repeats the entry for the controller
+# value 127, so that the interpolation needs no run-time check at the end of
+# the table, and anything above the controller value 127 is treated as 127
 
 # Filter Cutoff controller value -> cutoff frequency (12.98 Hz .. 19912 Hz)
 def cutoff_freq(controller_value)
@@ -23,12 +27,13 @@ def generate_table(name, comment, fraction_bits)
   $file.printf("// %s\n", comment)
   # Not const, so that the small tables are placed in the SRAM, not in the flash
   $file.printf("int32_t %s[FILTER_TABLE_LENGTH] = {\n  ", name)
-  (0..(FILTER_TABLE_LENGTH - 1)).each do |controller_value|
+  (0..(FILTER_TABLE_LENGTH - 1)).each do |index|
+    controller_value = [index, FILTER_TABLE_LENGTH - 2].min  # The guard entry repeats the last one
     value = yield(controller_value)
     $file.printf("%+11d,", (value * (1 << fraction_bits)).round)
-    if controller_value == (FILTER_TABLE_LENGTH - 1)
+    if index == (FILTER_TABLE_LENGTH - 1)
       $file.printf("\n")
-    elsif controller_value % 6 == (6 - 1)
+    elsif index % 8 == (8 - 1)
       $file.printf("\n  ")
     else
       $file.printf(" ")

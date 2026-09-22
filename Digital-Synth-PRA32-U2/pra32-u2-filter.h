@@ -37,7 +37,8 @@ static INLINE int32_t soft_clip(int32_t value) {
 }
 
 // Linear interpolation between the coefficients of two adjacent controller
-// values; controller_value_q16 is the controller value scaled by 65536
+// values; controller_value_q16 is the controller value scaled by 65536, and is
+// expected to be clamped to 0 .. CONTROLLER_VALUE_Q16_MAX
 static INLINE int32_t interpolate_filter_table(const int32_t* filter_table, int32_t controller_value_q16) {
   uint32_t index = static_cast<uint32_t>(controller_value_q16) >> 16;
   int32_t  fraction = controller_value_q16 & 0xFFFF;
