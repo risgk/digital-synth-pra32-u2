@@ -1,4 +1,4 @@
-# Digital Synth PRA32-U2/P v2.21.0
+# Digital Synth PRA32-U2/P v3.0.0
 
 - 2026-09-22 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
@@ -140,7 +140,7 @@
 
 | Page           | Parameter A          | Parameter B          |
 | :------------- | :------------------- | :------------------- |
-| A-00 Info      | PRA32-U2/P           | v2.21.0              |
+| A-00 Info      | PRA32-U2/P           | v3.0.0               |
 | A-01 Voice     | Voice Mode           | Voice Asgn Mode      |
 | A-02 Pitch a   | Portamento           | Pitch Bend Range     |
 | A-03 Pitch b   | Stretch Tune         |                      |
