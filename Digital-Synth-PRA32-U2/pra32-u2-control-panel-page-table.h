@@ -40,7 +40,7 @@ static const PRA32_U2_ControlPanelPage g_control_panel_page_table_a[] = {
   { "Page=A-12 ", "Filter c  ",   "Filter    ", "Mode      ", FILTER_MODE    ,   "          ", "          ", 0xFF           ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=A-13 ", "EG a      ",   "EG        ", "Attack    ", EG_ATTACK      ,   "EG        ", "Decay     ", EG_DECAY       ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=A-14 ", "EG b      ",   "EG        ", "Sustain   ", EG_SUSTAIN     ,   "EG        ", "Release   ", EG_RELEASE     ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=A-15 ", "EG c      ",   "EG        ", "Amp Mod   ", EG_AMP_MOD     ,   "Release   ", "= Decay   ", REL_EQ_DECAY   ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=A-15 ", "EG c      ",   "EG        ", "Amp Mod   ", EG_AMP_MOD     ,   "EG/Amp    ", "Rel = Dec ", REL_EQ_DECAY   ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=A-16 ", "EG d      ",   "EG        ", "Mod Amt   ", EG_OSC_AMT     ,   "EG        ", "Mod Dst   ", EG_OSC_DST     ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=A-17 ", "EG e      ",   "EG        ", "Filter Amt", FILTER_EG_AMT  ,   "EG Level  ", "Velo Sens ", EG_VEL_SENS    ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=A-18 ", "EG f      ",   "EG Att/Dec", "Velo Sens ", A_D_VEL_SENS   ,   "EG Rel    ", "Velo Sens ", REL_VEL_SENS   ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
