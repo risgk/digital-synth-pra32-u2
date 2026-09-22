@@ -1,5 +1,8 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v3.1.0 (2026-??-??):
+    - Improve the Amp gain and the Chorus delay time smoothing by interpolating them over the control interval
+    - Tested with Arduino-Pico version 6.1.1
 - v3.0.0 (2026-09-22):
     - Fix the Filter EG Amt, Amp Gain, and Osc 1 Shape smoothing overflowing 32-bit arithmetic
     - Fix the documented LFO Fade Time at the controller values 32 and 96
