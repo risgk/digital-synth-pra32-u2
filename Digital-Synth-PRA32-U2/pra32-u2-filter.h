@@ -53,6 +53,11 @@ class PRA32_U2_Filter {
   static const int32_t SMOOTH_RATE = 2048;
   static const int32_t CONTROLLER_VALUE_Q16_MAX = static_cast<int32_t>(FILTER_TABLE_LENGTH - 2) << 16;
 
+  // The Osc drift is a relative frequency deviation; 1 controller value is
+  // 1 semitone, so multiplying it by (12 / ln 2) << 16 gives the same amount
+  // of drift for the cutoff, in Q16 controller values
+  static const int32_t DRIFT_SCALE = 1134666;
+
   int32_t m_g;                         // g = tan(pi * f_0 / f_s), Q26
   int32_t m_one_over_a_0;              // 1 / a_0, Q30, where a_0 = 1 + g * (g + k)
   int32_t m_g_plus_k_over_a_0;         // (g + k) / a_0, Q30
@@ -71,6 +76,8 @@ class PRA32_U2_Filter {
   int16_t m_cutoff_breath_amt;
   int16_t m_breath_controller;
   int32_t m_cutoff_base_current;       // Smooth state variable for the base cutoff and LFO/Pitch/Breath modulations
+  uint16_t m_cutoff_drift;
+  int32_t m_cutoff_drift_noise;
 
 public:
   PRA32_U2_Filter()
@@ -92,6 +99,8 @@ public:
   , m_cutoff_breath_amt()
   , m_breath_controller()
   , m_cutoff_base_current()
+  , m_cutoff_drift()
+  , m_cutoff_drift_noise()
   {
     set_cutoff(127);
     set_resonance(0);
@@ -168,9 +177,16 @@ public:
     m_breath_controller = (controller_value * 16384) / 127;
   }
 
+  // Same mapping as PRA32_U2_Osc::set_drift(), so that the cutoff drifts by
+  // the same amount as the Osc pitch
+  INLINE void set_drift(uint8_t controller_value) {
+    m_cutoff_drift = ((controller_value + 1) >> 1) << 2;
+  }
+
   INLINE void reset() {
     m_s_1 = 0;
     m_s_2 = 0;
+    m_cutoff_drift_noise = 0;
     m_cutoff_base_current = 0;
     m_cutoff_eg_amt_current[0] = 0;
     m_cutoff_eg_amt_current[1] = 0;
@@ -178,8 +194,15 @@ public:
     m_cutoff_lfo_amt_current[1] = 0;
   }
 
-  INLINE void process_at_low_rate(uint8_t count, int32_t eg_input, int32_t lfo_input, uint16_t osc_pitch) {
-    static_cast<void>(count);
+  template <uint8_t N>
+  INLINE void process_at_low_rate(uint8_t count, int32_t eg_input, int32_t lfo_input, uint16_t osc_pitch, int32_t noise_int23) {
+    // Pick up the noise once every 8 counts, like PRA32_U2_Osc does, but at a
+    // phase none of the 8 oscillators uses, so that the drift of this voice is
+    // not correlated with the drift of its oscillators
+    if ((count & 0x07) == ((N + 2) & 0x07)) {
+      m_cutoff_drift_noise += ((noise_int23 << 8) - m_cutoff_drift_noise) >> 14;
+    }
+
     update_coefs(eg_input, lfo_input, osc_pitch);
   }
 
@@ -253,7 +276,8 @@ private:
     eg_mod_target += (static_cast<int16_t>(m_cutoff_eg_amt_current[1] >> 16) * eg_input);
 
     // 4. Bound and lock final composite values into active controller value registers
-    m_cutoff_current = clamp(m_cutoff_base_current + lfo_mod_target + pitch_mod + eg_mod_target, 0, CONTROLLER_VALUE_Q16_MAX);
+    int32_t drift_mod = multiply_shift_right((m_cutoff_drift_noise >> 16) * m_cutoff_drift, DRIFT_SCALE, 24);
+    m_cutoff_current = clamp(m_cutoff_base_current + lfo_mod_target + pitch_mod + eg_mod_target + drift_mod, 0, CONTROLLER_VALUE_Q16_MAX);
     m_resonance_current = approach_exp_wide(m_resonance_current, static_cast<int32_t>(m_resonance_target) << 16, SMOOTH_RATE);
 
     // 5. Interpolate the coefficient tables and solve the zero-delay feedback
