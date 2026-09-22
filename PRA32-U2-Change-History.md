@@ -1,5 +1,8 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v3.0.0 (2026-??-??):
+    - Change the Filter design to a ZDF/TPT State Variable Filter (HP sound changes)
+    - Tested with Arduino-Pico version 6.1.1
 - v2.21.0 (2026-09-22):
     - Fix the LFO Triangle Wave level range to match the other LFO waveforms
     - Change the oscillator drift noise to a 1st-order IIR low-pass filter
