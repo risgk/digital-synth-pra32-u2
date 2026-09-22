@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v3.0.0 (2026-??-??):
+    - Fix the Filter EG Amt, Amp Gain, and Osc 1 Shape smoothing overflowing 32-bit arithmetic
     - Change the Filter design to a ZDF/TPT State Variable Filter (HP sound changes)
     - Change the debug print of the CPU processing time to label the audio and loop times
     - Tested with Arduino-Pico version 6.1.1
