@@ -2,9 +2,12 @@
 
 - v3.0.0 (2026-??-??):
     - Fix the Filter EG Amt, Amp Gain, and Osc 1 Shape smoothing overflowing 32-bit arithmetic
+    - Fix the documented LFO Fade Time at the controller values 32 and 96
+    - Change the Chorus Level, Delay Level, Noise/Sub Osc, and After Touch LFO Amt to uniform steps every 2 controller values
     - Change the EG Attack/Decay/Release maximum times from 10.0 s/30.0 s to 9.31 s/27.9 s
     - Change the EG Sustain, Amp Sustain to uniform steps over the full range, changing every 2 controller values
     - Change the Filter design to a ZDF/TPT State Variable Filter (HP sound changes)
+    - Change the LFO Fade Time maximum from 10.0 s to 9.65 s
     - Change the Osc Drift to the Osc/Filter Drift, which also drifts the Filter cutoff
     - Change the debug print of the CPU processing time to label the audio and loop times
     - Improve the Filter Key Track resolution from Q8 to Q16 fixed-point
