@@ -119,7 +119,7 @@ public:
     m_cutoff_current = m_cutoff_base_current;
     m_resonance_current = static_cast<int32_t>(m_resonance_target) << 16;
 
-    update_coefs(0, 0, 60 << 8);
+    update_coefs(0, 0, 60 << 16);
   }
 
   INLINE void set_cutoff(uint8_t controller_value) {
@@ -195,7 +195,7 @@ public:
   }
 
   template <uint8_t N>
-  INLINE void process_at_low_rate(uint8_t count, int32_t eg_input, int32_t lfo_input, uint16_t osc_pitch, int32_t noise_int23) {
+  INLINE void process_at_low_rate(uint8_t count, int32_t eg_input, int32_t lfo_input, int32_t osc_pitch, int32_t noise_int23) {
     // Pick up the noise once every 8 counts, like PRA32_U2_Osc does, but at a
     // phase none of the 8 oscillators uses, so that the drift of this voice is
     // not correlated with the drift of its oscillators
@@ -239,7 +239,7 @@ public:
   }
 
 private:
-  INLINE void update_coefs(int32_t eg_input_q23, int32_t lfo_input_q23, uint16_t osc_pitch) {
+  INLINE void update_coefs(int32_t eg_input_q23, int32_t lfo_input_q23, int32_t osc_pitch_q16) {
     // 0. Round the Q23 control signals down to the resolution this filter actually uses
     int32_t eg_input  = (eg_input_q23  + (1 << 7)) >> 8;
     int32_t lfo_input = (lfo_input_q23 + (1 << 7)) >> 8;
@@ -260,7 +260,7 @@ private:
       lfo_mod_target += (lfo_input * m_cutoff_lfo_amt_current[i]);
     }
 
-    int32_t pitch_mod = ((osc_pitch - (60 << 8)) * m_cutoff_pitch_amt) << 5;
+    int32_t pitch_mod = (((osc_pitch_q16 - (60 << 16)) * m_cutoff_pitch_amt) + (1 << 2)) >> 3;
 
     int32_t eg_amt_target[2] = {
       static_cast<int32_t>(m_cutoff_eg_amt_target[0]) << 16,
