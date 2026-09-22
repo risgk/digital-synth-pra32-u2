@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v2.21.0 (2026-??-??):
+- v2.21.0 (2026-09-22):
     - Fix the LFO Triangle Wave level range to match the other LFO waveforms
     - Change the oscillator drift noise to a 1st-order IIR low-pass filter
     - Change the LFO Red Noise to a 1st-order IIR low-pass filter controlled by LFO Rate
