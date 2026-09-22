@@ -29,7 +29,7 @@ class PRA32_U2_EG {
   int32_t  m_release_note_off_velocity_sensitivity;
   uint8_t  m_note_on_velocity;
   uint8_t  m_note_off_velocity;
-  uint16_t m_osc_pitch;
+  int32_t  m_osc_pitch;
   int32_t  m_attack_decay_pitch_amt;
   boolean  m_release_eq_decay;
 
@@ -52,7 +52,7 @@ public:
   , m_release_note_off_velocity_sensitivity()
   , m_note_on_velocity(64)
   , m_note_off_velocity(64)
-  , m_osc_pitch(60 << 8)
+  , m_osc_pitch(60 << 16)
   , m_attack_decay_pitch_amt()
   , m_release_eq_decay()
   {
@@ -104,7 +104,7 @@ public:
     m_attack_decay_pitch_amt = ((controller_value - 63) >> 1) << 1;
   }
 
-  INLINE void note_on(uint8_t velocity, uint16_t osc_pitch = (60 << 8)) {
+  INLINE void note_on(uint8_t velocity, int32_t osc_pitch = (60 << 16)) {
     m_note_on_velocity = (velocity <= 127) ? velocity : m_note_on_velocity;
     m_osc_pitch = osc_pitch;
 
@@ -174,7 +174,7 @@ private:
   INLINE void update_attack_coef() {
     int32_t attack = m_attack << 8;
     attack += ((m_note_on_velocity - 64) * m_attack_decay_note_on_velocity_sensitivity) << 2;
-    attack += ((m_osc_pitch - (60 << 8)) * m_attack_decay_pitch_amt) >> 6;
+    attack += ((m_osc_pitch - (60 << 16)) * m_attack_decay_pitch_amt) >> 14;
     attack = clamp(attack, 0, 128 << 8);
     m_attack_coef = lerp_coef(attack, g_eg_attack_coef_table);
   }
@@ -182,7 +182,7 @@ private:
   INLINE void update_decay_coef() {
     int32_t decay = m_decay << 8;
     decay += ((m_note_on_velocity - 64) * m_attack_decay_note_on_velocity_sensitivity) << 2;
-    decay += ((m_osc_pitch - (60 << 8)) * m_attack_decay_pitch_amt) >> 6;
+    decay += ((m_osc_pitch - (60 << 16)) * m_attack_decay_pitch_amt) >> 14;
     decay = clamp(decay, 0, 128 << 8);
     m_decay_coef = lerp_coef(decay, g_eg_decay_release_coef_table);
 #if 0
@@ -201,7 +201,7 @@ private:
     if (m_release_eq_decay) {
       release = m_decay << 8;
       release += ((m_note_on_velocity - 64) * m_attack_decay_note_on_velocity_sensitivity) << 2;
-      release += ((m_osc_pitch - (60 << 8)) * m_attack_decay_pitch_amt) >> 6;
+      release += ((m_osc_pitch - (60 << 16)) * m_attack_decay_pitch_amt) >> 14;
     } else {
       release = m_release << 8;
     }

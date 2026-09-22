@@ -463,12 +463,11 @@ public:
     update_pitch_bend();
   }
 
-  INLINE uint16_t get_osc_pitch(uint8_t index) {
+  INLINE int32_t get_osc_pitch(uint8_t index) {
     int32_t pitch_temp = (m_pitch_current[index] >> (8 - 2)) + m_pitch_bend_normalized;
     pitch_temp += (m_coarse_tune << 16) + (m_fine_tune << 10);
     pitch_temp += ((pitch_temp - (60 << 16)) * m_stretch_tune) >> 13;
-    pitch_temp = clamp(pitch_temp, NOTE_NUMBER_MIN << 16, NOTE_NUMBER_MAX << 16);
-    return pitch_temp >> 8;
+    return clamp(pitch_temp, NOTE_NUMBER_MIN << 16, NOTE_NUMBER_MAX << 16);
   }
 
   template <uint8_t N>
