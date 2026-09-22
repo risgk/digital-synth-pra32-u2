@@ -39,19 +39,19 @@ static INLINE int32_t soft_clip(int32_t value) {
 }
 
 // Linear interpolation between the coefficients of two adjacent controller
-// values; controller_value_q8 is the controller value scaled by 256
-static INLINE int32_t interpolate_filter_table(const int32_t* filter_table, int32_t controller_value_q8) {
-  uint32_t index = static_cast<uint32_t>(controller_value_q8) >> 8;
-  int32_t  fraction = controller_value_q8 & 0xFF;
+// values; controller_value_q16 is the controller value scaled by 65536
+static INLINE int32_t interpolate_filter_table(const int32_t* filter_table, int32_t controller_value_q16) {
+  uint32_t index = static_cast<uint32_t>(controller_value_q16) >> 16;
+  int32_t  fraction = controller_value_q16 & 0xFFFF;
   int32_t  value_0 = filter_table[index + 0];
   int32_t  value_1 = filter_table[index + 1];
 
-  return value_0 + multiply_shift_right(value_1 - value_0, fraction, 8);
+  return value_0 + multiply_shift_right(value_1 - value_0, fraction, 16);
 }
 
 class PRA32_U2_Filter {
   static const int32_t SMOOTH_RATE = 2048;
-  static const int32_t CONTROLLER_VALUE_Q8_MAX = static_cast<int32_t>(FILTER_TABLE_LENGTH - 2) << 8;
+  static const int32_t CONTROLLER_VALUE_Q16_MAX = static_cast<int32_t>(FILTER_TABLE_LENGTH - 2) << 16;
 
   int32_t m_g;                         // g = tan(pi * f_0 / f_s), Q26
   int32_t m_one_over_a_0;              // 1 / a_0, Q30, where a_0 = 1 + g * (g + k)
@@ -108,13 +108,13 @@ public:
     m_cutoff_lfo_amt_current[0] = 0;
     m_cutoff_lfo_amt_current[1] = 0;
     m_cutoff_current = m_cutoff_base_current;
-    m_resonance_current = static_cast<int32_t>(m_resonance_target) << 8;
+    m_resonance_current = static_cast<int32_t>(m_resonance_target) << 16;
 
     update_coefs(0, 0, 60 << 8);
   }
 
   INLINE void set_cutoff(uint8_t controller_value) {
-    m_cutoff_target = static_cast<int32_t>(controller_value) << 8;
+    m_cutoff_target = static_cast<int32_t>(controller_value) << 16;
   }
 
   INLINE void set_resonance(uint8_t controller_value) {
@@ -222,20 +222,22 @@ private:
     int32_t lfo_input = (lfo_input_q23 + (1 << 7)) >> 8;
 
     // 1. Synthesize base cutoff and smoothable modulation signals (LFO, Pitch, Breath)
+    // The cutoff is in Q16 controller values, and the Amt parameters are +-240
+    // for +-120 controller values at the full scale of the modulation source
     int32_t base_candidate = m_cutoff_target;
-    base_candidate += ((m_breath_controller * m_cutoff_breath_amt) >> (14 - 2 - 5));
+    base_candidate += ((m_breath_controller * m_cutoff_breath_amt) << 1);
 
     // 2. Smooth the integrated base modulation target and EG Amt parameters simultaneously
-    int32_t base_target = clamp(base_candidate, 0, CONTROLLER_VALUE_Q8_MAX);
-    m_cutoff_base_current = approach_exp(m_cutoff_base_current, base_target, SMOOTH_RATE);
+    int32_t base_target = clamp(base_candidate, 0, CONTROLLER_VALUE_Q16_MAX);
+    m_cutoff_base_current = approach_exp_wide(m_cutoff_base_current, base_target, SMOOTH_RATE);
 
     int32_t lfo_mod_target = 0;
     for (int i = 0; i < 2; ++i) {
       m_cutoff_lfo_amt_current[i] = approach_exp(m_cutoff_lfo_amt_current[i], m_cutoff_lfo_amt[i], SMOOTH_RATE);
-      lfo_mod_target += ((lfo_input * m_cutoff_lfo_amt_current[i]) >> (15 - 2 - 5));
+      lfo_mod_target += (lfo_input * m_cutoff_lfo_amt_current[i]);
     }
 
-    int32_t pitch_mod = (((osc_pitch - (60 << 8)) * m_cutoff_pitch_amt) + (1 << ((10 - 1) - 2 - 5))) >> (10 - 2 - 5);
+    int32_t pitch_mod = ((osc_pitch - (60 << 8)) * m_cutoff_pitch_amt) << 5;
 
     int32_t eg_amt_target[2] = {
       static_cast<int32_t>(m_cutoff_eg_amt_target[0]) << 16,
@@ -247,12 +249,12 @@ private:
 
     // 3. Smooth the EG cutoff modulation and add it to the base cutoff
     int32_t eg_mod_target = 0;
-    eg_mod_target += ((static_cast<int16_t>(m_cutoff_eg_amt_current[0] >> 16) * eg_input) >> (15 - 2 - 5));
-    eg_mod_target += ((static_cast<int16_t>(m_cutoff_eg_amt_current[1] >> 16) * eg_input) >> (15 - 2 - 5));
+    eg_mod_target += (static_cast<int16_t>(m_cutoff_eg_amt_current[0] >> 16) * eg_input);
+    eg_mod_target += (static_cast<int16_t>(m_cutoff_eg_amt_current[1] >> 16) * eg_input);
 
     // 4. Bound and lock final composite values into active controller value registers
-    m_cutoff_current = clamp(m_cutoff_base_current + lfo_mod_target + pitch_mod + eg_mod_target, 0, CONTROLLER_VALUE_Q8_MAX);
-    m_resonance_current = approach_exp(m_resonance_current, static_cast<int32_t>(m_resonance_target) << 8, SMOOTH_RATE);
+    m_cutoff_current = clamp(m_cutoff_base_current + lfo_mod_target + pitch_mod + eg_mod_target, 0, CONTROLLER_VALUE_Q16_MAX);
+    m_resonance_current = approach_exp_wide(m_resonance_current, static_cast<int32_t>(m_resonance_target) << 16, SMOOTH_RATE);
 
     // 5. Interpolate the coefficient tables and solve the zero-delay feedback
     int32_t g = interpolate_filter_table(g_filter_g_table, m_cutoff_current);
