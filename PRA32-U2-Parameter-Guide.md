@@ -39,11 +39,11 @@
 - Osc 1 Morph $2
     - Saw Wave:
         - 0: Normal Saw 100% (min)
-        - 64: Normal Saw 50% + Multi Saw 50%
+        - 64 (63-64): Normal Saw 50% + Multi Saw 50%
         - 127: Multi Saw 100% (max)
     - Square Wave:
         - 0: Normal Square 100% (min)
-        - 64: Normal Square 50% + Sync Square 50%
+        - 64 (63-64): Normal Square 50% + Sync Square 50%
         - 127: Sync Square 100% (max)
     - Sine Wave (Frequency Modulation or Phase Modulation): Frequency Ratio of Modulator
         - 0 (0-1): Ratio 0.5 (min)
@@ -64,9 +64,9 @@
         - 127 (116-127): Wave Table 5 (6+0 to 0+10)
     - Pulse Wave
         - 0: Pulse 100% = Saw 100% + Reverse Saw 100% (min)
-        - 32: Pulse 50% + Saw 50% = Saw 100% + Reverse Saw 50%
-        - 64: Saw 100%
-        - 96: Saw 100% + Saw 50%
+        - 32 (31-32): Pulse 50% + Saw 50% = Saw 100% + Reverse Saw 50%
+        - 64 (63-64): Saw 100%
+        - 96 (95-96): Saw 100% + Saw 50%
         - 127: Saw 100% + Saw 100% (max)
 - Osc 2 Wave [Saw|Sqr|Tri|Sin|O1|Nos]
     - 0 (0-12): Saw Wave
@@ -82,6 +82,9 @@
         - Square Wave
     - 127 (116-127): White Noise
 - Mixer Osc Mix [1|2]
+    - 0: Osc 1 100% (min)
+    - 64 (63-64): Osc 1 50% + Osc 2 50%
+    - 127: Osc 2 100% (max)
 - Osc 2 Coarse [-|+]
     - -60 (4): -60 semitone (min)
     - +60 (124): +60 semitone (max)
