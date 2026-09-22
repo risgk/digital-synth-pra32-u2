@@ -299,6 +299,8 @@ public:
   }
 
   INLINE void set_osc1_shape(uint8_t controller_value) {
+    // The shape scale really ends at 128, which the EG/LFO modulation also reaches,
+    // so the controller value 127 keeps mapping to it
     m_osc1_shape_target =
       ((controller_value == 127) ? 128 : controller_value) << 8;
   }
@@ -308,9 +310,7 @@ public:
   }
 
   INLINE void set_mixer_sub_osc(uint8_t controller_value) {
-    m_mixer_noise_sub_osc_target =
-      (((controller_value == 1)   ? 0   :
-       ((controller_value == 127) ? 128 : controller_value)) - 64) << 4;
+    m_mixer_noise_sub_osc_target = ((((controller_value + 1) >> 1) << 1) - 64) << 4;
   }
 
   INLINE int16_t get_pitch_mod_amt_table(uint8_t controller_value) {
@@ -342,6 +342,8 @@ public:
   }
 
   INLINE void set_shape_eg_amt(uint8_t controller_value) {
+    // Controller value 1 maps to 0 like controller value 0 does, so that the
+    // reachable amounts stay a mirror image on the minus and the plus side
     m_shape_eg_amt =
       (((controller_value == 1)   ? 0   :
        ((controller_value == 127) ? 128 : controller_value)) - 64) << 1;
@@ -353,6 +355,8 @@ public:
   }
 
   INLINE void set_shape_lfo_amt(uint8_t controller_value) {
+    // Controller value 1 maps to 0 like controller value 0 does, so that the
+    // reachable amounts stay a mirror image on the minus and the plus side
     m_shape_lfo_amt =
       -((((controller_value == 1)   ? 0   :
          ((controller_value == 127) ? 128 : controller_value)) - 64) << 1);
@@ -463,12 +467,11 @@ public:
     update_pitch_bend();
   }
 
-  INLINE uint16_t get_osc_pitch(uint8_t index) {
+  INLINE int32_t get_osc_pitch(uint8_t index) {
     int32_t pitch_temp = (m_pitch_current[index] >> (8 - 2)) + m_pitch_bend_normalized;
     pitch_temp += (m_coarse_tune << 16) + (m_fine_tune << 10);
     pitch_temp += ((pitch_temp - (60 << 16)) * m_stretch_tune) >> 13;
-    pitch_temp = clamp(pitch_temp, NOTE_NUMBER_MIN << 16, NOTE_NUMBER_MAX << 16);
-    return pitch_temp >> 8;
+    return clamp(pitch_temp, NOTE_NUMBER_MIN << 16, NOTE_NUMBER_MAX << 16);
   }
 
   template <uint8_t N>
@@ -843,7 +846,7 @@ if constexpr (RESTRICT_SQR_WT == false) {
 
   template <uint8_t N>
   INLINE void update_osc1_shape_effective() {
-    m_osc1_shape_base_current[N] = approach_exp(m_osc1_shape_base_current[N], m_osc1_shape_target_value[N], SMOOTH_RATE);
+    m_osc1_shape_base_current[N] = approach_exp_wide(m_osc1_shape_base_current[N], m_osc1_shape_target_value[N], SMOOTH_RATE);
     m_osc1_shape_current[N] = clamp(m_osc1_shape_base_current[N] + m_osc1_shape_lfo_target[N] + m_osc1_shape_eg_target[N], (0 << 8), (256 << 8));
 
     uint32_t shape = maximum(m_osc1_shape_current[N] - (128 << 8), 0);

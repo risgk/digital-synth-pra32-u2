@@ -65,7 +65,7 @@ public:
   }
 
   INLINE void set_chorus_level(uint8_t controller_value) {
-    m_chorus_level_target = (controller_value == 127) ? 128 : controller_value;
+    m_chorus_level_target = ((controller_value + 1) >> 1) << 1;
   }
 
   template <uint8_t N>

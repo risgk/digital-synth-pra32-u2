@@ -4,61 +4,58 @@ $file = File.open("pra32-u2-filter-table.h", "wb")
 
 $file.printf("#pragma once\n\n")
 
-OCTAVES = 10
+# Coefficients of the ZDF/TPT State Variable Filter
+#
+# Only one entry per controller value is generated; the filter interpolates
+# between the entries at run time
+#
+# The tables end with a guard entry that repeats the entry for the controller
+# value 127, so that the interpolation needs no run-time check at the end of
+# the table, and anything above the controller value 127 is treated as 127
 
-def generate_filter_lpf_table(res_id, name, q)
-  $file.printf("const int32_t g_filter_lpf_table_%s[] = {\n  ", name)
-  (0..((128 * 2) << FILTER_TABLE_CUTOFF_EXT_BITS) + 1).each do |i|
-    f_idx = [[-2 << FILTER_TABLE_CUTOFF_EXT_BITS, i - ((1 * 2) << FILTER_TABLE_CUTOFF_EXT_BITS)].max,
-              252 << FILTER_TABLE_CUTOFF_EXT_BITS].min
-    f_0 = (2.0 ** ((f_idx / 2.0 / (1 << FILTER_TABLE_CUTOFF_EXT_BITS)) / (120.0 / OCTAVES))) * ((A4_FREQ * 2.0) * 16.0) * 2.0 / (2.0 ** (OCTAVES.to_f + 1.0))
-    f_0_over_f_s = f_0 / SAMPLING_RATE
+# Filter Cutoff controller value -> cutoff frequency (12.98 Hz .. 19912 Hz)
+def cutoff_freq(controller_value)
+  (A4_FREQ / 32.0) * (2.0 ** ((controller_value - 1.0) / 12.0))
+end
 
-    w_0 = 2.0 * Math::PI * f_0_over_f_s
-    alpha = Math.sin(w_0) / (2.0 * q)
+# Filter Resonance controller value -> Q (0.707 .. 11.07)
+def resonance_q(controller_value)
+  2.0 ** ((controller_value - 16.0) / 32.0)
+end
 
-    lpf_b_2 = (1.0 - Math.cos(w_0)) / 2.0
-    hpf_b_2 = (1.0 + Math.cos(w_0)) / 2.0
-    a_0 = 1.0 + alpha
-    a_1 = (-2.0) * Math.cos(w_0)
-    a_2 = 1.0 - alpha
-
-    input_gain = 1.0
-
-    b_2_over_a_0_gain = (input_gain * (lpf_b_2 / a_0) * (1 << FILTER_TABLE_FRACTION_BITS)).floor.to_i
-    a_1_over_a_0 = ((a_1 / a_0) * (1 << FILTER_TABLE_FRACTION_BITS)).floor.to_i
-    a_2_over_a_0 = ((a_2 / a_0) * (1 << FILTER_TABLE_FRACTION_BITS)).floor.to_i
-
-    printf("i: %d, f_idx: %d, f_0_over_f_s: %f, f_0: %f, res_id: %d, q: %f, g: %f, q_mul_g: %f\n", i, f_idx, f_0_over_f_s, f_0, res_id, q, input_gain, q * input_gain)
-
-    $file.printf("%+11d, %+11d, %+11d,", b_2_over_a_0_gain, a_1_over_a_0, a_2_over_a_0)
-    if i == (((128 * 2) << FILTER_TABLE_CUTOFF_EXT_BITS) + 1)
+def generate_table(name, comment, fraction_bits)
+  $file.printf("// %s\n", comment)
+  # Not const, so that the small tables are placed in the SRAM, not in the flash
+  $file.printf("int32_t %s[FILTER_TABLE_LENGTH] = {\n  ", name)
+  (0..(FILTER_TABLE_LENGTH - 1)).each do |index|
+    controller_value = [index, FILTER_TABLE_LENGTH - 2].min  # The guard entry repeats the last one
+    value = yield(controller_value)
+    $file.printf("%+11d,", (value * (1 << fraction_bits)).round)
+    if index == (FILTER_TABLE_LENGTH - 1)
       $file.printf("\n")
-    elsif i % 2 == (2 - 1)
+    elsif index % 8 == (8 - 1)
       $file.printf("\n  ")
     else
-      $file.printf("  ")
+      $file.printf(" ")
     end
   end
   $file.printf("};\n\n")
 end
 
-MAX_RES_ID = (16 * (1 << FILTER_TABLE_RESO_EXT_BITS))
-
-(0..MAX_RES_ID).each do |res_id|
-  generate_filter_lpf_table(res_id, res_id.to_s, Math.sqrt(2.0) ** ((res_id - (2.0 * (1 << FILTER_TABLE_RESO_EXT_BITS))) / (2.0 * (1 << FILTER_TABLE_RESO_EXT_BITS))))
+# g = tan(pi * f_0 / f_s), the TPT integrator gain (prewarped cutoff)
+generate_table("g_filter_g_table", "g = tan(pi * f_0 / f_s)", FILTER_G_FRACTION_BITS) do |controller_value|
+  f_0 = [cutoff_freq(controller_value), SAMPLING_RATE * 0.49].min
+  g = Math.tan(Math::PI * f_0 / SAMPLING_RATE)
+  printf("cutoff: %3d, f_0: %9.3f, g: %9.6f\n", controller_value, f_0, g)
+  g
 end
 
-$file.printf("const int32_t* g_filter_tables[] = {\n  ")
-(0..16 * (1 << FILTER_TABLE_RESO_EXT_BITS)).each do |res_index|
-  res_id = res_index
-  $file.printf("g_filter_lpf_table_%-2d,", res_id)
-  if res_index % 4 == 3
-    $file.printf("\n  ")
-  else
-    $file.printf(" ")
-  end
+# k = 1 / Q, the damping of the ZDF/TPT State Variable Filter
+generate_table("g_filter_k_table", "k = 1 / Q", FILTER_TABLE_FRACTION_BITS) do |controller_value|
+  q = resonance_q(controller_value)
+  k = 1.0 / q
+  printf("reso  : %3d, q  : %9.3f, k: %9.6f\n", controller_value, q, k)
+  k
 end
-$file.printf("};\n\n")
 
 $file.close

@@ -1,4 +1,4 @@
-# Digital Synth PRA32-U2/P v2.21.0
+# Digital Synth PRA32-U2/P v3.0.0
 
 - 2026-09-22 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
@@ -140,7 +140,7 @@
 
 | Page           | Parameter A          | Parameter B          |
 | :------------- | :------------------- | :------------------- |
-| A-00 Info      | PRA32-U2/P           | v2.21.0              |
+| A-00 Info      | PRA32-U2/P           | v3.0.0               |
 | A-01 Voice     | Voice Mode           | Voice Asgn Mode      |
 | A-02 Pitch a   | Portamento           | Pitch Bend Range     |
 | A-03 Pitch b   | Stretch Tune         |                      |
@@ -149,13 +149,13 @@
 | A-06 Osc b     | Osc 1 Shape          | Osc 1 Morph          |
 | A-07 Osc c     | Osc 2 Wave           | Mixer Osc Mix        |
 | A-08 Osc d     | Osc 2 Coarse         | Osc 2 Pitch          |
-| A-09 Osc e     | Osc Drift            | Osc Saw W Mode       |
+| A-09 Osc e     | Osc/Filter Drift     | Osc Saw W Mode       |
 | A-10 Filter a  | Filter Cutoff        | Filter Resonance     |
 | A-11 Filter b  | Filter EG Amt        | Filter Key Track     |
 | A-12 Filter c  | Filter Mode          |                      |
 | A-13 EG a      | EG Attack            | EG Decay             |
 | A-14 EG b      | EG Sustain           | EG Release           |
-| A-15 EG c      | EG Amp Mod           | Release = Decay      |
+| A-15 EG c      | EG Amp Mod           | EG/Amp Rel = Dec     |
 | A-16 EG d      | EG Mod Amt           | EG Mod Dst           |
 | A-17 EG e      | EG Filter Amt        | EG Level Velo Sens   |
 | A-18 EG f      | EG Att/Dec Velo Sens | EG Rel Velo Sens     |

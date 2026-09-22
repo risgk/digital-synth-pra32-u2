@@ -1,6 +1,6 @@
 ```
   [Polyphonic Synthesizer]                                        Date: 2026-09-22                      
-  Model: Digital Synth PRA32-U2   MIDI Implementation Chart       Version: 2.21.0                       
+  Model: Digital Synth PRA32-U2   MIDI Implementation Chart       Version: 3.0.0                        
 +-------------------------------+---------------+---------------+--------------------------------------+
 | Function...                   | Transmitted   | Recognized    | Remarks                              |
 +-------------------------------+---------------+---------------+--------------------------------------+
@@ -71,7 +71,7 @@
 |                            39 | x             | o             | Filter Mode [LP|HP]                  |
 |                            57 | x             | o             | Pitch Bend Range                     |
 |                            36 | x             | o             | EG Amp Mod [Off|On]                  |
-|                           105 | x             | o             | Release = Decay [Off|On]             |
+|                           105 | x             | o             | EG/Amp Release = Decay [Off|On]      |
 |                               |               |               |                                      |
 |                            51 | x             | o             | EG Att/Dec Velo Sens [-|+]           |
 |                            81 | x             | o             | EG Rel Velo Sens [-|+]               |
@@ -83,7 +83,7 @@
 |                            10 | x             | o             | Pan                                  |
 |                            22 | x             | o             | Stretch Tune [-|+]                   |
 |                               |               |               |                                      |
-|                            82 | x             | o             | Osc Drift                            |
+|                            82 | x             | o             | Osc/Filter Drift                     |
 |                            83 | x             | o             | Osc Saw Wave Mode [Str|Cur]          |
 |                            86 | x             | o             | Coarse Tune [-|+]                    |
 |                            70 | x             | o             | Fine Tune [-|+]                      |
