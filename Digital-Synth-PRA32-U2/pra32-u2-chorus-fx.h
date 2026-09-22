@@ -18,10 +18,10 @@ class PRA32_U2_ChorusFx {
   uint16_t m_chorus_delay_time_current;
   uint8_t  m_chorus_depth_actual;
   uint32_t m_chorus_lfo_phase;
-  uint16_t m_chorus_delay_time[2];
+  uint32_t m_chorus_delay_time[2];
 
-  int32_t  m_prev_sample_to_push_0;
-  int32_t  m_prev_sample_to_push_1;
+  int32_t  m_lpf_out_0;
+  int32_t  m_lpf_out_1;
 
 public:
   PRA32_U2_ChorusFx()
@@ -38,8 +38,8 @@ public:
   , m_chorus_lfo_phase()
   , m_chorus_delay_time()
 
-  , m_prev_sample_to_push_0()
-  , m_prev_sample_to_push_1()
+  , m_lpf_out_0()
+  , m_lpf_out_1()
   {
     m_delay_wp[0] = DELAY_BUFF_SIZE - 1;
     m_delay_wp[1] = DELAY_BUFF_SIZE - 1;
@@ -69,7 +69,7 @@ public:
   }
 
   template <uint8_t N>
-  INLINE uint16_t get_chorus_delay_time() {
+  INLINE uint32_t get_chorus_delay_time() {
     return m_chorus_delay_time[N];
   }
 
@@ -89,12 +89,12 @@ public:
     m_chorus_lfo_phase += m_chorus_rate;
     m_chorus_lfo_phase &= 0x00FFFFFF;
 
-    int16_t chorus_lfo_wave_level = get_chorus_lfo_wave_level(m_chorus_lfo_phase);
+    int32_t chorus_lfo_wave_level = get_chorus_lfo_wave_level(m_chorus_lfo_phase);
 
-    int16_t chorus_lfo_level = (chorus_lfo_wave_level * chorus_depth_current_limited) >> 14;
+    int32_t chorus_lfo_level = (chorus_lfo_wave_level * chorus_depth_current_limited) >> 14;
 
-    m_chorus_delay_time[0] = m_chorus_delay_time_current - chorus_lfo_level;
-    m_chorus_delay_time[1] = m_chorus_delay_time_current + chorus_lfo_level;
+    m_chorus_delay_time[0] = (m_chorus_delay_time_current << 4) - chorus_lfo_level;
+    m_chorus_delay_time[1] = (m_chorus_delay_time_current << 4) + chorus_lfo_level;
 #endif
   }
 
@@ -107,15 +107,15 @@ public:
 
 #if 0
     // Do not apply LPF to the delay component
-    m_prev_sample_to_push_0 = curr_sample_to_push_0;
-    m_prev_sample_to_push_1 = curr_sample_to_push_1;
+    m_lpf_out_0 = curr_sample_to_push_0;
+    m_lpf_out_1 = curr_sample_to_push_1;
 #endif
 
-    delay_buff_push(0, (curr_sample_to_push_0 + m_prev_sample_to_push_0) >> 1);
-    delay_buff_push(1, (curr_sample_to_push_1 + m_prev_sample_to_push_1) >> 1);
+    m_lpf_out_0 = curr_sample_to_push_0 - ((curr_sample_to_push_0 - m_lpf_out_0) >> 2);
+    m_lpf_out_1 = curr_sample_to_push_1 - ((curr_sample_to_push_1 - m_lpf_out_1) >> 2);
 
-    m_prev_sample_to_push_0 = curr_sample_to_push_0;
-    m_prev_sample_to_push_1 = curr_sample_to_push_1;
+    delay_buff_push(0, m_lpf_out_0);
+    delay_buff_push(1, m_lpf_out_1);
 
     right_output_int24 = right_input_int24 + eff_sample_1;
     return               left_input_int24  + eff_sample_0;
@@ -127,15 +127,15 @@ private:
     m_delay_buff[lr][m_delay_wp[lr]] = audio_input_int24;
   }
 
-  INLINE int32_t delay_buff_get(uint32_t lr, uint16_t sample_delay) {
-    uint16_t curr_index  = (m_delay_wp[lr] - (sample_delay >> 4)) & (DELAY_BUFF_SIZE - 1);
+  INLINE int32_t delay_buff_get(uint32_t lr, uint32_t sample_delay) {
+    uint16_t curr_index  = (m_delay_wp[lr] - (sample_delay >> 8)) & (DELAY_BUFF_SIZE - 1);
     uint16_t next_index  = (curr_index - 1) & (DELAY_BUFF_SIZE - 1);
-    uint16_t next_weight = (sample_delay & 0xF);
+    uint16_t next_weight = (sample_delay & 0xFF);
     int32_t  curr_data   = m_delay_buff[lr][curr_index];
     int32_t  next_data   = m_delay_buff[lr][next_index];
 
     // lerp
-    int32_t result = curr_data + multiply_shift_right(next_data - curr_data, next_weight << 12, 16);
+    int32_t result = curr_data + multiply_shift_right(next_data - curr_data, next_weight << 8, 16);
 
     return result;
   }
@@ -147,9 +147,9 @@ private:
     }
   }
 
-  INLINE int16_t get_chorus_lfo_wave_level(uint32_t phase) {
-    phase = (phase >> 9);
-    int16_t triangle_wave_level = (512 << 4) - std::abs(static_cast<int32_t>(phase) - 0x00004000);
+  INLINE int32_t get_chorus_lfo_wave_level(uint32_t phase) {
+    phase = (phase >> 5);
+    int32_t triangle_wave_level = (1 << 17) - std::abs(static_cast<int32_t>(phase) - (1 << 18));
     return triangle_wave_level;
   }
 };

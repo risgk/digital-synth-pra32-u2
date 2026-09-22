@@ -2,7 +2,7 @@
  * Digital Synth PRA32-U2
  */
 
-#define PRA32_U2_VERSION                       "v2.20.1   "
+#define PRA32_U2_VERSION                       "v2.21.0   "
 
 //#define PRA32_U2_USE_DEBUG_PRINT
 
@@ -119,10 +119,11 @@ PWMAudio g_pwm_r(PRA32_U2_PWM_AUDIO_R_PIN);
 #include <I2S.h>
 I2S g_i2s_output(OUTPUT);
 
-static volatile uint32_t s_debug_measurement_elapsed0_us = 0;
+static volatile uint32_t s_debug_measurement_min0_us     = UINT32_MAX;
 static volatile uint32_t s_debug_measurement_max0_us     = 0;
-static volatile uint32_t s_debug_measurement_elapsed1_us = 0;
+static volatile uint32_t s_debug_measurement_min1_us     = UINT32_MAX;
 static volatile uint32_t s_debug_measurement_max1_us     = 0;
+static volatile uint32_t s_debug_measurement_counted     = 0;
 
 void handleNoteOn(byte channel, byte pitch, byte velocity);
 void handleNoteOff(byte channel, byte pitch, byte velocity);
@@ -170,19 +171,27 @@ void __not_in_flash_func(loop1)() {
     switch (s_loop_counter) {
     case  1 * 400:
       PRA32_U2_DEBUG_PRINT_SERIAL.print("\e[1;1H\e[K");
-      PRA32_U2_DEBUG_PRINT_SERIAL.print(s_debug_measurement_elapsed1_us);
+      PRA32_U2_DEBUG_PRINT_SERIAL.print("min ");
+      PRA32_U2_DEBUG_PRINT_SERIAL.print(s_debug_measurement_min1_us);
       break;
     case  2 * 400:
       PRA32_U2_DEBUG_PRINT_SERIAL.print("\e[2;1H\e[K");
+      PRA32_U2_DEBUG_PRINT_SERIAL.print("max ");
       PRA32_U2_DEBUG_PRINT_SERIAL.print(s_debug_measurement_max1_us);
       break;
     case  3 * 400:
       PRA32_U2_DEBUG_PRINT_SERIAL.print("\e[4;1H\e[K");
-      PRA32_U2_DEBUG_PRINT_SERIAL.print(s_debug_measurement_elapsed0_us);
+      PRA32_U2_DEBUG_PRINT_SERIAL.print("min ");
+      PRA32_U2_DEBUG_PRINT_SERIAL.print(s_debug_measurement_min0_us);
       break;
     case  4 * 400:
       PRA32_U2_DEBUG_PRINT_SERIAL.print("\e[5;1H\e[K");
+      PRA32_U2_DEBUG_PRINT_SERIAL.print("max ");
       PRA32_U2_DEBUG_PRINT_SERIAL.print(s_debug_measurement_max0_us);
+      s_debug_measurement_min0_us = UINT32_MAX;
+      s_debug_measurement_max0_us = 0;
+      s_debug_measurement_min1_us = UINT32_MAX;
+      s_debug_measurement_max1_us = 0;
       break;
     default:
       PRA32_U2_ControlPanel_debug_print(s_loop_counter);
@@ -359,13 +368,23 @@ void __not_in_flash_func(loop)() {
 #endif  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
 
 #if defined(PRA32_U2_USE_DEBUG_PRINT)
-  s_debug_measurement_elapsed0_us = debug_measurement_end_us - debug_measurement_start0_us;
-  s_debug_measurement_max0_us += (s_debug_measurement_elapsed0_us > s_debug_measurement_max0_us) *
-                                 (s_debug_measurement_elapsed0_us - s_debug_measurement_max0_us);
+  uint32_t debug_measurement_elapsed0_us = debug_measurement_end_us - debug_measurement_start0_us;
+  s_debug_measurement_min0_us -= s_debug_measurement_counted *
+                                 (debug_measurement_elapsed0_us < s_debug_measurement_min0_us) *
+                                 (s_debug_measurement_min0_us - debug_measurement_elapsed0_us);
+  s_debug_measurement_max0_us += s_debug_measurement_counted *
+                                 (debug_measurement_elapsed0_us > s_debug_measurement_max0_us) *
+                                 (debug_measurement_elapsed0_us - s_debug_measurement_max0_us);
 
-  s_debug_measurement_elapsed1_us = debug_measurement_end_us - debug_measurement_start1_us;
-  s_debug_measurement_max1_us += (s_debug_measurement_elapsed1_us > s_debug_measurement_max1_us) *
-                                 (s_debug_measurement_elapsed1_us - s_debug_measurement_max1_us);
+  uint32_t debug_measurement_elapsed1_us = debug_measurement_end_us - debug_measurement_start1_us;
+  s_debug_measurement_min1_us -= s_debug_measurement_counted *
+                                 (debug_measurement_elapsed1_us < s_debug_measurement_min1_us) *
+                                 (s_debug_measurement_min1_us - debug_measurement_elapsed1_us);
+  s_debug_measurement_max1_us += s_debug_measurement_counted *
+                                 (debug_measurement_elapsed1_us > s_debug_measurement_max1_us) *
+                                 (debug_measurement_elapsed1_us - s_debug_measurement_max1_us);
+
+  s_debug_measurement_counted = 1;
 #endif  // defined(PRA32_U2_USE_DEBUG_PRINT)
 }
 

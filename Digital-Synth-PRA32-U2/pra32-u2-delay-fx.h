@@ -18,12 +18,12 @@ class PRA32_U2_DelayFx {
   uint16_t m_delay_level_current;
   uint8_t  m_delay_feedback_target;
   uint8_t  m_delay_feedback_current;
-  uint16_t m_delay_time_target;
-  uint16_t m_delay_time_current;
+  int32_t  m_delay_time_target;
+  int32_t  m_delay_time_current;
   uint8_t  m_delay_mode;
 
-  int32_t  m_prev_sample_to_push_0;
-  int32_t  m_prev_sample_to_push_1;
+  int32_t  m_lpf_out_0;
+  int32_t  m_lpf_out_1;
 
 public:
   PRA32_U2_DelayFx()
@@ -38,8 +38,8 @@ public:
   , m_delay_time_current()
   , m_delay_mode()
 
-  , m_prev_sample_to_push_0()
-  , m_prev_sample_to_push_1()
+  , m_lpf_out_0()
+  , m_lpf_out_1()
   {
     m_delay_wp[0] = DELAY_BUFF_SIZE - 1;
     m_delay_wp[1] = DELAY_BUFF_SIZE - 1;
@@ -100,7 +100,7 @@ public:
     };
 #endif  // !defined(PRA32_U2_LIMIT_DELAY_TIME_TO_SAVE_MEM)
 
-    m_delay_time_target = delay_time_table[controller_value];
+    m_delay_time_target = delay_time_table[controller_value] << 8;
   }
 
   INLINE void set_delay_mode(uint8_t controller_value) {
@@ -112,7 +112,7 @@ public:
     m_delay_feedback_current = approach_exp(m_delay_feedback_current, m_delay_feedback_target, SMOOTH_RATE);
 
     const int32_t is_even = (count & 0x01) ^ 1;
-    const auto next_approach_val = approach_exp(m_delay_time_current, m_delay_time_target, SMOOTH_RATE);
+    const int32_t next_approach_val = approach_exp_wide(m_delay_time_current, m_delay_time_target, SMOOTH_RATE);
     m_delay_time_current = (next_approach_val * is_even) + (m_delay_time_current * (is_even ^ 1));
   }
 
@@ -139,15 +139,15 @@ public:
 
 #if 0
     // Do not apply LPF to the delay component
-    m_prev_sample_to_push_0 = curr_sample_to_push_0;
-    m_prev_sample_to_push_1 = curr_sample_to_push_1;
+    m_lpf_out_0 = curr_sample_to_push_0;
+    m_lpf_out_1 = curr_sample_to_push_1;
 #endif
 
-    delay_buff_push<0>((curr_sample_to_push_0 + m_prev_sample_to_push_0) >> 1);
-    delay_buff_push<1>((curr_sample_to_push_1 + m_prev_sample_to_push_1) >> 1);
+    m_lpf_out_0 = curr_sample_to_push_0 - ((curr_sample_to_push_0 - m_lpf_out_0) >> 2);
+    m_lpf_out_1 = curr_sample_to_push_1 - ((curr_sample_to_push_1 - m_lpf_out_1) >> 2);
 
-    m_prev_sample_to_push_0 = curr_sample_to_push_0;
-    m_prev_sample_to_push_1 = curr_sample_to_push_1;
+    delay_buff_push<0>(m_lpf_out_0);
+    delay_buff_push<1>(m_lpf_out_1);
 
     right_output_int24 = right_input_int24 + right_delay;
     return               left_input_int24  + left_delay;
@@ -161,8 +161,14 @@ private:
   }
 
   template <uint8_t N>
-  INLINE int32_t delay_buff_get(uint16_t sample_delay) {
-    uint16_t delay_rp = (m_delay_wp[N] - sample_delay) & (DELAY_BUFF_SIZE - 1);
-    return m_delay_buff[N][delay_rp];
+  INLINE int32_t delay_buff_get(int32_t sample_delay) {
+    uint16_t curr_index  = (m_delay_wp[N] - (sample_delay >> 8)) & (DELAY_BUFF_SIZE - 1);
+    uint16_t next_index  = (curr_index - 1) & (DELAY_BUFF_SIZE - 1);
+    int32_t  next_weight = sample_delay & 0xFF;
+    int32_t  curr_data   = m_delay_buff[N][curr_index];
+    int32_t  next_data   = m_delay_buff[N][next_index];
+
+    // lerp
+    return curr_data + multiply_shift_right(next_data - curr_data, next_weight << 8, 16);
   }
 };

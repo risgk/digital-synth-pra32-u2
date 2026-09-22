@@ -15,7 +15,7 @@ public:
   {
   }
 
-  INLINE int16_t process() {
+  INLINE int32_t process() {
     m_state_a_prev = m_state_a;
 
     uint32_t x = m_state_a;
@@ -24,13 +24,13 @@ public:
     x ^= x << 5;
     m_state_a = x;
 
-    int16_t noise_int15 = (m_state_a >> 17) - 16384;
-    return noise_int15;
+    int32_t noise_int23 = (m_state_a >> 9) - (1 << 22);
+    return noise_int23;
   }
 
-  INLINE int16_t get() {
-    int16_t noise_int15 = (m_state_a >> 17) - 16384;
-    return noise_int15;
+  INLINE int32_t get() {
+    int32_t noise_int23 = (m_state_a >> 9) - (1 << 22);
+    return noise_int23;
   }
 
   INLINE void get_rand_uint8_array(uint8_t array[8]) {
