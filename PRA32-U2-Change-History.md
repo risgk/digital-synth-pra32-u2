@@ -5,6 +5,7 @@
     - Change the Filter design to a ZDF/TPT State Variable Filter (HP sound changes)
     - Change the Osc Drift to the Osc/Filter Drift, which also drifts the Filter cutoff
     - Change the debug print of the CPU processing time to label the audio and loop times
+    - Improve the Filter Key Track resolution from Q8 to Q16 fixed-point
     - Improve the noise generator seeding
     - Tested with Arduino-Pico version 6.1.1
 - v2.21.0 (2026-09-22):
