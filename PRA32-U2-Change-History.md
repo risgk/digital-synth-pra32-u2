@@ -3,16 +3,15 @@
 - v3.0.0 (2026-??-??):
     - Fix the Filter EG Amt, Amp Gain, and Osc 1 Shape smoothing overflowing 32-bit arithmetic
     - Fix the documented LFO Fade Time at the controller values 32 and 96
-    - Change the Chorus Level, Delay Level, Noise/Sub Osc, and After Touch LFO Amt to uniform steps every 2 controller values
+    - Change the Filter design to a **ZDF/TPT State Variable Filter** (HP sound changes)
+    - Change the Osc Drift to the **Osc/Filter Drift**, which also drifts the Filter cutoff
+    - Change the Mixer Noise/Sub Osc, EG Sustain, Amp Sustain, After Touch LFO Amt, Chorus Level, and Delay Level to uniform steps every 2 controller values
     - Change the EG Attack/Decay/Release maximum times from 10.0 s/30.0 s to 9.31 s/27.9 s
-    - Change the EG Sustain, Amp Sustain to uniform steps over the full range, changing every 2 controller values
-    - Change the Filter design to a ZDF/TPT State Variable Filter (HP sound changes)
     - Change the LFO Fade Time maximum from 10.0 s to 9.65 s
-    - Change the Osc Drift to the Osc/Filter Drift, which also drifts the Filter cutoff
     - Change the debug print of the CPU processing time to label the audio and loop times
+    - Rename the Release = Decay to the EG/Amp Release = Decay
     - Improve the Filter Key Track resolution from Q8 to Q16 fixed-point
     - Improve the noise generator seeding
-    - Rename the Release = Decay to the EG/Amp Release = Decay
     - Tested with Arduino-Pico version 6.1.1
 - v2.21.0 (2026-09-22):
     - Fix the LFO Triangle Wave level range to match the other LFO waveforms
