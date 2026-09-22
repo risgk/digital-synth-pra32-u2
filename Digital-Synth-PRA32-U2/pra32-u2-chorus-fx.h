@@ -6,6 +6,11 @@ class PRA32_U2_ChorusFx {
   static const uint16_t DELAY_BUFF_SIZE = 512;
   static const int32_t  SMOOTH_RATE     = 2048;
 
+  // The delay time is recalculated once per control interval, and interpolated
+  // over the samples in between; holding it would step the read position at
+  // the control rate, which modulates the phase of the delayed component
+  static const int32_t  CONTROL_INTERVAL_BITS = 2;
+
   int32_t  m_delay_buff[2][DELAY_BUFF_SIZE];
   uint16_t m_delay_wp[2];
 
@@ -18,7 +23,9 @@ class PRA32_U2_ChorusFx {
   uint16_t m_chorus_delay_time_current;
   uint8_t  m_chorus_depth_actual;
   uint32_t m_chorus_lfo_phase;
-  uint32_t m_chorus_delay_time[2];
+  int32_t  m_chorus_delay_time[2];
+  int32_t  m_chorus_delay_time_next[2];
+  int32_t  m_chorus_delay_time_step[2];
 
   int32_t  m_lpf_out_0;
   int32_t  m_lpf_out_1;
@@ -37,6 +44,8 @@ public:
   , m_chorus_delay_time_current()
   , m_chorus_lfo_phase()
   , m_chorus_delay_time()
+  , m_chorus_delay_time_next()
+  , m_chorus_delay_time_step()
 
   , m_lpf_out_0()
   , m_lpf_out_1()
@@ -50,6 +59,13 @@ public:
 
     m_chorus_depth_current = 64 << 6;
     m_chorus_delay_time_current = 64 << 6;
+
+    // Bootstrap the interpolation, so that the first block does not glide in
+    // from a zero delay time
+    m_chorus_delay_time[0] = m_chorus_delay_time_current << 4;
+    m_chorus_delay_time[1] = m_chorus_delay_time_current << 4;
+    m_chorus_delay_time_next[0] = m_chorus_delay_time[0];
+    m_chorus_delay_time_next[1] = m_chorus_delay_time[1];
   }
 
   INLINE void set_chorus_depth(uint8_t controller_value) {
@@ -69,7 +85,7 @@ public:
   }
 
   template <uint8_t N>
-  INLINE uint32_t get_chorus_delay_time() {
+  INLINE int32_t get_chorus_delay_time() {
     return m_chorus_delay_time[N];
   }
 
@@ -93,12 +109,22 @@ public:
 
     int32_t chorus_lfo_level = (chorus_lfo_wave_level * chorus_depth_current_limited) >> 14;
 
-    m_chorus_delay_time[0] = (m_chorus_delay_time_current << 4) - chorus_lfo_level;
-    m_chorus_delay_time[1] = (m_chorus_delay_time_current << 4) + chorus_lfo_level;
+    m_chorus_delay_time_next[0] = (m_chorus_delay_time_current << 4) - chorus_lfo_level;
+    m_chorus_delay_time_next[1] = (m_chorus_delay_time_current << 4) + chorus_lfo_level;
+
+    // Rounded up, so that the target is reached by the end of the interval
+    for (uint8_t i = 0; i < 2; ++i) {
+      const int32_t delta = m_chorus_delay_time_next[i] - m_chorus_delay_time[i];
+      m_chorus_delay_time_step[i] = (maximum(delta, -delta) +
+                                     ((1 << CONTROL_INTERVAL_BITS) - 1)) >> CONTROL_INTERVAL_BITS;
+    }
 #endif
   }
 
   INLINE int32_t process(int32_t left_input_int24, int32_t right_input_int24, int32_t& right_output_int24) {
+    m_chorus_delay_time[0] = approach(m_chorus_delay_time[0], m_chorus_delay_time_next[0], m_chorus_delay_time_step[0]);
+    m_chorus_delay_time[1] = approach(m_chorus_delay_time[1], m_chorus_delay_time_next[1], m_chorus_delay_time_step[1]);
+
     int32_t eff_sample_0 = delay_buff_get(0, get_chorus_delay_time<0>());
     int32_t eff_sample_1 = delay_buff_get(1, get_chorus_delay_time<1>());
 
@@ -127,7 +153,7 @@ private:
     m_delay_buff[lr][m_delay_wp[lr]] = audio_input_int24;
   }
 
-  INLINE int32_t delay_buff_get(uint32_t lr, uint32_t sample_delay) {
+  INLINE int32_t delay_buff_get(uint32_t lr, int32_t sample_delay) {
     uint16_t curr_index  = (m_delay_wp[lr] - (sample_delay >> 8)) & (DELAY_BUFF_SIZE - 1);
     uint16_t next_index  = (curr_index - 1) & (DELAY_BUFF_SIZE - 1);
     uint16_t next_weight = (sample_delay & 0xFF);
