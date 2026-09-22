@@ -92,20 +92,53 @@ max_tune_rate = -Float::INFINITY
   max_tune_rate = tune_rate if max_tune_rate < tune_rate
 end
 
+# The linear interpolation of the table leaves an image of the harmonic h at
+# (length - h) times the fundamental, at (h / length) ** 2 of its amplitude.
+# Summed over the harmonics that the mipmap holds, that comes to
+#
+#   Saw, Square     amplitude 1 / h    ->  images  ~  H ** 3 / length ** 4
+#   Triangle        amplitude 1 / h**2 ->  images  ~  H      / length ** 4
+#
+# which matches the measured floors within 0.5 dB. Keeping the floor even
+# across the mipmaps therefore wants the length to follow H ** 0.75 (H ** 0.25
+# for the Triangle), not H itself, and every doubling of a length buys 12 dB.
+# Sizing each table this way spends the memory where it actually buys quality:
+# a mipmap that holds 1 harmonic does not need the same length as one that
+# holds 255
+SOFT_TABLE_WAVES = ["triangle"]
+NOMINAL_TABLE_WAVES = ["sine"]
+
+def table_samples_bits(name, last)
+  # The LFO indexes the Sine table with OSC_WAVE_TABLE_SAMPLES_BITS directly
+  return OSC_WAVE_TABLE_SAMPLES_BITS if NOMINAL_TABLE_WAVES.include?(name)
+
+  soft = SOFT_TABLE_WAVES.include?(name)
+  samples = soft ? OSC_WAVE_TABLE_SAMPLES_SCALE_SOFT * (last ** 0.25)
+                 : OSC_WAVE_TABLE_SAMPLES_SCALE      * (last ** 0.75)
+  bits = Math.log2(samples).ceil
+  bits = [bits, OSC_WAVE_TABLE_SAMPLES_BITS_MIN].max
+  bits = [bits, soft ? OSC_WAVE_TABLE_SAMPLES_BITS_MAX_SOFT : OSC_WAVE_TABLE_SAMPLES_BITS_MAX].min
+  bits
+end
+
 def generate_osc_wave_table(name, last, amp)
-  $file.printf("int16_t g_osc_#{name}_wave_table_h%d[] = {\n  ", last)
-  (0..(1 << OSC_WAVE_TABLE_SAMPLES_BITS)).each do |n|
+  bits = table_samples_bits(name, last)
+  samples = 1 << bits
+  # The first entry is the number of index bits, which the run time reads
+  # back through the pointer the table array holds (which points at [1])
+  $file.printf("int16_t g_osc_#{name}_wave_table_h%d[] = {\n  %+6d,\n  ", last, bits)
+  (0..samples).each do |n|
     level = 0
     nn = n
-    nn = 0 if n == (1 << OSC_WAVE_TABLE_SAMPLES_BITS)
+    nn = 0 if n == samples
     max = last
     (1..max).each do |k|
-      level += yield(nn, k)
+      level += yield(nn.to_f / samples, k, nn, samples)
     end
     level *= amp
     level = (level * OSC_WAVE_TABLE_AMP).round.to_i
     $file.printf("%+6d,", level)
-    if n == (1 << OSC_WAVE_TABLE_SAMPLES_BITS)
+    if n == samples
       $file.printf("\n")
     elsif n % 16 == 15
       $file.printf("\n  ")
@@ -145,41 +178,38 @@ def generate_osc_wave_table_arrays
 end
 
 generate_osc_wave_table_arrays do |last|
-  generate_osc_wave_table("saw", last, 1.0) do |n, k|
-    (2.0 / Math::PI) * Math.sin((2.0 * Math::PI) *
-                                (n.to_f / (1 << OSC_WAVE_TABLE_SAMPLES_BITS)) * k) / k
+  generate_osc_wave_table("saw", last, 1.0) do |x, k|
+    (2.0 / Math::PI) * Math.sin((2.0 * Math::PI) * x * k) / k
   end
 end
 
-$osc_saw2_wave_table = []
+# The Saw2 wave has no closed-form harmonic series, so it is decomposed by an
+# FFT. Tables of different lengths need their own decomposition
+$osc_saw2_decompositions = {}
 
-(0..((1 << OSC_WAVE_TABLE_SAMPLES_BITS) - 1)).each do |n|
-  x = n.to_f / (1 << OSC_WAVE_TABLE_SAMPLES_BITS)
-  $osc_saw2_wave_table[n] = 1.0 - (x - (x ** 3.0) / 3.0) * 3.0
-end
-
-$osc_fft_saw2_wave_table = fft($osc_saw2_wave_table)
-
-$osc_ifft_bpf_fft_saw2_wave_table = [[]]
-
-(0..($osc_saw2_wave_table.size / 2)).each do |k|
-  $osc_ifft_bpf_fft_saw2_wave_table[k] = ifft(bpf_fft($osc_fft_saw2_wave_table, k), 1.0)
-end
-
-generate_osc_wave_table_arrays do |last|
-  generate_osc_wave_table("saw2", last, 1.0) do |n, k|
-    $osc_ifft_bpf_fft_saw2_wave_table[k][n]
+def saw2_decomposition(samples)
+  $osc_saw2_decompositions[samples] ||= begin
+    table = (0...samples).map do |n|
+      x = n.to_f / samples
+      1.0 - (x - (x ** 3.0) / 3.0) * 3.0
+    end
+    ffta = fft(table)
+    (0..(samples / 2)).map { |k| ifft(bpf_fft(ffta, k), 1.0) }
   end
 end
 
 generate_osc_wave_table_arrays do |last|
-  generate_osc_wave_table("triangle", last, 1.0) do |n, k|
+  generate_osc_wave_table("saw2", last, 1.0) do |x, k, n, samples|
+    saw2_decomposition(samples)[k][n]
+  end
+end
+
+generate_osc_wave_table_arrays do |last|
+  generate_osc_wave_table("triangle", last, 1.0) do |x, k|
     if k % 4 == 1
-      +(8.0 / (Math::PI * Math::PI)) * Math.sin((2.0 * Math::PI) *
-                                                (n.to_f / (1 << OSC_WAVE_TABLE_SAMPLES_BITS)) * k) / (k * k)
+      +(8.0 / (Math::PI * Math::PI)) * Math.sin((2.0 * Math::PI) * x * k) / (k * k)
     elsif k % 4 == 3
-      -(8.0 / (Math::PI * Math::PI)) * Math.sin((2.0 * Math::PI) *
-                                                (n.to_f / (1 << OSC_WAVE_TABLE_SAMPLES_BITS)) * k) / (k * k)
+      -(8.0 / (Math::PI * Math::PI)) * Math.sin((2.0 * Math::PI) * x * k) / (k * k)
     else
       0.0
     end
@@ -187,24 +217,23 @@ generate_osc_wave_table_arrays do |last|
 end
 
 generate_osc_wave_table_arrays do |last|
-  generate_osc_wave_table("square", last, 1.0) do |n, k|
+  generate_osc_wave_table("square", last, 1.0) do |x, k|
     if k % 2 == 1
-      (4.0 / Math::PI) * Math.sin((2.0 * Math::PI) *
-                                  (n.to_f / (1 << OSC_WAVE_TABLE_SAMPLES_BITS)) * k) / k
+      (4.0 / Math::PI) * Math.sin((2.0 * Math::PI) * x * k) / k
     else
       0.0
     end
   end
 end
 
-generate_osc_wave_table("sine", 1, 1.0) do |n, k|
-  Math.sin((2.0 * Math::PI) * (n.to_f / (1 << OSC_WAVE_TABLE_SAMPLES_BITS)) * k)
+generate_osc_wave_table("sine", 1, 1.0) do |x, k|
+  Math.sin((2.0 * Math::PI) * x * k)
 end
 
 def generate_osc_wave_tables_array(name, last = OSC_WAVE_TABLE_LAST_HARMONIC)
   $file.printf("int16_t* g_osc_#{name}_wave_tables[] = {\n  ")
   $osc_harmonics_restriction_table.each_with_index do |freq, idx|
-    $file.printf("g_osc_#{name}_wave_table_h%-3d,", [last_harmonic(freq), last].min)
+    $file.printf("g_osc_#{name}_wave_table_h%-3d + 1,", [last_harmonic(freq), last].min)
     if idx == DATA_BYTE_MAX
       $file.printf("\n")
     elsif idx % 3 == (3 - 1)

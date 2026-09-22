@@ -528,9 +528,14 @@ private:
     return wave_table_table[waveform][note_number - NOTE_NUMBER_MIN];
   }
 
+  // The tables are not all the same length: the ones that hold many harmonics
+  // are longer, so that the images the linear interpolation leaves stay low.
+  // Each table carries its own number of index bits in the entry before the
+  // samples, which is what the pointer in the table array points past
   INLINE int16_t get_wave_level(const int16_t* wave_table, uint32_t phase_24) {
-    uint16_t curr_index  = (phase_24 & 0xFFFFFF) >> (24 - OSC_WAVE_TABLE_SAMPLES_BITS);
-    uint16_t next_weight = (phase_24 >> (24 - OSC_WAVE_TABLE_SAMPLES_BITS - 8)) & 0xFF;
+    uint32_t samples_bits = static_cast<uint32_t>(wave_table[-1]);
+    uint16_t curr_index  = (phase_24 & 0xFFFFFF) >> (24 - samples_bits);
+    uint16_t next_weight = (phase_24 >> (24 - samples_bits - 8)) & 0xFF;
 #if defined(ARDUINO_ARCH_RP2040)
     interp0->accum[1]    = next_weight;
     interp0->base[0]     = wave_table[curr_index + 0];
