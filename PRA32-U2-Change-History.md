@@ -7,6 +7,7 @@
     - Change the debug print of the CPU processing time to label the audio and loop times
     - Improve the Filter Key Track resolution from Q8 to Q16 fixed-point
     - Improve the noise generator seeding
+    - Rename the Release = Decay to the EG/Amp Release = Decay
     - Tested with Arduino-Pico version 6.1.1
 - v2.21.0 (2026-09-22):
     - Fix the LFO Triangle Wave level range to match the other LFO waveforms
