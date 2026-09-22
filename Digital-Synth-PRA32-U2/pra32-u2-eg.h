@@ -12,6 +12,8 @@ class PRA32_U2_EG {
   static const uint8_t STATE_SUSTAIN = 1;
   static const uint8_t STATE_IDLE    = 2;
 
+  static const int32_t CONTROLLER_VALUE_Q8_MAX = static_cast<int32_t>(EG_TABLE_LENGTH - 2) << 8;
+
   uint8_t  m_state;
   int32_t  m_level;
   int32_t  m_level_out;
@@ -64,22 +66,24 @@ public:
   }
 
   INLINE void set_attack(uint8_t controller_value) {
-    m_attack = (controller_value == 127) ? 128 : controller_value;
+    m_attack = controller_value;
     update_attack_coef();
   }
 
   INLINE void set_decay(uint8_t controller_value) {
-    m_decay = (controller_value == 127) ? 128 : controller_value;
+    m_decay = controller_value;
     update_decay_coef();
   }
 
   INLINE void set_sustain(uint8_t controller_value) {
-    m_sustain = (controller_value == 127) ? 128 : controller_value;
+    // 0 .. 64, so that the sustain level reaches the attack level in uniform
+    // steps, changing every 2 controller values
+    m_sustain = (controller_value + 1) >> 1;
     update_sustain_level();
   }
 
   INLINE void set_release(uint8_t controller_value) {
-    m_release = (controller_value == 127) ? 128 : controller_value;
+    m_release = controller_value;
     update_release_coef();
   }
 
@@ -161,7 +165,9 @@ public:
   }
 
 private:
-  // Linear interpolation helper for Q8 fractional value
+  // Linear interpolation between the coefficients of two adjacent controller
+  // values; table_val_q8 is the controller value scaled by 256, and is
+  // expected to be clamped to 0 .. CONTROLLER_VALUE_Q8_MAX
   INLINE int32_t lerp_coef(int32_t table_val_q8, const int32_t* table) {
     int32_t idx = table_val_q8 >> 8;
     int32_t frac = table_val_q8 & 0xFF;
@@ -175,7 +181,7 @@ private:
     int32_t attack = m_attack << 8;
     attack += ((m_note_on_velocity - 64) * m_attack_decay_note_on_velocity_sensitivity) << 2;
     attack += ((m_osc_pitch - (60 << 16)) * m_attack_decay_pitch_amt) >> 14;
-    attack = clamp(attack, 0, 128 << 8);
+    attack = clamp(attack, 0, CONTROLLER_VALUE_Q8_MAX);
     m_attack_coef = lerp_coef(attack, g_eg_attack_coef_table);
   }
 
@@ -183,16 +189,16 @@ private:
     int32_t decay = m_decay << 8;
     decay += ((m_note_on_velocity - 64) * m_attack_decay_note_on_velocity_sensitivity) << 2;
     decay += ((m_osc_pitch - (60 << 16)) * m_attack_decay_pitch_amt) >> 14;
-    decay = clamp(decay, 0, 128 << 8);
+    decay = clamp(decay, 0, CONTROLLER_VALUE_Q8_MAX);
     m_decay_coef = lerp_coef(decay, g_eg_decay_release_coef_table);
 #if 0
-    m_decay_coef = (m_decay_coef & -(m_decay != 128)) |
-                   (0x40000000   & -(m_decay == 128)); /* No Decay */
+    m_decay_coef = (m_decay_coef & -(m_decay != 127)) |
+                   (0x40000000   & -(m_decay == 127)); /* No Decay */
 #endif
   }
 
   INLINE void update_sustain_level() {
-    m_sustain_level = (m_attack_level >> 7) * m_sustain;
+    m_sustain_level = (m_attack_level >> 6) * m_sustain;
   }
 
   INLINE void update_release_coef() {
@@ -207,7 +213,7 @@ private:
     }
 
     release += ((m_note_off_velocity - 64) * m_release_note_off_velocity_sensitivity) << 2;
-    release  = clamp(release, 0, 128 << 8);
+    release  = clamp(release, 0, CONTROLLER_VALUE_Q8_MAX);
 
     m_release_coef = lerp_coef(release, g_eg_decay_release_coef_table);
   }
