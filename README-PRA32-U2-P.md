@@ -155,7 +155,7 @@
 | A-12 Filter c  | Filter Mode          |                      |
 | A-13 EG a      | EG Attack            | EG Decay             |
 | A-14 EG b      | EG Sustain           | EG Release           |
-| A-15 EG c      | EG Amp Mod           | Release = Decay      |
+| A-15 EG c      | EG Amp Mod           | EG/Amp Rel = Dec     |
 | A-16 EG d      | EG Mod Amt           | EG Mod Dst           |
 | A-17 EG e      | EG Filter Amt        | EG Level Velo Sens   |
 | A-18 EG f      | EG Att/Dec Velo Sens | EG Rel Velo Sens     |
