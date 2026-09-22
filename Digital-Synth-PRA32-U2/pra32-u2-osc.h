@@ -299,6 +299,8 @@ public:
   }
 
   INLINE void set_osc1_shape(uint8_t controller_value) {
+    // The shape scale really ends at 128, which the EG/LFO modulation also reaches,
+    // so the controller value 127 keeps mapping to it
     m_osc1_shape_target =
       ((controller_value == 127) ? 128 : controller_value) << 8;
   }
@@ -308,9 +310,7 @@ public:
   }
 
   INLINE void set_mixer_sub_osc(uint8_t controller_value) {
-    m_mixer_noise_sub_osc_target =
-      (((controller_value == 1)   ? 0   :
-       ((controller_value == 127) ? 128 : controller_value)) - 64) << 4;
+    m_mixer_noise_sub_osc_target = ((((controller_value + 1) >> 1) << 1) - 64) << 4;
   }
 
   INLINE int16_t get_pitch_mod_amt_table(uint8_t controller_value) {
@@ -342,6 +342,8 @@ public:
   }
 
   INLINE void set_shape_eg_amt(uint8_t controller_value) {
+    // Controller value 1 maps to 0 like controller value 0 does, so that the
+    // reachable amounts stay a mirror image on the minus and the plus side
     m_shape_eg_amt =
       (((controller_value == 1)   ? 0   :
        ((controller_value == 127) ? 128 : controller_value)) - 64) << 1;
@@ -353,6 +355,8 @@ public:
   }
 
   INLINE void set_shape_lfo_amt(uint8_t controller_value) {
+    // Controller value 1 maps to 0 like controller value 0 does, so that the
+    // reachable amounts stay a mirror image on the minus and the plus side
     m_shape_lfo_amt =
       -((((controller_value == 1)   ? 0   :
          ((controller_value == 127) ? 128 : controller_value)) - 64) << 1);

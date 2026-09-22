@@ -94,11 +94,11 @@ public:
   }
 
   INLINE void set_lfo_fade_time(uint8_t controller_value) {
-    m_lfo_fade_coef = g_lfo_fade_coef_table[(controller_value == 127) ? 128 : controller_value];
+    m_lfo_fade_coef = g_lfo_fade_coef_table[controller_value];
   }
 
   INLINE void set_pressure_amt(uint8_t controller_value) {
-    m_pressure_amt = (controller_value == 127) ? 128 : controller_value;
+    m_pressure_amt = ((controller_value + 1) >> 1) << 1;
   }
 
   template <uint8_t N>

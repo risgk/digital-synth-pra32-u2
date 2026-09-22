@@ -15,14 +15,14 @@
     - 102 (90-115): Wave Tables with Constraints
     - 127 (116-127): Pulse Wave
 - Mixer Noise/Sub Osc [N|S]
-    - -63 (1): Noise 100% (min)
-    - -62 (2): Noise 96.9%
-    - -61 (3): Noise 95.3%
-    - -1 (63): Noise 1.6%
-    - +0 (64): 0%
-    - +1 (65): Sub Osc 1.6%
-    - +61 (125): Sub Osc 95.3%
-    - +62 (126): Sub Osc 96.9%
+    - -64 (0): Noise 100% (min)
+    - -62 (1-2): Noise 96.9%
+    - -60 (3-4): Noise 93.8%
+    - -2 (61-62): Noise 3.1%
+    - +0 (63-64): 0%
+    - +2 (65-66): Sub Osc 3.1%
+    - +60 (123-124): Sub Osc 93.8%
+    - +62 (125-126): Sub Osc 96.9%
     - +63 (127): Sub Osc 100% (max)
 - Osc 1 Shape $2
     - Saw Wave: Multi Saw Detune
@@ -230,11 +230,10 @@
     - 127 (116-127): Square Wave (Key Trigger On, 0.0 to 1.0)
 - LFO Fade Time
     - 0: 0.00 ms (min)
-    - 32: 98.2 ms
+    - 32: 316 ms
     - 64: 1.00 s
-    - 96: 3.06 s
-    - 126: 9.31 s
-    - 127: 10.0 s (max)
+    - 96: 3.16 s
+    - 127: 9.65 s (max)
 - LFO Rate
     - 0: 0.0 Hz (min)
     - 1: 0.072 Hz

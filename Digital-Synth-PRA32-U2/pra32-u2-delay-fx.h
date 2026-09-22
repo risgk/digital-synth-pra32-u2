@@ -52,7 +52,7 @@ public:
   }
 
   INLINE void set_delay_level(uint8_t controller_value) {
-    m_delay_level_target = (controller_value == 127) ? 128 : controller_value;
+    m_delay_level_target = ((controller_value + 1) >> 1) << 1;
   }
 
   INLINE void set_delay_feedback(uint8_t controller_value) {
