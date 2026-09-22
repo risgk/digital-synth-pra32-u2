@@ -14,7 +14,7 @@
     - Improve the Amp envelope resolution by using the Q23 control signal directly
     - Improve the Chorus delay time resolution from 1/16 sample to 1/256 sample
     - Improve the Delay time resolution from 1 sample to 1/256 sample
-    - Tested with Arduino-Pico version 6.0.0
+    - Tested with Arduino-Pico version 6.1.0
 - v2.20.1 (2026-09-03):
     - PRA32-U2 Editor: Stabilize layout across browsers/fonts/screens
     - Tested with Arduino-Pico version 6.0.0
