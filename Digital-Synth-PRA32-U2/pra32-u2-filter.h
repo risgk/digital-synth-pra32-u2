@@ -244,7 +244,7 @@ private:
       static_cast<int32_t>(m_cutoff_eg_amt_target[1]) << 16
     };
     for (int i = 0; i < 2; ++i) {
-      m_cutoff_eg_amt_current[i] = approach_exp(m_cutoff_eg_amt_current[i], eg_amt_target[i], SMOOTH_RATE);
+      m_cutoff_eg_amt_current[i] = approach_exp_wide(m_cutoff_eg_amt_current[i], eg_amt_target[i], SMOOTH_RATE);
     }
 
     // 3. Smooth the EG cutoff modulation and add it to the base cutoff
