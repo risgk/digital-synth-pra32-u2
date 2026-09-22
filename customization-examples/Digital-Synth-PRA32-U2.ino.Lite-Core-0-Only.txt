@@ -4,7 +4,7 @@
  * - Osc 1 Shape and Morph are disabled in Saw, Sqr, and WT
  */
 
-#define PRA32_U2_VERSION                       "v2.21.0   "
+#define PRA32_U2_VERSION                       "v3.0.0    "
 
 //#define PRA32_U2_USE_DEBUG_PRINT
 
@@ -181,22 +181,22 @@ void __not_in_flash_func(loop1)() {
     switch (s_loop_counter) {
     case  1 * 400:
       PRA32_U2_DEBUG_PRINT_SERIAL.print("\e[1;1H\e[K");
-      PRA32_U2_DEBUG_PRINT_SERIAL.print("min ");
+      PRA32_U2_DEBUG_PRINT_SERIAL.print("min(audio) ");
       PRA32_U2_DEBUG_PRINT_SERIAL.print(s_debug_measurement_min1_us);
       break;
     case  2 * 400:
       PRA32_U2_DEBUG_PRINT_SERIAL.print("\e[2;1H\e[K");
-      PRA32_U2_DEBUG_PRINT_SERIAL.print("max ");
+      PRA32_U2_DEBUG_PRINT_SERIAL.print("max(audio) ");
       PRA32_U2_DEBUG_PRINT_SERIAL.print(s_debug_measurement_max1_us);
       break;
     case  3 * 400:
       PRA32_U2_DEBUG_PRINT_SERIAL.print("\e[4;1H\e[K");
-      PRA32_U2_DEBUG_PRINT_SERIAL.print("min ");
+      PRA32_U2_DEBUG_PRINT_SERIAL.print("min(loop)  ");
       PRA32_U2_DEBUG_PRINT_SERIAL.print(s_debug_measurement_min0_us);
       break;
     case  4 * 400:
       PRA32_U2_DEBUG_PRINT_SERIAL.print("\e[5;1H\e[K");
-      PRA32_U2_DEBUG_PRINT_SERIAL.print("max ");
+      PRA32_U2_DEBUG_PRINT_SERIAL.print("max(loop)  ");
       PRA32_U2_DEBUG_PRINT_SERIAL.print(s_debug_measurement_max0_us);
       s_debug_measurement_min0_us = UINT32_MAX;
       s_debug_measurement_max0_us = 0;

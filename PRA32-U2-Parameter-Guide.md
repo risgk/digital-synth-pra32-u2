@@ -1,4 +1,4 @@
-# Digital Synth PRA32-U2 Parameter Guide v2.21.0
+# Digital Synth PRA32-U2 Parameter Guide v3.0.0
 
 - 2026-09-22 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
@@ -15,14 +15,14 @@
     - 102 (90-115): Wave Tables with Constraints
     - 127 (116-127): Pulse Wave
 - Mixer Noise/Sub Osc [N|S]
-    - -63 (1): Noise 100% (min)
-    - -62 (2): Noise 96.9%
-    - -61 (3): Noise 95.3%
-    - -1 (63): Noise 1.6%
-    - +0 (64): 0%
-    - +1 (65): Sub Osc 1.6%
-    - +61 (125): Sub Osc 95.3%
-    - +62 (126): Sub Osc 96.9%
+    - -64 (0): Noise 100% (min)
+    - -62 (1-2): Noise 96.9%
+    - -60 (3-4): Noise 93.8%
+    - -2 (61-62): Noise 3.1%
+    - +0 (63-64): 0%
+    - +2 (65-66): Sub Osc 3.1%
+    - +60 (123-124): Sub Osc 93.8%
+    - +62 (125-126): Sub Osc 96.9%
     - +63 (127): Sub Osc 100% (max)
 - Osc 1 Shape $2
     - Saw Wave: Multi Saw Detune
@@ -102,23 +102,25 @@
     - +55 (119): +12 semitone (max)
 - Filter Cutoff
     - 0: f = 13.0 Hz (min)
+    - 1: f = 13.8 Hz
+    - 4: f = 16.4 Hz
     - 7: f = 19.5 Hz
-    - 61: f = 440 Hz
+    - 61: f = 440.0 Hz
     - 64: f = 523.3 Hz
     - 67: f = 622.3 Hz
-    - 121: f = 14080 kHz
+    - 121: f = 14080.0 kHz
     - 124: f = 16744.0 Hz
     - 127: f = 19912.1 Hz (max)
 - Filter Resonance
-    - 0: Q = 0.7 (min)
-    - 16 (15-16): Q = 1.0
-    - 32 (31-32): Q = 1.4
-    - 48 (47-48): Q = 2.0
-    - 64 (63-64): Q = 2.8
-    - 80 (79-80): Q = 4.0
-    - 96 (95-96): Q = 5.7
-    - 112 (111-112): Q = 8.0
-    - 127: Q = 11.3 (max)
+    - 0: Q = 0.71 (min)
+    - 16: Q = 1.00
+    - 32: Q = 1.41
+    - 48: Q = 2.00
+    - 64: Q = 2.83
+    - 80: Q = 4.00
+    - 96: Q = 5.66
+    - 112: Q = 8.00
+    - 127: Q = 11.07 (max)
 - Filter EG Amt [-|+], LFO Filter Amt [-|+]
     - -60 (4): -120 (min)
     - +60 (124): +120 (max)
@@ -145,16 +147,19 @@
     - 32: 10.0 ms
     - 64: 100 ms
     - 96: 1.00 s
-    - 126: 8.66 s
-    - 127: 10.0 s
+    - 127: 9.31 s
 - EG Decay, EG Release, Amp Decay, Amp Release: Time to 1/1024 (approx. -60 dB)
     - 0: 3.00 ms
     - 32: 30.0 ms
     - 64: 300 ms
     - 96: 3.00 s
-    - 126: 26.0 s
-    - 127: 30.0 s
+    - 127: 27.9 s
 - EG Sustain, Amp Sustain: Sustain level
+    - 0: 0%
+    - 1 (1-2): 1.6%
+    - 64 (63-64): 50%
+    - 126 (125-126): 98.4%
+    - 127: 100%
 - EG Mod Amt [-|+], LFO Mod Amt [-|+]
     - Pitch
         - -63 (1): -10 oct (min)
@@ -225,11 +230,10 @@
     - 127 (116-127): Square Wave (Key Trigger On, 0.0 to 1.0)
 - LFO Fade Time
     - 0: 0.00 ms (min)
-    - 32: 98.2 ms
+    - 32: 316 ms
     - 64: 1.00 s
-    - 96: 3.06 s
-    - 126: 9.31 s
-    - 127: 10.0 s (max)
+    - 96: 3.16 s
+    - 127: 9.65 s (max)
 - LFO Rate
     - 0: 0.0 Hz (min)
     - 1: 0.072 Hz
@@ -263,7 +267,7 @@
 - EG Amp Mod [Off|On]
     - 0 (0-63): Off
     - 127 (64-127): On
-- Release = Decay [Off|On]
+- EG/Amp Release = Decay [Off|On]
     - 0 (0-63): Off
     - 127 (64-127): On, EG Release = EG Decay and Amp Release = Amp Decay
 - EG Att/Dec Velo Sens [-|+]: EG Attack/Release Velocity Sensitivity, Modulates the attack/decay times by note on velocity
@@ -301,7 +305,7 @@
     - 32: +9.4 cent at note number 108 (-9.4 cent at note number 12)
     - 64: +18.8 cent at note number 108 (-18.8 cent at note number 12)
     - 127: +37.2 cent at note number 108 (-37.2 cent at note number 12)
-- Osc Drift
+- Osc/Filter Drift
 - Osc Saw Wave Mode [Str|Cur]
     - 0 (0-63): Straight Saw Wave
     - 127 (64-127): Curved Saw Wave, This does not affect the Pulse Wave

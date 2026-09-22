@@ -114,7 +114,7 @@ td.keyh {
 }
 </style>
 <script>
-const APP_NAME_VERSION = "PRA32-U2 Editor v2.21.0";
+const APP_NAME_VERSION = "PRA32-U2 Editor v3.0.0";
 
 const USER_PROGRAM_NUMBER_MAX      = 15;
 const PROGRAM_NUMBER_MAX           = 31;
@@ -1728,7 +1728,7 @@ function getStoredCCValueString(index, number) {
 <td colspan="3"><b>Filter</b> Mode [LP|HP]             </td>
 <td colspan="3">Pitch Bend Range                </td>
 <td colspan="3"><b>EG</b> Amp Mod [Off|On]             </td>
-<td colspan="3">Release = Decay [Off|On]        </td>
+<td colspan="3"><b>EG</b>/<b>Amp</b> Release = Decay [Off|On]  </td>
 </tr>
 <tr>
 <td><input  id="inputFILTER_MODE    "  type="range" list="2 markers" min="0" max="127" step="1" oninput="onChangeControlChange(FILTER_MODE    , value)"></td>
@@ -1788,7 +1788,7 @@ function getStoredCCValueString(index, number) {
 <td><span   id="span2STRETCH_TUNE   " >-</span></td>
 </tr>
 <tr>
-<td colspan="3"><b>Osc</b> Drift                       </td>
+<td colspan="3"><b>Osc</b>/<b>Filter</b> Drift               </td>
 <td colspan="3"><b>Osc</b> Saw Wave Mode [Str|Cur]     </td>
 <td colspan="3">Coarse Tune [-|+]               </td>
 <td colspan="3">Fine Tune [-|+]                 </td>

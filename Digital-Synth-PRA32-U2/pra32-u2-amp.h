@@ -75,6 +75,6 @@ private:
   // Combine gain/expression and breath into a single smoothed multiplier.
   INLINE void update_total_gain_current() {
     int32_t total_gain_linear_target = multiply_shift_right(calc_gain_linear_target(), calc_breath_gain_linear_target(), 16);
-    m_total_gain_linear_current = approach_exp(m_total_gain_linear_current, total_gain_linear_target, SMOOTH_RATE);
+    m_total_gain_linear_current = approach_exp_wide(m_total_gain_linear_current, total_gain_linear_target, SMOOTH_RATE);
   }
 };
