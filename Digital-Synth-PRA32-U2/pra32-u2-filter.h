@@ -12,6 +12,17 @@
 static const uint8_t FILTER_CALC_SCALING_BITS = 3;
 static const int32_t FILTER_ONE               = (1 << 23) << FILTER_CALC_SCALING_BITS;
 
+// Clamp to -1.0 .. +1.0; a single instruction on the RP2350
+static INLINE int32_t saturate_to_one(int32_t value) {
+#if defined(__ARM_FEATURE_SAT)
+  int32_t result;
+  __asm ("ssat %0, %1, %2" : "=r" (result) : "I" (24 + FILTER_CALC_SCALING_BITS), "r" (value));
+  return result;
+#else
+  return clamp(value, -FILTER_ONE, FILTER_ONE - 1);
+#endif
+}
+
 // Cubic soft clipping, realized by "gain prediction": instead of evaluating a
 // waveshaper on the signal, the gain of the clipper is predicted from the
 // signal and applied by a single multiplication
@@ -19,16 +30,12 @@ static const int32_t FILTER_ONE               = (1 << 23) << FILTER_CALC_SCALING
 static INLINE int32_t soft_clip(int32_t value) {
   // Note: Without anti-aliasing (oversampling)
 
-  int32_t sign_mask = -static_cast<int32_t>(value < 0);
-  int32_t abs_value = (value ^ sign_mask) - sign_mask;
-  int32_t clamped_abs = minimum(abs_value, FILTER_ONE);
-  int32_t squared = multiply_shift_right(clamped_abs, clamped_abs,
+  int32_t clamped = saturate_to_one(value);
+  int32_t squared = multiply_shift_right(clamped, clamped,
                                          ((23 + FILTER_CALC_SCALING_BITS) * 2) - FILTER_TABLE_FRACTION_BITS);
   int32_t gain = (1 << FILTER_TABLE_FRACTION_BITS) - (squared / 3);
-  int32_t clamped_positive = multiply_shift_right(clamped_abs, gain, FILTER_TABLE_FRACTION_BITS);
-  int32_t clamped = (clamped_positive ^ sign_mask) - sign_mask;
 
-  return clamped;
+  return multiply_shift_right(clamped, gain, FILTER_TABLE_FRACTION_BITS);
 }
 
 // Linear interpolation between the coefficients of two adjacent controller
@@ -251,10 +258,16 @@ private:
     int32_t g = interpolate_filter_table(g_filter_g_table, m_cutoff_current);
     int32_t k = interpolate_filter_table(g_filter_k_table, m_resonance_current);
     int32_t g_plus_k = g + (k >> (FILTER_TABLE_FRACTION_BITS - FILTER_G_FRACTION_BITS));
-    uint32_t a_0 = (1 << 24) + multiply_shift_right(g, g_plus_k, (FILTER_G_FRACTION_BITS * 2) - 24);
+    int32_t a_0 = (1 << 24) + multiply_shift_right(g, g_plus_k, (FILTER_G_FRACTION_BITS * 2) - 24);
+
+    // 1 / a_0, from a 32-bit division refined by one Newton-Raphson step.
+    // A 64-bit division would be a slow library call, the 32-bit one is a
+    // single instruction
+    int32_t reciprocal = static_cast<int32_t>(0x80000000U / static_cast<uint32_t>(a_0 >> (24 - 15))) << (FILTER_TABLE_FRACTION_BITS - 16);
+    int32_t reciprocal_error = (1 << FILTER_TABLE_FRACTION_BITS) - multiply_shift_right(a_0, reciprocal, 24);
 
     m_g = g;
-    m_one_over_a_0 = static_cast<int32_t>((static_cast<uint64_t>(1) << (FILTER_TABLE_FRACTION_BITS + 24)) / a_0);
+    m_one_over_a_0 = reciprocal + multiply_shift_right(reciprocal, reciprocal_error, FILTER_TABLE_FRACTION_BITS);
     m_g_plus_k_over_a_0 = multiply_shift_right(g_plus_k, m_one_over_a_0, FILTER_G_FRACTION_BITS);
   }
 };
