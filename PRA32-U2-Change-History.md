@@ -6,6 +6,7 @@
     - Improve the Osc alias floor by sizing each wave table to the harmonics it holds
     - Improve the Osc CPU usage
     - Improve the Amp gain and the Chorus delay time smoothing by interpolating them over the control interval
+    - PRA32-U2/P: Improve the CPU usage by not waiting for the I2C transfers to the OLED display
     - Tested with Arduino-Pico version 6.1.1
 - v3.0.0 (2026-09-22):
     - Fix the Filter EG Amt, Amp Gain, and Osc 1 Shape smoothing overflowing 32-bit arithmetic
