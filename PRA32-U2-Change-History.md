@@ -2,6 +2,7 @@
 
 - v3.1.0 (2026-??-??):
     - Improve the Osc alias floor by sizing each wave table to the harmonics it holds
+    - Improve the Osc CPU usage
     - Improve the Amp gain and the Chorus delay time smoothing by interpolating them over the control interval
     - Tested with Arduino-Pico version 6.1.1
 - v3.0.0 (2026-09-22):
