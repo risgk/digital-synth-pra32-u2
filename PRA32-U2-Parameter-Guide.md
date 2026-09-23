@@ -268,7 +268,7 @@
 - EG Amp Mod [Off|On]
     - 0 (0-63): Off
     - 127 (64-127): On
-- EG/Amp Release = Decay [Off|On]
+- EG/Amp Rel = Dec [Off|On]
     - 0 (0-63): Off
     - 127 (64-127): On, EG Release = EG Decay and Amp Release = Amp Decay
 - EG Att/Dec Velo Sens [-|+]: EG Attack/Release Velocity Sensitivity, Modulates the attack/decay times by note on velocity
