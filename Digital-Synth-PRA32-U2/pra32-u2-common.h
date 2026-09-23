@@ -29,6 +29,18 @@ static INLINE int32_t clamp(int32_t value, int32_t minimum_value, int32_t maximu
   return std::clamp(value, minimum_value, maximum_value);
 }
 
+// Soft clipping for the final output (1.0 = 1 << 23): linear up to +-0.5, then
+// a quadratic knee that reaches +-1.0 with slope 0 at +-1.5
+//   y = a - (a - 0.5)^2 / 2  (a = |x|, 0.5 <= a <= 1.5)
+// The result always fits in 24 bits
+static INLINE int32_t soft_clip_output(int32_t value) {
+  const int32_t ONE = 1 << 23;
+  int32_t abs_value = minimum((value < 0) ? -value : value, ONE + (ONE >> 1));
+  int32_t over      = maximum(abs_value - (ONE >> 1), 0);
+  int32_t result    = minimum(abs_value - multiply_shift_right(over, over, 24), ONE - 1);
+  return (value < 0) ? -result : result;
+}
+
 static INLINE int32_t approach(int32_t current_value, int32_t target_value, int32_t delta) {
   return std::clamp(target_value, current_value - delta, current_value + delta);
 }

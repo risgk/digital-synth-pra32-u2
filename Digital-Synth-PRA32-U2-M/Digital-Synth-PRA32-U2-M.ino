@@ -421,8 +421,8 @@ void __not_in_flash_func(loop)() {
                                                      synth_fx_output_r, synth_fx_output_l_int32, synth_fx_output_r_int32);
     static_cast<void>(synth_fx_output_l);
     static_cast<void>(synth_fx_output_r);
-    left_buffer[i] = synth_fx_output_l_int32 << 8;
-    right_buffer[i] = synth_fx_output_r_int32 << 8;
+    left_buffer[i] = soft_clip_output(synth_fx_output_l_int32) << 8;
+    right_buffer[i] = soft_clip_output(synth_fx_output_r_int32) << 8;
   }
 
 #if defined(PRA32_U2_USE_DEBUG_PRINT)
