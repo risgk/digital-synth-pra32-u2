@@ -1691,16 +1691,16 @@ if constexpr ((NO_FX == false) && (BYPASS_FX == false)) {
     delay_fx_output_l = mixed_output_l;
 }
 
-    int32_t synth_output_r = clamp(delay_fx_output_r, (-(INT16_MAX << 8)), (+(INT16_MAX << 8)));
-    int32_t synth_output_l = clamp(delay_fx_output_l, (-(INT16_MAX << 8)), (+(INT16_MAX << 8)));
-
+    // The 32-bit output is not clipped, to be mixed with other synths, and must be
+    // passed through soft_clip_output() before being output to a DAC;
+    // the 16-bit output is soft clipped
 if constexpr (EXT_OUTPUT) {
-    audio_output_r_int32 = synth_output_r;
-    audio_output_l_int32 = synth_output_l;
+    audio_output_r_int32 = delay_fx_output_r;
+    audio_output_l_int32 = delay_fx_output_l;
 }
 
-    int16_t synth_output_l_int16 = (synth_output_l >> 8);
-    int16_t synth_output_r_int16 = (synth_output_r >> 8);
+    int16_t synth_output_l_int16 = (soft_clip_output(delay_fx_output_l) >> 8);
+    int16_t synth_output_r_int16 = (soft_clip_output(delay_fx_output_r) >> 8);
 
     right_output_int16 = synth_output_r_int16;
     return               synth_output_l_int16;
