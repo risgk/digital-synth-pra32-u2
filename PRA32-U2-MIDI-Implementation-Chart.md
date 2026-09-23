@@ -71,7 +71,7 @@
 |                            39 | x             | o             | Filter Mode [LP|BP|HP]               |
 |                            57 | x             | o             | Pitch Bend Range                     |
 |                            36 | x             | o             | EG Amp Mod [Off|On]                  |
-|                           105 | x             | o             | EG/Amp Release = Decay [Off|On]      |
+|                           105 | x             | o             | EG/Amp Rel = Dec [Off|On]            |
 |                               |               |               |                                      |
 |                            51 | x             | o             | EG Att/Dec Velo Sens [-|+]           |
 |                            81 | x             | o             | EG Rel Velo Sens [-|+]               |
