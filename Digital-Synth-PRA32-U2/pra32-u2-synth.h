@@ -1501,8 +1501,11 @@ if constexpr (NO_FX == false) {
 #endif  // defined(ARDUINO_ARCH_RP2040)
   }
 
+  // noclone: every instantiation shares the section ".time_critical.process";
+  // a local clone (e.g. .isra) of one instantiation next to a COMDAT one causes
+  // a section type conflict when several synths are used (PRA32-U2/M)
 template <boolean BYPASS_SYNTH = false, boolean BYPASS_FX = false, boolean RESTRICT_SAW = false, boolean RESTRICT_SQR_WT = false>
-  /* INLINE */ PRA32_U2_StereoSample __not_in_flash_func(process)(int32_t audio_input_l_int32, int32_t audio_input_r_int32) {
+  __attribute__((noclone)) PRA32_U2_StereoSample __not_in_flash_func(process)(int32_t audio_input_l_int32, int32_t audio_input_r_int32) {
     int32_t noise_int23;
     PRA32_U2_StereoSample panner_output;
 
