@@ -202,8 +202,6 @@ extern void PRA32_U2_ControlPanel_on_control_change(uint8_t control_number);
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 
 
-static int32_t s_placeholder_int32;
-
 template <boolean NO_FX = false, boolean EXT_INPUT = false, boolean EXT_OUTPUT = false, uint32_t SYNTH_ID = 0, boolean MONO_LEVEL_DOWN = false, boolean RESTRICT_POLY_AND_CORES = false>
 class PRA32_U2_Synth {
   PRA32_U2_Osc      m_osc;
@@ -1503,11 +1501,13 @@ if constexpr (NO_FX == false) {
 #endif  // defined(ARDUINO_ARCH_RP2040)
   }
 
+  // noclone: every instantiation shares the section ".time_critical.process";
+  // a local clone (e.g. .isra) of one instantiation next to a COMDAT one causes
+  // a section type conflict when several synths are used (PRA32-U2/M)
 template <boolean BYPASS_SYNTH = false, boolean BYPASS_FX = false, boolean RESTRICT_SAW = false, boolean RESTRICT_SQR_WT = false>
-  /* INLINE */ int16_t __not_in_flash_func(process)(int32_t audio_input_l_int32, int32_t audio_input_r_int32, int16_t& right_output_int16, int32_t& audio_output_l_int32 = s_placeholder_int32, int32_t& audio_output_r_int32 = s_placeholder_int32) {
+  __attribute__((noclone)) PRA32_U2_StereoSample __not_in_flash_func(process)(int32_t audio_input_l_int32, int32_t audio_input_r_int32) {
     int32_t noise_int23;
-    int32_t panner_output_r;
-    int32_t panner_output_l;
+    PRA32_U2_StereoSample panner_output;
 
 if constexpr (BYPASS_SYNTH == false) {
 
@@ -1655,55 +1655,37 @@ if constexpr (MONO_LEVEL_DOWN == false) {
 }
     }
 
-    panner_output_l = m_panner.process(voice_mixer_output, panner_output_r);
+    panner_output = m_panner.process(voice_mixer_output);
 
 } else {
 
     noise_int23 = m_noise_gen.get();
-    panner_output_r = 0;
-    panner_output_l = 0;
+    panner_output = { 0, 0 };
 
 }
 
-    int32_t mixed_output_r;
-    int32_t mixed_output_l;
+    PRA32_U2_StereoSample mixed_output;
 
 if constexpr (EXT_INPUT == false) {
-    mixed_output_r = panner_output_r;
-    mixed_output_l = panner_output_l;
+    mixed_output = panner_output;
 } else {
-    mixed_output_r = panner_output_r + audio_input_r_int32;
-    mixed_output_l = panner_output_l + audio_input_l_int32;
+    mixed_output.left  = panner_output.left  + audio_input_l_int32;
+    mixed_output.right = panner_output.right + audio_input_r_int32;
 }
 
-    int32_t chorus_fx_output_r;
-    int32_t chorus_fx_output_l;
-
-    int32_t delay_fx_output_r;
-    int32_t delay_fx_output_l;
+    PRA32_U2_StereoSample delay_fx_output;
 
 if constexpr ((NO_FX == false) && (BYPASS_FX == false)) {
-    chorus_fx_output_l = m_chorus_fx.process(mixed_output_l, mixed_output_r, chorus_fx_output_r);
+    PRA32_U2_StereoSample chorus_fx_output = m_chorus_fx.process(mixed_output);
 
-    delay_fx_output_l = m_delay_fx.process(chorus_fx_output_l, chorus_fx_output_r, delay_fx_output_r);
+    delay_fx_output = m_delay_fx.process(chorus_fx_output);
 } else {
-    delay_fx_output_r = mixed_output_r;
-    delay_fx_output_l = mixed_output_l;
+    delay_fx_output = mixed_output;
 }
 
-    int32_t synth_output_r = clamp(delay_fx_output_r, (-(INT16_MAX << 8)), (+(INT16_MAX << 8)));
-    int32_t synth_output_l = clamp(delay_fx_output_l, (-(INT16_MAX << 8)), (+(INT16_MAX << 8)));
-
-if constexpr (EXT_OUTPUT) {
-    audio_output_r_int32 = synth_output_r;
-    audio_output_l_int32 = synth_output_l;
-}
-
-    int16_t synth_output_l_int16 = (synth_output_l >> 8);
-    int16_t synth_output_r_int16 = (synth_output_r >> 8);
-
-    right_output_int16 = synth_output_r_int16;
-    return               synth_output_l_int16;
+    // The output is not clipped, to be mixed with other synths, and must be
+    // passed through soft_clip_output() before being output to a DAC
+    return delay_fx_output;
   }
 
   template <boolean RESTRICT_SAW = false, boolean RESTRICT_SQR_WT = false>

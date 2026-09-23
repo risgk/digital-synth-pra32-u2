@@ -1,6 +1,6 @@
 ```
   [Polyphonic Synthesizer]                                        Date: 2026-09-22                      
-  Model: Digital Synth PRA32-U2   MIDI Implementation Chart       Version: 3.0.0                        
+  Model: Digital Synth PRA32-U2   MIDI Implementation Chart       Version: 3.1.0                        
 +-------------------------------+---------------+---------------+--------------------------------------+
 | Function...                   | Transmitted   | Recognized    | Remarks                              |
 +-------------------------------+---------------+---------------+--------------------------------------+
@@ -68,10 +68,10 @@
 |                            54 | x             | o             | Amp Sustain                          |
 |                            55 | x             | o             | Amp Release                          |
 |                               |               |               |                                      |
-|                            39 | x             | o             | Filter Mode [LP|HP]                  |
+|                            39 | x             | o             | Filter Mode [LP|BP|HP]               |
 |                            57 | x             | o             | Pitch Bend Range                     |
 |                            36 | x             | o             | EG Amp Mod [Off|On]                  |
-|                           105 | x             | o             | EG/Amp Release = Decay [Off|On]      |
+|                           105 | x             | o             | EG/Amp Rel = Dec [Off|On]            |
 |                               |               |               |                                      |
 |                            51 | x             | o             | EG Att/Dec Velo Sens [-|+]           |
 |                            81 | x             | o             | EG Rel Velo Sens [-|+]               |
