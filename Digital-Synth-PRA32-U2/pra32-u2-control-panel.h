@@ -672,12 +672,34 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
   return false;
 }
 
+#if defined(PRA32_U2_USE_CONTROL_PANEL)
+// Queues a short write to the OLED display into the I2C TX FIFO (16 bytes) and
+// returns without waiting for the transfer (about 180 us for 8 bytes at 400 kHz),
+// so that the secondary core is not blocked during the audio processing;
+// the target address must have been set by a preceding i2c_write_blocking()
+static INLINE void PRA32_U2_ControlPanel_write_to_oled_display(const uint8_t* src, size_t len) {
+  i2c_hw_t* hw = i2c_get_hw(PRA32_U2_OLED_DISPLAY_I2C);
+
+  // Reading this register clears a previous abort (e.g. NACK), which holds the TX FIFO flushed
+  static_cast<void>(hw->clr_tx_abrt);
+
+  // Waits only if the previous transfers are still in the TX FIFO (e.g. during the initialization)
+  while (i2c_get_write_available(PRA32_U2_OLED_DISPLAY_I2C) < len) {
+    ;
+  }
+
+  for (size_t i = 0; i < len; ++i) {
+    hw->data_cmd = src[i] | ((i == (len - 1)) ? I2C_IC_DATA_CMD_STOP_BITS : 0);
+  }
+}
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
+
 static INLINE void PRA32_U2_ControlPanel_set_draw_position(uint8_t x, uint8_t y) {
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
-  uint8_t commands[] = {0x00,  static_cast<uint8_t>(0xB0 + y), 
+  uint8_t commands[] = {0x00,  static_cast<uint8_t>(0xB0 + y),
                                static_cast<uint8_t>(0x10 + ((x * 6) >> 4)),
                                static_cast<uint8_t>(0x00 + ((x * 6) & 0x0F))};
-  i2c_write_blocking(PRA32_U2_OLED_DISPLAY_I2C, PRA32_U2_OLED_DISPLAY_I2C_ADDRESS, commands, sizeof(commands), false);
+  PRA32_U2_ControlPanel_write_to_oled_display(commands, sizeof(commands));
 #else  // defined(PRA32_U2_USE_CONTROL_PANEL)
   static_cast<void>(x);
   static_cast<void>(y);
@@ -688,7 +710,7 @@ static INLINE void PRA32_U2_ControlPanel_draw_character(uint8_t c) {
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
   uint8_t data[] = {0x40,  0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
   std::memcpy(&data[1], g_control_panel_font_table[c], 6);
-  i2c_write_blocking(PRA32_U2_OLED_DISPLAY_I2C, PRA32_U2_OLED_DISPLAY_I2C_ADDRESS, data, sizeof(data), false);
+  PRA32_U2_ControlPanel_write_to_oled_display(data, sizeof(data));
 #else  // defined(PRA32_U2_USE_CONTROL_PANEL)
   static_cast<void>(c);
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
@@ -1105,8 +1127,11 @@ INLINE void PRA32_U2_ControlPanel_setup() {
     commands_init_0[4] = 0xC8;
   }
 
+  // This also sets the target address for PRA32_U2_ControlPanel_write_to_oled_display()
   i2c_write_blocking(PRA32_U2_OLED_DISPLAY_I2C, PRA32_U2_OLED_DISPLAY_I2C_ADDRESS, commands_init_0, sizeof(commands_init_0), false);
 
+  // NOTE: Do not call i2c_write_blocking() after this, which disables the I2C to set
+  //       the target address and would cut off the transfers still in the TX FIFO
   for (uint8_t y = 0; y <= 7; ++y) {
     for (uint8_t x = 0; x <= 20; ++x) {
       PRA32_U2_ControlPanel_set_draw_position(x, y);
@@ -1114,14 +1139,14 @@ INLINE void PRA32_U2_ControlPanel_setup() {
     }
 
     uint8_t commands[] = {0x00,  static_cast<uint8_t>(0xB0 + y), 0x17, 0x0E};
-    i2c_write_blocking(PRA32_U2_OLED_DISPLAY_I2C, PRA32_U2_OLED_DISPLAY_I2C_ADDRESS, commands, sizeof(commands), false);
+    PRA32_U2_ControlPanel_write_to_oled_display(commands, sizeof(commands));
 
     uint8_t data[] = {0x40,  0x00, 0x00};
-    i2c_write_blocking(PRA32_U2_OLED_DISPLAY_I2C, PRA32_U2_OLED_DISPLAY_I2C_ADDRESS, data, sizeof(data), false);
+    PRA32_U2_ControlPanel_write_to_oled_display(data, sizeof(data));
   }
 
   uint8_t commands_init_1[] = {0x00,  0xAF};
-  i2c_write_blocking(PRA32_U2_OLED_DISPLAY_I2C, PRA32_U2_OLED_DISPLAY_I2C_ADDRESS, commands_init_1, sizeof(commands_init_1), false);
+  PRA32_U2_ControlPanel_write_to_oled_display(commands_init_1, sizeof(commands_init_1));
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL_OLED_DISPLAY)
 
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
