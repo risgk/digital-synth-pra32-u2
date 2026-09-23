@@ -3,6 +3,7 @@
 - v3.1.0 (2026-??-??):
     - Add the Band Pass to the Filter Mode (Band Pass: 32-95)
     - Change the audio output clipping from hard clipping to soft clipping
+    - Change PRA32_U2_Synth::process() to return the 32-bit stereo output as PRA32_U2_StereoSample, removing the unused 16-bit output
     - Rename the EG/Amp Release = Decay to the EG/Amp Rel = Dec
     - Improve the Osc alias floor by sizing each wave table to the harmonics it holds
     - Improve the Osc CPU usage
