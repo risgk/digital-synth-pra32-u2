@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
       synth_output_l = g_synth.process(0, 0, synth_output_r, synth_output_l_int32, synth_output_r_int32);
       static_cast<void>(synth_output_l);
       static_cast<void>(synth_output_r);
-      g_wav_file_out.write(soft_clip_output(synth_output_l_int32), soft_clip_output(synth_output_r_int32));
+      g_wav_file_out.write(synth_output_l_int32, synth_output_r_int32);
     }
   }
 
