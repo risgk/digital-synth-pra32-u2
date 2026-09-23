@@ -2,6 +2,7 @@
 
 - v3.1.0 (2026-??-??):
     - Add the Band Pass to the Filter Mode (Band Pass: 32-95)
+    - Rename the EG/Amp Release = Decay to the EG/Amp Rel = Dec
     - Improve the Osc alias floor by sizing each wave table to the harmonics it holds
     - Improve the Osc CPU usage
     - Improve the Amp gain and the Chorus delay time smoothing by interpolating them over the control interval
