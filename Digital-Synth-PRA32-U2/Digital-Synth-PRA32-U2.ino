@@ -329,15 +329,9 @@ void __not_in_flash_func(loop)() {
   int32_t left_buffer[PRA32_U2_I2S_BUFFER_WORDS];
   int32_t right_buffer[PRA32_U2_I2S_BUFFER_WORDS];
   for (uint32_t i = 0; i < PRA32_U2_I2S_BUFFER_WORDS; i++) {
-    int16_t synth_output_l;
-    int16_t synth_output_r;
-    int32_t synth_output_l_int32;
-    int32_t synth_output_r_int32;
-    synth_output_l = g_synth.process(0, 0, synth_output_r, synth_output_l_int32, synth_output_r_int32);
-    static_cast<void>(synth_output_l);
-    static_cast<void>(synth_output_r);
-    left_buffer[i] = soft_clip_output(synth_output_l_int32) << 8;
-    right_buffer[i] = soft_clip_output(synth_output_r_int32) << 8;
+    PRA32_U2_StereoSample synth_output = g_synth.process(0, 0);
+    left_buffer[i] = soft_clip_output(synth_output.left) << 8;
+    right_buffer[i] = soft_clip_output(synth_output.right) << 8;
   }
 
 #if defined(PRA32_U2_USE_DEBUG_PRINT)

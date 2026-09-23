@@ -5,6 +5,11 @@
 
 #define INLINE inline __attribute__((always_inline))
 
+struct PRA32_U2_StereoSample {
+  int32_t left;
+  int32_t right;
+};
+
 static INLINE uint8_t low_byte(uint16_t x) {
   return x & 0xFF;
 }

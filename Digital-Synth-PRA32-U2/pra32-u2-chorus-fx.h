@@ -121,7 +121,10 @@ public:
 #endif
   }
 
-  INLINE int32_t process(int32_t left_input_int24, int32_t right_input_int24, int32_t& right_output_int24) {
+  INLINE PRA32_U2_StereoSample process(PRA32_U2_StereoSample input_int24) {
+    const int32_t left_input_int24  = input_int24.left;
+    const int32_t right_input_int24 = input_int24.right;
+
     m_chorus_delay_time[0] = approach(m_chorus_delay_time[0], m_chorus_delay_time_next[0], m_chorus_delay_time_step[0]);
     m_chorus_delay_time[1] = approach(m_chorus_delay_time[1], m_chorus_delay_time_next[1], m_chorus_delay_time_step[1]);
 
@@ -143,8 +146,8 @@ public:
     delay_buff_push(0, m_lpf_out_0);
     delay_buff_push(1, m_lpf_out_1);
 
-    right_output_int24 = right_input_int24 + eff_sample_1;
-    return               left_input_int24  + eff_sample_0;
+    return { left_input_int24  + eff_sample_0,
+             right_input_int24 + eff_sample_1 };
   }
 
 private:

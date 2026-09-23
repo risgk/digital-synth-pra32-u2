@@ -37,14 +37,8 @@ int main(int argc, char *argv[]) {
     g_midi_in.receive_midi_byte(c);
     uint16_t r = SAMPLING_RATE / (SERIAL_SPEED_38400 / 10);
     for (uint16_t i = 0; i < r; i++) {
-      int32_t synth_output_l_int32;
-      int32_t synth_output_r_int32;
-      int16_t synth_output_l;
-      int16_t synth_output_r;
-      synth_output_l = g_synth.process(0, 0, synth_output_r, synth_output_l_int32, synth_output_r_int32);
-      static_cast<void>(synth_output_l);
-      static_cast<void>(synth_output_r);
-      g_wav_file_out.write(soft_clip_output(synth_output_l_int32), soft_clip_output(synth_output_r_int32));
+      PRA32_U2_StereoSample synth_output = g_synth.process(0, 0);
+      g_wav_file_out.write(soft_clip_output(synth_output.left), soft_clip_output(synth_output.right));
     }
   }
 

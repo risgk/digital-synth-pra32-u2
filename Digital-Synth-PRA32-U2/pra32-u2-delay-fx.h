@@ -116,7 +116,10 @@ public:
     m_delay_time_current = (next_approach_val * is_even) + (m_delay_time_current * (is_even ^ 1));
   }
 
-  INLINE int32_t process(int32_t left_input_int24, int32_t right_input_int24, int32_t& right_output_int24) {
+  INLINE PRA32_U2_StereoSample process(PRA32_U2_StereoSample input_int24) {
+    const int32_t left_input_int24  = input_int24.left;
+    const int32_t right_input_int24 = input_int24.right;
+
     int32_t left_delay   = delay_buff_get<0>(m_delay_time_current);
     int32_t right_delay  = delay_buff_get<1>(m_delay_time_current);
 
@@ -149,8 +152,8 @@ public:
     delay_buff_push<0>(m_lpf_out_0);
     delay_buff_push<1>(m_lpf_out_1);
 
-    right_output_int24 = right_input_int24 + right_delay;
-    return               left_input_int24  + left_delay;
+    return { left_input_int24  + left_delay,
+             right_input_int24 + right_delay };
   }
 
 private:
