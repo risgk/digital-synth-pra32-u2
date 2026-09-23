@@ -162,8 +162,11 @@ private:
       {
         uint32_t curr_index  = phase >> (24 - OSC_WAVE_TABLE_SAMPLES_BITS);
         int32_t  next_weight = phase & ((1 << (24 - OSC_WAVE_TABLE_SAMPLES_BITS)) - 1);
-        int16_t  curr_data   = g_osc_sine_wave_table_h1[curr_index + 0];
-        int16_t  next_data   = g_osc_sine_wave_table_h1[curr_index + 1];
+        // The table array points past the index-bits entry, but this one uses
+        // the table directly, so it skips that entry itself
+        const int16_t* sine_wave_table = g_osc_sine_wave_table_h1 + 1;
+        int16_t  curr_data   = sine_wave_table[curr_index + 0];
+        int16_t  next_data   = sine_wave_table[curr_index + 1];
         level                = (curr_data << 9) + ((((next_data - curr_data) * next_weight) + (1 << 5)) >> 6); // lerp
       }
       break;

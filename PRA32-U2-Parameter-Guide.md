@@ -1,4 +1,4 @@
-# Digital Synth PRA32-U2 Parameter Guide v3.0.0
+# Digital Synth PRA32-U2 Parameter Guide v3.1.0
 
 - 2026-09-22 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
@@ -258,16 +258,17 @@
     - 127: 100% (max)
         - NOTE: The actual LFO depth is the "LFO Depth" value plus the "Modulation" value and the after touch effect
 - Amp Gain
-- Filter Mode [LP|HP]
-    - 0 (0-63): Low Pass
-    - 127 (64-127): High Pass
+- Filter Mode [LP|BP|HP]
+    - 0 (0-31): Low Pass
+    - 64 (32-95): Band Pass
+    - 127 (96-127): High Pass
 - Pitch Bend Range
     - 0: 0 semitone (min)
     - 60: 60 semitone (max)
 - EG Amp Mod [Off|On]
     - 0 (0-63): Off
     - 127 (64-127): On
-- EG/Amp Release = Decay [Off|On]
+- EG/Amp Rel = Dec [Off|On]
     - 0 (0-63): Off
     - 127 (64-127): On, EG Release = EG Decay and Amp Release = Amp Decay
 - EG Att/Dec Velo Sens [-|+]: EG Attack/Release Velocity Sensitivity, Modulates the attack/decay times by note on velocity

@@ -1,5 +1,15 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v3.1.0 (2026-09-23):
+    - Add the Band Pass to the Filter Mode (Band Pass: 32-95)
+    - Change the audio output clipping from hard clipping to soft clipping
+    - Change PRA32_U2_Synth::process() to return the 32-bit stereo output as PRA32_U2_StereoSample, removing the unused 16-bit output
+    - Rename the EG/Amp Release = Decay to the EG/Amp Rel = Dec
+    - Improve the Osc alias floor by sizing each wave table to the harmonics it holds
+    - Improve the Osc CPU usage
+    - Improve the Amp gain and the Chorus delay time smoothing by interpolating them over the control interval
+    - PRA32-U2/P: Improve the CPU usage by not waiting for the I2C transfers to the OLED display
+    - Tested with Arduino-Pico version 6.1.1
 - v3.0.0 (2026-09-22):
     - Fix the Filter EG Amt, Amp Gain, and Osc 1 Shape smoothing overflowing 32-bit arithmetic
     - Fix the documented LFO Fade Time at the controller values 32 and 96

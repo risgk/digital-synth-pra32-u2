@@ -2,7 +2,7 @@
  * Digital Synth PRA32-U2/M
  */
 
-#define PRA32_U2_VERSION                       "v3.0.0    "
+#define PRA32_U2_VERSION                       "v3.1.0    "
 
 //#define PRA32_U2_USE_DEBUG_PRINT
 
@@ -136,8 +136,7 @@ static volatile uint32_t s_debug_measurement_max1_us     = 0;
 static volatile uint32_t s_debug_measurement_counted     = 0;
 
 static volatile uint32_t s_secondary_core_processing_request  = 0;
-static          int32_t  s_secondary_core_processing_result_l = 0;
-static          int32_t  s_secondary_core_processing_result_r = 0;
+static PRA32_U2_StereoSample s_secondary_core_processing_result = { 0, 0 };
 
 void handleNoteOn(byte channel, byte pitch, byte velocity);
 void handleNoteOff(byte channel, byte pitch, byte velocity);
@@ -175,27 +174,12 @@ void __not_in_flash_func(loop1)() {
   boolean processed = false;
 
   if (s_secondary_core_processing_request == 1) {
-    int16_t sub_3_synth_output_l;
-    int16_t sub_3_synth_output_r;
-    int32_t sub_3_synth_output_l_int32;
-    int32_t sub_3_synth_output_r_int32;
     if (g_synth_is_in_polyphonic_mode == false) {
-      sub_3_synth_output_l = g_sub_3_synth.process(0, 0, sub_3_synth_output_r, sub_3_synth_output_l_int32, sub_3_synth_output_r_int32);
-    }
-    static_cast<void>(sub_3_synth_output_l);
-    static_cast<void>(sub_3_synth_output_r);
-
-    int16_t sub_1_synth_output_l;
-    int16_t sub_1_synth_output_r;
-    if (g_synth_is_in_polyphonic_mode == false) {
-      sub_1_synth_output_l = g_sub_1_synth.process<false, true>(sub_3_synth_output_l_int32, sub_3_synth_output_r_int32,
-                                                                sub_1_synth_output_r, s_secondary_core_processing_result_l, s_secondary_core_processing_result_r);
+      PRA32_U2_StereoSample sub_3_synth_output = g_sub_3_synth.process(0, 0);
+      s_secondary_core_processing_result = g_sub_1_synth.process<false, true>(sub_3_synth_output.left, sub_3_synth_output.right);
     } else {
-      s_secondary_core_processing_result_l = 0;
-      s_secondary_core_processing_result_r = 0;
+      s_secondary_core_processing_result = { 0, 0 };
     }
-    static_cast<void>(sub_1_synth_output_l);
-    static_cast<void>(sub_1_synth_output_r);
 
     while (processed == false) {
       processed = g_synth.secondary_core_process();
@@ -391,38 +375,21 @@ void __not_in_flash_func(loop)() {
   for (uint32_t i = 0; i < PRA32_U2_I2S_BUFFER_WORDS; i++) {
     s_secondary_core_processing_request = 1;
 
-    int16_t sub_2_synth_output_l;
-    int16_t sub_2_synth_output_r;
-    int32_t sub_2_synth_output_l_int32 = 0;
-    int32_t sub_2_synth_output_r_int32 = 0;
+    PRA32_U2_StereoSample sub_2_synth_output = { 0, 0 };
     if (g_synth_is_in_polyphonic_mode == false) {
-      sub_2_synth_output_l = g_sub_2_synth.process(0, 0, sub_2_synth_output_r, sub_2_synth_output_l_int32, sub_2_synth_output_r_int32);
+      sub_2_synth_output = g_sub_2_synth.process(0, 0);
     }
-    static_cast<void>(sub_2_synth_output_l);
-    static_cast<void>(sub_2_synth_output_r);
 
-    int16_t synth_output_l;
-    int16_t synth_output_r;
-    int32_t synth_output_l_int32;
-    int32_t synth_output_r_int32;
-    synth_output_l = g_synth.process<false, true>(sub_2_synth_output_l_int32, sub_2_synth_output_r_int32, synth_output_r, synth_output_l_int32, synth_output_r_int32);
-    static_cast<void>(synth_output_l);
-    static_cast<void>(synth_output_r);
+    PRA32_U2_StereoSample synth_output = g_synth.process<false, true>(sub_2_synth_output.left, sub_2_synth_output.right);
 
     while (s_secondary_core_processing_request) {
       ;
     }
 
-    int16_t synth_fx_output_l;
-    int16_t synth_fx_output_r;
-    int32_t synth_fx_output_l_int32;
-    int32_t synth_fx_output_r_int32;
-    synth_fx_output_l = g_synth.process<true, false>(synth_output_l_int32 + s_secondary_core_processing_result_l, synth_output_r_int32 + s_secondary_core_processing_result_r,
-                                                     synth_fx_output_r, synth_fx_output_l_int32, synth_fx_output_r_int32);
-    static_cast<void>(synth_fx_output_l);
-    static_cast<void>(synth_fx_output_r);
-    left_buffer[i] = synth_fx_output_l_int32 << 8;
-    right_buffer[i] = synth_fx_output_r_int32 << 8;
+    PRA32_U2_StereoSample synth_fx_output = g_synth.process<true, false>(synth_output.left  + s_secondary_core_processing_result.left,
+                                                                         synth_output.right + s_secondary_core_processing_result.right);
+    left_buffer[i] = soft_clip_output(synth_fx_output.left) << 8;
+    right_buffer[i] = soft_clip_output(synth_fx_output.right) << 8;
   }
 
 #if defined(PRA32_U2_USE_DEBUG_PRINT)
