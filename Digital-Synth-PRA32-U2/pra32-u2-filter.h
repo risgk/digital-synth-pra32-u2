@@ -73,7 +73,7 @@ class PRA32_U2_Filter {
   int16_t m_cutoff_lfo_amt[2];
   int16_t m_cutoff_lfo_amt_current[2];
   int16_t m_cutoff_pitch_amt;
-  uint8_t m_filter_mode;
+  uint8_t m_filter_mode;               // 0: Low Pass, 1: Band Pass, 2: High Pass
   int16_t m_cutoff_breath_amt;
   int16_t m_breath_controller;
   int32_t m_cutoff_base_current;       // Smooth state variable for the base cutoff and LFO/Pitch/Breath modulations
@@ -167,7 +167,7 @@ public:
   }
 
   INLINE void set_filter_mode(uint8_t controller_value) {
-    m_filter_mode = controller_value;
+    m_filter_mode = ((controller_value * 4) + 128) >> 8;
   }
 
   INLINE void set_cutoff_breath_amt(uint8_t controller_value) {
@@ -231,7 +231,12 @@ public:
     m_s_1 = band_pass + v_1;
     m_s_2 = low_pass  + v_2;
 
-    int32_t y_0 = (m_filter_mode >= 64) ? high_pass : low_pass;
+    int32_t y_0 = low_pass;
+    if (m_filter_mode == 1) {
+      y_0 = band_pass;
+    } else if (m_filter_mode == 2) {
+      y_0 = high_pass;
+    }
 #else
     int32_t y_0 = audio_input_int24 << FILTER_CALC_SCALING_BITS;
 #endif

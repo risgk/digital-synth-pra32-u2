@@ -68,7 +68,7 @@
 |                            54 | x             | o             | Amp Sustain                          |
 |                            55 | x             | o             | Amp Release                          |
 |                               |               |               |                                      |
-|                            39 | x             | o             | Filter Mode [LP|HP]                  |
+|                            39 | x             | o             | Filter Mode [LP|BP|HP]               |
 |                            57 | x             | o             | Pitch Bend Range                     |
 |                            36 | x             | o             | EG Amp Mod [Off|On]                  |
 |                           105 | x             | o             | EG/Amp Release = Decay [Off|On]      |
