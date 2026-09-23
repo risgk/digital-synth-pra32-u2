@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v3.1.0 (2026-??-??):
+- v3.1.0 (2026-09-23):
     - Add the Band Pass to the Filter Mode (Band Pass: 32-95)
     - Change the audio output clipping from hard clipping to soft clipping
     - Change PRA32_U2_Synth::process() to return the 32-bit stereo output as PRA32_U2_StereoSample, removing the unused 16-bit output
