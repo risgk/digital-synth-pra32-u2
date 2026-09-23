@@ -258,9 +258,10 @@
     - 127: 100% (max)
         - NOTE: The actual LFO depth is the "LFO Depth" value plus the "Modulation" value and the after touch effect
 - Amp Gain
-- Filter Mode [LP|HP]
-    - 0 (0-63): Low Pass
-    - 127 (64-127): High Pass
+- Filter Mode [LP|BP|HP]
+    - 0 (0-31): Low Pass
+    - 64 (32-95): Band Pass
+    - 127 (96-127): High Pass
 - Pitch Bend Range
     - 0: 0 semitone (min)
     - 60: 60 semitone (max)
