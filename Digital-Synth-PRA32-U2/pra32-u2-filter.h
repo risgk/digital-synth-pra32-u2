@@ -209,7 +209,7 @@ public:
 
   INLINE int32_t process(int32_t audio_input_int24) {
 #if 1
-    // ZDF (Zero-Delay Feedback) / TPT (Topology-Preserving Transform) State Variable Filter
+    // ZDF (Zero-Delay Feedback) / TPT (Topology-Preserving Transform) State Variable Filter (with delayed soft clipping)
     int32_t x_0 = audio_input_int24 << FILTER_CALC_SCALING_BITS;
 
     // The soft clipping in the feedback path is predicted from the integrator
