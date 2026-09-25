@@ -578,29 +578,18 @@ private:
   INLINE int32_t process_osc(int32_t noise_int23) {
     int32_t result = 0;
 
-    m_phase[N] += m_freq[N];
-
     // Kept in a local: the stores to interp0 (volatile uint32_t) may alias
     // m_phase (uint32_t), which would otherwise make every table lookup reload it
     const uint32_t osc1_phase = m_phase[N];
 
-    boolean new_period_osc1 = (osc1_phase & 0x00FFFFFF) < m_freq[N]; // crossing the begin of a osc 1 wave, the begin or the middle of a sub osc wave
-    m_wave_table[N]      = reinterpret_cast<const int16_t*>((reinterpret_cast<const uintptr_t>(m_wave_table[N]) * (1 - new_period_osc1)) +
-                                                            (reinterpret_cast<const uintptr_t>(m_wave_table_temp[N]) * new_period_osc1));
-
-#if 0
-    m_wave_table[N + 12] = reinterpret_cast<const int16_t*>((reinterpret_cast<const uintptr_t>(m_wave_table[N + 12]) * (1 - new_period_osc1)) +
-                                                            (reinterpret_cast<const uintptr_t>(m_wave_table_temp[N + 12]) * new_period_osc1));
-#endif
-
-    m_wave_table[N + 16] = reinterpret_cast<const int16_t*>((reinterpret_cast<const uintptr_t>(m_wave_table[N + 16]) * (1 - new_period_osc1)) +
-                                                            (reinterpret_cast<const uintptr_t>(m_wave_table_temp[N + 16]) * new_period_osc1));
+    // The phase is advanced after the current level is output, and a crossing
+    // detected by this advance takes effect from the next sample
+    const uint32_t osc1_phase_next = osc1_phase + m_freq[N];
+    boolean new_period_osc1 = (osc1_phase_next & 0x00FFFFFF) < m_freq[N]; // crossing the begin of a osc 1 wave, the begin or the middle of a sub osc wave
 
     if (m_waveform[0] == WAVEFORM_SINE) {
       // For Sine Wave (wave_3)
       uint16_t osc1_phase_modulation_depth = maximum(m_osc1_shape_current[N] - (128 << 8), 0);
-      int32_t phase_modulation_frequency_ratio_candidate = (((m_osc1_morph_current + 2) >> 2) << 1) + 2;
-      m_osc1_phase_modulation_frequency_ratio[N] = (m_osc1_phase_modulation_frequency_ratio[N] * (1 - new_period_osc1)) + (phase_modulation_frequency_ratio_candidate * new_period_osc1);
 
       uint32_t phase_3 = (((osc1_phase >> 1) & 0x01FFFFFF) * m_osc1_phase_modulation_frequency_ratio[N]) >> 1;
       const int16_t* wave_table_sine = get_wave_table(WAVEFORM_SINE, 60);
@@ -609,6 +598,9 @@ private:
       uint32_t phase_0 = osc1_phase + ((wave_3 * osc1_phase_modulation_depth) >> 4);
       int32_t wave_0 = get_wave_level(wave_table_sine, phase_0);
       result += (wave_0 * m_osc1_gain * OSC_LEVEL) >> 9;
+
+      int32_t phase_modulation_frequency_ratio_candidate = (((m_osc1_morph_current + 2) >> 2) << 1) + 2;
+      m_osc1_phase_modulation_frequency_ratio[N] = (m_osc1_phase_modulation_frequency_ratio[N] * (1 - new_period_osc1)) + (phase_modulation_frequency_ratio_candidate * new_period_osc1);
     } else if ((m_waveform[0] == WAVEFORM_SAW) || (m_waveform[0] == WAVEFORM_SAW2)) {
 if constexpr (RESTRICT_SAW == false) {
       int32_t phase_modulation_depth = maximum(m_osc1_shape_current[N] - (128 << 8), 0);
@@ -628,8 +620,8 @@ if constexpr (RESTRICT_SAW == false) {
         ((static_cast<int32_t>(m_freq[N] >> 1) * osc_tune_value) >> MORPH_TUNE_DENOM_BITS);
       freq_shape_morph = (freq_shape_morph >> 0) << 1;
       freq_shape_morph += (N + 4);
-      m_phase_shape_morph[N] += freq_shape_morph;
       const uint32_t phase_shape_morph = m_phase_shape_morph[N];
+      m_phase_shape_morph[N] = phase_shape_morph + freq_shape_morph;
 
       uint32_t phase_shift_base = (127 * (4 - ((N + SYNTH_ID) & 0x03))) << (5 + 16 - 2);
 
@@ -726,18 +718,33 @@ if constexpr (RESTRICT_SQR_WT == false) {
       result += (wave_1 * -m_mixer_noise_sub_osc_current * OSC_LEVEL) >> 9;
     }
 
-    m_phase[N + 4] += m_freq[N + 4];
-    boolean new_period_osc2 = (m_phase[N + 4] & 0x00FFFFFF) < m_freq[N + 4];
-    m_wave_table[N + 4] = reinterpret_cast<const int16_t*>((reinterpret_cast<const uintptr_t>(m_wave_table[N + 4]) * (1 - new_period_osc2)) +
-                                                           (reinterpret_cast<const uintptr_t>(m_wave_table_temp[N + 4]) * new_period_osc2));
+    m_phase[N] = osc1_phase_next;
+    m_wave_table[N]      = reinterpret_cast<const int16_t*>((reinterpret_cast<const uintptr_t>(m_wave_table[N]) * (1 - new_period_osc1)) +
+                                                            (reinterpret_cast<const uintptr_t>(m_wave_table_temp[N]) * new_period_osc1));
+
+#if 0
+    m_wave_table[N + 12] = reinterpret_cast<const int16_t*>((reinterpret_cast<const uintptr_t>(m_wave_table[N + 12]) * (1 - new_period_osc1)) +
+                                                            (reinterpret_cast<const uintptr_t>(m_wave_table_temp[N + 12]) * new_period_osc1));
+#endif
+
+    m_wave_table[N + 16] = reinterpret_cast<const int16_t*>((reinterpret_cast<const uintptr_t>(m_wave_table[N + 16]) * (1 - new_period_osc1)) +
+                                                            (reinterpret_cast<const uintptr_t>(m_wave_table_temp[N + 16]) * new_period_osc1));
+
+    const uint32_t osc2_phase = m_phase[N + 4];
     if (m_waveform[1] != WAVEFORM_2_NOISE) {
-      int16_t wave_2 = get_wave_level(m_wave_table[N + 4], m_phase[N + 4]);
+      int16_t wave_2 = get_wave_level(m_wave_table[N + 4], osc2_phase);
       result += (wave_2 * m_osc2_gain * OSC_LEVEL) >> 9;
     } else {
       // Noise (wave_2)
       int16_t wave_2 = noise_int23 >> 9;
       result += (wave_2 * m_osc2_gain * OSC_LEVEL) >> 9;
     }
+
+    const uint32_t osc2_phase_next = osc2_phase + m_freq[N + 4];
+    boolean new_period_osc2 = (osc2_phase_next & 0x00FFFFFF) < m_freq[N + 4];
+    m_phase[N + 4] = osc2_phase_next;
+    m_wave_table[N + 4] = reinterpret_cast<const int16_t*>((reinterpret_cast<const uintptr_t>(m_wave_table[N + 4]) * (1 - new_period_osc2)) +
+                                                           (reinterpret_cast<const uintptr_t>(m_wave_table_temp[N + 4]) * new_period_osc2));
 
     return result;
   }

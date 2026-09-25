@@ -176,11 +176,7 @@ private:
       }
       break;
     case LFO_WAVEFORM_RANDOM:
-      {
-        const int32_t mask = -(phase < m_lfo_rate);
-        m_sampled_noise_int23 ^= (m_sampled_noise_int23 ^ m_noise_int23) & mask;
-        level = m_sampled_noise_int23;
-      }
+      level = m_sampled_noise_int23;
       break;
     case LFO_WAVEFORM_SQUARE:
       level = (phase < 0x800000) << 23;
@@ -212,8 +208,14 @@ private:
     m_lfo_fade_cnt = (m_lfo_fade_coef * is_zero) + (m_lfo_fade_cnt * (is_zero ^ 1));
     m_lfo_fade_level += (is_zero & (m_lfo_fade_level < LFO_FADE_LEVEL_MAX));
 
+    m_lfo_wave_level = get_lfo_wave_level(m_lfo_phase);
+
+    // The phase is advanced after the current level is output, and a crossing
+    // detected by this advance takes effect from the next update
     m_lfo_phase += m_lfo_rate;
     m_lfo_phase &= 0x00FFFFFF;
-    m_lfo_wave_level = get_lfo_wave_level(m_lfo_phase);
+
+    const int32_t mask = -((m_lfo_waveform == LFO_WAVEFORM_RANDOM) & (m_lfo_phase < m_lfo_rate));
+    m_sampled_noise_int23 ^= (m_sampled_noise_int23 ^ m_noise_int23) & mask;
   }
 };
