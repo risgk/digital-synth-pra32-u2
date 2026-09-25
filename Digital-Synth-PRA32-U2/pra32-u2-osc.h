@@ -833,8 +833,14 @@ if constexpr (RESTRICT_SQR_WT == false) {
   INLINE void update_freq_offset(int32_t noise_int23) {
     m_drift_noise[N] += ((noise_int23 << 8) - m_drift_noise[N]) >> 14;
 
+    // The drift r (Q24) is applied as the frequency ratio e^r, so that the
+    // pitch drifts by (1200 / ln 2) * r cents, up and down symmetrically, the
+    // same as the Filter cutoff. e^r - 1 is approximated by r + r^2 / 2
+    int32_t drift_r = (m_drift_noise[N] >> 16) * m_drift;
+    int32_t drift_ratio_minus_one = drift_r + multiply_shift_right(drift_r, drift_r, 25);
+
     m_freq_offset[N] = (N >> 2) << 1;
-    m_freq_offset[N] += (((static_cast<int32_t>(m_freq_base[N]) * (m_drift_noise[N] >> 16)) >> 8) * m_drift) >> 16;
+    m_freq_offset[N] += multiply_shift_right(m_freq_base[N], drift_ratio_minus_one, 24);
 
     m_freq[N] = m_freq_base[N] + m_freq_offset[N];
   }
