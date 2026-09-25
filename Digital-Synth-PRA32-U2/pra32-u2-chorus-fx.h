@@ -102,10 +102,10 @@ public:
       static_cast<uint16_t>(((127 << 6) - m_chorus_delay_time_current) << 1)
     });
 
+    int32_t chorus_lfo_wave_level = get_chorus_lfo_wave_level(m_chorus_lfo_phase);
+
     m_chorus_lfo_phase += m_chorus_rate;
     m_chorus_lfo_phase &= 0x00FFFFFF;
-
-    int32_t chorus_lfo_wave_level = get_chorus_lfo_wave_level(m_chorus_lfo_phase);
 
     int32_t chorus_lfo_level = (chorus_lfo_wave_level * chorus_depth_current_limited) >> 14;
 
