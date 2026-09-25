@@ -54,10 +54,11 @@ class PRA32_U2_Filter {
   static const int32_t SMOOTH_RATE = 2048;
   static const int32_t CONTROLLER_VALUE_Q16_MAX = static_cast<int32_t>(FILTER_TABLE_LENGTH - 2) << 16;
 
-  // The Osc drift is a relative frequency deviation; 1 controller value is
-  // 1 semitone, so multiplying it by (12 / ln 2) << 16 gives the same amount
-  // of drift for the cutoff, in Q16 controller values
-  static const int32_t DRIFT_SCALE = 1134666;
+  // The Osc drift r is applied as the frequency ratio e^r, i.e. 12 / ln 2
+  // semitones per unit of r; 1 controller value is 1 semitone, so multiplying
+  // r by (12 / ln 2) << 16 gives the same amount of drift for the cutoff, in
+  // Q16 controller values
+  static const int32_t DRIFT_SCALE = 1134582;
 
   int32_t m_g;                         // g = tan(pi * f_0 / f_s), Q26
   int32_t m_one_over_a_0;              // 1 / a_0, Q30, where a_0 = 1 + g * (g + k)
