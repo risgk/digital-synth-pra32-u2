@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v3.1.1 (2026-??-??):
+    - Fix the Chorus input overflowing 32-bit arithmetic when the mixed voices exceed twice the full scale
     - Change the Osc/Filter Drift of the Osc pitch to be symmetric in cents (as the frequency ratio e^r), matching that of the Filter cutoff
     - Change the Osc, LFO, and Chorus LFO to advance the phase after outputting the current level (starting from the phase 0 after a reset or an LFO trigger)
     - Tested with Arduino-Pico version 6.1.1
