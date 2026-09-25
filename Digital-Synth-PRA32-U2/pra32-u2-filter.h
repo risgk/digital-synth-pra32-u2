@@ -38,6 +38,21 @@ static INLINE int32_t soft_clip(int32_t value) {
   return multiply_shift_right(clamped, gain, FILTER_TABLE_FRACTION_BITS);
 }
 
+// The integrator states are soft-clipped once per sample, so the distortion
+// grows with the sampling rate; blending the clipper by alpha = 48000 / f_s
+// keeps the sound at 48 kHz on other sampling rates
+//   soft_clip_state(x) = x - alpha * (x - soft_clip(x))
+static_assert(SAMPLING_RATE > 24000, "alpha must be less than 2.0 (Q30)");
+static const int32_t FILTER_STATE_CLIP_ALPHA = (48000LL << FILTER_TABLE_FRACTION_BITS) / SAMPLING_RATE;  // Q30
+
+static INLINE int32_t soft_clip_state(int32_t value) {
+  if constexpr (SAMPLING_RATE == 48000) {
+    return soft_clip(value);  // alpha = 1
+  } else {
+    return value - multiply_shift_right(value - soft_clip(value), FILTER_STATE_CLIP_ALPHA, FILTER_TABLE_FRACTION_BITS);
+  }
+}
+
 // Linear interpolation between the coefficients of two adjacent controller
 // values; controller_value_q16 is the controller value scaled by 65536, and is
 // expected to be clamped to 0 .. CONTROLLER_VALUE_Q16_MAX
@@ -217,8 +232,8 @@ public:
     // states of the previous sample, so its gain is constant within the
     // sample: the zero-delay feedback equation keeps its closed-form solution
     // and needs no iteration
-    int32_t s_1 = soft_clip(m_s_1);
-    int32_t s_2 = soft_clip(m_s_2);
+    int32_t s_1 = soft_clip_state(m_s_1);
+    int32_t s_2 = soft_clip_state(m_s_2);
 
     // high_pass = (x_0 - (g + k) * s_1 - s_2) / a_0
     int32_t high_pass = multiply_shift_right(m_one_over_a_0,      x_0 - s_2, FILTER_TABLE_FRACTION_BITS)
