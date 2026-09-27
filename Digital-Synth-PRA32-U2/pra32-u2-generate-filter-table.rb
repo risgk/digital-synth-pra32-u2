@@ -24,14 +24,19 @@ def cutoff_g(controller_value)
   Math.tan(Math::PI * f_0 / SAMPLING_RATE)
 end
 
-# Filter Resonance controller value -> Q (0.707 .. 8.0 at 112, then doubling
-# every 2 controller values up to 256 at 122); above 122 the filter
+# Filter Resonance controller value -> Q (0.707 .. 5.66 at 96, doubling every
+# 32 controller values, then rising faster up to 256 at 122); above 96 a
+# quadratic term is added to log2(Q), so that the slope grows smoothly from
+# 1/32 octave per controller value without a sudden step; above 122 the filter
 # self-oscillates, and k = 1 / Q is 0
+RESONANCE_CURVE_START = 96.0
+RESONANCE_CURVE_C = (8.0 - (122.0 - 16.0) / 32.0) / ((122.0 - RESONANCE_CURVE_START) ** 2)
+
 def resonance_k(controller_value)
-  if controller_value <= 112
+  if controller_value <= RESONANCE_CURVE_START
     1.0 / (2.0 ** ((controller_value - 16.0) / 32.0))
   elsif controller_value <= 122
-    1.0 / (8.0 * (2.0 ** ((controller_value - 112.0) / 2.0)))
+    1.0 / (2.0 ** ((controller_value - 16.0) / 32.0 + RESONANCE_CURVE_C * ((controller_value - RESONANCE_CURVE_START) ** 2)))
   else
     0.0
   end
