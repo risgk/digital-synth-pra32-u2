@@ -126,9 +126,9 @@
     - 118: Q = 64.0
     - 120: Q = 128
     - 122: Q = 256
-    - 123: Self-oscillation (level 0.2)
-    - 125: Self-oscillation (level 0.4)
-    - 127: Self-oscillation (level 0.5) (max)
+    - 123: Self-oscillation (level 0.09)
+    - 125: Self-oscillation (level 0.15)
+    - 127: Self-oscillation (level 0.2) (max)
 - Filter EG Amt [-|+], LFO Filter Amt [-|+]
     - -60 (4): -120 (min)
     - +60 (124): +120 (max)
