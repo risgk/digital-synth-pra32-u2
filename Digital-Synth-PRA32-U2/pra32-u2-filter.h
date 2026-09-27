@@ -83,7 +83,19 @@ class PRA32_U2_Filter {
   // Q16 controller values
   static const int32_t DRIFT_SCALE = 1134582;
 
-  int32_t m_g;                         // g = tan(pi * f_0 / f_s), Q26
+  // The self-oscillation starts at the Resonance 122 and reaches its full
+  // level at 127; below -0.2, a large negative k (at a low cutoff) pulls the
+  // pitch down
+  static const int32_t SELF_OSC_START_Q16    = 122 << 16;
+  static const int32_t SELF_OSC_RANGE_Q16    = 5 << 16;
+  static const int32_t SELF_OSC_K_FLOOR_Q26  = (1 << FILTER_G_FRACTION_BITS) / 5;  // 0.2
+
+  // A state of exactly 0 does not oscillate, and a tiny oscillation can stall
+  // in the rounding of the integrators; a tiny noise added to the band pass
+  // state lets it start and grow (about -115 dB when not oscillating)
+  static const uint8_t SELF_OSC_NOISE_SHIFT = 18;
+
+  int32_t m_g;                        // g = tan(pi * f_0 / f_s), Q26
   int32_t m_one_over_a_0;              // 1 / a_0, Q30, where a_0 = 1 + g * (g + k)
   int32_t m_g_plus_k_over_a_0;         // (g + k) / a_0, Q30
   int32_t m_s_1;                       // State of the band pass integrator
@@ -228,6 +240,8 @@ public:
       m_cutoff_drift_noise += ((noise_int23 << 8) - m_cutoff_drift_noise) >> 14;
     }
 
+    m_s_1 += noise_int23 >> SELF_OSC_NOISE_SHIFT;
+
     update_coefs(eg_input, lfo_input, osc_pitch);
   }
 
@@ -321,6 +335,14 @@ private:
     // 5. Interpolate the coefficient tables and solve the zero-delay feedback
     int32_t g = interpolate_filter_table(g_filter_g_table, m_cutoff_current);
     int32_t k = interpolate_filter_table(g_filter_k_table, m_resonance_current);
+
+    // k -= t * kappa * (1 + g^2)^2 / g, where t = (Resonance - 122) / 5, clamped to 0 .. 1,
+    // and the table holds kappa * (1 + g^2)^2 / g / 5
+    int32_t self_osc_t_times_5 = clamp(m_resonance_current - SELF_OSC_START_Q16, 0, SELF_OSC_RANGE_Q16);
+    int32_t self_osc_k = multiply_shift_right(interpolate_filter_table(g_filter_self_osc_table, m_cutoff_current), self_osc_t_times_5,
+                                              16 + FILTER_TABLE_FRACTION_BITS - FILTER_G_FRACTION_BITS);  // Q26
+    k -= minimum(self_osc_k, SELF_OSC_K_FLOOR_Q26) << (FILTER_TABLE_FRACTION_BITS - FILTER_G_FRACTION_BITS);
+
     int32_t g_plus_k = g + (k >> (FILTER_TABLE_FRACTION_BITS - FILTER_G_FRACTION_BITS));
     int32_t a_0 = (1 << 24) + multiply_shift_right(g, g_plus_k, (FILTER_G_FRACTION_BITS * 2) - 24);
 
