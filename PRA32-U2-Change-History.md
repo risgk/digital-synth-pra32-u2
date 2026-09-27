@@ -6,6 +6,7 @@
     - Change the Osc, LFO, and Chorus LFO to advance the phase after outputting the current level (starting from the phase 0 after a reset or an LFO trigger)
     - Change the Filter soft clipping of the integrator states to scale with the sampling rate, keeping the sound at 48 kHz on other sampling rates (no change at 48 kHz)
     - Change the Filter to soft-clip only the band pass state with the ceiling at 4, and to soft-clip its output
+    - Change the Filter to clamp the low pass state at 16 as a guard against overflow
     - Tested with Arduino-Pico version 6.1.1
 - v3.1.0 (2026-09-23):
     - Add the Band Pass to the Filter Mode (Band Pass: 32-95)
