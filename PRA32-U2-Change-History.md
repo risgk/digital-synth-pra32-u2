@@ -1,5 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v3.2.1 (2026-??-??):
+    - Tested with Arduino-Pico version 6.1.1
 - v3.2.0 (2026-09-27):
     - Add the **Filter self-oscillation** (Resonance 123-127, level 0.2 at 127)
     - Fix the documented Filter Cutoff frequency at the controller value 121 (Hz, not kHz)
