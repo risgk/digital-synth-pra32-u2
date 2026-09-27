@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v3.2.1 (2026-??-??):
+    - PRA32-U2 Editor: Remember the last selected MIDI In/Out ports and MIDI Ch
     - Tested with Arduino-Pico version 6.1.1
 - v3.2.0 (2026-09-27):
     - Add the **Filter self-oscillation** (Resonance 123-127, level 0.2 at 127)
