@@ -1,4 +1,4 @@
-# Digital Synth PRA32-U2 Parameter Guide v3.1.0
+# Digital Synth PRA32-U2 Parameter Guide v3.2.0
 
 - 2026-09-22 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
@@ -105,10 +105,11 @@
     - 1: f = 13.8 Hz
     - 4: f = 16.4 Hz
     - 7: f = 19.5 Hz
+    - 52: f = 261.6 Hz
     - 61: f = 440.0 Hz
     - 64: f = 523.3 Hz
     - 67: f = 622.3 Hz
-    - 121: f = 14080.0 kHz
+    - 121: f = 14080.0 Hz
     - 124: f = 16744.0 Hz
     - 127: f = 19912.1 Hz (max)
 - Filter Resonance
@@ -120,7 +121,15 @@
     - 80: Q = 4.00
     - 96: Q = 5.66
     - 112: Q = 8.00
-    - 127: Q = 11.07 (max)
+    - 113: Q = 11.3
+    - 114: Q = 16.0
+    - 116: Q = 32.0
+    - 118: Q = 64.0
+    - 120: Q = 128
+    - 122: Q = 256
+    - 123: Self-oscillation (level 0.09)
+    - 125: Self-oscillation (level 0.15)
+    - 127: Self-oscillation (level 0.2) (max)
 - Filter EG Amt [-|+], LFO Filter Amt [-|+]
     - -60 (4): -120 (min)
     - +60 (124): +120 (max)
