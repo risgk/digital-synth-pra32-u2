@@ -54,6 +54,54 @@ graph LR
 ```
 
 
+## Filter Diagrams
+
+A zero-delay feedback state variable filter: at the sum, the loop equation is solved in closed
+form, so the high pass is found in one step. The soft clip acts only where the band pass state is
+read back, and it is what holds the resonance down; the low pass state stays linear, with a
+clamp at 16 as a guard that ordinary use never reaches. The output clip comes last. Above the
+Filter Resonance 122, k turns negative and the loop oscillates.
+
+```mermaid
+flowchart LR
+    IN([Input]) --> SUM((Σ))
+    SUM -->|HP| I1["Integrator 1<br/>BP, state s1"]
+    I1 -->|BP| I2["Integrator 2<br/>LP, state s2"]
+    SUM -->|HP| MS["Filter Mode<br/>LP / BP / HP"]
+    I1 -->|BP| MS
+    I2 -->|LP| MS
+    MS --> OC["Output clip<br/>linear up to 0.5"]
+    OC --> OUT([Output])
+    SC["State clip<br/>ceiling 4.0, α comp."] -.- I1
+    L2["s2 is linear<br/>guard clamp at 16"] -.- I2
+    I1 -->|"−k·BP"| SUM
+    I2 -->|"−LP"| SUM
+    classDef nl fill:#FAECE7,stroke:#D85A30,color:#712B13
+    class SC,OC nl
+```
+
+The same structure redrawn as an op-amp integrator filter. The diode pair stands for the state
+clip and the output limiter for the output clip. It is an interpretation, not a reproduction of
+an actual circuit.
+
+```mermaid
+flowchart LR
+    IN([Input]) --> A1["Summing amp Σ"]
+    A1 -->|HP| A2["Integrator ∫<br/>C1"]
+    D["Diode pair"] -.-|across C1| A2
+    A2 -->|BP| A3["Integrator ∫<br/>C2, linear"]
+    A1 -->|HP| MS["Filter Mode<br/>LP / BP / HP"]
+    A2 -->|BP| MS
+    A3 -->|LP| MS
+    MS --> LIM["Output limiter"]
+    LIM --> OUT([Output])
+    A2 -->|"R/k (resonance)"| A1
+    A3 -->|R| A1
+    classDef nl fill:#FAECE7,stroke:#D85A30,color:#712B13
+    class D,LIM nl
+```
+
+
 ## Wave Table Graphs
 
 ![Wave Table Graphs](./pra32-u2-wave-table-graphs.png)
