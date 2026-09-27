@@ -12,17 +12,20 @@
 static const uint8_t FILTER_CALC_SCALING_BITS = 3;
 static const int32_t FILTER_ONE               = (1 << 23) << FILTER_CALC_SCALING_BITS;
 
-static const uint8_t SOFT_CLIP_CEILING_BITS = 2;  // Ceiling = 4.0
+static const uint8_t SOFT_CLIP_CEILING_BITS       = 2;  // Ceiling = 4.0
+static const uint8_t LOW_PASS_STATE_CEILING_BITS  = 4;  // Ceiling = 16.0
 
-// Clamp to -4.0 .. +4.0; a single instruction on the RP2350
+// Clamp to -(2^CEILING_BITS) .. +(2^CEILING_BITS); a single instruction on the RP2350
+template <uint8_t CEILING_BITS>
 static INLINE int32_t saturate_to_ceiling(int32_t value) {
+  static_assert(24 + FILTER_CALC_SCALING_BITS + CEILING_BITS <= 32, "the ceiling must fit in 32 bits");
 #if defined(__ARM_FEATURE_SAT)
   int32_t result;
   __asm ("ssat %0, %1, %2" : "=r" (result)
-         : "I" (24 + FILTER_CALC_SCALING_BITS + SOFT_CLIP_CEILING_BITS), "r" (value));
+         : "I" (24 + FILTER_CALC_SCALING_BITS + CEILING_BITS), "r" (value));
   return result;
 #else
-  return clamp(value, -(FILTER_ONE << SOFT_CLIP_CEILING_BITS), (FILTER_ONE << SOFT_CLIP_CEILING_BITS) - 1);
+  return clamp(value, -(FILTER_ONE << CEILING_BITS), (FILTER_ONE << CEILING_BITS) - 1);
 #endif
 }
 
@@ -33,7 +36,7 @@ static INLINE int32_t saturate_to_ceiling(int32_t value) {
 static INLINE int32_t soft_clip(int32_t value) {
   // Note: Without anti-aliasing (oversampling)
 
-  int32_t clamped = saturate_to_ceiling(value);
+  int32_t clamped = saturate_to_ceiling<SOFT_CLIP_CEILING_BITS>(value);
   // c^2 / 16 in Q30, at most 1.0
   int32_t squared = multiply_shift_right(clamped, clamped,
                                          ((23 + FILTER_CALC_SCALING_BITS) * 2) - FILTER_TABLE_FRACTION_BITS
@@ -243,7 +246,10 @@ public:
     // To clip both states, use the line in the comment instead:
     //   int32_t s_2 = soft_clip_state(m_s_2);
     int32_t s_1 = soft_clip_state(m_s_1);
-    int32_t s_2 = m_s_2;
+    // Without the soft clipping, nothing bounds the low pass state; the clamp
+    // at 16, well above anything ordinary use reaches, keeps it within the
+    // headroom of 32
+    int32_t s_2 = saturate_to_ceiling<LOW_PASS_STATE_CEILING_BITS>(m_s_2);
 
     // high_pass = (x_0 - (g + k) * s_1 - s_2) / a_0
     int32_t high_pass = multiply_shift_right(m_one_over_a_0,      x_0 - s_2, FILTER_TABLE_FRACTION_BITS)
