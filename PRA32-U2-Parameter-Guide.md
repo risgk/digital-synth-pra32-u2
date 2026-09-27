@@ -1,4 +1,4 @@
-# Digital Synth PRA32-U2 Parameter Guide v3.2.0
+# Digital Synth PRA32-U2 Parameter Guide v3.3.0
 
 - 2026-09-22 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
@@ -120,12 +120,12 @@
     - 64: Q = 2.83
     - 80: Q = 4.00
     - 96: Q = 5.66
-    - 112: Q = 8.00
-    - 113: Q = 11.3
-    - 114: Q = 16.0
-    - 116: Q = 32.0
-    - 118: Q = 64.0
-    - 120: Q = 128
+    - 100: Q = 6.66
+    - 104: Q = 9.15
+    - 108: Q = 14.7
+    - 112: Q = 27.4
+    - 116: Q = 59.7
+    - 120: Q = 152
     - 122: Q = 256
     - 123: Self-oscillation (level 0.09)
     - 125: Self-oscillation (level 0.15)
