@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v3.2.0 (2026-??-??):
+- v3.2.0 (2026-09-27):
     - Add the **Filter self-oscillation** (Resonance 123-127, level 0.2 at 127)
     - Fix the documented Filter Cutoff frequency at the controller value 121 (Hz, not kHz)
     - Change the Filter Resonance above 112 to double the Q every 2 values, from 8.0 at 112 to 256 at 122
