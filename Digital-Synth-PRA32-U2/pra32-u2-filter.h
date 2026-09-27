@@ -12,33 +12,38 @@
 static const uint8_t FILTER_CALC_SCALING_BITS = 3;
 static const int32_t FILTER_ONE               = (1 << 23) << FILTER_CALC_SCALING_BITS;
 
-// Clamp to -1.0 .. +1.0; a single instruction on the RP2350
-static INLINE int32_t saturate_to_one(int32_t value) {
+static const uint8_t SOFT_CLIP_CEILING_BITS = 2;  // Ceiling = 4.0
+
+// Clamp to -4.0 .. +4.0; a single instruction on the RP2350
+static INLINE int32_t saturate_to_ceiling(int32_t value) {
 #if defined(__ARM_FEATURE_SAT)
   int32_t result;
-  __asm ("ssat %0, %1, %2" : "=r" (result) : "I" (24 + FILTER_CALC_SCALING_BITS), "r" (value));
+  __asm ("ssat %0, %1, %2" : "=r" (result)
+         : "I" (24 + FILTER_CALC_SCALING_BITS + SOFT_CLIP_CEILING_BITS), "r" (value));
   return result;
 #else
-  return clamp(value, -FILTER_ONE, FILTER_ONE - 1);
+  return clamp(value, -(FILTER_ONE << SOFT_CLIP_CEILING_BITS), (FILTER_ONE << SOFT_CLIP_CEILING_BITS) - 1);
 #endif
 }
 
-// Cubic soft clipping, realized by "gain prediction": instead of evaluating a
-// waveshaper on the signal, the gain of the clipper is predicted from the
-// signal and applied by a single multiplication
-//   soft_clip(x) = gain(x) * c,  c = clamp(x, -1, +1),  gain(x) = 1 - c^2 / 3
+// Cubic soft clipping with the ceiling at 4.0, realized by "gain prediction":
+// instead of evaluating a waveshaper on the signal, the gain of the clipper is
+// predicted from the signal and applied by a single multiplication
+//   soft_clip(x) = gain(x) * c,  c = clamp(x, -4, +4),  gain(x) = 1 - c^2 / 48
 static INLINE int32_t soft_clip(int32_t value) {
   // Note: Without anti-aliasing (oversampling)
 
-  int32_t clamped = saturate_to_one(value);
+  int32_t clamped = saturate_to_ceiling(value);
+  // c^2 / 16 in Q30, at most 1.0
   int32_t squared = multiply_shift_right(clamped, clamped,
-                                         ((23 + FILTER_CALC_SCALING_BITS) * 2) - FILTER_TABLE_FRACTION_BITS);
+                                         ((23 + FILTER_CALC_SCALING_BITS) * 2) - FILTER_TABLE_FRACTION_BITS
+                                         + (2 * SOFT_CLIP_CEILING_BITS));
   int32_t gain = (1 << FILTER_TABLE_FRACTION_BITS) - (squared / 3);
 
   return multiply_shift_right(clamped, gain, FILTER_TABLE_FRACTION_BITS);
 }
 
-// The integrator states are soft-clipped once per sample, so the distortion
+// The band pass state is soft-clipped once per sample, so the distortion
 // grows with the sampling rate; blending the clipper by alpha = 48000 / f_s
 // keeps the sound at 48 kHz on other sampling rates
 //   soft_clip_state(x) = x - alpha * (x - soft_clip(x))
@@ -225,15 +230,20 @@ public:
 
   INLINE int32_t process(int32_t audio_input_int24) {
 #if 1
-    // ZDF (Zero-Delay Feedback) / TPT (Topology-Preserving Transform) State Variable Filter (with delayed soft clipping)
+    // ZDF (Zero-Delay Feedback) / TPT (Topology-Preserving Transform) State Variable Filter (with delayed soft clipping of the band pass state)
     int32_t x_0 = audio_input_int24 << FILTER_CALC_SCALING_BITS;
 
     // The soft clipping in the feedback path is predicted from the integrator
-    // states of the previous sample, so its gain is constant within the
+    // state of the previous sample, so its gain is constant within the
     // sample: the zero-delay feedback equation keeps its closed-form solution
     // and needs no iteration
+    // Only the band pass state is soft-clipped: the low pass passes clean and
+    // the resonance stays in tune, still held down by the clip on the band pass
+    // state; the output clip below trims what peaks remain.
+    // To clip both states, use the line in the comment instead:
+    //   int32_t s_2 = soft_clip_state(m_s_2);
     int32_t s_1 = soft_clip_state(m_s_1);
-    int32_t s_2 = soft_clip_state(m_s_2);
+    int32_t s_2 = m_s_2;
 
     // high_pass = (x_0 - (g + k) * s_1 - s_2) / a_0
     int32_t high_pass = multiply_shift_right(m_one_over_a_0,      x_0 - s_2, FILTER_TABLE_FRACTION_BITS)
@@ -257,7 +267,7 @@ public:
     int32_t y_0 = audio_input_int24 << FILTER_CALC_SCALING_BITS;
 #endif
 
-    return y_0 >> FILTER_CALC_SCALING_BITS;
+    return soft_clip_output(y_0 >> FILTER_CALC_SCALING_BITS);
   }
 
 private:
