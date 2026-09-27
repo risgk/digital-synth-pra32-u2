@@ -12,30 +12,53 @@
 static const uint8_t FILTER_CALC_SCALING_BITS = 3;
 static const int32_t FILTER_ONE               = (1 << 23) << FILTER_CALC_SCALING_BITS;
 
-// Clamp to -1.0 .. +1.0; a single instruction on the RP2350
-static INLINE int32_t saturate_to_one(int32_t value) {
+static const uint8_t SOFT_CLIP_CEILING_BITS       = 2;  // Ceiling = 4.0
+static const uint8_t LOW_PASS_STATE_CEILING_BITS  = 4;  // Ceiling = 16.0
+
+// Clamp to -(2^CEILING_BITS) .. +(2^CEILING_BITS); a single instruction on the RP2350
+template <uint8_t CEILING_BITS>
+static INLINE int32_t saturate_to_ceiling(int32_t value) {
+  static_assert(24 + FILTER_CALC_SCALING_BITS + CEILING_BITS <= 32, "the ceiling must fit in 32 bits");
 #if defined(__ARM_FEATURE_SAT)
   int32_t result;
-  __asm ("ssat %0, %1, %2" : "=r" (result) : "I" (24 + FILTER_CALC_SCALING_BITS), "r" (value));
+  __asm ("ssat %0, %1, %2" : "=r" (result)
+         : "I" (24 + FILTER_CALC_SCALING_BITS + CEILING_BITS), "r" (value));
   return result;
 #else
-  return clamp(value, -FILTER_ONE, FILTER_ONE - 1);
+  return clamp(value, -(FILTER_ONE << CEILING_BITS), (FILTER_ONE << CEILING_BITS) - 1);
 #endif
 }
 
-// Cubic soft clipping, realized by "gain prediction": instead of evaluating a
-// waveshaper on the signal, the gain of the clipper is predicted from the
-// signal and applied by a single multiplication
-//   soft_clip(x) = gain(x) * c,  c = clamp(x, -1, +1),  gain(x) = 1 - c^2 / 3
+// Cubic soft clipping with the ceiling at 4.0, realized by "gain prediction":
+// instead of evaluating a waveshaper on the signal, the gain of the clipper is
+// predicted from the signal and applied by a single multiplication
+//   soft_clip(x) = gain(x) * c,  c = clamp(x, -4, +4),  gain(x) = 1 - c^2 / 48
 static INLINE int32_t soft_clip(int32_t value) {
   // Note: Without anti-aliasing (oversampling)
 
-  int32_t clamped = saturate_to_one(value);
+  int32_t clamped = saturate_to_ceiling<SOFT_CLIP_CEILING_BITS>(value);
+  // c^2 / 16 in Q30, at most 1.0
   int32_t squared = multiply_shift_right(clamped, clamped,
-                                         ((23 + FILTER_CALC_SCALING_BITS) * 2) - FILTER_TABLE_FRACTION_BITS);
+                                         ((23 + FILTER_CALC_SCALING_BITS) * 2) - FILTER_TABLE_FRACTION_BITS
+                                         + (2 * SOFT_CLIP_CEILING_BITS));
   int32_t gain = (1 << FILTER_TABLE_FRACTION_BITS) - (squared / 3);
 
   return multiply_shift_right(clamped, gain, FILTER_TABLE_FRACTION_BITS);
+}
+
+// The band pass state is soft-clipped once per sample, so the distortion
+// grows with the sampling rate; blending the clipper by alpha = 48000 / f_s
+// keeps the sound at 48 kHz on other sampling rates
+//   soft_clip_state(x) = x - alpha * (x - soft_clip(x))
+static_assert(SAMPLING_RATE > 24000, "alpha must be less than 2.0 (Q30)");
+static const int32_t FILTER_STATE_CLIP_ALPHA = (48000LL << FILTER_TABLE_FRACTION_BITS) / SAMPLING_RATE;  // Q30
+
+static INLINE int32_t soft_clip_state(int32_t value) {
+  if constexpr (SAMPLING_RATE == 48000) {
+    return soft_clip(value);  // alpha = 1
+  } else {
+    return value - multiply_shift_right(value - soft_clip(value), FILTER_STATE_CLIP_ALPHA, FILTER_TABLE_FRACTION_BITS);
+  }
 }
 
 // Linear interpolation between the coefficients of two adjacent controller
@@ -54,12 +77,25 @@ class PRA32_U2_Filter {
   static const int32_t SMOOTH_RATE = 2048;
   static const int32_t CONTROLLER_VALUE_Q16_MAX = static_cast<int32_t>(FILTER_TABLE_LENGTH - 2) << 16;
 
-  // The Osc drift is a relative frequency deviation; 1 controller value is
-  // 1 semitone, so multiplying it by (12 / ln 2) << 16 gives the same amount
-  // of drift for the cutoff, in Q16 controller values
-  static const int32_t DRIFT_SCALE = 1134666;
+  // The Osc drift r is applied as the frequency ratio e^r, i.e. 12 / ln 2
+  // semitones per unit of r; 1 controller value is 1 semitone, so multiplying
+  // r by (12 / ln 2) << 16 gives the same amount of drift for the cutoff, in
+  // Q16 controller values
+  static const int32_t DRIFT_SCALE = 1134582;
 
-  int32_t m_g;                         // g = tan(pi * f_0 / f_s), Q26
+  // The self-oscillation starts at the Resonance 122 and reaches its full
+  // level at 127; below -0.2, a large negative k (at a low cutoff) pulls the
+  // pitch down
+  static const int32_t SELF_OSC_START_Q16    = 122 << 16;
+  static const int32_t SELF_OSC_RANGE_Q16    = 5 << 16;
+  static const int32_t SELF_OSC_K_FLOOR_Q26  = (1 << FILTER_G_FRACTION_BITS) / 5;  // 0.2
+
+  // A state of exactly 0 does not oscillate, and a tiny oscillation can stall
+  // in the rounding of the integrators; a tiny noise added to the band pass
+  // state lets it start and grow (about -115 dB when not oscillating)
+  static const uint8_t SELF_OSC_NOISE_SHIFT = 18;
+
+  int32_t m_g;                        // g = tan(pi * f_0 / f_s), Q26
   int32_t m_one_over_a_0;              // 1 / a_0, Q30, where a_0 = 1 + g * (g + k)
   int32_t m_g_plus_k_over_a_0;         // (g + k) / a_0, Q30
   int32_t m_s_1;                       // State of the band pass integrator
@@ -204,20 +240,30 @@ public:
       m_cutoff_drift_noise += ((noise_int23 << 8) - m_cutoff_drift_noise) >> 14;
     }
 
+    m_s_1 += noise_int23 >> SELF_OSC_NOISE_SHIFT;
+
     update_coefs(eg_input, lfo_input, osc_pitch);
   }
 
   INLINE int32_t process(int32_t audio_input_int24) {
 #if 1
-    // ZDF (Zero-Delay Feedback) / TPT (Topology-Preserving Transform) State Variable Filter
+    // ZDF (Zero-Delay Feedback) / TPT (Topology-Preserving Transform) State Variable Filter (with delayed soft clipping of the band pass state)
     int32_t x_0 = audio_input_int24 << FILTER_CALC_SCALING_BITS;
 
     // The soft clipping in the feedback path is predicted from the integrator
-    // states of the previous sample, so its gain is constant within the
+    // state of the previous sample, so its gain is constant within the
     // sample: the zero-delay feedback equation keeps its closed-form solution
     // and needs no iteration
-    int32_t s_1 = soft_clip(m_s_1);
-    int32_t s_2 = soft_clip(m_s_2);
+    // Only the band pass state is soft-clipped: the low pass passes clean and
+    // the resonance stays in tune, still held down by the clip on the band pass
+    // state; the output clip below trims what peaks remain.
+    // To clip both states, use the line in the comment instead:
+    //   int32_t s_2 = soft_clip_state(m_s_2);
+    int32_t s_1 = soft_clip_state(m_s_1);
+    // Without the soft clipping, nothing bounds the low pass state; the clamp
+    // at 16, well above anything ordinary use reaches, keeps it within the
+    // headroom of 32
+    int32_t s_2 = saturate_to_ceiling<LOW_PASS_STATE_CEILING_BITS>(m_s_2);
 
     // high_pass = (x_0 - (g + k) * s_1 - s_2) / a_0
     int32_t high_pass = multiply_shift_right(m_one_over_a_0,      x_0 - s_2, FILTER_TABLE_FRACTION_BITS)
@@ -241,7 +287,7 @@ public:
     int32_t y_0 = audio_input_int24 << FILTER_CALC_SCALING_BITS;
 #endif
 
-    return y_0 >> FILTER_CALC_SCALING_BITS;
+    return soft_clip_output(y_0 >> FILTER_CALC_SCALING_BITS);
   }
 
 private:
@@ -289,6 +335,14 @@ private:
     // 5. Interpolate the coefficient tables and solve the zero-delay feedback
     int32_t g = interpolate_filter_table(g_filter_g_table, m_cutoff_current);
     int32_t k = interpolate_filter_table(g_filter_k_table, m_resonance_current);
+
+    // k -= t * kappa * (1 + g^2)^2 / g, where t = (Resonance - 122) / 5, clamped to 0 .. 1,
+    // and the table holds kappa * (1 + g^2)^2 / g / 5
+    int32_t self_osc_t_times_5 = clamp(m_resonance_current - SELF_OSC_START_Q16, 0, SELF_OSC_RANGE_Q16);
+    int32_t self_osc_k = multiply_shift_right(interpolate_filter_table(g_filter_self_osc_table, m_cutoff_current), self_osc_t_times_5,
+                                              16 + FILTER_TABLE_FRACTION_BITS - FILTER_G_FRACTION_BITS);  // Q26
+    k -= minimum(self_osc_k, SELF_OSC_K_FLOOR_Q26) << (FILTER_TABLE_FRACTION_BITS - FILTER_G_FRACTION_BITS);
+
     int32_t g_plus_k = g + (k >> (FILTER_TABLE_FRACTION_BITS - FILTER_G_FRACTION_BITS));
     int32_t a_0 = (1 << 24) + multiply_shift_right(g, g_plus_k, (FILTER_G_FRACTION_BITS * 2) - 24);
 

@@ -102,10 +102,10 @@ public:
       static_cast<uint16_t>(((127 << 6) - m_chorus_delay_time_current) << 1)
     });
 
+    int32_t chorus_lfo_wave_level = get_chorus_lfo_wave_level(m_chorus_lfo_phase);
+
     m_chorus_lfo_phase += m_chorus_rate;
     m_chorus_lfo_phase &= 0x00FFFFFF;
-
-    int32_t chorus_lfo_wave_level = get_chorus_lfo_wave_level(m_chorus_lfo_phase);
 
     int32_t chorus_lfo_level = (chorus_lfo_wave_level * chorus_depth_current_limited) >> 14;
 
@@ -131,8 +131,8 @@ public:
     int32_t eff_sample_0 = delay_buff_get(0, get_chorus_delay_time<0>());
     int32_t eff_sample_1 = delay_buff_get(1, get_chorus_delay_time<1>());
 
-    int32_t curr_sample_to_push_0 = (left_input_int24  * m_chorus_level_current) >> 7;
-    int32_t curr_sample_to_push_1 = (right_input_int24 * m_chorus_level_current) >> 7;
+    int32_t curr_sample_to_push_0 = multiply_shift_right(left_input_int24,  m_chorus_level_current, 7);
+    int32_t curr_sample_to_push_1 = multiply_shift_right(right_input_int24, m_chorus_level_current, 7);
 
 #if 0
     // Do not apply LPF to the delay component
