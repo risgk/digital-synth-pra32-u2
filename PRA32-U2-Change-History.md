@@ -1,13 +1,12 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v3.1.1 (2026-??-??):
-    - Fix the Chorus input overflowing 32-bit arithmetic when the mixed voices exceed twice the full scale
-    - Change the Osc/Filter Drift of the Osc pitch to be symmetric in cents (as the frequency ratio e^r), matching that of the Filter cutoff
-    - Change the Osc, LFO, and Chorus LFO to advance the phase after outputting the current level (starting from the phase 0 after a reset or an LFO trigger)
-    - Change the Filter soft clipping of the integrator states to scale with the sampling rate, keeping the sound at 48 kHz on other sampling rates (no change at 48 kHz)
-    - Change the Filter to soft-clip only the band pass state with the ceiling at 4, and to soft-clip its output
-    - Change the Filter to clamp the low pass state at 16 as a guard against overflow
-    - Change the Filter Resonance to reach Q 256 at 122 and to self-oscillate above 122 (level 0.2 at 127)
+- v3.2.0 (2026-??-??):
+    - Add the **Filter self-oscillation** (Resonance 123-127, level 0.2 at 127)
+    - Change the Filter Resonance above 112 to double the Q every 2 values, from 8.0 at 112 to 256 at 122
+    - Change the Filter soft clipping to the band pass state only (ceiling 4.0, scaled with the sampling rate) and the Filter output, leaving the low pass state linear
+    - Change the Osc/Filter Drift of the Osc pitch to be symmetric in cents, matching that of the Filter cutoff
+    - Improve the Osc, LFO, and Chorus LFO to advance the phase after outputting the current level
+    - Improve the Chorus input to avoid overflowing 32-bit arithmetic when the mixed voices exceed twice the full scale
     - Tested with Arduino-Pico version 6.1.1
 - v3.1.0 (2026-09-23):
     - Add the Band Pass to the Filter Mode (Band Pass: 32-95)
