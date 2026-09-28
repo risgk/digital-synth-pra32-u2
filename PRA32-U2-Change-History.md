@@ -1,5 +1,8 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v3.3.1 (2026-09-28):
+    - Fix the Filter self-oscillation level at the Resonance 127 back to 0.5 (0.2 in v3.2.0 and v3.3.0)
+    - Tested with Arduino-Pico version 6.1.1
 - v3.3.0 (2026-09-28):
     - Change the Filter Resonance above 96 to raise the Q smoothly, without the sudden steepening at 112 (Q = 27.4 at 112, 256 at 122)
     - PRA32-U2 Editor: Change to remember the last selected MIDI In/Out ports and MIDI Ch

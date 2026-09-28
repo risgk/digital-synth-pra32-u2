@@ -1,6 +1,7 @@
 #pragma once
 
 // refs https://www.discodsp.net/VAFilterDesign_2.1.2.pdf (The Art of VA Filter Design)
+// refs https://www.kvraudio.com/forum/viewtopic.php?t=349859 (Cheap non-linear zero-delay filters)
 // refs https://webaudio.github.io/Audio-EQ-Cookbook/Audio-EQ-Cookbook.txt
 // refs https://jatinchowdhury18.medium.com/complex-nonlinearities-episode-4-nonlinear-biquad-filters-ae6b3f23cb0e
 // refs https://www.willpirkle.com/fx-book/project-gallery/
