@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v3.3.2 (2026-??-??):
+- v3.3.2 (2026-09-29):
     - Change the soft clipping of the audio output and the Filter output to start at 0.75 (0.5 in v3.1.0-v3.3.1), reaching 1.0 at 1.25
     - Tested with Arduino-Pico version 6.1.1
 - v3.3.1 (2026-09-28):
