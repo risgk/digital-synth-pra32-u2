@@ -46,7 +46,7 @@ end
 # t = (controller value - 122) / 5, clamped to 0 .. 1; the level is about
 # 11.4 * sqrt(kappa), and (1 + g^2)^2 / g holds it across the cutoff. kappa is
 # scaled by 48000 / f_s, like the soft clipping of the band pass state
-SELF_OSC_LEVEL = 0.2
+SELF_OSC_LEVEL = 0.5
 SELF_OSC_KAPPA = ((SELF_OSC_LEVEL / 11.4) ** 2) * (48000.0 / SAMPLING_RATE)
 
 def generate_table(name, comment, fraction_bits)
