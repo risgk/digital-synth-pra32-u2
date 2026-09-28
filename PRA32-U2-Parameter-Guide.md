@@ -1,4 +1,4 @@
-# Digital Synth PRA32-U2 Parameter Guide v3.3.0
+# Digital Synth PRA32-U2 Parameter Guide v3.3.1
 
 - 2026-09-22 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
@@ -127,9 +127,9 @@
     - 116: Q = 59.7
     - 120: Q = 152
     - 122: Q = 256
-    - 123: Self-oscillation (level 0.09)
-    - 125: Self-oscillation (level 0.15)
-    - 127: Self-oscillation (level 0.2) (max)
+    - 123: Self-oscillation (level 0.2)
+    - 125: Self-oscillation (level 0.4)
+    - 127: Self-oscillation (level 0.5) (max)
 - Filter EG Amt [-|+], LFO Filter Amt [-|+]
     - -60 (4): -120 (min)
     - +60 (124): +120 (max)
