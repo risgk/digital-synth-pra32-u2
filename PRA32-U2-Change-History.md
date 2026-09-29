@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v3.3.3 (2026-??-??):
+    - Lower the Amp Gain of all the Presets by 10 (about -1.7 dB) to leave headroom below the audio output soft clipping when playing chords with a high Resonance
     - Tested with Arduino-Pico version 6.1.1
 - v3.3.2 (2026-09-29):
     - Change the soft clipping of the audio output and the Filter output to start at 0.75 (0.5 in v3.1.0-v3.3.1), reaching 1.0 at 1.25
