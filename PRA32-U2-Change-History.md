@@ -1,5 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v3.3.4 (2026-??-??):
+    - Tested with Arduino-Pico version 6.1.1
 - v3.3.3 (2026-09-29):
     - Lower the Amp Gain of the Presets by about 3.5-9 dB, so that chords stay below the audio output soft clipping up to the Resonance 80 (with the Delay Level 127, at any Cutoff)
     - Even out the volume between the Presets
