@@ -1,6 +1,10 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v3.3.4 (2026-??-??):
+    - Add the **Output Limiter** after the Delay FX (look-ahead 1 ms, threshold 0.75, attack 1 ms, release 100 ms), which keeps loud chords with a high Resonance below the audio output soft clipping
+        - The audio output is delayed by 1 ms
+        - Its depth can be set by PRA32_U2_Synth::set_output_limiter_depth() (0: Off, 127: full, default), not assigned to a Control Change
+    - Raise the Amp Gain of the Presets by about 6 dB, back to about the volume of v3.3.2, keeping the volume balance between the Presets
     - Tested with Arduino-Pico version 6.1.1
 - v3.3.3 (2026-09-29):
     - Lower the Amp Gain of the Presets by about 3.5-9 dB, so that chords stay below the audio output soft clipping up to the Resonance 80 (with the Delay Level 127, at any Cutoff)
