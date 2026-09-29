@@ -7,7 +7,7 @@
 ## Overview
 
 - **PRA32-U2** is a 4-Voice Polyphonic Synthesizer for Raspberry Pi Pico 2/RP2350
-    - Built-in Chorus and Delay FX
+    - Built-in Chorus and Delay FX, followed by the Output Limiter
     - Controlled by MIDI -- PRA32-U2 is a MIDI sound module
     - Having the function of writing the parameters to the user programs and the flash
     - PRA32-U2 is an upgraded model of PRA32-U (for Raspberry Pi Pico/RP2040), but some specifications differ
@@ -46,8 +46,8 @@ graph LR
     end
     V1A --> VM[Voice Mixer]
     V2[Voice 2] & V3[Voice 3] & V4[Voice 4] --> VM
-    VM --> P[Panner] --> C[Chorus FX] --> D[Delay FX] --> AO[Audio Out]
-    P --> C --> D --> AO
+    VM --> P[Panner] --> C[Chorus FX] --> D[Delay FX] --> OL[Output Limiter] --> AO[Audio Out]
+    P --> C --> D --> OL --> AO
     N[Noise Gen]  --> V1O2 & V1OM & V2 & V3 & V4
     N -.-> L[LFO w/ S/H]
     L -.-> V1O1 & V1O2 & V1F & V2 & V3 & V4
