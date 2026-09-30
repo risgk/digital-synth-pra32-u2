@@ -10,6 +10,7 @@
 #include "pra32-u2-eg.h"
 #include "pra32-u2-chorus-fx.h"
 #include "pra32-u2-delay-fx.h"
+#include "pra32-u2-output-limiter.h"
 #include "pra32-u2-program-table.h"
 
 #if defined(ARDUINO_ARCH_RP2040)
@@ -214,8 +215,10 @@ class PRA32_U2_Synth {
 
   using ChorusFx = std::conditional_t<NO_FX, std::monostate, PRA32_U2_ChorusFx>;
   using DelayFx  = std::conditional_t<NO_FX, std::monostate, PRA32_U2_DelayFx>;
+  using OutputLimiter = std::conditional_t<NO_FX, std::monostate, PRA32_U2_OutputLimiter>;
   ChorusFx          m_chorus_fx;
   DelayFx           m_delay_fx;
+  OutputLimiter     m_output_limiter;
 
   uint32_t          m_count;
 
@@ -264,6 +267,7 @@ public:
   , m_eg()
   , m_chorus_fx()
   , m_delay_fx()
+  , m_output_limiter()
 
   , m_count(0xFFFFFFFFu + SYNTH_ID)
 
@@ -1679,6 +1683,10 @@ if constexpr ((NO_FX == false) && (BYPASS_FX == false)) {
     PRA32_U2_StereoSample chorus_fx_output = m_chorus_fx.process(mixed_output);
 
     delay_fx_output = m_delay_fx.process(chorus_fx_output);
+
+    // The synth that processes the FX also limits the output, after mixing in
+    // the other synths through the audio input (PRA32-U2/M)
+    delay_fx_output = m_output_limiter.process(delay_fx_output);
 } else {
     delay_fx_output = mixed_output;
 }
@@ -1727,6 +1735,13 @@ if (m_voice_mode == VOICE_POLYPHONIC) {
 
   INLINE boolean is_in_polyphonic_mode() {
     return (m_voice_mode == VOICE_POLYPHONIC);
+  }
+
+  // Not assigned to a Control Change; 0: Off, 127: full limiting (default)
+  INLINE void set_output_limiter_depth(uint8_t controller_value) {
+if constexpr (NO_FX == false) {
+    m_output_limiter.set_depth(controller_value);
+}
   }
 
 private:
