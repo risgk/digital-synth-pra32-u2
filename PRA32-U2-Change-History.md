@@ -5,6 +5,11 @@
         - The audio output is delayed by 1 ms
         - Its depth can be set by PRA32_U2_Synth::set_output_limiter_depth() (0: Off, 127: full, default), not assigned to a Control Change
     - Raise the Amp Gain of the Presets by about 6 dB, back to about the volume of v3.3.2, keeping the volume balance between the Presets
+    - Add the **Reverb** to the Delay Mode (Reverb: 96-127)
+        - Change the Ping Pong Delay of the Delay Mode from 64-127 to 64-95
+        - The Delay Level, Delay Time, and Delay Feedback work as they do for the Delay (the Delay Time sets the size, and the Delay Feedback sets the decay)
+    - Improve the Delay Mode switching to and from the Reverb, fading out and clearing the buffer to avoid noise
+    - Change the Delay to bend the pitch smoothly while the Delay Time is changing (within +/-25%), as on a tape delay, to reduce the noise
     - Tested with Arduino-Pico version 6.1.1
 - v3.3.3 (2026-09-29):
     - Lower the Amp Gain of the Presets by about 3.5-9 dB, so that chords stay below the audio output soft clipping up to the Resonance 80 (with the Delay Level 127, at any Cutoff)
