@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v3.3.4 (2026-??-??):
+- v3.4.0 (2026-09-30):
     - Add the **Output Limiter** after the Delay FX (look-ahead 1 ms, threshold 0.75, attack 1 ms, release 100 ms), which keeps loud chords with a high Resonance below the audio output soft clipping
         - The audio output is delayed by 1 ms
         - Its depth can be set by PRA32_U2_Synth::set_output_limiter_depth() (0: Off, 127: full, default), not assigned to a Control Change
