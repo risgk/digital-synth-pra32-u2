@@ -1,4 +1,4 @@
-# Digital Synth PRA32-U2 Parameter Guide v3.3.3
+# Digital Synth PRA32-U2 Parameter Guide v3.4.0
 
 - 2026-09-22 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
@@ -350,9 +350,14 @@
     - 64: Delay Time +/- 2.7 ms
     - 126: Delay Time +/- 5.3 ms (max)
 - Delay Level: Delay Send Level
-- Delay Mode [S|P]
+- Delay Mode [S|P|R]
     - 0 (0-63): Stereo Delay
-    - 127 (64-127): Ping Pong Delay
+    - 64 (64-95): Ping Pong Delay
+    - 127 (96-127): Reverb
+        - The Delay Level, Delay Time, and Delay Feedback work as they do for the Delay: the same values give about the same length and loudness of the tail
+        - Delay Time sets the size (the first reflection comes at about 1/3 of the Delay Time)
+        - Delay Feedback sets the decay (the tail falls by the Delay Feedback over each Delay Time, as the Delay's echoes do)
+        - When the Delay Time is changed, the size follows it slowly (within +/-3% of the pitch)
 - Delay Time
     - 0: 1 ms (min)
     - 5: 6 ms
@@ -371,6 +376,7 @@
     - 102: 300 ms = eighth note time at 100 BPM
     - 112: 333.3 ms
     - 114: 340 ms (max)
+    - NOTE: When the Delay Time is changed, the delay time follows it within +/-25% of the pitch, as on a tape delay
 - Delay Feedback
     - 0: Feedback 0% (min)
     - 64: Feedback 25%
