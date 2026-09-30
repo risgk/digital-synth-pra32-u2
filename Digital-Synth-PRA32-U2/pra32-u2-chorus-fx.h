@@ -169,13 +169,6 @@ private:
     return result;
   }
 
-  INLINE void delay_buff_attenuate() {
-    for (uint16_t i = 0; i < DELAY_BUFF_SIZE; ++i) {
-      m_delay_buff[0][i] = m_delay_buff[0][i] >> 1;
-      m_delay_buff[1][i] = m_delay_buff[1][i] >> 1;
-    }
-  }
-
   INLINE int32_t get_chorus_lfo_wave_level(uint32_t phase) {
     phase = (phase >> 5);
     int32_t triangle_wave_level = (1 << 17) - std::abs(static_cast<int32_t>(phase) - (1 << 18));
