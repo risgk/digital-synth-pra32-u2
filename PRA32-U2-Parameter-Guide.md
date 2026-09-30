@@ -1,4 +1,4 @@
-# Digital Synth PRA32-U2 Parameter Guide v3.4.0
+# Digital Synth PRA32-U2 Parameter Guide v3.4.1
 
 - 2026-09-22 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
@@ -356,7 +356,7 @@
     - 127 (96-127): Reverb
         - The Delay Level, Delay Time, and Delay Feedback work as they do for the Delay: the same values give about the same length and loudness of the tail
         - Delay Time sets the size (the first reflection comes at about 1/3 of the Delay Time)
-        - Delay Feedback sets the decay (the tail falls by the Delay Feedback over each Delay Time, as the Delay's echoes do)
+        - Delay Feedback sets the decay (the tail falls by the Delay Feedback over each 1.5 x Delay Time, so that it sounds about as long as the Delay's echoes)
         - When the Delay Time is changed, the size follows it slowly (within +/-3% of the pitch)
 - Delay Time
     - 0: 1 ms (min)
