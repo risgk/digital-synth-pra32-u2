@@ -54,8 +54,10 @@
 //     it is read L samples behind, like the Delay, so changing L always reads valid history.
 //   - Parameters, set so that the same Delay parameters give the same impression as the Delay:
 //       Delay Time     -> Size  (line 0 = 1/3 of the delay time; default 250 ms -> 83 ms)
-//       Delay Feedback -> Decay: by Feedback / 256 over each Delay Time, as the Delay's echoes
-//                         (default -> RT60 ~1.25 s); the send is scaled by it too, as the Delay's
+//       Delay Feedback -> Decay: by Feedback / 256 over each 1.5 x Delay Time (default -> RT60
+//                         ~1.9 s); measured, the same decay as the Delay's echoes sounded shorter
+//                         (the echoes hold their level for a Delay Time, and stay distinct when
+//                         quiet), so it is slower; the send is scaled by it too, as the Delay's
 //       Delay Level    -> Send level (same as Delay)
 //     The wet level is set so that the reverb after the note off is about as loud as the
 //     Delay's echoes (the reverb starts earlier, at 1/3 of the Delay Time, so matching the total
@@ -397,8 +399,9 @@ private:
 #endif  // defined(PRA32_U2_REVERB_INTERPOLATION)
   }
 
-  // The Reverb decays as the Delay does: by the Delay Feedback / 256 over each Delay Time,
-  // i.e. each line's gain is (Feedback / 256) ^ (loop length / Delay Time)
+  // The Reverb decays by the Delay Feedback / 256 over each 1.5 x Delay Time, so that it sounds
+  // about as long as the Delay's echoes, i.e. each line's gain is
+  // (Feedback / 256) ^ (loop length / (1.5 x Delay Time))
   INLINE void update_reverb_gain(uint32_t i) {
     // log2(Feedback / 256) in Q11; log2(0) is taken as -16
     static const int16_t REVERB_LOG2_FEEDBACK[128] = {
@@ -433,8 +436,8 @@ private:
 #endif
     const int32_t  log2_feedback = REVERB_LOG2_FEEDBACK[m_delay_feedback_current];
     const uint32_t delay_time    = static_cast<uint32_t>(m_delay_time_current) >> 8;   // 48 .. 16320
-    const uint32_t loop_len      = (line_len + LOOP_EXTRA[i]) << 1;                     // In 48 kHz samples
-    const int32_t  ratio_q16     = static_cast<int32_t>((loop_len << 16) / delay_time); // A 32-bit division
+    const uint32_t loop_len_x4   = (line_len + LOOP_EXTRA[i]) << 2;                     // In 48 kHz samples, x 2
+    const int32_t  ratio_q16     = static_cast<int32_t>((loop_len_x4 << 16) / (delay_time * 3));  // A 32-bit division
     const int32_t  exponent_q16  = maximum(multiply_shift_right(log2_feedback, ratio_q16, 11), -(16 << 16));
 
     // 2^exponent: 2^f ~= 1 + f * (0.6565 + f * 0.3435) for the fraction f
