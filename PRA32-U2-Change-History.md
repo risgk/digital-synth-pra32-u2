@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v3.4.2 (2026-??-??):
+    - Improve the Osc wave table switching to switch right away, instead of at the beginning of a wave, which reduces the noise of the Saw and Square Waves and the CPU usage
     - Tested with Arduino-Pico version 6.1.1
 - v3.4.1 (2026-09-30):
     - Lengthen the decay of the Reverb by 1.5 times (it falls by the Delay Feedback over each 1.5 x Delay Time), so that it sounds about as long as the Delay's echoes
