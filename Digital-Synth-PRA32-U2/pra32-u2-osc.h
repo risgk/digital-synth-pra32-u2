@@ -514,6 +514,25 @@ public:
   }
 
 private:
+  // The mipmaps of a wave differ the most around its discontinuities, so a
+  // table is switched where the wave is the farthest from them: the Saw and
+  // the Saw2 jump at the phase 0 and the Square at 0 and 1/2, while the
+  // Triangle bends at 1/4 and 3/4
+  INLINE uint32_t get_table_switch_phase_offset(uint8_t waveform) {
+    static uint32_t table_switch_phase_offset_table[8] = {
+      0x800000,  // WAVEFORM_SAW           = 0
+      0x400000,  // WAVEFORM_SQUARE        = 1
+      0x000000,  // WAVEFORM_TRIANGLE      = 2
+      0x000000,  // WAVEFORM_SINE          = 3
+      0x400000,  // WAVEFORM_1_WAVE_TABLE  = 4 (Square tables)
+      0x800000,  // WAVEFORM_1_PULSE       = 5 (Saw tables)
+      0x400000,  // WAVEFORM_2_NOISE       = 6 (Square tables)
+      0x800000,  // WAVEFORM_SAW2          = 7
+    };
+
+    return table_switch_phase_offset_table[waveform];
+  }
+
   INLINE const int16_t* get_wave_table(uint8_t waveform, uint8_t note_number) {
     static int16_t** wave_table_table[8] = {
       g_osc_saw_wave_tables,       // WAVEFORM_SAW           = 0
@@ -719,16 +738,18 @@ if constexpr (RESTRICT_SQR_WT == false) {
     }
 
     m_phase[N] = osc1_phase_next;
-    m_wave_table[N]      = reinterpret_cast<const int16_t*>((reinterpret_cast<const uintptr_t>(m_wave_table[N]) * (1 - new_period_osc1)) +
-                                                            (reinterpret_cast<const uintptr_t>(m_wave_table_temp[N]) * new_period_osc1));
+    boolean switch_table_osc1 = ((osc1_phase_next + get_table_switch_phase_offset(m_waveform[0])) & 0x00FFFFFF) < m_freq[N];
+    boolean switch_table_saw  = ((osc1_phase_next + get_table_switch_phase_offset(WAVEFORM_SAW))  & 0x00FFFFFF) < m_freq[N];
+    m_wave_table[N]      = reinterpret_cast<const int16_t*>((reinterpret_cast<const uintptr_t>(m_wave_table[N]) * (1 - switch_table_osc1)) +
+                                                            (reinterpret_cast<const uintptr_t>(m_wave_table_temp[N]) * switch_table_osc1));
 
 #if 0
     m_wave_table[N + 12] = reinterpret_cast<const int16_t*>((reinterpret_cast<const uintptr_t>(m_wave_table[N + 12]) * (1 - new_period_osc1)) +
                                                             (reinterpret_cast<const uintptr_t>(m_wave_table_temp[N + 12]) * new_period_osc1));
 #endif
 
-    m_wave_table[N + 16] = reinterpret_cast<const int16_t*>((reinterpret_cast<const uintptr_t>(m_wave_table[N + 16]) * (1 - new_period_osc1)) +
-                                                            (reinterpret_cast<const uintptr_t>(m_wave_table_temp[N + 16]) * new_period_osc1));
+    m_wave_table[N + 16] = reinterpret_cast<const int16_t*>((reinterpret_cast<const uintptr_t>(m_wave_table[N + 16]) * (1 - switch_table_saw)) +
+                                                            (reinterpret_cast<const uintptr_t>(m_wave_table_temp[N + 16]) * switch_table_saw));
 
     const uint32_t osc2_phase = m_phase[N + 4];
     if (m_waveform[1] != WAVEFORM_2_NOISE) {
@@ -741,10 +762,10 @@ if constexpr (RESTRICT_SQR_WT == false) {
     }
 
     const uint32_t osc2_phase_next = osc2_phase + m_freq[N + 4];
-    boolean new_period_osc2 = (osc2_phase_next & 0x00FFFFFF) < m_freq[N + 4];
+    boolean switch_table_osc2 = ((osc2_phase_next + get_table_switch_phase_offset(m_waveform[1])) & 0x00FFFFFF) < m_freq[N + 4];
     m_phase[N + 4] = osc2_phase_next;
-    m_wave_table[N + 4] = reinterpret_cast<const int16_t*>((reinterpret_cast<const uintptr_t>(m_wave_table[N + 4]) * (1 - new_period_osc2)) +
-                                                           (reinterpret_cast<const uintptr_t>(m_wave_table_temp[N + 4]) * new_period_osc2));
+    m_wave_table[N + 4] = reinterpret_cast<const int16_t*>((reinterpret_cast<const uintptr_t>(m_wave_table[N + 4]) * (1 - switch_table_osc2)) +
+                                                           (reinterpret_cast<const uintptr_t>(m_wave_table_temp[N + 4]) * switch_table_osc2));
 
     return result;
   }
