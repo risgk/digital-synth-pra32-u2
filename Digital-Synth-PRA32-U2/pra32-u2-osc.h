@@ -48,7 +48,6 @@ class PRA32_U2_Osc {
   int32_t        m_pitch_target[4];
   int32_t        m_pitch_current[4];
   const int16_t* m_wave_table[4 * 5];
-  const int16_t* m_wave_table_temp[4 * 5];
   uint32_t       m_freq[4 * 2];
   uint32_t       m_freq_base[4 * 2];
   int32_t        m_freq_offset[4 * 2];
@@ -103,7 +102,6 @@ public:
   , m_pitch_target()
   , m_pitch_current()
   , m_wave_table()
-  , m_wave_table_temp()
   , m_freq()
   , m_freq_base()
   , m_freq_offset()
@@ -186,26 +184,6 @@ public:
     m_wave_table[17] = g_osc_saw_wave_tables[0];
     m_wave_table[18] = g_osc_saw_wave_tables[0];
     m_wave_table[19] = g_osc_saw_wave_tables[0];
-    m_wave_table_temp[0] = g_osc_saw_wave_tables[0];
-    m_wave_table_temp[1] = g_osc_saw_wave_tables[0];
-    m_wave_table_temp[2] = g_osc_saw_wave_tables[0];
-    m_wave_table_temp[3] = g_osc_saw_wave_tables[0];
-    m_wave_table_temp[4] = g_osc_saw_wave_tables[0];
-    m_wave_table_temp[5] = g_osc_saw_wave_tables[0];
-    m_wave_table_temp[6] = g_osc_saw_wave_tables[0];
-    m_wave_table_temp[7] = g_osc_saw_wave_tables[0];
-    m_wave_table_temp[8] = g_osc_saw_wave_tables[0];
-    m_wave_table_temp[9] = g_osc_saw_wave_tables[0];
-    m_wave_table_temp[10] = g_osc_saw_wave_tables[0];
-    m_wave_table_temp[11] = g_osc_saw_wave_tables[0];
-    m_wave_table_temp[12] = g_osc_saw_wave_tables[0];
-    m_wave_table_temp[13] = g_osc_saw_wave_tables[0];
-    m_wave_table_temp[14] = g_osc_saw_wave_tables[0];
-    m_wave_table_temp[15] = g_osc_saw_wave_tables[0];
-    m_wave_table_temp[16] = g_osc_saw_wave_tables[0];
-    m_wave_table_temp[17] = g_osc_saw_wave_tables[0];
-    m_wave_table_temp[18] = g_osc_saw_wave_tables[0];
-    m_wave_table_temp[19] = g_osc_saw_wave_tables[0];
     m_freq[0] = g_osc_freq_table[0];
     m_freq[1] = g_osc_freq_table[0];
     m_freq[2] = g_osc_freq_table[0];
@@ -585,7 +563,7 @@ private:
     // The phase is advanced after the current level is output, and a crossing
     // detected by this advance takes effect from the next sample
     const uint32_t osc1_phase_next = osc1_phase + m_freq[N];
-    boolean new_period_osc1 = (osc1_phase_next & 0x00FFFFFF) < m_freq[N]; // crossing the begin of a osc 1 wave, the begin or the middle of a sub osc wave
+    boolean new_period_osc1 = (osc1_phase_next & 0x00FFFFFF) < m_freq[N]; // crossing the begin of a osc 1 wave
 
     if (m_waveform[0] == WAVEFORM_SINE) {
       // For Sine Wave (wave_3)
@@ -719,16 +697,6 @@ if constexpr (RESTRICT_SQR_WT == false) {
     }
 
     m_phase[N] = osc1_phase_next;
-    m_wave_table[N]      = reinterpret_cast<const int16_t*>((reinterpret_cast<const uintptr_t>(m_wave_table[N]) * (1 - new_period_osc1)) +
-                                                            (reinterpret_cast<const uintptr_t>(m_wave_table_temp[N]) * new_period_osc1));
-
-#if 0
-    m_wave_table[N + 12] = reinterpret_cast<const int16_t*>((reinterpret_cast<const uintptr_t>(m_wave_table[N + 12]) * (1 - new_period_osc1)) +
-                                                            (reinterpret_cast<const uintptr_t>(m_wave_table_temp[N + 12]) * new_period_osc1));
-#endif
-
-    m_wave_table[N + 16] = reinterpret_cast<const int16_t*>((reinterpret_cast<const uintptr_t>(m_wave_table[N + 16]) * (1 - new_period_osc1)) +
-                                                            (reinterpret_cast<const uintptr_t>(m_wave_table_temp[N + 16]) * new_period_osc1));
 
     const uint32_t osc2_phase = m_phase[N + 4];
     if (m_waveform[1] != WAVEFORM_2_NOISE) {
@@ -741,10 +709,7 @@ if constexpr (RESTRICT_SQR_WT == false) {
     }
 
     const uint32_t osc2_phase_next = osc2_phase + m_freq[N + 4];
-    boolean new_period_osc2 = (osc2_phase_next & 0x00FFFFFF) < m_freq[N + 4];
     m_phase[N + 4] = osc2_phase_next;
-    m_wave_table[N + 4] = reinterpret_cast<const int16_t*>((reinterpret_cast<const uintptr_t>(m_wave_table[N + 4]) * (1 - new_period_osc2)) +
-                                                           (reinterpret_cast<const uintptr_t>(m_wave_table_temp[N + 4]) * new_period_osc2));
 
     return result;
   }
@@ -814,18 +779,18 @@ if constexpr (RESTRICT_SQR_WT == false) {
     m_freq_base[N] = lerp_freq(pitch_q16);
     m_freq[N] = m_freq_base[N] + m_freq_offset[N];
 
-    // 7. Mipmap Wave Table Selection (Completely identical to the original block)
+    // 7. Mipmap Wave Table Selection
+    // The tables are switched right away, at whatever phase the Osc is. Waiting
+    // for the phase 0 would switch the Saw and the Square at their jumps, where
+    // the mipmaps differ the most
     if (N >= 4) {
-      m_wave_table_temp[N]      = get_wave_table(m_waveform[1], coarse);
+      m_wave_table[N]      = get_wave_table(m_waveform[1], coarse);
     } else {
-      m_wave_table_temp[N]      = get_wave_table(m_waveform[0], coarse);
-      m_wave_table_temp[N + 16] = get_wave_table(WAVEFORM_SAW,  coarse);
+      m_wave_table[N]      = get_wave_table(m_waveform[0], coarse);
+      m_wave_table[N + 16] = get_wave_table(WAVEFORM_SAW,  coarse);
 
       int32_t coarse_sub = maximum((coarse - 12), NOTE_NUMBER_MIN);
-      m_wave_table_temp[N + 12] = get_wave_table(WAVEFORM_SINE, coarse_sub);
-#if 1
-      m_wave_table[N + 12]      = m_wave_table_temp[N + 12];
-#endif
+      m_wave_table[N + 12] = get_wave_table(WAVEFORM_SINE, coarse_sub);
     }
   }
 
