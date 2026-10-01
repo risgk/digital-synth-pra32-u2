@@ -176,10 +176,10 @@ public:
     m_wave_table[9] = g_osc_saw_wave_tables[0];
     m_wave_table[10] = g_osc_saw_wave_tables[0];
     m_wave_table[11] = g_osc_saw_wave_tables[0];
-    m_wave_table[12] = g_osc_saw_wave_tables[0];
-    m_wave_table[13] = g_osc_saw_wave_tables[0];
-    m_wave_table[14] = g_osc_saw_wave_tables[0];
-    m_wave_table[15] = g_osc_saw_wave_tables[0];
+    m_wave_table[12] = g_osc_sine_wave_tables[0];
+    m_wave_table[13] = g_osc_sine_wave_tables[0];
+    m_wave_table[14] = g_osc_sine_wave_tables[0];
+    m_wave_table[15] = g_osc_sine_wave_tables[0];
     m_wave_table[16] = g_osc_saw_wave_tables[0];
     m_wave_table[17] = g_osc_saw_wave_tables[0];
     m_wave_table[18] = g_osc_saw_wave_tables[0];
