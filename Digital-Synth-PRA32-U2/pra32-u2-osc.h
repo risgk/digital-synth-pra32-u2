@@ -55,7 +55,6 @@ class PRA32_U2_Osc {
   int32_t        m_drift_noise[4 * 2];
   uint32_t       m_phase_shape_morph[4];
   boolean        m_osc_on[4];
-  uint8_t        m_table_note[4 * 2];
 
   uint8_t        m_mixer_osc_mix_target;
   uint8_t        m_mixer_osc_mix_current;
@@ -110,7 +109,6 @@ public:
   , m_drift_noise()
   , m_phase_shape_morph()
   , m_osc_on()
-  , m_table_note()
 
   , m_mixer_osc_mix_target()
   , m_mixer_osc_mix_current()
@@ -178,10 +176,10 @@ public:
     m_wave_table[9] = g_osc_saw_wave_tables[0];
     m_wave_table[10] = g_osc_saw_wave_tables[0];
     m_wave_table[11] = g_osc_saw_wave_tables[0];
-    m_wave_table[12] = g_osc_sine_wave_tables[0];  // Sub Osc, see update_freq_base()
-    m_wave_table[13] = g_osc_sine_wave_tables[0];  // Sub Osc, see update_freq_base()
-    m_wave_table[14] = g_osc_sine_wave_tables[0];  // Sub Osc, see update_freq_base()
-    m_wave_table[15] = g_osc_sine_wave_tables[0];  // Sub Osc, see update_freq_base()
+    m_wave_table[12] = g_osc_saw_wave_tables[0];
+    m_wave_table[13] = g_osc_saw_wave_tables[0];
+    m_wave_table[14] = g_osc_saw_wave_tables[0];
+    m_wave_table[15] = g_osc_saw_wave_tables[0];
     m_wave_table[16] = g_osc_saw_wave_tables[0];
     m_wave_table[17] = g_osc_saw_wave_tables[0];
     m_wave_table[18] = g_osc_saw_wave_tables[0];
@@ -202,9 +200,6 @@ public:
     m_freq_base[5] = g_osc_freq_table[0];
     m_freq_base[6] = g_osc_freq_table[0];
     m_freq_base[7] = g_osc_freq_table[0];
-    for (uint8_t i = 0; i < 4 * 2; ++i) {
-      m_table_note[i] = NOTE_NUMBER_MAX;
-    }
 
     m_osc1_shape_target_value[0] = 0;
     m_osc1_shape_target_value[1] = 0;
@@ -788,29 +783,14 @@ if constexpr (RESTRICT_SQR_WT == false) {
     // The tables are switched right away, at whatever phase the Osc is. Waiting
     // for the phase 0 would switch the Saw and the Square at their jumps, where
     // the mipmaps differ the most
-    //
-    // Going up, the table is switched at the half of a semitone as before,
-    // since a table is safe from aliasing only up to there (plus the margin for
-    // the Multi Saw detune). Going down, the table holds 1 semitone further,
-    // which only drops a few of the highest harmonics, so that a vibrato within
-    // +/-0.5 semitone does not keep switching the tables
-    const int32_t TABLE_HYSTERESIS = 1 << 16;
-    uint8_t table_note = m_table_note[N];
-    int32_t up_threshold   = (table_note << 16) + (1 << 15);
-    int32_t down_threshold = (table_note << 16) - (1 << 15) - TABLE_HYSTERESIS;
-    table_note = ((pitch_temp >= up_threshold) | (pitch_temp < down_threshold)) ? coarse : table_note;
-    m_table_note[N] = table_note;
-
     if (N >= 4) {
-      m_wave_table[N]      = get_wave_table(m_waveform[1], table_note);
+      m_wave_table[N]      = get_wave_table(m_waveform[1], coarse);
     } else {
-      m_wave_table[N]      = get_wave_table(m_waveform[0], table_note);
-      m_wave_table[N + 16] = get_wave_table(WAVEFORM_SAW,  table_note);
+      m_wave_table[N]      = get_wave_table(m_waveform[0], coarse);
+      m_wave_table[N + 16] = get_wave_table(WAVEFORM_SAW,  coarse);
 
-      // The Sub Osc (N + 12) is a Sine Wave, whose tables are the same for
-      // every note, so its table is set only in the constructor. If the Sub Osc
-      // ever gets a wave with harmonics, select its table here again, from
-      // maximum(table_note - 12, NOTE_NUMBER_MIN), as the Sub Osc is 1 octave lower
+      int32_t coarse_sub = maximum((coarse - 12), NOTE_NUMBER_MIN);
+      m_wave_table[N + 12] = get_wave_table(WAVEFORM_SINE, coarse_sub);
     }
   }
 
