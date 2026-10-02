@@ -34,15 +34,33 @@ static INLINE int32_t saturate_to_ceiling(int32_t value) {
 // instead of evaluating a waveshaper on the signal, the gain of the clipper is
 // predicted from the signal and applied by a single multiplication
 //   soft_clip(x) = gain(x) * c,  c = clamp(x, -4, +4),  gain(x) = 1 - c^2 / 48
-static INLINE int32_t soft_clip(int32_t value) {
+// In the self-oscillation range, c^2 gives way to a weighted sum with the
+// square of the other state o (also clamped to -4 .. +4), blended by the
+// self-oscillation amount t (Q30, 0 .. 1)
+//   e = c^2 * (1 - t / 4) + o^2 * (3 * t / 4) = c^2 + t * (3 * o^2 / 4 - c^2 / 4)
+// Self-oscillating, the two states run at nearly equal amplitude a quarter
+// cycle apart, so c^2 + o^2 holds nearly still over a cycle where c^2 alone
+// swings at twice the pitch; that swing puts a third harmonic on the
+// oscillation, which folds back below the Nyquist frequency above 8 kHz.
+// 3 / 4 holds the level: averaged over a cycle, the cubic takes 3/4 * A^2 out
+// of a sine and the sum only A^2 / 2. With t = 0, e is exactly c^2
+static INLINE int32_t soft_clip(int32_t value, int32_t other, int32_t self_osc_t) {
   // Note: Without anti-aliasing (oversampling)
 
   int32_t clamped = saturate_to_ceiling<SOFT_CLIP_CEILING_BITS>(value);
-  // c^2 / 16 in Q30, at most 1.0
+  int32_t other_clamped = saturate_to_ceiling<SOFT_CLIP_CEILING_BITS>(other);
+  // c^2 / 16 and o^2 / 16 in Q30, each at most 1.0
   int32_t squared = multiply_shift_right(clamped, clamped,
                                          ((23 + FILTER_CALC_SCALING_BITS) * 2) - FILTER_TABLE_FRACTION_BITS
                                          + (2 * SOFT_CLIP_CEILING_BITS));
-  int32_t gain = (1 << FILTER_TABLE_FRACTION_BITS) - (squared / 3);
+  int32_t other_squared = multiply_shift_right(other_clamped, other_clamped,
+                                               ((23 + FILTER_CALC_SCALING_BITS) * 2) - FILTER_TABLE_FRACTION_BITS
+                                               + (2 * SOFT_CLIP_CEILING_BITS));
+  // e / 16 in Q30, at most 1.5; each square is quartered on its own, as both
+  // can be exactly 1.0 and their sum would overflow
+  int32_t energy = squared + multiply_shift_right(other_squared - (squared >> 2) - (other_squared >> 2), self_osc_t,
+                                                  FILTER_TABLE_FRACTION_BITS);
+  int32_t gain = (1 << FILTER_TABLE_FRACTION_BITS) - (energy / 3);
 
   return multiply_shift_right(clamped, gain, FILTER_TABLE_FRACTION_BITS);
 }
@@ -54,11 +72,11 @@ static INLINE int32_t soft_clip(int32_t value) {
 static_assert(SAMPLING_RATE > 24000, "alpha must be less than 2.0 (Q30)");
 static const int32_t FILTER_STATE_CLIP_ALPHA = (48000LL << FILTER_TABLE_FRACTION_BITS) / SAMPLING_RATE;  // Q30
 
-static INLINE int32_t soft_clip_state(int32_t value) {
+static INLINE int32_t soft_clip_state(int32_t value, int32_t other, int32_t self_osc_t) {
   if constexpr (SAMPLING_RATE == 48000) {
-    return soft_clip(value);  // alpha = 1
+    return soft_clip(value, other, self_osc_t);  // alpha = 1
   } else {
-    return value - multiply_shift_right(value - soft_clip(value), FILTER_STATE_CLIP_ALPHA, FILTER_TABLE_FRACTION_BITS);
+    return value - multiply_shift_right(value - soft_clip(value, other, self_osc_t), FILTER_STATE_CLIP_ALPHA, FILTER_TABLE_FRACTION_BITS);
   }
 }
 
@@ -101,6 +119,7 @@ class PRA32_U2_Filter {
   int32_t m_g_plus_k_over_a_0;         // (g + k) / a_0, Q30
   int32_t m_s_1;                       // State of the band pass integrator
   int32_t m_s_2;                       // State of the low pass integrator
+  int32_t m_self_osc_t;                // Self-oscillation amount t, Q30, 0 .. 1; weighs the soft clipping
   uint8_t m_resonance_target;
   int32_t m_resonance_current;
   int32_t m_cutoff_current;
@@ -124,6 +143,7 @@ public:
   , m_g_plus_k_over_a_0()
   , m_s_1()
   , m_s_2()
+  , m_self_osc_t()
   , m_resonance_target()
   , m_resonance_current()
   , m_cutoff_current()
@@ -259,8 +279,8 @@ public:
     // the resonance stays in tune, still held down by the clip on the band pass
     // state; the output clip below trims what peaks remain.
     // To clip both states, use the line in the comment instead:
-    //   int32_t s_2 = soft_clip_state(m_s_2);
-    int32_t s_1 = soft_clip_state(m_s_1);
+    //   int32_t s_2 = soft_clip_state(m_s_2, m_s_1, 0);
+    int32_t s_1 = soft_clip_state(m_s_1, m_s_2, m_self_osc_t);
     // Without the soft clipping, nothing bounds the low pass state; the clamp
     // at 16, well above anything ordinary use reaches, keeps it within the
     // headroom of 32
@@ -340,6 +360,7 @@ private:
     // k -= t * kappa * (1 + g^2)^2 / g, where t = (Resonance - 122) / 5, clamped to 0 .. 1,
     // and the table holds kappa * (1 + g^2)^2 / g / 5
     int32_t self_osc_t_times_5 = clamp(m_resonance_current - SELF_OSC_START_Q16, 0, SELF_OSC_RANGE_Q16);
+    m_self_osc_t = multiply_shift_right(self_osc_t_times_5, (1 << FILTER_TABLE_FRACTION_BITS) / 5, 16);  // Q30
     int32_t self_osc_k = multiply_shift_right(interpolate_filter_table(g_filter_self_osc_table, m_cutoff_current), self_osc_t_times_5,
                                               16 + FILTER_TABLE_FRACTION_BITS - FILTER_G_FRACTION_BITS);  // Q26
     k -= minimum(self_osc_k, SELF_OSC_K_FLOOR_Q26) << (FILTER_TABLE_FRACTION_BITS - FILTER_G_FRACTION_BITS);
