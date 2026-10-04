@@ -99,6 +99,12 @@ class PRA32_U2_Filter {
   int32_t m_g;                        // g = tan(pi * f_0 / f_s), Q26
   int32_t m_one_over_a_0;              // 1 / a_0, Q30, where a_0 = 1 + g * (g + k)
   int32_t m_g_plus_k_over_a_0;         // (g + k) / a_0, Q30
+  int32_t m_g_slope;                   // Per-sample steps of the coefficients toward the last computed ones
+  int32_t m_one_over_a_0_slope;
+  int32_t m_g_plus_k_over_a_0_slope;
+  int32_t m_g_last;                    // The coefficients computed at the last update
+  int32_t m_one_over_a_0_last;
+  int32_t m_g_plus_k_over_a_0_last;
   int32_t m_s_1;                       // State of the band pass integrator
   int32_t m_s_2;                       // State of the low pass integrator
   uint8_t m_resonance_target;
@@ -122,6 +128,12 @@ public:
   : m_g()
   , m_one_over_a_0()
   , m_g_plus_k_over_a_0()
+  , m_g_slope()
+  , m_one_over_a_0_slope()
+  , m_g_plus_k_over_a_0_slope()
+  , m_g_last()
+  , m_one_over_a_0_last()
+  , m_g_plus_k_over_a_0_last()
   , m_s_1()
   , m_s_2()
   , m_resonance_target()
@@ -158,6 +170,12 @@ public:
     m_resonance_current = static_cast<int32_t>(m_resonance_target) << 16;
 
     update_coefs(0, 0, 60 << 16);
+    m_g                 = m_g_last;
+    m_one_over_a_0      = m_one_over_a_0_last;
+    m_g_plus_k_over_a_0 = m_g_plus_k_over_a_0_last;
+    m_g_slope                 = 0;
+    m_one_over_a_0_slope      = 0;
+    m_g_plus_k_over_a_0_slope = 0;
   }
 
   INLINE void set_cutoff(uint8_t controller_value) {
@@ -250,6 +268,11 @@ public:
 #if 1
     // ZDF (Zero-Delay Feedback) / TPT (Topology-Preserving Transform) State Variable Filter (with delayed soft clipping of the band pass state)
     int32_t x_0 = audio_input_int24 << FILTER_CALC_SCALING_BITS;
+
+    // Ramp the coefficients toward the ones computed at the last update
+    m_g                 += m_g_slope;
+    m_one_over_a_0      += m_one_over_a_0_slope;
+    m_g_plus_k_over_a_0 += m_g_plus_k_over_a_0_slope;
 
     // The soft clipping in the feedback path is predicted from the integrator
     // state of the previous sample, so its gain is constant within the
@@ -362,8 +385,24 @@ private:
     int32_t reciprocal = static_cast<int32_t>(0x80000000U / static_cast<uint32_t>(a_0 >> (24 - 15))) << (FILTER_TABLE_FRACTION_BITS - 16);
     int32_t reciprocal_error = (1 << FILTER_TABLE_FRACTION_BITS) - multiply_shift_right(a_0, reciprocal, 24);
 
-    m_g = g;
-    m_one_over_a_0 = reciprocal + multiply_shift_right(reciprocal, reciprocal_error, FILTER_TABLE_FRACTION_BITS);
-    m_g_plus_k_over_a_0 = multiply_shift_right(g_plus_k, m_one_over_a_0, FILTER_G_FRACTION_BITS);
+    int32_t one_over_a_0 = reciprocal + multiply_shift_right(reciprocal, reciprocal_error, FILTER_TABLE_FRACTION_BITS);
+    int32_t g_plus_k_over_a_0 = multiply_shift_right(g_plus_k, one_over_a_0, FILTER_G_FRACTION_BITS);
+
+    // 6. Ramp the coefficients from the last computed ones to these over the
+    // next 4 samples (the update interval), so that a fast cutoff sweep is a
+    // line rather than a staircase at a quarter of the sampling rate. Each is
+    // ramped on its own, so within a ramp they only approximately satisfy
+    // a_0 = 1 + g * (g + k); the states stay bounded by the soft clipping and
+    // the clamp on the low pass state. Each ramp starts from the last computed
+    // value, so the rounding of the steps does not build up
+    m_g                 = m_g_last;
+    m_one_over_a_0      = m_one_over_a_0_last;
+    m_g_plus_k_over_a_0 = m_g_plus_k_over_a_0_last;
+    m_g_slope                 = (g                 - m_g_last)                 >> 2;
+    m_one_over_a_0_slope      = (one_over_a_0      - m_one_over_a_0_last)      >> 2;
+    m_g_plus_k_over_a_0_slope = (g_plus_k_over_a_0 - m_g_plus_k_over_a_0_last) >> 2;
+    m_g_last                 = g;
+    m_one_over_a_0_last      = one_over_a_0;
+    m_g_plus_k_over_a_0_last = g_plus_k_over_a_0;
   }
 };
