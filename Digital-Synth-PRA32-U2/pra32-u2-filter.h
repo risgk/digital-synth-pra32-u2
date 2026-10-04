@@ -335,11 +335,20 @@ private:
 
     // 5. Interpolate the coefficient tables and solve the zero-delay feedback
     int32_t g = interpolate_filter_table(g_filter_g_table, m_cutoff_current);
-    int32_t k = interpolate_filter_table(g_filter_k_table, m_resonance_current);
+
+    // At a high cutoff, the Resonance above 122 is scaled down toward 122, so
+    // that the self-oscillation fades out before its 3rd harmonic folds back
+    // into the audible range (see pra32-u2-generate-filter-table.rb for an
+    // alternative that removes the 3rd harmonic in soft_clip() instead)
+    int32_t self_osc_over = maximum(m_resonance_current - SELF_OSC_START_Q16, 0);
+    int32_t self_osc_weight = interpolate_filter_table(g_filter_self_osc_weight_table, m_cutoff_current);
+    int32_t resonance = m_resonance_current - self_osc_over
+                      + multiply_shift_right(self_osc_over, self_osc_weight, FILTER_TABLE_FRACTION_BITS);
+    int32_t k = interpolate_filter_table(g_filter_k_table, resonance);
 
     // k -= t * kappa * (1 + g^2)^2 / g, where t = (Resonance - 122) / 5, clamped to 0 .. 1,
     // and the table holds kappa * (1 + g^2)^2 / g / 5
-    int32_t self_osc_t_times_5 = clamp(m_resonance_current - SELF_OSC_START_Q16, 0, SELF_OSC_RANGE_Q16);
+    int32_t self_osc_t_times_5 = clamp(resonance - SELF_OSC_START_Q16, 0, SELF_OSC_RANGE_Q16);
     int32_t self_osc_k = multiply_shift_right(interpolate_filter_table(g_filter_self_osc_table, m_cutoff_current), self_osc_t_times_5,
                                               16 + FILTER_TABLE_FRACTION_BITS - FILTER_G_FRACTION_BITS);  // Q26
     k -= minimum(self_osc_k, SELF_OSC_K_FLOOR_Q26) << (FILTER_TABLE_FRACTION_BITS - FILTER_G_FRACTION_BITS);
