@@ -1,6 +1,8 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v3.4.2 (2026-??-??):
+    - Lower the Filter self-oscillation level at the Resonance 127 from 0.5 to 0.4 (0.18 at 123, 0.31 at 125), so that it stays in balance with the Osc while playing
+    - Fade out the Filter self-oscillation as the cutoff (including the modulation) rises from the Cutoff 111 (f = 7.9 kHz) to 116 (f = 10.5 kHz), so that its 3rd harmonic does not fold back into the audible range as an inharmonic tone (e.g. 11.8 kHz at the Cutoff 127); above that, the Resonance 123-127 acts as 122
     - Improve the Osc wave table switching to switch right away, instead of at the beginning of a wave, which reduces the noise of the Saw and Square Waves and the CPU usage
     - Tested with Arduino-Pico version 6.1.1
 - v3.4.1 (2026-09-30):
