@@ -4,6 +4,12 @@
     - Lower the Filter self-oscillation level at the Resonance 127 from 0.5 to 0.4 (0.18 at 123, 0.31 at 125), so that it stays in balance with the Osc while playing
     - Fade out the Filter self-oscillation as the cutoff (including the modulation) rises from the Cutoff 111 (f = 7.9 kHz) to 116 (f = 10.5 kHz), so that its 3rd harmonic does not fold back into the audible range as an inharmonic tone (e.g. 11.8 kHz at the Cutoff 127); above that, the Resonance 123-127 acts as 122
     - Improve the Osc wave table switching to switch right away, instead of at the beginning of a wave, which reduces the noise of the Saw and Square Waves and the CPU usage
+    - Modify the Presets
+        - "#19 Simple": Filter Cutoff 127 -> 112, Filter Resonance 48 -> 64, Filter Key Track +32 -> +63, Amp Gain 110 -> 100
+        - "#20 Saw Lead": Mixer Sub Osc S63 -> S32, Filter Cutoff 88 -> 112, Filter EG Amt +12 -> +0
+        - "#22 Synth Bass": Mixer Sub Osc S63 -> S32
+        - "#28 Fifth Lead": Mixer Sub Osc S63 -> S32, Filter Cutoff 88 -> 112, Filter EG Amt +12 -> +0
+        - "#29 Sqr Lead" and "#30 PWM Lead": Filter Cutoff 88 -> 112, Filter EG Amt +12 -> +0
     - Tested with Arduino-Pico version 6.1.1
 - v3.4.1 (2026-09-30):
     - Lengthen the decay of the Reverb by 1.5 times (it falls by the Delay Feedback over each 1.5 x Delay Time), so that it sounds about as long as the Delay's echoes
