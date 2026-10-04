@@ -11,6 +11,8 @@
         - "#22 Synth Bass": Mixer Sub Osc S63 -> S32
         - "#28 Fifth Lead": Mixer Sub Osc S63 -> S32, Filter Cutoff 88 -> 112, Filter EG Amt +12 -> +0
         - "#29 Sqr Lead" and "#30 PWM Lead": Filter Cutoff 88 -> 112, Filter EG Amt +12 -> +0
+    - Add the Random Synth Params by Control Change #111 (from 0-63 to 64-127) and Program Change #127, as "Randomize Synth Prms" in PRA32-U2 Editor (the random values come from the Noise Gen)
+    - PRA32-U2/P: Add "Random Synth Prms" next to "Panic" in the page "B-20 Control c"
     - Tested with Arduino-Pico version 6.1.1
 - v3.4.1 (2026-09-30):
     - Lengthen the decay of the Reverb by 1.5 times (it falls by the Delay Feedback over each 1.5 x Delay Time), so that it sounds about as long as the Delay's echoes
