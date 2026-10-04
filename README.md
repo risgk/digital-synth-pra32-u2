@@ -276,6 +276,7 @@ flowchart LR
     - PRA32-U2 can also be controlled by MIDI without using PRA32-U2 Editor
     - Refer to "PRA32-U2-MIDI-Implementation-Chart.txt" for the supported functions
     - The default program is #0
+    - "Random Synth" is also processed by PRA32-U2 itself (Program Change #127 or Control Change #111 from Off to On)
     - Programs #0-31 can be modified by editing "pra32-u2-program-table.h"
     - PRA32-U2 Editor functions related to parameter writing
         - Write: Write the current parameters to PRA32-U2 (Program #0-15 and the flash)
