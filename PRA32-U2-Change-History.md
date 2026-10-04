@@ -3,6 +3,7 @@
 - v3.4.2 (2026-??-??):
     - Change the Filter self-oscillation level at the Resonance 127 from 0.5 to 0.4 (0.18 at 123, 0.31 at 125), so that it stays in balance with the Osc while playing
     - Improve the Filter self-oscillation by fading it out as the cutoff (including the modulation) rises from the Cutoff 111 (f = 7.9 kHz) to 116 (f = 10.5 kHz), so that its 3rd harmonic does not fold back into the audible range as an inharmonic tone (e.g. 11.8 kHz at the Cutoff 127); above that, the Resonance 123-127 acts as 122
+    - Improve the Filter by ramping the coefficients over 4 samples, so that a fast cutoff sweep is smooth rather than a staircase
     - Improve the Osc wave table switching to switch right away, instead of at the beginning of a wave, which reduces the noise of the Saw and Square Waves and the CPU usage
     - Modify the Presets
         - "#19 Simple": Filter Cutoff 127 -> 112, Filter Resonance 48 -> 64, Filter Key Track +32 -> +63, Amp Gain 110 -> 100
