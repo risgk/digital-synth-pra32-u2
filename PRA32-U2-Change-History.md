@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v3.4.2 (2026-??-??):
+    - Add the Random Synth Params by Control Change #111 (from 0-63 to 64-127) and Program Change #127, as "Randomize Synth Prms" in PRA32-U2 Editor (the random values come from the Noise Gen)
     - Change the Filter self-oscillation level at the Resonance 127 from 0.5 to 0.4 (0.18 at 123, 0.31 at 125), so that it stays in balance with the Osc while playing
     - Improve the Filter self-oscillation by fading it out as the cutoff (including the modulation) rises from the Cutoff 111 (f = 7.9 kHz) to 116 (f = 10.5 kHz), so that its 3rd harmonic does not fold back into the audible range as an inharmonic tone (e.g. 11.8 kHz at the Cutoff 127); above that, the Resonance 123-127 acts as 122
     - Improve the Filter by ramping the coefficients over 4 samples, so that a fast cutoff sweep is smooth rather than a staircase
@@ -11,7 +12,6 @@
         - "#22 Synth Bass": Mixer Sub Osc S63 -> S32
         - "#28 Fifth Lead": Mixer Sub Osc S63 -> S32, Filter Cutoff 88 -> 112, Filter EG Amt +12 -> +0
         - "#29 Sqr Lead" and "#30 PWM Lead": Filter Cutoff 88 -> 112, Filter EG Amt +12 -> +0
-    - Add the Random Synth Params by Control Change #111 (from 0-63 to 64-127) and Program Change #127, as "Randomize Synth Prms" in PRA32-U2 Editor (the random values come from the Noise Gen)
     - PRA32-U2/P: Add "Random Synth Prms" next to "Panic" in the page "B-20 Control c"
     - Tested with Arduino-Pico version 6.1.1
 - v3.4.1 (2026-09-30):
