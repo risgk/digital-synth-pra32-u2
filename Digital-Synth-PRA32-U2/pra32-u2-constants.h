@@ -152,6 +152,8 @@ const uint8_t   PC_BY_CC_5      = 117;
 const uint8_t   PC_BY_CC_6      = 118;
 const uint8_t   PC_BY_CC_7      = 119;
 
+const uint8_t   SP_RAND_CTRL    = 111;
+
 
 const uint8_t   ALL_SOUND_OFF   = 120;
 const uint8_t   RESET_ALL_CTRLS = 121;
@@ -326,3 +328,4 @@ const uint8_t   WR_PANEL_PRMS   = 128 + 116;
 const uint8_t   SEQ_RAND_PITCH  = 128 + 120;
 const uint8_t   SEQ_RAND_VELO   = 128 + 121;
 const uint8_t   PANIC_OP        = 128 + 122;
+const uint8_t   RAND_SYNTH_OP   = 128 + 123;
