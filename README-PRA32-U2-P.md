@@ -1,4 +1,4 @@
-# Digital Synth PRA32-U2/P v3.4.1
+# Digital Synth PRA32-U2/P v3.5.0
 
 - 2026-09-22 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
@@ -95,6 +95,7 @@
     - Sustain Pedal
 - Control Operations
     - Panic: Change the value from 0-32 [Rdy] to 96-127 [Exe]
+    - Random Synth Prms (Randomize Synth Parameters, as Program Change #127): Change the value from 0-32 [Rdy] to 96-127 [Exe]
 
 
 #### Group C
@@ -140,7 +141,7 @@
 
 | Page           | Parameter A          | Parameter B          |
 | :------------- | :------------------- | :------------------- |
-| A-00 Info      | PRA32-U2/P           | v3.4.1               |
+| A-00 Info      | PRA32-U2/P           | v3.5.0               |
 | A-01 Voice     | Voice Mode           | Voice Asgn Mode      |
 | A-02 Pitch a   | Portamento           | Pitch Bend Range     |
 | A-03 Pitch b   | Stretch Tune         |                      |
@@ -194,7 +195,7 @@
 | B-17 Seq 7     | Seq Pitch 7          | Seq Velo 7           |
 | B-18 Control a | Modulation           | Expression           |
 | B-19 Control b | Breath Controller    | Sustain Pedal        |
-| B-20 Control c | Panic                |                      |
+| B-20 Control c | Panic                | Random Synth Prms    |
 | C-00 Write 0   | Write Program 0      | Write Program 1      |
 | C-01 Write 2   | Write Program 2      | Write Program 3      |
 | C-02 Write 4   | Write Program 4      | Write Program 5      |

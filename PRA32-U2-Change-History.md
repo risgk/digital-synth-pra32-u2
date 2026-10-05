@@ -1,5 +1,29 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v3.5.0 (2026-10-05):
+    - Add the Random Synth Params by Control Change #111 (from 0-63 to 64-127) and Program Change #127, as "Randomize Synth Prms" in PRA32-U2 Editor (the random values come from the Noise Gen)
+    - Change the Filter self-oscillation level at the Resonance 127 from 0.5 to 0.4 (0.18 at 123, 0.31 at 125), so that it stays in balance with the Osc while playing
+    - Change the Shape EG Mod Amt smoothing to the same speed in all Voice Modes
+    - Change the Filter not to sweep from the minimum Cutoff after All Sound Off
+    - Improve the Filter self-oscillation by fading it out as the cutoff (including the modulation) rises from the Cutoff 111 (f = 7.9 kHz) to 116 (f = 10.5 kHz), so that its 3rd harmonic does not fold back into the audible range as an inharmonic tone (e.g. 11.8 kHz at the Cutoff 127); above that, the Resonance 123-127 acts as 122
+    - Improve the Filter by ramping the coefficients over 4 samples, so that a fast cutoff sweep is smooth rather than a staircase
+    - Improve the parameter smoothing to be slower (2 stages, 10.7 ms average delay, 99% in 35 ms), so that the steps (e.g. of the Filter Cutoff at a high Resonance) are not heard with MIDI controllers that send CCs sparsely (e.g. every 20 ms)
+        - Filter Cutoff (with Breath Filter Amt), Filter Resonance, Filter EG Amt, LFO Filter Amt, Osc 1 Shape, EG/LFO Mod Amt (Dst: F, 1S), Amp Gain/Expression/Breath, LFO Depth (with Modulation and After Touch), Chorus Level, Chorus Depth, Delay Level, and Delay Feedback
+        - Osc 1 Morph, Mixer Osc Mix, Mixer Noise/Sub Osc, and Pan (from 1 stage, 2.7 ms)
+        - The EG and LFO modulations themselves are not delayed
+        - The smoothing is updated at 6 kHz (every other control period), which reduces the CPU usage
+    - Improve the Filter EG Amt, LFO Filter Amt, EG/LFO Mod Amt (Dst: F, 1S), LFO Depth, Osc 1 Morph (Saw, Square, Pulse), Mixer Osc Mix, Pan, Chorus Level, Delay Level, and Delay Feedback smoothing resolution
+    - Improve the Osc wave table switching to switch right away, instead of at the beginning of a wave, which reduces the noise of the Saw and Square Waves and the CPU usage
+    - Modify the Presets
+        - "#16 Synth Pad" to "#19 Simple" and "#24 Synth Brs" to "#27 Elec Organ": Delay Mode S -> R
+        - "#19 Simple": Filter Cutoff 127 -> 112, Filter Resonance 48 -> 64, Filter Key Track +32 -> +63, Amp Gain 110 -> 100
+        - "#20 Saw Lead": Mixer Sub Osc S63 -> S32, Filter Cutoff 88 -> 112, Filter EG Amt +12 -> +0
+        - "#22 Synth Bass": Mixer Sub Osc S63 -> S32
+        - "#28 Fifth Lead": Mixer Sub Osc S63 -> S32, Filter Cutoff 88 -> 112, Filter EG Amt +12 -> +0
+        - "#29 Sqr Lead" and "#30 PWM Lead": Filter Cutoff 88 -> 112, Filter EG Amt +12 -> +0
+    - Add "Parameter Smoothing" to README.md
+    - PRA32-U2/P: Add "Random Synth Prms" next to "Panic" in the page "B-20 Control c"
+    - Tested with Arduino-Pico version 6.1.1
 - v3.4.1 (2026-09-30):
     - Lengthen the decay of the Reverb by 1.5 times (it falls by the Delay Feedback over each 1.5 x Delay Time), so that it sounds about as long as the Delay's echoes
     - Tested with Arduino-Pico version 6.1.1

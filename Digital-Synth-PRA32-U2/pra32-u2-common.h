@@ -60,6 +60,84 @@ static INLINE int32_t approach_exp_wide(int32_t current_value, int32_t target_va
   return target_value - static_cast<int32_t>((delta + ((delta >> 63) & 0xFFFF)) >> 16);
 }
 
+// Parameter smoothing (see also "Parameter Smoothing" in README.md)
+// The smoothing is updated at 6 kHz, i.e. every other control period of 12 kHz
+// (once per 8 samples): the amounts in the even periods, and the balances in
+// the odd periods, so that the load is spread (see is_balance_smoothing_period()).
+// The EG and LFO modulations themselves are not smoothed, so they are not delayed.
+// - Slow: approach_exp_slow(), 2 stages at the rate 2048 at 6 kHz (10.7 ms average delay, 99% in 35 ms),
+//   for the amounts (of the tone, the level, or a modulation), whose steps are easily heard
+//   - Filter: Cutoff (with the Breath Controller x Breath Filter Amt), Resonance,
+//     Filter EG Amt, LFO Filter Amt, EG/LFO Mod Amt (Dst: F)
+//   - Osc: Osc 1 Shape, EG/LFO Mod Amt (Dst: 1S)
+//   - Amp: Amp Gain x Expression x Breath Controller (Breath Amp Mod)
+//   - LFO: LFO Depth (the sum with the LFO Fade, the Modulation, and the After Touch, per voice)
+//   - Chorus FX: Chorus Level, Chorus Depth, the base delay time (internal)
+//   - Delay FX: Delay Level, Delay Feedback (with the Reverb table interpolated)
+// - Slow (in the odd periods): approach_exp_slow(), the same as above,
+//   for the balances (between two sounds, or left and right), which keep the total amount about the same
+//   - Osc: Osc 1 Morph (in Q16; rounded to the controller value for the Sine Wave and the
+//     Wave Tables, which switch the ratio or the table step by step), Mixer Osc Mix (in Q16),
+//     Mixer Noise/Sub Osc (in 1/16 steps)
+//   - Panner: Pan (in Q16)
+// - Normal: 1 stage, for the Delay Time, which moves in its own way
+//   - Delay FX: Delay Time (in Q8, at 6 kHz, i.e. 5.3 ms, and slew-limited)
+// - Others
+//   - The Amp gain and the Chorus delay time are interpolated linearly over the control interval
+//   - The Delay Time and the Reverb size are also slew-limited (DELAY_TIME_SLEW, REVERB_LEN_SLEW)
+//   - Not smoothed: the pitch parameters, so that the pitch follows right away (Pitch Bend,
+//     EG/LFO Mod Amt (Dst: P, 2P)), and the parameters whose steps are part of the sound
+//     (e.g. Osc 2 Coarse/Pitch, LFO Rate, EG times)
+
+// The smoothing at 6 kHz takes half the load of the smoothing at 12 kHz, with the
+// same time constants. count is the count of the control periods (12 kHz)
+static INLINE bool is_slow_smoothing_period(uint8_t count) {
+  return (count & 0x01) == 0;
+}
+
+static INLINE bool is_balance_smoothing_period(uint8_t count) {
+  return (count & 0x01) != 0;
+}
+
+// Slower smoothing for the parameters whose steps are easily heard (e.g. the
+// Filter Cutoff at a high Resonance, moved by a MIDI controller that sends
+// sparse CCs), for a call at 6 kHz: two cascaded stages at the rate 2048
+// (a time constant of 5.3 ms each) have the same average delay as one stage at
+// the rate 1024 (10.7 ms), but start from slope 0, so that the corners of the
+// steps of the target are rounded off, and settle sooner (99% in 35 ms).
+// To use one stage at the rate 1024 instead, set SLOW_SMOOTH_TWO_STAGES to false
+static const bool    SLOW_SMOOTH_TWO_STAGES = true;
+static const uint8_t SLOW_SMOOTH_SHIFT      = SLOW_SMOOTH_TWO_STAGES ? 5 : 6;  // The rate 2048 or 1024
+
+// Same result as approach_exp_wide() with the rate (65536 >> SHIFT), without
+// the 64-bit product: the step is the difference divided by (1 << SHIFT),
+// rounded away from zero
+template <uint8_t SHIFT>
+static INLINE int32_t approach_exp_shift(int32_t current_value, int32_t target_value) {
+  int32_t delta = target_value - current_value;
+  return current_value + ((delta + (((1 << SHIFT) - 1) & ~(delta >> 31))) >> SHIFT);
+}
+
+static INLINE int32_t approach_exp_slow(int32_t& stage_1, int32_t& stage_2, int32_t target_value) {
+  stage_1 = approach_exp_shift<SLOW_SMOOTH_SHIFT>(stage_1, target_value);
+  if constexpr (SLOW_SMOOTH_TWO_STAGES) {
+    stage_2 = approach_exp_shift<SLOW_SMOOTH_SHIFT>(stage_2, stage_1);
+  } else {
+    stage_2 = stage_1;
+  }
+  return stage_2;
+}
+
+// Linear interpolation of table[0 .. last_index] at index_q16 (0 to last_index << 16);
+// the same as table[i] at an integer index i, and table[last_index + 1] is not read.
+// The differences between adjacent entries times 65536 must fit in 31 bits
+template <typename T>
+static INLINE int32_t interpolate_table_q16(const T* table, int32_t last_index, int32_t index_q16) {
+  int32_t index    = minimum(index_q16 >> 16, last_index - 1);
+  int32_t fraction = index_q16 - (index << 16);  // 0 to 65536
+  return table[index] + (((table[index + 1] - table[index]) * fraction) >> 16);
+}
+
 template <typename T>
 T branchless_conditional(bool condition, T a, T b) {
   return (condition ? a : b);

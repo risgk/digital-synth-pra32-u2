@@ -1,4 +1,4 @@
-# Digital Synth PRA32-U2 Parameter Guide v3.4.1
+# Digital Synth PRA32-U2 Parameter Guide v3.5.0
 
 - 2026-09-22 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
@@ -127,9 +127,11 @@
     - 116: Q = 59.7
     - 120: Q = 152
     - 122: Q = 256
-    - 123: Self-oscillation (level 0.2)
-    - 125: Self-oscillation (level 0.4)
-    - 127: Self-oscillation (level 0.5) (max)
+    - 123: Self-oscillation (level 0.18)
+    - 125: Self-oscillation (level 0.31)
+    - 127: Self-oscillation (level 0.4) (max)
+    - The self-oscillation fades out as the cutoff (including the modulation) rises from the Cutoff 111 (f = 7.9 kHz) to 116 (f = 10.5 kHz), and above that the Resonance 123-127 acts as 122
+    - A loud input near the cutoff (e.g. the Square or the Multi Saw) weakens or stops the self-oscillation, and an input harmonic near it pulls it to the pitch of that harmonic
 - Filter EG Amt [-|+], LFO Filter Amt [-|+]
     - -60 (4): -120 (min)
     - +60 (124): +120 (max)

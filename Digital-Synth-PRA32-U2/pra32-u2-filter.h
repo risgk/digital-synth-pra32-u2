@@ -75,7 +75,6 @@ static INLINE int32_t interpolate_filter_table(const int32_t* filter_table, int3
 }
 
 class PRA32_U2_Filter {
-  static const int32_t SMOOTH_RATE = 2048;
   static const int32_t CONTROLLER_VALUE_Q16_MAX = static_cast<int32_t>(FILTER_TABLE_LENGTH - 2) << 16;
 
   // The Osc drift r is applied as the frequency ratio e^r, i.e. 12 / ln 2
@@ -99,21 +98,31 @@ class PRA32_U2_Filter {
   int32_t m_g;                        // g = tan(pi * f_0 / f_s), Q26
   int32_t m_one_over_a_0;              // 1 / a_0, Q30, where a_0 = 1 + g * (g + k)
   int32_t m_g_plus_k_over_a_0;         // (g + k) / a_0, Q30
+  int32_t m_g_slope;                   // Per-sample steps of the coefficients toward the last computed ones
+  int32_t m_one_over_a_0_slope;
+  int32_t m_g_plus_k_over_a_0_slope;
+  int32_t m_g_last;                    // The coefficients computed at the last update
+  int32_t m_one_over_a_0_last;
+  int32_t m_g_plus_k_over_a_0_last;
   int32_t m_s_1;                       // State of the band pass integrator
   int32_t m_s_2;                       // State of the low pass integrator
   uint8_t m_resonance_target;
+  int32_t m_resonance_stage_1;
   int32_t m_resonance_current;
   int32_t m_cutoff_current;
   int32_t m_cutoff_target;
   int16_t m_cutoff_eg_amt_target[2];
-  int32_t m_cutoff_eg_amt_current[2];
+  int32_t m_cutoff_eg_amt_stage_1[2];
+  int32_t m_cutoff_eg_amt_current[2];   // Q16
   int16_t m_cutoff_lfo_amt[2];
-  int16_t m_cutoff_lfo_amt_current[2];
+  int32_t m_cutoff_lfo_amt_stage_1[2];
+  int32_t m_cutoff_lfo_amt_current[2];  // Q16
   int16_t m_cutoff_pitch_amt;
   uint8_t m_filter_mode;               // 0: Low Pass, 1: Band Pass, 2: High Pass
   int16_t m_cutoff_breath_amt;
   int16_t m_breath_controller;
-  int32_t m_cutoff_base_current;       // Smooth state variable for the base cutoff and LFO/Pitch/Breath modulations
+  int32_t m_cutoff_base_stage_1;
+  int32_t m_cutoff_base_current;       // Smooth state variable for the base cutoff and the Breath modulation
   uint16_t m_cutoff_drift;
   int32_t m_cutoff_drift_noise;
 
@@ -122,20 +131,30 @@ public:
   : m_g()
   , m_one_over_a_0()
   , m_g_plus_k_over_a_0()
+  , m_g_slope()
+  , m_one_over_a_0_slope()
+  , m_g_plus_k_over_a_0_slope()
+  , m_g_last()
+  , m_one_over_a_0_last()
+  , m_g_plus_k_over_a_0_last()
   , m_s_1()
   , m_s_2()
   , m_resonance_target()
+  , m_resonance_stage_1()
   , m_resonance_current()
   , m_cutoff_current()
   , m_cutoff_target()
   , m_cutoff_eg_amt_target()
+  , m_cutoff_eg_amt_stage_1()
   , m_cutoff_eg_amt_current()
   , m_cutoff_lfo_amt()
+  , m_cutoff_lfo_amt_stage_1()
   , m_cutoff_lfo_amt_current()
   , m_cutoff_pitch_amt()
   , m_filter_mode()
   , m_cutoff_breath_amt()
   , m_breath_controller()
+  , m_cutoff_base_stage_1()
   , m_cutoff_base_current()
   , m_cutoff_drift()
   , m_cutoff_drift_noise()
@@ -149,15 +168,21 @@ public:
     set_cutoff_pitch_amt(0);
 
     // Bootstrap initial smooth states to prevent sudden filter sweeps on power-up
-    m_cutoff_base_current = m_cutoff_target;
-    m_cutoff_eg_amt_current[0] = static_cast<int32_t>(m_cutoff_eg_amt_target[0]) << 16;
-    m_cutoff_eg_amt_current[1] = static_cast<int32_t>(m_cutoff_eg_amt_target[1]) << 16;
-    m_cutoff_lfo_amt_current[0] = 0;
-    m_cutoff_lfo_amt_current[1] = 0;
+    m_cutoff_base_stage_1 = m_cutoff_base_current = m_cutoff_target;
+    m_cutoff_eg_amt_stage_1[0] = m_cutoff_eg_amt_current[0] = static_cast<int32_t>(m_cutoff_eg_amt_target[0]) << 16;
+    m_cutoff_eg_amt_stage_1[1] = m_cutoff_eg_amt_current[1] = static_cast<int32_t>(m_cutoff_eg_amt_target[1]) << 16;
+    m_cutoff_lfo_amt_stage_1[0] = m_cutoff_lfo_amt_current[0] = 0;
+    m_cutoff_lfo_amt_stage_1[1] = m_cutoff_lfo_amt_current[1] = 0;
     m_cutoff_current = m_cutoff_base_current;
-    m_resonance_current = static_cast<int32_t>(m_resonance_target) << 16;
+    m_resonance_stage_1 = m_resonance_current = static_cast<int32_t>(m_resonance_target) << 16;
 
-    update_coefs(0, 0, 60 << 16);
+    update_coefs(0, 0, 60 << 16, *this);
+    m_g                 = m_g_last;
+    m_one_over_a_0      = m_one_over_a_0_last;
+    m_g_plus_k_over_a_0 = m_g_plus_k_over_a_0_last;
+    m_g_slope                 = 0;
+    m_one_over_a_0_slope      = 0;
+    m_g_plus_k_over_a_0_slope = 0;
   }
 
   INLINE void set_cutoff(uint8_t controller_value) {
@@ -225,15 +250,33 @@ public:
     m_s_1 = 0;
     m_s_2 = 0;
     m_cutoff_drift_noise = 0;
-    m_cutoff_base_current = 0;
-    m_cutoff_eg_amt_current[0] = 0;
-    m_cutoff_eg_amt_current[1] = 0;
-    m_cutoff_lfo_amt_current[0] = 0;
-    m_cutoff_lfo_amt_current[1] = 0;
+    // The smoothing states jump to their targets while the sound is off, so
+    // that the next note does not start with a slow filter sweep
+    m_cutoff_base_stage_1 = m_cutoff_base_current =
+      clamp(m_cutoff_target + ((m_breath_controller * m_cutoff_breath_amt) << 1), 0, CONTROLLER_VALUE_Q16_MAX);
+    m_cutoff_eg_amt_stage_1[0] = m_cutoff_eg_amt_current[0] = static_cast<int32_t>(m_cutoff_eg_amt_target[0]) << 16;
+    m_cutoff_eg_amt_stage_1[1] = m_cutoff_eg_amt_current[1] = static_cast<int32_t>(m_cutoff_eg_amt_target[1]) << 16;
+    m_cutoff_lfo_amt_stage_1[0] = m_cutoff_lfo_amt_current[0] = static_cast<int32_t>(m_cutoff_lfo_amt[0]) << 16;
+    m_cutoff_lfo_amt_stage_1[1] = m_cutoff_lfo_amt_current[1] = static_cast<int32_t>(m_cutoff_lfo_amt[1]) << 16;
+  }
+
+  // The base cutoff, the Resonance, and the Amt parameters are the same for
+  // all voices, so they are smoothed by one Filter (m_filter[0]) only, which
+  // every Filter reads in process_at_low_rate().
+  // These steps are emphasized at a high Resonance, so the smoothing is slower
+  INLINE void update_smoothing() {
+    int32_t base_target = clamp(m_cutoff_target + ((m_breath_controller * m_cutoff_breath_amt) << 1), 0, CONTROLLER_VALUE_Q16_MAX);
+    approach_exp_slow(m_cutoff_base_stage_1, m_cutoff_base_current, base_target);
+    approach_exp_slow(m_resonance_stage_1, m_resonance_current, static_cast<int32_t>(m_resonance_target) << 16);
+    for (int i = 0; i < 2; ++i) {
+      approach_exp_slow(m_cutoff_eg_amt_stage_1[i],  m_cutoff_eg_amt_current[i],  static_cast<int32_t>(m_cutoff_eg_amt_target[i]) << 16);
+      approach_exp_slow(m_cutoff_lfo_amt_stage_1[i], m_cutoff_lfo_amt_current[i], static_cast<int32_t>(m_cutoff_lfo_amt[i])       << 16);
+    }
   }
 
   template <uint8_t N>
-  INLINE void process_at_low_rate(uint8_t count, int32_t eg_input, int32_t lfo_input, int32_t osc_pitch, int32_t noise_int23) {
+  INLINE void process_at_low_rate(uint8_t count, int32_t eg_input, int32_t lfo_input, int32_t osc_pitch, int32_t noise_int23,
+                                  const PRA32_U2_Filter& smoothed) {
     // Pick up the noise once every 8 counts, like PRA32_U2_Osc does, but at a
     // phase none of the 8 oscillators uses, so that the drift of this voice is
     // not correlated with the drift of its oscillators
@@ -243,13 +286,18 @@ public:
 
     m_s_1 += noise_int23 >> SELF_OSC_NOISE_SHIFT;
 
-    update_coefs(eg_input, lfo_input, osc_pitch);
+    update_coefs(eg_input, lfo_input, osc_pitch, smoothed);
   }
 
   INLINE int32_t process(int32_t audio_input_int24) {
 #if 1
     // ZDF (Zero-Delay Feedback) / TPT (Topology-Preserving Transform) State Variable Filter (with delayed soft clipping of the band pass state)
     int32_t x_0 = audio_input_int24 << FILTER_CALC_SCALING_BITS;
+
+    // Ramp the coefficients toward the ones computed at the last update
+    m_g                 += m_g_slope;
+    m_one_over_a_0      += m_one_over_a_0_slope;
+    m_g_plus_k_over_a_0 += m_g_plus_k_over_a_0_slope;
 
     // The soft clipping in the feedback path is predicted from the integrator
     // state of the previous sample, so its gain is constant within the
@@ -292,54 +340,51 @@ public:
   }
 
 private:
-  INLINE void update_coefs(int32_t eg_input_q23, int32_t lfo_input_q23, int32_t osc_pitch_q16) {
+  INLINE void update_coefs(int32_t eg_input_q23, int32_t lfo_input_q23, int32_t osc_pitch_q16, const PRA32_U2_Filter& smoothed) {
     // 0. Round the Q23 control signals down to the resolution this filter actually uses
     int32_t eg_input  = (eg_input_q23  + (1 << 7)) >> 8;
     int32_t lfo_input = (lfo_input_q23 + (1 << 7)) >> 8;
 
-    // 1. Synthesize base cutoff and smoothable modulation signals (LFO, Pitch, Breath)
+    // 1. Take the smoothed base cutoff (with the Breath) and Amt parameters (see update_smoothing())
     // The cutoff is in Q16 controller values, and the Amt parameters are +-240
-    // for +-120 controller values at the full scale of the modulation source
-    int32_t base_candidate = m_cutoff_target;
-    base_candidate += ((m_breath_controller * m_cutoff_breath_amt) << 1);
+    // for +-120 controller values at the full scale of the modulation source.
+    // The Amt parameters are multiplied in Q7 (the product stays within 31 bits),
+    // so that the smoothing is not lost by rounding them to integers
+    const int32_t resonance_current = smoothed.m_resonance_current;
 
-    // 2. Smooth the integrated base modulation target and EG Amt parameters simultaneously
-    int32_t base_target = clamp(base_candidate, 0, CONTROLLER_VALUE_Q16_MAX);
-    m_cutoff_base_current = approach_exp_wide(m_cutoff_base_current, base_target, SMOOTH_RATE);
-
+    // 2. Add the LFO and Pitch modulations
     int32_t lfo_mod_target = 0;
     for (int i = 0; i < 2; ++i) {
-      m_cutoff_lfo_amt_current[i] = approach_exp(m_cutoff_lfo_amt_current[i], m_cutoff_lfo_amt[i], SMOOTH_RATE);
-      lfo_mod_target += (lfo_input * m_cutoff_lfo_amt_current[i]);
+      lfo_mod_target += (lfo_input * (smoothed.m_cutoff_lfo_amt_current[i] >> 9)) >> 7;
     }
 
     int32_t pitch_mod = (((osc_pitch_q16 - (60 << 16)) * m_cutoff_pitch_amt) + (1 << 2)) >> 3;
 
-    int32_t eg_amt_target[2] = {
-      static_cast<int32_t>(m_cutoff_eg_amt_target[0]) << 16,
-      static_cast<int32_t>(m_cutoff_eg_amt_target[1]) << 16
-    };
-    for (int i = 0; i < 2; ++i) {
-      m_cutoff_eg_amt_current[i] = approach_exp_wide(m_cutoff_eg_amt_current[i], eg_amt_target[i], SMOOTH_RATE);
-    }
-
-    // 3. Smooth the EG cutoff modulation and add it to the base cutoff
+    // 3. Add the EG modulation
     int32_t eg_mod_target = 0;
-    eg_mod_target += (static_cast<int16_t>(m_cutoff_eg_amt_current[0] >> 16) * eg_input);
-    eg_mod_target += (static_cast<int16_t>(m_cutoff_eg_amt_current[1] >> 16) * eg_input);
+    eg_mod_target += (eg_input * (smoothed.m_cutoff_eg_amt_current[0] >> 9)) >> 7;
+    eg_mod_target += (eg_input * (smoothed.m_cutoff_eg_amt_current[1] >> 9)) >> 7;
 
     // 4. Bound and lock final composite values into active controller value registers
     int32_t drift_mod = multiply_shift_right((m_cutoff_drift_noise >> 16) * m_cutoff_drift, DRIFT_SCALE, 24);
-    m_cutoff_current = clamp(m_cutoff_base_current + lfo_mod_target + pitch_mod + eg_mod_target + drift_mod, 0, CONTROLLER_VALUE_Q16_MAX);
-    m_resonance_current = approach_exp_wide(m_resonance_current, static_cast<int32_t>(m_resonance_target) << 16, SMOOTH_RATE);
+    m_cutoff_current = clamp(smoothed.m_cutoff_base_current + lfo_mod_target + pitch_mod + eg_mod_target + drift_mod, 0, CONTROLLER_VALUE_Q16_MAX);
 
     // 5. Interpolate the coefficient tables and solve the zero-delay feedback
     int32_t g = interpolate_filter_table(g_filter_g_table, m_cutoff_current);
-    int32_t k = interpolate_filter_table(g_filter_k_table, m_resonance_current);
+
+    // At a high cutoff, the Resonance above 122 is scaled down toward 122, so
+    // that the self-oscillation fades out before its 3rd harmonic folds back
+    // into the audible range (see pra32-u2-generate-filter-table.rb for an
+    // alternative that removes the 3rd harmonic in soft_clip() instead)
+    int32_t self_osc_over = maximum(resonance_current - SELF_OSC_START_Q16, 0);
+    int32_t self_osc_weight = interpolate_filter_table(g_filter_self_osc_weight_table, m_cutoff_current);
+    int32_t resonance = resonance_current - self_osc_over
+                      + multiply_shift_right(self_osc_over, self_osc_weight, FILTER_TABLE_FRACTION_BITS);
+    int32_t k = interpolate_filter_table(g_filter_k_table, resonance);
 
     // k -= t * kappa * (1 + g^2)^2 / g, where t = (Resonance - 122) / 5, clamped to 0 .. 1,
     // and the table holds kappa * (1 + g^2)^2 / g / 5
-    int32_t self_osc_t_times_5 = clamp(m_resonance_current - SELF_OSC_START_Q16, 0, SELF_OSC_RANGE_Q16);
+    int32_t self_osc_t_times_5 = clamp(resonance - SELF_OSC_START_Q16, 0, SELF_OSC_RANGE_Q16);
     int32_t self_osc_k = multiply_shift_right(interpolate_filter_table(g_filter_self_osc_table, m_cutoff_current), self_osc_t_times_5,
                                               16 + FILTER_TABLE_FRACTION_BITS - FILTER_G_FRACTION_BITS);  // Q26
     k -= minimum(self_osc_k, SELF_OSC_K_FLOOR_Q26) << (FILTER_TABLE_FRACTION_BITS - FILTER_G_FRACTION_BITS);
@@ -353,8 +398,24 @@ private:
     int32_t reciprocal = static_cast<int32_t>(0x80000000U / static_cast<uint32_t>(a_0 >> (24 - 15))) << (FILTER_TABLE_FRACTION_BITS - 16);
     int32_t reciprocal_error = (1 << FILTER_TABLE_FRACTION_BITS) - multiply_shift_right(a_0, reciprocal, 24);
 
-    m_g = g;
-    m_one_over_a_0 = reciprocal + multiply_shift_right(reciprocal, reciprocal_error, FILTER_TABLE_FRACTION_BITS);
-    m_g_plus_k_over_a_0 = multiply_shift_right(g_plus_k, m_one_over_a_0, FILTER_G_FRACTION_BITS);
+    int32_t one_over_a_0 = reciprocal + multiply_shift_right(reciprocal, reciprocal_error, FILTER_TABLE_FRACTION_BITS);
+    int32_t g_plus_k_over_a_0 = multiply_shift_right(g_plus_k, one_over_a_0, FILTER_G_FRACTION_BITS);
+
+    // 6. Ramp the coefficients from the last computed ones to these over the
+    // next 4 samples (the update interval), so that a fast cutoff sweep is a
+    // line rather than a staircase at a quarter of the sampling rate. Each is
+    // ramped on its own, so within a ramp they only approximately satisfy
+    // a_0 = 1 + g * (g + k); the states stay bounded by the soft clipping and
+    // the clamp on the low pass state. Each ramp starts from the last computed
+    // value, so the rounding of the steps does not build up
+    m_g                 = m_g_last;
+    m_one_over_a_0      = m_one_over_a_0_last;
+    m_g_plus_k_over_a_0 = m_g_plus_k_over_a_0_last;
+    m_g_slope                 = (g                 - m_g_last)                 >> 2;
+    m_one_over_a_0_slope      = (one_over_a_0      - m_one_over_a_0_last)      >> 2;
+    m_g_plus_k_over_a_0_slope = (g_plus_k_over_a_0 - m_g_plus_k_over_a_0_last) >> 2;
+    m_g_last                 = g;
+    m_one_over_a_0_last      = one_over_a_0;
+    m_g_plus_k_over_a_0_last = g_plus_k_over_a_0;
   }
 };
