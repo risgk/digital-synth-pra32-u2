@@ -1,5 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v3.5.2 (2026-??-??):
+    - Tested with Arduino-Pico version 6.1.1
 - v3.5.1 (2026-10-05):
     - Fix the Expression and the Breath Controller being smoothed slowly since v3.5.0, which softened the attack of wind controllers; they are now smoothed fast (1 stage, 0.6 ms time constant, 95% in 1.7 ms), while the Amp Gain and the Breath Filter Amt are still smoothed slowly
     - Change the EG to raise the level right away when the Sustain is raised in the sustain state (it used to stay at the level)
