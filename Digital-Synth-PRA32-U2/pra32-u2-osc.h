@@ -32,8 +32,6 @@ class PRA32_U2_Osc {
 
   static const int8_t  OSC_LEVEL              = 72;
 
-  static const int32_t SMOOTH_RATE = 2048;
-
   uint16_t       m_drift;
   boolean        m_saw_wave_mode_curved;
   int32_t        m_portamento_coef[4];
@@ -57,7 +55,8 @@ class PRA32_U2_Osc {
   boolean        m_osc_on[4];
 
   uint8_t        m_mixer_osc_mix_target;
-  uint8_t        m_mixer_osc_mix_current;
+  int32_t        m_mixer_osc_mix_stage_1;
+  int32_t        m_mixer_osc_mix_current;  // Q16
   int16_t        m_osc1_gain;
   int16_t        m_osc2_gain;
   int32_t        m_osc2_coarse;
@@ -69,22 +68,29 @@ class PRA32_U2_Osc {
   uint8_t        m_phase_high;
   int32_t        m_osc1_shape_target;
   uint16_t       m_osc1_morph_target;
-  uint16_t       m_osc1_morph_current;
-  int32_t        m_osc1_shape_target_value[4];
+  uint16_t       m_osc1_morph_current;           // Rounded to the controller value
+  int32_t        m_osc1_morph_stage_1;
+  int32_t        m_osc1_morph_current_q16;
+  int32_t        m_osc1_morph_mix_q4;            // Saw and Square Waves: 0 to 64 (Q4)
+  int32_t        m_osc1_morph_pulse_level_q4;    // Pulse Wave: -64 to +64 (Q4)
   int32_t        m_osc1_shape_lfo_target[4];
   int32_t        m_osc1_shape_eg_target[4];
-  int32_t        m_osc1_shape_base_current[4];
+  int32_t        m_osc1_shape_base_stage_1;
+  int32_t        m_osc1_shape_base_current;      // Q16 (the shape in Q8, shifted left by 8), the same for all voices
   int32_t        m_osc1_shape_current[4];
   uint32_t       m_osc1_sqr_shape_offset[4][16];
   uint32_t       m_osc1_wt_shape_offset[4][16];
   uint16_t       m_osc1_phase_modulation_frequency_ratio[4];
   int16_t        m_mixer_noise_sub_osc_target;
-  int16_t        m_mixer_noise_sub_osc_current;
+  int32_t        m_mixer_noise_sub_osc_stage_1;
+  int32_t        m_mixer_noise_sub_osc_current;
   int16_t        m_mix_table[OSC_MIX_TABLE_LENGTH];
   int16_t        m_shape_eg_amt;
-  int16_t        m_shape_eg_amt_current;
+  int32_t        m_shape_eg_amt_stage_1;
+  int32_t        m_shape_eg_amt_current;    // Q16
   int16_t        m_shape_lfo_amt;
-  int16_t        m_shape_lfo_amt_current;
+  int32_t        m_shape_lfo_amt_stage_1;
+  int32_t        m_shape_lfo_amt_current;   // Q16
 
 public:
   PRA32_U2_Osc()
@@ -111,6 +117,7 @@ public:
   , m_osc_on()
 
   , m_mixer_osc_mix_target()
+  , m_mixer_osc_mix_stage_1()
   , m_mixer_osc_mix_current()
   , m_osc1_gain()
   , m_osc2_gain()
@@ -124,20 +131,27 @@ public:
   , m_osc1_shape_target()
   , m_osc1_morph_target()
   , m_osc1_morph_current()
-  , m_osc1_shape_target_value()
+  , m_osc1_morph_stage_1()
+  , m_osc1_morph_current_q16()
+  , m_osc1_morph_mix_q4()
+  , m_osc1_morph_pulse_level_q4()
   , m_osc1_shape_lfo_target()
   , m_osc1_shape_eg_target()
+  , m_osc1_shape_base_stage_1()
   , m_osc1_shape_base_current()
   , m_osc1_shape_current()
   , m_osc1_sqr_shape_offset()
   , m_osc1_wt_shape_offset()
   , m_osc1_phase_modulation_frequency_ratio()
   , m_mixer_noise_sub_osc_target()
+  , m_mixer_noise_sub_osc_stage_1()
   , m_mixer_noise_sub_osc_current()
   , m_mix_table()
   , m_shape_eg_amt()
+  , m_shape_eg_amt_stage_1()
   , m_shape_eg_amt_current()
   , m_shape_lfo_amt()
+  , m_shape_lfo_amt_stage_1()
   , m_shape_lfo_amt_current()
   {
     m_portamento_coef[0] = 0;
@@ -201,10 +215,6 @@ public:
     m_freq_base[6] = g_osc_freq_table[0];
     m_freq_base[7] = g_osc_freq_table[0];
 
-    m_osc1_shape_target_value[0] = 0;
-    m_osc1_shape_target_value[1] = 0;
-    m_osc1_shape_target_value[2] = 0;
-    m_osc1_shape_target_value[3] = 0;
     m_osc1_shape_current[0] = 0;
     m_osc1_shape_current[1] = 0;
     m_osc1_shape_current[2] = 0;
@@ -217,10 +227,7 @@ public:
     m_osc1_shape_eg_target[1] = 0;
     m_osc1_shape_eg_target[2] = 0;
     m_osc1_shape_eg_target[3] = 0;
-    m_osc1_shape_base_current[0] = 0;
-    m_osc1_shape_base_current[1] = 0;
-    m_osc1_shape_base_current[2] = 0;
-    m_osc1_shape_base_current[3] = 0;
+    m_osc1_shape_base_stage_1 = m_osc1_shape_base_current = 0;
 
     for (uint8_t i = 0; i < OSC_MIX_TABLE_LENGTH; ++i) {
       m_mix_table[i] = static_cast<int16_t>(sqrtf(static_cast<float>(i) /
@@ -476,10 +483,22 @@ public:
     }
   }
 
-  INLINE void process_at_low_rate_global() {
-    update_osc1_morph_current();
-    update_mixer_current();
-    m_shape_lfo_amt_current = approach_exp(m_shape_lfo_amt_current, m_shape_lfo_amt, SMOOTH_RATE);
+  INLINE void process_at_low_rate_global(uint8_t count) {
+    if (is_balance_smoothing_period(count)) {
+      update_osc1_morph_current();
+      update_mixer_current();
+    }
+
+    // The steps of the Shape are easily heard (e.g. in the pulse width), so the
+    // smoothing is slower, in Q16 so that the tail is not held to 1 step of Q8.
+    // The Shape and the Amt parameters are the same for all voices, so they
+    // are smoothed once here, not per voice
+    if (is_slow_smoothing_period(count)) {
+      int32_t osc1_shape = clamp((128 << 8) + m_osc1_shape_target, (0 << 8), (256 << 8));
+      approach_exp_slow(m_osc1_shape_base_stage_1, m_osc1_shape_base_current, osc1_shape << 8);
+      approach_exp_slow(m_shape_eg_amt_stage_1,  m_shape_eg_amt_current,  static_cast<int32_t>(m_shape_eg_amt)  << 16);
+      approach_exp_slow(m_shape_lfo_amt_stage_1, m_shape_lfo_amt_current, static_cast<int32_t>(m_shape_lfo_amt) << 16);
+    }
   }
 
   template <uint8_t N, uint32_t SYNTH_ID = 0, boolean RESTRICT_SAW = false, boolean RESTRICT_SQR_WT = false>
@@ -612,9 +631,9 @@ if constexpr (RESTRICT_SAW == false) {
       int32_t wave_0_5 = get_wave_level(m_wave_table[N], osc1_phase - (phase_shape_morph * 5) - (phase_shift_base * 1));
       int32_t wave_0_6 = get_wave_level(m_wave_table[N], osc1_phase + (phase_shape_morph * 5) + (phase_shift_base * 3));
 
-      int32_t multi_saw_mix = (m_osc1_morph_current + 1) >> 1;
-      result += (((  ( multi_saw_mix       * (((wave_0_0 + wave_0_1 + wave_0_2 + wave_0_3 + wave_0_4 + wave_0_5 + wave_0_6) << 1) / 5))
-                   + ((64 - multi_saw_mix) *    wave_0)) >> 6) * m_osc1_gain * OSC_LEVEL) >> 9;
+      int32_t multi_saw_mix = m_osc1_morph_mix_q4;
+      result += (((  ( multi_saw_mix              * (((wave_0_0 + wave_0_1 + wave_0_2 + wave_0_3 + wave_0_4 + wave_0_5 + wave_0_6) << 1) / 5))
+                   + (((64 << 4) - multi_saw_mix) *    wave_0)) >> (6 + 4)) * m_osc1_gain * OSC_LEVEL) >> 9;
 } else {
       int32_t wave_0 = get_wave_level(m_wave_table[N], osc1_phase);
       result += (wave_0 * m_osc1_gain * OSC_LEVEL) >> 9;
@@ -639,10 +658,10 @@ if constexpr (RESTRICT_SQR_WT == false) {
       int32_t wave_0_14 = +get_wave_level(m_wave_table[N + 16], osc1_phase - m_osc1_sqr_shape_offset[N][14]);
       int32_t wave_0_15 = -get_wave_level(m_wave_table[N + 16], osc1_phase - m_osc1_sqr_shape_offset[N][15]);
 
-      int32_t sqr_sync_mix = (m_osc1_morph_current + 1) >> 1;
-      result += (((  ( sqr_sync_mix       * (wave_0_0  + wave_0_1  + wave_0_2  + wave_0_3  + wave_0_4  + wave_0_5  + wave_0_6  + wave_0_7  +
-                                             wave_0_8  + wave_0_9  + wave_0_10 + wave_0_11 + wave_0_12 + wave_0_13 + wave_0_14 + wave_0_15))
-                   + ((64 - sqr_sync_mix) *  wave_0)) >> 6) * m_osc1_gain * OSC_LEVEL) >> 9;
+      int32_t sqr_sync_mix = m_osc1_morph_mix_q4;
+      result += (((  ( sqr_sync_mix              * (wave_0_0  + wave_0_1  + wave_0_2  + wave_0_3  + wave_0_4  + wave_0_5  + wave_0_6  + wave_0_7  +
+                                                    wave_0_8  + wave_0_9  + wave_0_10 + wave_0_11 + wave_0_12 + wave_0_13 + wave_0_14 + wave_0_15))
+                   + (((64 << 4) - sqr_sync_mix) *  wave_0)) >> (6 + 4)) * m_osc1_gain * OSC_LEVEL) >> 9;
 } else {
       int32_t wave_0 = get_wave_level(m_wave_table[N], osc1_phase);
       result += (wave_0 * m_osc1_gain * OSC_LEVEL) >> 9;
@@ -680,7 +699,7 @@ if constexpr (RESTRICT_SQR_WT == false) {
       // For Pulse Wave (wave_3)
       uint32_t phase_3 = osc1_phase + (m_osc1_shape_current[N] << 8);
       int16_t wave_3 = get_wave_level(m_wave_table[N + 16], phase_3);
-      result += ((((wave_3 * m_osc1_gain * OSC_LEVEL) >> 9) * (((m_osc1_morph_current - 63) >> 1) << 1)) >> 6);
+      result += multiply_shift_right((wave_3 * m_osc1_gain * OSC_LEVEL) >> 9, m_osc1_morph_pulse_level_q4, 6 + 4);
     } else {
       int32_t wave_0 = get_wave_level(m_wave_table[N], osc1_phase);
       result += (wave_0 * m_osc1_gain * OSC_LEVEL) >> 9;
@@ -811,14 +830,35 @@ if constexpr (RESTRICT_SQR_WT == false) {
   }
 
   INLINE void update_osc1_morph_current() {
-    m_osc1_morph_current = approach_exp(m_osc1_morph_current, m_osc1_morph_target, SMOOTH_RATE);
+    // The Morph is smoothed in Q16, for all waves. For the Sine Wave and the
+    // Wave Tables, it selects the ratio or the table step by step, rounded to
+    // the controller value. For the Saw, Square, and Pulse Waves, it is a mix
+    // level, and their mappings of the controller value are interpolated in
+    // between (the same as before at the controller values), so that the mix
+    // does not move in steps while smoothed
+    approach_exp_slow(m_osc1_morph_stage_1, m_osc1_morph_current_q16, static_cast<int32_t>(m_osc1_morph_target) << 16);
+    m_osc1_morph_current = (m_osc1_morph_current_q16 + (1 << 15)) >> 16;
+
+    int32_t morph    = m_osc1_morph_current_q16 >> 16;
+    int32_t fraction = m_osc1_morph_current_q16 & 0xFFFF;
+
+    int32_t mix_0 = (morph + 1) >> 1;
+    int32_t mix_1 = (morph + 2) >> 1;
+    m_osc1_morph_mix_q4 = (mix_0 << 4) + (((mix_1 - mix_0) * fraction) >> 12);
+
+    int32_t pulse_level_0 = ((morph - 63) >> 1) << 1;
+    int32_t pulse_level_1 = ((morph - 62) >> 1) << 1;
+    m_osc1_morph_pulse_level_q4 = (pulse_level_0 << 4) + (((pulse_level_1 - pulse_level_0) * fraction) >> 12);
   }
 
   INLINE void update_mixer_current() {
-    m_mixer_osc_mix_current = approach_exp(m_mixer_osc_mix_current, m_mixer_osc_mix_target, SMOOTH_RATE);
-    m_mixer_noise_sub_osc_current = approach_exp(m_mixer_noise_sub_osc_current, m_mixer_noise_sub_osc_target, SMOOTH_RATE);
-    m_osc1_gain = m_mix_table[(OSC_MIX_TABLE_LENGTH - 1) - ((m_mixer_osc_mix_current + 1) >> 1)];
-    m_osc2_gain = m_mix_table[                             ((m_mixer_osc_mix_current + 1) >> 1)];
+    // The Osc Mix is in Q16, with the table interpolated, so that the gains do
+    // not move in steps while smoothed (the Noise/Sub Osc level is in 1/16 steps already)
+    approach_exp_slow(m_mixer_osc_mix_stage_1, m_mixer_osc_mix_current, static_cast<int32_t>(m_mixer_osc_mix_target) << 16);
+    approach_exp_slow(m_mixer_noise_sub_osc_stage_1, m_mixer_noise_sub_osc_current, m_mixer_noise_sub_osc_target);
+    int32_t mix_index_q16 = m_mixer_osc_mix_current >> 1;  // The target is even, 0 to 128
+    m_osc1_gain = interpolate_table_q16(m_mix_table, OSC_MIX_TABLE_LENGTH - 1, ((OSC_MIX_TABLE_LENGTH - 1) << 16) - mix_index_q16);
+    m_osc2_gain = interpolate_table_q16(m_mix_table, OSC_MIX_TABLE_LENGTH - 1, mix_index_q16);
   }
 
   template <uint8_t N>
@@ -826,18 +866,15 @@ if constexpr (RESTRICT_SQR_WT == false) {
     int32_t lfo_level = (lfo_level_q23 + (1 << 7)) >> 8;
     int32_t eg_level  = (eg_level_q23  + (1 << 7)) >> 8;
 
-    int32_t osc1_shape = (128 << 8) + m_osc1_shape_target;
-    m_osc1_shape_target_value[N] = clamp(osc1_shape, (0 << 8), (256 << 8));
-    m_osc1_shape_lfo_target[N] = -((lfo_level * m_shape_lfo_amt_current) >> 6);
-
-    m_shape_eg_amt_current = approach_exp(m_shape_eg_amt_current, m_shape_eg_amt, SMOOTH_RATE);
-    m_osc1_shape_eg_target[N] = (eg_level * m_shape_eg_amt_current) >> 6;
+    // The Amt parameters are multiplied in Q7 (the product stays within 30 bits),
+    // so that the smoothing is not lost by rounding them to integers
+    m_osc1_shape_lfo_target[N] = -((lfo_level * (m_shape_lfo_amt_current >> 9)) >> (6 + 7));
+    m_osc1_shape_eg_target[N] = (eg_level * (m_shape_eg_amt_current >> 9)) >> (6 + 7);
   }
 
   template <uint8_t N>
   INLINE void update_osc1_shape_effective() {
-    m_osc1_shape_base_current[N] = approach_exp_wide(m_osc1_shape_base_current[N], m_osc1_shape_target_value[N], SMOOTH_RATE);
-    m_osc1_shape_current[N] = clamp(m_osc1_shape_base_current[N] + m_osc1_shape_lfo_target[N] + m_osc1_shape_eg_target[N], (0 << 8), (256 << 8));
+    m_osc1_shape_current[N] = clamp((m_osc1_shape_base_current >> 8) + m_osc1_shape_lfo_target[N] + m_osc1_shape_eg_target[N], (0 << 8), (256 << 8));
 
     uint32_t shape = maximum(m_osc1_shape_current[N] - (128 << 8), 0);
     if (m_waveform[0] == WAVEFORM_SQUARE) {

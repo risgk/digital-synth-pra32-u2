@@ -86,7 +86,7 @@ class PRA32_U2_DelayFx {
   static const uint16_t DELAY_BUFF_SIZE = 8192;
 #endif  // !defined(PRA32_U2_LIMIT_DELAY_TIME_TO_SAVE_MEM)
 
-  static const int32_t SMOOTH_RATE = 2048;
+  static const uint8_t SMOOTH_SHIFT = 5;  // The rate 2048 of approach_exp()
 
   // How fast the read positions may move, as the Delay Time is turned: a fast turn of the knob
   // would otherwise move them by many samples per sample, reading the buffer at many times the
@@ -168,9 +168,11 @@ class PRA32_U2_DelayFx {
   uint16_t m_delay_wp[2];
 
   uint16_t m_delay_level_target;
-  uint16_t m_delay_level_current;
+  int32_t  m_delay_level_stage_1;
+  int32_t  m_delay_level_current;    // Q16
   uint8_t  m_delay_feedback_target;
-  uint8_t  m_delay_feedback_current;
+  int32_t  m_delay_feedback_stage_1;
+  int32_t  m_delay_feedback_current;   // Q16
   int32_t  m_delay_time_target;
   int32_t  m_delay_time_current;
   int32_t  m_delay_time_read;   // Follows m_delay_time_current, at most DELAY_TIME_SLEW per sample
@@ -198,8 +200,10 @@ public:
   , m_delay_wp()
 
   , m_delay_level_target()
+  , m_delay_level_stage_1()
   , m_delay_level_current()
   , m_delay_feedback_target()
+  , m_delay_feedback_stage_1()
   , m_delay_feedback_current()
   , m_delay_time_target()
   , m_delay_time_current()
@@ -295,11 +299,14 @@ public:
   }
 
   INLINE void process_at_low_rate(uint8_t count) {
-    m_delay_level_current = approach_exp(m_delay_level_current, m_delay_level_target, SMOOTH_RATE);
-    m_delay_feedback_current = approach_exp(m_delay_feedback_current, m_delay_feedback_target, SMOOTH_RATE);
+    // The Delay Level and the Delay Feedback are smoothed slower, in Q16, like the Chorus Level
+    if (is_slow_smoothing_period(count)) {
+      approach_exp_slow(m_delay_level_stage_1, m_delay_level_current, static_cast<int32_t>(m_delay_level_target) << 16);
+      approach_exp_slow(m_delay_feedback_stage_1, m_delay_feedback_current, static_cast<int32_t>(m_delay_feedback_target) << 16);
+    }
 
     const int32_t is_even = (count & 0x01) ^ 1;
-    const int32_t next_approach_val = approach_exp_wide(m_delay_time_current, m_delay_time_target, SMOOTH_RATE);
+    const int32_t next_approach_val = approach_exp_shift<SMOOTH_SHIFT>(m_delay_time_current, m_delay_time_target);
     m_delay_time_current = (next_approach_val * is_even) + (m_delay_time_current * (is_even ^ 1));
 
     if (m_delay_mode != m_delay_mode_target) {
@@ -317,7 +324,7 @@ public:
 
     if (m_mute_count > 0) {
       --m_mute_count;
-      m_delay_level_current = 0;
+      m_delay_level_stage_1 = m_delay_level_current = 0;
     } else if (m_delay_mode == m_delay_mode_target) {
       m_wet_gain = WET_GAIN_ONE;
     }
@@ -346,14 +353,14 @@ public:
     int32_t left_feedback;
     int32_t right_feedback;
 
-    int32_t left_send  = multiply_shift_right(left_input_int24,  m_delay_level_current << 1, 8);
-    int32_t right_send = multiply_shift_right(right_input_int24, m_delay_level_current << 1, 8);
+    int32_t left_send  = multiply_shift_right(left_input_int24,  m_delay_level_current, 7 + 16);
+    int32_t right_send = multiply_shift_right(right_input_int24, m_delay_level_current, 7 + 16);
 
     const int32_t left_final_in  = (m_delay_mode == DELAY_MODE_PING_PONG) ? (((left_send + right_send) >> 1) + right_delay)
                                                                           : (left_send  + left_delay);
     const int32_t right_final_in = (m_delay_mode == DELAY_MODE_PING_PONG) ? (left_delay)
                                                                           : (right_send + right_delay);
-    const int32_t feedback_gain = m_delay_feedback_current << 8;
+    const int32_t feedback_gain = m_delay_feedback_current >> 8;
     left_feedback  = multiply_shift_right(left_final_in,  feedback_gain, 16);
     right_feedback = multiply_shift_right(right_final_in, feedback_gain, 16);
 
@@ -434,7 +441,7 @@ private:
 #else
     const uint32_t line_len      = m_rev_len[i];
 #endif
-    const int32_t  log2_feedback = REVERB_LOG2_FEEDBACK[m_delay_feedback_current];
+    const int32_t  log2_feedback = interpolate_table_q16(REVERB_LOG2_FEEDBACK, 127, m_delay_feedback_current);
     const uint32_t delay_time    = static_cast<uint32_t>(m_delay_time_current) >> 8;   // 48 .. 16320
     const uint32_t loop_len_x4   = (line_len + LOOP_EXTRA[i]) << 2;                     // In 48 kHz samples, x 2
     const int32_t  ratio_q16     = static_cast<int32_t>((loop_len_x4 << 16) / (delay_time * 3));  // A 32-bit division
@@ -511,7 +518,7 @@ private:
     const int32_t right_input_int24 = input_int24.right;
 
     // The send level, scaled by the Delay Feedback / 256 too, as the Delay's input is (Q16)
-    const int32_t send_gain  = (m_delay_level_current * m_delay_feedback_current) << 1;
+    const int32_t send_gain  = multiply_shift_right(m_delay_level_current, m_delay_feedback_current, 16 + 16 - 1);
     const int32_t left_send  = multiply_shift_right(left_input_int24,  send_gain, 16);
     const int32_t right_send = multiply_shift_right(right_input_int24, send_gain, 16);
 

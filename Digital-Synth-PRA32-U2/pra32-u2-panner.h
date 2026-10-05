@@ -9,11 +9,11 @@
 
 class PRA32_U2_Panner {
   static const uint8_t OSC_PAN_TABLE_LENGTH = 129;
-  static const int32_t SMOOTH_RATE = 2048;
 
   int32_t m_pan_table[OSC_PAN_TABLE_LENGTH];
   int16_t m_pan_target;
-  int16_t m_pan_current;
+  int32_t m_pan_stage_1;
+  int32_t m_pan_current;   // Q16
   int32_t m_gain_linear_l;
   int32_t m_gain_linear_r;
 
@@ -21,7 +21,8 @@ public:
 PRA32_U2_Panner()
   : m_pan_table()
   , m_pan_target(64)
-  , m_pan_current(64)
+  , m_pan_stage_1(64 << 16)
+  , m_pan_current(64 << 16)
   , m_gain_linear_l(16384 << 2)
   , m_gain_linear_r(16384 << 2)
   {
@@ -37,8 +38,10 @@ PRA32_U2_Panner()
     m_pan_target = controller_value;
   }
 
-  INLINE void process_at_low_rate() {
-    update_gain_current();
+  INLINE void process_at_low_rate(uint8_t count) {
+    if (is_balance_smoothing_period(count)) {
+      update_gain_current();
+    }
   }
 
   INLINE PRA32_U2_StereoSample process(int32_t audio_input_int24) {
@@ -52,8 +55,9 @@ PRA32_U2_Panner()
 
 private:
   INLINE void update_gain_current() {
-    m_pan_current = approach_exp(m_pan_current, m_pan_target, SMOOTH_RATE);
-    m_gain_linear_l = m_pan_table[128 - m_pan_current];
-    m_gain_linear_r = m_pan_table[m_pan_current];
+    // In Q16, with the table interpolated, so that the gains do not move in steps while smoothed
+    approach_exp_slow(m_pan_stage_1, m_pan_current, static_cast<int32_t>(m_pan_target) << 16);
+    m_gain_linear_l = interpolate_table_q16(m_pan_table, OSC_PAN_TABLE_LENGTH - 1, (128 << 16) - m_pan_current);
+    m_gain_linear_r = interpolate_table_q16(m_pan_table, OSC_PAN_TABLE_LENGTH - 1, m_pan_current);
   }
 };
