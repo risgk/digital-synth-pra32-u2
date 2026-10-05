@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v3.5.1 (2026-??-??):
+    - Change the EG to raise the level right away when the Sustain is raised in the sustain state (it used to stay at the level)
     - Tested with Arduino-Pico version 6.1.1
 - v3.5.0 (2026-10-05):
     - Add the Random Synth Params by Control Change #111 (from 0-63 to 64-127) and Program Change #127, as "Randomize Synth Prms" in PRA32-U2 Editor (the random values come from the Noise Gen)
