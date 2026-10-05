@@ -80,7 +80,7 @@ static INLINE int32_t approach_exp_wide(int32_t current_value, int32_t target_va
 //     Wave Tables, which switch the ratio or the table step by step), Mixer Osc Mix (in Q16),
 //     Mixer Noise/Sub Osc (in 1/16 steps)
 //   - Panner: Pan (in Q16)
-// - Fast: approach_exp_fast(), 1 stage at the rate 16384 at 6 kHz (0.6 ms time constant, 95% in 1.7 ms),
+// - Fast: approach_exp_fast(), 1 stage at the rate 8192 at 6 kHz (1.2 ms time constant, 95% in 3.7 ms),
 //   for the performance controllers, whose attack must not be softened, but whose steps must not click
 //   - Filter: the Breath Controller (x Breath Filter Amt)
 //   - Amp: Expression x Breath Controller (Breath Amp Mod)
@@ -124,11 +124,13 @@ static INLINE int32_t approach_exp_shift(int32_t current_value, int32_t target_v
   return current_value + ((delta + (((1 << SHIFT) - 1) & ~(delta >> 31))) >> SHIFT);
 }
 
-// 1 stage at the rate 16384 at 6 kHz (0.6 ms time constant, 95% in 1.7 ms),
+// 1 stage at the rate 8192 at 6 kHz (1.2 ms time constant, 95% in 3.7 ms),
 // for the performance controllers (the Expression and the Breath Controller),
-// whose attack must not be softened, but whose steps must not click
+// whose attack must not be softened, but whose steps must not click (e.g. the
+// 7-bit steps of the Breath Controller at a low breath, or in the Filter Cutoff
+// at a high Resonance)
 static INLINE int32_t approach_exp_fast(int32_t current_value, int32_t target_value) {
-  return approach_exp_shift<2>(current_value, target_value);
+  return approach_exp_shift<3>(current_value, target_value);
 }
 
 static INLINE int32_t approach_exp_slow(int32_t& stage_1, int32_t& stage_2, int32_t target_value) {

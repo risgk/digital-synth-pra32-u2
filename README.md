@@ -266,7 +266,7 @@ flowchart LR
 - The balances (between two sounds, or left and right), which keep the total amount about the same
     - Osc 1 Morph, Mixer Osc Mix, Mixer Noise/Sub Osc, Pan
     - For the Sine Wave and the Wave Tables, the smoothed Osc 1 Morph is rounded to the controller value, as it switches the ratio or the table step by step
-- 1 stage (0.6 ms time constant, 95% in 1.7 ms), for the performance controllers, whose attack must not be softened, but whose steps must not click
+- 1 stage (1.2 ms time constant, 95% in 3.7 ms), for the performance controllers, whose attack must not be softened, but whose steps must not click
     - Breath Controller (x Breath Filter Amt)
     - Expression x Breath Controller (Breath Amp Mod)
 - 1 stage, for the Delay Time (5.3 ms), which moves in its own way
