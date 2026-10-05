@@ -252,10 +252,10 @@ flowchart LR
 
 ### Parameter Smoothing
 
-- The parameters are smoothed, so that their steps (e.g. sent by MIDI controllers every 20 ms) are not heard
+- The parameters are smoothed, so that their steps (e.g. sent by MIDI controllers every 10 ms) are not heard
 - The smoothing is updated at 6 kHz (every other control period of 12 kHz), for the CPU usage
 - The EG and LFO modulations themselves are not smoothed (not delayed)
-- 2 stages (10.7 ms average delay, 99% in 35 ms), which round off the corners of the steps, for the amounts and the balances below
+- 2 stages (5.3 ms average delay, 99% in 18 ms), which round off the corners of the steps, for the amounts and the balances below
 - The amounts (of the tone, the level, or a modulation), whose steps are easily heard
     - Filter Cutoff, Filter Resonance, Filter EG Amt, LFO Filter Amt, Breath Filter Amt
     - Osc 1 Shape
