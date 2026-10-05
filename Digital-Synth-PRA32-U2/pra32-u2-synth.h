@@ -1573,19 +1573,25 @@ if constexpr (BYPASS_SYNTH == false) {
     switch (m_count & (0x04 - 1)) {
     case 0x00:
       {
-        m_lfo.process_at_low_rate(m_count >> 2, noise_int23);
+        m_lfo.process_at_low_rate<RESTRICT_POLY_AND_CORES>(m_count >> 2, noise_int23);
 
         m_eg[0].process_at_low_rate();
         m_eg[1].process_at_low_rate();
         int32_t lfo_output = m_lfo.get_output<0>();
         m_osc.process_at_low_rate<0>(m_count >> 2, lfo_output, m_eg[0].get_output(), noise_int23);
-        m_filter[0].process_at_low_rate<0>(m_count >> 2, m_eg[0].get_output(), lfo_output, m_osc.get_osc_pitch(0), noise_int23);
-        m_amp[0].process_at_low_rate(branchless_conditional(m_controller_value_eg_amp_mod >= 64, m_eg[0].get_output(), m_eg[1].get_output()));
+        // The smoothing of the Filter and Amp parameters is the same for all voices,
+        // so it is done once by m_filter[0] and m_amp[0], and read by all voices
+        if (is_slow_smoothing_period(m_count >> 2)) {
+          m_filter[0].update_smoothing();
+          m_amp[0].update_smoothing();
+        }
+        m_filter[0].process_at_low_rate<0>(m_count >> 2, m_eg[0].get_output(), lfo_output, m_osc.get_osc_pitch(0), noise_int23, m_filter[0]);
+        m_amp[0].process_at_low_rate(branchless_conditional(m_controller_value_eg_amp_mod >= 64, m_eg[0].get_output(), m_eg[1].get_output()), m_amp[0]);
       }
       break;
     case 0x01:
       {
-        m_osc.process_at_low_rate_global();
+        m_osc.process_at_low_rate_global(m_count >> 2);
 
 #if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)
 if constexpr (RESTRICT_POLY_AND_CORES == false) {
@@ -1594,13 +1600,13 @@ if (m_voice_mode == VOICE_POLYPHONIC) {
         m_eg[3].process_at_low_rate();
         int32_t lfo_output = m_lfo.get_output<1>();
         m_osc.process_at_low_rate<1>(m_count >> 2, lfo_output, m_eg[2].get_output(), noise_int23);
-        m_filter[1].process_at_low_rate<1>(m_count >> 2, m_eg[2].get_output(), lfo_output, m_osc.get_osc_pitch(1), noise_int23);
-        m_amp[1].process_at_low_rate(branchless_conditional(m_controller_value_eg_amp_mod >= 64, m_eg[2].get_output(), m_eg[3].get_output()));
+        m_filter[1].process_at_low_rate<1>(m_count >> 2, m_eg[2].get_output(), lfo_output, m_osc.get_osc_pitch(1), noise_int23, m_filter[0]);
+        m_amp[1].process_at_low_rate(branchless_conditional(m_controller_value_eg_amp_mod >= 64, m_eg[2].get_output(), m_eg[3].get_output()), m_amp[0]);
 }
 }
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)
 
-        m_panner.process_at_low_rate();
+        m_panner.process_at_low_rate(m_count >> 2);
       }
       break;
     case 0x02:
@@ -1612,8 +1618,8 @@ if (m_voice_mode == VOICE_POLYPHONIC) {
         m_eg[5].process_at_low_rate();
         int32_t lfo_output = m_lfo.get_output<2>();
         m_osc.process_at_low_rate<2>(m_count >> 2, lfo_output, m_eg[4].get_output(), noise_int23);
-        m_filter[2].process_at_low_rate<2>(m_count >> 2, m_eg[4].get_output(), lfo_output, m_osc.get_osc_pitch(2), noise_int23);
-        m_amp[2].process_at_low_rate(branchless_conditional(m_controller_value_eg_amp_mod >= 64, m_eg[4].get_output(), m_eg[5].get_output()));
+        m_filter[2].process_at_low_rate<2>(m_count >> 2, m_eg[4].get_output(), lfo_output, m_osc.get_osc_pitch(2), noise_int23, m_filter[0]);
+        m_amp[2].process_at_low_rate(branchless_conditional(m_controller_value_eg_amp_mod >= 64, m_eg[4].get_output(), m_eg[5].get_output()), m_amp[0]);
 }
 }
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)
@@ -1632,8 +1638,8 @@ if (m_voice_mode == VOICE_POLYPHONIC) {
         m_eg[7].process_at_low_rate();
         int32_t lfo_output = m_lfo.get_output<3>();
         m_osc.process_at_low_rate<3>(m_count >> 2, lfo_output, m_eg[6].get_output(), noise_int23);
-        m_filter[3].process_at_low_rate<3>(m_count >> 2, m_eg[6].get_output(), lfo_output, m_osc.get_osc_pitch(3), noise_int23);
-        m_amp[3].process_at_low_rate(branchless_conditional(m_controller_value_eg_amp_mod >= 64, m_eg[6].get_output(), m_eg[7].get_output()));
+        m_filter[3].process_at_low_rate<3>(m_count >> 2, m_eg[6].get_output(), lfo_output, m_osc.get_osc_pitch(3), noise_int23, m_filter[0]);
+        m_amp[3].process_at_low_rate(branchless_conditional(m_controller_value_eg_amp_mod >= 64, m_eg[6].get_output(), m_eg[7].get_output()), m_amp[0]);
 }
 }
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)

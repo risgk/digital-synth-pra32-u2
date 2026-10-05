@@ -3,8 +3,6 @@
 #include "pra32-u2-common.h"
 
 class PRA32_U2_Amp {
-  static const int32_t SMOOTH_RATE        = 2048;
-
   // The gain is recalculated once per control interval, and interpolated over
   // the samples in between; holding it would step the audio at the control
   // rate, which shows up as sidebands around every partial
@@ -15,7 +13,8 @@ class PRA32_U2_Amp {
   int32_t m_gain_mod_input;
   uint8_t m_breath_mod;
   uint8_t m_breath_controller;
-  int32_t m_total_gain_linear_current;
+  int32_t m_total_gain_linear_stage_1;
+  int32_t m_total_gain_linear_current;  // Q24 (the gain in Q16, shifted left by 8)
   int32_t m_output_gain_current;
   int32_t m_output_gain_next;
   int32_t m_output_gain_step;
@@ -27,6 +26,7 @@ PRA32_U2_Amp()
   , m_gain_mod_input(0)
   , m_breath_mod()
   , m_breath_controller()
+  , m_total_gain_linear_stage_1()
   , m_total_gain_linear_current()
   , m_output_gain_current()
   , m_output_gain_next()
@@ -57,10 +57,16 @@ PRA32_U2_Amp()
     m_output_gain_step = 0;
   }
 
-  INLINE void process_at_low_rate(int32_t gain_mod_input) {
+  // The gain, the expression, and the breath are the same for all voices, so
+  // they are smoothed by one Amp (m_amp[0]) only, which every Amp reads in
+  // process_at_low_rate()
+  INLINE void update_smoothing() {
     update_total_gain_current();
+  }
+
+  INLINE void process_at_low_rate(int32_t gain_mod_input, const PRA32_U2_Amp& smoothed) {
     m_gain_mod_input = gain_mod_input;
-    m_output_gain_next = multiply_shift_right(m_gain_mod_input, m_total_gain_linear_current, 16);
+    m_output_gain_next = multiply_shift_right(m_gain_mod_input, smoothed.m_total_gain_linear_current >> 8, 16);
 
     // Rounded up, so that the target is reached by the end of the interval
     const int32_t delta = m_output_gain_next - m_output_gain_current;
@@ -90,8 +96,10 @@ private:
   }
 
   // Combine gain/expression and breath into a single smoothed multiplier.
+  // The Breath Controller is often sent in sparse and irregular steps, so the
+  // smoothing is slower, in Q24 so that the tail is not held to 1 step of Q16
   INLINE void update_total_gain_current() {
     int32_t total_gain_linear_target = multiply_shift_right(calc_gain_linear_target(), calc_breath_gain_linear_target(), 16);
-    m_total_gain_linear_current = approach_exp_wide(m_total_gain_linear_current, total_gain_linear_target, SMOOTH_RATE);
+    approach_exp_slow(m_total_gain_linear_stage_1, m_total_gain_linear_current, total_gain_linear_target << 8);
   }
 };

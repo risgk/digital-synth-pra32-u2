@@ -16,13 +16,12 @@ class PRA32_U2_LFO {
 
   static const uint8_t LFO_FADE_LEVEL_MAX     = 128;
 
-  static const int32_t SMOOTH_RATE            = 2048;
-
   uint32_t m_lfo_phase;
   int32_t  m_lfo_wave_level;
   uint32_t m_lfo_rate;
   uint8_t  m_lfo_depth_target[2];
-  uint8_t  m_lfo_depth_result_current[4];
+  int32_t  m_lfo_depth_stage_1[4];
+  int32_t  m_lfo_depth_result_current[4];  // Q16 (0 to 128 << 16)
   uint8_t  m_lfo_waveform;
   uint16_t m_lfo_fade_coef;
   uint16_t m_lfo_fade_cnt;
@@ -42,6 +41,7 @@ public:
   , m_lfo_wave_level()
   , m_lfo_rate()
   , m_lfo_depth_target()
+  , m_lfo_depth_stage_1()
   , m_lfo_depth_result_current()
   , m_lfo_waveform()
   , m_lfo_fade_coef()
@@ -119,7 +119,7 @@ public:
 
   template <uint8_t N>
   INLINE int32_t get_output() {
-    int32_t lfo_level = (m_lfo_depth_result_current[N] * m_lfo_wave_level) >> 7;
+    int32_t lfo_level = multiply_shift_right(m_lfo_depth_result_current[N], m_lfo_wave_level, 16 + 7);
     return lfo_level;
   }
 
@@ -127,13 +127,17 @@ public:
     m_lfo_phase = 0x00000000;
   }
 
+  // ONLY_VOICE_0: true for a synth that never plays voices 1-3 (e.g. the Sub Synths of PRA32-U2/M)
+  template <boolean ONLY_VOICE_0 = false>
   INLINE void process_at_low_rate(uint8_t count, int32_t noise_int23) {
-    static_cast<void>(count);
-
-    update_lfo_depth_current<0>();
-    update_lfo_depth_current<1>();
-    update_lfo_depth_current<2>();
-    update_lfo_depth_current<3>();
+    if (is_slow_smoothing_period(count)) {
+      update_lfo_depth_current<0>();
+if constexpr (ONLY_VOICE_0 == false) {
+      update_lfo_depth_current<1>();
+      update_lfo_depth_current<2>();
+      update_lfo_depth_current<3>();
+}
+    }
 
     m_noise_int23 = noise_int23;
     update_red_noise_level(noise_int23);
@@ -143,10 +147,13 @@ public:
 private:
   template <uint8_t N>
   INLINE void update_lfo_depth_current() {
+    // The depth scales the LFO output for all destinations, like an Amt parameter,
+    // so it is smoothed slower, in Q16 (with the Modulation and the After Touch,
+    // which are often sent in sparse and irregular steps)
     int32_t lfo_depth_target = high_byte((m_lfo_depth_target[0] << 1) * m_lfo_fade_level) + m_lfo_depth_target[1]
                               + ((m_pressure_amt * m_pressure[N]) >> 7);
     lfo_depth_target = minimum(lfo_depth_target, 128);
-    m_lfo_depth_result_current[N] = approach_exp(m_lfo_depth_result_current[N], lfo_depth_target, SMOOTH_RATE);
+    approach_exp_slow(m_lfo_depth_stage_1[N], m_lfo_depth_result_current[N], lfo_depth_target << 16);
   }
 
   INLINE int32_t get_lfo_wave_level(uint32_t phase) {
