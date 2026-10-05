@@ -1,4 +1,4 @@
-# Digital Synth PRA32-U2 v3.5.1
+# Digital Synth PRA32-U2 v3.5.2
 
 - 2026-09-22 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
@@ -252,10 +252,10 @@ flowchart LR
 
 ### Parameter Smoothing
 
-- The parameters are smoothed, so that their steps (e.g. sent by MIDI controllers every 20 ms) are not heard
+- The parameters are smoothed, so that their steps (e.g. sent by MIDI controllers every 10 ms) are not heard
 - The smoothing is updated at 6 kHz (every other control period of 12 kHz), for the CPU usage
 - The EG and LFO modulations themselves are not smoothed (not delayed)
-- 2 stages (10.7 ms average delay, 99% in 35 ms), which round off the corners of the steps, for the amounts and the balances below
+- 2 stages (5.3 ms average delay, 99% in 18 ms), which round off the corners of the steps, for the amounts and the balances below
 - The amounts (of the tone, the level, or a modulation), whose steps are easily heard
     - Filter Cutoff, Filter Resonance, Filter EG Amt, LFO Filter Amt, Breath Filter Amt
     - Osc 1 Shape
@@ -266,7 +266,7 @@ flowchart LR
 - The balances (between two sounds, or left and right), which keep the total amount about the same
     - Osc 1 Morph, Mixer Osc Mix, Mixer Noise/Sub Osc, Pan
     - For the Sine Wave and the Wave Tables, the smoothed Osc 1 Morph is rounded to the controller value, as it switches the ratio or the table step by step
-- 1 stage (0.6 ms time constant, 95% in 1.7 ms), for the performance controllers, whose attack must not be softened, but whose steps must not click
+- 1 stage (1.2 ms time constant, 95% in 3.7 ms), for the performance controllers, whose attack must not be softened, but whose steps must not click
     - Breath Controller (x Breath Filter Amt)
     - Expression x Breath Controller (Breath Amp Mod)
 - 1 stage, for the Delay Time (5.3 ms), which moves in its own way
@@ -375,11 +375,11 @@ flowchart LR
 
 ![CC0](http://i.creativecommons.org/p/zero/1.0/88x31.png)
 
-**Digital Synth PRA32-U2 v3.5.1 by ISGK Instruments (Ryo Ishigaki)**
+**Digital Synth PRA32-U2 v3.5.2 by ISGK Instruments (Ryo Ishigaki)**
 
 To the extent possible under law, ISGK Instruments (Ryo Ishigaki)
 has waived all copyright and related or neighboring rights
-to Digital Synth PRA32-U2 v3.5.1.
+to Digital Synth PRA32-U2 v3.5.2.
 
 You should have received a copy of the CC0 legalcode along with this
 work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
