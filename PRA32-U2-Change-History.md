@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v3.4.2 (2026-??-??):
+- v3.5.0 (2026-10-05):
     - Add the Random Synth Params by Control Change #111 (from 0-63 to 64-127) and Program Change #127, as "Randomize Synth Prms" in PRA32-U2 Editor (the random values come from the Noise Gen)
     - Change the Filter self-oscillation level at the Resonance 127 from 0.5 to 0.4 (0.18 at 123, 0.31 at 125), so that it stays in balance with the Osc while playing
     - Change the Shape EG Mod Amt smoothing to the same speed in all Voice Modes
