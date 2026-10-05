@@ -15,6 +15,7 @@
     - Improve the Filter EG Amt, LFO Filter Amt, EG/LFO Mod Amt (Dst: F, 1S), LFO Depth, Osc 1 Morph (Saw, Square, Pulse), Mixer Osc Mix, Pan, Chorus Level, Delay Level, and Delay Feedback smoothing resolution
     - Improve the Osc wave table switching to switch right away, instead of at the beginning of a wave, which reduces the noise of the Saw and Square Waves and the CPU usage
     - Modify the Presets
+        - "#16 Synth Pad" to "#19 Simple" and "#24 Synth Brs" to "#27 Elec Organ": Delay Mode S -> R
         - "#19 Simple": Filter Cutoff 127 -> 112, Filter Resonance 48 -> 64, Filter Key Track +32 -> +63, Amp Gain 110 -> 100
         - "#20 Saw Lead": Mixer Sub Osc S63 -> S32, Filter Cutoff 88 -> 112, Filter EG Amt +12 -> +0
         - "#22 Synth Bass": Mixer Sub Osc S63 -> S32
