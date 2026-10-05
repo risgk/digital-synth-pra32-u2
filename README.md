@@ -257,15 +257,18 @@ flowchart LR
 - The EG and LFO modulations themselves are not smoothed (not delayed)
 - 2 stages (10.7 ms average delay, 99% in 35 ms), which round off the corners of the steps, for the amounts and the balances below
 - The amounts (of the tone, the level, or a modulation), whose steps are easily heard
-    - Filter Cutoff (with Breath Controller x Breath Filter Amt), Filter Resonance, Filter EG Amt, LFO Filter Amt
+    - Filter Cutoff, Filter Resonance, Filter EG Amt, LFO Filter Amt, Breath Filter Amt
     - Osc 1 Shape
     - EG Mod Amt and LFO Mod Amt, when EG Mod Dst and LFO Mod Dst are F (Filter Cutoff) or 1S (Osc 1 Shape)
-    - Amp Gain x Expression x Breath Controller (Breath Amp Mod)
+    - Amp Gain
     - LFO Depth (with LFO Fade Time, Modulation, and After Touch)
     - Chorus Level, Chorus Depth, Delay Level, Delay Feedback
 - The balances (between two sounds, or left and right), which keep the total amount about the same
     - Osc 1 Morph, Mixer Osc Mix, Mixer Noise/Sub Osc, Pan
     - For the Sine Wave and the Wave Tables, the smoothed Osc 1 Morph is rounded to the controller value, as it switches the ratio or the table step by step
+- 1 stage (0.6 ms time constant, 95% in 1.7 ms), for the performance controllers, whose attack must not be softened, but whose steps must not click
+    - Breath Controller (x Breath Filter Amt)
+    - Expression x Breath Controller (Breath Amp Mod)
 - 1 stage, for the Delay Time (5.3 ms), which moves in its own way
     - The Delay Time is also slew-limited, bending the pitch of the echoes (within +/-25%), as on a tape delay
 - The smoothed parameters are calculated in fine steps (not in the controller value steps)
