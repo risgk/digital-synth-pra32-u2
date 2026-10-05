@@ -65,7 +65,7 @@ static INLINE int32_t approach_exp_wide(int32_t current_value, int32_t target_va
 // (once per 8 samples): the amounts in the even periods, and the balances in
 // the odd periods, so that the load is spread (see is_balance_smoothing_period()).
 // The EG and LFO modulations themselves are not smoothed, so they are not delayed.
-// - Slow: approach_exp_slow(), 2 stages at the rate 2048 at 6 kHz (10.7 ms average delay, 99% in 35 ms),
+// - Slow: approach_exp_slow(), 2 stages at the rate 4096 at 6 kHz (5.3 ms average delay, 99% in 18 ms),
 //   for the amounts (of the tone, the level, or a modulation), whose steps are easily heard
 //   - Filter: Cutoff, Resonance, Filter EG Amt, LFO Filter Amt, Breath Filter Amt,
 //     EG/LFO Mod Amt (Dst: F)
@@ -105,13 +105,15 @@ static INLINE bool is_balance_smoothing_period(uint8_t count) {
 
 // Slower smoothing for the parameters whose steps are easily heard (e.g. the
 // Filter Cutoff at a high Resonance, moved by a MIDI controller that sends
-// sparse CCs), for a call at 6 kHz: two cascaded stages at the rate 2048
-// (a time constant of 5.3 ms each) have the same average delay as one stage at
-// the rate 1024 (10.7 ms), but start from slope 0, so that the corners of the
-// steps of the target are rounded off, and settle sooner (99% in 35 ms).
-// To use one stage at the rate 1024 instead, set SLOW_SMOOTH_TWO_STAGES to false
+// sparse CCs), for a call at 6 kHz: two cascaded stages at the rate 4096
+// (a time constant of 2.7 ms each) have the same average delay as one stage at
+// the rate 2048 (5.3 ms), but start from slope 0, so that the corners of the
+// steps of the target are rounded off, and settle sooner (99% in 18 ms).
+// It is not slower than that, so that the Cutoff and the other parameters sent
+// by the breath of some MIDI controllers (e.g. wind controllers) follow the breath.
+// To use one stage at the rate 2048 instead, set SLOW_SMOOTH_TWO_STAGES to false
 static const bool    SLOW_SMOOTH_TWO_STAGES = true;
-static const uint8_t SLOW_SMOOTH_SHIFT      = SLOW_SMOOTH_TWO_STAGES ? 5 : 6;  // The rate 2048 or 1024
+static const uint8_t SLOW_SMOOTH_SHIFT      = SLOW_SMOOTH_TWO_STAGES ? 4 : 5;  // The rate 4096 or 2048
 
 // Same result as approach_exp_wide() with the rate (65536 >> SHIFT), without
 // the 64-bit product: the step is the difference divided by (1 << SHIFT),
