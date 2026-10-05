@@ -47,4 +47,17 @@ public:
     array[6] = (m_state_a      >> 16) & 0xFFu;
     array[7] = (m_state_a      >> 24) & 0xFFu;
   }
+
+  // Random values outside the audio processing: step a copy of the state, so
+  // that the noise sequence is not disturbed
+  INLINE uint32_t get_state() {
+    return m_state_a;
+  }
+
+  static INLINE uint32_t next_state(uint32_t x) {
+    x ^= x << 13;
+    x ^= x >> 17;
+    x ^= x << 5;
+    return x;
+  }
 };

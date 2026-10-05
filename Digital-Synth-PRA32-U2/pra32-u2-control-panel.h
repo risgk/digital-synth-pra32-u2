@@ -664,6 +664,15 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
 
         s_ready_to_panic = false;
       }
+    } else if (s_adc_control_target[adc_number] == RAND_SYNTH_OP) {
+      static boolean s_ready_to_rand_synth;
+      if (s_adc_control_value[adc_number] <= 32) {
+        s_ready_to_rand_synth = true;
+      } else if (s_ready_to_rand_synth && (s_adc_control_value[adc_number] >= 96)) {
+        handleProgramChange(getTargetMIDICh(s_current_synth), 127);
+
+        s_ready_to_rand_synth = false;
+      }
     }
 
     return true;
@@ -937,6 +946,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case  SEQ_RAND_PITCH :
   case  SEQ_RAND_VELO  :
   case  PANIC_OP       :
+  case  RAND_SYNTH_OP  :
     {
       if        (controller_value <= 32) {
         value_display_text[0] = 'R';

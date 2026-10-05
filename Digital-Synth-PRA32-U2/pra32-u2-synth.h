@@ -247,6 +247,7 @@ class PRA32_U2_Synth {
   uint8_t           m_program_number_to_write;
   uint8_t           m_wr_prog_to_flash_cc_value;
   uint8_t           m_sp_prog_chg_cc_values[8];
+  uint8_t           m_sp_rand_ctrl_cc_value;
   uint8_t           m_current_controller_value_table[128 + 128];
   uint8_t           m_program_table[128][PROGRAM_NUMBER_MAX + 1];
   uint8_t           m_program_table_panel[2][128 + 128];
@@ -296,6 +297,7 @@ public:
   , m_program_number_to_write(8)
   , m_wr_prog_to_flash_cc_value(0)
   , m_sp_prog_chg_cc_values()
+  , m_sp_rand_ctrl_cc_value()
   , m_current_controller_value_table()
   , m_program_table()
   , m_program_table_panel()
@@ -1384,6 +1386,17 @@ if constexpr (NO_FX == false) {
         }
       }
       break;
+
+    // Special Random Control
+    case SP_RAND_CTRL   :
+      {
+        uint8_t old_value = m_sp_rand_ctrl_cc_value;
+        m_sp_rand_ctrl_cc_value = controller_value;
+        if ((old_value <= 63) && (controller_value >= 64)) {
+          set_random();
+        }
+      }
+      break;
     }
   }
 
@@ -1424,6 +1437,9 @@ if constexpr (NO_FX == false) {
           uint32_t control_number = s_program_table_panel_parameters[i];
           control_change(control_number, m_program_table_panel[program_number - 128][control_number]);
         }
+      } else if (program_number == 127) {
+        // Program #127: Random Control
+        set_random();
       }
       return;
     }
@@ -1431,6 +1447,41 @@ if constexpr (NO_FX == false) {
     for (uint32_t i = 0; i < sizeof(s_program_table_parameters) / sizeof(s_program_table_parameters[0]); ++i) {
       uint32_t control_number = s_program_table_parameters[i];
       control_change(control_number, m_program_table[control_number][program_number]);
+    }
+  }
+
+  /* INLINE */ void __not_in_flash_func(set_random)() {
+    uint32_t rand_state = m_noise_gen.get_state();
+
+    for (uint32_t i = 0; i < sizeof(s_program_table_parameters) / sizeof(s_program_table_parameters[0]); ++i) {
+      uint32_t control_number = s_program_table_parameters[i];
+      if ((control_number != VOICE_MODE     ) &&
+          (control_number != AMP_GAIN       ) &&
+          (control_number != CHORUS_MIX     ) &&
+          (control_number != CHORUS_RATE    ) &&
+          (control_number != CHORUS_DEPTH   ) &&
+          (control_number != DELAY_LEVEL    ) &&
+          (control_number != DELAY_TIME     ) &&
+          (control_number != DELAY_FEEDBACK ) &&
+          (control_number != DELAY_MODE     ) &&
+          (control_number != A_D_VEL_SENS   ) &&
+          (control_number != REL_VEL_SENS   ) &&
+          (control_number != EG_VEL_SENS    ) &&
+          (control_number != AMP_VEL_SENS   ) &&
+          (control_number != VOICE_ASGN_MODE) &&
+          (control_number != A_D_KEY_TRK    ) &&
+          (control_number != PAN            ) &&
+          (control_number != STRETCH_TUNE   ) &&
+          (control_number != OSC_DRIFT      ) &&
+          (control_number != OSC_SAW_W_MODE ) &&
+          (control_number != COARSE_TUNE    ) &&
+          (control_number != FINE_TUNE      ) &&
+          (control_number != BTH_FILTER_AMT ) &&
+          (control_number != BTH_AMP_MOD    ) &&
+          (control_number != AFT_T_LFO_AMT  )) {
+        rand_state = PRA32_U2_NoiseGen::next_state(rand_state);
+        control_change(control_number, rand_state >> 25);
+      }
     }
   }
 
@@ -1522,19 +1573,25 @@ if constexpr (BYPASS_SYNTH == false) {
     switch (m_count & (0x04 - 1)) {
     case 0x00:
       {
-        m_lfo.process_at_low_rate(m_count >> 2, noise_int23);
+        m_lfo.process_at_low_rate<RESTRICT_POLY_AND_CORES>(m_count >> 2, noise_int23);
 
         m_eg[0].process_at_low_rate();
         m_eg[1].process_at_low_rate();
         int32_t lfo_output = m_lfo.get_output<0>();
         m_osc.process_at_low_rate<0>(m_count >> 2, lfo_output, m_eg[0].get_output(), noise_int23);
-        m_filter[0].process_at_low_rate<0>(m_count >> 2, m_eg[0].get_output(), lfo_output, m_osc.get_osc_pitch(0), noise_int23);
-        m_amp[0].process_at_low_rate(branchless_conditional(m_controller_value_eg_amp_mod >= 64, m_eg[0].get_output(), m_eg[1].get_output()));
+        // The smoothing of the Filter and Amp parameters is the same for all voices,
+        // so it is done once by m_filter[0] and m_amp[0], and read by all voices
+        if (is_slow_smoothing_period(m_count >> 2)) {
+          m_filter[0].update_smoothing();
+          m_amp[0].update_smoothing();
+        }
+        m_filter[0].process_at_low_rate<0>(m_count >> 2, m_eg[0].get_output(), lfo_output, m_osc.get_osc_pitch(0), noise_int23, m_filter[0]);
+        m_amp[0].process_at_low_rate(branchless_conditional(m_controller_value_eg_amp_mod >= 64, m_eg[0].get_output(), m_eg[1].get_output()), m_amp[0]);
       }
       break;
     case 0x01:
       {
-        m_osc.process_at_low_rate_global();
+        m_osc.process_at_low_rate_global(m_count >> 2);
 
 #if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)
 if constexpr (RESTRICT_POLY_AND_CORES == false) {
@@ -1543,13 +1600,13 @@ if (m_voice_mode == VOICE_POLYPHONIC) {
         m_eg[3].process_at_low_rate();
         int32_t lfo_output = m_lfo.get_output<1>();
         m_osc.process_at_low_rate<1>(m_count >> 2, lfo_output, m_eg[2].get_output(), noise_int23);
-        m_filter[1].process_at_low_rate<1>(m_count >> 2, m_eg[2].get_output(), lfo_output, m_osc.get_osc_pitch(1), noise_int23);
-        m_amp[1].process_at_low_rate(branchless_conditional(m_controller_value_eg_amp_mod >= 64, m_eg[2].get_output(), m_eg[3].get_output()));
+        m_filter[1].process_at_low_rate<1>(m_count >> 2, m_eg[2].get_output(), lfo_output, m_osc.get_osc_pitch(1), noise_int23, m_filter[0]);
+        m_amp[1].process_at_low_rate(branchless_conditional(m_controller_value_eg_amp_mod >= 64, m_eg[2].get_output(), m_eg[3].get_output()), m_amp[0]);
 }
 }
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)
 
-        m_panner.process_at_low_rate();
+        m_panner.process_at_low_rate(m_count >> 2);
       }
       break;
     case 0x02:
@@ -1561,8 +1618,8 @@ if (m_voice_mode == VOICE_POLYPHONIC) {
         m_eg[5].process_at_low_rate();
         int32_t lfo_output = m_lfo.get_output<2>();
         m_osc.process_at_low_rate<2>(m_count >> 2, lfo_output, m_eg[4].get_output(), noise_int23);
-        m_filter[2].process_at_low_rate<2>(m_count >> 2, m_eg[4].get_output(), lfo_output, m_osc.get_osc_pitch(2), noise_int23);
-        m_amp[2].process_at_low_rate(branchless_conditional(m_controller_value_eg_amp_mod >= 64, m_eg[4].get_output(), m_eg[5].get_output()));
+        m_filter[2].process_at_low_rate<2>(m_count >> 2, m_eg[4].get_output(), lfo_output, m_osc.get_osc_pitch(2), noise_int23, m_filter[0]);
+        m_amp[2].process_at_low_rate(branchless_conditional(m_controller_value_eg_amp_mod >= 64, m_eg[4].get_output(), m_eg[5].get_output()), m_amp[0]);
 }
 }
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)
@@ -1581,8 +1638,8 @@ if (m_voice_mode == VOICE_POLYPHONIC) {
         m_eg[7].process_at_low_rate();
         int32_t lfo_output = m_lfo.get_output<3>();
         m_osc.process_at_low_rate<3>(m_count >> 2, lfo_output, m_eg[6].get_output(), noise_int23);
-        m_filter[3].process_at_low_rate<3>(m_count >> 2, m_eg[6].get_output(), lfo_output, m_osc.get_osc_pitch(3), noise_int23);
-        m_amp[3].process_at_low_rate(branchless_conditional(m_controller_value_eg_amp_mod >= 64, m_eg[6].get_output(), m_eg[7].get_output()));
+        m_filter[3].process_at_low_rate<3>(m_count >> 2, m_eg[6].get_output(), lfo_output, m_osc.get_osc_pitch(3), noise_int23, m_filter[0]);
+        m_amp[3].process_at_low_rate(branchless_conditional(m_controller_value_eg_amp_mod >= 64, m_eg[6].get_output(), m_eg[7].get_output()), m_amp[0]);
 }
 }
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)

@@ -1,6 +1,6 @@
 ```
-  [Polyphonic Synthesizer]                                        Date: 2026-09-30                      
-  Model: Digital Synth PRA32-U2   MIDI Implementation Chart       Version: 3.4.1                        
+  [Polyphonic Synthesizer]                                        Date: 2026-10-05                      
+  Model: Digital Synth PRA32-U2   MIDI Implementation Chart       Version: 3.5.0                        
 +-------------------------------+---------------+---------------+--------------------------------------+
 | Function...                   | Transmitted   | Recognized    | Remarks                              |
 +-------------------------------+---------------+---------------+--------------------------------------+
@@ -114,10 +114,10 @@
 |                           117 | x             | o             | Program Change #5 by CC              |
 |                           118 | x             | o             | Program Change #6 by CC              |
 |                           119 | x             | o             | Program Change #7 by CC              |
-|                           111 | x             | x             | [Reserved]                           |
+|                           111 | x             | o             | Random Synth Params $8               |
 +-------------------------------+---------------+---------------+--------------------------------------+
 | Program                       | x             | o             |                                      |
-| Change       : True #         | ************* | 0-31          | Default 0                            |
+| Change       : True #         | ************* | 0-31, 127     | Default 0, #127: Random Synth Params |
 +-------------------------------+---------------+---------------+--------------------------------------+
 | System Exclusive              | x             | x             |                                      |
 +-------------------------------+---------------+---------------+--------------------------------------+
@@ -143,6 +143,8 @@
 |                               | $5 : Basic Channel can be changed in PRA32-U2/P                      |
 |                               | $6 : o in PRA32-U2/P (No transmission via USB MIDI)                  |
 |                               | $7 : o in PRA32-U2/P if Seq Clock Src is External                    |
+|                               | $8 : Randomize the synth parameters (as "Randomize Synth Prms" in    |
+|                               |   PRA32-U2 Editor) when changed from 0-63 to 64-127                  |
 +-------------------------------+----------------------------------------------------------------------+
   Mode 1: Omni On,  Poly          Mode 2: Omni On,  Mono          o: Yes                                
   Mode 3: Omni Off, Poly          Mode 4: Omni Off, Mono          x: No                                 
