@@ -67,10 +67,10 @@ static INLINE int32_t approach_exp_wide(int32_t current_value, int32_t target_va
 // The EG and LFO modulations themselves are not smoothed, so they are not delayed.
 // - Slow: approach_exp_slow(), 2 stages at the rate 2048 at 6 kHz (10.7 ms average delay, 99% in 35 ms),
 //   for the amounts (of the tone, the level, or a modulation), whose steps are easily heard
-//   - Filter: Cutoff (with the Breath Controller x Breath Filter Amt), Resonance,
-//     Filter EG Amt, LFO Filter Amt, EG/LFO Mod Amt (Dst: F)
+//   - Filter: Cutoff, Resonance, Filter EG Amt, LFO Filter Amt, Breath Filter Amt,
+//     EG/LFO Mod Amt (Dst: F)
 //   - Osc: Osc 1 Shape, EG/LFO Mod Amt (Dst: 1S)
-//   - Amp: Amp Gain x Expression x Breath Controller (Breath Amp Mod)
+//   - Amp: Amp Gain
 //   - LFO: LFO Depth (the sum with the LFO Fade, the Modulation, and the After Touch, per voice)
 //   - Chorus FX: Chorus Level, Chorus Depth, the base delay time (internal)
 //   - Delay FX: Delay Level, Delay Feedback (with the Reverb table interpolated)
@@ -80,6 +80,10 @@ static INLINE int32_t approach_exp_wide(int32_t current_value, int32_t target_va
 //     Wave Tables, which switch the ratio or the table step by step), Mixer Osc Mix (in Q16),
 //     Mixer Noise/Sub Osc (in 1/16 steps)
 //   - Panner: Pan (in Q16)
+// - Fast: approach_exp_fast(), 1 stage at the rate 16384 at 6 kHz (0.6 ms time constant, 95% in 1.7 ms),
+//   for the performance controllers, whose attack must not be softened, but whose steps must not click
+//   - Filter: the Breath Controller (x Breath Filter Amt)
+//   - Amp: Expression x Breath Controller (Breath Amp Mod)
 // - Normal: 1 stage, for the Delay Time, which moves in its own way
 //   - Delay FX: Delay Time (in Q8, at 6 kHz, i.e. 5.3 ms, and slew-limited)
 // - Others
@@ -116,6 +120,13 @@ template <uint8_t SHIFT>
 static INLINE int32_t approach_exp_shift(int32_t current_value, int32_t target_value) {
   int32_t delta = target_value - current_value;
   return current_value + ((delta + (((1 << SHIFT) - 1) & ~(delta >> 31))) >> SHIFT);
+}
+
+// 1 stage at the rate 16384 at 6 kHz (0.6 ms time constant, 95% in 1.7 ms),
+// for the performance controllers (the Expression and the Breath Controller),
+// whose attack must not be softened, but whose steps must not click
+static INLINE int32_t approach_exp_fast(int32_t current_value, int32_t target_value) {
+  return approach_exp_shift<2>(current_value, target_value);
 }
 
 static INLINE int32_t approach_exp_slow(int32_t& stage_1, int32_t& stage_2, int32_t target_value) {

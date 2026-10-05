@@ -13,7 +13,9 @@ class PRA32_U2_Amp {
   int32_t m_gain_mod_input;
   uint8_t m_breath_mod;
   uint8_t m_breath_controller;
-  int32_t m_total_gain_linear_stage_1;
+  int32_t m_gain_linear_stage_1;
+  int32_t m_gain_linear_current;        // Q24 (the gain in Q16, shifted left by 8)
+  int32_t m_expression_breath_linear_current;  // Q24
   int32_t m_total_gain_linear_current;  // Q24 (the gain in Q16, shifted left by 8)
   int32_t m_output_gain_current;
   int32_t m_output_gain_next;
@@ -26,7 +28,9 @@ PRA32_U2_Amp()
   , m_gain_mod_input(0)
   , m_breath_mod()
   , m_breath_controller()
-  , m_total_gain_linear_stage_1()
+  , m_gain_linear_stage_1()
+  , m_gain_linear_current()
+  , m_expression_breath_linear_current()
   , m_total_gain_linear_current()
   , m_output_gain_current()
   , m_output_gain_next()
@@ -80,9 +84,14 @@ PRA32_U2_Amp()
   }
 
 private:
+  // Q24
   INLINE int32_t calc_gain_linear_target() {
-    return ((((m_gain * m_gain) * 16384) / 16129) *
-            (((m_expression * m_expression) * 16384) / 16129)) >> (14 - 2);
+    return (((m_gain * m_gain) * 16384) / 16129) << (2 + 8);
+  }
+
+  // Q24
+  INLINE int32_t calc_expression_breath_linear_target() {
+    return ((((m_expression * m_expression) * 16384) / 16129) * calc_breath_gain_linear_target()) >> (14 - 8);
   }
 
   INLINE int32_t calc_breath_gain_linear_target() {
@@ -95,11 +104,13 @@ private:
             (val_mod_0 * (m_breath_mod == 0))) << 2;
   }
 
-  // Combine gain/expression and breath into a single smoothed multiplier.
-  // The Breath Controller is often sent in sparse and irregular steps, so the
-  // smoothing is slower, in Q24 so that the tail is not held to 1 step of Q16
+  // Combine the smoothed gain and the smoothed expression/breath into a single
+  // multiplier, in Q24 so that the tail is not held to 1 step of Q16.
+  // The Expression and the Breath Controller are smoothed fast (see
+  // approach_exp_fast()), so that the attack of a wind controller is not softened
   INLINE void update_total_gain_current() {
-    int32_t total_gain_linear_target = multiply_shift_right(calc_gain_linear_target(), calc_breath_gain_linear_target(), 16);
-    approach_exp_slow(m_total_gain_linear_stage_1, m_total_gain_linear_current, total_gain_linear_target << 8);
+    approach_exp_slow(m_gain_linear_stage_1, m_gain_linear_current, calc_gain_linear_target());
+    m_expression_breath_linear_current = approach_exp_fast(m_expression_breath_linear_current, calc_expression_breath_linear_target());
+    m_total_gain_linear_current = multiply_shift_right(m_gain_linear_current, m_expression_breath_linear_current, 24);
   }
 };
