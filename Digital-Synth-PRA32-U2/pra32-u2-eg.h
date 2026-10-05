@@ -149,10 +149,9 @@ public:
       break;
 
     case STATE_SUSTAIN:
-      {
-        int32_t effective_sustain = minimum(m_sustain_level, m_level);
-        m_level = effective_sustain + (multiply_shift_right((m_level - effective_sustain), m_decay_coef, 32) << 2);
-      }
+      // Raising the sustain level raises the level immediately
+      m_level = maximum(m_level, m_sustain_level);
+      m_level = m_sustain_level + (multiply_shift_right((m_level - m_sustain_level), m_decay_coef, 32) << 2);
       break;
 
     case STATE_IDLE:
