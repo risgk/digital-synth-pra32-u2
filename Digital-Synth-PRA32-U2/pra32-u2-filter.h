@@ -121,8 +121,12 @@ class PRA32_U2_Filter {
   uint8_t m_filter_mode;               // 0: Low Pass, 1: Band Pass, 2: High Pass
   int16_t m_cutoff_breath_amt;
   int16_t m_breath_controller;
-  int32_t m_cutoff_base_stage_1;
-  int32_t m_cutoff_base_current;       // Smooth state variable for the base cutoff and the Breath modulation
+  int16_t m_breath_controller_current;
+  int32_t m_cutoff_breath_amt_stage_1;
+  int32_t m_cutoff_breath_amt_current; // Q16
+  int32_t m_cutoff_target_stage_1;
+  int32_t m_cutoff_target_current;     // Smooth state variable for the Cutoff
+  int32_t m_cutoff_base_current;       // The smoothed Cutoff with the Breath modulation
   uint16_t m_cutoff_drift;
   int32_t m_cutoff_drift_noise;
 
@@ -154,7 +158,11 @@ public:
   , m_filter_mode()
   , m_cutoff_breath_amt()
   , m_breath_controller()
-  , m_cutoff_base_stage_1()
+  , m_breath_controller_current()
+  , m_cutoff_breath_amt_stage_1()
+  , m_cutoff_breath_amt_current()
+  , m_cutoff_target_stage_1()
+  , m_cutoff_target_current()
   , m_cutoff_base_current()
   , m_cutoff_drift()
   , m_cutoff_drift_noise()
@@ -168,7 +176,9 @@ public:
     set_cutoff_pitch_amt(0);
 
     // Bootstrap initial smooth states to prevent sudden filter sweeps on power-up
-    m_cutoff_base_stage_1 = m_cutoff_base_current = m_cutoff_target;
+    m_cutoff_target_stage_1 = m_cutoff_target_current = m_cutoff_target;
+    m_cutoff_breath_amt_stage_1 = m_cutoff_breath_amt_current = 0;
+    m_cutoff_base_current = m_cutoff_target_current;
     m_cutoff_eg_amt_stage_1[0] = m_cutoff_eg_amt_current[0] = static_cast<int32_t>(m_cutoff_eg_amt_target[0]) << 16;
     m_cutoff_eg_amt_stage_1[1] = m_cutoff_eg_amt_current[1] = static_cast<int32_t>(m_cutoff_eg_amt_target[1]) << 16;
     m_cutoff_lfo_amt_stage_1[0] = m_cutoff_lfo_amt_current[0] = 0;
@@ -252,8 +262,10 @@ public:
     m_cutoff_drift_noise = 0;
     // The smoothing states jump to their targets while the sound is off, so
     // that the next note does not start with a slow filter sweep
-    m_cutoff_base_stage_1 = m_cutoff_base_current =
-      clamp(m_cutoff_target + ((m_breath_controller * m_cutoff_breath_amt) << 1), 0, CONTROLLER_VALUE_Q16_MAX);
+    m_cutoff_target_stage_1 = m_cutoff_target_current = m_cutoff_target;
+    m_cutoff_breath_amt_stage_1 = m_cutoff_breath_amt_current = static_cast<int32_t>(m_cutoff_breath_amt) << 16;
+    m_breath_controller_current = m_breath_controller;
+    update_cutoff_base_current();
     m_cutoff_eg_amt_stage_1[0] = m_cutoff_eg_amt_current[0] = static_cast<int32_t>(m_cutoff_eg_amt_target[0]) << 16;
     m_cutoff_eg_amt_stage_1[1] = m_cutoff_eg_amt_current[1] = static_cast<int32_t>(m_cutoff_eg_amt_target[1]) << 16;
     m_cutoff_lfo_amt_stage_1[0] = m_cutoff_lfo_amt_current[0] = static_cast<int32_t>(m_cutoff_lfo_amt[0]) << 16;
@@ -263,15 +275,26 @@ public:
   // The base cutoff, the Resonance, and the Amt parameters are the same for
   // all voices, so they are smoothed by one Filter (m_filter[0]) only, which
   // every Filter reads in process_at_low_rate().
-  // These steps are emphasized at a high Resonance, so the smoothing is slower
+  // These steps are emphasized at a high Resonance, so the smoothing is slower.
+  // The Breath Controller itself is smoothed fast (see approach_exp_fast()),
+  // so that the attack of the breath is not softened
   INLINE void update_smoothing() {
-    int32_t base_target = clamp(m_cutoff_target + ((m_breath_controller * m_cutoff_breath_amt) << 1), 0, CONTROLLER_VALUE_Q16_MAX);
-    approach_exp_slow(m_cutoff_base_stage_1, m_cutoff_base_current, base_target);
+    approach_exp_slow(m_cutoff_target_stage_1, m_cutoff_target_current, m_cutoff_target);
+    approach_exp_slow(m_cutoff_breath_amt_stage_1, m_cutoff_breath_amt_current, static_cast<int32_t>(m_cutoff_breath_amt) << 16);
+    m_breath_controller_current = approach_exp_fast(m_breath_controller_current, m_breath_controller);
+    update_cutoff_base_current();
     approach_exp_slow(m_resonance_stage_1, m_resonance_current, static_cast<int32_t>(m_resonance_target) << 16);
     for (int i = 0; i < 2; ++i) {
       approach_exp_slow(m_cutoff_eg_amt_stage_1[i],  m_cutoff_eg_amt_current[i],  static_cast<int32_t>(m_cutoff_eg_amt_target[i]) << 16);
       approach_exp_slow(m_cutoff_lfo_amt_stage_1[i], m_cutoff_lfo_amt_current[i], static_cast<int32_t>(m_cutoff_lfo_amt[i])       << 16);
     }
+  }
+
+  // (m_breath_controller_current * (m_cutoff_breath_amt_current >> 8)) >> 7 is
+  // (m_breath_controller * m_cutoff_breath_amt) << 1 in the steady state
+  INLINE void update_cutoff_base_current() {
+    m_cutoff_base_current = clamp(m_cutoff_target_current + ((m_breath_controller_current * (m_cutoff_breath_amt_current >> 8)) >> 7),
+                                  0, CONTROLLER_VALUE_Q16_MAX);
   }
 
   template <uint8_t N>

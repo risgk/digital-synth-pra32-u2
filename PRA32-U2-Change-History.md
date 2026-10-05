@@ -1,5 +1,9 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v3.5.1 (2026-10-05):
+    - Fix the Expression and the Breath Controller being smoothed slowly since v3.5.0, which softened the attack of wind controllers; they are now smoothed fast (1 stage, 0.6 ms time constant, 95% in 1.7 ms), while the Amp Gain and the Breath Filter Amt are still smoothed slowly
+    - Change the EG to raise the level right away when the Sustain is raised in the sustain state (it used to stay at the level)
+    - Tested with Arduino-Pico version 6.1.1
 - v3.5.0 (2026-10-05):
     - Add the Random Synth Params by Control Change #111 (from 0-63 to 64-127) and Program Change #127, as "Randomize Synth Prms" in PRA32-U2 Editor (the random values come from the Noise Gen)
     - Change the Filter self-oscillation level at the Resonance 127 from 0.5 to 0.4 (0.18 at 123, 0.31 at 125), so that it stays in balance with the Osc while playing
