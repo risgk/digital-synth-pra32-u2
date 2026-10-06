@@ -70,7 +70,7 @@ flowchart LR
     SUM -->|HP| MS["Filter Mode<br/>LP / BP / HP"]
     I1 -->|BP| MS
     I2 -->|LP| MS
-    MS --> OC["Output clip<br/>linear up to 0.5"]
+    MS --> OC["Output clip<br/>linear up to 0.75"]
     OC --> OUT([Output])
     SC["State clip<br/>ceiling 4.0, α comp."] -.- I1
     L2["s2 is linear<br/>guard clamp at 16"] -.- I2
@@ -81,7 +81,7 @@ flowchart LR
 ```
 
 The same structure redrawn as an op-amp integrator filter. The diode pair stands for the state
-clip and the output limiter for the output clip. It is an interpretation, not a reproduction of
+clip and the output clipper for the output clip. It is an interpretation, not a reproduction of
 an actual circuit.
 
 ```mermaid
@@ -93,7 +93,7 @@ flowchart LR
     A1 -->|HP| MS["Filter Mode<br/>LP / BP / HP"]
     A2 -->|BP| MS
     A3 -->|LP| MS
-    MS --> LIM["Output limiter"]
+    MS --> LIM["Output clipper"]
     LIM --> OUT([Output])
     A2 -->|"R/k (resonance)"| A1
     A3 -->|R| A1
