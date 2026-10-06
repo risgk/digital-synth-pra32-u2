@@ -10,6 +10,25 @@ struct PRA32_U2_StereoSample {
   int32_t right;
 };
 
+// The FX inputs, indexed by the FX Routing; each synth adds its output to one of them
+const uint8_t FX_BUS_CHORUS = 0;
+const uint8_t FX_BUS_DELAY  = 1;
+const uint8_t FX_BUS_BYPASS = 2;
+
+struct PRA32_U2_FxBusSample {
+  PRA32_U2_StereoSample input[3];
+};
+
+// Not "= {}", which -Os compiles into a call to memset() in the flash (through a veneer)
+static INLINE void clear_fx_bus(PRA32_U2_FxBusSample& fx_bus) {
+  fx_bus.input[0].left  = 0;
+  fx_bus.input[0].right = 0;
+  fx_bus.input[1].left  = 0;
+  fx_bus.input[1].right = 0;
+  fx_bus.input[2].left  = 0;
+  fx_bus.input[2].right = 0;
+}
+
 static INLINE uint8_t low_byte(uint16_t x) {
   return x & 0xFF;
 }

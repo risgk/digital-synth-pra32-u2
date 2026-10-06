@@ -2,7 +2,7 @@
  * Digital Synth PRA32-U2/M
  */
 
-#define PRA32_U2_VERSION                       "v3.5.2    "
+#define PRA32_U2_VERSION                       "v3.6.0    "
 
 //#define PRA32_U2_USE_DEBUG_PRINT
 
@@ -26,16 +26,14 @@
 // for Pimoroni Pico Audio Pack (PIM544)
 #define PRA32_U2_I2S_DAC_MUTE_OFF_PIN          (22)
 #define PRA32_U2_I2S_DATA_PIN                  (9)
-//#define PRA32_U2_I2S_MCLK_PIN                  (0)
-//#define PRA32_U2_I2S_MCLK_MULT                 (0)
 #define PRA32_U2_I2S_BCLK_PIN                  (10)  // LRCLK Pin is PRA32_U2_I2S_BCLK_PIN + 1
 #define PRA32_U2_I2S_SWAP_BCLK_AND_LRCLK_PINS  (false)
 #define PRA32_U2_I2S_SWAP_LEFT_AND_RIGHT       (false)
 
-#define PRA32_U2_I2S_BUFFERS                   (2)
-#define PRA32_U2_I2S_BUFFER_WORDS              (64)
+#define PRA32_U2_I2S_BUFFERS                   (2)   // Output buffer (maximum latency): 2 * 64 = 128 frames (2.7 ms)
+#define PRA32_U2_I2S_BUFFER_WORDS              (64)  // Frames per buffer (= frames processed in each loop)
 
-//#define PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S  // Select CPU Speed: "150 MHz" in the Arduino IDE "Tools" menu
+//#define PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S
 
 // for Pimoroni Pico VGA Demo Base (PIM553)
 #define PRA32_U2_PWM_AUDIO_L_PIN               (28)
@@ -98,8 +96,8 @@ uint8_t g_midi_ch = PRA32_U2_MIDI_CH;
 #include "pra32-u2-synth.h"
 
 boolean g_synth_is_in_polyphonic_mode = true;
-PRA32_U2_Synth<false, true,  true, 0, false, false> g_synth;
-PRA32_U2_Synth<true,  true,  true, 1, false, true>  g_sub_1_synth;
+PRA32_U2_Synth<false, false, true, 0, false, false> g_synth;
+PRA32_U2_Synth<true,  false, true, 1, false, true>  g_sub_1_synth;
 PRA32_U2_Synth<true,  false, true, 2, false, true>  g_sub_2_synth;
 PRA32_U2_Synth<true,  false, true, 3, false, true>  g_sub_3_synth;
 
@@ -121,13 +119,12 @@ MIDI_CREATE_CUSTOM_INSTANCE(HardwareSerial, PRA32_U2_UART_MIDI_SERIAL, UART_MIDI
 #include "pra32-u2-control-panel.h"
 
 #if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
-#include <PWMAudio.h>
-PWMAudio g_pwm_l(PRA32_U2_PWM_AUDIO_L_PIN);
-PWMAudio g_pwm_r(PRA32_U2_PWM_AUDIO_R_PIN);
+#include "pra32-u2-pwm-audio.h"
+PRA32_U2_PWMAudioOutput g_pwm_output(PRA32_U2_PWM_AUDIO_L_PIN, PRA32_U2_PWM_AUDIO_R_PIN);
 #endif  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
 
-#include <I2S.h>
-I2S g_i2s_output(OUTPUT);
+#include "pra32-u2-i2s.h"
+PRA32_U2_I2SOutput g_i2s_output;
 
 static volatile uint32_t s_debug_measurement_min0_us     = UINT32_MAX;
 static volatile uint32_t s_debug_measurement_max0_us     = 0;
@@ -136,7 +133,8 @@ static volatile uint32_t s_debug_measurement_max1_us     = 0;
 static volatile uint32_t s_debug_measurement_counted     = 0;
 
 static volatile uint32_t s_secondary_core_processing_request  = 0;
-static PRA32_U2_StereoSample s_secondary_core_processing_result = { 0, 0 };
+// The FX inputs, which each synth adds its output to by its FX Routing (on both cores)
+static PRA32_U2_FxBusSample s_fx_bus = {};
 
 void handleNoteOn(byte channel, byte pitch, byte velocity);
 void handleNoteOff(byte channel, byte pitch, byte velocity);
@@ -174,17 +172,23 @@ void __not_in_flash_func(loop1)() {
   boolean processed = false;
 
   if (s_secondary_core_processing_request == 1) {
+    PRA32_U2_StereoSample sub_3_synth_output = { 0, 0 };
+    PRA32_U2_StereoSample sub_1_synth_output = { 0, 0 };
     if (g_synth_is_in_polyphonic_mode == false) {
-      PRA32_U2_StereoSample sub_3_synth_output = g_sub_3_synth.process(0, 0);
-      s_secondary_core_processing_result = g_sub_1_synth.process<false, true>(sub_3_synth_output.left, sub_3_synth_output.right);
-    } else {
-      s_secondary_core_processing_result = { 0, 0 };
+      sub_3_synth_output = g_sub_3_synth.process(0, 0);
+      sub_1_synth_output = g_sub_1_synth.process(0, 0);
     }
 
     while (processed == false) {
       processed = g_synth.secondary_core_process();
     }
 
+    // Added after the Main Synth's Voices 2 and 3, which the primary core waits for in
+    // the middle of g_synth.process(), so that it is done while that goes on
+    g_sub_3_synth.add_to_fx_bus(sub_3_synth_output, s_fx_bus);
+    g_sub_1_synth.add_to_fx_bus(sub_1_synth_output, s_fx_bus);
+
+    __compiler_memory_barrier();
     s_secondary_core_processing_request = 0;
     processed = true;
   }
@@ -236,40 +240,20 @@ void __not_in_flash_func(loop1)() {
 
 void __not_in_flash_func(setup)() {
 #if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
+  g_pwm_output.setSysClk(SAMPLING_RATE);
   pinMode(PRA32_U2_PWM_AUDIO_L_PIN, OUTPUT_12MA);
   pinMode(PRA32_U2_PWM_AUDIO_R_PIN, OUTPUT_12MA);
-#if ((PRA32_U2_PWM_AUDIO_L_PIN + 1) == PRA32_U2_PWM_AUDIO_R_PIN) && ((PRA32_U2_PWM_AUDIO_L_PIN % 2) == 0)
-  g_pwm_l.setStereo(true);
-  g_pwm_l.setBuffers(PRA32_U2_I2S_BUFFERS, PRA32_U2_I2S_BUFFER_WORDS);
-  g_pwm_l.setFrequency(SAMPLING_RATE);
-  g_pwm_l.begin();
-#elif ((PRA32_U2_PWM_AUDIO_R_PIN + 1) == PRA32_U2_PWM_AUDIO_L_PIN) && ((PRA32_U2_PWM_AUDIO_R_PIN % 2) == 0)
-  g_pwm_r.setStereo(true);
-  g_pwm_r.setBuffers(PRA32_U2_I2S_BUFFERS, PRA32_U2_I2S_BUFFER_WORDS);
-  g_pwm_r.setFrequency(SAMPLING_RATE);
-  g_pwm_r.begin();
-#else
-  g_pwm_l.setBuffers(PRA32_U2_I2S_BUFFERS, PRA32_U2_I2S_BUFFER_WORDS / 2);
-  g_pwm_r.setBuffers(PRA32_U2_I2S_BUFFERS, PRA32_U2_I2S_BUFFER_WORDS / 2);
-  g_pwm_l.setFrequency(SAMPLING_RATE);
-  g_pwm_r.setFrequency(SAMPLING_RATE);
-  g_pwm_l.begin();
-  g_pwm_r.begin();
-#endif
+  g_pwm_output.setBufferFrames(PRA32_U2_I2S_BUFFERS * PRA32_U2_I2S_BUFFER_WORDS);
+  g_pwm_output.begin(SAMPLING_RATE);
 #else  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
   g_i2s_output.setSysClk(SAMPLING_RATE);
   g_i2s_output.setFrequency(SAMPLING_RATE);
   g_i2s_output.setDATA(PRA32_U2_I2S_DATA_PIN);
-#if defined(PRA32_U2_I2S_MCLK_PIN)
-  g_i2s_output.setMCLK(PRA32_U2_I2S_MCLK_PIN);
-  g_i2s_output.setMCLKmult(PRA32_U2_I2S_MCLK_MULT);
-#endif  // defined(PRA32_U2_I2S_MCLK_PIN)
   g_i2s_output.setBCLK(PRA32_U2_I2S_BCLK_PIN);
   if (PRA32_U2_I2S_SWAP_BCLK_AND_LRCLK_PINS) {
     g_i2s_output.swapClocks();
   }
-  g_i2s_output.setBitsPerSample(24);
-  g_i2s_output.setBuffers(PRA32_U2_I2S_BUFFERS, PRA32_U2_I2S_BUFFER_WORDS);
+  g_i2s_output.setBufferFrames(PRA32_U2_I2S_BUFFERS * PRA32_U2_I2S_BUFFER_WORDS);
   g_i2s_output.begin();
 #endif  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
 
@@ -375,19 +359,28 @@ void __not_in_flash_func(loop)() {
   for (uint32_t i = 0; i < PRA32_U2_I2S_BUFFER_WORDS; i++) {
     s_secondary_core_processing_request = 1;
 
+    // Each synth adds its output to the FX input selected by its FX Routing.
+    // The secondary core adds its synths only after g_synth.process() requests
+    // the Main Synth's Voices 2 and 3, so s_fx_bus can be written before that
     PRA32_U2_StereoSample sub_2_synth_output = { 0, 0 };
     if (g_synth_is_in_polyphonic_mode == false) {
       sub_2_synth_output = g_sub_2_synth.process(0, 0);
     }
 
-    PRA32_U2_StereoSample synth_output = g_synth.process<false, true>(sub_2_synth_output.left, sub_2_synth_output.right);
+    clear_fx_bus(s_fx_bus);
+    g_sub_2_synth.add_to_fx_bus(sub_2_synth_output, s_fx_bus);
+    __compiler_memory_barrier();
+
+    PRA32_U2_StereoSample synth_output = g_synth.process<false, true>(0, 0);
 
     while (s_secondary_core_processing_request) {
       ;
     }
+    __compiler_memory_barrier();
 
-    PRA32_U2_StereoSample synth_fx_output = g_synth.process<true, false>(synth_output.left  + s_secondary_core_processing_result.left,
-                                                                         synth_output.right + s_secondary_core_processing_result.right);
+    g_synth.add_to_fx_bus(synth_output, s_fx_bus);
+
+    PRA32_U2_StereoSample synth_fx_output = g_synth.process_fx(s_fx_bus);
     left_buffer[i] = soft_clip_output(synth_fx_output.left) << 8;
     right_buffer[i] = soft_clip_output(synth_fx_output.right) << 8;
   }
@@ -398,16 +391,7 @@ void __not_in_flash_func(loop)() {
 
 #if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
   for (uint32_t i = 0; i < PRA32_U2_I2S_BUFFER_WORDS; i++) {
-#if ((PRA32_U2_PWM_AUDIO_L_PIN + 1) == PRA32_U2_PWM_AUDIO_R_PIN) && ((PRA32_U2_PWM_AUDIO_L_PIN % 2) == 0)
-    g_pwm_l.write(left_buffer[i] >> 16);
-    g_pwm_l.write(right_buffer[i] >> 16);
-#elif ((PRA32_U2_PWM_AUDIO_R_PIN + 1) == PRA32_U2_PWM_AUDIO_L_PIN) && ((PRA32_U2_PWM_AUDIO_R_PIN % 2) == 0)
-    g_pwm_r.write(right_buffer[i] >> 16);
-    g_pwm_r.write(left_buffer[i] >> 16);
-#else
-    g_pwm_l.write(left_buffer[i] >> 16);
-    g_pwm_r.write(right_buffer[i] >> 16);
-#endif
+    g_pwm_output.write24(left_buffer[i], right_buffer[i]);
   }
 #else  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
   for (uint32_t i = 0; i < PRA32_U2_I2S_BUFFER_WORDS; i++) {

@@ -1,4 +1,4 @@
-# Digital Synth PRA32-U2 Parameter Guide v3.5.2
+# Digital Synth PRA32-U2 Parameter Guide v3.6.0
 
 - 2026-09-22 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
@@ -342,6 +342,11 @@
     - 127 (96-127): Liniear Curve
 - After Touch LFO Amt
 - Chorus Level: Chorus Send Level
+- FX Routing [Cho|Dly|Byp]: Where the output is input to the FX (the FX are connected in series: Chorus -> Delay)
+    - 0 (0-31): Chorus (through the Chorus and the Delay)
+    - 64 (32-95): Delay (through the Delay only)
+    - 127 (96-127): Bypass (through neither)
+    - In PRA32-U2/M, each synth has its own FX Routing, while the other FX parameters of the Main Synth apply to all synths
 - Chorus Rate
     - 0: LFO Frequency 0.012 Hz (min)
     - 64: LFO Frequency 0.48 Hz
@@ -383,3 +388,28 @@
     - 0: Feedback 0% (min)
     - 64: Feedback 25%
     - 127: Feedback 49.6% (max)
+
+## Parameter Smoothing
+
+- The parameters are smoothed, so that their steps (e.g. sent by MIDI controllers every 10 ms) are not heard
+- The smoothing is updated at 6 kHz (every other control period of 12 kHz), for the CPU usage
+- The EG and LFO modulations themselves are not smoothed (not delayed)
+- 2 stages (5.3 ms average delay, 99% in 18 ms), which round off the corners of the steps, for the amounts and the balances below
+- The amounts (of the tone, the level, or a modulation), whose steps are easily heard
+    - Filter Cutoff, Filter Resonance, Filter EG Amt, LFO Filter Amt, Breath Filter Amt
+    - Osc 1 Shape
+    - EG Mod Amt and LFO Mod Amt, when EG Mod Dst and LFO Mod Dst are F (Filter Cutoff) or 1S (Osc 1 Shape)
+    - Amp Gain
+    - LFO Depth (with LFO Fade Time, Modulation, and After Touch)
+    - Chorus Level, Chorus Depth, Delay Level, Delay Feedback
+- The balances (between two sounds, or left and right), which keep the total amount about the same
+    - Osc 1 Morph, Mixer Osc Mix, Mixer Noise/Sub Osc, Pan
+    - For the Sine Wave and the Wave Tables, the smoothed Osc 1 Morph is rounded to the controller value, as it switches the ratio or the table step by step
+- 1 stage (1.2 ms time constant, 95% in 3.7 ms), for the performance controllers, whose attack must not be softened, but whose steps must not click
+    - Breath Controller (x Breath Filter Amt)
+    - Expression x Breath Controller (Breath Amp Mod)
+- 1 stage, for the Delay Time (5.3 ms), which moves in its own way
+    - The Delay Time is also slew-limited, bending the pitch of the echoes (within +/-25%), as on a tape delay
+- The smoothed parameters are calculated in fine steps (not in the controller value steps)
+- Not smoothed: the pitch parameters, so that the pitch follows right away (Pitch Bend, and EG Mod Amt and LFO Mod Amt when EG Mod Dst and LFO Mod Dst are P or 2P), and the parameters whose steps are part of the sound (e.g. Osc 2 Coarse/Pitch, LFO Rate, EG times)
+- See the comments in "pra32-u2-common.h" for details
