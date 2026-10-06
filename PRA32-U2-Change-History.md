@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v3.6.0 (2026-??-??):
+- v3.6.0 (2026-10-06):
     - Add the **FX Routing** [Cho|Dly|Byp] by Control Change #95 (and to PRA32-U2 Editor), which selects where the output is input to the FX connected in series
         - Cho (0-31): Through the Chorus and the Delay (as before)
         - Dly (32-95): Through the Delay only
