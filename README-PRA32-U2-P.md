@@ -171,7 +171,7 @@
 | A-27 LFO d     | LFO Filter Amt       |                      |
 | A-28 Breath    | Breath Filter Amt    | Breath Amp Mod       |
 | A-29 Aft Touch | Aft Touch LFO Amt    |                      |
-| A-30 Chorus a  | Chorus Level         |                      |
+| A-30 Chorus a  | Chorus Level         | FX Routing           |
 | A-31 Chorus b  | Chorus Rate          | Chorus Depth         |
 | A-32 Delay a   | Delay Level          | Delay Mode           |
 | A-33 Delay b   | Delay Time           | Delay Feedback       |

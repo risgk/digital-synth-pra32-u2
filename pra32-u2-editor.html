@@ -203,6 +203,7 @@ const AFT_T_LFO_AMT   = 37;
 
 
 const CHORUS_MIX      = 93;
+const FX_ROUTING      = 95;
 
 const CHORUS_RATE     = 58;
 const CHORUS_DEPTH    = 59;
@@ -304,6 +305,7 @@ var controlNumberToStringMap = new Map([
 
 
   [ CHORUS_MIX     , "CHORUS_MIX     " ],
+  [ FX_ROUTING     , "FX_ROUTING     " ],
 
   [ CHORUS_RATE    , "CHORUS_RATE    " ],
   [ CHORUS_DEPTH   , "CHORUS_DEPTH   " ],
@@ -381,6 +383,7 @@ var controllersInLocalStorage = [
 
 
   CHORUS_MIX     ,
+  FX_ROUTING     ,
 
   CHORUS_RATE    ,
   CHORUS_DEPTH   ,
@@ -460,6 +463,7 @@ presetControllers[AFT_T_LFO_AMT  ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   
 
 
 presetControllers[CHORUS_MIX     ] = [127, 127, 127, 127, 127, 127, 127, 0  ,   127, 127, 127, 127, 127, 127, 127, 0  ];
+presetControllers[FX_ROUTING     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 
 presetControllers[CHORUS_RATE    ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 presetControllers[CHORUS_DEPTH   ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
@@ -942,6 +946,13 @@ function updateDisplayOfControl(number, value) {
       dispValue = ary[index];
     }
     break;
+  case FX_ROUTING      :
+    {
+      var ary = ["Cho","Dly","Byp"];
+      var index = Math.floor(((value * 4) + 128) >> 8);
+      dispValue = ary[index];
+    }
+    break;
   case VOICE_ASGN_MODE :
     {
       var ary = ["1","1","3","3","4","2"];
@@ -1005,6 +1016,7 @@ function setRandom() {
     if ((i != VOICE_MODE     ) &&
         (i != AMP_GAIN       ) &&
         (i != CHORUS_MIX     ) &&
+        (i != FX_ROUTING     ) &&
         (i != CHORUS_RATE    ) &&
         (i != CHORUS_DEPTH   ) &&
         (i != DELAY_LEVEL    ) &&
@@ -1264,6 +1276,7 @@ function fileExport() {
   str += "\n";
   str += "\n";
   str += fileExportOneLine(CHORUS_MIX     );
+  str += fileExportOneLine(FX_ROUTING     );
   str += "\n";
   str += fileExportOneLine(CHORUS_RATE    );
   str += fileExportOneLine(CHORUS_DEPTH   );
@@ -1860,7 +1873,7 @@ function getStoredCCValueString(index, number) {
 </tr>
 <tr>
 <td colspan="3"><b>Chorus</b> Level                    </td>
-<td colspan="3">                                </td>
+<td colspan="3">FX Routing [Cho|Dly|Byp]               </td>
 <td colspan="3"><b>Chorus</b> Rate                     </td>
 <td colspan="3"><b>Chorus</b> Depth                    </td>
 </tr>
@@ -1868,9 +1881,9 @@ function getStoredCCValueString(index, number) {
 <td><input  id="inputCHORUS_MIX     "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(CHORUS_MIX     , value)"></td>
 <td><span    id="spanCHORUS_MIX     " >-</span></td>
 <td><span   id="span2CHORUS_MIX     " >-</span></td>
-<td></td>
-<td></td>
-<td></td>
+<td><input  id="inputFX_ROUTING     "  type="range" list="3 markers" min="0" max="127" step="1" oninput="onChangeControlChange(FX_ROUTING     , value)"></td>
+<td><span    id="spanFX_ROUTING     " >-</span></td>
+<td><span   id="span2FX_ROUTING     " >-</span></td>
 <td><input  id="inputCHORUS_RATE    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(CHORUS_RATE    , value)"></td>
 <td><span    id="spanCHORUS_RATE    " >-</span></td>
 <td><span   id="span2CHORUS_RATE    " >-</span></td>

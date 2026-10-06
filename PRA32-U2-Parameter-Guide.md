@@ -342,6 +342,11 @@
     - 127 (96-127): Liniear Curve
 - After Touch LFO Amt
 - Chorus Level: Chorus Send Level
+- FX Routing [Cho|Dly|Byp]: Where the output is input to the FX (the FX are connected in series: Chorus -> Delay)
+    - 0 (0-31): Chorus (through the Chorus and the Delay)
+    - 64 (32-95): Delay (through the Delay only)
+    - 127 (96-127): Bypass (through neither)
+    - In PRA32-U2/M, each synth has its own FX Routing, while the other FX parameters of the Main Synth apply to all synths
 - Chorus Rate
     - 0: LFO Frequency 0.012 Hz (min)
     - 64: LFO Frequency 0.48 Hz

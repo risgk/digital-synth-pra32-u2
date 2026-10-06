@@ -95,6 +95,7 @@ static uint8_t s_program_table_parameters[] = {
 
 
   CHORUS_MIX     ,
+  FX_ROUTING     ,
   CHORUS_RATE    ,
   CHORUS_DEPTH   ,
 
@@ -236,6 +237,7 @@ class PRA32_U2_Synth {
   uint8_t           m_portamento;
 
   uint8_t           m_chorus_mode;
+  uint8_t           m_fx_routing;
 
   uint8_t           m_eg_osc_amt;
   uint8_t           m_eg_osc_dst;
@@ -286,6 +288,7 @@ public:
   , m_portamento()
 
   , m_chorus_mode()
+  , m_fx_routing()
 
   , m_eg_osc_amt()
   , m_eg_osc_dst()
@@ -399,6 +402,7 @@ public:
 
 
     std::memcpy(m_program_table[CHORUS_MIX     ], g_preset_table_CHORUS_MIX     , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[FX_ROUTING     ], g_preset_table_FX_ROUTING     , sizeof(m_program_table[0]));
 
     std::memcpy(m_program_table[CHORUS_RATE    ], g_preset_table_CHORUS_RATE    , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[CHORUS_DEPTH   ], g_preset_table_CHORUS_DEPTH   , sizeof(m_program_table[0]));
@@ -1100,6 +1104,11 @@ if constexpr (NO_FX == false) {
       m_chorus_fx.set_chorus_level(controller_value);
 }
       break;
+    case FX_ROUTING     :
+      // Every synth has its own FX Routing, as the FX input that its output is added to
+      // (PRA32-U2/M); 0-31: Chorus, 32-95: Delay, 96-127: Bypass
+      m_fx_routing = ((controller_value * 4) + 128) >> 8;
+      break;
 
 #if 0
     case OSC_LEVEL      :
@@ -1458,6 +1467,7 @@ if constexpr (NO_FX == false) {
       if ((control_number != VOICE_MODE     ) &&
           (control_number != AMP_GAIN       ) &&
           (control_number != CHORUS_MIX     ) &&
+          (control_number != FX_ROUTING     ) &&
           (control_number != CHORUS_RATE    ) &&
           (control_number != CHORUS_DEPTH   ) &&
           (control_number != DELAY_LEVEL    ) &&
@@ -1737,13 +1747,10 @@ if constexpr (EXT_INPUT == false) {
     PRA32_U2_StereoSample delay_fx_output;
 
 if constexpr ((NO_FX == false) && (BYPASS_FX == false)) {
-    PRA32_U2_StereoSample chorus_fx_output = m_chorus_fx.process(mixed_output);
-
-    delay_fx_output = m_delay_fx.process(chorus_fx_output);
-
-    // The synth that processes the FX also limits the output, after mixing in
-    // the other synths through the audio input (PRA32-U2/M)
-    delay_fx_output = m_output_limiter.process(delay_fx_output);
+    PRA32_U2_FxBusSample fx_bus;
+    clear_fx_bus(fx_bus);
+    add_to_fx_bus(mixed_output, fx_bus);
+    delay_fx_output = process_fx(fx_bus);
 } else {
     delay_fx_output = mixed_output;
 }
@@ -1751,6 +1758,32 @@ if constexpr ((NO_FX == false) && (BYPASS_FX == false)) {
     // The output is not clipped, to be mixed with other synths, and must be
     // passed through soft_clip_output() before being output to a DAC
     return delay_fx_output;
+  }
+
+  // Adds the output of this synth to the FX input selected by the FX Routing
+  // (indexed, so that the processing time stays the same)
+  INLINE void add_to_fx_bus(PRA32_U2_StereoSample synth_output, PRA32_U2_FxBusSample& fx_bus) {
+    fx_bus.input[m_fx_routing].left  += synth_output.left;
+    fx_bus.input[m_fx_routing].right += synth_output.right;
+  }
+
+  // Processes the FX in series: the Chorus input goes through the Chorus and the Delay,
+  // the Delay input through the Delay only, and the Bypass input through neither
+  // noclone: see process()
+  __attribute__((noclone)) PRA32_U2_StereoSample __not_in_flash_func(process_fx)(const PRA32_U2_FxBusSample& fx_bus) {
+    PRA32_U2_StereoSample chorus_fx_output = m_chorus_fx.process(fx_bus.input[FX_BUS_CHORUS]);
+
+    PRA32_U2_StereoSample delay_fx_input;
+    delay_fx_input.left  = chorus_fx_output.left  + fx_bus.input[FX_BUS_DELAY].left;
+    delay_fx_input.right = chorus_fx_output.right + fx_bus.input[FX_BUS_DELAY].right;
+
+    PRA32_U2_StereoSample delay_fx_output = m_delay_fx.process(delay_fx_input);
+    delay_fx_output.left  += fx_bus.input[FX_BUS_BYPASS].left;
+    delay_fx_output.right += fx_bus.input[FX_BUS_BYPASS].right;
+
+    // The synth that processes the FX also limits the output, after mixing in
+    // the other synths through the FX bus (PRA32-U2/M)
+    return m_output_limiter.process(delay_fx_output);
   }
 
   template <boolean RESTRICT_SAW = false, boolean RESTRICT_SQR_WT = false>

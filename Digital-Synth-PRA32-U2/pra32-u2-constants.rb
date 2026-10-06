@@ -131,6 +131,7 @@ AFT_T_LFO_AMT   = 37
 
 
 CHORUS_MIX      = 93
+FX_ROUTING      = 95
 
 CHORUS_RATE     = 58
 CHORUS_DEPTH    = 59
