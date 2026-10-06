@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v3.6.1 (2026-??-??):
+    - Recommend the prebuilt UF2 file of PRA32-U2/M (a superset of PRA32-U2) in README
     - Tested with Arduino-Pico version 6.2.0
 - v3.6.0 (2026-10-06):
     - Add the **FX Routing** [Cho|Dly|Byp] by Control Change #95 (and to PRA32-U2 Editor), which selects where the output is input to the FX connected in series
