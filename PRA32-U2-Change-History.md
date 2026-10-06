@@ -6,9 +6,17 @@
         - Dly (32-95): Through the Delay only
         - Byp (96-127): Through neither
         - The Presets are set to Cho, which sounds the same as before (the User Programs written before also load as Cho)
+    - Change the I2S and the PWM Audio to PRA32-U2's own outputs ("pra32-u2-i2s.h" and "pra32-u2-pwm-audio.h") instead of Arduino-Pico I2S Library and PWMAudio Library
+        - Fix the PWM Audio click noise (a sample was dropped about every 65 ms in each L and R channel)
+        - Fix the PWM Audio compile error with Arduino-Pico 6.2.0
+        - Fix the I2S sampling rate from 48001.9 Hz (+0.07 cents) to exactly 48 kHz
+        - Fix the output buffer to `PRA32_U2_I2S_BUFFERS` * `PRA32_U2_I2S_BUFFER_WORDS` frames (2 * 64 = 128 frames, 2.7 ms by default), as intended in v2.20.0 (it was 4 ms with I2S and 10.7 ms with PWM Audio)
+        - The system clock is 153.6 MHz also with PWM Audio, regardless of CPU Speed in the Arduino IDE
+    - Drop the support of I2S DACs that require MCLK (`PRA32_U2_I2S_MCLK_PIN` and `PRA32_U2_I2S_MCLK_MULT`), including the setting for Waveshare Pico-Audio Rev2.1 Version
+    - PWM Audio is no longer "CURRENTLY NOT RECOMMENDED"
     - PRA32-U2/M: Each synth has its own FX Routing, while the other FX parameters of the Main Synth still apply to all synths
     - PRA32-U2/P: Add "FX Routing" next to "Chorus Level" in the page "A-30 Chorus a"
-    - Tested with Arduino-Pico version 6.1.1
+    - Tested with Arduino-Pico version 6.2.0
 - v3.5.2 (2026-10-06):
     - Change the parameter smoothing of the amounts and the balances (e.g. the Filter Cutoff) to be faster (2 stages, from 10.7 ms to 5.3 ms average delay, 99% in 18 ms), so that the parameters sent by the breath of some MIDI controllers (e.g. wind controllers) follow the breath
     - Change the Expression and the Breath Controller smoothing to be a little slower (1 stage, from 0.6 ms to 1.2 ms time constant, 95% in 3.7 ms), so that their 7-bit steps (e.g. at a low breath, or in the Filter Cutoff at a high Resonance) are less heard, while the attack of wind controllers is still not softened
