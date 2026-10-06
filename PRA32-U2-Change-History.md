@@ -14,6 +14,7 @@
         - The system clock is 153.6 MHz also with PWM Audio, regardless of CPU Speed in the Arduino IDE
     - Drop the support of I2S DACs that require MCLK (`PRA32_U2_I2S_MCLK_PIN` and `PRA32_U2_I2S_MCLK_MULT`), including the setting for Waveshare Pico-Audio Rev2.1 Version
     - PWM Audio is no longer "CURRENTLY NOT RECOMMENDED"
+    - Move "Parameter Smoothing" from README.md to PRA32-U2-Parameter-Guide.md
     - PRA32-U2/M: Each synth has its own FX Routing, while the other FX parameters of the Main Synth still apply to all synths
     - PRA32-U2/P: Add "FX Routing" next to "Chorus Level" in the page "A-30 Chorus a"
     - Tested with Arduino-Pico version 6.2.0
