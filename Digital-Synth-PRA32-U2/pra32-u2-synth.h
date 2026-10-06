@@ -15,8 +15,8 @@
 
 #if defined(ARDUINO_ARCH_RP2040)
 #include <EEPROM.h>
-#include <I2S.h>
-extern I2S g_i2s_output;
+#include "pra32-u2-i2s.h"
+extern PRA32_U2_I2SOutput g_i2s_output;
 #endif  // defined(ARDUINO_ARCH_RP2040)
 
 #include <algorithm>
