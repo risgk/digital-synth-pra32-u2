@@ -31,15 +31,27 @@ td.col-val {
 td.col-val2 {
   width: 70px;
 }
-/* Horizontal gap cells, replacing widths that used to be implied by a run of &nbsp;. */
+/* Horizontal gap cells, replacing widths that used to be implied by a run of &nbsp;.
+   min-width keeps the gaps when the window is narrow (an empty cell would shrink to its padding).
+   A plain empty cell and sp-1 are the same gap between buttons, and sp-2 separates the groups of 4. */
+table.section:not(.param-grid) td:empty:not([class]),
 td.sp-1 {
-  width: 8px;
+  width: 4px;
+  min-width: 4px;
 }
 td.sp-2 {
-  width: 16px;
+  width: 12px;
+  min-width: 12px;
 }
 td.sp-4 {
   width: 32px;
+  min-width: 32px;
+}
+/* Buttons fill their column, so the gaps between them are the same in all rows
+   (a column is as wide as its widest button, e.g. "#24 Synth Brs" above "#19 Simple"). */
+table.section:not(.param-grid) td > input[type="button"] {
+  width: 100%;
+  text-align: left;
 }
 td.pad-l {
   padding-left: 8px;
@@ -77,7 +89,7 @@ table.param-grid {
 td.key {
   color: rgb(255,85,0);
   text-align: center;
-  width: 42px;
+  width: 59px;
   height: 63px;
   border: 1px solid rgb(255,85,0);
 }
@@ -85,20 +97,20 @@ td.keyb {
   color: white;
   background-color: rgb(255,85,0);
   text-align: center;
-  width: 42px;
+  width: 59px;
   height: 63px;
   border: 1px solid rgb(255,85,0);
 }
 td.keyp {
   color: rgb(255,85,0);
   text-align: center;
-  width: 42px;
+  width: 59px;
   height: 63px;
   border: 1px solid transparent;
 }
 td.keyh {
   text-align: center;
-  width: 18px;
+  width: 28px;
   height: 63px;
   border: 1px solid transparent;
 }
