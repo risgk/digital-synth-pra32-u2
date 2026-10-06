@@ -19,6 +19,9 @@
         - Compared to without them, the noise is -3.4 dB at 3 kHz and +4.8 dB in total
     - PWM Audio is no longer "CURRENTLY NOT RECOMMENDED"
     - Move "Parameter Smoothing" from README.md to PRA32-U2-Parameter-Guide.md
+    - PRA32-U2 Editor: Improve the layout
+        - Even out the gaps between the buttons (a little wider, and kept when the window is narrow), and left-align the button labels
+        - Widen the Software Keyboard (the white keys from 42 px to 59 px)
     - PRA32-U2/M: Each synth has its own FX Routing, while the other FX parameters of the Main Synth still apply to all synths
     - PRA32-U2/P: Add "FX Routing" next to "Chorus Level" in the page "A-30 Chorus a"
     - Tested with Arduino-Pico version 6.2.0
