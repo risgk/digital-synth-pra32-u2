@@ -226,6 +226,7 @@ flowchart LR
 
 - PWM Audio can also be used instead of I2S (PWM Audio does not require an I2S DAC hardware)
     - PRA32-U2's own PWM Audio Output ("pra32-u2-pwm-audio.h") is used (Arduino-Pico PWMAudio Library is not used)
+    - The PWM level (3200 steps) is quantized with the 1st-order noise shaping and the TPDF dither, which moves the quantization noise to the high frequencies
     - NOTE: Probably smaller output volume than I2S DAC boards
     - NOTE: To avoid noise, the parameters will not be written to the flash when using PWM audio
     - We recommend adding RC filter (post LPF) circuits to reduce PWM ripples
