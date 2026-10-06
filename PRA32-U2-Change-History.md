@@ -1,6 +1,13 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v3.5.3 (2026-??-??):
+- v3.6.0 (2026-??-??):
+    - Add the **FX Routing** [Cho|Dly|Byp] by Control Change #95 (and to PRA32-U2 Editor), which selects where the output is input to the FX connected in series
+        - Cho (0-31): Through the Chorus and the Delay (as before)
+        - Dly (32-95): Through the Delay only
+        - Byp (96-127): Through neither
+        - The Presets are set to Cho, which sounds the same as before (the User Programs written before also load as Cho)
+    - PRA32-U2/M: Each synth has its own FX Routing, while the other FX parameters of the Main Synth still apply to all synths
+    - PRA32-U2/P: Add "FX Routing" next to "Chorus Level" in the page "A-30 Chorus a"
     - Tested with Arduino-Pico version 6.1.1
 - v3.5.2 (2026-10-06):
     - Change the parameter smoothing of the amounts and the balances (e.g. the Filter Cutoff) to be faster (2 stages, from 10.7 ms to 5.3 ms average delay, 99% in 18 ms), so that the parameters sent by the breath of some MIDI controllers (e.g. wind controllers) follow the breath
