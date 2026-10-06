@@ -13,6 +13,10 @@
         - Fix the output buffer to `PRA32_U2_I2S_BUFFERS` * `PRA32_U2_I2S_BUFFER_WORDS` frames (2 * 64 = 128 frames, 2.7 ms by default), as intended in v2.20.0 (it was 4 ms with I2S and 10.7 ms with PWM Audio)
         - The system clock is 153.6 MHz also with PWM Audio, regardless of CPU Speed in the Arduino IDE
     - Drop the support of I2S DACs that require MCLK (`PRA32_U2_I2S_MCLK_PIN` and `PRA32_U2_I2S_MCLK_MULT`), including the setting for Waveshare Pico-Audio Rev2.1 Version
+    - Improve the PWM Audio quantization noise by the noise shaping and the dither
+        - The PWM level (3200 steps) is quantized with the 1st-order noise shaping, which moves the quantization noise to the high frequencies
+        - The TPDF dither (-1 to +1 step) removes the distortion in quiet sounds, and is also noise shaped
+        - Compared to without them, the noise is -3.4 dB at 3 kHz and +4.8 dB in total
     - PWM Audio is no longer "CURRENTLY NOT RECOMMENDED"
     - Move "Parameter Smoothing" from README.md to PRA32-U2-Parameter-Guide.md
     - PRA32-U2/M: Each synth has its own FX Routing, while the other FX parameters of the Main Synth still apply to all synths
