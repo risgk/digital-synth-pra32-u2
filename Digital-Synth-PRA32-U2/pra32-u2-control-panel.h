@@ -858,6 +858,14 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
       result = true;
     }
     break;
+  case FX_ROUTING      :
+    {
+      char ary[3][5] = {"Cho","Dly","Byp"};
+      uint32_t index = ((controller_value * 4) + 128) >> 8;
+      std::strcpy(value_display_text, ary[index]);
+      result = true;
+    }
+    break;
   case VOICE_ASGN_MODE :
     {
       char ary[6][5] = {"  1","  1","  3","  3","  4","  2"};

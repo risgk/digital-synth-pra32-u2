@@ -94,6 +94,7 @@
 |                               |               |               |                                      |
 |                               |               |               |                                      |
 |                            93 | x             | o             | Chorus Level                         |
+|                            95 | x             | o             | FX Routing [Cho|Dly|Byp]             |
 |                               |               |               |                                      |
 |                            58 | x             | o             | Chorus Rate                          |
 |                            59 | x             | o             | Chorus Depth                         |

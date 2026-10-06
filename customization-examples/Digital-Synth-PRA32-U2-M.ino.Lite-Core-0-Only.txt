@@ -103,9 +103,9 @@ uint8_t g_midi_ch = PRA32_U2_MIDI_CH;
 #include "pra32-u2-synth.h"
 
 boolean g_synth_is_in_polyphonic_mode = true;
-PRA32_U2_Synth<false, true,  true, 0, false, false> g_synth;
-PRA32_U2_Synth<true,  true,  true, 1, false, true>  g_sub_1_synth;
-PRA32_U2_Synth<true,  true,  true, 2, false, true>  g_sub_2_synth;
+PRA32_U2_Synth<false, false, true, 0, false, false> g_synth;
+PRA32_U2_Synth<true,  false, true, 1, false, true>  g_sub_1_synth;
+PRA32_U2_Synth<true,  false, true, 2, false, true>  g_sub_2_synth;
 PRA32_U2_Synth<true,  false, true, 3, false, true>  g_sub_3_synth;
 
 #include <MIDI.h>
@@ -367,14 +367,18 @@ void __not_in_flash_func(loop)() {
     s_secondary_core_processing_request = 1;
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL) || defined(PRA32_U2_USE_DEBUG_PRINT)
 
-    PRA32_U2_StereoSample sub_1_synth_output = { 0, 0 };
+    // Each synth adds its output to the FX input selected by its FX Routing
+    PRA32_U2_FxBusSample fx_bus;
+    clear_fx_bus(fx_bus);
     if (g_synth_is_in_polyphonic_mode == false) {
-      PRA32_U2_StereoSample sub_3_synth_output = g_sub_3_synth.process<false, false, true, true>(0, 0);
-      PRA32_U2_StereoSample sub_2_synth_output = g_sub_2_synth.process<false, false, true, true>(sub_3_synth_output.right, sub_3_synth_output.left);
-      sub_1_synth_output = g_sub_1_synth.process<false, false, true, true>(sub_2_synth_output.right, sub_2_synth_output.left);
+      g_sub_3_synth.add_to_fx_bus(g_sub_3_synth.process<false, false, true, true>(0, 0), fx_bus);
+      g_sub_2_synth.add_to_fx_bus(g_sub_2_synth.process<false, false, true, true>(0, 0), fx_bus);
+      g_sub_1_synth.add_to_fx_bus(g_sub_1_synth.process<false, false, true, true>(0, 0), fx_bus);
     }
 
-    PRA32_U2_StereoSample synth_output = g_synth.process<false, false, true, true>(sub_1_synth_output.left, sub_1_synth_output.right);
+    g_synth.add_to_fx_bus(g_synth.process<false, true, true, true>(0, 0), fx_bus);
+
+    PRA32_U2_StereoSample synth_output = g_synth.process_fx(fx_bus);
     left_buffer[i] = soft_clip_output(synth_output.left) << 8;
     right_buffer[i] = soft_clip_output(synth_output.right) << 8;
 

@@ -98,8 +98,8 @@ uint8_t g_midi_ch = PRA32_U2_MIDI_CH;
 #include "pra32-u2-synth.h"
 
 boolean g_synth_is_in_polyphonic_mode = true;
-PRA32_U2_Synth<false, true,  true, 0, false, false> g_synth;
-PRA32_U2_Synth<true,  true,  true, 1, false, true>  g_sub_1_synth;
+PRA32_U2_Synth<false, false, true, 0, false, false> g_synth;
+PRA32_U2_Synth<true,  false, true, 1, false, true>  g_sub_1_synth;
 PRA32_U2_Synth<true,  false, true, 2, false, true>  g_sub_2_synth;
 PRA32_U2_Synth<true,  false, true, 3, false, true>  g_sub_3_synth;
 
@@ -136,7 +136,8 @@ static volatile uint32_t s_debug_measurement_max1_us     = 0;
 static volatile uint32_t s_debug_measurement_counted     = 0;
 
 static volatile uint32_t s_secondary_core_processing_request  = 0;
-static PRA32_U2_StereoSample s_secondary_core_processing_result = { 0, 0 };
+// The FX inputs, which each synth adds its output to by its FX Routing (on both cores)
+static PRA32_U2_FxBusSample s_fx_bus = {};
 
 void handleNoteOn(byte channel, byte pitch, byte velocity);
 void handleNoteOff(byte channel, byte pitch, byte velocity);
@@ -174,17 +175,23 @@ void __not_in_flash_func(loop1)() {
   boolean processed = false;
 
   if (s_secondary_core_processing_request == 1) {
+    PRA32_U2_StereoSample sub_3_synth_output = { 0, 0 };
+    PRA32_U2_StereoSample sub_1_synth_output = { 0, 0 };
     if (g_synth_is_in_polyphonic_mode == false) {
-      PRA32_U2_StereoSample sub_3_synth_output = g_sub_3_synth.process(0, 0);
-      s_secondary_core_processing_result = g_sub_1_synth.process<false, true>(sub_3_synth_output.left, sub_3_synth_output.right);
-    } else {
-      s_secondary_core_processing_result = { 0, 0 };
+      sub_3_synth_output = g_sub_3_synth.process(0, 0);
+      sub_1_synth_output = g_sub_1_synth.process(0, 0);
     }
 
     while (processed == false) {
       processed = g_synth.secondary_core_process();
     }
 
+    // Added after the Main Synth's Voices 2 and 3, which the primary core waits for in
+    // the middle of g_synth.process(), so that it is done while that goes on
+    g_sub_3_synth.add_to_fx_bus(sub_3_synth_output, s_fx_bus);
+    g_sub_1_synth.add_to_fx_bus(sub_1_synth_output, s_fx_bus);
+
+    __compiler_memory_barrier();
     s_secondary_core_processing_request = 0;
     processed = true;
   }
@@ -375,19 +382,28 @@ void __not_in_flash_func(loop)() {
   for (uint32_t i = 0; i < PRA32_U2_I2S_BUFFER_WORDS; i++) {
     s_secondary_core_processing_request = 1;
 
+    // Each synth adds its output to the FX input selected by its FX Routing.
+    // The secondary core adds its synths only after g_synth.process() requests
+    // the Main Synth's Voices 2 and 3, so s_fx_bus can be written before that
     PRA32_U2_StereoSample sub_2_synth_output = { 0, 0 };
     if (g_synth_is_in_polyphonic_mode == false) {
       sub_2_synth_output = g_sub_2_synth.process(0, 0);
     }
 
-    PRA32_U2_StereoSample synth_output = g_synth.process<false, true>(sub_2_synth_output.left, sub_2_synth_output.right);
+    clear_fx_bus(s_fx_bus);
+    g_sub_2_synth.add_to_fx_bus(sub_2_synth_output, s_fx_bus);
+    __compiler_memory_barrier();
+
+    PRA32_U2_StereoSample synth_output = g_synth.process<false, true>(0, 0);
 
     while (s_secondary_core_processing_request) {
       ;
     }
+    __compiler_memory_barrier();
 
-    PRA32_U2_StereoSample synth_fx_output = g_synth.process<true, false>(synth_output.left  + s_secondary_core_processing_result.left,
-                                                                         synth_output.right + s_secondary_core_processing_result.right);
+    g_synth.add_to_fx_bus(synth_output, s_fx_bus);
+
+    PRA32_U2_StereoSample synth_fx_output = g_synth.process_fx(s_fx_bus);
     left_buffer[i] = soft_clip_output(synth_fx_output.left) << 8;
     right_buffer[i] = soft_clip_output(synth_fx_output.right) << 8;
   }
