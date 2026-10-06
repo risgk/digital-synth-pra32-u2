@@ -19,6 +19,7 @@
         - Compared to without them, the noise is -3.4 dB at 3 kHz and +4.8 dB in total
     - PWM Audio is no longer "CURRENTLY NOT RECOMMENDED"
     - Move "Parameter Smoothing" from README.md to PRA32-U2-Parameter-Guide.md
+    - Fix the Filter Diagrams in README.md: the output clip is linear up to 0.75 (since v3.3.2), and the output limiter in the op-amp diagram is renamed to the output clipper
     - PRA32-U2 Editor: Improve the layout
         - Even out the gaps between the buttons (a little wider, and kept when the window is narrow), and left-align the button labels
         - Widen the Software Keyboard (the white keys from 42 px to 59 px)
