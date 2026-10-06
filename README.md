@@ -1,4 +1,4 @@
-# Digital Synth PRA32-U2 v3.5.2
+# Digital Synth PRA32-U2 v3.6.0
 
 - 2026-09-22 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
@@ -70,7 +70,7 @@ flowchart LR
     SUM -->|HP| MS["Filter Mode<br/>LP / BP / HP"]
     I1 -->|BP| MS
     I2 -->|LP| MS
-    MS --> OC["Output clip<br/>linear up to 0.5"]
+    MS --> OC["Output clip<br/>linear up to 0.75"]
     OC --> OUT([Output])
     SC["State clip<br/>ceiling 4.0, α comp."] -.- I1
     L2["s2 is linear<br/>guard clamp at 16"] -.- I2
@@ -81,7 +81,7 @@ flowchart LR
 ```
 
 The same structure redrawn as an op-amp integrator filter. The diode pair stands for the state
-clip and the output limiter for the output clip. It is an interpretation, not a reproduction of
+clip and the output clipper for the output clip. It is an interpretation, not a reproduction of
 an actual circuit.
 
 ```mermaid
@@ -93,7 +93,7 @@ flowchart LR
     A1 -->|HP| MS["Filter Mode<br/>LP / BP / HP"]
     A2 -->|BP| MS
     A3 -->|LP| MS
-    MS --> LIM["Output limiter"]
+    MS --> LIM["Output clipper"]
     LIM --> OUT([Output])
     A2 -->|"R/k (resonance)"| A1
     A3 -->|R| A1
@@ -114,7 +114,7 @@ flowchart LR
     - Info: <https://www.arduino.cc/en/software>
 - Please install Arduino-Pico = **Raspberry Pi Pico/RP2040/RP2350** (by Earle F. Philhower, III) core
     - Additional Board Manager URL: <https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json>
-    - This sketch is tested with version **6.1.1**: <https://github.com/earlephilhower/arduino-pico/releases/tag/6.1.1>
+    - This sketch is tested with version **6.2.0**: <https://github.com/earlephilhower/arduino-pico/releases/tag/6.2.0>
     - Info: <https://github.com/earlephilhower/arduino-pico>
 - Please install Arduino **MIDI Library** (by Francois Best, lathoub)
     - This sketch is tested with version **5.0.2**: <https://github.com/FortySevenEffects/arduino_midi_library/releases/tag/5.0.2>
@@ -171,9 +171,14 @@ flowchart LR
 #### I2S (Default)
 
 - Use an I2S DAC (Texas Instruments PCM5100A, PCM5101A, or PCM5102A is recommended), Sampling Rate: 48 kHz, Bit Depth: 24 bit
-- NOTE: The RP2350 system clock (sysclk) changes to overclocked 153.6 MHz by I2S Audio Library setSysClk()
-- Modify `PRA32_U2_I2S_DAC_MUTE_OFF_PIN`, `PRA32_U2_I2S_DATA_PIN`, `PRA32_U2_I2S_MCLK_PIN`, `PRA32_U2_I2S_MCLK_MULT`,
-  `PRA32_U2_I2S_BCLK_PIN`, `PRA32_U2_I2S_SWAP_BCLK_AND_LRCLK_PINS`, and `PRA32_U2_I2S_SWAP_LEFT_AND_RIGHT`
+    - NOTE: I2S DACs that require MCLK are not supported
+- NOTE: The RP2350 system clock (sysclk) changes to overclocked 153.6 MHz, so that the sampling rate is exactly 48 kHz
+- PRA32-U2's own PIO I2S Output ("pra32-u2-i2s.h") is used (Arduino-Pico I2S Library is not used)
+    - The slot width is 32 bits (BCLK = 64 fs), and the 24-bit samples are sent left-justified
+    - BCLK and LRCLK are generated without jitter (the PIO clock divider is an integer)
+    - The output buffer is read by DMA without interrupts (lower CPU usage)
+- Modify `PRA32_U2_I2S_DAC_MUTE_OFF_PIN`, `PRA32_U2_I2S_DATA_PIN`, `PRA32_U2_I2S_BCLK_PIN`,
+  `PRA32_U2_I2S_SWAP_BCLK_AND_LRCLK_PINS`, and `PRA32_U2_I2S_SWAP_LEFT_AND_RIGHT`
   in "Digital-Synth-PRA32-U2.ino" to match the hardware configuration
     - Define `PRA32_U2_I2S_DAC_MUTE_OFF_PIN` and connect this pin to the I2S DAC mute off pin to reduce click noise when writing the parameters to the flash
 - The default setting is for Pimoroni [Pico Audio Pack](https://shop.pimoroni.com/products/pico-audio-pack) (PIM544)
@@ -182,8 +187,6 @@ flowchart LR
     ```
     #define PRA32_U2_I2S_DAC_MUTE_OFF_PIN          (22)
     #define PRA32_U2_I2S_DATA_PIN                  (9)
-    //#define PRA32_U2_I2S_MCLK_PIN                  (0)
-    //#define PRA32_U2_I2S_MCLK_MULT                 (0)
     #define PRA32_U2_I2S_BCLK_PIN                  (10)  // LRCLK Pin is PRA32_U2_I2S_BCLK_PIN + 1
     #define PRA32_U2_I2S_SWAP_BCLK_AND_LRCLK_PINS  (false)
     #define PRA32_U2_I2S_SWAP_LEFT_AND_RIGHT       (false)
@@ -194,8 +197,6 @@ flowchart LR
     ```
     //#define PRA32_U2_I2S_DAC_MUTE_OFF_PIN          (0)
     #define PRA32_U2_I2S_DATA_PIN                  (26)
-    //#define PRA32_U2_I2S_MCLK_PIN                  (0)
-    //#define PRA32_U2_I2S_MCLK_MULT                 (0)
     #define PRA32_U2_I2S_BCLK_PIN                  (27)  // LRCLK Pin is is PRA32_U2_I2S_BCLK_PIN + 1
     #define PRA32_U2_I2S_SWAP_BCLK_AND_LRCLK_PINS  (false)
     #define PRA32_U2_I2S_SWAP_LEFT_AND_RIGHT       (false)
@@ -206,37 +207,34 @@ flowchart LR
     ```
     //#define PRA32_U2_I2S_DAC_MUTE_OFF_PIN          (0)
     #define PRA32_U2_I2S_DATA_PIN                  (26)
-    //#define PRA32_U2_I2S_MCLK_PIN                  (0)
-    //#define PRA32_U2_I2S_MCLK_MULT                 (0)
     #define PRA32_U2_I2S_BCLK_PIN                  (27)  // LRCLK Pin is is PRA32_U2_I2S_BCLK_PIN + 1
     #define PRA32_U2_I2S_SWAP_BCLK_AND_LRCLK_PINS  (false)
     #define PRA32_U2_I2S_SWAP_LEFT_AND_RIGHT       (true)
     ```
 
-- The following is setting is for [Waveshare Pico-Audio](https://www.waveshare.com/wiki/Pico-Audio) Rev2.1 Version (WAVESHARE-20167) (CURRENTLY NOT RECOMMENDED)
-    - NOTE: No sound unless using Arduino-Pico 4.4.0
 
-    ```
-    //#define PRA32_U2_I2S_DAC_MUTE_OFF_PIN          (0)
-    #define PRA32_U2_I2S_DATA_PIN                  (22)
-    #define PRA32_U2_I2S_MCLK_PIN                  (26)
-    #define PRA32_U2_I2S_MCLK_MULT                 (256)
-    #define PRA32_U2_I2S_BCLK_PIN                  (27)  // LRCLK Pin is is PRA32_U2_I2S_BCLK_PIN + 1
-    #define PRA32_U2_I2S_SWAP_BCLK_AND_LRCLK_PINS  (true)
-    #define PRA32_U2_I2S_SWAP_LEFT_AND_RIGHT       (true)
-    ```
+#### Audio Buffer
+
+- The size of the output buffer (the maximum output latency) is `PRA32_U2_I2S_BUFFERS` * `PRA32_U2_I2S_BUFFER_WORDS` frames
+    - The default is 2 * 64 = 128 frames (2.7 ms)
+    - Smaller values reduce the latency, but may cause audio dropouts when the processing of a loop takes longer
+- `PRA32_U2_I2S_BUFFER_WORDS` is also the number of frames processed in each loop (the default is 64 frames)
+- These settings are also used for PWM Audio
 
 
-#### PWM Audio (Optional) (CURRENTLY NOT RECOMMENDED)
+#### PWM Audio (Optional)
 
 - PWM Audio can also be used instead of I2S (PWM Audio does not require an I2S DAC hardware)
+    - PRA32-U2's own PWM Audio Output ("pra32-u2-pwm-audio.h") is used (Arduino-Pico PWMAudio Library is not used)
+    - The PWM level (3200 steps) is quantized with the 1st-order noise shaping and the TPDF dither, which moves the quantization noise to the high frequencies
     - NOTE: Probably smaller output volume than I2S DAC boards
     - NOTE: To avoid noise, the parameters will not be written to the flash when using PWM audio
     - We recommend adding RC filter (post LPF) circuits to reduce PWM ripples
         - A 1st-order LPFs with a cutoff frequency 7.2 kHz (R = 220 ohm, C = 100 nF) works well
     - See "PWM audio" in [Hardware design with RP2040](https://datasheets.raspberrypi.com/rp2040/hardware-design-with-rp2040.pdf)
       for details on PWM audio
-- NOTE: Select CPU Speed: "150 MHz" in the Arduino IDE "Tools" menu
+- NOTE: The RP2350 system clock (sysclk) changes to overclocked 153.6 MHz (the same as I2S), regardless of CPU Speed in the Arduino IDE "Tools" menu
+    - The PWM period is exactly 3200 cycles (Sampling Rate: 48 kHz)
 - Uncomment out `//#define PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S`
   in "Digital-Synth-PRA32-U2.ino" and modify `PRA32_U2_PWM_AUDIO_L_PIN` and `PRA32_U2_PWM_AUDIO_R_PIN`
 - The following is setting is for Pimoroni Pico VGA Demo Base (PIM553)
@@ -245,35 +243,6 @@ flowchart LR
     #define PRA32_U2_PWM_AUDIO_L_PIN               (28)
     #define PRA32_U2_PWM_AUDIO_R_PIN               (27)
     ```
-
-- KNOWN ISSUE: When using PWM Audio, signal discontinuity (missing a sample) occurs about every 80 ms in each L and R channel
-    - Click noise is particularly noticeable in the high frequency band and sine waves
-
-
-### Parameter Smoothing
-
-- The parameters are smoothed, so that their steps (e.g. sent by MIDI controllers every 10 ms) are not heard
-- The smoothing is updated at 6 kHz (every other control period of 12 kHz), for the CPU usage
-- The EG and LFO modulations themselves are not smoothed (not delayed)
-- 2 stages (5.3 ms average delay, 99% in 18 ms), which round off the corners of the steps, for the amounts and the balances below
-- The amounts (of the tone, the level, or a modulation), whose steps are easily heard
-    - Filter Cutoff, Filter Resonance, Filter EG Amt, LFO Filter Amt, Breath Filter Amt
-    - Osc 1 Shape
-    - EG Mod Amt and LFO Mod Amt, when EG Mod Dst and LFO Mod Dst are F (Filter Cutoff) or 1S (Osc 1 Shape)
-    - Amp Gain
-    - LFO Depth (with LFO Fade Time, Modulation, and After Touch)
-    - Chorus Level, Chorus Depth, Delay Level, Delay Feedback
-- The balances (between two sounds, or left and right), which keep the total amount about the same
-    - Osc 1 Morph, Mixer Osc Mix, Mixer Noise/Sub Osc, Pan
-    - For the Sine Wave and the Wave Tables, the smoothed Osc 1 Morph is rounded to the controller value, as it switches the ratio or the table step by step
-- 1 stage (1.2 ms time constant, 95% in 3.7 ms), for the performance controllers, whose attack must not be softened, but whose steps must not click
-    - Breath Controller (x Breath Filter Amt)
-    - Expression x Breath Controller (Breath Amp Mod)
-- 1 stage, for the Delay Time (5.3 ms), which moves in its own way
-    - The Delay Time is also slew-limited, bending the pitch of the echoes (within +/-25%), as on a tape delay
-- The smoothed parameters are calculated in fine steps (not in the controller value steps)
-- Not smoothed: the pitch parameters, so that the pitch follows right away (Pitch Bend, and EG Mod Amt and LFO Mod Amt when EG Mod Dst and LFO Mod Dst are P or 2P), and the parameters whose steps are part of the sound (e.g. Osc 2 Coarse/Pitch, LFO Rate, EG times)
-- See the comments in "pra32-u2-common.h" for details
 
 
 ## Files
@@ -314,10 +283,10 @@ flowchart LR
 
 - Features
     - Synths
-        - Basic Channel + 0 (Default 1): Main Synth, Poly or Mono; The default program is #0; The FX parameters apply to all channels
-        - Basic Channel + 1 (Default 2): Sub Synth 1, Mono; The default program is #1; The FX parameters are disabled
-        - Basic Channel + 2 (Default 3): Sub Synth 2, Mono; The default program is #2; The FX parameters are disabled
-        - Basic Channel + 3 (Default 4): Sub Synth 3, Mono; The default program is #3; The FX parameters are disabled
+        - Basic Channel + 0 (Default 1): Main Synth, Poly or Mono; The default program is #0; The FX parameters (except FX Routing) apply to all channels
+        - Basic Channel + 1 (Default 2): Sub Synth 1, Mono; The default program is #1; The FX parameters (except FX Routing) are disabled
+        - Basic Channel + 2 (Default 3): Sub Synth 2, Mono; The default program is #2; The FX parameters (except FX Routing) are disabled
+        - Basic Channel + 3 (Default 4): Sub Synth 3, Mono; The default program is #3; The FX parameters (except FX Routing) are disabled
         - *Basic Channels + 1 to + 3 (Sub Synths) are processed only if Basic Channel + 0 (Main Synth) is in Mono modes*
     - Layering
         - Basic Channel - 3 (Default 14): Control Basic Channel + 0 and + 1 simultaneously
@@ -335,7 +304,7 @@ flowchart LR
 ## [PRA32-U2/P](./README-PRA32-U2-P.md) (PRA32-U2 with Panel) (Optional)
 
 
-## Simple Circuit for PWM Audio (Optional) (CURRENTLY NOT RECOMMENDED)
+## Simple Circuit for PWM Audio (Optional)
 
 ### Circuit Diagram
 
@@ -375,11 +344,11 @@ flowchart LR
 
 ![CC0](http://i.creativecommons.org/p/zero/1.0/88x31.png)
 
-**Digital Synth PRA32-U2 v3.5.2 by ISGK Instruments (Ryo Ishigaki)**
+**Digital Synth PRA32-U2 v3.6.0 by ISGK Instruments (Ryo Ishigaki)**
 
 To the extent possible under law, ISGK Instruments (Ryo Ishigaki)
 has waived all copyright and related or neighboring rights
-to Digital Synth PRA32-U2 v3.5.2.
+to Digital Synth PRA32-U2 v3.6.0.
 
 You should have received a copy of the CC0 legalcode along with this
 work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.

@@ -1,6 +1,6 @@
 ```
   [Polyphonic Synthesizer]                                        Date: 2026-10-06                      
-  Model: Digital Synth PRA32-U2   MIDI Implementation Chart       Version: 3.5.2                        
+  Model: Digital Synth PRA32-U2   MIDI Implementation Chart       Version: 3.6.0                        
 +-------------------------------+---------------+---------------+--------------------------------------+
 | Function...                   | Transmitted   | Recognized    | Remarks                              |
 +-------------------------------+---------------+---------------+--------------------------------------+
@@ -94,6 +94,7 @@
 |                               |               |               |                                      |
 |                               |               |               |                                      |
 |                            93 | x             | o             | Chorus Level                         |
+|                            95 | x             | o             | FX Routing [Cho|Dly|Byp]             |
 |                               |               |               |                                      |
 |                            58 | x             | o             | Chorus Rate                          |
 |                            59 | x             | o             | Chorus Depth                         |
