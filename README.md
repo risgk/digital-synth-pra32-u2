@@ -114,7 +114,7 @@ flowchart LR
     - Info: <https://www.arduino.cc/en/software>
 - Please install Arduino-Pico = **Raspberry Pi Pico/RP2040/RP2350** (by Earle F. Philhower, III) core
     - Additional Board Manager URL: <https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json>
-    - This sketch is tested with version **6.1.1**: <https://github.com/earlephilhower/arduino-pico/releases/tag/6.1.1>
+    - This sketch is tested with version **6.2.0**: <https://github.com/earlephilhower/arduino-pico/releases/tag/6.2.0>
     - Info: <https://github.com/earlephilhower/arduino-pico>
 - Please install Arduino **MIDI Library** (by Francois Best, lathoub)
     - This sketch is tested with version **5.0.2**: <https://github.com/FortySevenEffects/arduino_midi_library/releases/tag/5.0.2>
@@ -171,9 +171,14 @@ flowchart LR
 #### I2S (Default)
 
 - Use an I2S DAC (Texas Instruments PCM5100A, PCM5101A, or PCM5102A is recommended), Sampling Rate: 48 kHz, Bit Depth: 24 bit
-- NOTE: The RP2350 system clock (sysclk) changes to overclocked 153.6 MHz by I2S Audio Library setSysClk()
-- Modify `PRA32_U2_I2S_DAC_MUTE_OFF_PIN`, `PRA32_U2_I2S_DATA_PIN`, `PRA32_U2_I2S_MCLK_PIN`, `PRA32_U2_I2S_MCLK_MULT`,
-  `PRA32_U2_I2S_BCLK_PIN`, `PRA32_U2_I2S_SWAP_BCLK_AND_LRCLK_PINS`, and `PRA32_U2_I2S_SWAP_LEFT_AND_RIGHT`
+    - NOTE: I2S DACs that require MCLK are not supported
+- NOTE: The RP2350 system clock (sysclk) changes to overclocked 153.6 MHz, so that the sampling rate is exactly 48 kHz
+- PRA32-U2's own PIO I2S Output ("pra32-u2-i2s.h") is used (Arduino-Pico I2S Library is not used)
+    - The slot width is 32 bits (BCLK = 64 fs), and the 24-bit samples are sent left-justified
+    - BCLK and LRCLK are generated without jitter (the PIO clock divider is an integer)
+    - The output buffer is read by DMA without interrupts (lower CPU usage)
+- Modify `PRA32_U2_I2S_DAC_MUTE_OFF_PIN`, `PRA32_U2_I2S_DATA_PIN`, `PRA32_U2_I2S_BCLK_PIN`,
+  `PRA32_U2_I2S_SWAP_BCLK_AND_LRCLK_PINS`, and `PRA32_U2_I2S_SWAP_LEFT_AND_RIGHT`
   in "Digital-Synth-PRA32-U2.ino" to match the hardware configuration
     - Define `PRA32_U2_I2S_DAC_MUTE_OFF_PIN` and connect this pin to the I2S DAC mute off pin to reduce click noise when writing the parameters to the flash
 - The default setting is for Pimoroni [Pico Audio Pack](https://shop.pimoroni.com/products/pico-audio-pack) (PIM544)
@@ -182,8 +187,6 @@ flowchart LR
     ```
     #define PRA32_U2_I2S_DAC_MUTE_OFF_PIN          (22)
     #define PRA32_U2_I2S_DATA_PIN                  (9)
-    //#define PRA32_U2_I2S_MCLK_PIN                  (0)
-    //#define PRA32_U2_I2S_MCLK_MULT                 (0)
     #define PRA32_U2_I2S_BCLK_PIN                  (10)  // LRCLK Pin is PRA32_U2_I2S_BCLK_PIN + 1
     #define PRA32_U2_I2S_SWAP_BCLK_AND_LRCLK_PINS  (false)
     #define PRA32_U2_I2S_SWAP_LEFT_AND_RIGHT       (false)
@@ -194,8 +197,6 @@ flowchart LR
     ```
     //#define PRA32_U2_I2S_DAC_MUTE_OFF_PIN          (0)
     #define PRA32_U2_I2S_DATA_PIN                  (26)
-    //#define PRA32_U2_I2S_MCLK_PIN                  (0)
-    //#define PRA32_U2_I2S_MCLK_MULT                 (0)
     #define PRA32_U2_I2S_BCLK_PIN                  (27)  // LRCLK Pin is is PRA32_U2_I2S_BCLK_PIN + 1
     #define PRA32_U2_I2S_SWAP_BCLK_AND_LRCLK_PINS  (false)
     #define PRA32_U2_I2S_SWAP_LEFT_AND_RIGHT       (false)
@@ -206,37 +207,33 @@ flowchart LR
     ```
     //#define PRA32_U2_I2S_DAC_MUTE_OFF_PIN          (0)
     #define PRA32_U2_I2S_DATA_PIN                  (26)
-    //#define PRA32_U2_I2S_MCLK_PIN                  (0)
-    //#define PRA32_U2_I2S_MCLK_MULT                 (0)
     #define PRA32_U2_I2S_BCLK_PIN                  (27)  // LRCLK Pin is is PRA32_U2_I2S_BCLK_PIN + 1
     #define PRA32_U2_I2S_SWAP_BCLK_AND_LRCLK_PINS  (false)
     #define PRA32_U2_I2S_SWAP_LEFT_AND_RIGHT       (true)
     ```
 
-- The following is setting is for [Waveshare Pico-Audio](https://www.waveshare.com/wiki/Pico-Audio) Rev2.1 Version (WAVESHARE-20167) (CURRENTLY NOT RECOMMENDED)
-    - NOTE: No sound unless using Arduino-Pico 4.4.0
 
-    ```
-    //#define PRA32_U2_I2S_DAC_MUTE_OFF_PIN          (0)
-    #define PRA32_U2_I2S_DATA_PIN                  (22)
-    #define PRA32_U2_I2S_MCLK_PIN                  (26)
-    #define PRA32_U2_I2S_MCLK_MULT                 (256)
-    #define PRA32_U2_I2S_BCLK_PIN                  (27)  // LRCLK Pin is is PRA32_U2_I2S_BCLK_PIN + 1
-    #define PRA32_U2_I2S_SWAP_BCLK_AND_LRCLK_PINS  (true)
-    #define PRA32_U2_I2S_SWAP_LEFT_AND_RIGHT       (true)
-    ```
+#### Audio Buffer
+
+- The size of the output buffer (the maximum output latency) is `PRA32_U2_I2S_BUFFERS` * `PRA32_U2_I2S_BUFFER_WORDS` frames
+    - The default is 2 * 64 = 128 frames (2.7 ms)
+    - Smaller values reduce the latency, but may cause audio dropouts when the processing of a loop takes longer
+- `PRA32_U2_I2S_BUFFER_WORDS` is also the number of frames processed in each loop (the default is 64 frames)
+- These settings are also used for PWM Audio
 
 
-#### PWM Audio (Optional) (CURRENTLY NOT RECOMMENDED)
+#### PWM Audio (Optional)
 
 - PWM Audio can also be used instead of I2S (PWM Audio does not require an I2S DAC hardware)
+    - PRA32-U2's own PWM Audio Output ("pra32-u2-pwm-audio.h") is used (Arduino-Pico PWMAudio Library is not used)
     - NOTE: Probably smaller output volume than I2S DAC boards
     - NOTE: To avoid noise, the parameters will not be written to the flash when using PWM audio
     - We recommend adding RC filter (post LPF) circuits to reduce PWM ripples
         - A 1st-order LPFs with a cutoff frequency 7.2 kHz (R = 220 ohm, C = 100 nF) works well
     - See "PWM audio" in [Hardware design with RP2040](https://datasheets.raspberrypi.com/rp2040/hardware-design-with-rp2040.pdf)
       for details on PWM audio
-- NOTE: Select CPU Speed: "150 MHz" in the Arduino IDE "Tools" menu
+- NOTE: The RP2350 system clock (sysclk) changes to overclocked 153.6 MHz (the same as I2S), regardless of CPU Speed in the Arduino IDE "Tools" menu
+    - The PWM period is exactly 3200 cycles (Sampling Rate: 48 kHz)
 - Uncomment out `//#define PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S`
   in "Digital-Synth-PRA32-U2.ino" and modify `PRA32_U2_PWM_AUDIO_L_PIN` and `PRA32_U2_PWM_AUDIO_R_PIN`
 - The following is setting is for Pimoroni Pico VGA Demo Base (PIM553)
@@ -245,9 +242,6 @@ flowchart LR
     #define PRA32_U2_PWM_AUDIO_L_PIN               (28)
     #define PRA32_U2_PWM_AUDIO_R_PIN               (27)
     ```
-
-- KNOWN ISSUE: When using PWM Audio, signal discontinuity (missing a sample) occurs about every 80 ms in each L and R channel
-    - Click noise is particularly noticeable in the high frequency band and sine waves
 
 
 ### Parameter Smoothing
@@ -335,7 +329,7 @@ flowchart LR
 ## [PRA32-U2/P](./README-PRA32-U2-P.md) (PRA32-U2 with Panel) (Optional)
 
 
-## Simple Circuit for PWM Audio (Optional) (CURRENTLY NOT RECOMMENDED)
+## Simple Circuit for PWM Audio (Optional)
 
 ### Circuit Diagram
 
