@@ -68,6 +68,7 @@
         - 64 (63-64): Saw 100%
         - 96 (95-96): Saw 100% + Saw 50%
         - 127: Saw 100% + Saw 100% (max)
+        - NOTE: With a high "Osc 1 Shape" and a high "Osc 1 Morph", the output gets louder (up to about +6 dB), and the output limiter may make chords waver; if so, lower the "Amp Gain"
 - Osc 2 Wave [Saw|Sqr|Tri|Sin|O1|Nos]
     - 0 (0-12): Saw Wave
     - 26 (13-38): Square Wave
