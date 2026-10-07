@@ -975,7 +975,7 @@ function updateDisplayOfControl(number, value) {
   case DELAY_MODE      :
     {
       var ary = ["S","P","R"];
-      var index = (value >= 96) ? 2 : (value >= 64) ? 1 : 0;
+      var index = ((value * 4) + 128) >> 8;
       dispValue = ary[index];
     }
     break;

@@ -358,8 +358,8 @@
     - 126: Delay Time +/- 5.3 ms (max)
 - Delay Level: Delay Send Level
 - Delay Mode [S|P|R]
-    - 0 (0-63): Stereo Delay
-    - 64 (64-95): Ping Pong Delay
+    - 0 (0-31): Stereo Delay
+    - 64 (32-95): Ping Pong Delay
     - 127 (96-127): Reverb
         - The Delay Level, Delay Time, and Delay Feedback work as they do for the Delay: the same values give about the same length and loudness of the tail
         - Delay Time sets the size (the first reflection comes at about 1/3 of the Delay Time)

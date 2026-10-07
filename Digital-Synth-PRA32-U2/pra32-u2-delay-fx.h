@@ -24,8 +24,8 @@
 
 // Delay / Reverb effect
 //
-// Delay Mode:  0 -  63  Stereo Delay
-//             64 -  95  Ping Pong Delay
+// Delay Mode:  0 -  31  Stereo Delay
+//             32 -  95  Ping Pong Delay
 //             96 - 127  Reverb
 //
 // Reverb algorithm (low cost, no extra RAM: reuses m_delay_buff)
@@ -295,7 +295,7 @@ public:
 
   INLINE void set_delay_mode(uint8_t controller_value) {
     m_delay_mode_target = (controller_value >= 96) ? DELAY_MODE_REVERB :
-                          (controller_value >= 64) ? DELAY_MODE_PING_PONG : DELAY_MODE_STEREO;
+                          (controller_value >= 32) ? DELAY_MODE_PING_PONG : DELAY_MODE_STEREO;
   }
 
   INLINE void process_at_low_rate(uint8_t count) {
