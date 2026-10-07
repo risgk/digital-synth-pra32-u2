@@ -1,5 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v3.7.1 (2026-??-??):
+    - Tested with Arduino-Pico version 6.2.0
 - v3.7.0 (2026-10-07):
     - Add even harmonics to the Filter by biasing the soft clipping of the band pass state by 1/8, as the state is driven (at a high Resonance or near the cutoff), with a DC blocker (7.5 Hz) on the Filter output
         - The small-signal gain of the biased soft clipping is made up for, so that the resonance and the self-oscillation are kept (the self-oscillation is about 10 cents lower at a low cutoff)
