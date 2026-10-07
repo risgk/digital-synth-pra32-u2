@@ -9,6 +9,8 @@
     - Change the debug print (`PRA32_U2_USE_DEBUG_PRINT`) to use USB Serial (CDC) instead of UART (GP0 and GP1) by default (`PRA32_U2_DEBUG_PRINT_USE_USB_SERIAL`)
         - The secondary core writes to a lock-free buffer, and the primary core transfers it to USB Serial without blocking (the output is dropped if the host is not reading)
     - Fix the link error of "Digital-Synth-PRA32-U2.ino.Lite-Core-0-Only.txt" with `PRA32_U2_USE_CONTROL_PANEL` (`getTargetMIDICh()` was missing)
+    - Move the output soft clipping (`soft_clip_output()`) from the .ino files into the end of the Output Limiter
+        - The sound does not change, but remove `soft_clip_output()` from customized .ino files, so that the output is not clipped twice
     - Tested with Arduino-Pico version 6.2.0
 - v3.6.0 (2026-10-06):
     - Add the **FX Routing** [Cho|Dly|Byp] by Control Change #95 (and to PRA32-U2 Editor), which selects where the output is input to the FX connected in series
