@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v3.7.1 (2026-??-??):
+    - Fix the Stereo Delay of the Delay Mode from 0-63 to 0-31, and the Ping Pong Delay from 64-95 to 32-95, as with the other 3-way switches (e.g. Filter Mode)
     - Tested with Arduino-Pico version 6.2.0
 - v3.7.0 (2026-10-07):
     - Add even harmonics to the Filter by biasing the soft clipping of the band pass state by 1/8, as the state is driven (at a high Resonance or near the cutoff), with a DC blocker (7.5 Hz) on the Filter output
