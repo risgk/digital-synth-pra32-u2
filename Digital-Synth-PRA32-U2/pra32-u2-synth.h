@@ -1737,8 +1737,8 @@ if constexpr ((NO_FX == false) && (BYPASS_FX == false)) {
     delay_fx_output = mixed_output;
 }
 
-    // The output is not clipped, to be mixed with other synths, and must be
-    // passed through soft_clip_output() before being output to a DAC
+    // The output of process_fx() is limited and clipped, and can be output to a DAC.
+    // Without the FX, the output is not clipped, to be mixed with other synths
     return delay_fx_output;
   }
 
@@ -1763,8 +1763,8 @@ if constexpr ((NO_FX == false) && (BYPASS_FX == false)) {
     delay_fx_output.left  += fx_bus.input[FX_BUS_BYPASS].left;
     delay_fx_output.right += fx_bus.input[FX_BUS_BYPASS].right;
 
-    // The synth that processes the FX also limits the output, after mixing in
-    // the other synths through the FX bus (PRA32-U2/M)
+    // The synth that processes the FX also limits and clips the output, after
+    // mixing in the other synths through the FX bus (PRA32-U2/M)
     return m_output_limiter.process(delay_fx_output);
   }
 

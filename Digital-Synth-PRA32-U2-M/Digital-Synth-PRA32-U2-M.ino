@@ -442,8 +442,8 @@ void __not_in_flash_func(loop)() {
 
     PRA32_U2_StereoSample synth_fx_output = g_synth.process_fx(s_fx_bus);
     int32_t gain = g_output_fader.next_gain_q8();
-    left_buffer[i] = soft_clip_output(synth_fx_output.left) * gain;
-    right_buffer[i] = soft_clip_output(synth_fx_output.right) * gain;
+    left_buffer[i] = synth_fx_output.left * gain;
+    right_buffer[i] = synth_fx_output.right * gain;
   }
 
 #if defined(PRA32_U2_USE_DEBUG_PRINT)
