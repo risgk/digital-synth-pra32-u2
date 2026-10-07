@@ -100,7 +100,16 @@ struct MySettings : public midi::DefaultSettings {
 };
 #if defined(PRA32_U2_USE_USB_MIDI)
 #include <Adafruit_TinyUSB.h>
+#include "pico/mutex.h"
 Adafruit_USBD_MIDI usbd_midi;
+// NOTE: __usb_mutex is an internal (not public API) variable of the Adafruit TinyUSB Library
+// (defined in src/arduino/ports/rp2040/Adafruit_TinyUSB_rp2040.cpp, since v1.0.0).
+// The library runs tud_task() in an IRQ on core 0 only when mutex_try_enter(&__usb_mutex) succeeds,
+// but Adafruit_USBD_MIDI calls TinyUSB without this mutex. If the IRQ interrupts USB_MIDI.read()
+// or USB_MIDI.sendRealTime() while it holds a TinyUSB internal mutex, tud_task() waits for it
+// forever (freeze). So hold __usb_mutex while calling USB_MIDI in loop() to let the IRQ skip.
+// If a future version of the library renames this variable, the build fails with a link error
+extern mutex_t __usb_mutex;
 MIDI_CREATE_CUSTOM_INSTANCE(Adafruit_USBD_MIDI, usbd_midi, USB_MIDI, MySettings);
 #endif  // defined(PRA32_U2_USE_USB_MIDI)
 
@@ -304,6 +313,10 @@ void __not_in_flash_func(loop)() {
   uint32_t debug_measurement_start0_us = micros();
 #endif  // defined(PRA32_U2_USE_DEBUG_PRINT)
 
+#if defined(PRA32_U2_USE_USB_MIDI)
+  mutex_enter_blocking(&__usb_mutex);
+#endif  // defined(PRA32_U2_USE_USB_MIDI)
+
   for (uint32_t i = 0; i < ((PRA32_U2_I2S_BUFFER_WORDS + 31) / 32) + 1; i++) {
 #if defined(PRA32_U2_USE_USB_MIDI)
     USB_MIDI.read();
@@ -315,6 +328,10 @@ void __not_in_flash_func(loop)() {
   }
 
   PRA32_U2_ControlPanel_update_control();
+
+#if defined(PRA32_U2_USE_USB_MIDI)
+  mutex_exit(&__usb_mutex);
+#endif  // defined(PRA32_U2_USE_USB_MIDI)
 
   g_output_fader.begin_block();
 
