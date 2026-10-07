@@ -188,16 +188,12 @@ void __not_in_flash_func(setup1)() {
   delay(100);
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 
-#if defined(PRA32_U2_USE_DEBUG_PRINT)
-#if defined(PRA32_U2_DEBUG_PRINT_USE_USB_SERIAL)
-  // USB Serial (CDC) is started together with the USB device on the primary core
-#else  // defined(PRA32_U2_DEBUG_PRINT_USE_USB_SERIAL)
+#if defined(PRA32_U2_USE_DEBUG_PRINT) && !defined(PRA32_U2_DEBUG_PRINT_USE_USB_SERIAL)
   pinMode(PRA32_U2_DEBUG_PRINT_RX_PIN, INPUT_PULLUP);
   PRA32_U2_DEBUG_PRINT_SERIAL.setTX(PRA32_U2_DEBUG_PRINT_TX_PIN);
   PRA32_U2_DEBUG_PRINT_SERIAL.setRX(PRA32_U2_DEBUG_PRINT_RX_PIN);
   PRA32_U2_DEBUG_PRINT_SERIAL.begin(115200);
-#endif  // defined(PRA32_U2_DEBUG_PRINT_USE_USB_SERIAL)
-#endif  // defined(PRA32_U2_USE_DEBUG_PRINT)
+#endif  // defined(PRA32_U2_USE_DEBUG_PRINT) && !defined(PRA32_U2_DEBUG_PRINT_USE_USB_SERIAL)
 }
 
 void __not_in_flash_func(loop1)() {
