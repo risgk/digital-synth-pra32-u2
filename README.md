@@ -59,10 +59,13 @@ graph LR
 ## Filter Diagrams
 
 A zero-delay feedback state variable filter: at the sum, the loop equation is solved in closed
-form, so the high pass is found in one step. The soft clip acts only where the band pass state is
-read back, and it is what holds the resonance down; the low pass state stays linear, with a
-clamp at 16 as a guard that ordinary use never reaches. The output clip comes last. Above the
-Filter Resonance 122, k turns negative and the loop oscillates.
+form, so the high pass is found in one step. The soft clip acts only where the band pass state
+is read back, and it is what holds the resonance down; the low pass state stays linear, with a
+clamp at 16 as a guard that ordinary use never reaches. The soft clip is biased by 1/8, so that
+it adds even harmonics as the band pass state is driven (at a high Resonance or near the
+cutoff), with its small-signal gain made up for, so that the resonance is kept; a DC blocker on
+the output removes the DC that comes with it. The output clip comes last. Above the Filter
+Resonance 122, k turns negative and the loop oscillates.
 
 ```mermaid
 flowchart LR
@@ -72,9 +75,10 @@ flowchart LR
     SUM -->|HP| MS["Filter Mode<br/>LP / BP / HP"]
     I1 -->|BP| MS
     I2 -->|LP| MS
-    MS --> OC["Output clip<br/>linear up to 0.75"]
+    MS --> DC["DC blocker<br/>7.5 Hz"]
+    DC --> OC["Output clip<br/>linear up to 0.75"]
     OC --> OUT([Output])
-    SC["State clip<br/>ceiling 4.0, α comp."] -.- I1
+    SC["State clip<br/>biased 1/8, ceiling 4.0, α comp."] -.- I1
     L2["s2 is linear<br/>guard clamp at 16"] -.- I2
     I1 -->|"−k·BP"| SUM
     I2 -->|"−LP"| SUM
@@ -82,20 +86,21 @@ flowchart LR
     class SC,OC nl
 ```
 
-The same structure redrawn as an op-amp integrator filter. The diode pair stands for the state
-clip and the output clipper for the output clip. It is an interpretation, not a reproduction of
-an actual circuit.
+The same structure redrawn as an op-amp integrator filter. The asymmetric diode pair stands for
+the biased state clip, the coupling capacitor for the DC blocker, and the output clipper for the
+output clip. It is an interpretation, not a reproduction of an actual circuit.
 
 ```mermaid
 flowchart LR
     IN([Input]) --> A1["Summing amp Σ"]
     A1 -->|HP| A2["Integrator ∫<br/>C1"]
-    D["Diode pair"] -.-|across C1| A2
+    D["Diode pair<br/>asymmetric"] -.-|across C1| A2
     A2 -->|BP| A3["Integrator ∫<br/>C2, linear"]
     A1 -->|HP| MS["Filter Mode<br/>LP / BP / HP"]
     A2 -->|BP| MS
     A3 -->|LP| MS
-    MS --> LIM["Output clipper"]
+    MS --> CC["Coupling capacitor"]
+    CC --> LIM["Output clipper"]
     LIM --> OUT([Output])
     A2 -->|"R/k (resonance)"| A1
     A3 -->|R| A1
