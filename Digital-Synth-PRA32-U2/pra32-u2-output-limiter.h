@@ -2,11 +2,10 @@
 
 #include "pra32-u2-common.h"
 
-// Look-ahead peak limiter for the final output, to be followed by
-// soft_clip_output() (1.0 = 1 << 23): the output is delayed by 1 ms, and the
-// gain is lowered by the time a peak above the threshold arrives, so that loud
-// chords with a high Resonance stay below the soft clipping instead of being
-// distorted by it
+// Look-ahead peak limiter for the final output, followed by soft_clip_output()
+// (1.0 = 1 << 23): the output is delayed by 1 ms, and the gain is lowered by
+// the time a peak above the threshold arrives, so that loud chords with a high
+// Resonance stay below the soft clipping instead of being distorted by it
 class PRA32_U2_OutputLimiter {
   static_assert(SAMPLING_RATE == 48000, "the look-ahead time and the rates are for 48 kHz");
 
@@ -60,7 +59,7 @@ public:
   {
   }
 
-  // 0: Off (the output is still delayed by 1 ms), 127: full limiting (default);
+  // 0: Off (the output is still delayed by 1 ms and clipped), 127: full limiting (default);
   // 2 controller values per step, 65 steps, as the Delay Level
   INLINE void set_depth(uint8_t controller_value) {
     m_depth = ((controller_value + 1) >> 1) << 1;
@@ -86,8 +85,8 @@ public:
 
     m_gain_current = approach(m_gain_current, m_gain_next, m_gain_step);
 
-    return { multiply_shift_right(m_delay_buff[0][delay_rp], m_gain_current, 16),
-             multiply_shift_right(m_delay_buff[1][delay_rp], m_gain_current, 16) };
+    return { soft_clip_output(multiply_shift_right(m_delay_buff[0][delay_rp], m_gain_current, 16)),
+             soft_clip_output(multiply_shift_right(m_delay_buff[1][delay_rp], m_gain_current, 16)) };
   }
 
 private:
