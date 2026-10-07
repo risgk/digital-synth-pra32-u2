@@ -1940,49 +1940,49 @@ INLINE void PRA32_U2_ControlPanel_debug_print(uint32_t loop_counter) {
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
   switch (loop_counter) {
   case  5 * 400:
-    Serial1.print("\e[7;1H\e[K");
-    Serial1.print(static_cast<char*>(s_display_buffer[0]));
+    PRA32_U2_DEBUG_PRINT_SERIAL.print("\e[7;1H\e[K");
+    PRA32_U2_DEBUG_PRINT_SERIAL.print(static_cast<char*>(s_display_buffer[0]));
     break;
   case  6 * 400:
-    Serial1.print("\e[8;1H\e[K");
-    Serial1.print(static_cast<char*>(s_display_buffer[1]));
+    PRA32_U2_DEBUG_PRINT_SERIAL.print("\e[8;1H\e[K");
+    PRA32_U2_DEBUG_PRINT_SERIAL.print(static_cast<char*>(s_display_buffer[1]));
     break;
   case  7 * 400:
-    Serial1.print("\e[9;1H\e[K");
-    Serial1.print(static_cast<char*>(s_display_buffer[2]));
+    PRA32_U2_DEBUG_PRINT_SERIAL.print("\e[9;1H\e[K");
+    PRA32_U2_DEBUG_PRINT_SERIAL.print(static_cast<char*>(s_display_buffer[2]));
     break;
   case  8 * 400:
-    Serial1.print("\e[10;1H\e[K");
-    Serial1.print(static_cast<char*>(s_display_buffer[3]));
+    PRA32_U2_DEBUG_PRINT_SERIAL.print("\e[10;1H\e[K");
+    PRA32_U2_DEBUG_PRINT_SERIAL.print(static_cast<char*>(s_display_buffer[3]));
     break;
   case  9 * 400:
-    Serial1.print("\e[11;1H\e[K");
-    Serial1.print(static_cast<char*>(s_display_buffer[4]));
+    PRA32_U2_DEBUG_PRINT_SERIAL.print("\e[11;1H\e[K");
+    PRA32_U2_DEBUG_PRINT_SERIAL.print(static_cast<char*>(s_display_buffer[4]));
     break;
   case 10 * 400:
-    Serial1.print("\e[12;1H\e[K");
-    Serial1.print(static_cast<char*>(s_display_buffer[5]));
+    PRA32_U2_DEBUG_PRINT_SERIAL.print("\e[12;1H\e[K");
+    PRA32_U2_DEBUG_PRINT_SERIAL.print(static_cast<char*>(s_display_buffer[5]));
     break;
   case 11 * 400:
-    Serial1.print("\e[13;1H\e[K");
-    Serial1.print(static_cast<char*>(s_display_buffer[6]));
+    PRA32_U2_DEBUG_PRINT_SERIAL.print("\e[13;1H\e[K");
+    PRA32_U2_DEBUG_PRINT_SERIAL.print(static_cast<char*>(s_display_buffer[6]));
     break;
   case 12 * 400:
-    Serial1.print("\e[14;1H\e[K");
-    Serial1.print(static_cast<char*>(s_display_buffer[7]));
+    PRA32_U2_DEBUG_PRINT_SERIAL.print("\e[14;1H\e[K");
+    PRA32_U2_DEBUG_PRINT_SERIAL.print(static_cast<char*>(s_display_buffer[7]));
     break;
 #if defined(PRA32_U2_USE_CONTROL_PANEL_ANALOG_INPUT)
   case 13 * 400:
-    Serial1.print("\e[16;1H\e[K");
-    Serial1.print(s_adc_current_value[0]);
+    PRA32_U2_DEBUG_PRINT_SERIAL.print("\e[16;1H\e[K");
+    PRA32_U2_DEBUG_PRINT_SERIAL.print(s_adc_current_value[0]);
     break;
   case 14 * 400:
-    Serial1.print("\e[17;1H\e[K");
-    Serial1.print(s_adc_current_value[1]);
+    PRA32_U2_DEBUG_PRINT_SERIAL.print("\e[17;1H\e[K");
+    PRA32_U2_DEBUG_PRINT_SERIAL.print(s_adc_current_value[1]);
     break;
   case 15 * 400:
-    Serial1.print("\e[18;1H\e[K");
-    Serial1.print(s_adc_current_value[2]);
+    PRA32_U2_DEBUG_PRINT_SERIAL.print("\e[18;1H\e[K");
+    PRA32_U2_DEBUG_PRINT_SERIAL.print(s_adc_current_value[2]);
     break;
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL_ANALOG_INPUT)
   }
