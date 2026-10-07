@@ -126,6 +126,13 @@ PRA32_U2_PWMAudioOutput g_pwm_output(PRA32_U2_PWM_AUDIO_L_PIN, PRA32_U2_PWM_AUDI
 #include "pra32-u2-i2s.h"
 PRA32_U2_I2SOutput g_i2s_output;
 
+#include "pra32-u2-output-fader.h"
+#if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
+PRA32_U2_OutputFader g_output_fader(g_pwm_output);
+#else  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
+PRA32_U2_OutputFader g_output_fader(g_i2s_output);
+#endif  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
+
 static volatile uint32_t s_debug_measurement_min0_us     = UINT32_MAX;
 static volatile uint32_t s_debug_measurement_max0_us     = 0;
 static volatile uint32_t s_debug_measurement_min1_us     = UINT32_MAX;
@@ -342,6 +349,8 @@ void __not_in_flash_func(loop)() {
 
   PRA32_U2_ControlPanel_update_control();
 
+  g_output_fader.begin_block();
+
   boolean mode = g_synth.is_in_polyphonic_mode();
   if (g_synth_is_in_polyphonic_mode != mode) {
     g_synth_is_in_polyphonic_mode = mode;
@@ -381,8 +390,9 @@ void __not_in_flash_func(loop)() {
     g_synth.add_to_fx_bus(synth_output, s_fx_bus);
 
     PRA32_U2_StereoSample synth_fx_output = g_synth.process_fx(s_fx_bus);
-    left_buffer[i] = soft_clip_output(synth_fx_output.left) << 8;
-    right_buffer[i] = soft_clip_output(synth_fx_output.right) << 8;
+    int32_t gain = g_output_fader.next_gain_q8();
+    left_buffer[i] = soft_clip_output(synth_fx_output.left) * gain;
+    right_buffer[i] = soft_clip_output(synth_fx_output.right) * gain;
   }
 
 #if defined(PRA32_U2_USE_DEBUG_PRINT)

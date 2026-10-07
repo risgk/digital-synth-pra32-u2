@@ -15,9 +15,11 @@
 
 #if defined(ARDUINO_ARCH_RP2040)
 #include <EEPROM.h>
-#include "pra32-u2-i2s.h"
-extern PRA32_U2_I2SOutput g_i2s_output;
 #endif  // defined(ARDUINO_ARCH_RP2040)
+
+// Set by write_parameters_to_program() (EEPROM.write() is done immediately),
+// and the sketch calls EEPROM.commit() after fading out the output (see loop())
+static volatile boolean g_eeprom_commit_requested = false;
 
 #include <algorithm>
 #include <cstring>
@@ -463,7 +465,6 @@ public:
 #if defined(PRA32_U2_USE_EMULATED_EEPROM)
     EEPROM.begin(3072);
 
-#if !defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
     for (uint32_t program_number = 0; program_number <= USER_PROGRAM_NUMBER_MAX; ++program_number) {
       if ((EEPROM.read(1024 + program_number * 128) == 'U') && (EEPROM.read(1024 + program_number * 128 + 1) == program_number)) {
         for (uint32_t i = 0; i < sizeof(s_program_table_parameters) / sizeof(s_program_table_parameters[0]); ++i) {
@@ -488,7 +489,6 @@ public:
     }
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 
-#endif  // !defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
 #endif  // defined(PRA32_U2_USE_EMULATED_EEPROM)
 #endif  // defined(ARDUINO_ARCH_RP2040)
 
@@ -1541,25 +1541,7 @@ if constexpr (NO_FX == false) {
     }
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 
-#if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
-
-#else  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
-
-#if defined(PRA32_U2_I2S_DAC_MUTE_OFF_PIN)
-    digitalWrite(PRA32_U2_I2S_DAC_MUTE_OFF_PIN, LOW);
-#endif  // defined(PRA32_U2_I2S_DAC_MUTE_OFF_PIN)
-
-    g_i2s_output.end();
-
-    EEPROM.commit();
-
-    g_i2s_output.begin();
-
-#if defined(PRA32_U2_I2S_DAC_MUTE_OFF_PIN)
-    digitalWrite(PRA32_U2_I2S_DAC_MUTE_OFF_PIN, HIGH);
-#endif  // defined(PRA32_U2_I2S_DAC_MUTE_OFF_PIN)
-
-#endif  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
+    g_eeprom_commit_requested = true;  // EEPROM.commit() is deferred (see loop())
 
 #endif  // defined(PRA32_U2_USE_EMULATED_EEPROM)
 

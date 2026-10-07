@@ -6,6 +6,8 @@
 //   paced by the DREQ of the output device, so no IRQs are used
 // - The buffer size is set in frames (1 frame = L + R) by setBufferFrames(), and it is the maximum output latency
 // - The writer blocks while the buffer is full, and reads the DMA read address only when the cached writable count is 0
+// - If the writer stops (e.g. while EEPROM.commit() is writing to the flash), the DMA keeps playing the ring repeatedly,
+//   so write the whole ring with writeSilence() before stopping, and call resync() after restarting
 
 #include "pra32-u2-common.h"
 #include <hardware/dma.h>
@@ -16,6 +18,7 @@ class PRA32_U2_AudioRingBuffer {
   uint32_t  m_buffer_frames;
   uint32_t  m_ring_words;
   uint32_t  m_words_per_frame_shift;
+  uint32_t  m_silence_word;
   uint32_t* m_ring_start[2];
   int       m_dma_data[2];
   int       m_dma_control[2];
@@ -31,6 +34,7 @@ protected:
   : m_buffer_frames(DEFAULT_BUFFER_FRAMES)
   , m_ring_words()
   , m_words_per_frame_shift()
+  , m_silence_word()
   , m_ring_start{}
   , m_dma_data{-1, -1}
   , m_dma_control{-1, -1}
@@ -46,6 +50,7 @@ protected:
     m_number_of_rings = number_of_rings;
     m_words_per_frame_shift = (words_per_frame == 2) ? 1 : 0;
     m_ring_words = m_buffer_frames << m_words_per_frame_shift;
+    m_silence_word = silence_word;
 
     for (uint32_t k = 0; k < m_number_of_rings; ++k) {
       m_ring[k] = new uint32_t[m_ring_words];
@@ -129,6 +134,29 @@ public:
     }
     m_buffer_frames = buffer_frames;
     return true;
+  }
+
+  // The actual size of the ring buffer (the default size if setBufferFrames() failed)
+  uint32_t getBufferFrames() const {
+    return m_buffer_frames;
+  }
+
+  // Writes 1 frame of the exact silence (no dither with PWM Audio), and blocks while the buffer is full
+  INLINE void writeSilence() {
+    if (m_number_of_rings == 0) {
+      return;
+    }
+    ring_wait_for_writable();
+    for (uint32_t k = 0; k < m_number_of_rings; ++k) {
+      m_ring[k][m_write_index] = m_silence_word;
+      m_ring[k][m_write_index + m_words_per_frame_shift] = m_silence_word;
+    }
+    ring_advance();
+  }
+
+  // Discards the cached writable count, which is invalid after the writer has stopped longer than the buffer
+  void resync() {
+    m_writable = 0;
   }
 
 private:
