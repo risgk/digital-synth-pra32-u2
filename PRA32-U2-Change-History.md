@@ -2,6 +2,9 @@
 
 - v3.6.1 (2026-??-??):
     - Recommend the prebuilt UF2 file of PRA32-U2/M (a superset of PRA32-U2) in README
+    - Improve the noise when writing the User Programs to the flash, by fading out the output (about 4 ms) before writing and fading it in after writing (the output is silent while writing, about 50-100 ms, + 20 ms with the I2S DAC mute)
+        - With an I2S DAC, the output is also soft muted (`PRA32_U2_I2S_DAC_MUTE_OFF_PIN`) while writing, as before
+    - Change the User Programs to be written to and read from the flash also with PWM Audio (they were not, to avoid noise)
     - Tested with Arduino-Pico version 6.2.0
 - v3.6.0 (2026-10-06):
     - Add the **FX Routing** [Cho|Dly|Byp] by Control Change #95 (and to PRA32-U2 Editor), which selects where the output is input to the FX connected in series
