@@ -1,4 +1,4 @@
-# Digital Synth PRA32-U2 v3.6.0
+# Digital Synth PRA32-U2 v3.7.0
 
 - 2026-09-22 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
@@ -17,8 +17,10 @@
     - **[PRA32-U2/M](#pra32-u2m-pra32-u2-multi-timbre-edition-optional)** (PRA32-U2 Multi-Timbre Edition) can also be configured
     - **[PRA32-U2/P](./README-PRA32-U2-P.md)** (PRA32-U2 with Panel) and **PRA32-U2/M/P** (PRA32-U2 Multi-Timbre Edition with Panel) can also be configured by adding certain parts
 - Prebuilt UF2 files (in the "bin" folder)
+    - PRA32-U2/M (Recommended): "Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico 2 and Pimoroni Pico Audio Pack
+        - A superset of PRA32-U2: the Main Synth (Basic Channel + 0) works the same as PRA32-U2, and the Sub Synths and Layering are added
+        - NOTE: It also responds to MIDI Channels 2-4 and 14-16 (by default); use PRA32-U2 if these channels are used for other devices
     - PRA32-U2: "Digital-Synth-PRA32-U2-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico 2 and Pimoroni Pico Audio Pack
-    - PRA32-U2/M: "Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico 2 and Pimoroni Pico Audio Pack
 
 ![PRA32-U2 (Pico Audio Pack)](./pra32-u2-pico-audio-pack.jpg)
 
@@ -57,10 +59,13 @@ graph LR
 ## Filter Diagrams
 
 A zero-delay feedback state variable filter: at the sum, the loop equation is solved in closed
-form, so the high pass is found in one step. The soft clip acts only where the band pass state is
-read back, and it is what holds the resonance down; the low pass state stays linear, with a
-clamp at 16 as a guard that ordinary use never reaches. The output clip comes last. Above the
-Filter Resonance 122, k turns negative and the loop oscillates.
+form, so the high pass is found in one step. The soft clip acts only where the band pass state
+is read back, and it is what holds the resonance down; the low pass state stays linear, with a
+clamp at 16 as a guard that ordinary use never reaches. The soft clip is biased by 1/8, so that
+it adds even harmonics as the band pass state is driven (at a high Resonance or near the
+cutoff), with its small-signal gain made up for, so that the resonance is kept; a DC blocker on
+the output removes the DC that comes with it. The output clip comes last. Above the Filter
+Resonance 122, k turns negative and the loop oscillates.
 
 ```mermaid
 flowchart LR
@@ -70,9 +75,10 @@ flowchart LR
     SUM -->|HP| MS["Filter Mode<br/>LP / BP / HP"]
     I1 -->|BP| MS
     I2 -->|LP| MS
-    MS --> OC["Output clip<br/>linear up to 0.75"]
+    MS --> DC["DC blocker<br/>7.5 Hz"]
+    DC --> OC["Output clip<br/>linear up to 0.75"]
     OC --> OUT([Output])
-    SC["State clip<br/>ceiling 4.0, α comp."] -.- I1
+    SC["State clip<br/>biased 1/8, ceiling 4.0, α comp."] -.- I1
     L2["s2 is linear<br/>guard clamp at 16"] -.- I2
     I1 -->|"−k·BP"| SUM
     I2 -->|"−LP"| SUM
@@ -80,20 +86,21 @@ flowchart LR
     class SC,OC nl
 ```
 
-The same structure redrawn as an op-amp integrator filter. The diode pair stands for the state
-clip and the output clipper for the output clip. It is an interpretation, not a reproduction of
-an actual circuit.
+The same structure redrawn as an op-amp integrator filter. The asymmetric diode pair stands for
+the biased state clip, the coupling capacitor for the DC blocker, and the output clipper for the
+output clip. It is an interpretation, not a reproduction of an actual circuit.
 
 ```mermaid
 flowchart LR
     IN([Input]) --> A1["Summing amp Σ"]
     A1 -->|HP| A2["Integrator ∫<br/>C1"]
-    D["Diode pair"] -.-|across C1| A2
+    D["Diode pair<br/>asymmetric"] -.-|across C1| A2
     A2 -->|BP| A3["Integrator ∫<br/>C2, linear"]
     A1 -->|HP| MS["Filter Mode<br/>LP / BP / HP"]
     A2 -->|BP| MS
     A3 -->|LP| MS
-    MS --> LIM["Output clipper"]
+    MS --> CC["Coupling capacitor"]
+    CC --> LIM["Output clipper"]
     LIM --> OUT([Output])
     A2 -->|"R/k (resonance)"| A1
     A3 -->|R| A1
@@ -220,6 +227,11 @@ flowchart LR
     - Smaller values reduce the latency, but may cause audio dropouts when the processing of a loop takes longer
 - `PRA32_U2_I2S_BUFFER_WORDS` is also the number of frames processed in each loop (the default is 64 frames)
 - These settings are also used for PWM Audio
+- The latency from receiving a MIDI message to the audio output is about 3.8-5.1 ms (4.4 ms on average) by default
+    - The output buffer is almost always full, so the frames processed in a loop are output about 2.7 ms after the loop starts
+    - The MIDI messages are read once at the start of each loop (every 64 frames, 1.3 ms)
+    - The Output Limiter delays the output by 1 ms (look-ahead), even when it is off
+    - The transmission time of the MIDI messages (about 1 ms for 3 bytes with UART MIDI) and the latency of the DAC are not included
 
 
 #### PWM Audio (Optional)
@@ -228,7 +240,7 @@ flowchart LR
     - PRA32-U2's own PWM Audio Output ("pra32-u2-pwm-audio.h") is used (Arduino-Pico PWMAudio Library is not used)
     - The PWM level (3200 steps) is quantized with the 1st-order noise shaping and the TPDF dither, which moves the quantization noise to the high frequencies
     - NOTE: Probably smaller output volume than I2S DAC boards
-    - NOTE: To avoid noise, the parameters will not be written to the flash when using PWM audio
+    - The parameters are written to the flash after fading out the output (about 4 ms), and the output is silent while writing (about 50-100 ms, + 20 ms with the I2S DAC mute)
     - We recommend adding RC filter (post LPF) circuits to reduce PWM ripples
         - A 1st-order LPFs with a cutoff frequency 7.2 kHz (R = 220 ohm, C = 100 nF) works well
     - See "PWM audio" in [Hardware design with RP2040](https://datasheets.raspberrypi.com/rp2040/hardware-design-with-rp2040.pdf)
@@ -344,11 +356,11 @@ flowchart LR
 
 ![CC0](http://i.creativecommons.org/p/zero/1.0/88x31.png)
 
-**Digital Synth PRA32-U2 v3.6.0 by ISGK Instruments (Ryo Ishigaki)**
+**Digital Synth PRA32-U2 v3.7.0 by ISGK Instruments (Ryo Ishigaki)**
 
 To the extent possible under law, ISGK Instruments (Ryo Ishigaki)
 has waived all copyright and related or neighboring rights
-to Digital Synth PRA32-U2 v3.6.0.
+to Digital Synth PRA32-U2 v3.7.0.
 
 You should have received a copy of the CC0 legalcode along with this
 work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.

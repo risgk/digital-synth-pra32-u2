@@ -30,6 +30,10 @@ static INLINE int32_t saturate_to_ceiling(int32_t value) {
 #endif
 }
 
+// Shift of the product c * c to c^2 / 16 in Q30, where c is in FILTER_ONE units
+static const uint8_t SOFT_CLIP_SQUARED_SHIFT = ((23 + FILTER_CALC_SCALING_BITS) * 2) - FILTER_TABLE_FRACTION_BITS
+                                             + (2 * SOFT_CLIP_CEILING_BITS);
+
 // Cubic soft clipping with the ceiling at 4.0, realized by "gain prediction":
 // instead of evaluating a waveshaper on the signal, the gain of the clipper is
 // predicted from the signal and applied by a single multiplication
@@ -39,26 +43,52 @@ static INLINE int32_t soft_clip(int32_t value) {
 
   int32_t clamped = saturate_to_ceiling<SOFT_CLIP_CEILING_BITS>(value);
   // c^2 / 16 in Q30, at most 1.0
-  int32_t squared = multiply_shift_right(clamped, clamped,
-                                         ((23 + FILTER_CALC_SCALING_BITS) * 2) - FILTER_TABLE_FRACTION_BITS
-                                         + (2 * SOFT_CLIP_CEILING_BITS));
+  int32_t squared = multiply_shift_right(clamped, clamped, SOFT_CLIP_SQUARED_SHIFT);
   int32_t gain = (1 << FILTER_TABLE_FRACTION_BITS) - (squared / 3);
 
   return multiply_shift_right(clamped, gain, FILTER_TABLE_FRACTION_BITS);
 }
 
+// Asymmetric soft clipping by a DC bias B: the clipper is shifted by B, its
+// output at no signal is subtracted, so that it still passes 0 through 0, and
+// its small-signal gain 1 - B^2 / 16 is made up for, so that the resonance and
+// the self-oscillation are kept (without it, B = 1/8 weakens and B = 1/4 stops
+// the self-oscillation)
+//   soft_clip_biased(x) = (soft_clip(x + B) - soft_clip(B)) / (1 - B^2 / 16)
+// The 2nd order term adds even harmonics as the band pass state is driven,
+// i.e. at a high Resonance or near the cutoff, and also a DC that follows the
+// level, which the DC blocker on the output removes
+static const int32_t SOFT_CLIP_BIAS = FILTER_ONE >> 3;  // B = 1/8
+
+// B^2 / 16 in Q30, as in soft_clip()
+static const int32_t SOFT_CLIP_BIAS_SQUARED = (static_cast<int64_t>(SOFT_CLIP_BIAS) * SOFT_CLIP_BIAS) >> SOFT_CLIP_SQUARED_SHIFT;
+
+// soft_clip(B), with the same rounding as soft_clip()
+static const int32_t SOFT_CLIP_BIAS_OUTPUT =
+  (static_cast<int64_t>(SOFT_CLIP_BIAS) * ((1 << FILTER_TABLE_FRACTION_BITS) - (SOFT_CLIP_BIAS_SQUARED / 3)))
+  >> FILTER_TABLE_FRACTION_BITS;
+
+// 1 / (1 - B^2 / 16), Q30
+static const int32_t SOFT_CLIP_BIAS_GAIN_COMP =
+  (1LL << (FILTER_TABLE_FRACTION_BITS * 2)) / ((1 << FILTER_TABLE_FRACTION_BITS) - SOFT_CLIP_BIAS_SQUARED);
+
+static INLINE int32_t soft_clip_biased(int32_t value) {
+  return multiply_shift_right(soft_clip(value + SOFT_CLIP_BIAS) - SOFT_CLIP_BIAS_OUTPUT,
+                              SOFT_CLIP_BIAS_GAIN_COMP, FILTER_TABLE_FRACTION_BITS);
+}
+
 // The band pass state is soft-clipped once per sample, so the distortion
 // grows with the sampling rate; blending the clipper by alpha = 48000 / f_s
 // keeps the sound at 48 kHz on other sampling rates
-//   soft_clip_state(x) = x - alpha * (x - soft_clip(x))
+//   soft_clip_state(x) = x - alpha * (x - soft_clip_biased(x))
 static_assert(SAMPLING_RATE > 24000, "alpha must be less than 2.0 (Q30)");
 static const int32_t FILTER_STATE_CLIP_ALPHA = (48000LL << FILTER_TABLE_FRACTION_BITS) / SAMPLING_RATE;  // Q30
 
 static INLINE int32_t soft_clip_state(int32_t value) {
   if constexpr (SAMPLING_RATE == 48000) {
-    return soft_clip(value);  // alpha = 1
+    return soft_clip_biased(value);  // alpha = 1
   } else {
-    return value - multiply_shift_right(value - soft_clip(value), FILTER_STATE_CLIP_ALPHA, FILTER_TABLE_FRACTION_BITS);
+    return value - multiply_shift_right(value - soft_clip_biased(value), FILTER_STATE_CLIP_ALPHA, FILTER_TABLE_FRACTION_BITS);
   }
 }
 
@@ -95,6 +125,10 @@ class PRA32_U2_Filter {
   // state lets it start and grow (about -115 dB when not oscillating)
   static const uint8_t SELF_OSC_NOISE_SHIFT = 18;
 
+  // The DC blocker on the output, for the DC from soft_clip_biased(), is a one pole
+  // high pass at about f_s / (2 * pi * 2^10), i.e. 7.5 Hz at 48 kHz
+  static const uint8_t DC_BLOCKER_SHIFT = 10;
+
   int32_t m_g;                        // g = tan(pi * f_0 / f_s), Q26
   int32_t m_one_over_a_0;              // 1 / a_0, Q30, where a_0 = 1 + g * (g + k)
   int32_t m_g_plus_k_over_a_0;         // (g + k) / a_0, Q30
@@ -106,6 +140,7 @@ class PRA32_U2_Filter {
   int32_t m_g_plus_k_over_a_0_last;
   int32_t m_s_1;                       // State of the band pass integrator
   int32_t m_s_2;                       // State of the low pass integrator
+  int32_t m_dc_blocker;                // DC of the output
   uint8_t m_resonance_target;
   int32_t m_resonance_stage_1;
   int32_t m_resonance_current;
@@ -143,6 +178,7 @@ public:
   , m_g_plus_k_over_a_0_last()
   , m_s_1()
   , m_s_2()
+  , m_dc_blocker()
   , m_resonance_target()
   , m_resonance_stage_1()
   , m_resonance_current()
@@ -259,6 +295,7 @@ public:
   INLINE void reset() {
     m_s_1 = 0;
     m_s_2 = 0;
+    m_dc_blocker = 0;
     m_cutoff_drift_noise = 0;
     // The smoothing states jump to their targets while the sound is off, so
     // that the next note does not start with a slow filter sweep
@@ -355,6 +392,10 @@ public:
     } else if (m_filter_mode == 2) {
       y_0 = high_pass;
     }
+
+    // Remove the DC from the biased soft clipping of the band pass state
+    m_dc_blocker += (y_0 - m_dc_blocker) >> DC_BLOCKER_SHIFT;
+    y_0 -= m_dc_blocker;
 #else
     int32_t y_0 = audio_input_int24 << FILTER_CALC_SCALING_BITS;
 #endif

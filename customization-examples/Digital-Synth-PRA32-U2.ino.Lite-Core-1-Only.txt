@@ -4,7 +4,7 @@
  * - Osc 1 Shape and Morph are disabled in Saw, Sqr, and WT
  */
 
-#define PRA32_U2_VERSION                       "v3.6.0    "
+#define PRA32_U2_VERSION                       "v3.7.0    "
 
 #define PRA32_U2_MIDI_CH                       (0)  // 0-based
 
@@ -51,6 +51,13 @@ PRA32_U2_PWMAudioOutput g_pwm_output(PRA32_U2_PWM_AUDIO_L_PIN, PRA32_U2_PWM_AUDI
 
 #include "pra32-u2-i2s.h"
 PRA32_U2_I2SOutput g_i2s_output;
+
+#include "pra32-u2-output-fader.h"
+#if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
+PRA32_U2_OutputFader g_output_fader(g_pwm_output);
+#else  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
+PRA32_U2_OutputFader g_output_fader(g_i2s_output);
+#endif  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
 
 void __not_in_flash_func(setup1)() {
 }
@@ -99,12 +106,15 @@ void __not_in_flash_func(setup)() {
 void __not_in_flash_func(loop)() {
   // TODO
 
+  g_output_fader.begin_block();
+
   int32_t left_buffer[PRA32_U2_I2S_BUFFER_WORDS];
   int32_t right_buffer[PRA32_U2_I2S_BUFFER_WORDS];
   for (uint32_t i = 0; i < PRA32_U2_I2S_BUFFER_WORDS; i++) {
     PRA32_U2_StereoSample synth_output = g_synth.process<false, false, true, true>(0, 0);
-    left_buffer[i] = soft_clip_output(synth_output.left) << 8;
-    right_buffer[i] = soft_clip_output(synth_output.right) << 8;
+    int32_t gain = g_output_fader.next_gain_q8();
+    left_buffer[i] = synth_output.left * gain;
+    right_buffer[i] = synth_output.right * gain;
   }
 
 #if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)

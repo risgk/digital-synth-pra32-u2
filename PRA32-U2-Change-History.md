@@ -1,5 +1,19 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v3.7.0 (2026-10-07):
+    - Add even harmonics to the Filter by biasing the soft clipping of the band pass state by 1/8, as the state is driven (at a high Resonance or near the cutoff), with a DC blocker (7.5 Hz) on the Filter output
+        - The small-signal gain of the biased soft clipping is made up for, so that the resonance and the self-oscillation are kept (the self-oscillation is about 10 cents lower at a low cutoff)
+    - Fix a rare freeze with USB MIDI, by holding `__usb_mutex` (internal to Adafruit TinyUSB Library) while calling USB MIDI in `loop()`
+    - Fix the link error of "Digital-Synth-PRA32-U2.ino.Lite-Core-0-Only.txt" with `PRA32_U2_USE_CONTROL_PANEL` (`getTargetMIDICh()` was missing)
+    - Change the User Programs to be written to and read from the flash also with PWM Audio (they were not, to avoid noise)
+    - Change the debug print (`PRA32_U2_USE_DEBUG_PRINT`) to use USB Serial (CDC) instead of UART (GP0 and GP1) by default (`PRA32_U2_DEBUG_PRINT_USE_USB_SERIAL`)
+        - The secondary core writes to a lock-free buffer, and the primary core transfers it to USB Serial without blocking (the output is dropped if the host is not reading)
+    - Move the output soft clipping (`soft_clip_output()`) from the .ino files into the end of the Output Limiter
+        - The sound does not change, but remove `soft_clip_output()` from customized .ino files, so that the output is not clipped twice
+    - Improve the noise when writing the User Programs to the flash, by fading out the output (about 4 ms) before writing and fading it in after writing (the output is silent while writing, about 50-100 ms, + 20 ms with the I2S DAC mute)
+        - With an I2S DAC, the output is also soft muted (`PRA32_U2_I2S_DAC_MUTE_OFF_PIN`) while writing, as before
+    - Recommend the prebuilt UF2 file of PRA32-U2/M (a superset of PRA32-U2) in README
+    - Tested with Arduino-Pico version 6.2.0
 - v3.6.0 (2026-10-06):
     - Add the **FX Routing** [Cho|Dly|Byp] by Control Change #95 (and to PRA32-U2 Editor), which selects where the output is input to the FX connected in series
         - Cho (0-31): Through the Chorus and the Delay (as before)

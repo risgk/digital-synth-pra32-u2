@@ -2,7 +2,7 @@
  * Digital Synth PRA32-U2
  */
 
-#define PRA32_U2_VERSION                       "v3.6.0    "
+#define PRA32_U2_VERSION                       "v3.7.0    "
 
 //#define PRA32_U2_USE_DEBUG_PRINT
 
@@ -10,9 +10,15 @@
 
 #define PRA32_U2_USE_UART_MIDI
 
+#define PRA32_U2_DEBUG_PRINT_USE_USB_SERIAL     // Use USB Serial (CDC) instead of UART for debug print
+
+#if defined(PRA32_U2_DEBUG_PRINT_USE_USB_SERIAL)
+#define PRA32_U2_DEBUG_PRINT_SERIAL            g_debug_print_buffer  // Transferred to USB Serial on the primary core
+#else  // defined(PRA32_U2_DEBUG_PRINT_USE_USB_SERIAL)
 #define PRA32_U2_DEBUG_PRINT_SERIAL            Serial1
 #define PRA32_U2_DEBUG_PRINT_TX_PIN            (0)
 #define PRA32_U2_DEBUG_PRINT_RX_PIN            (1)
+#endif  // defined(PRA32_U2_DEBUG_PRINT_USE_USB_SERIAL)
 
 #define PRA32_U2_UART_MIDI_SPEED               (31250)
 //#define PRA32_U2_UART_MIDI_SPEED               (38400)
@@ -98,13 +104,27 @@ struct MySettings : public midi::DefaultSettings {
 };
 #if defined(PRA32_U2_USE_USB_MIDI)
 #include <Adafruit_TinyUSB.h>
+#include "pico/mutex.h"
 Adafruit_USBD_MIDI usbd_midi;
+// NOTE: __usb_mutex is an internal (not public API) variable of the Adafruit TinyUSB Library
+// (defined in src/arduino/ports/rp2040/Adafruit_TinyUSB_rp2040.cpp, since v1.0.0).
+// The library runs tud_task() in an IRQ on core 0 only when mutex_try_enter(&__usb_mutex) succeeds,
+// but Adafruit_USBD_MIDI calls TinyUSB without this mutex. If the IRQ interrupts USB_MIDI.read()
+// or USB_MIDI.sendRealTime() while it holds a TinyUSB internal mutex, tud_task() waits for it
+// forever (freeze). So hold __usb_mutex while calling USB_MIDI in loop() to let the IRQ skip.
+// If a future version of the library renames this variable, the build fails with a link error
+extern mutex_t __usb_mutex;
 MIDI_CREATE_CUSTOM_INSTANCE(Adafruit_USBD_MIDI, usbd_midi, USB_MIDI, MySettings);
 #endif  // defined(PRA32_U2_USE_USB_MIDI)
 
 #if defined(PRA32_U2_USE_UART_MIDI)
 MIDI_CREATE_CUSTOM_INSTANCE(HardwareSerial, PRA32_U2_UART_MIDI_SERIAL, UART_MIDI, MySettings);
 #endif
+
+#if defined(PRA32_U2_USE_DEBUG_PRINT) && defined(PRA32_U2_DEBUG_PRINT_USE_USB_SERIAL)
+#include "pra32-u2-debug-print-buffer.h"
+PRA32_U2_DebugPrintBuffer g_debug_print_buffer;
+#endif  // defined(PRA32_U2_USE_DEBUG_PRINT) && defined(PRA32_U2_DEBUG_PRINT_USE_USB_SERIAL)
 
 #include "pra32-u2-control-panel.h"
 
@@ -116,11 +136,36 @@ PRA32_U2_PWMAudioOutput g_pwm_output(PRA32_U2_PWM_AUDIO_L_PIN, PRA32_U2_PWM_AUDI
 #include "pra32-u2-i2s.h"
 PRA32_U2_I2SOutput g_i2s_output;
 
+#include "pra32-u2-output-fader.h"
+#if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
+PRA32_U2_OutputFader g_output_fader(g_pwm_output);
+#else  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
+PRA32_U2_OutputFader g_output_fader(g_i2s_output);
+#endif  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
+
 static volatile uint32_t s_debug_measurement_min0_us     = UINT32_MAX;
 static volatile uint32_t s_debug_measurement_max0_us     = 0;
 static volatile uint32_t s_debug_measurement_min1_us     = UINT32_MAX;
 static volatile uint32_t s_debug_measurement_max1_us     = 0;
 static volatile uint32_t s_debug_measurement_counted     = 0;
+
+#if defined(PRA32_U2_USE_DEBUG_PRINT)
+static boolean debug_print_begin(uint32_t loop_counter) {
+  // Printing is only done when loop_counter is a multiple of 400
+  if ((loop_counter % 400) != 0) {
+    return false;
+  }
+
+#if defined(PRA32_U2_DEBUG_PRINT_USE_USB_SERIAL)
+  // Skip printing if the buffer is almost full (e.g. the host is not reading) not to print a partial line
+  if (PRA32_U2_DEBUG_PRINT_SERIAL.availableForWrite() < 64) {
+    return false;
+  }
+#endif  // defined(PRA32_U2_DEBUG_PRINT_USE_USB_SERIAL)
+
+  return true;
+}
+#endif  // defined(PRA32_U2_USE_DEBUG_PRINT)
 
 void handleNoteOn(byte channel, byte pitch, byte velocity);
 void handleNoteOff(byte channel, byte pitch, byte velocity);
@@ -143,12 +188,12 @@ void __not_in_flash_func(setup1)() {
   delay(100);
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 
-#if defined(PRA32_U2_USE_DEBUG_PRINT)
+#if defined(PRA32_U2_USE_DEBUG_PRINT) && !defined(PRA32_U2_DEBUG_PRINT_USE_USB_SERIAL)
   pinMode(PRA32_U2_DEBUG_PRINT_RX_PIN, INPUT_PULLUP);
   PRA32_U2_DEBUG_PRINT_SERIAL.setTX(PRA32_U2_DEBUG_PRINT_TX_PIN);
   PRA32_U2_DEBUG_PRINT_SERIAL.setRX(PRA32_U2_DEBUG_PRINT_RX_PIN);
   PRA32_U2_DEBUG_PRINT_SERIAL.begin(115200);
-#endif  // defined(PRA32_U2_USE_DEBUG_PRINT)
+#endif  // defined(PRA32_U2_USE_DEBUG_PRINT) && !defined(PRA32_U2_DEBUG_PRINT_USE_USB_SERIAL)
 }
 
 void __not_in_flash_func(loop1)() {
@@ -165,34 +210,36 @@ void __not_in_flash_func(loop1)() {
     PRA32_U2_ControlPanel_update_display(s_loop_counter);
 
 #if defined(PRA32_U2_USE_DEBUG_PRINT)
-    switch (s_loop_counter) {
-    case  1 * 400:
-      PRA32_U2_DEBUG_PRINT_SERIAL.print("\e[1;1H\e[K");
-      PRA32_U2_DEBUG_PRINT_SERIAL.print("min(audio) ");
-      PRA32_U2_DEBUG_PRINT_SERIAL.print(s_debug_measurement_min1_us);
-      break;
-    case  2 * 400:
-      PRA32_U2_DEBUG_PRINT_SERIAL.print("\e[2;1H\e[K");
-      PRA32_U2_DEBUG_PRINT_SERIAL.print("max(audio) ");
-      PRA32_U2_DEBUG_PRINT_SERIAL.print(s_debug_measurement_max1_us);
-      break;
-    case  3 * 400:
-      PRA32_U2_DEBUG_PRINT_SERIAL.print("\e[4;1H\e[K");
-      PRA32_U2_DEBUG_PRINT_SERIAL.print("min(loop)  ");
-      PRA32_U2_DEBUG_PRINT_SERIAL.print(s_debug_measurement_min0_us);
-      break;
-    case  4 * 400:
-      PRA32_U2_DEBUG_PRINT_SERIAL.print("\e[5;1H\e[K");
-      PRA32_U2_DEBUG_PRINT_SERIAL.print("max(loop)  ");
-      PRA32_U2_DEBUG_PRINT_SERIAL.print(s_debug_measurement_max0_us);
-      s_debug_measurement_min0_us = UINT32_MAX;
-      s_debug_measurement_max0_us = 0;
-      s_debug_measurement_min1_us = UINT32_MAX;
-      s_debug_measurement_max1_us = 0;
-      break;
-    default:
-      PRA32_U2_ControlPanel_debug_print(s_loop_counter);
-      break;
+    if (debug_print_begin(s_loop_counter)) {
+      switch (s_loop_counter) {
+      case  1 * 400:
+        PRA32_U2_DEBUG_PRINT_SERIAL.print("\e[1;1H\e[K");
+        PRA32_U2_DEBUG_PRINT_SERIAL.print("min(audio) ");
+        PRA32_U2_DEBUG_PRINT_SERIAL.print(s_debug_measurement_min1_us);
+        break;
+      case  2 * 400:
+        PRA32_U2_DEBUG_PRINT_SERIAL.print("\e[2;1H\e[K");
+        PRA32_U2_DEBUG_PRINT_SERIAL.print("max(audio) ");
+        PRA32_U2_DEBUG_PRINT_SERIAL.print(s_debug_measurement_max1_us);
+        break;
+      case  3 * 400:
+        PRA32_U2_DEBUG_PRINT_SERIAL.print("\e[4;1H\e[K");
+        PRA32_U2_DEBUG_PRINT_SERIAL.print("min(loop)  ");
+        PRA32_U2_DEBUG_PRINT_SERIAL.print(s_debug_measurement_min0_us);
+        break;
+      case  4 * 400:
+        PRA32_U2_DEBUG_PRINT_SERIAL.print("\e[5;1H\e[K");
+        PRA32_U2_DEBUG_PRINT_SERIAL.print("max(loop)  ");
+        PRA32_U2_DEBUG_PRINT_SERIAL.print(s_debug_measurement_max0_us);
+        s_debug_measurement_min0_us = UINT32_MAX;
+        s_debug_measurement_max0_us = 0;
+        s_debug_measurement_min1_us = UINT32_MAX;
+        s_debug_measurement_max1_us = 0;
+        break;
+      default:
+        PRA32_U2_ControlPanel_debug_print(s_loop_counter);
+        break;
+      }
     }
 #endif  // defined(PRA32_U2_USE_DEBUG_PRINT)
   }
@@ -219,6 +266,9 @@ void __not_in_flash_func(setup)() {
 
 #if defined(PRA32_U2_USE_USB_MIDI)
   TinyUSB_Device_Init(0);
+#if defined(PRA32_U2_USE_DEBUG_PRINT) && defined(PRA32_U2_DEBUG_PRINT_USE_USB_SERIAL)
+  TinyUSBDevice.addInterface(Serial);  // TinyUSB_Device_Init() clears the configuration including Serial
+#endif  // defined(PRA32_U2_USE_DEBUG_PRINT) && defined(PRA32_U2_DEBUG_PRINT_USE_USB_SERIAL)
   USBDevice.setManufacturerDescriptor("ISGK Instruments");
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
   USBDevice.setProductDescriptor("PRA32-U2/P");
@@ -287,6 +337,10 @@ void __not_in_flash_func(loop)() {
   uint32_t debug_measurement_start0_us = micros();
 #endif  // defined(PRA32_U2_USE_DEBUG_PRINT)
 
+#if defined(PRA32_U2_USE_USB_MIDI)
+  mutex_enter_blocking(&__usb_mutex);
+#endif  // defined(PRA32_U2_USE_USB_MIDI)
+
   for (uint32_t i = 0; i < ((PRA32_U2_I2S_BUFFER_WORDS + 31) / 32) + 1; i++) {
 #if defined(PRA32_U2_USE_USB_MIDI)
     USB_MIDI.read();
@@ -299,6 +353,12 @@ void __not_in_flash_func(loop)() {
 
   PRA32_U2_ControlPanel_update_control();
 
+#if defined(PRA32_U2_USE_USB_MIDI)
+  mutex_exit(&__usb_mutex);
+#endif  // defined(PRA32_U2_USE_USB_MIDI)
+
+  g_output_fader.begin_block();
+
 #if defined(PRA32_U2_USE_DEBUG_PRINT)
   uint32_t debug_measurement_start1_us = micros();
 #endif  // defined(PRA32_U2_USE_DEBUG_PRINT)
@@ -307,8 +367,9 @@ void __not_in_flash_func(loop)() {
   int32_t right_buffer[PRA32_U2_I2S_BUFFER_WORDS];
   for (uint32_t i = 0; i < PRA32_U2_I2S_BUFFER_WORDS; i++) {
     PRA32_U2_StereoSample synth_output = g_synth.process(0, 0);
-    left_buffer[i] = soft_clip_output(synth_output.left) << 8;
-    right_buffer[i] = soft_clip_output(synth_output.right) << 8;
+    int32_t gain = g_output_fader.next_gain_q8();
+    left_buffer[i] = synth_output.left * gain;
+    right_buffer[i] = synth_output.right * gain;
   }
 
 #if defined(PRA32_U2_USE_DEBUG_PRINT)
@@ -330,6 +391,16 @@ void __not_in_flash_func(loop)() {
 #endif  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
 
 #if defined(PRA32_U2_USE_DEBUG_PRINT)
+#if defined(PRA32_U2_DEBUG_PRINT_USE_USB_SERIAL)
+#if defined(PRA32_U2_USE_USB_MIDI)
+  mutex_enter_blocking(&__usb_mutex);  // Serial also calls TinyUSB (see the NOTE on __usb_mutex)
+#endif  // defined(PRA32_U2_USE_USB_MIDI)
+  g_debug_print_buffer.transfer_to(Serial);  // Non-blocking
+#if defined(PRA32_U2_USE_USB_MIDI)
+  mutex_exit(&__usb_mutex);
+#endif  // defined(PRA32_U2_USE_USB_MIDI)
+#endif  // defined(PRA32_U2_DEBUG_PRINT_USE_USB_SERIAL)
+
   uint32_t debug_measurement_elapsed0_us = debug_measurement_end_us - debug_measurement_start0_us;
   s_debug_measurement_min0_us -= s_debug_measurement_counted *
                                  (debug_measurement_elapsed0_us < s_debug_measurement_min0_us) *
