@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
     uint16_t r = SAMPLING_RATE / (SERIAL_SPEED_38400 / 10);
     for (uint16_t i = 0; i < r; i++) {
       PRA32_U2_StereoSample synth_output = g_synth.process(0, 0);
-      g_wav_file_out.write(soft_clip_output(synth_output.left), soft_clip_output(synth_output.right));
+      g_wav_file_out.write(synth_output.left, synth_output.right);
     }
   }
 
