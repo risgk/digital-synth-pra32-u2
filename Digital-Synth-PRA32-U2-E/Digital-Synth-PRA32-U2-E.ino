@@ -48,7 +48,13 @@
 #define PRA32_U2_SYNTH_TASK_STACK_SIZE         (8192)
 #define PRA32_U2_SECONDARY_TASK_STACK_SIZE     (8192)
 
-//#define PRA32_U2_LIMIT_DELAY_TIME_TO_SAVE_MEM
+#define PRA32_U2_LIMIT_DELAY_TIME_TO_SAVE_MEM  // Max Delay Time: 340 ms (instead of 680 ms), to leave the RAM for the wave tables
+
+// The wave tables are copied to the RAM at startup, as long as this much heap is left after the
+// copies (for the stacks of the synth tasks, which are created after the copies, and for the
+// drivers at run time). The rest stay in the flash
+#define PRA32_U2_WAVE_TABLE_COPY_HEAP_MARGIN   (32768)
+#define PRA32_U2_WAVE_TABLE_COPY_HEAP_RESERVE  (PRA32_U2_SYNTH_TASK_STACK_SIZE + PRA32_U2_SECONDARY_TASK_STACK_SIZE + PRA32_U2_WAVE_TABLE_COPY_HEAP_MARGIN)
 
 #define PRA32_U2_ENABLE_LAYERING
 
@@ -69,8 +75,10 @@
 // are placed after their use, and the linker rejects them
 #define __not_in_flash_func(func)              func
 
-// The wave tables (about 130 KB) do not fit in the RAM together with the synths, so they are
-// read from the flash (through the cache). They are never written. ".irom1.text" is where the
+// The wave tables (about 130 KB) do not fit in the static RAM together with the synths, so they
+// are stored in the flash, and copied to the heap at startup (see copy_wave_tables_to_ram()),
+// which also has the RAM that the ROM uses only while booting. They are never written.
+// ".irom1.text" is where the
 // linker script collects the read-only data placed in the flash by a section attribute; a
 // ".rodata.*" name would work too, but the assembler warns about it for the writable tables
 #define PRA32_U2_OSC_WAVE_TABLE_ATTR           __attribute__((section(".irom1.text")))
@@ -109,9 +117,17 @@ MIDI_CREATE_CUSTOM_INSTANCE(HardwareSerial, PRA32_U2_UART_MIDI_SERIAL, UART_MIDI
 
 #include <Wire.h>
 #include <driver/i2s_std.h>
+#include <esp_heap_caps.h>
+
+#include <cstring>
+#include <utility>
+#include <vector>
 
 static i2s_chan_handle_t s_i2s_output = NULL;
 static int32_t           s_i2s_frames[PRA32_U2_I2S_BUFFER_WORDS * 2];
+
+static uint32_t          s_wave_tables_copied = 0;
+static uint32_t          s_wave_tables_total  = 0;
 
 static TaskHandle_t      s_synth_task     = NULL;
 static TaskHandle_t      s_secondary_task = NULL;
@@ -221,6 +237,62 @@ static void start_audio() {
   Wire.begin(PRA32_U2_I2C_SDA_PIN, PRA32_U2_I2C_SCL_PIN, 100000U);
   start_es8311();
   start_pi4ioe();
+}
+
+// Copies the wave tables in the flash to the RAM (heap), and points the table arrays at the
+// copies, as long as PRA32_U2_WAVE_TABLE_COPY_HEAP_RESERVE is left; the rest stay in the flash.
+// The Osc reads the table arrays again at the control rate, and a pointer it took before (and
+// the LFO, which reads its sine table directly) still reads the same table in the flash
+static void copy_wave_tables_to_ram() {
+  struct TableArray {
+    int16_t** tables;
+    uint32_t  length;
+  };
+  const TableArray table_arrays[] = {
+    { g_osc_saw_wave_tables,      sizeof(g_osc_saw_wave_tables)      / sizeof(g_osc_saw_wave_tables[0])      },
+    { g_osc_square_wave_tables,   sizeof(g_osc_square_wave_tables)   / sizeof(g_osc_square_wave_tables[0])   },
+    { g_osc_sine_wave_tables,     sizeof(g_osc_sine_wave_tables)     / sizeof(g_osc_sine_wave_tables[0])     },
+    { g_osc_triangle_wave_tables, sizeof(g_osc_triangle_wave_tables) / sizeof(g_osc_triangle_wave_tables[0]) },
+    { g_osc_saw2_wave_tables,     sizeof(g_osc_saw2_wave_tables)     / sizeof(g_osc_saw2_wave_tables[0])     },
+  };
+
+  // A table is shared by several notes (and waveforms), so it is copied (or left) once
+  std::vector<std::pair<int16_t*, int16_t*>> tables_seen;  // (in the flash, in use)
+  tables_seen.reserve(128);
+
+  for (const TableArray& table_array : table_arrays) {
+    for (uint32_t i = 0; i < table_array.length; i++) {
+      int16_t* table   = table_array.tables[i];
+      int16_t* in_use  = NULL;
+      for (const auto& pair : tables_seen) {
+        if (pair.first == table) {
+          in_use = pair.second;
+          break;
+        }
+      }
+
+      if (in_use == NULL) {
+        in_use = table;
+
+        // The arrays point past the first entry, the number of index bits, which is followed
+        // by (1 << bits) + 1 samples
+        uint32_t size = ((1 << table[-1]) + 2) * sizeof(int16_t);
+        if (heap_caps_get_free_size(MALLOC_CAP_INTERNAL) >= size + PRA32_U2_WAVE_TABLE_COPY_HEAP_RESERVE) {
+          int16_t* buffer = static_cast<int16_t*>(heap_caps_malloc(size, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT));
+          if (buffer != NULL) {
+            std::memcpy(buffer, table - 1, size);
+            in_use = buffer + 1;
+            ++s_wave_tables_copied;
+          }
+        }
+
+        tables_seen.push_back(std::make_pair(table, in_use));
+        ++s_wave_tables_total;
+      }
+
+      table_array.tables[i] = in_use;
+    }
+  }
 }
 
 #if defined(PRA32_U2_USE_USB_MIDI)
@@ -415,6 +487,9 @@ void setup() {
 
   start_audio();
 
+  // After the drivers have taken their memory, and before the synth tasks are created
+  copy_wave_tables_to_ram();
+
 #if defined(ARDUINO_M5STACK_ATOMS3) && defined(PRA32_U2_M5STACK_ATOMS3_LITE)
   rgbLedWrite(RGB_BUILTIN, PRA32_U2_LED_LEVEL_R, PRA32_U2_LED_LEVEL_G, PRA32_U2_LED_LEVEL_B);
 #endif  // defined(ARDUINO_M5STACK_ATOMS3) && defined(PRA32_U2_M5STACK_ATOMS3_LITE)
@@ -440,6 +515,16 @@ void loop() {
   PRA32_U2_DEBUG_PRINT_SERIAL.print(uxTaskGetStackHighWaterMark(s_synth_task));
   PRA32_U2_DEBUG_PRINT_SERIAL.print(" ");
   PRA32_U2_DEBUG_PRINT_SERIAL.print(uxTaskGetStackHighWaterMark(s_secondary_task));
+  PRA32_U2_DEBUG_PRINT_SERIAL.print("\e[5;1H\e[K");
+  PRA32_U2_DEBUG_PRINT_SERIAL.print("wave tables in RAM ");
+  PRA32_U2_DEBUG_PRINT_SERIAL.print(s_wave_tables_copied);
+  PRA32_U2_DEBUG_PRINT_SERIAL.print("/");
+  PRA32_U2_DEBUG_PRINT_SERIAL.print(s_wave_tables_total);
+  PRA32_U2_DEBUG_PRINT_SERIAL.print("\e[6;1H\e[K");
+  PRA32_U2_DEBUG_PRINT_SERIAL.print("heap free ");
+  PRA32_U2_DEBUG_PRINT_SERIAL.print(heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
+  PRA32_U2_DEBUG_PRINT_SERIAL.print(" min ");
+  PRA32_U2_DEBUG_PRINT_SERIAL.print(heap_caps_get_minimum_free_size(MALLOC_CAP_INTERNAL));
   PRA32_U2_DEBUG_PRINT_SERIAL.println();
   s_debug_measurement_min_us = UINT32_MAX;
   s_debug_measurement_max_us = 0;
