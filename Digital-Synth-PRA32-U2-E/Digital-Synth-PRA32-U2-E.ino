@@ -48,7 +48,7 @@
 #define PRA32_U2_SYNTH_TASK_STACK_SIZE         (8192)
 #define PRA32_U2_SECONDARY_TASK_STACK_SIZE     (8192)
 
-#define PRA32_U2_LIMIT_DELAY_TIME_TO_SAVE_MEM  // Max Delay Time: 340 ms (instead of 680 ms), to leave the RAM for the wave tables
+#define PRA32_U2_LIMIT_DELAY_TIME_TO_SAVE_MEM  // Max Delay Time: 170 ms (Delay Time 63; instead of 340 ms), to leave the RAM for the wave tables
 
 // The wave tables are copied to the RAM at startup, as long as this much heap is left after the
 // copies (for the stacks of the synth tasks, which are created after the copies, and for the

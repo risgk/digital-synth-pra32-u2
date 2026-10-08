@@ -340,7 +340,7 @@ flowchart LR
         - Core 1: Main Synth Voices 1 and 2, Sub Synth 2, the FX, and MIDI input
         - Core 0: Main Synth Voices 3 and 4, Sub Synths 1 and 3 (woken once per buffer, so that core 0 is free for USB while the audio output is waited for)
     - The synth code runs from the flash (through the cache)
-    - The Max Delay Time is 340 ms (instead of 680 ms), with `PRA32_U2_LIMIT_DELAY_TIME_TO_SAVE_MEM`, to save 64 KB of RAM
+    - The Max Delay Time is 170 ms (Delay Time 63 and above; instead of 340 ms), with `PRA32_U2_LIMIT_DELAY_TIME_TO_SAVE_MEM`, to save 64 KB of RAM
     - The wave tables (about 130 KB) are stored in the flash (`PRA32_U2_OSC_WAVE_TABLE_ATTR`), because the static RAM is not enough,
       and copied to the RAM (heap) at startup, as long as `PRA32_U2_WAVE_TABLE_COPY_HEAP_RESERVE` is left; the rest are read from the flash
         - The debug print shows how many are copied ("wave tables in RAM"), and the free heap
