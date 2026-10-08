@@ -63,7 +63,7 @@ end
 # input has to reach, a quieter self-oscillation is also stopped more easily
 #
 # 0.5 balances how much the self-oscillation stands out over the Osc while
-# playing against how readily the input stops it (0.4 before v3.7.1, when the
+# playing against how readily the input stops it (0.4 before v3.8.0, when the
 # Osc output was 1 / 1.25 of the current one: the ratio of the two is kept);
 # of the Presets, Sync Lead, WT Pad, Fifth Lead, and PWM Lead stop it while
 # playing. Below the knee of soft_clip_output() (0.75), so that it leaves the

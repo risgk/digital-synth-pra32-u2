@@ -31,7 +31,7 @@ class PRA32_U2_Osc {
   static const uint8_t WAVEFORM_SAW2          = 7;
 
   // The Osc output is the sum of each waveform times its gain times OSC_LEVEL / 2^8
-  // (0.176, 1.25 times the 72 / 2^9 before v3.7.1; 0.25 for a Saw), so that the
+  // (0.176, 1.25 times the 72 / 2^9 before v3.8.0; 0.25 for a Saw), so that the
   // Filter is driven a little harder. The smaller OSC_LEVEL keeps every product
   // within 32 bits with more headroom
   static const int8_t  OSC_LEVEL              = 45;

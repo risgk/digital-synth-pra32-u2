@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v3.7.1 (2026-??-??):
+- v3.8.0 (2026-10-08):
     - Change "Breath Amp Mod [Off|Qad|Lin]" to "Breath Amp Mode [Off|Q|L|LO|QO|Opn]", and add the Open modes, where the Amp is held open (the EG is not used)
         - LO/QO: The Amp is held open, x the Breath Controller (Linear/Quadratic Curve)
         - Opn: The Amp is held open at the max, and the level is controlled by the Filter (e.g. Breath Filter Amt)
