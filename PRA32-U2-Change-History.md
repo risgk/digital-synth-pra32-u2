@@ -6,6 +6,11 @@
         - Used on the Filter output and after the Output Limiter
         - The harmonics grow more gradually as the level goes over 0.75 (e.g. a Multi Saw or two Oscs with a high Resonance)
         - The linear range (up to 0.75), the knee (0.75 to 1.25), and the ceiling (1.0) are not changed
+    - Change the Osc output to 1.25 times (+1.9 dB)
+        - The Filter is driven a little harder (the soft clipping of the band pass state adds about 2-3 dB more harmonics)
+        - The Amp Gain of the Presets is lowered to keep their volumes (90 -> 80, 100 -> 90, 110 -> 100, 120 -> 110)
+            - For the same volume as before, multiply the Amp Gain of the User Programs by about 0.9
+        - The self-oscillation level is raised from 0.4 to 0.5 (1.25 times), so that it stands out over the Osc as before
     - Tested with Arduino-Pico version 6.2.0
 - v3.7.0 (2026-10-07):
     - Add even harmonics to the Filter by biasing the soft clipping of the band pass state by 1/8, as the state is driven (at a high Resonance or near the cutoff), with a DC blocker (7.5 Hz) on the Filter output
