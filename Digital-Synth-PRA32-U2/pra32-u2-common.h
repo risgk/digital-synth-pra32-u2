@@ -54,14 +54,21 @@ static INLINE int32_t clamp(int32_t value, int32_t minimum_value, int32_t maximu
 }
 
 // Soft clipping for the final output (1.0 = 1 << 23): linear up to +-0.75, then
-// a quadratic knee that reaches +-1.0 with slope 0 at +-1.25
-//   y = a - (a - 0.75)^2  (a = |x|, 0.75 <= a <= 1.25)
-// The result always fits in 24 bits
+// a knee that reaches +-1.0 with slope 0 at +-1.25. The slope 1 - (3 t^2 - 2 t^3)
+// falls smoothly at both ends of the knee (C2 continuous), so that the harmonics
+// grow gradually as the input goes over 0.75
+//   y = 0.75 + 0.5 * (t - t^3 + t^4 / 2)  (t = (|x| - 0.75) / 0.5, 0 <= t <= 1)
+//     = |x| - t^3 * (2 - t) / 4
+// The error is within about 1 LSB (near the ceiling, the output may step back
+// by 1 LSB). The result always fits in 24 bits
 static INLINE int32_t soft_clip_output(int32_t value) {
   const int32_t ONE = 1 << 23;
-  int32_t abs_value = minimum((value < 0) ? -value : value, ONE + (ONE >> 2));
-  int32_t over      = maximum(abs_value - (ONE - (ONE >> 2)), 0);
-  int32_t result    = minimum(abs_value - multiply_shift_right(over, over, 23), ONE - 1);
+  int32_t abs_value   = minimum((value < 0) ? -value : value, ONE + (ONE >> 2));
+  int32_t t           = maximum(abs_value - (ONE - (ONE >> 2)), 0) << 8;  // Q30
+  int32_t t_2         = multiply_shift_right(t,   t, 32);                 // Q28
+  int32_t t_3         = multiply_shift_right(t_2, t, 32);                 // Q26
+  int32_t two_minus_t = (1 << 30) - (t >> 1);                             // Q29
+  int32_t result      = minimum(abs_value - (multiply_shift_right(t_3, two_minus_t, 32) >> 2), ONE - 1);
   return (value < 0) ? -result : result;
 }
 
@@ -102,7 +109,7 @@ static INLINE int32_t approach_exp_wide(int32_t current_value, int32_t target_va
 // - Fast: approach_exp_fast(), 1 stage at the rate 8192 at 6 kHz (1.2 ms time constant, 95% in 3.7 ms),
 //   for the performance controllers, whose attack must not be softened, but whose steps must not click
 //   - Filter: the Breath Controller (x Breath Filter Amt)
-//   - Amp: Expression x Breath Controller (Breath Amp Mod)
+//   - Amp: Expression x Breath Controller (Breath Amp Mode)
 // - Normal: 1 stage, for the Delay Time, which moves in its own way
 //   - Delay FX: Delay Time (in Q8, at 6 kHz, i.e. 5.3 ms, and slew-limited)
 // - Others

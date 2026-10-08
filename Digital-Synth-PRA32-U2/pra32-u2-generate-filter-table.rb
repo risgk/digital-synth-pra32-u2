@@ -62,10 +62,13 @@ end
 # harmonic instead. As kappa alone sets both the level and the A_0 that the
 # input has to reach, a quieter self-oscillation is also stopped more easily
 #
-# 0.4 balances how much the self-oscillation stands out over the Osc while
-# playing against how readily the input stops it; of the Presets, Sync Lead,
-# WT Pad, Fifth Lead, and PWM Lead stop it while playing
-SELF_OSC_LEVEL = 0.4
+# 0.5 balances how much the self-oscillation stands out over the Osc while
+# playing against how readily the input stops it (0.4 before v3.8.0, when the
+# Osc output was 1 / 1.25 of the current one: the ratio of the two is kept);
+# of the Presets, Sync Lead, WT Pad, Fifth Lead, and PWM Lead stop it while
+# playing. Below the knee of soft_clip_output() (0.75), so that it leaves the
+# Filter as a clean sine
+SELF_OSC_LEVEL = 0.5
 SELF_OSC_KAPPA = ((SELF_OSC_LEVEL / 11.4) ** 2) * (48000.0 / SAMPLING_RATE)
 
 # The soft clipping of the band pass state gives the self-oscillation a 3rd

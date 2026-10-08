@@ -30,7 +30,11 @@ class PRA32_U2_Osc {
   static const uint8_t WAVEFORM_2_NOISE       = 6;
   static const uint8_t WAVEFORM_SAW2          = 7;
 
-  static const int8_t  OSC_LEVEL              = 72;
+  // The Osc output is the sum of each waveform times its gain times OSC_LEVEL / 2^8
+  // (0.176, 1.25 times the 72 / 2^9 before v3.8.0; 0.25 for a Saw), so that the
+  // Filter is driven a little harder. The smaller OSC_LEVEL keeps every product
+  // within 32 bits with more headroom
+  static const int8_t  OSC_LEVEL              = 45;
 
   uint16_t       m_drift;
   boolean        m_saw_wave_mode_curved;
@@ -594,7 +598,7 @@ private:
 
       uint32_t phase_0 = osc1_phase + ((wave_3 * osc1_phase_modulation_depth) >> 4);
       int32_t wave_0 = get_wave_level(wave_table_sine, phase_0);
-      result += (wave_0 * m_osc1_gain * OSC_LEVEL) >> 9;
+      result += (wave_0 * m_osc1_gain * OSC_LEVEL) >> 8;
 
       int32_t phase_modulation_frequency_ratio_candidate = (((m_osc1_morph_current + 2) >> 2) << 1) + 2;
       m_osc1_phase_modulation_frequency_ratio[N] = (m_osc1_phase_modulation_frequency_ratio[N] * (1 - new_period_osc1)) + (phase_modulation_frequency_ratio_candidate * new_period_osc1);
@@ -633,10 +637,10 @@ if constexpr (RESTRICT_SAW == false) {
 
       int32_t multi_saw_mix = m_osc1_morph_mix_q4;
       result += (((  ( multi_saw_mix              * (((wave_0_0 + wave_0_1 + wave_0_2 + wave_0_3 + wave_0_4 + wave_0_5 + wave_0_6) << 1) / 5))
-                   + (((64 << 4) - multi_saw_mix) *    wave_0)) >> (6 + 4)) * m_osc1_gain * OSC_LEVEL) >> 9;
+                   + (((64 << 4) - multi_saw_mix) *    wave_0)) >> (6 + 4)) * m_osc1_gain * OSC_LEVEL) >> 8;
 } else {
       int32_t wave_0 = get_wave_level(m_wave_table[N], osc1_phase);
-      result += (wave_0 * m_osc1_gain * OSC_LEVEL) >> 9;
+      result += (wave_0 * m_osc1_gain * OSC_LEVEL) >> 8;
 }
     } else if (m_waveform[0] == WAVEFORM_SQUARE) {
 if constexpr (RESTRICT_SQR_WT == false) {
@@ -661,10 +665,10 @@ if constexpr (RESTRICT_SQR_WT == false) {
       int32_t sqr_sync_mix = m_osc1_morph_mix_q4;
       result += (((  ( sqr_sync_mix              * (wave_0_0  + wave_0_1  + wave_0_2  + wave_0_3  + wave_0_4  + wave_0_5  + wave_0_6  + wave_0_7  +
                                                     wave_0_8  + wave_0_9  + wave_0_10 + wave_0_11 + wave_0_12 + wave_0_13 + wave_0_14 + wave_0_15))
-                   + (((64 << 4) - sqr_sync_mix) *  wave_0)) >> (6 + 4)) * m_osc1_gain * OSC_LEVEL) >> 9;
+                   + (((64 << 4) - sqr_sync_mix) *  wave_0)) >> (6 + 4)) * m_osc1_gain * OSC_LEVEL) >> 8;
 } else {
       int32_t wave_0 = get_wave_level(m_wave_table[N], osc1_phase);
-      result += (wave_0 * m_osc1_gain * OSC_LEVEL) >> 9;
+      result += (wave_0 * m_osc1_gain * OSC_LEVEL) >> 8;
 }
     } else if (m_waveform[0] == WAVEFORM_1_WAVE_TABLE) {
 if constexpr (RESTRICT_SQR_WT == false) {
@@ -687,32 +691,32 @@ if constexpr (RESTRICT_SQR_WT == false) {
 
       result += (((64 * (wave_0_0  + wave_0_1  + wave_0_2  + wave_0_3  + wave_0_4  + wave_0_5  + wave_0_6  + wave_0_7  +
                          wave_0_8  + wave_0_9  + wave_0_10 + wave_0_11 + wave_0_12 + wave_0_13 + wave_0_14 + wave_0_15)
-                   ) >> 6) * m_osc1_gain * OSC_LEVEL) >> 9;
+                   ) >> 6) * m_osc1_gain * OSC_LEVEL) >> 8;
 } else {
       int32_t wave_0 = get_wave_level(m_wave_table[N], osc1_phase);
-      result += (wave_0 * m_osc1_gain * OSC_LEVEL) >> 9;
+      result += (wave_0 * m_osc1_gain * OSC_LEVEL) >> 8;
 }
     } else if (m_waveform[0] == WAVEFORM_1_PULSE) {
       int32_t wave_0 = get_wave_level(m_wave_table[N + 16], osc1_phase);
-      result += (wave_0 * m_osc1_gain * OSC_LEVEL) >> 9;
+      result += (wave_0 * m_osc1_gain * OSC_LEVEL) >> 8;
 
       // For Pulse Wave (wave_3)
       uint32_t phase_3 = osc1_phase + (m_osc1_shape_current[N] << 8);
       int16_t wave_3 = get_wave_level(m_wave_table[N + 16], phase_3);
-      result += multiply_shift_right((wave_3 * m_osc1_gain * OSC_LEVEL) >> 9, m_osc1_morph_pulse_level_q4, 6 + 4);
+      result += multiply_shift_right((wave_3 * m_osc1_gain * OSC_LEVEL) >> 8, m_osc1_morph_pulse_level_q4, 6 + 4);
     } else {
       int32_t wave_0 = get_wave_level(m_wave_table[N], osc1_phase);
-      result += (wave_0 * m_osc1_gain * OSC_LEVEL) >> 9;
+      result += (wave_0 * m_osc1_gain * OSC_LEVEL) >> 8;
     }
 
     if (m_mixer_noise_sub_osc_current >= 0) {
       // Sub Osc (wave_1)
       int16_t wave_1 = get_wave_level(m_wave_table[N + 12], osc1_phase >> 1);
-      result += (wave_1 * m_mixer_noise_sub_osc_current * OSC_LEVEL) >> 9;
+      result += (wave_1 * m_mixer_noise_sub_osc_current * OSC_LEVEL) >> 8;
     } else {
       // Noise (wave_1)
       int16_t wave_1 = noise_int23 >> 9;
-      result += (wave_1 * -m_mixer_noise_sub_osc_current * OSC_LEVEL) >> 9;
+      result += (wave_1 * -m_mixer_noise_sub_osc_current * OSC_LEVEL) >> 8;
     }
 
     m_phase[N] = osc1_phase_next;
@@ -720,11 +724,11 @@ if constexpr (RESTRICT_SQR_WT == false) {
     const uint32_t osc2_phase = m_phase[N + 4];
     if (m_waveform[1] != WAVEFORM_2_NOISE) {
       int16_t wave_2 = get_wave_level(m_wave_table[N + 4], osc2_phase);
-      result += (wave_2 * m_osc2_gain * OSC_LEVEL) >> 9;
+      result += (wave_2 * m_osc2_gain * OSC_LEVEL) >> 8;
     } else {
       // Noise (wave_2)
       int16_t wave_2 = noise_int23 >> 9;
-      result += (wave_2 * m_osc2_gain * OSC_LEVEL) >> 9;
+      result += (wave_2 * m_osc2_gain * OSC_LEVEL) >> 8;
     }
 
     const uint32_t osc2_phase_next = osc2_phase + m_freq[N + 4];
