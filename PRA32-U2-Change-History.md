@@ -18,7 +18,7 @@
         - The harmonics grow more gradually as the level goes over 0.75 (e.g. a Multi Saw or two Oscs with a high Resonance)
         - The linear range (up to 0.75), the knee (0.75 to 1.25), and the ceiling (1.0) are not changed
     - Modify the Presets
-        - Osc 2 Pitch of #20-22, #29, and #30: from +2 or +8 to +4 (cent)
+        - Osc 2 Pitch: from +2 or +8 to +6 (from 3.1 or 12.5 cent to 9.4 cent), except #23, #27, #28, and #31
         - Mixer Osc Mix of #20, #22, #28, and #29: from 64 to 32 (Osc 1 75% + Osc 2 25%)
         - Amp Gain of #21, #26, #27, #29, and #30: changed to even out the volume (#21, #29, and #30: 90 -> 80, #26: 100 -> 90, #27: 80 -> 90)
         - Filter Resonance: from 48 to 64 (#22: from 80 to 96)
