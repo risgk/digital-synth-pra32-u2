@@ -53,6 +53,11 @@ end
 $file = File.open("pra32-u2-osc-table.h", "wb")
 
 $file.printf("#pragma once\n\n")
+$file.printf("// The wave tables are in RAM by default; a sketch can define this (e.g. a section attribute)\n")
+$file.printf("// to place them elsewhere (e.g. PRA32-U2/E, which does not have enough RAM for them)\n")
+$file.printf("#if !defined(PRA32_U2_OSC_WAVE_TABLE_ATTR)\n")
+$file.printf("#define PRA32_U2_OSC_WAVE_TABLE_ATTR\n")
+$file.printf("#endif\n\n")
 
 def freq_from_note_number(note_number, pr = false)
   cent = (note_number * 100.0) - 6900.0
@@ -126,7 +131,7 @@ def generate_osc_wave_table(name, last, amp)
   samples = 1 << bits
   # The first entry is the number of index bits, which the run time reads
   # back through the pointer the table array holds (which points at [1])
-  $file.printf("int16_t g_osc_#{name}_wave_table_h%d[] = {\n  %+6d,\n  ", last, bits)
+  $file.printf("int16_t g_osc_#{name}_wave_table_h%d[] PRA32_U2_OSC_WAVE_TABLE_ATTR = {\n  %+6d,\n  ", last, bits)
   (0..samples).each do |n|
     level = 0
     nn = n

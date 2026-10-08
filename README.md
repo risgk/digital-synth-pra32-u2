@@ -16,6 +16,7 @@
 - Optional
     - **[PRA32-U2/M](#pra32-u2m-pra32-u2-multi-timbre-edition-optional)** (PRA32-U2 Multi-Timbre Edition) can also be configured
     - **[PRA32-U2/P](./README-PRA32-U2-P.md)** (PRA32-U2 with Panel) and **PRA32-U2/M/P** (PRA32-U2 Multi-Timbre Edition with Panel) can also be configured by adding certain parts
+    - **[PRA32-U2/E](#pra32-u2e-pra32-u2m-for-m5stack-atoms3-lite-experimental-optional)** (PRA32-U2/M for M5Stack AtomS3 Lite) is an experimental port to ESP32-S3
 - Prebuilt UF2 files (in the "bin" folder)
     - PRA32-U2/M (Recommended): "Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico 2 and Pimoroni Pico Audio Pack
         - A superset of PRA32-U2: the Main Synth (Basic Channel + 0) works the same as PRA32-U2, and the Sub Synths and Layering are added
@@ -311,6 +312,39 @@ flowchart LR
 - How to modify
     - Copy all files in the "Digital-Synth-PRA32-U2" folder, except for "Digital-Synth-PRA32-U2.ino", to the "Digital-Synth-PRA32-U2-M" folder
     - "Digital-Synth-PRA32-U2-M.ino" is a Arduino sketch
+
+
+## PRA32-U2/E (PRA32-U2/M for M5Stack AtomS3 Lite) (Experimental) (Optional)
+
+- **Experimental**: not tested on the hardware yet; it may not run in real time (audio dropouts)
+- PRA32-U2/M ported to M5Stack AtomS3 Lite (ESP32-S3), with the same synths, Layering, and FX
+- Required Hardware
+    - M5Stack [AtomS3 Lite](https://shop.m5stack.com/products/atoms3-lite-esp32s3-dev-kit) (SKU: C124)
+    - M5Stack [Atomic Audio-3.5 Base](https://shop.m5stack.com/products/atomic-audio-3-5-base) (SKU: A166)
+- Required Software
+    - Arduino core for the ESP32 (by Espressif Systems), instead of Arduino-Pico
+        - This sketch is tested (built only) with version 3.3.11: <https://github.com/espressif/arduino-esp32/releases/tag/3.3.11>
+        - Board: "M5AtomS3", with USB Mode: "USB-OTG (TinyUSB)" in the Arduino IDE "Tools" menu
+    - Arduino MIDI Library (by Francois Best, lathoub), the same as PRA32-U2
+- Differences from PRA32-U2/M
+    - Audio Output: the ES8311 (a mono DAC) of Atomic Audio-3.5 Base, 48 kHz, 24-bit samples in 32-bit slots
+        - (L + R) / 2 is output (`PRA32_U2_I2S_MONO_OUTPUT`)
+    - USB MIDI Device Name: "PRA32-U2/E"
+        - With USB CDC On Boot: "Enabled", the USB Manufacturer and Product names are those of the core
+        - On Windows, if the MIDI interface is bound to the "USB JTAG debug unit" driver (WinUSB), it does not show up as a MIDI device;
+          change its driver in the Device Manager to "USB Audio Device"
+    - UART MIDI: G2 (TX) and G1 (RX) pins (Grove port), 31250 bps
+        - M5Stack [Unit MIDI](https://shop.m5stack.com/products/midi-unit-with-din-connector-sam2695) (SKU: U187) in Separate mode can be connected directly
+    - Debug Print: USB CDC (`PRA32_U2_USE_DEBUG_PRINT`)
+    - Not supported: Writing the parameters to the flash (the User Programs are lost at power-off), PRA32-U2/P (Panel), and PWM Audio
+    - The signal processing is split between the 2 cores in the same way as PRA32-U2/M
+        - Core 1: Main Synth Voices 1 and 2, Sub Synth 2, the FX, and MIDI input
+        - Core 0: Main Synth Voices 3 and 4, Sub Synths 1 and 3 (woken once per buffer, so that core 0 is free for USB while the audio output is waited for)
+    - The synth code runs from the flash (through the cache), and the wave tables are also in the flash
+      (`PRA32_U2_OSC_WAVE_TABLE_ATTR`), because the RAM is not enough
+- How to modify
+    - Copy all files in the "Digital-Synth-PRA32-U2" folder, except for "Digital-Synth-PRA32-U2.ino", to the "Digital-Synth-PRA32-U2-E" folder
+    - "Digital-Synth-PRA32-U2-E.ino" is a Arduino sketch
 
 
 ## [PRA32-U2/P](./README-PRA32-U2-P.md) (PRA32-U2 with Panel) (Optional)
