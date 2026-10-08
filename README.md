@@ -319,16 +319,16 @@ flowchart LR
 - **Experimental**: not tested on the hardware yet; it may not run in real time (audio dropouts)
 - PRA32-U2/M ported to M5Stack AtomS3 Lite (ESP32-S3), with the same synths, Layering, and FX
 - Required Hardware
-    - M5Stack [AtomS3 Lite](https://shop.m5stack.com/products/atoms3-lite-esp32s3-dev-kit) (SKU: C124)
+    - M5Stack [AtomS3 Lite](https://shop.m5stack.com/products/atoms3-lite-esp32s3-dev-kit) (SKU: C124), or an AtomS3 series module with PSRAM
     - M5Stack [Atomic Audio-3.5 Base](https://shop.m5stack.com/products/atomic-audio-3-5-base) (SKU: A166)
 - Required Software
     - Arduino core for the ESP32 (by Espressif Systems), instead of Arduino-Pico
         - This sketch is tested (built only) with version 3.3.11: <https://github.com/espressif/arduino-esp32/releases/tag/3.3.11>
         - Board: "M5AtomS3", with USB Mode: "USB-OTG (TinyUSB)" in the Arduino IDE "Tools" menu
+        - For a module with PSRAM, also select PSRAM (e.g. "OPI PSRAM") to match the module
     - Arduino MIDI Library (by Francois Best, lathoub), the same as PRA32-U2
 - Differences from PRA32-U2/M
-    - Audio Output: the ES8311 (a mono DAC) of Atomic Audio-3.5 Base, 48 kHz, 24-bit samples in 32-bit slots
-        - (L + R) / 2 is output (`PRA32_U2_I2S_MONO_OUTPUT`)
+    - Audio Output: Atomic Audio-3.5 Base (ES8311), stereo, 48 kHz, 24-bit samples in 32-bit slots
     - USB MIDI Device Name: "PRA32-U2/E"
         - With USB CDC On Boot: "Enabled", the USB Manufacturer and Product names are those of the core
         - On Windows, if the MIDI interface is bound to the "USB JTAG debug unit" driver (WinUSB), it does not show up as a MIDI device;
@@ -340,8 +340,12 @@ flowchart LR
     - The signal processing is split between the 2 cores in the same way as PRA32-U2/M
         - Core 1: Main Synth Voices 1 and 2, Sub Synth 2, the FX, and MIDI input
         - Core 0: Main Synth Voices 3 and 4, Sub Synths 1 and 3 (woken once per buffer, so that core 0 is free for USB while the audio output is waited for)
-    - The synth code runs from the flash (through the cache), and the wave tables are also in the flash
-      (`PRA32_U2_OSC_WAVE_TABLE_ATTR`), because the RAM is not enough
+    - The synth code runs from the flash (through the cache)
+    - The wave tables (about 130 KB) are stored in the flash (`PRA32_U2_OSC_WAVE_TABLE_ATTR`), because the internal RAM is not enough
+        - With PSRAM (PSRAM enabled in the "Tools" menu, and found at startup), they are copied to the PSRAM at startup and read from there
+        - Without PSRAM (e.g. AtomS3 Lite), they are read from the flash (through the cache)
+        - The debug print shows which is used ("wave tables PSRAM" or "wave tables flash")
+    - The RGB LED of AtomS3 Lite is lit at startup, except with PSRAM enabled (OPI PSRAM uses GPIO35, the RGB LED pin)
 - How to modify
     - Copy all files in the "Digital-Synth-PRA32-U2" folder, except for "Digital-Synth-PRA32-U2.ino", to the "Digital-Synth-PRA32-U2-E" folder
     - "Digital-Synth-PRA32-U2-E.ino" is a Arduino sketch
