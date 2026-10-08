@@ -1,16 +1,22 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v3.7.1 (2026-??-??):
+    - Change "Breath Amp Mod [Off|Qad|Lin]" to "Breath Amp Mode [Off|Q|L|LO|QO|Opn]", and add the Open modes, where the Amp is held open (the EG is not used)
+        - LO/QO: The Amp is held open, x the Breath Controller (Linear/Quadratic Curve)
+        - Opn: The Amp is held open at the max, and the level is controlled by the Filter (e.g. Breath Filter Amt)
+        - All Sound Off does not stop the sound in the Open modes (it works as All Notes Off, without resetting the Osc, the Filter, and the LFO)
+        - NOTE: The values are changed from Off (0-31), Qad (32-95), and Lin (96-127) to Off (0-12), Q (13-38), L (39-63), LO (64-89), QO (90-115), and Opn (116-127); change the User Programs with Qad (e.g. 64) or Lin (e.g. 127) to 26 or 51
     - Fix the Stereo Delay of the Delay Mode from 0-63 to 0-31, and the Ping Pong Delay from 64-95 to 32-95, as with the other 3-way switches (e.g. Filter Mode)
-    - Improve the output soft clipping with a smoother (C2 continuous) knee
-        - Used on the Filter output and after the Output Limiter
-        - The harmonics grow more gradually as the level goes over 0.75 (e.g. a Multi Saw or two Oscs with a high Resonance)
-        - The linear range (up to 0.75), the knee (0.75 to 1.25), and the ceiling (1.0) are not changed
     - Change the Osc output to 1.25 times (+1.9 dB)
         - The Filter is driven a little harder (the soft clipping of the band pass state adds about 2-3 dB more harmonics)
         - The Amp Gain of the Presets is lowered to keep their volumes (90 -> 80, 100 -> 90, 110 -> 100, 120 -> 110)
             - For the same volume as before, multiply the Amp Gain of the User Programs by about 0.9
         - The self-oscillation level is raised from 0.4 to 0.5 (1.25 times), so that it stands out over the Osc as before
+    - Change the Breath Filter Amt range from +/-120 to +/-240 (2 times), so that a weak breath also opens the Filter
+    - Improve the output soft clipping with a smoother (C2 continuous) knee
+        - Used on the Filter output and after the Output Limiter
+        - The harmonics grow more gradually as the level goes over 0.75 (e.g. a Multi Saw or two Oscs with a high Resonance)
+        - The linear range (up to 0.75), the knee (0.75 to 1.25), and the ceiling (1.0) are not changed
     - Tested with Arduino-Pico version 6.2.0
 - v3.7.0 (2026-10-07):
     - Add even harmonics to the Filter by biasing the soft clipping of the band pass state by 1/8, as the state is driven (at a high Resonance or near the cutoff), with a DC blocker (7.5 Hz) on the Filter output
