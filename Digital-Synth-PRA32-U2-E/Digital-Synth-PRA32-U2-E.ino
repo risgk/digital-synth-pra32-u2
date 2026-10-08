@@ -37,8 +37,7 @@
 #define PRA32_U2_I2S_BUFFER_WORDS              (64)  // Frames per buffer (= frames processed in each loop)
 
 // for M5Stack AtomS3 Lite
-// The board "M5AtomS3" covers the AtomS3 too, which has no RGB LED, so the LED is switched here.
-// It is not lit with PSRAM (BOARD_HAS_PSRAM), whose OPI PSRAM uses GPIO35, the RGB LED pin
+// The board "M5AtomS3" covers the AtomS3 too, which has no RGB LED, so the LED is switched here
 #define PRA32_U2_M5STACK_ATOMS3_LITE
 #define PRA32_U2_LED_LEVEL_R                   (0)
 #define PRA32_U2_LED_LEVEL_G                   (32)
@@ -71,8 +70,7 @@
 #define __not_in_flash_func(func)              func
 
 // The wave tables (about 130 KB) do not fit in the RAM together with the synths, so they are
-// stored in the flash, and copied to the PSRAM at startup if there is one (see
-// move_wave_tables_to_psram()). They are never written. ".irom1.text" is where the
+// read from the flash (through the cache). They are never written. ".irom1.text" is where the
 // linker script collects the read-only data placed in the flash by a section attribute; a
 // ".rodata.*" name would work too, but the assembler warns about it for the writable tables
 #define PRA32_U2_OSC_WAVE_TABLE_ATTR           __attribute__((section(".irom1.text")))
@@ -112,20 +110,11 @@ MIDI_CREATE_CUSTOM_INSTANCE(HardwareSerial, PRA32_U2_UART_MIDI_SERIAL, UART_MIDI
 #include <Wire.h>
 #include <driver/i2s_std.h>
 
-#if defined(BOARD_HAS_PSRAM)
-#include <esp_heap_caps.h>
-#include <cstring>
-#include <utility>
-#include <vector>
-#endif  // defined(BOARD_HAS_PSRAM)
-
 static i2s_chan_handle_t s_i2s_output = NULL;
 static int32_t           s_i2s_frames[PRA32_U2_I2S_BUFFER_WORDS * 2];
 
 static TaskHandle_t      s_synth_task     = NULL;
 static TaskHandle_t      s_secondary_task = NULL;
-
-static boolean           s_wave_tables_in_psram = false;
 
 static volatile uint32_t s_debug_measurement_min_us      = UINT32_MAX;
 static volatile uint32_t s_debug_measurement_max_us      = 0;
@@ -233,63 +222,6 @@ static void start_audio() {
   start_es8311();
   start_pi4ioe();
 }
-
-#if defined(BOARD_HAS_PSRAM)
-// Copies the wave tables in the flash to the PSRAM, and points the table arrays at the copies.
-// Run before the synths are initialized. The Osc reads the table arrays again at the control
-// rate, and a pointer it took before (and the LFO, which reads its sine table directly) still
-// reads the same table in the flash. If the PSRAM runs out, the rest stay in the flash
-static boolean move_wave_tables_to_psram() {
-  if (!psramFound()) {
-    return false;
-  }
-
-  struct TableArray {
-    int16_t** tables;
-    uint32_t  length;
-  };
-  const TableArray table_arrays[] = {
-    { g_osc_saw_wave_tables,      sizeof(g_osc_saw_wave_tables)      / sizeof(g_osc_saw_wave_tables[0])      },
-    { g_osc_saw2_wave_tables,     sizeof(g_osc_saw2_wave_tables)     / sizeof(g_osc_saw2_wave_tables[0])     },
-    { g_osc_triangle_wave_tables, sizeof(g_osc_triangle_wave_tables) / sizeof(g_osc_triangle_wave_tables[0]) },
-    { g_osc_square_wave_tables,   sizeof(g_osc_square_wave_tables)   / sizeof(g_osc_square_wave_tables[0])   },
-    { g_osc_sine_wave_tables,     sizeof(g_osc_sine_wave_tables)     / sizeof(g_osc_sine_wave_tables[0])     },
-  };
-
-  // A table is shared by several notes (and waveforms), so it is copied once
-  std::vector<std::pair<int16_t*, int16_t*>> copied;  // (in the flash, in the PSRAM)
-
-  for (const TableArray& table_array : table_arrays) {
-    for (uint32_t i = 0; i < table_array.length; i++) {
-      int16_t* table = table_array.tables[i];
-      int16_t* copy  = NULL;
-      for (const auto& pair : copied) {
-        if (pair.first == table) {
-          copy = pair.second;
-          break;
-        }
-      }
-
-      if (copy == NULL) {
-        // The arrays point past the first entry, the number of index bits, which is followed
-        // by (1 << bits) + 1 samples
-        uint32_t entries = (1 << table[-1]) + 2;
-        int16_t* buffer = static_cast<int16_t*>(heap_caps_malloc(entries * sizeof(int16_t), MALLOC_CAP_SPIRAM));
-        if (buffer == NULL) {
-          return false;
-        }
-        std::memcpy(buffer, table - 1, entries * sizeof(int16_t));
-        copy = buffer + 1;
-        copied.push_back(std::make_pair(table, copy));
-      }
-
-      table_array.tables[i] = copy;
-    }
-  }
-
-  return true;
-}
-#endif  // defined(BOARD_HAS_PSRAM)
 
 #if defined(PRA32_U2_USE_USB_MIDI)
 // Stands in for the MIDI library, which has no transport for the core's USBMIDI. Dispatches the
@@ -476,10 +408,6 @@ void setup() {
   UART_MIDI.turnThruOff();
 #endif  // defined(PRA32_U2_USE_UART_MIDI)
 
-#if defined(BOARD_HAS_PSRAM)
-  s_wave_tables_in_psram = move_wave_tables_to_psram();
-#endif  // defined(BOARD_HAS_PSRAM)
-
   g_synth.initialize();
   g_sub_1_synth.initialize();
   g_sub_2_synth.initialize();
@@ -487,9 +415,9 @@ void setup() {
 
   start_audio();
 
-#if defined(ARDUINO_M5STACK_ATOMS3) && defined(PRA32_U2_M5STACK_ATOMS3_LITE) && !defined(BOARD_HAS_PSRAM)
+#if defined(ARDUINO_M5STACK_ATOMS3) && defined(PRA32_U2_M5STACK_ATOMS3_LITE)
   rgbLedWrite(RGB_BUILTIN, PRA32_U2_LED_LEVEL_R, PRA32_U2_LED_LEVEL_G, PRA32_U2_LED_LEVEL_B);
-#endif  // defined(ARDUINO_M5STACK_ATOMS3) && defined(PRA32_U2_M5STACK_ATOMS3_LITE) && !defined(BOARD_HAS_PSRAM)
+#endif  // defined(ARDUINO_M5STACK_ATOMS3) && defined(PRA32_U2_M5STACK_ATOMS3_LITE)
 
   // The synth task gets core 1 to itself (except loopTask, which only prints), as the primary
   // core on the RP2350, and blocks in i2s_channel_write for the rest of each buffer. The
@@ -512,9 +440,6 @@ void loop() {
   PRA32_U2_DEBUG_PRINT_SERIAL.print(uxTaskGetStackHighWaterMark(s_synth_task));
   PRA32_U2_DEBUG_PRINT_SERIAL.print(" ");
   PRA32_U2_DEBUG_PRINT_SERIAL.print(uxTaskGetStackHighWaterMark(s_secondary_task));
-  PRA32_U2_DEBUG_PRINT_SERIAL.print("\e[5;1H\e[K");
-  PRA32_U2_DEBUG_PRINT_SERIAL.print("wave tables ");
-  PRA32_U2_DEBUG_PRINT_SERIAL.print(s_wave_tables_in_psram ? "PSRAM" : "flash");
   PRA32_U2_DEBUG_PRINT_SERIAL.println();
   s_debug_measurement_min_us = UINT32_MAX;
   s_debug_measurement_max_us = 0;
