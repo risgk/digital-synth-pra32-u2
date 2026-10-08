@@ -89,7 +89,7 @@
 |                            70 | x             | o             | Fine Tune [-|+]                      |
 |                               |               |               |                                      |
 |                            60 | x             | o             | Breath Filter Amt [-|+]              |
-|                            61 | x             | o             | Breath Amp Mod [Off|Qad|Lin]         |
+|                            61 | x             | o             | Breath Amp Mode [Off|Q|L|LO|QO|Opn]  |
 |                            37 | x             | o             | After Touch LFO Amt                  |
 |                               |               |               |                                      |
 |                               |               |               |                                      |

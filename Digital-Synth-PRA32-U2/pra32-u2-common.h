@@ -109,7 +109,7 @@ static INLINE int32_t approach_exp_wide(int32_t current_value, int32_t target_va
 // - Fast: approach_exp_fast(), 1 stage at the rate 8192 at 6 kHz (1.2 ms time constant, 95% in 3.7 ms),
 //   for the performance controllers, whose attack must not be softened, but whose steps must not click
 //   - Filter: the Breath Controller (x Breath Filter Amt)
-//   - Amp: Expression x Breath Controller (Breath Amp Mod)
+//   - Amp: Expression x Breath Controller (Breath Amp Mode)
 // - Normal: 1 stage, for the Delay Time, which moves in its own way
 //   - Delay FX: Delay Time (in Q8, at 6 kHz, i.e. 5.3 ms, and slew-limited)
 // - Others

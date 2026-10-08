@@ -852,8 +852,8 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
     break;
   case BTH_AMP_MOD     :
     {
-      char ary[3][5] = {"Off","Qad","Lin"};
-      uint32_t index = ((controller_value * 4) + 128) >> 8;
+      char ary[6][5] = {"Off","Q","L","LO","QO","Opn"};
+      uint32_t index = ((controller_value * 10) + 128) >> 8;
       std::strcpy(value_display_text, ary[index]);
       result = true;
     }

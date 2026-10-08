@@ -169,7 +169,7 @@
 | A-25 LFO b     | LFO Rate             | LFO Depth            |
 | A-26 LFO c     | LFO Mod Amt          | LFO Mod Dst          |
 | A-27 LFO d     | LFO Filter Amt       |                      |
-| A-28 Breath    | Breath Filter Amt    | Breath Amp Mod       |
+| A-28 Breath    | Breath Filter Amt    | Breath Amp Mode      |
 | A-29 Aft Touch | Aft Touch LFO Amt    |                      |
 | A-30 Chorus a  | Chorus Level         | FX Routing           |
 | A-31 Chorus b  | Chorus Rate          | Chorus Depth         |

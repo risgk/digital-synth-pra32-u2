@@ -334,13 +334,24 @@
     - +0 (64): +0 cent
     - +1 (65): +1.5625 cent
     - +63 (127): +98.4375 cent
-- Breath Filter Amt [-|+]
-    - -60 (4): -120 (min)
-    - +60 (124): +120 (max)
-- Breath Amp Mod [Off|Qad|Lin]
-    - 0 (0-31): Off
-    - 64 (32-95): Quadratic Curve
-    - 127 (96-127): Liniear Curve
+- Breath Filter Amt [-|+]: 2x the other Amt parameters (e.g. Filter EG Amt), so that a weak breath also opens the Filter
+    - -60 (4): -240 (min)
+    - +30 (94): +120, the Cutoff +120 with the max breath
+    - +60 (124): +240 (max), the Cutoff +120 with the half breath
+- Breath Amp Mode [Off|Q|L|LO|QO|Opn]
+    - 0 (0-12): Off, The Amp follows the EG (the Breath Controller does not modulate the Amp)
+    - 26 (13-38): Quadratic Curve (Q), The Amp follows the EG, x the Breath Controller (Quadratic Curve)
+    - 51 (39-63): Linear Curve (L), The Amp follows the EG, x the Breath Controller (Linear Curve)
+    - 77 (64-89): Linear Curve Open (LO), The Amp is held open (the EG is not used), x the Breath Controller (Linear Curve)
+    - 102 (90-115): Quadratic Curve Open (QO), The Amp is held open (the EG is not used), x the Breath Controller (Quadratic Curve)
+    - 127 (116-127): Open (Opn), The Amp is held open at the max (the EG is not used), and the level is controlled by the Filter (e.g. Breath Filter Amt)
+    - NOTE: In the Open modes (LO, QO, Opn), the Amp EG, Amp Level Velo Sens, and the release are not effective, and the voices sound also after the note off (and before the first note on, at C4)
+        - All Sound Off does not stop the sound in the Open modes (it works as All Notes Off, without resetting the Osc, the Filter, and the LFO)
+        - With LO and QO, the sound stops when the Breath Controller is 0
+        - With Opn, the level is controlled by the Low Pass Filter (Filter Mode: LP): close the Filter (a low Cutoff and a low Resonance) to stop the sound, and open it (by Cutoff, Breath Filter Amt, Filter EG Amt, or LFO Filter Amt) to sound
+            - NOTE: Low notes may still be heard faintly at the min Cutoff
+        - Opn can also be used for drones: the voices keep sounding at the last notes (in the Polyphonic Mode, the last chord of up to 4 notes), and the Filter EG and LFO still work
+        - LO and QO are intended for the Monophonic or Legato Voice Mode, as the note-off voices keep sounding in the Polyphonic Mode
 - After Touch LFO Amt
 - Chorus Level: Chorus Send Level
 - FX Routing [Cho|Dly|Byp]: Where the output is input to the FX (the FX are connected in series: Chorus -> Delay)
@@ -408,7 +419,7 @@
     - For the Sine Wave and the Wave Tables, the smoothed Osc 1 Morph is rounded to the controller value, as it switches the ratio or the table step by step
 - 1 stage (1.2 ms time constant, 95% in 3.7 ms), for the performance controllers, whose attack must not be softened, but whose steps must not click
     - Breath Controller (x Breath Filter Amt)
-    - Expression x Breath Controller (Breath Amp Mod)
+    - Expression x Breath Controller (Breath Amp Mode)
 - 1 stage, for the Delay Time (5.3 ms), which moves in its own way
     - The Delay Time is also slew-limited, bending the pitch of the echoes (within +/-25%), as on a tape delay
 - The smoothed parameters are calculated in fine steps (not in the controller value steps)

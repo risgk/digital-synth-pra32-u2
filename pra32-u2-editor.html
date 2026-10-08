@@ -953,8 +953,8 @@ function updateDisplayOfControl(number, value) {
     break;
   case BTH_AMP_MOD     :
     {
-      var ary = ["Off","Qad","Lin"];
-      var index = Math.floor(((value * 4) + 128) >> 8);
+      var ary = ["Off","Q","L","LO","QO","Opn"];
+      var index = Math.floor(((value * 10) + 128) >> 8);
       dispValue = ary[index];
     }
     break;
@@ -1866,14 +1866,14 @@ function getStoredCCValueString(index, number) {
 </tr>
 <tr>
 <td colspan="3"><b>Breath</b> Filter Amt [-|+]         </td>
-<td colspan="3"><b>Breath</b> Amp Mod [Off|Qad|Lin]    </td>
+<td colspan="3"><b>Breath</b> Amp Mode [Off|Q|L|LO|QO|Opn]</td>
 <td colspan="3"><b>After Touch</b> LFO Amt             </td>
 </tr>
 <tr>
 <td><input  id="inputBTH_FILTER_AMT "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(BTH_FILTER_AMT , value)"></td>
 <td><span    id="spanBTH_FILTER_AMT " >-</span></td>
 <td><span   id="span2BTH_FILTER_AMT " >-</span></td>
-<td><input  id="inputBTH_AMP_MOD    "  type="range" list="3 markers" min="0" max="127" step="1" oninput="onChangeControlChange(BTH_AMP_MOD    , value)"></td>
+<td><input  id="inputBTH_AMP_MOD    "  type="range" list="6 markers" min="0" max="127" step="1" oninput="onChangeControlChange(BTH_AMP_MOD    , value)"></td>
 <td><span    id="spanBTH_AMP_MOD    " >-</span></td>
 <td><span   id="span2BTH_AMP_MOD    " >-</span></td>
 <td><input  id="inputAFT_T_LFO_AMT  "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(AFT_T_LFO_AMT  , value)"></td>
