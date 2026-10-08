@@ -20,7 +20,8 @@
     - Modify the Presets
         - Osc 2 Pitch of #20-22, #29, and #30: from +2 or +8 to +4 (cent)
         - Mixer Osc Mix of #20, #22, #28, and #29: from 64 to 32 (Osc 1 75% + Osc 2 25%)
-        - Amp Gain of #21, #26, #27, #29, and #30: changed to even out the volume (#21, #29, and #30: 90 -> 80, #26: 100 -> 90, #27: 80 -> 100)
+        - Amp Gain of #21, #26, #27, #29, and #30: changed to even out the volume (#21, #29, and #30: 90 -> 80, #26: 100 -> 90, #27: 80 -> 90)
+        - Filter Resonance: from 48 to 64 (#22: from 80 to 96)
     - Tested with Arduino-Pico version 6.2.0
 - v3.7.0 (2026-10-07):
     - Add even harmonics to the Filter by biasing the soft clipping of the band pass state by 1/8, as the state is driven (at a high Resonance or near the cutoff), with a DC blocker (7.5 Hz) on the Filter output
