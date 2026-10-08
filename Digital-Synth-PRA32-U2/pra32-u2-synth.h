@@ -901,6 +901,11 @@ public:
   }
 
   void all_notes_off(boolean all_sound_off = false) {
+    // In the Open modes of the Breath Amp Mode, the sound does not stop, so the
+    // reset (of the Osc, the Filter, the Amp, the LFO, and the EG) is not done,
+    // as it would only click
+    all_sound_off = all_sound_off && !m_amp[0].is_amp_open();
+
     m_sustain_pedal = false;
     m_note_on_number[0] = NOTE_NUMBER_INVALID;
     m_note_on_number[1] = NOTE_NUMBER_INVALID;
@@ -1305,10 +1310,10 @@ if constexpr (NO_FX == false) {
       m_filter[3].set_cutoff_breath_amt(controller_value);
       break;
     case BTH_AMP_MOD    :
-      m_amp[0].set_breath_mod(controller_value);
-      m_amp[1].set_breath_mod(controller_value);
-      m_amp[2].set_breath_mod(controller_value);
-      m_amp[3].set_breath_mod(controller_value);
+      m_amp[0].set_breath_amp_mode(controller_value);
+      m_amp[1].set_breath_amp_mode(controller_value);
+      m_amp[2].set_breath_amp_mode(controller_value);
+      m_amp[3].set_breath_amp_mode(controller_value);
       break;
     case EG_VEL_SENS    :
       m_eg[0].set_level_note_on_velocity_sensitivity(controller_value);

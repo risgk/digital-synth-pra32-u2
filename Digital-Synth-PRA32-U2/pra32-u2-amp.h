@@ -11,7 +11,8 @@ class PRA32_U2_Amp {
   int16_t m_gain;
   int16_t m_expression;
   int32_t m_gain_mod_input;
-  uint8_t m_breath_mod;
+  uint8_t m_breath_curve;               // 0: Off, 1: Quadratic, 2: Linear
+  bool    m_amp_open;                   // true: The Amp is held open (the EG is not used)
   uint8_t m_breath_controller;
   int32_t m_gain_linear_stage_1;
   int32_t m_gain_linear_current;        // Q24 (the gain in Q16, shifted left by 8)
@@ -26,7 +27,8 @@ PRA32_U2_Amp()
   : m_gain(127)
   , m_expression(127)
   , m_gain_mod_input(0)
-  , m_breath_mod()
+  , m_breath_curve()
+  , m_amp_open()
   , m_breath_controller()
   , m_gain_linear_stage_1()
   , m_gain_linear_current()
@@ -46,8 +48,18 @@ PRA32_U2_Amp()
     m_expression = controller_value;
   }
 
-  INLINE void set_breath_mod(uint8_t controller_value) {
-    m_breath_mod = (controller_value >= 32) + (controller_value >= 96);
+  // Breath Amp Mode [Off|Q|L|LO|QO|Opn]
+  // - Off/Q/L: The Amp follows the EG, x the Breath Controller (None/Quadratic/Linear)
+  // - LO/QO/Opn: The Amp is held open (the EG is not used), x the Breath Controller (Linear/Quadratic/None)
+  INLINE void set_breath_amp_mode(uint8_t controller_value) {
+    static const uint8_t breath_curve_table[6] = {0, 1, 2, 2, 1, 0};
+    const uint8_t index = ((controller_value * 10) + 128) >> 8;
+    m_breath_curve = breath_curve_table[index];
+    m_amp_open     = (index >= 3);
+  }
+
+  INLINE bool is_amp_open() const {
+    return m_amp_open;
   }
 
   INLINE void set_breath_controller(uint8_t controller_value) {
@@ -69,7 +81,7 @@ PRA32_U2_Amp()
   }
 
   INLINE void process_at_low_rate(int32_t gain_mod_input, const PRA32_U2_Amp& smoothed) {
-    m_gain_mod_input = gain_mod_input;
+    m_gain_mod_input = branchless_conditional(m_amp_open, static_cast<int32_t>(EG_LEVEL_MAX >> 7), gain_mod_input);
     m_output_gain_next = multiply_shift_right(m_gain_mod_input, smoothed.m_total_gain_linear_current >> 8, 16);
 
     // Rounded up, so that the target is reached by the end of the interval
@@ -99,9 +111,9 @@ private:
     const int32_t val_mod_1 = ((m_breath_controller * m_breath_controller) * 16384) / 16129;
     const int32_t val_mod_0 = 16384;
 
-    return ((val_mod_2 * (m_breath_mod == 2)) +
-            (val_mod_1 * (m_breath_mod == 1)) +
-            (val_mod_0 * (m_breath_mod == 0))) << 2;
+    return ((val_mod_2 * (m_breath_curve == 2)) +
+            (val_mod_1 * (m_breath_curve == 1)) +
+            (val_mod_0 * (m_breath_curve == 0))) << 2;
   }
 
   // Combine the smoothed gain and the smoothed expression/breath into a single

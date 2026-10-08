@@ -1,6 +1,6 @@
 ```
-  [Polyphonic Synthesizer]                                        Date: 2026-10-07                      
-  Model: Digital Synth PRA32-U2   MIDI Implementation Chart       Version: 3.7.0                        
+  [Polyphonic Synthesizer]                                        Date: 2026-10-08                      
+  Model: Digital Synth PRA32-U2   MIDI Implementation Chart       Version: 3.8.0                        
 +-------------------------------+---------------+---------------+--------------------------------------+
 | Function...                   | Transmitted   | Recognized    | Remarks                              |
 +-------------------------------+---------------+---------------+--------------------------------------+
@@ -89,7 +89,7 @@
 |                            70 | x             | o             | Fine Tune [-|+]                      |
 |                               |               |               |                                      |
 |                            60 | x             | o             | Breath Filter Amt [-|+]              |
-|                            61 | x             | o             | Breath Amp Mod [Off|Qad|Lin]         |
+|                            61 | x             | o             | Breath Amp Mode [Off|Q|L|LO|QO|Opn]  |
 |                            37 | x             | o             | After Touch LFO Amt                  |
 |                               |               |               |                                      |
 |                               |               |               |                                      |

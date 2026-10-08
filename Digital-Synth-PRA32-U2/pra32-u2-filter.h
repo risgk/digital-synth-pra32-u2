@@ -327,10 +327,11 @@ public:
     }
   }
 
-  // (m_breath_controller_current * (m_cutoff_breath_amt_current >> 8)) >> 7 is
-  // (m_breath_controller * m_cutoff_breath_amt) << 1 in the steady state
+  // (m_breath_controller_current * (m_cutoff_breath_amt_current >> 8)) >> 6 is
+  // (m_breath_controller * m_cutoff_breath_amt) << 2 in the steady state
+  // (the Breath Filter Amt is 2x the other Amt parameters, so that a weak breath also opens the Filter)
   INLINE void update_cutoff_base_current() {
-    m_cutoff_base_current = clamp(m_cutoff_target_current + ((m_breath_controller_current * (m_cutoff_breath_amt_current >> 8)) >> 7),
+    m_cutoff_base_current = clamp(m_cutoff_target_current + ((m_breath_controller_current * (m_cutoff_breath_amt_current >> 8)) >> 6),
                                   0, CONTROLLER_VALUE_Q16_MAX);
   }
 
