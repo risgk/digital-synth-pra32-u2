@@ -1,5 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v3.8.1 (2026-??-??):
+    - Tested with Arduino-Pico version 6.2.0
 - v3.8.0 (2026-10-08):
     - Change "Breath Amp Mod [Off|Qad|Lin]" to "Breath Amp Mode [Off|Q|L|LO|QO|Opn]", and add the Open modes, where the Amp is held open (the EG is not used)
         - LO/QO: The Amp is held open, x the Breath Controller (Linear/Quadratic Curve)
