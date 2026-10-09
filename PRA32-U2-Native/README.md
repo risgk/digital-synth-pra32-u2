@@ -1,4 +1,4 @@
-# PRA32-U2 Native v3.8.0 (Experimental)
+# PRA32-U2 Native v3.9.0 (Experimental)
 
 - 2026-09-22 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
@@ -22,7 +22,7 @@ PRA32-U2 Native: a software synthesizer (VST3 plugin and standalone application)
       with wider parameter names, and the names and the values left-justified)
         - The sound parameters are shown in the same order as PRA32-U2 Editor, with the supplements in [] in the names
         - The sliders have the markers as in PRA32-U2 Editor (e.g. 6 markers for "Osc 1 Wave")
-        - The header shows the name and the version (e.g. "PRA32-U2 Native v3.8.0"), and the "Program Change"
+        - The header shows the name and the version (e.g. "PRA32-U2 Native v3.9.0"), and the "Program Change"
           button (the same style as the "Options" button of the Standalone) sends Program Change #16-31 (the Factory Presets, e.g. "#16 Synth Pad")
           to itself (not the host's presets, so that the host does not change the sound when it loads the project)
         - The "Randomize Synth" and "Randomize FX" buttons in the header work as in PRA32-U2 Editor

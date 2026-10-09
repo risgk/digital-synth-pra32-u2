@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v3.8.1 (2026-??-??):
+- v3.9.0 (2026-10-09):
     - Add PRA32-U2 Native (Experimental), a software synthesizer (VST3 plugin and standalone application) version of PRA32-U2 for PCs, built with JUCE (see "PRA32-U2-Native/README.md")
         - The signal processing is the same as PRA32-U2 (at 48 kHz, resampled to the host sampling rate)
         - The parameters are the same as the Control Changes (0-127), and can be controlled by PRA32-U2 Editor
