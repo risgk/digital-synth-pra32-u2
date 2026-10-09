@@ -1147,7 +1147,7 @@ function writeParameters(number) {
     sleep(2);
     midiOutput.send([(CONTROL_CHANGE | midi_ch), WRITE_P_TO_PROG, 0]);
     sleep(2);
-    midiOutput.send([(CONTROL_CHANGE | midi_ch), WRITE_P_TO_PROG, 1]);
+    midiOutput.send([(CONTROL_CHANGE | midi_ch), WRITE_P_TO_PROG, 127]);
     sleep(2);
   }
 }
