@@ -4,12 +4,15 @@
     - Add PRA32-U2 Native (Experimental), a software synthesizer (VST3 plugin and standalone application) version of PRA32-U2 for PCs, built with JUCE (see "PRA32-U2-Native/README.md")
         - The signal processing is the same as PRA32-U2 (at 48 kHz, resampled to the host sampling rate)
         - The parameters are the same as the Control Changes (0-127), and can be controlled by PRA32-U2 Editor
-        - No GUI of its own: the VST3 uses the host's generic editor, and the Standalone has a generic editor (sliders) with "Program Change" to the Factory Presets
+        - No GUI of its own: the VST3 uses the host's generic editor, and the Standalone has a generic editor (sliders) with "Program Change" to the Factory Presets, "Randomize Synth", and "Randomize FX"
         - The binaries for Windows (VST3 and Standalone) are in "PRA32-U2-Native/bin"
     - Change the order of the parameters of the programs (internal) to the same as PRA32-U2 Editor and the MIDI Implementation Chart
         - The Programs and the User Programs sound the same, but "Random Synth Params" (Program Change #127 or Control Change #111) gives different results
     - Modify the Presets
         - Osc 2 Pitch of #16-#20 and #24-#26: from +6 to +8 (from 9.4 cent to 12.5 cent)
+    - PRA32-U2 Editor: Rename "Randomize Synth/FX Prms" to "Randomize Synth/FX"
+    - PRA32-U2/P: Rename "Random Synth Prms" to "Randomize Synth"
+    - PRA32-U2 Editor: Add the center markers to the sliders of [-|+] and [N|S], and the 6 markers and the center marker to the slider of Osc 1 Morph (these markers do not pull the sliders)
     - Tested with Arduino-Pico version 6.2.0
 - v3.8.0 (2026-10-08):
     - Change "Breath Amp Mod [Off|Qad|Lin]" to "Breath Amp Mode [Off|Q|L|LO|QO|Opn]", and add the Open modes, where the Amp is held open (the EG is not used)
