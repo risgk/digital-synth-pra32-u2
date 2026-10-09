@@ -1,4 +1,4 @@
-# Digital Synth PRA32-U2 v3.8.0
+# Digital Synth PRA32-U2 v3.9.0
 
 - 2026-09-22 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
@@ -16,6 +16,7 @@
 - Optional
     - **[PRA32-U2/M](#pra32-u2m-pra32-u2-multi-timbre-edition-optional)** (PRA32-U2 Multi-Timbre Edition) can also be configured
     - **[PRA32-U2/P](./README-PRA32-U2-P.md)** (PRA32-U2 with Panel) and **PRA32-U2/M/P** (PRA32-U2 Multi-Timbre Edition with Panel) can also be configured by adding certain parts
+- **[PRA32-U2 Native](./PRA32-U2-Native/README.md)** (Experimental): a software synthesizer (VST3 plugin and standalone application) version of PRA32-U2 for PCs
 - Prebuilt UF2 files (in the "bin" folder)
     - PRA32-U2/M (Recommended): "Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico 2 and Pimoroni Pico Audio Pack
         - A superset of PRA32-U2: the Main Synth (Basic Channel + 0) works the same as PRA32-U2, and the Sub Synths and Layering are added
@@ -316,6 +317,9 @@ flowchart LR
 ## [PRA32-U2/P](./README-PRA32-U2-P.md) (PRA32-U2 with Panel) (Optional)
 
 
+## [PRA32-U2 Native](./PRA32-U2-Native/README.md) (Experimental)
+
+
 ## Simple Circuit for PWM Audio (Optional)
 
 ### Circuit Diagram
@@ -356,11 +360,11 @@ flowchart LR
 
 ![CC0](http://i.creativecommons.org/p/zero/1.0/88x31.png)
 
-**Digital Synth PRA32-U2 v3.8.0 by ISGK Instruments (Ryo Ishigaki)**
+**Digital Synth PRA32-U2 v3.9.0 by ISGK Instruments (Ryo Ishigaki)**
 
 To the extent possible under law, ISGK Instruments (Ryo Ishigaki)
 has waived all copyright and related or neighboring rights
-to Digital Synth PRA32-U2 v3.8.0.
+to Digital Synth PRA32-U2 v3.9.0.
 
 You should have received a copy of the CC0 legalcode along with this
 work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
