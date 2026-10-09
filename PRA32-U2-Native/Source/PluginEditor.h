@@ -11,7 +11,7 @@
 // value texts), except that the names are as wide as needed (measured with the font), so that they
 // are shown in full as in PRA32-U2 Editor (e.g. "CC#102 Osc 1 Wave [Saw|Sqr|Tri|Sin|WT|Pls]"); the names and the values are left-justified.
 // Only the sound parameters are shown, in the same order as PRA32-U2 Editor (not the parameters named "---").
-// The header at the top shows the name and the version (e.g. "PRA32-U2 Native v3.8.0"), and the
+// The header at the top shows the name and the version (e.g. "PRA32-U2 Native v3.9.0"), and the
 // "Program Change" button (the same style as the "Options" button of the Standalone), whose menu sends
 // Program Change #16-31 (the Factory Presets) to
 // the synth itself (not the hosts' presets, so that the hosts do not change the sound when they load the projects),
