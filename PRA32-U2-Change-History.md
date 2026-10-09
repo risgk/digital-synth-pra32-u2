@@ -1,6 +1,8 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v3.9.2 (2026-??-??):
+    - Change the output level to 0.75 times (-2.5 dB, in the Output Limiter), so that the Presets are rarely limited by the Output Limiter
+        - Changing the Filter Cutoff or a max Delay Level is rarely limited either, while a high Filter Resonance is still limited
     - Modify the Preset "#30 PWM Lead": LFO Depth 64 -> 32, LFO Mod Amt +32 -> +63
     - Tested with Arduino-Pico version 6.2.0
 - v3.9.1 (2026-10-09):
