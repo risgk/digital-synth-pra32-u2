@@ -289,7 +289,7 @@ public:
   // Same mapping as PRA32_U2_Osc::set_drift(), so that the cutoff drifts by
   // the same amount as the Osc pitch
   INLINE void set_drift(uint8_t controller_value) {
-    m_cutoff_drift = ((controller_value + 1) >> 1) << 2;
+    m_cutoff_drift = ((controller_value + 1) >> 1) << 3;
   }
 
   INLINE void reset() {
