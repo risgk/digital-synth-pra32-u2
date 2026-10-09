@@ -396,7 +396,7 @@ public:
   }
 
   INLINE void set_drift(uint8_t controller_value) {
-    m_drift = ((controller_value + 1) >> 1) << 2;
+    m_drift = ((controller_value + 1) >> 1) << 3;
   }
 
   INLINE void set_saw_wave_mode(uint8_t controller_value) {
