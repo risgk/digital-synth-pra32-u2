@@ -1,0 +1,93 @@
+# PRA32-U2 Native (Experimental): Windows build with Visual Studio 2022 (see PRA32-U2-Native/README.md)
+name: PRA32-U2 Native (Windows)
+
+on:
+  push:
+    paths:
+      - 'PRA32-U2-Native/**'
+      - 'Digital-Synth-PRA32-U2/*.h'
+      - '.github/workflows/pra32-u2-native-windows.yml'
+  workflow_dispatch:
+    inputs:
+      commit_package:
+        description: 'Commit the package (zip) to PRA32-U2-Native/bin/ on the selected branch'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-2022
+    permissions:
+      contents: write  # Only used by "Commit the package" (manual runs with commit_package)
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -S PRA32-U2-Native -B PRA32-U2-Native/build -G "Visual Studio 17 2022" -A x64
+
+      - name: Build
+        run: cmake --build PRA32-U2-Native/build --config Release --parallel
+
+      - name: Validate (pluginval)
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri https://github.com/Tracktion/pluginval/releases/download/v1.0.4/pluginval_Windows.zip -OutFile pluginval.zip
+          Expand-Archive pluginval.zip -DestinationPath pluginval
+          .\pluginval\pluginval.exe --strictness-level 10 --validate "PRA32-U2-Native\build\PRA32_U2_Native_artefacts\Release\VST3\PRA32-U2 Native.vst3"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Package (VST3 and Standalone)
+        id: package
+        shell: pwsh
+        run: |
+          $version = (Get-Content "PRA32-U2-Native\build\pra32-u2-native-version.txt" -Raw).Trim()
+          $name = "PRA32-U2-Native-v$version-Windows-x64"
+          "name=$name" >> $env:GITHUB_OUTPUT
+          $out = "package\$name"
+          New-Item -ItemType Directory -Force $out | Out-Null
+          Copy-Item -Recurse "PRA32-U2-Native\build\PRA32_U2_Native_artefacts\Release\VST3\PRA32-U2 Native.vst3" $out
+          Copy-Item "PRA32-U2-Native\build\PRA32_U2_Native_artefacts\Release\Standalone\PRA32-U2 Native.exe" $out
+          Copy-Item "PRA32-U2-Native\README.md" $out
+          Copy-Item "PRA32-U2-Native\LICENSE-AGPLv3.txt" $out
+          Copy-Item "PRA32-U2-Native\build\_deps\juce-src\modules\juce_audio_processors_headless\format_types\VST3_SDK\LICENSE.txt" "$out\LICENSE-VST3-SDK.txt"
+          Copy-Item "PRA32-U2-Native\build\_deps\juce-src\LICENSE.md" "$out\LICENSE-JUCE.md"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.package.outputs.name }}
+          path: package/${{ steps.package.outputs.name }}
+
+      - name: Commit the package
+        if: github.event_name == 'workflow_dispatch' && inputs.commit_package
+        shell: pwsh
+        run: |
+          $name = "${{ steps.package.outputs.name }}"
+          $branch = "${{ github.ref_name }}"
+          git fetch -q origin $branch
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+          # Not committed if the sources were changed after this build (the package would be older than the sources)
+          $changed = git diff --name-only "${{ github.sha }}" "origin/$branch" -- . ":(exclude)PRA32-U2-Native/bin" ":(exclude).github"
+          if ($changed) {
+            Write-Output "::warning::Not committed: the sources were changed after ${{ github.sha }} (run this workflow again)"
+            $changed | ForEach-Object { Write-Output "  $_" }
+            exit 0
+          }
+
+          # Committed on the latest branch (e.g. after the package committed by another run)
+          git checkout -q -B $branch "origin/$branch"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git rm -q --ignore-unmatch "PRA32-U2-Native/bin/*.zip"  # Only the latest package is kept
+          New-Item -ItemType Directory -Force "PRA32-U2-Native\bin" | Out-Null  # After git rm, which removes the empty folder
+          $zip = "PRA32-U2-Native\bin\$name.zip"
+          Compress-Archive -Path "package\$name" -DestinationPath $zip -Force
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add $zip
+          git commit -m "Update PRA32-U2 Native package: $name" -m "Built by ${{ github.workflow }} run #${{ github.run_number }} from ${{ github.sha }}"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git push origin "HEAD:$branch"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

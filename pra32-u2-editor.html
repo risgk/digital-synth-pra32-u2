@@ -53,6 +53,22 @@ table.section:not(.param-grid) td > input[type="button"] {
   width: 100%;
   text-align: left;
 }
+/* Markers that do not pull the slider (unlike the markers of a datalist): drawn as the background of the cell,
+   at the same positions as the datalist markers of Chrome (the input is at 3px, and a marker of the value v is
+   at 7px + 113px * v / 127 in the input, 1px wide and 4px high at the bottom). The center (64) for [-|+] and [N|S],
+   and the 6 markers (as in "6 markers") and the center for Osc 1 Morph, which can be used as a 6-way switch */
+td.soft-marker-c {
+  background: linear-gradient(#101010, #101010) 67px 21px / 1px 4px no-repeat;
+}
+td.soft-markers-6-c {
+  background: linear-gradient(#101010, #101010)  10px 21px / 1px 4px no-repeat,
+              linear-gradient(#101010, #101010)  33px 21px / 1px 4px no-repeat,
+              linear-gradient(#101010, #101010)  55px 21px / 1px 4px no-repeat,
+              linear-gradient(#101010, #101010)  67px 21px / 1px 4px no-repeat,
+              linear-gradient(#101010, #101010)  79px 21px / 1px 4px no-repeat,
+              linear-gradient(#101010, #101010) 101px 21px / 1px 4px no-repeat,
+              linear-gradient(#101010, #101010) 123px 21px / 1px 4px no-repeat;
+}
 td.pad-l {
   padding-left: 8px;
   white-space: nowrap;
@@ -126,7 +142,7 @@ td.keyh {
 }
 </style>
 <script>
-const APP_NAME_VERSION = "PRA32-U2 Editor v3.8.0";
+const APP_NAME_VERSION = "PRA32-U2 Editor v3.9.0";
 
 const USER_PROGRAM_NUMBER_MAX      = 15;
 const PROGRAM_NUMBER_MAX           = 31;
@@ -417,7 +433,7 @@ presetControllers[OSC_1_MORPH    ] = [0  , 127, 108, 64 , 0  , 127, 0  , 0  ,   
 presetControllers[OSC_2_WAVE     ] = [0  , 0  , 0  , 0  , 0  , 26 , 0  , 0  ,   0  , 0  , 0  , 77 , 0  , 26 , 0  , 0  ];
 presetControllers[MIXER_OSC_MIX  ] = [64 , 0  , 64 , 0  , 32 , 0  , 32 , 0  ,   64 , 64 , 64 , 64 , 32 , 32 , 0  , 0  ];
 presetControllers[OSC_2_COARSE   ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
-presetControllers[OSC_2_PITCH    ] = [70 , 70 , 70 , 70 , 70 , 70 , 70 , 64 ,   70 , 70 , 70 , 109, 109, 70 , 70 , 64 ];
+presetControllers[OSC_2_PITCH    ] = [72 , 72 , 72 , 72 , 72 , 72 , 72 , 64 ,   72 , 72 , 72 , 109, 109, 72 , 72 , 64 ];
 
 presetControllers[FILTER_CUTOFF  ] = [112, 112, 88 , 112, 112, 112, 52 , 127,   88 , 112, 112, 64 , 112, 112, 112, 127];
 presetControllers[FILTER_RESO    ] = [64 , 64 , 64 , 64 , 64 , 64 , 96 , 0  ,   64 , 64 , 64 , 0  , 64 , 64 , 64 , 0  ];
@@ -442,7 +458,7 @@ presetControllers[LFO_DEPTH      ] = [0  , 0  , 0  , 127, 8  , 0  , 0  , 0  ,   
 presetControllers[LFO_OSC_AMT    ] = [64 , 64 , 64 , 64 , 96 , 72 , 64 , 64 ,   64 , 64 , 72 , 64 , 96 , 96 , 96 , 64 ];
 presetControllers[LFO_OSC_DST    ] = [0  , 0  , 127, 0  , 0  , 127, 0  , 0  ,   0  , 0  , 127, 127, 0  , 0  , 127, 0  ];
 presetControllers[LFO_FILTER_AMT ] = [76 , 76 , 76 , 64 , 64 , 64 , 76 , 64 ,   76 , 76 , 64 , 76 , 64 , 64 , 64 , 64 ];
-presetControllers[AMP_GAIN       ] = [90 , 80 , 110, 90 , 90 , 80 , 110, 90 ,   90 , 90 , 90 , 90 , 90 , 80 , 80 , 90 ];
+presetControllers[AMP_GAIN       ] = [90 , 90 , 110, 90 , 90 , 80 , 110, 90 ,   90 , 90 , 90 , 90 , 90 , 80 , 80 , 90 ];
 
 presetControllers[AMP_ATTACK     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 presetControllers[AMP_DECAY      ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
@@ -464,7 +480,7 @@ presetControllers[VOICE_ASGN_MODE] = [76 , 76 , 76 , 76 , 76 , 76 , 76 , 76 ,   
 presetControllers[PAN            ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 presetControllers[STRETCH_TUNE   ] = [80 , 80 , 80 , 80 , 80 , 80 , 80 , 80 ,   80 , 80 , 80 , 80 , 80 , 80 , 80 , 80 ];
 
-presetControllers[OSC_DRIFT      ] = [16 , 16 , 16 , 16 , 16 , 16 , 16 , 16 ,   16 , 16 , 16 , 16 , 16 , 16 , 16 , 16 ];
+presetControllers[OSC_DRIFT      ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 presetControllers[OSC_SAW_W_MODE ] = [127, 127, 127, 127, 127, 127, 127, 127,   127, 127, 127, 127, 127, 127, 127, 127];
 presetControllers[COARSE_TUNE    ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 presetControllers[FINE_TUNE      ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
@@ -1440,9 +1456,9 @@ function getStoredCCValueString(index, number) {
     <td class="sp-1"></td>
     <td><input type="button" value="Panic"                onclick="panic()"></td>
     <td class="sp-1"></td>
-    <td><input type="button" value="Randomize Synth Prms" onclick="setRandom()"></td>
+    <td><input type="button" value="Randomize Synth"      onclick="setRandom()"></td>
     <td></td>
-    <td><input type="button" value="Randomize FX Prms"    onclick="setRandomChorus()"></td>
+    <td><input type="button" value="Randomize FX"         onclick="setRandomChorus()"></td>
     <td class="sp-4"></td>
     <td>File</td>
     <td></td>
@@ -1626,13 +1642,13 @@ function getStoredCCValueString(index, number) {
 <td><input  id="inputOSC_1_WAVE     "  type="range" list="6 markers" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_1_WAVE     , value)"></td>
 <td><span    id="spanOSC_1_WAVE     " >-</span></td>
 <td><span   id="span2OSC_1_WAVE     " >-</span></td>
-<td><input  id="inputMIXER_SUB_OSC  "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(MIXER_SUB_OSC  , value)"></td>
+<td class="soft-marker-c"><input  id="inputMIXER_SUB_OSC  "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(MIXER_SUB_OSC  , value)"></td>
 <td><span    id="spanMIXER_SUB_OSC  " >-</span></td>
 <td><span   id="span2MIXER_SUB_OSC  " >-</span></td>
 <td><input  id="inputOSC_1_SHAPE    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_1_SHAPE    , value)"></td>
 <td><span    id="spanOSC_1_SHAPE    " >-</span></td>
 <td><span   id="span2OSC_1_SHAPE    " >-</span></td>
-<td><input  id="inputOSC_1_MORPH    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_1_MORPH    , value)"></td>
+<td class="soft-markers-6-c"><input  id="inputOSC_1_MORPH    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_1_MORPH    , value)"></td>
 <td><span    id="spanOSC_1_MORPH    " >-</span></td>
 <td><span   id="span2OSC_1_MORPH    " >-</span></td>
 <tr>
@@ -1648,10 +1664,10 @@ function getStoredCCValueString(index, number) {
 <td><input  id="inputMIXER_OSC_MIX  "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(MIXER_OSC_MIX  , value)"></td>
 <td><span    id="spanMIXER_OSC_MIX  " >-</span></td>
 <td><span   id="span2MIXER_OSC_MIX  " >-</span></td>
-<td><input  id="inputOSC_2_COARSE   "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_2_COARSE   , value)"></td>
+<td class="soft-marker-c"><input  id="inputOSC_2_COARSE   "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_2_COARSE   , value)"></td>
 <td><span    id="spanOSC_2_COARSE   " >-</span></td>
 <td><span   id="span2OSC_2_COARSE   " >-</span></td>
-<td><input  id="inputOSC_2_PITCH    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_2_PITCH    , value)"></td>
+<td class="soft-marker-c"><input  id="inputOSC_2_PITCH    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_2_PITCH    , value)"></td>
 <td><span    id="spanOSC_2_PITCH    " >-</span></td>
 <td><span   id="span2OSC_2_PITCH    " >-</span></td>
 </tr>
@@ -1668,10 +1684,10 @@ function getStoredCCValueString(index, number) {
 <td><input  id="inputFILTER_RESO    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(FILTER_RESO    , value)"></td>
 <td><span    id="spanFILTER_RESO    " >-</span></td>
 <td><span   id="span2FILTER_RESO    " >-</span></td>
-<td><input  id="inputFILTER_EG_AMT  "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(FILTER_EG_AMT  , value)"></td>
+<td class="soft-marker-c"><input  id="inputFILTER_EG_AMT  "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(FILTER_EG_AMT  , value)"></td>
 <td><span    id="spanFILTER_EG_AMT  " >-</span></td>
 <td><span   id="span2FILTER_EG_AMT  " >-</span></td>
-<td><input  id="inputFILTER_KEY_TRK "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(FILTER_KEY_TRK , value)"></td>
+<td class="soft-marker-c"><input  id="inputFILTER_KEY_TRK "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(FILTER_KEY_TRK , value)"></td>
 <td><span    id="spanFILTER_KEY_TRK " >-</span></td>
 <td><span   id="span2FILTER_KEY_TRK " >-</span></td>
 </tr>
@@ -1705,7 +1721,7 @@ function getStoredCCValueString(index, number) {
 <td colspan="3">Portamento                        </td>
 </tr>
 <tr>
-<td><input  id="inputEG_OSC_AMT     "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(EG_OSC_AMT     , value)"></td>
+<td class="soft-marker-c"><input  id="inputEG_OSC_AMT     "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(EG_OSC_AMT     , value)"></td>
 <td><span    id="spanEG_OSC_AMT     " >-</span></td>
 <td><span   id="span2EG_OSC_AMT     " >-</span></td>
 <td><input  id="inputEG_OSC_DST     "  type="range" list="6 markers" min="0" max="127" step="1" oninput="onChangeControlChange(EG_OSC_DST     , value)"></td>
@@ -1745,13 +1761,13 @@ function getStoredCCValueString(index, number) {
 <td colspan="3"><b>Amp</b> Gain                        </td>
 </tr>
 <tr>
-<td><input  id="inputLFO_OSC_AMT    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_OSC_AMT    , value)"></td>
+<td class="soft-marker-c"><input  id="inputLFO_OSC_AMT    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_OSC_AMT    , value)"></td>
 <td><span    id="spanLFO_OSC_AMT    " >-</span></td>
 <td><span   id="span2LFO_OSC_AMT    " >-</span></td>
 <td><input  id="inputLFO_OSC_DST    "  type="range" list="6 markers" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_OSC_DST    , value)"></td>
 <td><span    id="spanLFO_OSC_DST    " >-</span></td>
 <td><span   id="span2LFO_OSC_DST    " >-</span></td>
-<td><input  id="inputLFO_FILTER_AMT "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_FILTER_AMT , value)"></td>
+<td class="soft-marker-c"><input  id="inputLFO_FILTER_AMT "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_FILTER_AMT , value)"></td>
 <td><span    id="spanLFO_FILTER_AMT " >-</span></td>
 <td><span   id="span2LFO_FILTER_AMT " >-</span></td>
 <td><input  id="inputAMP_GAIN       "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(AMP_GAIN       , value)"></td>
@@ -1811,10 +1827,10 @@ function getStoredCCValueString(index, number) {
 <td colspan="3"><b>Amp</b> Level Velo Sens             </td>
 </tr>
 <tr>
-<td><input  id="inputA_D_VEL_SENS   "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(A_D_VEL_SENS   , value)"></td>
+<td class="soft-marker-c"><input  id="inputA_D_VEL_SENS   "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(A_D_VEL_SENS   , value)"></td>
 <td><span    id="spanA_D_VEL_SENS   " >-</span></td>
 <td><span   id="span2A_D_VEL_SENS   " >-</span></td>
-<td><input  id="inputREL_VEL_SENS   "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(REL_VEL_SENS   , value)"></td>
+<td class="soft-marker-c"><input  id="inputREL_VEL_SENS   "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(REL_VEL_SENS   , value)"></td>
 <td><span    id="spanREL_VEL_SENS   " >-</span></td>
 <td><span   id="span2REL_VEL_SENS   " >-</span></td>
 <td><input  id="inputEG_VEL_SENS    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(EG_VEL_SENS    , value)"></td>
@@ -1831,7 +1847,7 @@ function getStoredCCValueString(index, number) {
 <td colspan="3">Stretch Tune [-|+]              </td>
 </tr>
 <tr>
-<td><input  id="inputA_D_KEY_TRK    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(A_D_KEY_TRK    , value)"></td>
+<td class="soft-marker-c"><input  id="inputA_D_KEY_TRK    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(A_D_KEY_TRK    , value)"></td>
 <td><span    id="spanA_D_KEY_TRK    " >-</span></td>
 <td><span   id="span2A_D_KEY_TRK    " >-</span></td>
 <td><input  id="inputVOICE_ASGN_MODE"  type="range" list="6 markers" min="0" max="127" step="1" oninput="onChangeControlChange(VOICE_ASGN_MODE, value)"></td>
@@ -1840,7 +1856,7 @@ function getStoredCCValueString(index, number) {
 <td><input  id="inputPAN            "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(PAN            , value)"></td>
 <td><span    id="spanPAN            " >-</span></td>
 <td><span   id="span2PAN            " >-</span></td>
-<td><input  id="inputSTRETCH_TUNE   "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(STRETCH_TUNE   , value)"></td>
+<td class="soft-marker-c"><input  id="inputSTRETCH_TUNE   "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(STRETCH_TUNE   , value)"></td>
 <td><span    id="spanSTRETCH_TUNE   " >-</span></td>
 <td><span   id="span2STRETCH_TUNE   " >-</span></td>
 </tr>
@@ -1857,10 +1873,10 @@ function getStoredCCValueString(index, number) {
 <td><input  id="inputOSC_SAW_W_MODE "  type="range" list="2 markers" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_SAW_W_MODE , value)"></td>
 <td><span    id="spanOSC_SAW_W_MODE " >-</span></td>
 <td><span   id="span2OSC_SAW_W_MODE " >-</span></td>
-<td><input  id="inputCOARSE_TUNE    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(COARSE_TUNE    , value)"></td>
+<td class="soft-marker-c"><input  id="inputCOARSE_TUNE    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(COARSE_TUNE    , value)"></td>
 <td><span    id="spanCOARSE_TUNE    " >-</span></td>
 <td><span   id="span2COARSE_TUNE    " >-</span></td>
-<td><input  id="inputFINE_TUNE      "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(FINE_TUNE      , value)"></td>
+<td class="soft-marker-c"><input  id="inputFINE_TUNE      "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(FINE_TUNE      , value)"></td>
 <td><span    id="spanFINE_TUNE      " >-</span></td>
 <td><span   id="span2FINE_TUNE      " >-</span></td>
 </tr>
@@ -1870,7 +1886,7 @@ function getStoredCCValueString(index, number) {
 <td colspan="3"><b>After Touch</b> LFO Amt             </td>
 </tr>
 <tr>
-<td><input  id="inputBTH_FILTER_AMT "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(BTH_FILTER_AMT , value)"></td>
+<td class="soft-marker-c"><input  id="inputBTH_FILTER_AMT "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(BTH_FILTER_AMT , value)"></td>
 <td><span    id="spanBTH_FILTER_AMT " >-</span></td>
 <td><span   id="span2BTH_FILTER_AMT " >-</span></td>
 <td><input  id="inputBTH_AMP_MOD    "  type="range" list="6 markers" min="0" max="127" step="1" oninput="onChangeControlChange(BTH_AMP_MOD    , value)"></td>
