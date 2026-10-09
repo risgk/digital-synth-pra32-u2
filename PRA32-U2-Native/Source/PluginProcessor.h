@@ -45,6 +45,12 @@ public:
   // Sends a Program Change to the synth itself (thread safe; handled at the start of the next block)
   void sendProgramChange(int programNumber);
 
+  // "Randomize Synth" and "Randomize FX" of PRA32-U2 Editor (call on the message thread).
+  // "Randomize Synth" sends Program Change #127 (the random values come from the Noise Gen, as in PRA32-U2);
+  // "Randomize FX" sets the FX parameters (e.g. "Chorus Mix") to random values
+  void randomizeSynth();
+  void randomizeFx();
+
   // The Factory Presets (#16-31), with the names of PRA32-U2 Editor (e.g. "#16 Synth Pad")
   static constexpr int kFactoryPresetFirst = 16;
   static constexpr int kNumFactoryPresets  = 16;

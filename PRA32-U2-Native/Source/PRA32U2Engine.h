@@ -24,6 +24,9 @@ public:
   // for "Osc 1 Wave"). Returns the number of the markers (0 if none), and sets markerValues to the values
   static int getMarkers(uint8_t controlNumber, const uint8_t** markerValues);
 
+  // Whether a sound parameter is randomized by "Randomize FX", the same as PRA32-U2 Editor (e.g. "Chorus Mix")
+  static bool isRandomizedAsFx(uint8_t controlNumber);
+
   // The text of a controller value, the same as PRA32-U2 Editor (e.g. "26 [Sqr]", "67 [+3]", or "100")
   static std::string getValueText(uint8_t controlNumber, uint8_t value);
 

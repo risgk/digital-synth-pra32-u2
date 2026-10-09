@@ -14,7 +14,8 @@
 // The header at the top shows the name and the version (e.g. "PRA32-U2 Native v3.8.0"), and the
 // "Program Change" button (the same style as the "Options" button of the Standalone), whose menu sends
 // Program Change #16-31 (the Factory Presets) to
-// the synth itself (not the hosts' presets, so that the hosts do not change the sound when they load the projects).
+// the synth itself (not the hosts' presets, so that the hosts do not change the sound when they load the projects),
+// and the "Randomize Synth" and "Randomize FX" buttons (the same as PRA32-U2 Editor).
 // (The hosts' generic editors list the parameters in the order of the control numbers, with the ones named "---")
 class PRA32U2NativeAudioProcessorEditor : public juce::AudioProcessorEditor {
 public:
@@ -45,6 +46,8 @@ private:
   juce::String                                m_nameAndVersion;
   int                                         m_nameAndVersionWidth = 0;
   juce::TextButton                            m_programChangeButton;
+  juce::TextButton                            m_randomizeSynthButton;
+  juce::TextButton                            m_randomizeFxButton;
   juce::Viewport                              m_viewport;
   juce::Component                             m_content;
   std::vector<std::unique_ptr<ParameterRow>>  m_rows;

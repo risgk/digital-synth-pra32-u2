@@ -98,6 +98,8 @@ PRA32U2NativeAudioProcessorEditor::PRA32U2NativeAudioProcessorEditor(PRA32U2Nati
 , m_processor(processor)
 , m_hasHeader(true)
 , m_programChangeButton("Program Change")
+, m_randomizeSynthButton("Randomize Synth")
+, m_randomizeFxButton("Randomize FX")
 {
   if (m_hasHeader) {
     m_nameAndVersion = juce::String(JucePlugin_Name) + " v" + JucePlugin_VersionString;
@@ -108,6 +110,12 @@ PRA32U2NativeAudioProcessorEditor::PRA32U2NativeAudioProcessorEditor(PRA32U2Nati
     m_programChangeButton.setTriggeredOnMouseDown(true);
     m_programChangeButton.onClick = [this] { showProgramChangeMenu(); };
     addAndMakeVisible(m_programChangeButton);
+
+    m_randomizeSynthButton.onClick = [this] { m_processor.randomizeSynth(); };
+    addAndMakeVisible(m_randomizeSynthButton);
+
+    m_randomizeFxButton.onClick = [this] { m_processor.randomizeFx(); };
+    addAndMakeVisible(m_randomizeFxButton);
   }
 
   const auto& parameters = processor.getSoundParameters();
@@ -160,7 +168,11 @@ void PRA32U2NativeAudioProcessorEditor::resized() {
   if (m_hasHeader) {
     auto header = area.removeFromTop(HEADER_HEIGHT);
     header.removeFromLeft(HEADER_MARGIN + m_nameAndVersionWidth + HEADER_MARGIN * 2);
-    m_programChangeButton.setBounds(header.withWidth(110).reduced(0, 5));
+    m_programChangeButton.setBounds(header.removeFromLeft(110).reduced(0, 5));
+    header.removeFromLeft(HEADER_MARGIN * 2);
+    m_randomizeSynthButton.setBounds(header.removeFromLeft(110).reduced(0, 5));
+    header.removeFromLeft(HEADER_MARGIN);
+    m_randomizeFxButton.setBounds(header.removeFromLeft(100).reduced(0, 5));
   }
   m_viewport.setBounds(area);
 }

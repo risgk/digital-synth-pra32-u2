@@ -95,7 +95,7 @@
     - Sustain Pedal
 - Control Operations
     - Panic: Change the value from 0-32 [Rdy] to 96-127 [Exe]
-    - Random Synth Prms (Randomize Synth Parameters, as Program Change #127): Change the value from 0-32 [Rdy] to 96-127 [Exe]
+    - Randomize Synth (Randomize Synth Parameters, as Program Change #127): Change the value from 0-32 [Rdy] to 96-127 [Exe]
 
 
 #### Group C
@@ -195,7 +195,7 @@
 | B-17 Seq 7     | Seq Pitch 7          | Seq Velo 7           |
 | B-18 Control a | Modulation           | Expression           |
 | B-19 Control b | Breath Controller    | Sustain Pedal        |
-| B-20 Control c | Panic                | Random Synth Prms    |
+| B-20 Control c | Panic                | Randomize Synth      |
 | C-00 Write 0   | Write Program 0      | Write Program 1      |
 | C-01 Write 2   | Write Program 2      | Write Program 3      |
 | C-02 Write 4   | Write Program 4      | Write Program 5      |
