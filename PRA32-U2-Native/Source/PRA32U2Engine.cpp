@@ -138,9 +138,11 @@ const PRA32U2Engine::ParameterInfo& PRA32U2Engine::getParameterInfo(int index) {
 
 // The same as the "markers" of the sliders of PRA32-U2 Editor (pra32-u2-editor.html)
 int PRA32U2Engine::getMarkers(uint8_t controlNumber, const uint8_t** markerValues) {
-  static const uint8_t MARKERS_6[] = { 0, 26, 51, 77, 102, 127 };
-  static const uint8_t MARKERS_3[] = { 0, 64, 127 };
-  static const uint8_t MARKERS_2[] = { 0, 127 };
+  static const uint8_t MARKERS_6[]   = { 0, 26, 51, 77, 102, 127 };
+  static const uint8_t MARKERS_3[]   = { 0, 64, 127 };
+  static const uint8_t MARKERS_2[]   = { 0, 127 };
+  static const uint8_t MARKERS_C[]   = { 64 };  // The center, for [-|+] and [N|S]
+  static const uint8_t MARKERS_6_C[] = { 0, 26, 51, 64, 77, 102, 127 };  // The 6 markers and the center
 
   switch (controlNumber) {
   case OSC_1_WAVE      :
@@ -153,6 +155,9 @@ int PRA32U2Engine::getMarkers(uint8_t controlNumber, const uint8_t** markerValue
   case BTH_AMP_MOD     :
     *markerValues = MARKERS_6;
     return 6;
+  case OSC_1_MORPH     :  // Can be used as a 6-way switch (the markers of the sliders do not pull the values)
+    *markerValues = MARKERS_6_C;
+    return 7;
   case FILTER_MODE     :
   case FX_ROUTING      :
   case DELAY_MODE      :
@@ -163,9 +168,42 @@ int PRA32U2Engine::getMarkers(uint8_t controlNumber, const uint8_t** markerValue
   case OSC_SAW_W_MODE  :
     *markerValues = MARKERS_2;
     return 2;
+  case MIXER_SUB_OSC   :
+  case OSC_2_COARSE    :
+  case OSC_2_PITCH     :
+  case FILTER_EG_AMT   :
+  case FILTER_KEY_TRK  :
+  case EG_OSC_AMT      :
+  case LFO_OSC_AMT     :
+  case LFO_FILTER_AMT  :
+  case A_D_VEL_SENS    :
+  case REL_VEL_SENS    :
+  case A_D_KEY_TRK     :
+  case STRETCH_TUNE    :
+  case COARSE_TUNE     :
+  case FINE_TUNE       :
+  case BTH_FILTER_AMT  :
+    *markerValues = MARKERS_C;
+    return 1;
   default:
     *markerValues = nullptr;
     return 0;
+  }
+}
+
+// The same as setRandomChorus() of PRA32-U2 Editor (pra32-u2-editor.html)
+bool PRA32U2Engine::isRandomizedAsFx(uint8_t controlNumber) {
+  switch (controlNumber) {
+  case CHORUS_MIX      :
+  case CHORUS_RATE     :
+  case CHORUS_DEPTH    :
+  case DELAY_LEVEL     :
+  case DELAY_TIME      :
+  case DELAY_FEEDBACK  :
+  case DELAY_MODE      :
+    return true;
+  default:
+    return false;
   }
 }
 

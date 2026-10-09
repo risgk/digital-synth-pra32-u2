@@ -144,7 +144,7 @@
 |                               | $5 : Basic Channel can be changed in PRA32-U2/P                      |
 |                               | $6 : o in PRA32-U2/P (No transmission via USB MIDI)                  |
 |                               | $7 : o in PRA32-U2/P if Seq Clock Src is External                    |
-|                               | $8 : Randomize the synth parameters (as "Randomize Synth Prms" in    |
+|                               | $8 : Randomize the synth parameters (as "Randomize Synth" in         |
 |                               |   PRA32-U2 Editor) when changed from 0-63 to 64-127                  |
 +-------------------------------+----------------------------------------------------------------------+
   Mode 1: Omni On,  Poly          Mode 2: Omni On,  Mono          o: Yes                                

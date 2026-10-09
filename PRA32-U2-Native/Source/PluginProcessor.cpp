@@ -246,6 +246,22 @@ void PRA32U2NativeAudioProcessor::sendProgramChange(int programNumber) {
   m_requestedProgram.store(juce::jlimit(0, 127, programNumber));
 }
 
+void PRA32U2NativeAudioProcessor::randomizeSynth() {
+  sendProgramChange(127);
+}
+
+void PRA32U2NativeAudioProcessor::randomizeFx() {
+  auto& random = juce::Random::getSystemRandom();
+  for (size_t index = 0; index < m_parameters.size(); ++index) {
+    if (PRA32U2Engine::isRandomizedAsFx(PRA32U2Engine::getParameterInfo(static_cast<int>(index)).controlNumber)) {
+      auto* parameter = m_parameters[index];
+      parameter->beginChangeGesture();
+      parameter->setValueNotifyingHost(parameter->convertTo0to1(static_cast<float>(random.nextInt(128))));
+      parameter->endChangeGesture();
+    }
+  }
+}
+
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter() {
   return new PRA32U2NativeAudioProcessor();
 }

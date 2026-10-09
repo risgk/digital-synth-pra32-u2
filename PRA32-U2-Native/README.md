@@ -25,6 +25,8 @@ PRA32-U2 Native: a software synthesizer (VST3 plugin and standalone application)
         - The header shows the name and the version (e.g. "PRA32-U2 Native v3.8.0"), and the "Program Change"
           button (the same style as the "Options" button of the Standalone) sends Program Change #16-31 (the Factory Presets, e.g. "#16 Synth Pad")
           to itself (not the host's presets, so that the host does not change the sound when it loads the project)
+        - The "Randomize Synth" and "Randomize FX" buttons in the header work as in PRA32-U2 Editor
+          ("Randomize Synth" sends Program Change #127 to itself)
         - The parameters named "---" can be moved in the host's generic parameter editor, but do nothing
         - The host's generic parameter editor can also be used (the parameters are in the order of the control numbers)
     - Standalone: the "Options" menu (JUCE's): "Audio/MIDI Settings...", "Save current state...", "Load a saved state...",
