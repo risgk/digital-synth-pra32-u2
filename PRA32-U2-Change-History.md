@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v3.9.2 (2026-??-??):
+    - Modify the Preset "#30 PWM Lead": LFO Depth 64 -> 32, LFO Mod Amt +32 -> +63
     - Tested with Arduino-Pico version 6.2.0
 - v3.9.1 (2026-10-09):
     - Fix the dates of the documents (e.g. README.md) to the release date
