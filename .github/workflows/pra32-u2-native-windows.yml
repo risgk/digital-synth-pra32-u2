@@ -1,27 +1,72 @@
-# PRA32-U2 Native (Experimental): Windows build with Visual Studio 2022 (see PRA32-U2-Native/README.md)
-name: PRA32-U2 Native (Windows)
+# PRA32-U2 Build: the UF2 files ("bin/") and PRA32-U2 Native (Experimental) for Windows ("PRA32-U2-Native/bin/")
+# - UF2: built with arduino-cli (Ubuntu), the same as the Arduino IDE builds (see README.md)
+# - PRA32-U2 Native: built with Visual Studio 2022 (Windows) and validated with pluginval (see PRA32-U2-Native/README.md)
+# (The file name is kept, because the "Run workflow" button needs this file on the default branch)
+name: PRA32-U2 Build (UF2 and Native)
 
 on:
-  push:
-    paths:
-      - 'PRA32-U2-Native/**'
-      - 'Digital-Synth-PRA32-U2/*.h'
-      - '.github/workflows/pra32-u2-native-windows.yml'
-  workflow_dispatch:
+  workflow_dispatch:  # Manual runs only (e.g. at a release)
     inputs:
       commit_package:
-        description: 'Commit the package (zip) to PRA32-U2-Native/bin/ on the selected branch'
+        description: 'Commit the UF2 files (bin/) and the package (zip, PRA32-U2-Native/bin/) on the selected branch'
         type: boolean
         default: false
 
 permissions:
   contents: read
 
+env:
+  ARDUINO_CLI_VERSION: '1.5.1'
+  ARDUINO_PICO_VERSION: '6.2.0'  # The same as "Tested with Arduino-Pico version ..." in PRA32-U2-Change-History.md
+  MIDI_LIBRARY_VERSION: '5.0.2'
+  ARDUINO_PICO_INDEX_URL: 'https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json'
+  UF2_FQBN: 'rp2040:rp2040:rpipico2:flash=4194304_0,freq=150,arch=arm,opt=Small,os=none,profile=Disabled,rtti=Disabled,stackprotect=Disabled,exceptions=Disabled,dbgport=Disabled,dbglvl=None,usbstack=tinyusb,ipbtstack=ipv4only,uploadmethod=default'
+
 jobs:
-  build:
+  uf2:
+    runs-on: ubuntu-latest
+    outputs:
+      name: ${{ steps.build.outputs.name }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: arduino/setup-arduino-cli@v2
+        with:
+          version: ${{ env.ARDUINO_CLI_VERSION }}
+
+      - name: Install the core and the library
+        run: |
+          arduino-cli core update-index --additional-urls "$ARDUINO_PICO_INDEX_URL"
+          arduino-cli core install "rp2040:rp2040@$ARDUINO_PICO_VERSION" --additional-urls "$ARDUINO_PICO_INDEX_URL"
+          arduino-cli lib install "MIDI Library@$MIDI_LIBRARY_VERSION"
+
+      - name: Build (PRA32-U2 and PRA32-U2/M)
+        id: build
+        run: |
+          version=$(sed -n 's/^#define PRA32_U2_VERSION *"v\([0-9.]*\).*/\1/p' Digital-Synth-PRA32-U2/Digital-Synth-PRA32-U2.ino)
+          echo "name=PRA32-U2-UF2-v$version" >> "$GITHUB_OUTPUT"
+          mkdir -p uf2
+
+          # PRA32-U2
+          arduino-cli compile --fqbn "$UF2_FQBN" --output-dir out/u2 Digital-Synth-PRA32-U2
+          cp out/u2/Digital-Synth-PRA32-U2.ino.uf2 uf2/Digital-Synth-PRA32-U2-Pimoroni-Pico-Audio-Pack.uf2
+
+          # PRA32-U2/M: "Digital-Synth-PRA32-U2-M.ino" with the files in the "Digital-Synth-PRA32-U2" folder
+          mkdir -p work
+          cp -r Digital-Synth-PRA32-U2 work/
+          cp Digital-Synth-PRA32-U2-M/Digital-Synth-PRA32-U2-M.ino work/Digital-Synth-PRA32-U2/Digital-Synth-PRA32-U2.ino
+          arduino-cli compile --fqbn "$UF2_FQBN" --output-dir out/m work/Digital-Synth-PRA32-U2
+          cp out/m/Digital-Synth-PRA32-U2.ino.uf2 uf2/Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.build.outputs.name }}
+          path: uf2
+
+  native:
     runs-on: windows-2022
-    permissions:
-      contents: write  # Only used by "Commit the package" (manual runs with commit_package)
+    outputs:
+      name: ${{ steps.package.outputs.name }}
     steps:
       - uses: actions/checkout@v4
 
@@ -60,34 +105,49 @@ jobs:
           name: ${{ steps.package.outputs.name }}
           path: package/${{ steps.package.outputs.name }}
 
-      - name: Commit the package
-        if: github.event_name == 'workflow_dispatch' && inputs.commit_package
-        shell: pwsh
+  commit:
+    if: inputs.commit_package
+    needs: [uf2, native]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.uf2.outputs.name }}
+          path: uf2
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.native.outputs.name }}
+          path: package/${{ needs.native.outputs.name }}
+
+      - name: Commit the UF2 files and the package
         run: |
-          $name = "${{ steps.package.outputs.name }}"
-          $branch = "${{ github.ref_name }}"
-          git fetch -q origin $branch
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          name="${{ needs.native.outputs.name }}"
+          branch="${{ github.ref_name }}"
+          git fetch -q origin "$branch"
 
-          # Not committed if the sources were changed after this build (the package would be older than the sources)
-          $changed = git diff --name-only "${{ github.sha }}" "origin/$branch" -- . ":(exclude)PRA32-U2-Native/bin" ":(exclude).github"
-          if ($changed) {
-            Write-Output "::warning::Not committed: the sources were changed after ${{ github.sha }} (run this workflow again)"
-            $changed | ForEach-Object { Write-Output "  $_" }
+          # Not committed if the sources were changed after this build (the binaries would be older than the sources)
+          changed=$(git diff --name-only "${{ github.sha }}" "origin/$branch" -- . ":(exclude)bin" ":(exclude)PRA32-U2-Native/bin" ":(exclude).github")
+          if [ -n "$changed" ]; then
+            echo "::warning::Not committed: the sources were changed after ${{ github.sha }} (run this workflow again)"
+            echo "$changed" | sed 's/^/  /'
             exit 0
-          }
+          fi
 
-          # Committed on the latest branch (e.g. after the package committed by another run)
-          git checkout -q -B $branch "origin/$branch"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          # Committed on the latest branch (e.g. after the binaries committed by another run)
+          git checkout -q -B "$branch" "origin/$branch"
+          cp uf2/*.uf2 bin/
           git rm -q --ignore-unmatch "PRA32-U2-Native/bin/*.zip"  # Only the latest package is kept
-          New-Item -ItemType Directory -Force "PRA32-U2-Native\bin" | Out-Null  # After git rm, which removes the empty folder
-          $zip = "PRA32-U2-Native\bin\$name.zip"
-          Compress-Archive -Path "package\$name" -DestinationPath $zip -Force
+          mkdir -p PRA32-U2-Native/bin  # After git rm, which removes the empty folder
+          (cd package && zip -q -r "../PRA32-U2-Native/bin/$name.zip" "$name")
+          git add bin "PRA32-U2-Native/bin/$name.zip"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add $zip
-          git commit -m "Update PRA32-U2 Native package: $name" -m "Built by ${{ github.workflow }} run #${{ github.run_number }} from ${{ github.sha }}"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git commit -m "Update the UF2 files and the PRA32-U2 Native package: $name" -m "Built by ${{ github.workflow }} run #${{ github.run_number }} from ${{ github.sha }}"
           git push origin "HEAD:$branch"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
