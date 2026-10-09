@@ -2,12 +2,7 @@
 name: PRA32-U2 Native (Windows)
 
 on:
-  push:
-    paths:
-      - 'PRA32-U2-Native/**'
-      - 'Digital-Synth-PRA32-U2/*.h'
-      - '.github/workflows/pra32-u2-native-windows.yml'
-  workflow_dispatch:
+  workflow_dispatch:  # Manual runs only (e.g. at a release)
     inputs:
       commit_package:
         description: 'Commit the package (zip) to PRA32-U2-Native/bin/ on the selected branch'
@@ -61,7 +56,7 @@ jobs:
           path: package/${{ steps.package.outputs.name }}
 
       - name: Commit the package
-        if: github.event_name == 'workflow_dispatch' && inputs.commit_package
+        if: inputs.commit_package
         shell: pwsh
         run: |
           $name = "${{ steps.package.outputs.name }}"
