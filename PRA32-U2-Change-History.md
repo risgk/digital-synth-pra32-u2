@@ -3,7 +3,10 @@
 - v3.9.2 (2026-??-??):
     - Change the output level to 0.75 times (-2.5 dB, in the Output Limiter), so that the Presets are rarely limited by the Output Limiter
         - Changing the Filter Cutoff or a max Delay Level is rarely limited either, while a high Filter Resonance is still limited
+    - Change the condition of "Write Parameters to Program" (CC #106) from "changed from 0 to 1-127" to "changed from 0-32 to 96-127" (as "Write Program" of PRA32-U2/P), for safety
+        - PRA32-U2 Editor sends 0 and then 127 (instead of 0 and then 1), which also works with the older versions
     - Modify the Preset "#30 PWM Lead": LFO Depth 64 -> 32, LFO Mod Amt +32 -> +63
+    - PRA32-U2 Editor: Add the control numbers to the parameter names (e.g. "Osc 1 Wave [Saw|Sqr|Tri|Sin|WT|Pls] CC#102"), as in PRA32-U2 Native, and the program number to "Randomize Synth" ("Randomize Synth PC#127")
     - Tested with Arduino-Pico version 6.2.0
 - v3.9.1 (2026-10-09):
     - Fix the dates of the documents (e.g. README.md) to the release date
