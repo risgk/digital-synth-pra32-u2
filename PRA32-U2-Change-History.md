@@ -8,6 +8,7 @@
         - The binaries for Windows (VST3 and Standalone) are in "PRA32-U2-Native/bin"
     - Change the order of the parameters of the programs (internal) to the same as PRA32-U2 Editor and the MIDI Implementation Chart
         - The Programs and the User Programs sound the same, but "Random Synth Params" (Program Change #127 or Control Change #111) gives different results
+    - Change the depth of the Osc/Filter Drift to double
     - Modify the Presets
         - Osc 2 Pitch of #16-#22, #24-#26, #29, and #30: from +6 to +8 (from 9.4 cent to 12.5 cent)
         - Osc/Filter Drift of all the Presets: from 16 to 64
