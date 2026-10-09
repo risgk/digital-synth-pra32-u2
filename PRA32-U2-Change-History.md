@@ -1,6 +1,8 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v3.9.1 (2026-??-??):
+- v3.9.1 (2026-10-09):
+    - Fix the dates of the documents (e.g. README.md) to the release date
+    - Build the UF2 files in "bin" and the binaries of PRA32-U2 Native by GitHub Actions
     - Tested with Arduino-Pico version 6.2.0
 - v3.9.0 (2026-10-09):
     - Add PRA32-U2 Native (Experimental), a software synthesizer (VST3 plugin and standalone application) version of PRA32-U2 for PCs, built with JUCE (see "PRA32-U2-Native/README.md")
