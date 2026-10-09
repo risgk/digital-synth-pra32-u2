@@ -9,7 +9,8 @@
     - Change the order of the parameters of the programs (internal) to the same as PRA32-U2 Editor and the MIDI Implementation Chart
         - The Programs and the User Programs sound the same, but "Random Synth Params" (Program Change #127 or Control Change #111) gives different results
     - Modify the Presets
-        - Osc 2 Pitch of #16-#20 and #24-#26: from +6 to +8 (from 9.4 cent to 12.5 cent)
+        - Osc 2 Pitch of #16-#22, #24-#26, #29, and #30: from +6 to +8 (from 9.4 cent to 12.5 cent)
+        - Osc/Filter Drift of all the Presets: from 16 to 64
     - PRA32-U2 Editor: Rename "Randomize Synth/FX Prms" to "Randomize Synth/FX"
     - PRA32-U2/P: Rename "Random Synth Prms" to "Randomize Synth"
     - PRA32-U2 Editor: Add the center markers to the sliders of [-|+] and [N|S], and the 6 markers and the center marker to the slider of Osc 1 Morph (these markers do not pull the sliders)
