@@ -318,7 +318,11 @@
     - 32: +9.4 cent at note number 108 (-9.4 cent at note number 12)
     - 64: +18.8 cent at note number 108 (-18.8 cent at note number 12)
     - 127: +37.2 cent at note number 108 (-37.2 cent at note number 12)
-- Osc/Filter Drift
+- Osc/Filter Drift: Randomly drifts the pitch of each oscillator, and the Filter Cutoff of each voice by the same amount (100 cent = 1 Cutoff value)
+    - 0: Off
+    - 32: About 0.7 cent (RMS)
+    - 64: About 1.4 cent (RMS)
+    - 127: About 2.8 cent (RMS)
 - Osc Saw Wave Mode [Str|Cur]
     - 0 (0-63): Straight Saw Wave
     - 127 (64-127): Curved Saw Wave, This does not affect the Pulse Wave
