@@ -30,16 +30,17 @@ static volatile boolean g_eeprom_commit_requested = false;
 #define PRA32_U2_NUMBER_OF_SYNTHS              (1)
 #endif
 
+// The same order as PRA32-U2 Editor and the MIDI Implementation Chart
 static uint8_t s_program_table_parameters[] = {
   OSC_1_WAVE     ,
+  MIXER_SUB_OSC  ,
   OSC_1_SHAPE    ,
   OSC_1_MORPH    ,
-  MIXER_SUB_OSC  ,
 
   OSC_2_WAVE     ,
+  MIXER_OSC_MIX  ,
   OSC_2_COARSE   ,
   OSC_2_PITCH    ,
-  MIXER_OSC_MIX  ,
 
   FILTER_CUTOFF  ,
   FILTER_RESO    ,
@@ -57,9 +58,9 @@ static uint8_t s_program_table_parameters[] = {
   PORTAMENTO     ,
 
   LFO_WAVE       ,
+  LFO_FADE_TIME  ,
   LFO_RATE       ,
   LFO_DEPTH      ,
-  LFO_FADE_TIME  ,
 
   LFO_OSC_AMT    ,
   LFO_OSC_DST    ,
@@ -72,9 +73,9 @@ static uint8_t s_program_table_parameters[] = {
   AMP_RELEASE    ,
 
   FILTER_MODE    ,
+  P_BEND_RANGE   ,
   EG_AMP_MOD     ,
   REL_EQ_DECAY   ,
-  P_BEND_RANGE   ,
 
   A_D_VEL_SENS   ,
   REL_VEL_SENS   ,
@@ -103,9 +104,9 @@ static uint8_t s_program_table_parameters[] = {
 
 
   DELAY_LEVEL    ,
+  DELAY_MODE     ,
   DELAY_TIME     ,
   DELAY_FEEDBACK ,
-  DELAY_MODE     ,
 };
 
 static uint8_t s_program_table_panel_parameters[] = {
