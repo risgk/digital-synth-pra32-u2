@@ -1,15 +1,17 @@
-# PRA32-U2 Build: the UF2 files ("bin/") and PRA32-U2 Native for Windows, macOS, and Linux ("PRA32-U2-Native/bin/")
+# PRA32-U2 Build: the UF2 files ("bin/"), PRA32-U2 Native for Windows, macOS, and Linux ("PRA32-U2-Native/bin/"),
+# and PRA32-U2 Web ("pra32-u2-web-synth.js")
 # - UF2: built with arduino-cli (Ubuntu), the same as the Arduino IDE builds (see README.md)
 # - PRA32-U2 Native: built with Visual Studio 2022 (Windows), Xcode (macOS), and GCC (Linux),
 #   and validated with pluginval (and auval for AU) (see PRA32-U2-Native/README.md)
+# - PRA32-U2 Web: built with Emscripten (Ubuntu), and tested with Node.js (see PRA32-U2-Web/README.md)
 # (The file name is kept, because the "Run workflow" button needs this file on the default branch)
-name: PRA32-U2 Build (UF2 and Native)
+name: PRA32-U2 Build (UF2, Native, and Web)
 
 on:
   workflow_dispatch:  # Manual runs only (e.g. at a release)
     inputs:
       commit_package:
-        description: 'Commit the UF2 files (bin/) and the packages (zip, PRA32-U2-Native/bin/) on the selected branch'
+        description: 'Commit the UF2 files (bin/), the packages (zip, PRA32-U2-Native/bin/), and pra32-u2-web-synth.js on the selected branch'
         type: boolean
         default: false
 
@@ -21,6 +23,8 @@ env:
   ARDUINO_PICO_VERSION: '6.2.0'  # The same as "Tested with Arduino-Pico version ..." in PRA32-U2-Change-History.md
   MIDI_LIBRARY_VERSION: '5.0.2'
   ARDUINO_PICO_INDEX_URL: 'https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json'
+  EMSDK_VERSION: '6.0.12'  # Emscripten, for PRA32-U2 Web
+  EMSDK_QUIET: '1'
   UF2_FQBN: 'rp2040:rp2040:rpipico2:flash=4194304_0,freq=150,arch=arm,opt=Small,os=none,profile=Disabled,rtti=Disabled,stackprotect=Disabled,exceptions=Disabled,dbgport=Disabled,dbglvl=None,usbstack=tinyusb,ipbtstack=ipv4only,uploadmethod=default'
 
 jobs:
@@ -203,9 +207,41 @@ jobs:
           name: ${{ steps.package.outputs.name }}
           path: package/${{ steps.package.outputs.name }}.zip
 
+  # PRA32-U2 Web ("pra32-u2-web-synth.js", for "pra32-u2-editor.html")
+  web:
+    runs-on: ubuntu-latest
+    outputs:
+      name: ${{ steps.build.outputs.name }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install Emscripten
+        run: |
+          git clone -q --depth 1 https://github.com/emscripten-core/emsdk.git "$RUNNER_TEMP/emsdk"
+          "$RUNNER_TEMP/emsdk/emsdk" install "$EMSDK_VERSION"
+          "$RUNNER_TEMP/emsdk/emsdk" activate "$EMSDK_VERSION"
+
+      - name: Build
+        id: build
+        run: |
+          source "$RUNNER_TEMP/emsdk/emsdk_env.sh"
+          version=$(sed -n 's/^#define PRA32_U2_VERSION *"v\([0-9.]*\).*/\1/p' Digital-Synth-PRA32-U2/Digital-Synth-PRA32-U2.ino)
+          echo "name=PRA32-U2-Web-v$version" >> "$GITHUB_OUTPUT"
+          (cd PRA32-U2-Web && node pra32-u2-web-build.js)
+
+      - name: Test
+        run: |
+          source "$RUNNER_TEMP/emsdk/emsdk_env.sh"
+          (cd PRA32-U2-Web && node pra32-u2-web-test.js)
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: ${{ steps.build.outputs.name }}
+          path: pra32-u2-web-synth.js
+
   commit:
     if: inputs.commit_package
-    needs: [uf2, native-windows, native-macos, native-linux]
+    needs: [uf2, native-windows, native-macos, native-linux, web]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -234,6 +270,11 @@ jobs:
           name: ${{ needs.native-linux.outputs.name }}
           path: zip
 
+      - uses: actions/download-artifact@v7
+        with:
+          name: ${{ needs.web.outputs.name }}
+          path: web
+
       - name: Commit the UF2 files and the packages
         run: |
           name="${{ needs.native-windows.outputs.name }}"
@@ -241,7 +282,7 @@ jobs:
           git fetch -q origin "$branch"
 
           # Not committed if the sources were changed after this build (the binaries would be older than the sources)
-          changed=$(git diff --name-only "${{ github.sha }}" "origin/$branch" -- . ":(exclude)bin" ":(exclude)PRA32-U2-Native/bin" ":(exclude).github")
+          changed=$(git diff --name-only "${{ github.sha }}" "origin/$branch" -- . ":(exclude)bin" ":(exclude)PRA32-U2-Native/bin" ":(exclude)pra32-u2-web-synth.js" ":(exclude).github")
           if [ -n "$changed" ]; then
             echo "::warning::Not committed: the sources were changed after ${{ github.sha }} (run this workflow again)"
             echo "$changed" | sed 's/^/  /'
@@ -255,8 +296,9 @@ jobs:
           mkdir -p PRA32-U2-Native/bin  # After git rm, which removes the empty folder
           (cd package && zip -q -r "../PRA32-U2-Native/bin/$name.zip" "$name")
           cp zip/*.zip PRA32-U2-Native/bin/
-          git add bin PRA32-U2-Native/bin
+          cp web/pra32-u2-web-synth.js .
+          git add bin PRA32-U2-Native/bin pra32-u2-web-synth.js
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "Update the UF2 files and the PRA32-U2 Native packages: $name, ${{ needs.native-macos.outputs.name }}, ${{ needs.native-linux.outputs.name }}" -m "Built by ${{ github.workflow }} run #${{ github.run_number }} from ${{ github.sha }}"
+          git commit -m "Update the UF2 files, the PRA32-U2 Native packages, and PRA32-U2 Web: $name, ${{ needs.native-macos.outputs.name }}, ${{ needs.native-linux.outputs.name }}, ${{ needs.web.outputs.name }}" -m "Built by ${{ github.workflow }} run #${{ github.run_number }} from ${{ github.sha }}"
           git push origin "HEAD:$branch"

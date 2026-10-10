@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PRA32-U2 Editor</title>
+<!-- PRA32-U2 Web (optional): adds "PRA32-U2 Web (Built-in)" to MIDI Out -->
+<script src="pra32-u2-web-synth.js"></script>
 <style>
 html {
   -webkit-text-size-adjust: 100%;
@@ -542,6 +544,9 @@ window.onload = function() {
   }
   document.getElementById("selectMIDICh").selectedIndex = midi_ch;
 
+  if (window.PRA32U2WebSynth) {
+    onMIDISuccess({ inputs: new Map(), outputs: new Map() });  // PRA32-U2 Web is available without MIDI access
+  }
   if (navigator.requestMIDIAccess) {
     navigator.requestMIDIAccess({sysex: false}).then(onMIDISuccess, onMIDIFailure);
   } else {
@@ -747,6 +752,9 @@ function onMIDIMessage(event) {
 function onMIDISuccess(midiAccess) {
   console.log("MIDI ready!");
   midi = midiAccess;
+  ["selectInputPort1", "selectInputPort2", "selectInputPort3", "selectInputPort4", "selectOutputPort"].forEach(function(id) {
+    document.getElementById(id).length = 0;
+  });
 
   var inputIterator = midi.inputs.values();
   midiInputs = [""];
@@ -757,6 +765,9 @@ function onMIDISuccess(midiAccess) {
   midiOutputs = [""];
   for (var o = outputIterator.next(); !o.done; o = outputIterator.next()) {
     midiOutputs.push(o.value)
+  }
+  if (window.PRA32U2WebSynth) {
+    midiOutputs.push(PRA32U2WebSynth.output);
   }
 
   var selectInputPort1 = document.getElementById("selectInputPort1");
@@ -884,6 +895,9 @@ function onChangeInputPort4(){
 function onChangeOutputPort() {
   var selectOutputPort = document.getElementById("selectOutputPort");
   midiOutput = midiOutputs[selectOutputPort.selectedIndex];
+  if (midiOutput && midiOutput.isPRA32U2WebSynth) {
+    sendCurrentParameters();
+  }
 }
 
 function onChangeMIDICh() {
@@ -1425,7 +1439,7 @@ function getStoredCCValueString(index, number) {
     </tr>
 <tr><td class="lbl-midi">MIDI Out</td>
     <td></td>
-    <td><select id="selectOutputPort" size="1" onchange="onChangeOutputPort(); savePortSelection('selectOutputPort', midiOutputs)"></select></td>
+    <td colspan="13"><select id="selectOutputPort" size="1" onchange="onChangeOutputPort(); savePortSelection('selectOutputPort', midiOutputs)"></select></td>
     </tr>
 </table>
 
