@@ -2,9 +2,10 @@
 
 - v3.10.1 (2026-??-??):
     - Rename the Preset "#19 Simple" to "#19 Plain Poly", to show that it is a Poly Preset (as "#23 Initial" is a Mono Preset)
-    - PRA32-U2 Native: Make the rows of the editor lower (32 px to 30 px) and the font of the rows a little smaller (15 px to 14 px), so that the editor (20 rows) fits in a 720 px high screen
-    - PRA32-U2 Native: Make the height of the editor changeable, with the corner resizer (from 4 rows to all the rows; the width is fixed), make the scroll bar thicker (8 px to 16 px), and leave margins below the scroll bar (for the corner resizer) and right of it (for the resize border of the Standalone)
-    - PRA32-U2/P: Show the Preset names in "Read Program 16-31" (e.g. "Read #16" "Synth Pad"), and "User" in "Read/Write Program 0-15" (e.g. "Read #0" "User")
+    - PRA32-U2 Native: Change the rows of the editor to be lower (from 32 px to 30 px), with a smaller font (from 15 px to 14 px), so that the editor (20 rows) fits in a 720 px high screen
+    - PRA32-U2 Native: Change the height of the editor to be resizable with the corner resizer (from 4 rows to all the rows; the width is fixed)
+        - The scroll bar is thicker (from 8 px to 16 px), with margins below it (for the corner resizer) and right of it (for the resize border of the Standalone)
+    - PRA32-U2/P: Add the Preset names to "Read Program 16-31" (e.g. "Read #16" "Synth Pad"), and "User" to "Read/Write Program 0-15" (e.g. "Read #0" "User")
     - PRA32-U2/P: Improve the anti-chattering of the keys (a new key state is accepted after it continues for about 20 ms, `PRA32_U2_KEY_STABLE_WAIT`), so that one press of a key with a long bounce does not step twice
     - Tested with Arduino-Pico version 6.2.0
 - v3.10.0 (2026-10-10):
