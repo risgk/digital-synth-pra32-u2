@@ -9,6 +9,8 @@ namespace {
 const char* const STATE_TAG     = "PRA32U2Native";
 const int         STATE_VERSION = 1;
 
+const uint8_t     PROGRAM_NUMBER_INITIAL = 23;  // "#23 Initial", the same as PRA32-U2 Editor
+
 juce::String parameterIdFor(uint8_t controlNumber) {
   return "cc" + juce::String(controlNumber);
 }
@@ -24,6 +26,7 @@ PRA32U2NativeAudioProcessor::PRA32U2NativeAudioProcessor()
   m_hostValues.resize(static_cast<size_t>(numParameters));
   m_synthValues.resize(static_cast<size_t>(numParameters));
   m_knownValues.resize(static_cast<size_t>(numParameters));
+  m_initialValues.resize(static_cast<size_t>(numParameters));
   m_pendingValues = std::make_unique<std::atomic<int>[]>(static_cast<size_t>(numParameters));
 
   // The index of the sound parameter for each control number (-1: not a sound parameter)
@@ -31,6 +34,18 @@ PRA32U2NativeAudioProcessor::PRA32U2NativeAudioProcessor()
   std::fill(std::begin(indexForControlNumber), std::end(indexForControlNumber), -1);
   for (int i = 0; i < numParameters; ++i) {
     indexForControlNumber[PRA32U2Engine::getParameterInfo(i).controlNumber] = i;
+  }
+
+  // The values of "#23 Initial" (the synth is set back to Program #0 after reading them)
+  {
+    PRA32U2Engine& engine = m_renderer.getEngine();
+    const uint8_t programChangeInitial[2] = { 0xC0, PROGRAM_NUMBER_INITIAL };
+    engine.handleMidiMessage(programChangeInitial, 2);
+    for (int i = 0; i < numParameters; ++i) {
+      m_initialValues[static_cast<size_t>(i)] = engine.getControllerValue(PRA32U2Engine::getParameterInfo(i).controlNumber);
+    }
+    const uint8_t programChangeDefault[2] = { 0xC0, 0 };
+    engine.handleMidiMessage(programChangeDefault, 2);
   }
 
   // The parameters are added in the order of the control numbers (CC#0-127), so that the parameter
@@ -191,6 +206,7 @@ void PRA32U2NativeAudioProcessor::handleAsyncUpdate() {
 void PRA32U2NativeAudioProcessor::getStateInformation(juce::MemoryBlock& destData) {
   juce::XmlElement xml(STATE_TAG);
   xml.setAttribute("version", STATE_VERSION);
+  xml.setAttribute("pluginVersion", JucePlugin_VersionString);  // e.g. "3.11.0", for converting the values in later versions
 
   for (size_t index = 0; index < m_parameters.size(); ++index) {
     const uint8_t controlNumber = PRA32U2Engine::getParameterInfo(static_cast<int>(index)).controlNumber;
@@ -209,11 +225,15 @@ void PRA32U2NativeAudioProcessor::setStateInformation(const void* data, int size
   for (size_t index = 0; index < m_parameters.size(); ++index) {
     const uint8_t controlNumber = PRA32U2Engine::getParameterInfo(static_cast<int>(index)).controlNumber;
     const juce::String id = parameterIdFor(controlNumber);
+
+    // The parameters not in the state (e.g. added in a later version) are set to "#23 Initial", as in PRA32-U2 Editor
+    int value = m_initialValues[index];
     if (xml->hasAttribute(id)) {
-      const int value = juce::jlimit(0, 127, xml->getIntAttribute(id));
-      auto* parameter = m_parameters[index];
-      parameter->setValueNotifyingHost(parameter->convertTo0to1(static_cast<float>(value)));
+      value = juce::jlimit(0, 127, xml->getIntAttribute(id));
     }
+
+    auto* parameter = m_parameters[index];
+    parameter->setValueNotifyingHost(parameter->convertTo0to1(static_cast<float>(value)));
   }
 }
 
