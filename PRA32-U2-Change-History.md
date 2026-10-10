@@ -6,8 +6,8 @@
     - PRA32-U2 Editor: Change "Software Kbd Transpose" to "Software Keyboard Transpose"
     - PRA32-U2 Editor: Fix the Software Keyboard to send no note above 127 (e.g. C5 with the Transpose +60), instead of a low note
     - PRA32-U2 Editor: Add a layout prototype (`pra32-u2-editor-proto.html`)
-        - A floating layout (4, 2, or 1 column by the window width)
-        - A new Software Keyboard (37 keys, C3 - C6, in a 960 px window)
+        - A floating layout (4, 2, or 1 column by the window width), with compact 2 columns for a narrow screen (e.g. iPhone SE 2, 375 px wide)
+        - A new Software Keyboard (37 keys, C3 - C6, in a 960 px window), as large as the text, with its own scroll bar
     - Tested with Arduino-Pico version 6.2.0
 - v3.11.0 (2026-10-10):
     - Rename the Preset "#19 Simple" to "#19 Plain Poly", to show that it is a Poly Preset (as "#23 Initial" is a Mono Preset)
