@@ -7,10 +7,13 @@ namespace {
 const int NAME_WIDTH_MIN = 200;  // The width of the names is measured with the font (it differs among the OSes)
 const int SLIDER_WIDTH   = 220;
 const int VALUE_WIDTH    = 90;
-const int ROW_HEIGHT     = 32;   // 40 in JUCE's generic editor; lower, so that 20 rows fit in a 768 px high screen
-const int VISIBLE_ROWS   = 20;
+const int ROW_HEIGHT     = 30;   // 40 in JUCE's generic editor; lower, so that 20 rows fit in a 720 px high screen
+const int VISIBLE_ROWS   = 20;   // The default; the height can be changed
+const int MIN_VISIBLE_ROWS = 4;
 const int HEADER_HEIGHT  = 28;   // The header (the name, the version, and the "Program Change" button)
 const int HEADER_MARGIN  = 8;
+const int SCROLL_BAR_THICKNESS = 16;  // 8 in JUCE's LookAndFeel_V4; thicker, so that it is easy to grab
+const int RIGHT_MARGIN   = 8;   // The resize border of the Standalone (7 px on Windows) would cover the scroll bar
 const float HEADER_FONT_HEIGHT = 15.0f;
 
 }  // namespace
@@ -54,6 +57,7 @@ public:
   , m_attachment(parameter, m_slider)
   {
     m_name.setText(name, juce::dontSendNotification);
+    m_name.setFont(juce::FontOptions(LookAndFeel::ROW_FONT_HEIGHT));
     m_name.setJustificationType(juce::Justification::centredLeft);  // centredRight in JUCE's generic editor
     m_name.setInterceptsMouseClicks(false, false);
     addAndMakeVisible(m_name);
@@ -139,13 +143,20 @@ PRA32U2NativeAudioProcessorEditor::PRA32U2NativeAudioProcessorEditor(PRA32U2Nati
     m_rows[i]->setBounds(0, ROW_HEIGHT * static_cast<int>(i), rowWidth, ROW_HEIGHT);
   }
 
+  m_viewport.setScrollBarThickness(SCROLL_BAR_THICKNESS);  // Before the bounds are set (Viewport trims the scroll bar in resized())
   m_viewport.setViewedComponent(&m_content, false);
   m_viewport.setScrollBarsShown(true, false);
   addAndMakeVisible(m_viewport);
 
   setOpaque(true);
-  setSize(rowWidth + m_viewport.getScrollBarThickness(),
-          (m_hasHeader ? HEADER_HEIGHT : 0) + juce::jmin(ROW_HEIGHT * VISIBLE_ROWS, m_content.getHeight()));
+  const int width = rowWidth + m_viewport.getScrollBarThickness() + RIGHT_MARGIN;
+  const int headerHeight = m_hasHeader ? HEADER_HEIGHT : 0;
+  setSize(width, headerHeight + juce::jmin(ROW_HEIGHT * VISIBLE_ROWS, m_content.getHeight()));
+
+  // The height can be changed (by the corner resizer, or the window border of the Standalone or the host), up to all the rows
+  setResizable(true, true);
+  setResizeLimits(width, headerHeight + juce::jmin(ROW_HEIGHT * MIN_VISIBLE_ROWS, m_content.getHeight()),
+                  width, headerHeight + m_content.getHeight());
 }
 
 PRA32U2NativeAudioProcessorEditor::~PRA32U2NativeAudioProcessorEditor() = default;
@@ -174,7 +185,7 @@ void PRA32U2NativeAudioProcessorEditor::resized() {
     header.removeFromLeft(HEADER_MARGIN);
     m_randomizeFxButton.setBounds(header.removeFromLeft(100).reduced(0, 5));
   }
-  m_viewport.setBounds(area);
+  m_viewport.setBounds(area.withTrimmedRight(RIGHT_MARGIN));
 }
 
 void PRA32U2NativeAudioProcessorEditor::showProgramChangeMenu() {
