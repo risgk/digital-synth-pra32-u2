@@ -274,20 +274,21 @@ flowchart LR
 ## PRA32-U2 Editor
 
 - "pra32-u2-editor.html": Editor (MIDI Controller) Application for PRA32-U2, HTML App (Web App)
-    - Modify `PRA32_U2_MIDI_CH` to change the MIDI Channel
-- We recommend using Google Chrome, which implements Web MIDI API
+    - Select the MIDI Channel in "MIDI Ch" (1 by default, `PRA32_U2_MIDI_CH`)
+- We recommend using Google Chrome or Microsoft Edge, which implement Web MIDI API
+    - Refer to "Web browsers" in [PRA32-U2 Web](./PRA32-U2-Web/README.md) for the other Web browsers (e.g. Safari)
 - Select "PRA32-U2" in the list "MIDI Out"
     - Select "PRA32-U2 Web (Built-in)" to use [PRA32-U2 Web](./PRA32-U2-Web/README.md), without PRA32-U2
 - Functions
     - PRA32-U2 Editor converts Program Changes (#0-15 for user presets, #16-31 for factory presets) into Control Changes
-    - When Program Change #127 is entered or Control Change #111 is changed from Off (63 or lower) to On (64 or higher), "Random Synth" is processed
+    - When Program Change #127 is entered or Control Change #111 is changed from Off (63 or lower) to On (64 or higher), "Randomize Synth" is processed
     - PRA32-U2 Editor stores the current control values and the user presets (#0-15) in a Web browser (localStorage)
     - Current parameter values and user presets (#0-15) can be imported/exported from/to JSON files
 - When not using PRA32-U2 Editor
     - PRA32-U2 can also be controlled by MIDI without using PRA32-U2 Editor
-    - Refer to "PRA32-U2-MIDI-Implementation-Chart.txt" for the supported functions
+    - Refer to [PRA32-U2-MIDI-Implementation-Chart.md](./PRA32-U2-MIDI-Implementation-Chart.md) for the supported functions
     - The default program is #0
-    - "Random Synth" is also processed by PRA32-U2 itself (Program Change #127 or Control Change #111 from Off to On)
+    - "Randomize Synth" is also processed by PRA32-U2 itself (Program Change #127 or Control Change #111 from Off to On)
     - Programs #0-31 can be modified by editing "pra32-u2-program-table.h"
     - PRA32-U2 Editor functions related to parameter writing
         - Write: Write the current parameters to PRA32-U2 (Program #0-15 and the flash)
