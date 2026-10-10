@@ -10,8 +10,8 @@
         - #20 Saw Lead, #21 Sync Lead, #29 Sqr Lead, and #30 PWM Lead: Mixer Noise/Sub Osc +32 -> +0
         - #22 Synth Bass and #28 Fifth Lead: Mixer Noise/Sub Osc +32 -> +63
         - #22 Synth Bass: Mixer Osc Mix 32 -> 0
-        - #20 Saw Lead: Amp Gain 90 -> 110
-        - #21 Sync Lead, #29 Sqr Lead, and #30 PWM Lead: Amp Gain 80 -> 90
+        - #20 Saw Lead: Amp Gain 90 -> 100
+        - #22 Synth Bass: Amp Gain 110 -> 100
     - PRA32-U2 Editor: Add the control numbers to the parameter names (e.g. "Osc 1 Wave [Saw|Sqr|Tri|Sin|WT|Pls] CC#102"), as in PRA32-U2 Native, and the program number to "Randomize Synth" ("Randomize Synth PC#127")
     - Tested with Arduino-Pico version 6.2.0
 - v3.9.1 (2026-10-09):
