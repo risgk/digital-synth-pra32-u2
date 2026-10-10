@@ -1,5 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v3.10.1 (2026-??-??):
+    - Tested with Arduino-Pico version 6.2.0
 - v3.10.0 (2026-10-10):
     - Change the output level to 0.75 times (-2.5 dB, in the Output Limiter), so that the Presets are rarely limited by the Output Limiter
         - Changing the Filter Cutoff or a max Delay Level is rarely limited either, while a high Filter Resonance is still limited
