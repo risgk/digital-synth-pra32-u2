@@ -3,7 +3,9 @@
 - v3.11.1 (2026-??-??):
     - Change the display of the Delay Mode from "S|P|R" to "Ste|PP|Rev", to be easier to understand
     - PRA32-U2 Editor: Change the layout to a floating layout (4, 2, or 1 column by the window width), with compact 2 columns for a narrow screen (e.g. iPhone SE 2, 375 px wide)
-    - PRA32-U2 Editor: Change the Software Keyboard to a new one (all the notes 0-127 with its own scroll bar; 37 keys, C3 - C6, in a 960 px window; as large as the text), with the Panic button
+    - PRA32-U2 Editor: Change the Software Keyboard to a new one (all the notes 0-127 with its own scroll bar; 37 keys, C3 - C6, in a 960 px window; as large as the text), with the Panic button, above the parameters (can be hidden; shown by default)
+    - PRA32-U2 Editor: Move Misc above Factory Preset, and File, Recall, and Store into Details (hidden by default)
+        - The Software Keyboard and Details are shown or hidden as the last time
     - Tested with Arduino-Pico version 6.2.0
 - v3.11.0 (2026-10-10):
     - Rename the Preset "#19 Simple" to "#19 Plain Poly", to show that it is a Poly Preset (as "#23 Initial" is a Mono Preset)
