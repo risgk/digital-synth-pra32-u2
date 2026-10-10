@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 v3.9.1
+# Digital Synth PRA32-U2 v3.10.0
 
-- 2026-10-09 ISGK Instruments
+- 2026-10-10 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 
@@ -361,11 +361,11 @@ flowchart LR
 
 ![CC0](http://i.creativecommons.org/p/zero/1.0/88x31.png)
 
-**Digital Synth PRA32-U2 v3.9.1 by ISGK Instruments (Ryo Ishigaki)**
+**Digital Synth PRA32-U2 v3.10.0 by ISGK Instruments (Ryo Ishigaki)**
 
 To the extent possible under law, ISGK Instruments (Ryo Ishigaki)
 has waived all copyright and related or neighboring rights
-to Digital Synth PRA32-U2 v3.9.1.
+to Digital Synth PRA32-U2 v3.10.0.
 
 You should have received a copy of the CC0 legalcode along with this
 work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
