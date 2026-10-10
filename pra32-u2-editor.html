@@ -147,6 +147,10 @@ body {
 .bank.named button {
   width: var(--named-button-width, auto);
 }
+/* An empty preset: "#31 ---" of the Factory Presets, and a user preset that is "#23 Initial" without a name */
+.bank.named button.empty {
+  color: #a0a0a0;
+}
 /* The program buttons with names in 2 columns if 4 do not fit (set by fitNamedBanks()), e.g. "#20 Saw Lead" "#21 Sync Lead".
    The numbers go up from the bottom to the top in 2 columns too:
    e.g. "#22 #23" / "#20 #21" / "#18 #19" / "#16 #17" from "#20 #21 #22 #23" / "#16 #17 #18 #19" */
@@ -959,11 +963,11 @@ function panic() {
   kbdReset();
   if (midiOutput) {
     midiOutput.send([(CONTROL_CHANGE | midi_ch), ALL_NOTES_OFF, 0]);
-    sleep(2);
+    sleep(1);
     midiOutput.send([(CONTROL_CHANGE | midi_ch), ALL_SOUND_OFF, 0]);
-    sleep(2);
+    sleep(1);
     midiOutput.send([(CONTROL_CHANGE | midi_ch), RESET_ALL_CTRLS, 0]);
-    sleep(2);
+    sleep(1);
   }
 }
 
@@ -1430,7 +1434,7 @@ function onChangeControlChange(number, value) {
   if (midiOutput) {
     if ((number <= 127) && (parseInt(value) <= 127)) {
       midiOutput.send([(CONTROL_CHANGE | midi_ch), number, parseInt(value)]);
-      sleep(2);
+      sleep(1);
     }
   }
 }
@@ -1521,9 +1525,24 @@ function setUserPresetName(number, name) {
   updateRecallButton(number);
 }
 
+// A user preset that is "#23 Initial" without a name (e.g. not stored yet, which Recall sets to "#23 Initial", or
+// imported from "pra32-u2-prog-all-initial.json") is shown lighter, as an empty one
+function isUserPresetEmpty(number) {
+  if (getUserPresetName(number) != "") {
+    return false;
+  }
+  return controllersInLocalStorage.every(function(i) {
+    var value = localStorage.getItem("keyMemory" + String(number) + controlNumberToStringMap.get(i));
+    var initial = presetControllers[i][PRESET_NUMBER_INITIAL - (USER_PROGRAM_NUMBER_MAX + 1)];
+    return (value == null) || (parseInt(value) == initial);
+  });
+}
+
 function updateRecallButton(number) {
   var name = getUserPresetName(number);
-  document.getElementById("buttonRecall" + String(number)).textContent = "#" + String(number) + " " + (name || "---");
+  var button = document.getElementById("buttonRecall" + String(number));
+  button.textContent = "#" + String(number) + " " + (name || "---");
+  button.classList.toggle("empty", isUserPresetEmpty(number));
 }
 
 // A name with a character that cannot be used (or too long) is asked again, with the characters removed (or cut)
@@ -1555,7 +1574,7 @@ function storeParameters(number) {
 function sendProgramChange(number) {
   if (midiOutput) {
     midiOutput.send([(PROGRAM_CHANGE | midi_ch), number]);
-    sleep(2);
+    sleep(1);
   }
 }
 
@@ -1567,11 +1586,11 @@ function writeParameters(number) {
 
   if (midiOutput) {
     midiOutput.send([(CONTROL_CHANGE | midi_ch), PROG_N_TO_W_TO,  number]);
-    sleep(2);
+    sleep(1);
     midiOutput.send([(CONTROL_CHANGE | midi_ch), WRITE_P_TO_PROG, 0]);
-    sleep(2);
+    sleep(1);
     midiOutput.send([(CONTROL_CHANGE | midi_ch), WRITE_P_TO_PROG, 127]);
-    sleep(2);
+    sleep(1);
   }
 }
 
@@ -1712,7 +1731,7 @@ function kbdTrackMessage(data) {
 function sendNote(status, note, velocity) {
   if (midiOutput) {
     midiOutput.send([(status | midi_ch), note, velocity]);
-    sleep(2);
+    sleep(1);
   }
   kbdTrack(status, note, velocity);
 }
@@ -2109,6 +2128,10 @@ function fileReaderImportAllLoad(event) {
     }
   });
 
+  for (var number = 0; number <= USER_PROGRAM_NUMBER_MAX; number++) {
+    updateRecallButton(number);  // stored now
+  }
+
   var result = restoreControllers();
   if (!result) {
     onChangeTranspose(0);
@@ -2346,7 +2369,7 @@ function getStoredCCValueString(index, number) {
   <button type="button" onclick="preset(28)">#28 Fifth Lead</button>
   <button type="button" onclick="preset(29)">#29 Sqr Lead</button>
   <button type="button" onclick="preset(30)">#30 PWM Lead</button>
-  <button type="button" onclick="preset(31)">#31 ---</button>
+  <button type="button" class="empty" onclick="preset(31)">#31 ---</button>
   <button type="button" onclick="preset(24)">#24 Synth Brs</button>
   <button type="button" onclick="preset(25)">#25 Synth Str</button>
   <button type="button" onclick="preset(26)">#26 WT Pad</button>
