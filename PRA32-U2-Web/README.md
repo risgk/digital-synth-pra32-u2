@@ -1,10 +1,10 @@
-# PRA32-U2 Web (Experimental)
+# PRA32-U2 Web v3.10.0
 
+- 2026-10-10 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 PRA32-U2 Web: a software synthesizer version of Digital Synth PRA32-U2 that runs in a Web browser, built into PRA32-U2 Editor
 
-- **Experimental**: the features and the behaviors may change, and there may be bugs
 - The signal processing is the same as PRA32-U2 (Digital-Synth-PRA32-U2/*.h are used as they are),
   compiled to WebAssembly with the renderer of [PRA32-U2 Native](../PRA32-U2-Native/README.md)
   (PRA32U2Engine, PRA32U2Renderer, and PRA32U2Resampler)
