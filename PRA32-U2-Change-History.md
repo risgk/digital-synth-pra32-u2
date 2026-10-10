@@ -4,6 +4,7 @@
     - Rename the Preset "#19 Simple" to "#19 Plain Poly", to show that it is a Poly Preset (as "#23 Initial" is a Mono Preset)
     - PRA32-U2 Native: Make the rows of the editor lower (32 px to 30 px) and the font of the rows a little smaller (15 px to 14 px), so that the editor (20 rows) fits in a 720 px high screen
     - PRA32-U2 Native: Make the height of the editor changeable, with the corner resizer (from 4 rows to all the rows; the width is fixed), make the scroll bar thicker (8 px to 16 px), and leave margins below the scroll bar (for the corner resizer) and right of it (for the resize border of the Standalone)
+    - PRA32-U2/P: Show the Preset names in "Read Program 16-31" (e.g. "Read #16" "Synth Pad"), and "User" in "Read/Write Program 0-15" (e.g. "Read #0" "User")
     - Tested with Arduino-Pico version 6.2.0
 - v3.10.0 (2026-10-10):
     - Change the output level to 0.75 times (-2.5 dB, in the Output Limiter), so that the Presets are rarely limited by the Output Limiter
