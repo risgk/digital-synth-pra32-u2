@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v3.9.2 (2026-??-??):
+- v3.10.0 (2026-10-10):
     - Change the output level to 0.75 times (-2.5 dB, in the Output Limiter), so that the Presets are rarely limited by the Output Limiter
         - Changing the Filter Cutoff or a max Delay Level is rarely limited either, while a high Filter Resonance is still limited
     - Change the condition of "Write Parameters to Program" (CC #106) from "changed from 0 to 1-127" to "changed from 0-32 to 96-127" (as "Write Program" of PRA32-U2/P), for safety
