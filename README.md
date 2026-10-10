@@ -285,6 +285,8 @@ flowchart LR
     - PRA32-U2 Editor stores the current control values and the user presets (#0-15) in a Web browser (localStorage)
     - Current parameter values and user presets (#0-15) can be imported/exported from/to JSON files
     - Software Keyboard: a note stays on when the mouse leaves the keyboard upward or downward while pressed (Panic turns it off)
+    - Software Keyboard: the PC keyboard can also be played while it is shown (A - K for C - C, W - U for the black keys, and Z / X for the octave);
+      some PC keyboards cannot take many keys at the same time (e.g. a chord of 4 notes)
 - When not using PRA32-U2 Editor
     - PRA32-U2 can also be controlled by MIDI without using PRA32-U2 Editor
     - Refer to [PRA32-U2-MIDI-Implementation-Chart.md](./PRA32-U2-MIDI-Implementation-Chart.md) for the supported functions
