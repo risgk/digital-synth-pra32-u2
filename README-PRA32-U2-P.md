@@ -101,14 +101,14 @@
 #### Group C
 
 - Write Operations
-    - Write Program 0-7, Write Panel Prms (Write Panel and Step Sequencer Parameters)
+    - Write #0-15 (User), Write Panel Prms (Write Panel and Step Sequencer Parameters)
         - Change the value from 0-32 [Rdy] to 96-127 [Exe] to write to the flash
 
 
 #### Group D
 
 - Read Operations
-    - Read Program 1-7, 8-15, Read Panel Prms, Init Panel Prms
+    - Read #0-15 (User), #16-31 (Factory Presets), Read Panel Prms, Init Panel Prms
         - Change the value from 0-32 [Rdy] to 96-127 [Exe] to read from the flash
 
 
@@ -196,29 +196,29 @@
 | B-18 Control a | Modulation           | Expression           |
 | B-19 Control b | Breath Controller    | Sustain Pedal        |
 | B-20 Control c | Panic                | Randomize Synth      |
-| C-00 Write 0   | Write Program 0      | Write Program 1      |
-| C-01 Write 2   | Write Program 2      | Write Program 3      |
-| C-02 Write 4   | Write Program 4      | Write Program 5      |
-| C-03 Write 6   | Write Program 6      | Write Program 7      |
-| C-04 Write 8   | Write Program 8      | Write Program 9      |
-| C-05 Write 10  | Write Program 10     | Write Program 11     |
-| C-06 Write 12  | Write Program 12     | Write Program 13     |
-| C-07 Write 14  | Write Program 14     | Write Program 15     |
+| C-00 Write 0   | Write #0 User        | Write #1 User        |
+| C-01 Write 2   | Write #2 User        | Write #3 User        |
+| C-02 Write 4   | Write #4 User        | Write #5 User        |
+| C-03 Write 6   | Write #6 User        | Write #7 User        |
+| C-04 Write 8   | Write #8 User        | Write #9 User        |
+| C-05 Write 10  | Write #10 User       | Write #11 User       |
+| C-06 Write 12  | Write #12 User       | Write #13 User       |
+| C-07 Write 14  | Write #14 User       | Write #15 User       |
 | C-08 Write a   | Write Panel Prms     |                      |
-| D-00 Read 0    | Read Program 0       | Read Program 1       |
-| D-01 Read 2    | Read Program 2       | Read Program 3       |
-| D-02 Read 4    | Read Program 4       | Read Program 5       |
-| D-03 Read 6    | Read Program 6       | Read Program 7       |
-| D-04 Read 8    | Read Program 8       | Read Program 9       |
-| D-05 Read 10   | Read Program 10      | Read Program 11      |
-| D-06 Read 12   | Read Program 12      | Read Program 13      |
-| D-07 Read 14   | Read Program 14      | Read Program 15      |
-| D-08 Read 16   | Read Program 16      | Read Program 17      |
-| D-09 Read 18   | Read Program 18      | Read Program 19      |
-| D-10 Read 20   | Read Program 20      | Read Program 21      |
-| D-11 Read 22   | Read Program 22      | Read Program 23      |
-| D-12 Read 24   | Read Program 24      | Read Program 25      |
-| D-13 Read 26   | Read Program 26      | Read Program 27      |
-| D-14 Read 28   | Read Program 28      | Read Program 29      |
-| D-15 Read 30   | Read Program 30      | Read Program 31      |
+| D-00 Read 0    | Read #0 User         | Read #1 User         |
+| D-01 Read 2    | Read #2 User         | Read #3 User         |
+| D-02 Read 4    | Read #4 User         | Read #5 User         |
+| D-03 Read 6    | Read #6 User         | Read #7 User         |
+| D-04 Read 8    | Read #8 User         | Read #9 User         |
+| D-05 Read 10   | Read #10 User        | Read #11 User        |
+| D-06 Read 12   | Read #12 User        | Read #13 User        |
+| D-07 Read 14   | Read #14 User        | Read #15 User        |
+| D-08 Read 16   | Read #16 Synth Pad   | Read #17 M Saw Pad   |
+| D-09 Read 18   | Read #18 FM Piano    | Read #19 Plain Poly  |
+| D-10 Read 20   | Read #20 Saw Lead    | Read #21 Sync Lead   |
+| D-11 Read 22   | Read #22 Synth Bass  | Read #23 Initial     |
+| D-12 Read 24   | Read #24 Synth Brs   | Read #25 Synth Str   |
+| D-13 Read 26   | Read #26 WT Pad      | Read #27 Elec Organ  |
+| D-14 Read 28   | Read #28 Fifth Lead  | Read #29 Sqr Lead    |
+| D-15 Read 30   | Read #30 PWM Lead    | Read #31 ---         |
 | D-16 Read a    | Read Panel Prms      | Init Panel Prms      |
