@@ -220,7 +220,7 @@ void PRA32U2NativeAudioProcessor::setStateInformation(const void* data, int size
 juce::String PRA32U2NativeAudioProcessor::getFactoryPresetName(int programNumber) {
   // The same as PRA32-U2 Editor
   static const char* const NAMES[kNumFactoryPresets] = {
-    "Synth Pad" , "M Saw Pad" , "FM Piano"  , "Simple"    ,
+    "Synth Pad" , "M Saw Pad" , "FM Piano"  , "Plain Poly",
     "Saw Lead"  , "Sync Lead" , "Synth Bass", "Initial"   ,
     "Synth Brs" , "Synth Str" , "WT Pad"    , "Elec Organ",
     "Fifth Lead", "Sqr Lead"  , "PWM Lead"  , "---"       ,
