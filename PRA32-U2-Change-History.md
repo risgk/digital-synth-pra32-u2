@@ -4,8 +4,9 @@
     - Change the display of the Delay Mode from "S|P|R" to "Ste|PP|Rev", to be easier to understand
     - PRA32-U2 Editor: Change the layout to a floating layout (4, 2, or 1 column by the window width)
         - Compact 2 columns for a narrow screen (e.g. iPhone SE 2, 375 px wide)
-        - Misc above Factory Preset, and File, Recall, and Store also in Details (hidden by default)
-        - Details and the Software Keyboard are shown or hidden as the last time
+        - "Misc" renamed to "Actions", above Factory Preset
+        - "Details" renamed to "User Preset", with File, Recall, and Store too (hidden by default)
+        - User Preset and the Software Keyboard are shown or hidden as the last time
     - PRA32-U2 Editor: Change the Software Keyboard to a new one, above the parameters
         - All the notes (0-127) with its own scroll bar; 37 keys (C3 - C6) in a 960 px window; as large as the text
         - The Panic button at the upper right
