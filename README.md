@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 v3.9.1
+# Digital Synth PRA32-U2 v3.10.0
 
-- 2026-10-09 ISGK Instruments
+- 2026-10-10 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 
@@ -8,6 +8,7 @@
 
 - **PRA32-U2** is a 4-Voice Polyphonic Synthesizer for Raspberry Pi Pico 2/RP2350
     - Built-in Chorus and Delay/Reverb FX, followed by the Output Limiter
+        - The Output Limiter lowers the output by 2.5 dB (x 0.75), so that the Presets are rarely limited, and limits the peaks above 0.75 (e.g. by a high Filter Resonance)
     - Controlled by MIDI -- PRA32-U2 is a MIDI sound module
     - Having the function of writing the parameters to the user programs and the flash
     - PRA32-U2 is an upgraded model of PRA32-U (for Raspberry Pi Pico/RP2040), but some specifications differ
@@ -49,7 +50,7 @@ graph LR
     end
     V1A --> VM[Voice Mixer]
     V2[Voice 2] & V3[Voice 3] & V4[Voice 4] --> VM
-    VM --> P[Panner] --> C[Chorus FX] --> D[Delay/Reverb FX] --> OL[Output Limiter] --> AO[Audio Out]
+    VM --> P[Panner] --> C[Chorus FX] --> D[Delay/Reverb FX] --> OL["Output Limiter<br/>(x 0.75)"] --> AO[Audio Out]
     P --> C --> D --> OL --> AO
     N[Noise Gen]  --> V1O2 & V1OM & V2 & V3 & V4
     N -.-> L[LFO w/ S/H]
@@ -360,11 +361,11 @@ flowchart LR
 
 ![CC0](http://i.creativecommons.org/p/zero/1.0/88x31.png)
 
-**Digital Synth PRA32-U2 v3.9.1 by ISGK Instruments (Ryo Ishigaki)**
+**Digital Synth PRA32-U2 v3.10.0 by ISGK Instruments (Ryo Ishigaki)**
 
 To the extent possible under law, ISGK Instruments (Ryo Ishigaki)
 has waived all copyright and related or neighboring rights
-to Digital Synth PRA32-U2 v3.9.1.
+to Digital Synth PRA32-U2 v3.10.0.
 
 You should have received a copy of the CC0 legalcode along with this
 work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.

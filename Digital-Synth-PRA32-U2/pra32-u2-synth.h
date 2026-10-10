@@ -250,7 +250,7 @@ class PRA32_U2_Synth {
   uint8_t           m_controller_value_eg_amp_mod;
 
   uint8_t           m_program_number_to_write;
-  uint8_t           m_wr_prog_to_flash_cc_value;
+  boolean           m_ready_to_write_p_to_prog;
   uint8_t           m_sp_prog_chg_cc_values[8];
   uint8_t           m_sp_rand_ctrl_cc_value;
   uint8_t           m_current_controller_value_table[128 + 128];
@@ -301,7 +301,7 @@ public:
   , m_controller_value_eg_amp_mod(0)
 
   , m_program_number_to_write(8)
-  , m_wr_prog_to_flash_cc_value(0)
+  , m_ready_to_write_p_to_prog(false)
   , m_sp_prog_chg_cc_values()
   , m_sp_rand_ctrl_cc_value()
   , m_current_controller_value_table()
@@ -1373,13 +1373,12 @@ if constexpr (NO_FX == false) {
       m_program_number_to_write = controller_value % (PROGRAM_NUMBER_MAX + 1);
       break;
     case WRITE_P_TO_PROG:
-      {
-        uint8_t old_value = m_wr_prog_to_flash_cc_value;
-        m_wr_prog_to_flash_cc_value = controller_value;
-
-        if ((old_value == 0) && (m_wr_prog_to_flash_cc_value >= 1)) {
-          write_parameters_to_program(m_program_number_to_write);
-        }
+      // Written when changed from 0-32 to 96-127 (as "Write Program" of the control panel), for safety
+      if (controller_value <= 32) {
+        m_ready_to_write_p_to_prog = true;
+      } else if (m_ready_to_write_p_to_prog && (controller_value >= 96)) {
+        write_parameters_to_program(m_program_number_to_write);
+        m_ready_to_write_p_to_prog = false;
       }
       break;
 
