@@ -28,11 +28,12 @@ jobs:
     outputs:
       name: ${{ steps.build.outputs.name }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: arduino/setup-arduino-cli@v2
-        with:
-          version: ${{ env.ARDUINO_CLI_VERSION }}
+      - name: Install arduino-cli
+        run: |
+          curl -fsSL "https://downloads.arduino.cc/arduino-cli/arduino-cli_${ARDUINO_CLI_VERSION}_Linux_64bit.tar.gz" | tar -xz -C "$RUNNER_TEMP" arduino-cli
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
 
       - name: Install the core and the library
         run: |
@@ -58,7 +59,7 @@ jobs:
           arduino-cli compile --fqbn "$UF2_FQBN" --output-dir out/m work/Digital-Synth-PRA32-U2
           cp out/m/Digital-Synth-PRA32-U2.ino.uf2 uf2/Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: ${{ steps.build.outputs.name }}
           path: uf2
@@ -68,7 +69,7 @@ jobs:
     outputs:
       name: ${{ steps.package.outputs.name }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Configure
         run: cmake -S PRA32-U2-Native -B PRA32-U2-Native/build -G "Visual Studio 17 2022" -A x64
@@ -100,7 +101,7 @@ jobs:
           Copy-Item "PRA32-U2-Native\build\_deps\juce-src\modules\juce_audio_processors_headless\format_types\VST3_SDK\LICENSE.txt" "$out\LICENSE-VST3-SDK.txt"
           Copy-Item "PRA32-U2-Native\build\_deps\juce-src\LICENSE.md" "$out\LICENSE-JUCE.md"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: ${{ steps.package.outputs.name }}
           path: package/${{ steps.package.outputs.name }}
@@ -112,16 +113,16 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           name: ${{ needs.uf2.outputs.name }}
           path: uf2
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           name: ${{ needs.native.outputs.name }}
           path: package/${{ needs.native.outputs.name }}
