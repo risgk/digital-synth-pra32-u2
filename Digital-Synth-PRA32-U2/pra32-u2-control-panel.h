@@ -1247,14 +1247,16 @@ INLINE void PRA32_U2_ControlPanel_update_analog_inputs(uint32_t loop_counter) {
 INLINE uint32_t PRA32_U2_ControlPanel_debounce_key(uint32_t pin, uint32_t current_value, uint32_t& stable_counter) {
   uint32_t value = digitalRead(pin) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
 
-  // Accept a new level only after it has been read continuously for PRA32_U2_KEY_STABLE_WAIT times
+  // Accept a new level only after it has been read continuously for PRA32_U2_KEY_PRESS_STABLE_WAIT times (pressed)
+  // or PRA32_U2_KEY_RELEASE_STABLE_WAIT times (released), so that a short open while holding a key is not a release
   if (value == current_value) {
     stable_counter = 0;
     return current_value;
   }
 
   ++stable_counter;
-  if (stable_counter < PRA32_U2_KEY_STABLE_WAIT) {
+  uint32_t stable_wait = value ? PRA32_U2_KEY_PRESS_STABLE_WAIT : PRA32_U2_KEY_RELEASE_STABLE_WAIT;
+  if (stable_counter < stable_wait) {
     return current_value;
   }
 
