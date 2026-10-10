@@ -7,6 +7,8 @@
     - PRA32-U2 Native: Change the rows of the editor to be lower (from 32 px to 30 px), with a smaller font (from 15 px to 14 px), so that the editor (20 rows) fits in a 720 px high screen
     - PRA32-U2 Native: Change the height of the editor to be resizable with the corner resizer (from 4 rows to all the rows; the width is fixed)
         - The scroll bar is thicker (from 8 px to 16 px), with margins below it (for the corner resizer) and right of it (for the resize border of the Standalone)
+    - PRA32-U2 Native: Change the plugin state to store the version of PRA32-U2 Native, and the parameters not in the plugin state (e.g. added in a later version) to be set to the values of "#23 Initial" (as in PRA32-U2 Editor)
+    - PRA32-U2 Native: No longer Experimental (developed mainly with Cubase on Windows; on Mac and Linux, build from the source, not tested)
     - Tested with Arduino-Pico version 6.2.0
 - v3.10.0 (2026-10-10):
     - Change the output level to 0.75 times (-2.5 dB, in the Output Limiter), so that the Presets are rarely limited by the Output Limiter
