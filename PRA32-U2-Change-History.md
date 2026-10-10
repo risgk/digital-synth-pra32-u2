@@ -5,7 +5,13 @@
         - Changing the Filter Cutoff or a max Delay Level is rarely limited either, while a high Filter Resonance is still limited
     - Change the condition of "Write Parameters to Program" (CC #106) from "changed from 0 to 1-127" to "changed from 0-32 to 96-127" (as "Write Program" of PRA32-U2/P), for safety
         - PRA32-U2 Editor sends 0 and then 127 (instead of 0 and then 1), which also works with the older versions
-    - Modify the Preset "#30 PWM Lead": LFO Depth 64 -> 32, LFO Mod Amt +32 -> +63
+    - Change the Lead and Bass Presets (the names are not changed)
+        - #30 PWM Lead: LFO Rate 80 -> 56, LFO Depth 64 -> 32, LFO Mod Amt +32 -> +63
+        - #20 Saw Lead, #21 Sync Lead, #29 Sqr Lead, and #30 PWM Lead: Mixer Noise/Sub Osc +32 -> +0
+        - #22 Synth Bass and #28 Fifth Lead: Mixer Noise/Sub Osc +32 -> +63
+        - #22 Synth Bass: Mixer Osc Mix 32 -> 0
+        - #20 Saw Lead: Amp Gain 90 -> 110
+        - #21 Sync Lead, #29 Sqr Lead, and #30 PWM Lead: Amp Gain 80 -> 90
     - PRA32-U2 Editor: Add the control numbers to the parameter names (e.g. "Osc 1 Wave [Saw|Sqr|Tri|Sin|WT|Pls] CC#102"), as in PRA32-U2 Native, and the program number to "Randomize Synth" ("Randomize Synth PC#127")
     - Tested with Arduino-Pico version 6.2.0
 - v3.9.1 (2026-10-09):
