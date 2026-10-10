@@ -1,0 +1,2416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PRA32-U2 Editor</title>
+<!-- PRA32-U2 Web (optional): adds "PRA32-U2 Web (Built-in)" to MIDI Out -->
+<script src="pra32-u2-web-synth.js"></script>
+<style>
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+* {
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Yu Gothic UI", "Meiryo", sans-serif;
+  font-size: 12px;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+:root {
+  --kbd-frame-color: #555;  /* the frame of the soft keyboard, lighter than the black keys (#111) */
+  --pra32-color: rgb(255,85,0);
+  --pra32-color-dark: rgb(204,68,0);
+  --param-width: 228px;  /* 135px (slider) + 25px (value) + 68px (value label) */
+}
+body {
+  margin: 8px;
+}
+/* The layout follows the width of this container (not of the window, which includes the scroll bar):
+   4 columns (as before) if 4 parameters fit (912px, e.g. in a 960px window),
+   2 columns if 2 fit, and 1 column (a list, as in PRA32-U2 Native) otherwise */
+.app {
+  container-type: inline-size;
+}
+.section {
+  margin-bottom: 14px;
+}
+
+/* ---- Header ---- */
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 8px;
+  row-gap: 2px;
+}
+#spanAppNameVersion {
+  white-space: nowrap;
+}
+
+/* ---- MIDI ---- */
+.midi {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 16px;
+  align-items: center;
+}
+.midi-item {
+  margin: 2px 0;  /* the space between the lines (not row-gap, which an empty line of a break would double) */
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  max-width: 100%;
+}
+.midi-item select {
+  min-width: 0;
+  max-width: 100%;
+  text-overflow: ellipsis;
+}
+/* A line break in a flex container (MIDI Ch / MIDI In / MIDI Out, and Misc / File in 2 or 1 column) */
+.midi-break, .line-break, .bank-break {
+  flex-basis: 100%;
+  height: 0;
+}
+/* The break between the 2 banks of a group: shown in 2 or 1 column (see .banks.split-2 and .banks.split-1) */
+.bank-break {
+  display: none;
+}
+.lbl-midi {
+  display: inline-block;
+  min-width: 62px;
+  white-space: nowrap;
+}
+
+/* ---- Program buttons (Factory Preset, Recall, Store, Program Change, Write) ----
+   A group is the label and 2 banks; a bank is 2 rows x 4 buttons, the same as the rows of the table before.
+   The groups and the banks float: they go to the next line if they do not fit */
+.prog-row {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 32px;
+  row-gap: 8px;
+  align-items: flex-start;
+}
+.prog-group {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 4px;
+  row-gap: 4px;
+  align-items: flex-start;
+  max-width: 100%;
+}
+/* A label above the buttons (when the buttons do not fit next to it), on 1 line, set by fitProgLabels() */
+.prog-label.above {
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 4px;
+  height: auto;
+  flex-basis: 100%;
+}
+/* The labels in one width (that of "Program Change"), so that the buttons of all the groups start at the same column */
+.prog-label {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  min-width: 100px;
+  height: 46px;  /* the 2 rows of the buttons */
+  white-space: nowrap;
+}
+.banks {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 12px;
+  row-gap: 8px;
+  max-width: 100%;
+}
+.bank {
+  display: grid;
+  grid-template-columns: repeat(4, auto);  /* a column is as wide as its widest button (as in the table before) */
+  gap: 4px;
+  max-width: 100%;
+}
+.bank button {
+  text-align: left;  /* not narrower than the name (e.g. "#27 Elec Organ") */
+}
+/* The number buttons (Recall, Store, Program Change, Write) all as wide as the widest one (e.g. "#15"),
+   measured by fitButtons() (the widths of the fonts differ among the OSes) */
+.bank.num button {
+  width: var(--num-button-width, auto);
+}
+button {
+  white-space: nowrap;
+}
+.prog-row button, .misc button {
+  height: 21px;
+  padding: 1px 5px;
+}
+.misc {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 32px;
+}
+.misc-group {
+  margin: 4px 0;  /* the space between the lines (not row-gap, which an empty line of a break would double) */
+}
+.misc-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 4px;
+}
+.misc-group > span:first-child {
+  line-height: 21px;  /* the height of a button: the label at the first line of the buttons */
+}
+/* The label of Misc (and File in 2 or 1 column) as wide as those of the program buttons,
+   so that the buttons start at the same column */
+.misc-group > span:first-child {
+  min-width: 28px;
+}
+/* The buttons wrap under the first button (e.g. "Randomize FX" under "Send Current"), not under the label */
+.misc-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  flex: 1 1 0;
+  min-width: 0;
+}
+.misc-group:first-child > span:first-child {
+  min-width: 100px;
+}
+details.section > summary {
+  margin-bottom: 6px;
+}
+/* The control numbers in the parameter names (as in PRA32-U2 Native), and the program number in "Randomize Synth",
+   small and gray so as not to stand out */
+span.cc {
+  font-size: 10px;
+  color: #808080;
+}
+
+/* ---- Parameters ----
+   A parameter is the name (above) and the slider, the value, and the value label (below).
+   The names of a row share their height (subgrid), so the sliders of a row line up even if a name wraps */
+/* As wide as the columns of the mode (4: 912px, 2: 456px, 1: 228px), so that the lines end at the right of the columns */
+.params {
+  width: fit-content;
+  border-top: 1px solid #c0c0c0;
+  margin-bottom: 14px;
+}
+.param-group {
+  display: grid;
+  grid-template-columns: repeat(4, var(--param-width));
+  column-gap: 0;
+  row-gap: 0;
+  padding: 6px 0;
+  border-bottom: 1px solid #c0c0c0;
+}
+/* A break only in 2 or 1 column (MIDI In 1, 2 / MIDI In 3, 4) */
+.narrow-only {
+  display: none;
+}
+@container (max-width: 911px) {
+  .param-group {
+    grid-template-columns: repeat(2, var(--param-width));
+  }
+  .narrow-only {
+    display: block;
+  }
+  .misc-group > span:first-child {
+    min-width: 100px;
+  }
+  /* The banks of Factory Preset (#16-23 / #24-31) in 2 lines, by the break between them */
+  .banks.split-2 {
+    row-gap: 0;
+    flex: 1 1 0;  /* next to the label (as Recall), not below it, if a bank fits */
+    min-width: min-content;  /* not narrower than a bank (the names in the buttons): below the label if it does not fit */
+  }
+  /* The numbers go up from the bottom to the top (as in the rows of a bank): the 2nd bank above the 1st one */
+  .banks.split-2 > .bank-break + .bank {
+    order: -2;
+  }
+  .banks.split-2 > .bank-break {
+    display: block;
+    order: -1;
+  }
+  .banks.split-2 > .bank:first-child {
+    margin-top: 8px;  /* the space by a margin, not row-gap, which the empty line of the break would double */
+  }
+  /* Store under Recall, and Write under Program Change, always (by the line break between them) */
+  .prog-row:has(> .line-break) {
+    row-gap: 0;
+  }
+  .prog-row > .line-break + .prog-group {
+    margin-top: 8px;
+  }
+}
+@container (max-width: 455px) {
+  .param-group {
+    grid-template-columns: var(--param-width);
+  }
+  /* The banks of Recall, Store, Program Change, and Write (#0-7 / #8-15) in 2 lines too (in 2 columns, they fit in 1 line) */
+  .banks.split-1 {
+    row-gap: 0;
+    flex: 1 1 0;  /* next to the label (as Recall), not below it, if a bank fits */
+    min-width: 0;
+  }
+  /* The numbers go up from the bottom to the top (as in the rows of a bank): the 2nd bank above the 1st one */
+  .banks.split-1 > .bank-break + .bank {
+    order: -2;
+  }
+  .banks.split-1 > .bank-break {
+    display: block;
+    order: -1;
+  }
+  .banks.split-1 > .bank:first-child {
+    margin-top: 8px;  /* the space by a margin, not row-gap, which the empty line of the break would double */
+  }
+  /* A narrow screen: the program buttons with names in 2 columns (e.g. "#20 Saw Lead" "#21 Sync Lead") */
+  .bank.named {
+    grid-template-columns: repeat(2, auto);
+  }
+  /* The numbers go up from the bottom to the top in 2 columns too:
+     e.g. "#22 #23" / "#20 #21" / "#18 #19" / "#16 #17" from "#20 #21 #22 #23" / "#16 #17 #18 #19" */
+  .bank.named > :nth-child(3), .bank.named > :nth-child(4) { order: 1; }
+  .bank.named > :nth-child(1), .bank.named > :nth-child(2) { order: 2; }
+  .bank.named > :nth-child(7), .bank.named > :nth-child(8) { order: 3; }
+  .bank.named > :nth-child(5), .bank.named > :nth-child(6) { order: 4; }
+  .misc-group > span:first-child {
+    flex-basis: 100%;  /* above the buttons, as the labels of the program buttons */
+  }
+  .prog-label {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 4px;
+    height: auto;
+    flex-basis: 100%;
+  }
+}
+.param {
+  display: grid;
+  grid-row: span 2;
+  grid-template-rows: subgrid;
+  grid-template-columns: minmax(0, 1fr);  /* the name as wide as the parameter, not as its text */
+  min-width: 0;
+}
+.param-name {
+  padding: 4px 1px 0 1px;
+  align-self: end;
+}
+/* A name is on 1 line. A name too long for its width (e.g. "Voice Mode [Pol|Pol|Mon|Mon|LP|Lgt] CC#18")
+   gets the letters closer together ("tight"), and smaller if still too long ("tighter"), by fitParamNames() */
+.param-name {
+  white-space: nowrap;
+}
+.param-name.tight,
+.param-name.tight * {
+  letter-spacing: -0.35px;
+}
+.param-name.tighter,
+.param-name.tighter * {
+  font-size: 11px;
+}
+.param-name.tighter span.cc {
+  font-size: 9px;
+}
+.param-ctrl {
+  display: grid;
+  grid-template-columns: 135px 25px 68px;
+  height: 29px;
+  padding: 1px;
+  align-items: start;
+}
+.param-ctrl > span {
+  align-self: center;
+  padding-left: 1px;
+}
+.param-ctrl > input[type="range"] {
+  width: 129px;
+  margin: 2px;
+}
+/* Markers that do not pull the slider (unlike the markers of a datalist): drawn as the background of the slider cell,
+   at the same positions as the datalist markers of Chrome (the input is at 3px, and a marker of the value v is
+   at 7px + 113px * v / 127 in the input, 1px wide and 4px high at the bottom). The center (64) for [-|+] and [N|S],
+   and the 6 markers (as in "6 markers") and the center for Osc 1 Morph, which can be used as a 6-way switch */
+.soft-marker-c {
+  background: linear-gradient(#101010, #101010) 67px 21px / 1px 4px no-repeat;
+}
+.soft-markers-6-c {
+  background: linear-gradient(#101010, #101010)  10px 21px / 1px 4px no-repeat,
+              linear-gradient(#101010, #101010)  33px 21px / 1px 4px no-repeat,
+              linear-gradient(#101010, #101010)  55px 21px / 1px 4px no-repeat,
+              linear-gradient(#101010, #101010)  67px 21px / 1px 4px no-repeat,
+              linear-gradient(#101010, #101010)  79px 21px / 1px 4px no-repeat,
+              linear-gradient(#101010, #101010) 101px 21px / 1px 4px no-repeat,
+              linear-gradient(#101010, #101010) 123px 21px / 1px 4px no-repeat;
+}
+
+/* ---- Soft keyboard (after SPMS-1 Editor): C-1 - G9 (37 keys, C3 - C6, in a 960px window), scrolled by the octave buttons or the scroll bar ---- */
+.kbd-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  margin-bottom: 6px;
+}
+.kbd-bar button {
+  min-width: 32px;
+}
+/* Panic at the upper right of the keyboard (as in PRA32-U2 Editor) */
+.kbd-bar .kbd-panic {
+  margin-left: auto;
+}
+.keyboard-scroll {
+  width: 100%;  /* as wide as the window (the keyboard scrolls in it) */
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+  border-radius: 6px;
+  background: var(--kbd-frame-color);
+  padding: 8px 5px 12px 5px;
+}
+.keyboard-scroll::-webkit-scrollbar {
+  height: 12px;
+}
+.keyboard-scroll::-webkit-scrollbar-track {
+  background: var(--kbd-frame-color);
+  border-radius: 6px;
+}
+.keyboard-scroll::-webkit-scrollbar-thumb {
+  background: var(--pra32-color);
+  border-radius: 6px;
+}
+.keyboard {
+  position: relative;
+  height: 140px;
+  touch-action: none;  /* a touch plays (and glides over) the keys, and does not scroll */
+}
+.key {
+  position: absolute;
+  top: 0;
+  cursor: pointer;
+}
+.key.white {
+  width: 41px;  /* KBD_WHITE_WIDTH */
+  height: 140px;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 0 0 4px 4px;
+  z-index: 1;
+}
+.key.white.active {
+  background: #ffd9c4;
+  border-bottom: 6px solid var(--pra32-color);
+  box-shadow: inset 0 0 10px rgba(255,85,0,0.55);
+}
+.key.black {
+  width: 26px;  /* KBD_BLACK_WIDTH */
+  height: 85px;
+  background: #111;
+  border-radius: 0 0 3px 3px;
+  z-index: 2;
+}
+.key.black.active {
+  background: var(--pra32-color);
+  box-shadow: 0 0 8px 2px rgba(255,85,0,0.8);
+}
+.key.out-of-range {
+  opacity: 0.35;
+  pointer-events: none;
+}
+.key-label {
+  position: absolute;
+  bottom: 5px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  font-size: 10px;
+  color: #7f8c8d;
+  pointer-events: none;
+}
+.key.white.active .key-label {
+  color: var(--pra32-color-dark);
+  font-weight: bold;
+}
+</style>
+<script>
+const APP_NAME_VERSION = "PRA32-U2 Editor v3.11.0";
+
+const USER_PROGRAM_NUMBER_MAX      = 15;
+const PROGRAM_NUMBER_MAX           = 31;
+
+const PRA32_U2_MIDI_CH  = 0;  // 0-based
+const NOTE_ON_VELOCITY  = 100
+const NOTE_OFF_VELOCITY = 64
+
+
+const NOTE_OFF       = 0x80;
+const NOTE_ON        = 0x90;
+const CONTROL_CHANGE = 0xB0;
+const PROGRAM_CHANGE = 0xC0;
+const PITCH_BEND     = 0xE0;
+
+
+const MODULATION      = 1;
+const BTH_CONTROLLER  = 2;
+const EXPRESSION      = 11;
+const SUSTAIN_PEDAL   = 64;
+
+
+const OSC_1_WAVE      = 102;
+const MIXER_SUB_OSC   = 23;
+const OSC_1_SHAPE     = 19;
+const OSC_1_MORPH     = 20;
+
+const OSC_2_WAVE      = 104;
+const MIXER_OSC_MIX   = 21;
+const OSC_2_COARSE    = 85;
+const OSC_2_PITCH     = 76;
+
+const FILTER_CUTOFF   = 74;
+const FILTER_RESO     = 71;
+const FILTER_EG_AMT   = 24;
+const FILTER_KEY_TRK  = 9;
+
+const EG_ATTACK       = 73;
+const EG_DECAY        = 75;
+const EG_SUSTAIN      = 30;
+const EG_RELEASE      = 72;
+
+const EG_OSC_AMT      = 89;
+const EG_OSC_DST      = 8;
+const VOICE_MODE      = 18;
+const PORTAMENTO      = 5;
+
+const LFO_WAVE        = 33;
+const LFO_FADE_TIME   = 56;
+const LFO_RATE        = 3;
+const LFO_DEPTH       = 17;
+
+const LFO_OSC_AMT     = 13;
+const LFO_OSC_DST     = 103;
+const LFO_FILTER_AMT  = 25;
+const AMP_GAIN        = 15;
+
+const AMP_ATTACK      = 52;
+const AMP_DECAY       = 53;
+const AMP_SUSTAIN     = 54;
+const AMP_RELEASE     = 55;
+
+const FILTER_MODE     = 39;
+const P_BEND_RANGE    = 57;
+const EG_AMP_MOD      = 36;
+const REL_EQ_DECAY    = 105;
+
+const A_D_VEL_SENS    = 51;
+const REL_VEL_SENS    = 81;
+const EG_VEL_SENS     = 62;
+const AMP_VEL_SENS    = 63;
+
+const A_D_KEY_TRK     = 16;
+const VOICE_ASGN_MODE = 110;
+const PAN             = 10;
+const STRETCH_TUNE    = 22;
+
+const OSC_DRIFT       = 82;
+const OSC_SAW_W_MODE  = 83;
+const COARSE_TUNE     = 86;
+const FINE_TUNE       = 70;
+
+const BTH_FILTER_AMT  = 60;
+const BTH_AMP_MOD     = 61;
+const AFT_T_LFO_AMT   = 37;
+
+
+const CHORUS_MIX      = 93;
+const FX_ROUTING      = 95;
+
+const CHORUS_RATE     = 58;
+const CHORUS_DEPTH    = 59;
+
+const DELAY_LEVEL     = 94;
+const DELAY_MODE      = 35;
+const DELAY_TIME      = 90;
+const DELAY_FEEDBACK  = 92;
+
+
+const PROG_N_TO_W_TO  = 87;
+const WRITE_P_TO_PROG = 106;
+const PC_BY_CC_0      = 112;
+const PC_BY_CC_1      = 113;
+const PC_BY_CC_2      = 114;
+const PC_BY_CC_3      = 115;
+const PC_BY_CC_4      = 116;
+const PC_BY_CC_5      = 117;
+const PC_BY_CC_6      = 118;
+const PC_BY_CC_7      = 119;
+
+const SP_RAND_CTRL    = 111;  // Special Random Control
+
+
+const ALL_SOUND_OFF   = 120;
+const RESET_ALL_CTRLS = 121;
+const ALL_NOTES_OFF   = 123;
+
+const OMNI_MODE_OFF   = 124;
+const OMNI_MODE_ON    = 125;
+const MONO_MODE_ON    = 126;
+const POLY_MODE_ON    = 127;
+
+
+var controlNumberToStringMap = new Map([
+  [ OSC_1_WAVE     , "OSC_1_WAVE     " ],
+  [ MIXER_SUB_OSC  , "MIXER_SUB_OSC  " ],
+  [ OSC_1_SHAPE    , "OSC_1_SHAPE    " ],
+  [ OSC_1_MORPH    , "OSC_1_MORPH    " ],
+
+  [ OSC_2_WAVE     , "OSC_2_WAVE     " ],
+  [ MIXER_OSC_MIX  , "MIXER_OSC_MIX  " ],
+  [ OSC_2_COARSE   , "OSC_2_COARSE   " ],
+  [ OSC_2_PITCH    , "OSC_2_PITCH    " ],
+
+  [ FILTER_CUTOFF  , "FILTER_CUTOFF  " ],
+  [ FILTER_RESO    , "FILTER_RESO    " ],
+  [ FILTER_EG_AMT  , "FILTER_EG_AMT  " ],
+  [ FILTER_KEY_TRK , "FILTER_KEY_TRK " ],
+
+  [ EG_ATTACK      , "EG_ATTACK      " ],
+  [ EG_DECAY       , "EG_DECAY       " ],
+  [ EG_SUSTAIN     , "EG_SUSTAIN     " ],
+  [ EG_RELEASE     , "EG_RELEASE     " ],
+
+  [ EG_OSC_AMT     , "EG_OSC_AMT     " ],
+  [ EG_OSC_DST     , "EG_OSC_DST     " ],
+  [ VOICE_MODE     , "VOICE_MODE     " ],
+  [ PORTAMENTO     , "PORTAMENTO     " ],
+
+  [ LFO_WAVE       , "LFO_WAVE       " ],
+  [ LFO_FADE_TIME  , "LFO_FADE_TIME  " ],
+  [ LFO_RATE       , "LFO_RATE       " ],
+  [ LFO_DEPTH      , "LFO_DEPTH      " ],
+
+  [ LFO_OSC_AMT    , "LFO_OSC_AMT    " ],
+  [ LFO_OSC_DST    , "LFO_OSC_DST    " ],
+  [ LFO_FILTER_AMT , "LFO_FILTER_AMT " ],
+  [ AMP_GAIN       , "AMP_GAIN       " ],
+
+  [ AMP_ATTACK     , "AMP_ATTACK     " ],
+  [ AMP_DECAY      , "AMP_DECAY      " ],
+  [ AMP_SUSTAIN    , "AMP_SUSTAIN    " ],
+  [ AMP_RELEASE    , "AMP_RELEASE    " ],
+
+  [ FILTER_MODE    , "FILTER_MODE    " ],
+  [ P_BEND_RANGE   , "P_BEND_RANGE   " ],
+  [ EG_AMP_MOD     , "EG_AMP_MOD     " ],
+  [ REL_EQ_DECAY   , "REL_EQ_DECAY   " ],
+
+  [ A_D_VEL_SENS   , "A_D_VEL_SENS   " ],
+  [ REL_VEL_SENS   , "REL_VEL_SENS   " ],
+  [ EG_VEL_SENS    , "EG_VEL_SENS    " ],
+  [ AMP_VEL_SENS   , "AMP_VEL_SENS   " ],
+
+  [ A_D_KEY_TRK    , "A_D_KEY_TRK    " ],
+  [ VOICE_ASGN_MODE, "VOICE_ASGN_MODE" ],
+  [ PAN            , "PAN            " ],
+  [ STRETCH_TUNE   , "STRETCH_TUNE   " ],
+
+  [ OSC_DRIFT      , "OSC_DRIFT      " ],
+  [ OSC_SAW_W_MODE , "OSC_SAW_W_MODE " ],
+  [ COARSE_TUNE    , "COARSE_TUNE    " ],
+  [ FINE_TUNE      , "FINE_TUNE      " ],
+
+  [ BTH_FILTER_AMT , "BTH_FILTER_AMT " ],
+  [ BTH_AMP_MOD    , "BTH_AMP_MOD    " ],
+  [ AFT_T_LFO_AMT  , "AFT_T_LFO_AMT  " ],
+
+
+  [ CHORUS_MIX     , "CHORUS_MIX     " ],
+  [ FX_ROUTING     , "FX_ROUTING     " ],
+
+  [ CHORUS_RATE    , "CHORUS_RATE    " ],
+  [ CHORUS_DEPTH   , "CHORUS_DEPTH   " ],
+
+  [ DELAY_LEVEL    , "DELAY_LEVEL    " ],
+  [ DELAY_MODE     , "DELAY_MODE     " ],
+  [ DELAY_TIME     , "DELAY_TIME     " ],
+  [ DELAY_FEEDBACK , "DELAY_FEEDBACK " ],
+]);
+
+var controllersInLocalStorage = [
+  OSC_1_WAVE     ,
+  MIXER_SUB_OSC  ,
+  OSC_1_SHAPE    ,
+  OSC_1_MORPH    ,
+
+  OSC_2_WAVE     ,
+  MIXER_OSC_MIX  ,
+  OSC_2_COARSE   ,
+  OSC_2_PITCH    ,
+
+  FILTER_CUTOFF  ,
+  FILTER_RESO    ,
+  FILTER_EG_AMT  ,
+  FILTER_KEY_TRK ,
+
+  EG_ATTACK      ,
+  EG_DECAY       ,
+  EG_SUSTAIN     ,
+  EG_RELEASE     ,
+
+  EG_OSC_AMT     ,
+  EG_OSC_DST     ,
+  VOICE_MODE     ,
+  PORTAMENTO     ,
+
+  LFO_WAVE       ,
+  LFO_FADE_TIME  ,
+  LFO_RATE       ,
+  LFO_DEPTH      ,
+
+  LFO_OSC_AMT    ,
+  LFO_OSC_DST    ,
+  LFO_FILTER_AMT ,
+  AMP_GAIN       ,
+
+  AMP_ATTACK     ,
+  AMP_DECAY      ,
+  AMP_SUSTAIN    ,
+  AMP_RELEASE    ,
+
+  FILTER_MODE    ,
+  P_BEND_RANGE   ,
+  EG_AMP_MOD     ,
+  REL_EQ_DECAY   ,
+
+  A_D_VEL_SENS   ,
+  REL_VEL_SENS   ,
+  EG_VEL_SENS    ,
+  AMP_VEL_SENS   ,
+
+  A_D_KEY_TRK    ,
+  VOICE_ASGN_MODE,
+  PAN            ,
+  STRETCH_TUNE   ,
+
+  OSC_DRIFT      ,
+  OSC_SAW_W_MODE ,
+  COARSE_TUNE    ,
+  FINE_TUNE      ,
+
+  BTH_FILTER_AMT ,
+  BTH_AMP_MOD    ,
+  AFT_T_LFO_AMT  ,
+
+
+  CHORUS_MIX     ,
+  FX_ROUTING     ,
+
+  CHORUS_RATE    ,
+  CHORUS_DEPTH   ,
+
+  DELAY_LEVEL    ,
+  DELAY_MODE     ,
+  DELAY_TIME     ,
+  DELAY_FEEDBACK ,
+];
+
+var presetControllers = {};
+
+// Factory Preset A                   #16  #17  #18  #19  #20  #21  #22  #23    #24  #25  #26  #27  #28  #29  #30  #31
+presetControllers[OSC_1_WAVE     ] = [0  , 0  , 77 , 127, 0  , 26 , 0  , 0  ,   0  , 0  , 102, 77 , 0  , 26 , 127, 0  ];
+presetControllers[MIXER_SUB_OSC  ] = [64 , 64 , 64 , 64 , 64 , 64 , 127, 64 ,   64 , 64 , 64 , 110, 127, 64 , 64 , 64 ];
+presetControllers[OSC_1_SHAPE    ] = [64 , 64 , 0  , 0  , 64 , 64 , 0  , 0  ,   64 , 64 , 64 , 0  , 64 , 32 , 0  , 0  ];
+presetControllers[OSC_1_MORPH    ] = [0  , 127, 108, 64 , 0  , 127, 0  , 0  ,   0  , 0  , 127, 12 , 0  , 0  , 0  , 0  ];
+
+presetControllers[OSC_2_WAVE     ] = [0  , 0  , 0  , 0  , 0  , 26 , 0  , 0  ,   0  , 0  , 0  , 77 , 0  , 26 , 0  , 0  ];
+presetControllers[MIXER_OSC_MIX  ] = [64 , 0  , 64 , 0  , 32 , 0  , 0  , 0  ,   64 , 64 , 64 , 64 , 32 , 32 , 0  , 0  ];
+presetControllers[OSC_2_COARSE   ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
+presetControllers[OSC_2_PITCH    ] = [72 , 72 , 72 , 72 , 72 , 72 , 72 , 64 ,   72 , 72 , 72 , 109, 109, 72 , 72 , 64 ];
+
+presetControllers[FILTER_CUTOFF  ] = [112, 112, 88 , 112, 112, 112, 52 , 127,   88 , 112, 112, 64 , 112, 112, 112, 127];
+presetControllers[FILTER_RESO    ] = [64 , 64 , 64 , 64 , 64 , 64 , 96 , 0  ,   64 , 64 , 64 , 0  , 64 , 64 , 64 , 0  ];
+presetControllers[FILTER_EG_AMT  ] = [40 , 64 , 64 , 64 , 64 , 64 , 88 , 64 ,   76 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
+presetControllers[FILTER_KEY_TRK ] = [96 , 96 , 96 , 127, 64 , 64 , 64 , 64 ,   96 , 96 , 96 , 96 , 64 , 64 , 64 , 64 ];
+
+presetControllers[EG_ATTACK      ] = [90 , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   42 , 58 , 0  , 0  , 0  , 0  , 0  , 0  ];
+presetControllers[EG_DECAY       ] = [90 , 0  , 90 , 0  , 0  , 90 , 90 , 0  ,   74 , 58 , 90 , 0  , 0  , 0  , 0  , 0  ];
+presetControllers[EG_SUSTAIN     ] = [0  , 127, 0  , 127, 127, 0  , 0  , 127,   0  , 127, 0  , 127, 127, 127, 127, 127];
+presetControllers[EG_RELEASE     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+
+presetControllers[EG_OSC_AMT     ] = [64 , 64 , 72 , 64 , 64 , 72 , 64 , 64 ,   72 , 64 , 72 , 64 , 64 , 64 , 64 , 64 ];
+presetControllers[EG_OSC_DST     ] = [0  , 0  , 127, 0  , 0  , 127, 0  , 0  ,   76 , 0  , 127, 127, 0  , 0  , 127, 0  ];
+presetControllers[VOICE_MODE     ] = [0  , 0  , 0  , 0  , 127, 76 , 76 , 127,   0  , 0  , 0  , 0  , 127, 127, 127, 127];
+presetControllers[PORTAMENTO     ] = [48 , 0  , 0  , 0  , 48 , 48 , 0  , 0  ,   0  , 0  , 0  , 0  , 48 , 48 , 48 , 0  ];
+
+presetControllers[LFO_WAVE       ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+presetControllers[LFO_FADE_TIME  ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+presetControllers[LFO_RATE       ] = [80 , 80 , 80 , 80 , 80 , 80 , 80 , 80 ,   80 , 80 , 80 , 80 , 80 , 80 , 56 , 80 ];
+presetControllers[LFO_DEPTH      ] = [0  , 0  , 0  , 127, 8  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 8  , 8  , 32 , 0  ];
+
+presetControllers[LFO_OSC_AMT    ] = [64 , 64 , 64 , 64 , 96 , 72 , 64 , 64 ,   64 , 64 , 72 , 64 , 96 , 96 , 127, 64 ];
+presetControllers[LFO_OSC_DST    ] = [0  , 0  , 127, 0  , 0  , 127, 0  , 0  ,   0  , 0  , 127, 127, 0  , 0  , 127, 0  ];
+presetControllers[LFO_FILTER_AMT ] = [76 , 76 , 76 , 64 , 64 , 64 , 76 , 64 ,   76 , 76 , 64 , 76 , 64 , 64 , 64 , 64 ];
+presetControllers[AMP_GAIN       ] = [90 , 90 , 110, 90 , 100, 80 , 100, 90 ,   90 , 90 , 90 , 90 , 90 , 80 , 80 , 90 ];
+
+presetControllers[AMP_ATTACK     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+presetControllers[AMP_DECAY      ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+presetControllers[AMP_SUSTAIN    ] = [127, 127, 127, 127, 127, 127, 127, 127,   127, 127, 127, 127, 127, 127, 127, 127];
+presetControllers[AMP_RELEASE    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+
+presetControllers[FILTER_MODE    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+presetControllers[P_BEND_RANGE   ] = [2  , 2  , 2  , 2  , 2  , 2  , 2  , 2  ,   2  , 2  , 2  , 2  , 2  , 2  , 2  , 2  ];
+presetControllers[EG_AMP_MOD     ] = [0  , 127, 127, 127, 127, 0  , 127, 127,   0  , 127, 127, 127, 127, 127, 127, 127];
+presetControllers[REL_EQ_DECAY   ] = [127, 127, 127, 127, 127, 127, 127, 127,   127, 127, 127, 127, 127, 127, 127, 127];
+
+presetControllers[A_D_VEL_SENS   ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
+presetControllers[REL_VEL_SENS   ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
+presetControllers[EG_VEL_SENS    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+presetControllers[AMP_VEL_SENS   ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+
+presetControllers[A_D_KEY_TRK    ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
+presetControllers[VOICE_ASGN_MODE] = [76 , 76 , 76 , 76 , 76 , 76 , 76 , 76 ,   76 , 76 , 76 , 76 , 76 , 76 , 76 , 76 ];
+presetControllers[PAN            ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
+presetControllers[STRETCH_TUNE   ] = [80 , 80 , 80 , 80 , 80 , 80 , 80 , 80 ,   80 , 80 , 80 , 80 , 80 , 80 , 80 , 80 ];
+
+presetControllers[OSC_DRIFT      ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
+presetControllers[OSC_SAW_W_MODE ] = [127, 127, 127, 127, 127, 127, 127, 127,   127, 127, 127, 127, 127, 127, 127, 127];
+presetControllers[COARSE_TUNE    ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
+presetControllers[FINE_TUNE      ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
+
+presetControllers[BTH_FILTER_AMT ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
+presetControllers[BTH_AMP_MOD    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+presetControllers[AFT_T_LFO_AMT  ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+
+
+presetControllers[CHORUS_MIX     ] = [127, 127, 127, 127, 127, 127, 127, 0  ,   127, 127, 127, 127, 127, 127, 127, 0  ];
+presetControllers[FX_ROUTING     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+
+presetControllers[CHORUS_RATE    ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
+presetControllers[CHORUS_DEPTH   ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
+
+presetControllers[DELAY_LEVEL    ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 0  ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 0  ];
+presetControllers[DELAY_MODE     ] = [127, 127, 127, 127, 0  , 0  , 0  , 0  ,   127, 127, 127, 127, 0  , 0  , 0  , 0  ];
+presetControllers[DELAY_TIME     ] = [87 , 87 , 87 , 87 , 87 , 87 , 87 , 87 ,   87 , 87 , 87 , 87 , 87 , 87 , 87 , 87 ];
+presetControllers[DELAY_FEEDBACK ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
+
+const PRESET_NUMBER_INITIAL = 23;
+
+</script>
+<script>
+var midi_ch = PRA32_U2_MIDI_CH;
+var transpose = 0;
+var fileReaderImportAll = new FileReader();
+var fileReaderImportCurrent = new FileReader();
+
+document.addEventListener("touchstart", function(event) {
+  if (!event.target.closest("input, select, button, summary, a, label")) {
+    event.preventDefault();
+  }
+}, { passive: false });
+
+window.onload = function() {
+  document.getElementById("spanAppNameVersion").innerHTML = "<strong>" + APP_NAME_VERSION + "</strong>";
+  var valueMIDICh = localStorage.getItem("keyMIDICh");
+  if (valueMIDICh) {
+    midi_ch = parseInt(valueMIDICh);
+  }
+  document.getElementById("selectMIDICh").selectedIndex = midi_ch;
+
+  if (window.PRA32U2WebSynth) {
+    onMIDISuccess({ inputs: new Map(), outputs: new Map() });  // PRA32-U2 Web is available without MIDI access
+  }
+  if (navigator.requestMIDIAccess) {
+    navigator.requestMIDIAccess({sysex: false}).then(onMIDISuccess, onMIDIFailure);
+  } else {
+    console.log("No MIDI support present in your browser.");
+  }
+
+  var result = restoreControllers();
+  if (!result) {
+    onChangeTranspose(0);
+    preset(PRESET_NUMBER_INITIAL);
+  }
+
+  createKeyboard();
+  fitParamNames();
+  fitButtons();
+  fitProgLabels();
+  if (document.fonts) {
+    document.fonts.ready.then(function() {
+      fitParamNames();
+      fitButtons();
+      fitProgLabels();
+    });
+  }
+  window.addEventListener("resize", fitProgLabels);
+  document.querySelector("details").addEventListener("toggle", fitProgLabels);
+
+  document.getElementById("fileImportAll").addEventListener("change", fileImportAllChange, false);
+  document.getElementById("fileImportCurrent").addEventListener("change", fileImportCurrentChange, false);
+  fileReaderImportAll.addEventListener("load", fileReaderImportAllLoad, false);
+  fileReaderImportCurrent.addEventListener("load", fileReaderImportCurrentLoad, false);
+};
+
+function sleep(msec) {
+  var t1 = new Date().getTime();
+  var t2;
+  do {
+    t2 = new Date().getTime();
+  } while (t2 < t1 + msec);
+}
+
+function sendCurrentParameters() {
+  if (midiOutput) {
+    panic();
+    var result = restoreControllers();
+    if (!result) {
+      onChangeTranspose(0);
+      preset(PRESET_NUMBER_INITIAL);
+    }
+  }
+}
+
+function panic() {
+  kbdReset();
+  if (midiOutput) {
+    midiOutput.send([(CONTROL_CHANGE | midi_ch), ALL_NOTES_OFF, 0]);
+    sleep(2);
+    midiOutput.send([(CONTROL_CHANGE | midi_ch), ALL_SOUND_OFF, 0]);
+    sleep(2);
+    midiOutput.send([(CONTROL_CHANGE | midi_ch), RESET_ALL_CTRLS, 0]);
+    sleep(2);
+  }
+}
+
+function restoreControllers() {
+  var value;
+
+  controllersInLocalStorage.forEach(function(i) {
+    value = localStorage.getItem("key" + controlNumberToStringMap.get(i));
+    if (!value) {
+      value = presetControllers[i][PRESET_NUMBER_INITIAL - (USER_PROGRAM_NUMBER_MAX + 1)];
+    }
+    onChangeControlChange(i, value);
+  });
+
+  value = localStorage.getItem("keyTranspose");
+  if (!value) {
+    return false;
+  }
+  onChangeTranspose(value);
+
+  return true;
+}
+
+// The transpose of the old keyboard is kept (as "keyTranspose") as the octave of the left end of the keyboard
+function onChangeTranspose(value) {
+  transpose = Math.max(-48, Math.min(60, Math.round(parseInt(value) / 12) * 12));
+  localStorage.setItem("keyTranspose", transpose);
+  if (window.kbdScrollToTranspose) {
+    kbdScrollToTranspose();
+  }
+}
+</script>
+<script>
+var midi        = null;
+var midiInputs  = null;
+var midiInput1  = null;
+var midiInput2  = null;
+var midiInput3  = null;
+var midiInput4  = null;
+var midiOutputs = null;
+var midiOutput  = null;
+
+var specialProgramChangeCCValues = [0, 0, 0, 0, 0, 0, 0, 0];
+var specialRandomControlCCValue = 0;
+
+function afterChangeOsc1Or2WaveOrMixerSubOscOrVoiceModeOrEGAmpModOrRelEqDecay() {
+  var valueOsc1Wave = localStorage.getItem("keyOSC_1_WAVE     ");
+  var indexOsc1Wave = Math.floor(((valueOsc1Wave * 10) + 128) >> 8);
+  if ((indexOsc1Wave == 0) || (indexOsc1Wave == 1) || (indexOsc1Wave == 3) || (indexOsc1Wave == 4) || (indexOsc1Wave == 5)) {
+    document.getElementById( "spanOSC_1_SHAPE    ").style.color = 'black';
+    document.getElementById("span2OSC_1_SHAPE    ").style.color = 'black';
+    document.getElementById( "spanOSC_1_MORPH    ").style.color = 'black';
+    document.getElementById("span2OSC_1_MORPH    ").style.color = 'black';
+  } else {
+    document.getElementById( "spanOSC_1_SHAPE    ").style.color = 'lightgray';
+    document.getElementById("span2OSC_1_SHAPE    ").style.color = 'lightgray';
+    document.getElementById( "spanOSC_1_MORPH    ").style.color = 'lightgray';
+    document.getElementById("span2OSC_1_MORPH    ").style.color = 'lightgray';
+  }
+
+  var valueEGAmpMod = localStorage.getItem("keyEG_AMP_MOD     ");
+  if (valueEGAmpMod >= 64) {
+    document.getElementById( "spanAMP_ATTACK     ").style.color = 'lightgray';
+    document.getElementById("span2AMP_ATTACK     ").style.color = 'lightgray';
+    document.getElementById( "spanAMP_DECAY      ").style.color = 'lightgray';
+    document.getElementById("span2AMP_DECAY      ").style.color = 'lightgray';
+    document.getElementById( "spanAMP_SUSTAIN    ").style.color = 'lightgray';
+    document.getElementById("span2AMP_SUSTAIN    ").style.color = 'lightgray';
+    document.getElementById( "spanAMP_RELEASE    ").style.color = 'lightgray';
+    document.getElementById("span2AMP_RELEASE    ").style.color = 'lightgray';
+
+    var valueRelEqDecay = localStorage.getItem("keyREL_EQ_DECAY   ");
+    if (valueRelEqDecay >= 64) {
+      document.getElementById( "spanEG_RELEASE     ").style.color = 'lightgray';
+      document.getElementById("span2EG_RELEASE     ").style.color = 'lightgray';
+    } else {
+      document.getElementById( "spanEG_RELEASE     ").style.color = 'black';
+      document.getElementById("span2EG_RELEASE     ").style.color = 'black';
+    }
+  } else {
+    document.getElementById( "spanAMP_ATTACK     ").style.color = 'black';
+    document.getElementById("span2AMP_ATTACK     ").style.color = 'black';
+    document.getElementById( "spanAMP_DECAY      ").style.color = 'black';
+    document.getElementById("span2AMP_DECAY      ").style.color = 'black';
+    document.getElementById( "spanAMP_SUSTAIN    ").style.color = 'black';
+    document.getElementById("span2AMP_SUSTAIN    ").style.color = 'black';
+
+    var valueRelEqDecay = localStorage.getItem("keyREL_EQ_DECAY   ");
+    if (valueRelEqDecay >= 64) {
+      document.getElementById( "spanEG_RELEASE     ").style.color = 'lightgray';
+      document.getElementById("span2EG_RELEASE     ").style.color = 'lightgray';
+      document.getElementById( "spanAMP_RELEASE    ").style.color = 'lightgray';
+      document.getElementById("span2AMP_RELEASE    ").style.color = 'lightgray';
+    } else {
+      document.getElementById( "spanEG_RELEASE     ").style.color = 'black';
+      document.getElementById("span2EG_RELEASE     ").style.color = 'black';
+      document.getElementById( "spanAMP_RELEASE    ").style.color = 'black';
+      document.getElementById("span2AMP_RELEASE    ").style.color = 'black';
+    }
+  }
+}
+
+function onMIDIMessage(event) {
+  console.log(event.data);
+
+  // CAUTION: Running Status and System Exclusive are not taken into account
+  if (event.data[0] == (CONTROL_CHANGE | midi_ch)) {
+    var number = event.data[1];
+    var value = event.data[2];
+    if (controllersInLocalStorage.indexOf(number) >= 0) {
+      updateDisplayOfControl(number, value);
+      if ((number == OSC_1_WAVE) || (number == OSC_2_WAVE) || (number == MIXER_SUB_OSC) || (number == VOICE_MODE) || (number == EG_AMP_MOD) || (number == REL_EQ_DECAY)) {
+        afterChangeOsc1Or2WaveOrMixerSubOscOrVoiceModeOrEGAmpModOrRelEqDecay();
+      }
+    } else if (number >= PC_BY_CC_0 && number <= PC_BY_CC_7) {
+      // Program Change by CC
+      var programIndex = number - PC_BY_CC_0;
+      var oldValue = specialProgramChangeCCValues[programIndex];
+      specialProgramChangeCCValues[programIndex] = value;
+      if (oldValue <= 63 && value >= 64) {
+        recallParameters(programIndex);
+        return;
+      }
+    } else if (number == SP_RAND_CTRL   ) {
+      // Special Random Control
+      var oldValue = specialRandomControlCCValue;
+      specialRandomControlCCValue = value;
+      if (oldValue <= 63 && value >= 64) {
+        setRandom();
+        return;
+      }
+    }
+  }
+
+  const PROGRAM_CHANGE = 0xC0;
+  if (event.data[0] == (PROGRAM_CHANGE | midi_ch)) {
+    var number = event.data[1];
+    if (number >= 0 && number <= USER_PROGRAM_NUMBER_MAX) {
+      recallParameters(number);
+      return;
+    } else if (number >= USER_PROGRAM_NUMBER_MAX + 1 && number <= PROGRAM_NUMBER_MAX) {
+      preset(number);
+      return;
+    } else if (number == 127) {
+      // Program #127: Random Control
+      setRandom();
+      return;
+    }
+  }
+
+  kbdTrackMessage(event.data);
+  if (midiOutput) {
+    midiOutput.send(event.data);
+  }
+}
+
+function onMIDISuccess(midiAccess) {
+  console.log("MIDI ready!");
+  midi = midiAccess;
+  ["selectInputPort1", "selectInputPort2", "selectInputPort3", "selectInputPort4", "selectOutputPort"].forEach(function(id) {
+    document.getElementById(id).length = 0;
+  });
+
+  var inputIterator = midi.inputs.values();
+  midiInputs = [""];
+  for (var o = inputIterator.next(); !o.done; o = inputIterator.next()) {
+    midiInputs.push(o.value)
+  }
+  var outputIterator = midi.outputs.values();
+  midiOutputs = [""];
+  for (var o = outputIterator.next(); !o.done; o = outputIterator.next()) {
+    midiOutputs.push(o.value)
+  }
+  if (window.PRA32U2WebSynth) {
+    midiOutputs.push(PRA32U2WebSynth.output);
+  }
+
+  var selectInputPort1 = document.getElementById("selectInputPort1");
+  for (var i = 0; i < midiInputs.length; i++) {
+    selectInputPort1.appendChild(new Option(midiInputs[i].name))
+  }
+  restorePortSelection("selectInputPort1", midiInputs);
+  onChangeInputPort1();
+  var selectInputPort2 = document.getElementById("selectInputPort2");
+  for (var i = 0; i < midiInputs.length; i++) {
+    selectInputPort2.appendChild(new Option(midiInputs[i].name))
+  }
+  restorePortSelection("selectInputPort2", midiInputs);
+  onChangeInputPort2();
+  var selectInputPort3 = document.getElementById("selectInputPort3");
+  for (var i = 0; i < midiInputs.length; i++) {
+    selectInputPort3.appendChild(new Option(midiInputs[i].name))
+  }
+  restorePortSelection("selectInputPort3", midiInputs);
+  onChangeInputPort3();
+  var selectInputPort4 = document.getElementById("selectInputPort4");
+  for (var i = 0; i < midiInputs.length; i++) {
+    selectInputPort4.appendChild(new Option(midiInputs[i].name))
+  }
+  restorePortSelection("selectInputPort4", midiInputs);
+  onChangeInputPort4();
+  var selectOutputPort = document.getElementById("selectOutputPort");
+  for (var i = 0; i < midiOutputs.length; i++) {
+    selectOutputPort.appendChild(new Option(midiOutputs[i].name))
+  }
+  restorePortSelection("selectOutputPort", midiOutputs);
+  onChangeOutputPort();
+}
+
+function restorePortSelection(selectId, ports) {
+  var name = localStorage.getItem("key" + selectId);
+  if (!name) {
+    return;
+  }
+  for (var i = 1; i < ports.length; i++) {
+    if (ports[i].name == name) {
+      document.getElementById(selectId).selectedIndex = i;
+      return;
+    }
+  }
+}
+
+function savePortSelection(selectId, ports) {
+  var index = document.getElementById(selectId).selectedIndex;
+  if (index > 0) {
+    localStorage.setItem("key" + selectId, ports[index].name);
+  } else {
+    localStorage.removeItem("key" + selectId);
+  }
+}
+
+function onMIDIFailure(msg) {
+  console.log("Failed to get MIDI access - " + msg);
+}
+
+function onChangeInputPort1(){
+  for (var i = 0; i < midiInputs.length; i++) {
+    if (i == document.getElementById("selectInputPort1").selectedIndex) { continue; }
+    if (i == document.getElementById("selectInputPort2").selectedIndex) { continue; }
+    if (i == document.getElementById("selectInputPort3").selectedIndex) { continue; }
+    if (i == document.getElementById("selectInputPort4").selectedIndex) { continue; }
+    midiInputs[i].onmidimessage = null;
+  }
+
+  var selectInputPort = document.getElementById("selectInputPort1");
+  midiInput1 = midiInputs[selectInputPort.selectedIndex];
+  if (midiInput1) {
+    midiInput1.onmidimessage = onMIDIMessage;
+  }
+}
+
+function onChangeInputPort2(){
+  for (var i = 0; i < midiInputs.length; i++) {
+    if (i == document.getElementById("selectInputPort1").selectedIndex) { continue; }
+    if (i == document.getElementById("selectInputPort2").selectedIndex) { continue; }
+    if (i == document.getElementById("selectInputPort3").selectedIndex) { continue; }
+    if (i == document.getElementById("selectInputPort4").selectedIndex) { continue; }
+    midiInputs[i].onmidimessage = null;
+  }
+
+  var selectInputPort = document.getElementById("selectInputPort2");
+  midiInput2 = midiInputs[selectInputPort.selectedIndex];
+  if (midiInput2) {
+    midiInput2.onmidimessage = onMIDIMessage;
+  }
+}
+
+function onChangeInputPort3(){
+  for (var i = 0; i < midiInputs.length; i++) {
+    if (i == document.getElementById("selectInputPort1").selectedIndex) { continue; }
+    if (i == document.getElementById("selectInputPort2").selectedIndex) { continue; }
+    if (i == document.getElementById("selectInputPort3").selectedIndex) { continue; }
+    if (i == document.getElementById("selectInputPort4").selectedIndex) { continue; }
+    midiInputs[i].onmidimessage = null;
+  }
+
+  var selectInputPort = document.getElementById("selectInputPort3");
+  midiInput3 = midiInputs[selectInputPort.selectedIndex];
+  if (midiInput3) {
+    midiInput3.onmidimessage = onMIDIMessage;
+  }
+}
+
+function onChangeInputPort4(){
+  for (var i = 0; i < midiInputs.length; i++) {
+    if (i == document.getElementById("selectInputPort1").selectedIndex) { continue; }
+    if (i == document.getElementById("selectInputPort2").selectedIndex) { continue; }
+    if (i == document.getElementById("selectInputPort3").selectedIndex) { continue; }
+    if (i == document.getElementById("selectInputPort4").selectedIndex) { continue; }
+    midiInputs[i].onmidimessage = null;
+  }
+
+  var selectInputPort = document.getElementById("selectInputPort4");
+  midiInput4 = midiInputs[selectInputPort.selectedIndex];
+  if (midiInput4) {
+    midiInput4.onmidimessage = onMIDIMessage;
+  }
+}
+
+function onChangeOutputPort() {
+  var selectOutputPort = document.getElementById("selectOutputPort");
+  midiOutput = midiOutputs[selectOutputPort.selectedIndex];
+  if (midiOutput && midiOutput.isPRA32U2WebSynth) {
+    sendCurrentParameters();
+  }
+}
+
+function onChangeMIDICh() {
+  var selectMIDICh = document.getElementById("selectMIDICh");
+  midi_ch = selectMIDICh.selectedIndex;
+  localStorage.setItem("keyMIDICh", midi_ch);
+}
+
+function updateDisplayOfControl(number, value) {
+  document.getElementById("input" + controlNumberToStringMap.get(number)).value = parseInt(value);
+
+  dispValue = String(value);
+
+  switch (number) {
+  case OSC_2_COARSE    :
+  case OSC_2_PITCH     :
+  case FILTER_EG_AMT   :
+  case FILTER_KEY_TRK  :
+  case EG_OSC_AMT      :
+  case LFO_OSC_AMT     :
+  case LFO_FILTER_AMT  :
+  case A_D_VEL_SENS    :
+  case REL_VEL_SENS    :
+  case A_D_KEY_TRK     :
+  case PAN             :
+  case STRETCH_TUNE    :
+  case COARSE_TUNE     :
+  case FINE_TUNE       :
+  case BTH_FILTER_AMT  :
+    if (value >= 64) {
+      dispValue = "+" + String(value - 64);
+    } else {
+      dispValue = String(value - 64);
+    }
+    break;
+  case MIXER_SUB_OSC   :
+    if (value >= 64) {
+      dispValue = "S" + String(value - 64);
+    } else {
+      dispValue = "N" + String(64 - value);
+    }
+    break;
+  case OSC_1_WAVE      :
+    {
+      var ary = ["Saw","Sqr","Tri","Sin","WT","Pls"];
+      var index = Math.floor(((value * 10) + 128) >> 8);
+      dispValue = ary[index];
+    }
+    break;
+  case OSC_2_WAVE      :
+    {
+      var ary = ["Saw","Sqr","Tri","Sin","O1","Nos"];
+      var index = Math.floor(((value * 10) + 128) >> 8);
+      dispValue = ary[index];
+    }
+    break;
+  case EG_OSC_DST      :
+  case LFO_OSC_DST     :
+    {
+      var ary = ["P","P","2P","2P","F","1S"];
+      var index = Math.floor(((value * 10) + 128) >> 8);
+      dispValue = ary[index];
+    }
+    break;
+  case VOICE_MODE      :
+    {
+      var ary = ["Pol","Pol","Mon","Mon","LP","Lgt"];
+      var index = Math.floor(((value * 10) + 128) >> 8);
+      dispValue = ary[index];
+    }
+    break;
+  case LFO_WAVE        :
+    {
+      var ary = ["Tri","Sin","Nos","Saw","S&H","Sqr"];
+      var index = Math.floor(((value * 10) + 128) >> 8);
+      dispValue = ary[index];
+    }
+    break;
+  case FILTER_MODE     :
+    {
+      var ary = ["LP","BP","HP"];
+      var index = Math.floor(((value * 4) + 128) >> 8);
+      dispValue = ary[index];
+    }
+    break;
+  case EG_AMP_MOD      :
+  case REL_EQ_DECAY    :
+    {
+      var ary = ["Off","On"];
+      var index = Math.floor(((value * 2) + 128) >> 8);
+      dispValue = ary[index];
+    }
+    break;
+  case OSC_SAW_W_MODE  :
+    {
+      var ary = ["Str","Cur"];
+      var index = Math.floor(((value * 2) + 128) >> 8);
+      dispValue = ary[index];
+    }
+    break;
+  case BTH_AMP_MOD     :
+    {
+      var ary = ["Off","Q","L","LO","QO","Opn"];
+      var index = Math.floor(((value * 10) + 128) >> 8);
+      dispValue = ary[index];
+    }
+    break;
+  case FX_ROUTING      :
+    {
+      var ary = ["Cho","Dly","Byp"];
+      var index = Math.floor(((value * 4) + 128) >> 8);
+      dispValue = ary[index];
+    }
+    break;
+  case VOICE_ASGN_MODE :
+    {
+      var ary = ["1","1","3","3","4","2"];
+      var index = Math.floor(((value * 10) + 128) >> 8);
+      dispValue = ary[index];
+    }
+    break;
+  case DELAY_MODE      :
+    {
+      var ary = ["Ste","PP","Rev"];
+      var index = ((value * 4) + 128) >> 8;
+      dispValue = ary[index];
+    }
+    break;
+  case DELAY_TIME      :
+    {
+      if (value < 5) {
+        dispValue = parseInt(value) + 1;
+      } else if (value < 27) {
+        dispValue = (value * 2) -4;
+      } else if (value < 114) {
+        dispValue = Math.floor(((value * 20) + 3) / 6) - 40;
+      } else {
+        dispValue = 340;
+      }
+    }
+    break;
+  }
+
+  document.getElementById("span" + controlNumberToStringMap.get(number)).innerHTML = value;
+  if (String(value) != dispValue) {
+    document.getElementById("span2" + controlNumberToStringMap.get(number)).innerHTML = "[" + dispValue + "]";
+  } else {
+    document.getElementById("span2" + controlNumberToStringMap.get(number)).innerHTML = "";
+  }
+
+  localStorage.setItem("key" + controlNumberToStringMap.get(number), value);
+}
+
+function onChangeControlChange(number, value) {
+  updateDisplayOfControl(number, value);
+  if ((number == OSC_1_WAVE) || (number == OSC_2_WAVE) || (number == MIXER_SUB_OSC) || (number == VOICE_MODE) || (number == EG_AMP_MOD) || (number == REL_EQ_DECAY)) {
+    afterChangeOsc1Or2WaveOrMixerSubOscOrVoiceModeOrEGAmpModOrRelEqDecay();
+  }
+  if (midiOutput) {
+    if ((number <= 127) && (parseInt(value) <= 127)) {
+      midiOutput.send([(CONTROL_CHANGE | midi_ch), number, parseInt(value)]);
+      sleep(2);
+    }
+  }
+}
+
+function preset(number) {
+  controllersInLocalStorage.forEach(function(i) {
+    onChangeControlChange(i, presetControllers[i][number - (USER_PROGRAM_NUMBER_MAX + 1)]);
+  });
+}
+
+function setRandom() {
+  controllersInLocalStorage.forEach(function(i) {
+    if ((i != VOICE_MODE     ) &&
+        (i != AMP_GAIN       ) &&
+        (i != CHORUS_MIX     ) &&
+        (i != FX_ROUTING     ) &&
+        (i != CHORUS_RATE    ) &&
+        (i != CHORUS_DEPTH   ) &&
+        (i != DELAY_LEVEL    ) &&
+        (i != DELAY_TIME     ) &&
+        (i != DELAY_FEEDBACK ) &&
+        (i != DELAY_MODE     ) &&
+        (i != A_D_VEL_SENS   ) &&
+        (i != REL_VEL_SENS   ) &&
+        (i != EG_VEL_SENS    ) &&
+        (i != AMP_VEL_SENS   ) &&
+        (i != VOICE_ASGN_MODE) &&
+        (i != A_D_KEY_TRK    ) &&
+        (i != PAN            ) &&
+        (i != STRETCH_TUNE   ) &&
+        (i != OSC_DRIFT      ) &&
+        (i != OSC_SAW_W_MODE ) &&
+        (i != COARSE_TUNE    ) &&
+        (i != FINE_TUNE      ) &&
+        (i != BTH_FILTER_AMT ) &&
+        (i != BTH_AMP_MOD    ) &&
+        (i != AFT_T_LFO_AMT  )) {
+      onChangeControlChange(i, rand(128));
+    }
+  });
+}
+
+function setRandomChorus() {
+  controllersInLocalStorage.forEach(function(i) {
+    if ((i == CHORUS_MIX     ) ||
+        (i == CHORUS_RATE    ) ||
+        (i == CHORUS_DEPTH   ) ||
+        (i == DELAY_LEVEL    ) ||
+        (i == DELAY_TIME     ) ||
+        (i == DELAY_FEEDBACK ) ||
+        (i == DELAY_MODE     )) {
+      onChangeControlChange(i, rand(128));
+    }
+  });
+}
+
+function rand(n) {
+  return Math.floor(Math.random() * n);
+}
+
+function recallParameters(number) {
+  var value;
+  controllersInLocalStorage.forEach(function(i) {
+    value = localStorage.getItem("keyMemory" + String(number) + controlNumberToStringMap.get(i));
+    if (!value) {
+      value = presetControllers[i][PRESET_NUMBER_INITIAL - (USER_PROGRAM_NUMBER_MAX + 1)];
+    }
+    onChangeControlChange(i, value);
+  });
+}
+
+function storeParameters(number) {
+  var r = confirm("Store the current parameters to the program #" + String(number) + "?");
+  if (r == false) {
+    return;
+  }
+
+  controllersInLocalStorage.forEach(function(i) {
+    var value = document.getElementById("input" + controlNumberToStringMap.get(i)).value;
+    localStorage.setItem("keyMemory" + String(number) + controlNumberToStringMap.get(i), value);
+  });
+}
+
+function sendProgramChange(number) {
+  if (midiOutput) {
+    midiOutput.send([(PROGRAM_CHANGE | midi_ch), number]);
+    sleep(2);
+  }
+}
+
+function writeParameters(number) {
+  var r = confirm("Write the current parameters to the program #" + String(number) + "?");
+  if (r == false) {
+    return;
+  }
+
+  if (midiOutput) {
+    midiOutput.send([(CONTROL_CHANGE | midi_ch), PROG_N_TO_W_TO,  number]);
+    sleep(2);
+    midiOutput.send([(CONTROL_CHANGE | midi_ch), WRITE_P_TO_PROG, 0]);
+    sleep(2);
+    midiOutput.send([(CONTROL_CHANGE | midi_ch), WRITE_P_TO_PROG, 127]);
+    sleep(2);
+  }
+}
+
+// A label of the program buttons above them on 1 line (e.g. "Factory Preset (from Browser)"),
+// when the buttons do not fit next to it
+function fitProgLabels() {
+  document.querySelectorAll(".prog-group").forEach(function(group) {
+    var label = group.querySelector(".prog-label");
+    var banks = group.querySelector(".banks");
+    label.classList.remove("above");
+    if (banks.getBoundingClientRect().top > label.getBoundingClientRect().top + 4) {
+      label.classList.add("above");
+    }
+  });
+}
+
+// The number buttons (Recall, Store, Program Change, Write) all as wide as the widest one
+function fitButtons() {
+  var root = document.documentElement;
+  root.style.removeProperty("--num-button-width");
+  var width = 0;
+  document.querySelectorAll(".bank.num button").forEach(function(button) {
+    width = Math.max(width, button.getBoundingClientRect().width);
+  });
+  if (width > 0) {
+    root.style.setProperty("--num-button-width", Math.ceil(width) + "px");
+  }
+}
+
+// The names of the parameters on 1 line: a name too long for its width gets the letters closer together,
+// and smaller if still too long (the widths of the fonts differ among the OSes, so measured here)
+function fitParamNames() {
+  document.querySelectorAll(".param-name").forEach(function(name) {
+    name.classList.remove("tight", "tighter");
+    if (name.scrollWidth > name.clientWidth) {
+      name.classList.add("tight");
+      if (name.scrollWidth > name.clientWidth) {
+        name.classList.add("tighter");
+      }
+    }
+  });
+}
+
+// ---- Soft keyboard (after SPMS-1 Editor) ----
+//
+// A key lights while its note is on, counted as PRA32-U2 counts it (pra32-u2-synth.h): a Note On adds 1, and
+// a Note Off (or a Note On with velocity 0) subtracts 1 only from a note that is on; All Notes Off (and
+// All Sound Off, Omni Mode Off/On, Mono/Poly Mode On) sets all the counts to 0. The counts include the notes
+// from MIDI In (which pass through to MIDI Out), so the keys light for an external keyboard too.
+//
+// A note held twice (e.g. 2 fingers on a key, or a key of the soft keyboard and the same key of an external
+// keyboard): a Note On and a Note Off are sent for each key, as they are. PRA32-U2 counts them, so the note stays
+// on (and the key lights) until both keys are released.
+
+const KBD_NOTE_MIN    = 0;    // C-1
+const KBD_NOTE_MAX    = 127;  // G9
+const KBD_WHITE_WIDTH = 41;  // 37 keys (C3 - C6, 22 white keys: 902px) in a 960px window
+const KBD_BLACK_WIDTH = 26;
+const KBD_CENTER_OFFSET = 4;  // the center of 37 keys from C(n) (e.g. C3 - C6): the 4th white key boundary of C(n+1)
+const KBD_CENTER_NOTE = 60;   // C4: by default, the center of the keyboard is that of C3 - C6 (between F4 and G4), plus the transpose
+
+var kbdCounts = new Array(128).fill(0);
+var kbdKeys = [];               // note number -> the key element
+var kbdPointers = new Map();    // pointerId -> the note number
+
+function kbdTrack(status, note, velocity) {
+  if ((status == NOTE_ON) && (velocity > 0)) {
+    kbdCounts[note]++;
+  } else if (kbdCounts[note] > 0) {
+    kbdCounts[note]--;
+  }
+  kbdUpdateKey(note);
+}
+
+// Panic: forgets the keys held (their release sends nothing, and gliding does not play), and turns off all the keys
+function kbdReset() {
+  kbdPointers.clear();
+  kbdAllNotesOff();
+}
+
+function kbdAllNotesOff() {
+  for (var note = 0; note < 128; note++) {
+    kbdCounts[note] = 0;
+    kbdUpdateKey(note);
+  }
+}
+
+function kbdUpdateKey(note) {
+  if (kbdKeys[note]) {
+    kbdKeys[note].classList.toggle("active", kbdCounts[note] > 0);
+  }
+}
+
+// The messages from MIDI In (on the MIDI Ch of the Editor)
+function kbdTrackMessage(data) {
+  if ((data.length < 3) || ((data[0] & 0x0F) != midi_ch)) {
+    return;
+  }
+  var status = data[0] & 0xF0;
+  if ((status == NOTE_ON) || (status == NOTE_OFF)) {
+    kbdTrack(status, data[1], data[2]);
+  } else if ((status == CONTROL_CHANGE) &&
+             ((data[1] == ALL_SOUND_OFF) || (data[1] == ALL_NOTES_OFF) || (data[1] >= OMNI_MODE_OFF))) {
+    kbdAllNotesOff();
+  }
+}
+
+function sendNote(status, note, velocity) {
+  if (midiOutput) {
+    midiOutput.send([(status | midi_ch), note, velocity]);
+    sleep(2);
+  }
+  kbdTrack(status, note, velocity);
+}
+
+function noteOn(noteNumber) {
+  sendNote(NOTE_ON, noteNumber, NOTE_ON_VELOCITY);
+}
+
+function noteOff(noteNumber) {
+  sendNote(NOTE_OFF, noteNumber, NOTE_OFF_VELOCITY);
+}
+
+function kbdPress(pointerId, note) {
+  noteOn(note);
+  kbdPointers.set(pointerId, note);
+}
+
+function kbdRelease(pointerId) {
+  if (!kbdPointers.has(pointerId)) {
+    return;
+  }
+  var note = kbdPointers.get(pointerId);
+  kbdPointers.delete(pointerId);
+  noteOff(note);
+}
+
+function kbdNoteOfEvent(event) {
+  var key = event.target.closest ? event.target.closest(".key") : null;
+  return key ? parseInt(key.dataset.note) : -1;
+}
+
+function createKeyboard() {
+  var kb = document.getElementById("keyboard");
+  var names = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+  var whiteIndex = 0;
+
+  for (var note = KBD_NOTE_MIN; note <= KBD_NOTE_MAX; note++) {
+    var name = names[note % 12];
+    var key = document.createElement("div");
+    key.dataset.note = note;
+    key.title = name + (Math.floor(note / 12) - 1) + " (" + note + ")";
+    if (name.indexOf("#") < 0) {
+      key.className = "key white";
+      key.style.left = (whiteIndex * KBD_WHITE_WIDTH) + "px";
+      if (name == "C") {
+        var label = document.createElement("span");
+        label.className = "key-label";
+        label.textContent = "C" + (Math.floor(note / 12) - 1);
+        key.appendChild(label);
+      }
+      whiteIndex++;
+    } else {
+      key.className = "key black";
+      key.style.left = (whiteIndex * KBD_WHITE_WIDTH - (KBD_BLACK_WIDTH / 2)) + "px";  // centered on the boundary
+    }
+    kb.appendChild(key);
+    kbdKeys[note] = key;
+  }
+  kb.style.width = (whiteIndex * KBD_WHITE_WIDTH) + "px";
+
+  kb.addEventListener("contextmenu", function(event) { event.preventDefault(); });
+  kb.addEventListener("pointerdown", function(event) {
+    if (event.button != 0) {
+      return;
+    }
+    var note = kbdNoteOfEvent(event);
+    if (note < 0) {
+      return;
+    }
+    event.preventDefault();
+    // A touch captures the pointer to the key; released, so that a finger can glide over the keys
+    if (event.target.hasPointerCapture && event.target.hasPointerCapture(event.pointerId)) {
+      event.target.releasePointerCapture(event.pointerId);
+    }
+    kbdRelease(event.pointerId);
+    kbdPress(event.pointerId, note);
+  });
+  // Gliding (glissando): the pointer goes to another key while pressed
+  kb.addEventListener("pointerover", function(event) {
+    var note = kbdNoteOfEvent(event);
+    if (!kbdPointers.has(event.pointerId) || (note < 0) || (note == kbdPointers.get(event.pointerId))) {
+      return;
+    }
+    kbdRelease(event.pointerId);
+    kbdPress(event.pointerId, note);
+  });
+  kb.addEventListener("pointerleave", function(event) { kbdRelease(event.pointerId); });
+  window.addEventListener("pointerup", function(event) { kbdRelease(event.pointerId); });
+  window.addEventListener("pointercancel", function(event) { kbdRelease(event.pointerId); });
+  window.addEventListener("blur", function() {
+    Array.from(kbdPointers.keys()).forEach(kbdRelease);
+  });
+
+  // The position of the last time (by the octave buttons or the scroll bar), kept as the center of the visible area
+  // (so that it is the same in another width of the window), or that of the transpose (C3 - C6 by default)
+  var scroll = document.getElementById("kbdScroll");
+  var savedCenter = parseFloat(localStorage.getItem("keyKbdCenter37"));
+  if (!isNaN(savedCenter)) {
+    kbdSetCenter(savedCenter);
+  } else {
+    kbdScrollToTranspose();
+  }
+  var saveTimer = null;
+  scroll.addEventListener("scroll", function() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function() {
+      localStorage.setItem("keyKbdCenter37", kbdGetCenter().toFixed(2));
+    }, 200);
+  });
+  // The center is kept when the width of the window changes
+  window.addEventListener("resize", function() {
+    var center = parseFloat(localStorage.getItem("keyKbdCenter37"));
+    if (!isNaN(center)) {
+      kbdSetCenter(center);
+    }
+  });
+}
+
+function kbdWhiteIndex(note) {
+  return Math.floor(note / 12) * 7 + [0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6][note % 12];
+}
+
+// The center of the visible area of the keyboard, in white keys from the left end (C-1)
+function kbdGetCenter() {
+  var scroll = document.getElementById("kbdScroll");
+  return (scroll.scrollLeft + (scroll.clientWidth / 2)) / KBD_WHITE_WIDTH;
+}
+
+function kbdSetCenter(center) {
+  var scroll = document.getElementById("kbdScroll");
+  scroll.scrollLeft = (center * KBD_WHITE_WIDTH) - (scroll.clientWidth / 2);
+}
+
+// The center of 37 keys from C(3 + transpose / 12) (C3 - C6 by default)
+function kbdScrollToTranspose() {
+  var scroll = document.getElementById("kbdScroll");
+  if (!scroll || !kbdKeys.length) {
+    return;
+  }
+  var note = Math.max(KBD_NOTE_MIN, Math.min(KBD_NOTE_MAX, KBD_CENTER_NOTE + transpose));
+  kbdSetCenter(kbdWhiteIndex(note) + KBD_CENTER_OFFSET);
+  localStorage.setItem("keyKbdCenter37", kbdGetCenter().toFixed(2));
+}
+
+// An octave from the current position (also after the scroll bar), with the center of 37 keys from a C:
+// the next one to the left (Octave Down) or to the right (Octave Up)
+function kbdShiftOctave(delta) {
+  var position = (kbdGetCenter() - KBD_CENTER_OFFSET) / 7;  // in octaves from C-1
+  var octave = (delta < 0) ? Math.ceil(position - 0.01) + delta : Math.floor(position + 0.01) + delta;
+  octave = Math.max(0, Math.min(Math.floor(KBD_NOTE_MAX / 12), octave));
+  onChangeTranspose((octave * 12) - KBD_CENTER_NOTE);
+}
+
+function fileImportAll() {
+  document.getElementById("fileImportAll").click();
+}
+
+function fileImportCurrent() {
+  document.getElementById("fileImportCurrent").click();
+}
+
+function fileImportCurrentChange(event) {
+  fileReaderImportCurrent.readAsText(event.target.files[0]);
+}
+
+function fileImportAllChange(event) {
+  fileReaderImportAll.readAsText(event.target.files[0]);
+}
+
+function fileReaderImportAllLoad(event) {
+  var r = confirm("Import the current and the program parameters?");
+  if (r == false) {
+    document.getElementById("fileImportAll").value = "";
+    return;
+  }
+
+  var obj = JSON.parse(event.target.result);
+
+  for (var number = 0; number <= USER_PROGRAM_NUMBER_MAX; number++) {
+    controllersInLocalStorage.forEach(function(i) {
+      var line = obj[controlNumberToStringMap.get(i)];
+      if (line != null) {
+        var value = line[1][number];
+        if (value != null) {
+          localStorage.setItem("keyMemory" + String(number) + controlNumberToStringMap.get(i), value);
+        }
+      }
+    });
+  }
+
+  controllersInLocalStorage.forEach(function(i) {
+    var line = obj[controlNumberToStringMap.get(i)];
+    if (line != null) {
+      var value = line[0];
+      if (value != null) {
+        localStorage.setItem("key" + controlNumberToStringMap.get(i), value);
+      }
+    }
+  });
+
+  var result = restoreControllers();
+  if (!result) {
+    onChangeTranspose(0);
+    preset(PRESET_NUMBER_INITIAL);
+  }
+
+  document.getElementById("fileImportAll").value = "";
+}
+
+function fileReaderImportCurrentLoad(event) {
+  var r = confirm("Import the current parameters?");
+  if (r == false) {
+    document.getElementById("fileImportCurrent").value = "";
+    return;
+  }
+
+  var obj = JSON.parse(event.target.result);
+
+  controllersInLocalStorage.forEach(function(i) {
+    var line = obj[controlNumberToStringMap.get(i)];
+    if (line != null) {
+      var value = line[0];
+      if (value != null) {
+        localStorage.setItem("key" + controlNumberToStringMap.get(i), value);
+      }
+    }
+  });
+
+  var result = restoreControllers();
+  if (!result) {
+    onChangeTranspose(0);
+    preset(PRESET_NUMBER_INITIAL);
+  }
+
+  document.getElementById("fileImportCurrent").value = "";
+}
+
+function fileExport() {
+  var str = "{\n";
+
+  str += "  \"_version       \" : \"" + APP_NAME_VERSION + "\",\n";
+  str += "  \"_comment       \" : \"Current  #0   #1   #2   #3   #4   #5   #6   #7     #8   #9   #10  #11  #12  #13  #14  #15  \",\n";
+  str += fileExportOneLine(OSC_1_WAVE     );
+  str += fileExportOneLine(MIXER_SUB_OSC  );
+  str += fileExportOneLine(OSC_1_SHAPE    );
+  str += fileExportOneLine(OSC_1_MORPH    );
+  str += "\n";
+  str += fileExportOneLine(OSC_2_WAVE     );
+  str += fileExportOneLine(MIXER_OSC_MIX  );
+  str += fileExportOneLine(OSC_2_COARSE   );
+  str += fileExportOneLine(OSC_2_PITCH    );
+  str += "\n";
+  str += fileExportOneLine(FILTER_CUTOFF  );
+  str += fileExportOneLine(FILTER_RESO    );
+  str += fileExportOneLine(FILTER_EG_AMT  );
+  str += fileExportOneLine(FILTER_KEY_TRK );
+  str += "\n";
+  str += fileExportOneLine(EG_ATTACK      );
+  str += fileExportOneLine(EG_DECAY       );
+  str += fileExportOneLine(EG_SUSTAIN     );
+  str += fileExportOneLine(EG_RELEASE     );
+  str += "\n";
+  str += fileExportOneLine(EG_OSC_AMT     );
+  str += fileExportOneLine(EG_OSC_DST     );
+  str += fileExportOneLine(VOICE_MODE     );
+  str += fileExportOneLine(PORTAMENTO     );
+  str += "\n";
+  str += fileExportOneLine(LFO_WAVE       );
+  str += fileExportOneLine(LFO_FADE_TIME  );
+  str += fileExportOneLine(LFO_RATE       );
+  str += fileExportOneLine(LFO_DEPTH      );
+  str += "\n";
+  str += fileExportOneLine(LFO_OSC_AMT    );
+  str += fileExportOneLine(LFO_OSC_DST    );
+  str += fileExportOneLine(LFO_FILTER_AMT );
+  str += fileExportOneLine(AMP_GAIN       );
+  str += "\n";
+  str += fileExportOneLine(AMP_ATTACK     );
+  str += fileExportOneLine(AMP_DECAY      );
+  str += fileExportOneLine(AMP_SUSTAIN    );
+  str += fileExportOneLine(AMP_RELEASE    );
+  str += "\n";
+  str += fileExportOneLine(FILTER_MODE    );
+  str += fileExportOneLine(P_BEND_RANGE   );
+  str += fileExportOneLine(EG_AMP_MOD     );
+  str += fileExportOneLine(REL_EQ_DECAY   );
+  str += "\n";
+  str += fileExportOneLine(A_D_VEL_SENS   );
+  str += fileExportOneLine(REL_VEL_SENS   );
+  str += fileExportOneLine(EG_VEL_SENS    );
+  str += fileExportOneLine(AMP_VEL_SENS   );
+  str += "\n";
+  str += fileExportOneLine(A_D_KEY_TRK    );
+  str += fileExportOneLine(VOICE_ASGN_MODE);
+  str += fileExportOneLine(PAN            );
+  str += fileExportOneLine(STRETCH_TUNE   );
+  str += "\n";
+  str += fileExportOneLine(OSC_DRIFT      );
+  str += fileExportOneLine(OSC_SAW_W_MODE );
+  str += fileExportOneLine(COARSE_TUNE    );
+  str += fileExportOneLine(FINE_TUNE      );
+  str += "\n";
+  str += fileExportOneLine(BTH_FILTER_AMT );
+  str += fileExportOneLine(BTH_AMP_MOD    );
+  str += fileExportOneLine(AFT_T_LFO_AMT  );
+  str += "\n";
+  str += "\n";
+  str += fileExportOneLine(CHORUS_MIX     );
+  str += fileExportOneLine(FX_ROUTING     );
+  str += "\n";
+  str += fileExportOneLine(CHORUS_RATE    );
+  str += fileExportOneLine(CHORUS_DEPTH   );
+  str += "\n";
+  str += fileExportOneLine(DELAY_LEVEL    );
+  str += fileExportOneLine(DELAY_MODE     );
+  str += fileExportOneLine(DELAY_TIME     );
+  str += fileExportOneLine(DELAY_FEEDBACK );
+  str += "  \"_end           \" : \"\"\n";
+  str += "}\n";
+
+  var blob = new Blob([str]);
+  const a = document.createElement('a');
+  a.download = 'pra32-u2-prog.json';
+  document.body.appendChild(a);
+  a.href = URL.createObjectURL(blob);
+  a.click();
+  document.body.removeChild(a);
+}
+
+function fileExportOneLine(number) {
+  var str = "  \"" + controlNumberToStringMap.get(number) + "\" : [ [" + getCCValueString(number) + "], [";
+  str += getStoredCCValueString(0, number) + ", ";
+  str += getStoredCCValueString(1, number) + ", ";
+  str += getStoredCCValueString(2, number) + ", ";
+  str += getStoredCCValueString(3, number) + ", ";
+  str += getStoredCCValueString(4, number) + ", ";
+  str += getStoredCCValueString(5, number) + ", ";
+  str += getStoredCCValueString(6, number) + ", ";
+  str += getStoredCCValueString(7, number) + ",   ";
+  str += getStoredCCValueString(8, number) + ", ";
+  str += getStoredCCValueString(9, number) + ", ";
+  str += getStoredCCValueString(10, number) + ", ";
+  str += getStoredCCValueString(11, number) + ", ";
+  str += getStoredCCValueString(12, number) + ", ";
+  str += getStoredCCValueString(13, number) + ", ";
+  str += getStoredCCValueString(14, number) + ", ";
+  str += getStoredCCValueString(15, number) + "] ],\n";
+  return str;
+}
+
+function getCCValueString(number) {
+  var value = document.getElementById("input" + controlNumberToStringMap.get(number)).value;
+  var str = (value + "   ").slice(0, 3);
+  return str;
+}
+
+function getStoredCCValueString(index, number) {
+  var value = localStorage.getItem("keyMemory" + String(index) + controlNumberToStringMap.get(number));
+  if (!value) {
+    value = presetControllers[number][PRESET_NUMBER_INITIAL - (USER_PROGRAM_NUMBER_MAX + 1)];
+  }
+  var str = (value + "   ").slice(0, 3);
+  return str;
+}
+</script>
+</head>
+<body>
+<div class="app">
+
+<div class="section header">
+<span id="spanAppNameVersion"></span>
+<span>(<a href="https://github.com/risgk/digital-synth-pra32-u2">View on GitHub</a>)</span>
+</div>
+
+<div class="section midi">
+<div class="midi-item"><span class="lbl-midi">MIDI Ch</span>
+<select id="selectMIDICh" size="1" onchange="onChangeMIDICh()">
+  <option value="0">1</option>
+  <option value="1">2</option>
+  <option value="2">3</option>
+  <option value="3">4</option>
+  <option value="4">5</option>
+  <option value="5">6</option>
+  <option value="6">7</option>
+  <option value="7">8</option>
+  <option value="8">9</option>
+  <option value="9">10</option>
+  <option value="10">11</option>
+  <option value="11">12</option>
+  <option value="12">13</option>
+  <option value="13">14</option>
+  <option value="14">15</option>
+  <option value="15">16</option>
+</select></div>
+<div class="midi-break"></div>
+<div class="midi-item"><span class="lbl-midi">MIDI In 1</span><select id="selectInputPort1" size="1" onchange="onChangeInputPort1(); savePortSelection('selectInputPort1', midiInputs)"></select></div>
+<div class="midi-item"><span class="lbl-midi">MIDI In 2</span><select id="selectInputPort2" size="1" onchange="onChangeInputPort2(); savePortSelection('selectInputPort2', midiInputs)"></select></div>
+<div class="midi-break narrow-only"></div>
+<div class="midi-item"><span class="lbl-midi">MIDI In 3</span><select id="selectInputPort3" size="1" onchange="onChangeInputPort3(); savePortSelection('selectInputPort3', midiInputs)"></select></div>
+<div class="midi-item"><span class="lbl-midi">MIDI In 4</span><select id="selectInputPort4" size="1" onchange="onChangeInputPort4(); savePortSelection('selectInputPort4', midiInputs)"></select></div>
+<div class="midi-break"></div>
+<div class="midi-item"><span class="lbl-midi">MIDI Out</span>
+<select id="selectOutputPort" size="1" onchange="onChangeOutputPort(); savePortSelection('selectOutputPort', midiOutputs)"></select></div>
+</div>
+
+<div class="section prog-row">
+<div class="prog-group">
+<div class="prog-label "><span>Factory Preset</span> <span>(from Browser)</span></div>
+<div class="banks split-2">
+<div class="bank named">
+  <button type="button" onclick="preset(20)">#20 Saw Lead</button>
+  <button type="button" onclick="preset(21)">#21 Sync Lead</button>
+  <button type="button" onclick="preset(22)">#22 Synth Bass</button>
+  <button type="button" onclick="preset(23)">#23 Initial</button>
+  <button type="button" onclick="preset(16)">#16 Synth Pad</button>
+  <button type="button" onclick="preset(17)">#17 M Saw Pad</button>
+  <button type="button" onclick="preset(18)">#18 FM Piano</button>
+  <button type="button" onclick="preset(19)">#19 Plain Poly</button>
+</div>
+<div class="bank-break"></div>
+<div class="bank named">
+  <button type="button" onclick="preset(28)">#28 Fifth Lead</button>
+  <button type="button" onclick="preset(29)">#29 Sqr Lead</button>
+  <button type="button" onclick="preset(30)">#30 PWM Lead</button>
+  <button type="button" onclick="preset(31)">#31 ---</button>
+  <button type="button" onclick="preset(24)">#24 Synth Brs</button>
+  <button type="button" onclick="preset(25)">#25 Synth Str</button>
+  <button type="button" onclick="preset(26)">#26 WT Pad</button>
+  <button type="button" onclick="preset(27)">#27 Elec Organ</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="section misc">
+<div class="misc-group"><span>Misc</span><div class="misc-buttons">
+<button type="button" onclick="sendCurrentParameters()">Send Current</button>
+<button type="button" onclick="panic()">Panic</button>
+<button type="button" onclick="setRandom()">Randomize Synth <span class="cc">PC#127</span></button>
+<button type="button" onclick="setRandomChorus()">Randomize FX</button></div></div>
+<div class="line-break narrow-only"></div>
+<div class="misc-group"><span>File</span><div class="misc-buttons">
+<input type="file" id="fileImportAll" style="display:none" accept=".json"/>
+<button type="button" onclick="fileImportAll()">Import All</button>
+<input type="file" id="fileImportCurrent" style="display:none" accept=".json"/>
+<button type="button" onclick="fileImportCurrent()">Import Current</button>
+<button type="button" onclick="fileExport()">Export All</button></div></div>
+</div>
+
+<div class="section prog-row">
+<div class="prog-group">
+<div class="prog-label "><span>Recall</span> <span>(from Browser)</span></div>
+<div class="banks split-1">
+<div class="bank num">
+  <button type="button" onclick="recallParameters(4)">#4</button>
+  <button type="button" onclick="recallParameters(5)">#5</button>
+  <button type="button" onclick="recallParameters(6)">#6</button>
+  <button type="button" onclick="recallParameters(7)">#7</button>
+  <button type="button" onclick="recallParameters(0)">#0</button>
+  <button type="button" onclick="recallParameters(1)">#1</button>
+  <button type="button" onclick="recallParameters(2)">#2</button>
+  <button type="button" onclick="recallParameters(3)">#3</button>
+</div>
+<div class="bank-break"></div>
+<div class="bank num">
+  <button type="button" onclick="recallParameters(12)">#12</button>
+  <button type="button" onclick="recallParameters(13)">#13</button>
+  <button type="button" onclick="recallParameters(14)">#14</button>
+  <button type="button" onclick="recallParameters(15)">#15</button>
+  <button type="button" onclick="recallParameters(8)">#8</button>
+  <button type="button" onclick="recallParameters(9)">#9</button>
+  <button type="button" onclick="recallParameters(10)">#10</button>
+  <button type="button" onclick="recallParameters(11)">#11</button>
+</div>
+</div>
+</div>
+<div class="line-break narrow-only"></div>
+<div class="prog-group">
+<div class="prog-label lbl-store"><span>Store</span> <span>(to Browser)</span></div>
+<div class="banks split-1">
+<div class="bank num">
+  <button type="button" onclick="storeParameters(4)">#4</button>
+  <button type="button" onclick="storeParameters(5)">#5</button>
+  <button type="button" onclick="storeParameters(6)">#6</button>
+  <button type="button" onclick="storeParameters(7)">#7</button>
+  <button type="button" onclick="storeParameters(0)">#0</button>
+  <button type="button" onclick="storeParameters(1)">#1</button>
+  <button type="button" onclick="storeParameters(2)">#2</button>
+  <button type="button" onclick="storeParameters(3)">#3</button>
+</div>
+<div class="bank-break"></div>
+<div class="bank num">
+  <button type="button" onclick="storeParameters(12)">#12</button>
+  <button type="button" onclick="storeParameters(13)">#13</button>
+  <button type="button" onclick="storeParameters(14)">#14</button>
+  <button type="button" onclick="storeParameters(15)">#15</button>
+  <button type="button" onclick="storeParameters(8)">#8</button>
+  <button type="button" onclick="storeParameters(9)">#9</button>
+  <button type="button" onclick="storeParameters(10)">#10</button>
+  <button type="button" onclick="storeParameters(11)">#11</button>
+</div>
+</div>
+</div>
+</div>
+
+<details class="section">
+<summary><span style="color:green">Details</span></summary>
+<div class="prog-row">
+<div class="prog-group">
+<div class="prog-label lbl-green" style="color:green"><span>Program Change</span> <span>(to PRA32-U2)</span></div>
+<div class="banks split-1">
+<div class="bank num">
+  <button type="button" onclick="sendProgramChange(4)" style="color:green">#4</button>
+  <button type="button" onclick="sendProgramChange(5)" style="color:green">#5</button>
+  <button type="button" onclick="sendProgramChange(6)" style="color:green">#6</button>
+  <button type="button" onclick="sendProgramChange(7)" style="color:green">#7</button>
+  <button type="button" onclick="sendProgramChange(0)" style="color:green">#0</button>
+  <button type="button" onclick="sendProgramChange(1)" style="color:green">#1</button>
+  <button type="button" onclick="sendProgramChange(2)" style="color:green">#2</button>
+  <button type="button" onclick="sendProgramChange(3)" style="color:green">#3</button>
+</div>
+<div class="bank-break"></div>
+<div class="bank num">
+  <button type="button" onclick="sendProgramChange(12)" style="color:green">#12</button>
+  <button type="button" onclick="sendProgramChange(13)" style="color:green">#13</button>
+  <button type="button" onclick="sendProgramChange(14)" style="color:green">#14</button>
+  <button type="button" onclick="sendProgramChange(15)" style="color:green">#15</button>
+  <button type="button" onclick="sendProgramChange(8)" style="color:green">#8</button>
+  <button type="button" onclick="sendProgramChange(9)" style="color:green">#9</button>
+  <button type="button" onclick="sendProgramChange(10)" style="color:green">#10</button>
+  <button type="button" onclick="sendProgramChange(11)" style="color:green">#11</button>
+</div>
+</div>
+</div>
+<div class="line-break narrow-only"></div>
+<div class="prog-group">
+<div class="prog-label lbl-green" style="color:green"><span>Write</span> <span>(to PRA32-U2)</span></div>
+<div class="banks split-1">
+<div class="bank num">
+  <button type="button" onclick="writeParameters(4)" style="color:green">#4</button>
+  <button type="button" onclick="writeParameters(5)" style="color:green">#5</button>
+  <button type="button" onclick="writeParameters(6)" style="color:green">#6</button>
+  <button type="button" onclick="writeParameters(7)" style="color:green">#7</button>
+  <button type="button" onclick="writeParameters(0)" style="color:green">#0</button>
+  <button type="button" onclick="writeParameters(1)" style="color:green">#1</button>
+  <button type="button" onclick="writeParameters(2)" style="color:green">#2</button>
+  <button type="button" onclick="writeParameters(3)" style="color:green">#3</button>
+</div>
+<div class="bank-break"></div>
+<div class="bank num">
+  <button type="button" onclick="writeParameters(12)" style="color:green">#12</button>
+  <button type="button" onclick="writeParameters(13)" style="color:green">#13</button>
+  <button type="button" onclick="writeParameters(14)" style="color:green">#14</button>
+  <button type="button" onclick="writeParameters(15)" style="color:green">#15</button>
+  <button type="button" onclick="writeParameters(8)" style="color:green">#8</button>
+  <button type="button" onclick="writeParameters(9)" style="color:green">#9</button>
+  <button type="button" onclick="writeParameters(10)" style="color:green">#10</button>
+  <button type="button" onclick="writeParameters(11)" style="color:green">#11</button>
+</div>
+</div>
+</div>
+</div>
+</details>
+
+<div class="params">
+<div class="param-group">
+<div class="param">
+  <div class="param-name"><b>Osc 1</b> Wave [Saw|Sqr|Tri|Sin|WT|Pls] <span class="cc">CC#102</span></div>
+  <div class="param-ctrl"><input  id="inputOSC_1_WAVE     "  type="range" list="6 markers" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_1_WAVE     , value)"><span    id="spanOSC_1_WAVE     " >-</span><span   id="span2OSC_1_WAVE     " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>Mixer</b> Noise/Sub Osc [N|S] <span class="cc">CC#23</span></div>
+  <div class="param-ctrl soft-marker-c"><input  id="inputMIXER_SUB_OSC  "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(MIXER_SUB_OSC  , value)"><span    id="spanMIXER_SUB_OSC  " >-</span><span   id="span2MIXER_SUB_OSC  " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>Osc 1</b> Shape <span class="cc">CC#19</span></div>
+  <div class="param-ctrl"><input  id="inputOSC_1_SHAPE    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_1_SHAPE    , value)"><span    id="spanOSC_1_SHAPE    " >-</span><span   id="span2OSC_1_SHAPE    " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>Osc 1</b> Morph <span class="cc">CC#20</span></div>
+  <div class="param-ctrl soft-markers-6-c"><input  id="inputOSC_1_MORPH    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_1_MORPH    , value)"><span    id="spanOSC_1_MORPH    " >-</span><span   id="span2OSC_1_MORPH    " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>Osc 2</b> Wave [Saw|Sqr|Tri|Sin|O1|Nos] <span class="cc">CC#104</span></div>
+  <div class="param-ctrl"><input  id="inputOSC_2_WAVE     "  type="range" list="6 markers" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_2_WAVE     , value)"><span    id="spanOSC_2_WAVE     " >-</span><span   id="span2OSC_2_WAVE     " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>Mixer</b> Osc Mix [1|2] <span class="cc">CC#21</span></div>
+  <div class="param-ctrl"><input  id="inputMIXER_OSC_MIX  "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(MIXER_OSC_MIX  , value)"><span    id="spanMIXER_OSC_MIX  " >-</span><span   id="span2MIXER_OSC_MIX  " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>Osc 2</b> Coarse [-|+] <span class="cc">CC#85</span></div>
+  <div class="param-ctrl soft-marker-c"><input  id="inputOSC_2_COARSE   "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_2_COARSE   , value)"><span    id="spanOSC_2_COARSE   " >-</span><span   id="span2OSC_2_COARSE   " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>Osc 2</b> Pitch [-|+] <span class="cc">CC#76</span></div>
+  <div class="param-ctrl soft-marker-c"><input  id="inputOSC_2_PITCH    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_2_PITCH    , value)"><span    id="spanOSC_2_PITCH    " >-</span><span   id="span2OSC_2_PITCH    " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>Filter</b> Cutoff <span class="cc">CC#74</span></div>
+  <div class="param-ctrl"><input  id="inputFILTER_CUTOFF  "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(FILTER_CUTOFF  , value)"><span    id="spanFILTER_CUTOFF  " >-</span><span   id="span2FILTER_CUTOFF  " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>Filter</b> Resonance <span class="cc">CC#71</span></div>
+  <div class="param-ctrl"><input  id="inputFILTER_RESO    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(FILTER_RESO    , value)"><span    id="spanFILTER_RESO    " >-</span><span   id="span2FILTER_RESO    " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>Filter</b> EG Amt [-|+] <span class="cc">CC#24</span></div>
+  <div class="param-ctrl soft-marker-c"><input  id="inputFILTER_EG_AMT  "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(FILTER_EG_AMT  , value)"><span    id="spanFILTER_EG_AMT  " >-</span><span   id="span2FILTER_EG_AMT  " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>Filter</b> Key Track [-|+] <span class="cc">CC#9</span></div>
+  <div class="param-ctrl soft-marker-c"><input  id="inputFILTER_KEY_TRK "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(FILTER_KEY_TRK , value)"><span    id="spanFILTER_KEY_TRK " >-</span><span   id="span2FILTER_KEY_TRK " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>EG</b> Attack <span class="cc">CC#73</span></div>
+  <div class="param-ctrl"><input  id="inputEG_ATTACK      "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(EG_ATTACK      , value)"><span    id="spanEG_ATTACK      " >-</span><span   id="span2EG_ATTACK      " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>EG</b> Decay <span class="cc">CC#75</span></div>
+  <div class="param-ctrl"><input  id="inputEG_DECAY       "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(EG_DECAY       , value)"><span    id="spanEG_DECAY       " >-</span><span   id="span2EG_DECAY       " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>EG</b> Sustain <span class="cc">CC#30</span></div>
+  <div class="param-ctrl"><input  id="inputEG_SUSTAIN     "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(EG_SUSTAIN     , value)"><span    id="spanEG_SUSTAIN     " >-</span><span   id="span2EG_SUSTAIN     " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>EG</b> Release <span class="cc">CC#72</span></div>
+  <div class="param-ctrl"><input  id="inputEG_RELEASE     "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(EG_RELEASE     , value)"><span    id="spanEG_RELEASE     " >-</span><span   id="span2EG_RELEASE     " >-</span></div>
+</div>
+</div>
+<div class="param-group">
+<div class="param">
+  <div class="param-name"><b>EG</b> Mod Amt [-|+] <span class="cc">CC#89</span></div>
+  <div class="param-ctrl soft-marker-c"><input  id="inputEG_OSC_AMT     "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(EG_OSC_AMT     , value)"><span    id="spanEG_OSC_AMT     " >-</span><span   id="span2EG_OSC_AMT     " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>EG</b> Mod Dst [P|P|2P|2P|F|1S] <span class="cc">CC#8</span></div>
+  <div class="param-ctrl"><input  id="inputEG_OSC_DST     "  type="range" list="6 markers" min="0" max="127" step="1" oninput="onChangeControlChange(EG_OSC_DST     , value)"><span    id="spanEG_OSC_DST     " >-</span><span   id="span2EG_OSC_DST     " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name">Voice Mode [Pol|Pol|Mon|Mon|LP|Lgt] <span class="cc">CC#18</span></div>
+  <div class="param-ctrl"><input  id="inputVOICE_MODE     "  type="range" list="6 markers" min="0" max="127" step="1" oninput="onChangeControlChange(VOICE_MODE     , value)"><span    id="spanVOICE_MODE     " >-</span><span   id="span2VOICE_MODE     " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name">Portamento <span class="cc">CC#5</span></div>
+  <div class="param-ctrl"><input  id="inputPORTAMENTO     "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(PORTAMENTO     , value)"><span    id="spanPORTAMENTO     " >-</span><span   id="span2PORTAMENTO     " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>LFO</b> Wave [Tri|Sin|Nos|Saw|S&H|Sqr] <span class="cc">CC#33</span></div>
+  <div class="param-ctrl"><input  id="inputLFO_WAVE       "  type="range" list="6 markers" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_WAVE       , value)"><span    id="spanLFO_WAVE       " >-</span><span   id="span2LFO_WAVE       " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>LFO</b> Fade Time <span class="cc">CC#56</span></div>
+  <div class="param-ctrl"><input  id="inputLFO_FADE_TIME  "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_FADE_TIME  , value)"><span    id="spanLFO_FADE_TIME  " >-</span><span   id="span2LFO_FADE_TIME  " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>LFO</b> Rate <span class="cc">CC#3</span></div>
+  <div class="param-ctrl"><input  id="inputLFO_RATE       "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_RATE       , value)"><span    id="spanLFO_RATE       " >-</span><span   id="span2LFO_RATE       " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>LFO</b> Depth <span class="cc">CC#17</span></div>
+  <div class="param-ctrl"><input  id="inputLFO_DEPTH      "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_DEPTH      , value)"><span    id="spanLFO_DEPTH      " >-</span><span   id="span2LFO_DEPTH      " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>LFO</b> Mod Amt [-|+] <span class="cc">CC#13</span></div>
+  <div class="param-ctrl soft-marker-c"><input  id="inputLFO_OSC_AMT    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_OSC_AMT    , value)"><span    id="spanLFO_OSC_AMT    " >-</span><span   id="span2LFO_OSC_AMT    " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>LFO</b> Mod Dst [P|P|2P|2P|F|1S] <span class="cc">CC#103</span></div>
+  <div class="param-ctrl"><input  id="inputLFO_OSC_DST    "  type="range" list="6 markers" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_OSC_DST    , value)"><span    id="spanLFO_OSC_DST    " >-</span><span   id="span2LFO_OSC_DST    " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>LFO</b> Filter Amt [-|+] <span class="cc">CC#25</span></div>
+  <div class="param-ctrl soft-marker-c"><input  id="inputLFO_FILTER_AMT "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_FILTER_AMT , value)"><span    id="spanLFO_FILTER_AMT " >-</span><span   id="span2LFO_FILTER_AMT " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>Amp</b> Gain <span class="cc">CC#15</span></div>
+  <div class="param-ctrl"><input  id="inputAMP_GAIN       "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(AMP_GAIN       , value)"><span    id="spanAMP_GAIN       " >-</span><span   id="span2AMP_GAIN       " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>Amp</b> Attack <span class="cc">CC#52</span></div>
+  <div class="param-ctrl"><input  id="inputAMP_ATTACK     "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(AMP_ATTACK     , value)"><span    id="spanAMP_ATTACK     " >-</span><span   id="span2AMP_ATTACK     " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>Amp</b> Decay <span class="cc">CC#53</span></div>
+  <div class="param-ctrl"><input  id="inputAMP_DECAY      "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(AMP_DECAY      , value)"><span    id="spanAMP_DECAY      " >-</span><span   id="span2AMP_DECAY      " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>Amp</b> Sustain <span class="cc">CC#54</span></div>
+  <div class="param-ctrl"><input  id="inputAMP_SUSTAIN    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(AMP_SUSTAIN    , value)"><span    id="spanAMP_SUSTAIN    " >-</span><span   id="span2AMP_SUSTAIN    " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>Amp</b> Release <span class="cc">CC#55</span></div>
+  <div class="param-ctrl"><input  id="inputAMP_RELEASE    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(AMP_RELEASE    , value)"><span    id="spanAMP_RELEASE    " >-</span><span   id="span2AMP_RELEASE    " >-</span></div>
+</div>
+</div>
+<div class="param-group">
+<div class="param">
+  <div class="param-name"><b>Filter</b> Mode [LP|BP|HP] <span class="cc">CC#39</span></div>
+  <div class="param-ctrl"><input  id="inputFILTER_MODE    "  type="range" list="3 markers" min="0" max="127" step="1" oninput="onChangeControlChange(FILTER_MODE    , value)"><span    id="spanFILTER_MODE    " >-</span><span   id="span2FILTER_MODE    " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name">Pitch Bend Range <span class="cc">CC#57</span></div>
+  <div class="param-ctrl"><input  id="inputP_BEND_RANGE   "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(P_BEND_RANGE   , value)"><span    id="spanP_BEND_RANGE   " >-</span><span   id="span2P_BEND_RANGE   " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>EG</b> Amp Mod [Off|On] <span class="cc">CC#36</span></div>
+  <div class="param-ctrl"><input  id="inputEG_AMP_MOD     "  type="range" list="2 markers" min="0" max="127" step="1" oninput="onChangeControlChange(EG_AMP_MOD     , value)"><span    id="spanEG_AMP_MOD     " >-</span><span   id="span2EG_AMP_MOD     " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>EG</b>/<b>Amp</b> Rel = Dec [Off|On] <span class="cc">CC#105</span></div>
+  <div class="param-ctrl"><input  id="inputREL_EQ_DECAY   "  type="range" list="2 markers" min="0" max="127" step="1" oninput="onChangeControlChange(REL_EQ_DECAY   , value)"><span    id="spanREL_EQ_DECAY   " >-</span><span   id="span2REL_EQ_DECAY   " >-</span></div>
+</div>
+</div>
+<div class="param-group">
+<div class="param">
+  <div class="param-name"><b>EG</b> Att/Dec Velo Sens [-|+] <span class="cc">CC#51</span></div>
+  <div class="param-ctrl soft-marker-c"><input  id="inputA_D_VEL_SENS   "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(A_D_VEL_SENS   , value)"><span    id="spanA_D_VEL_SENS   " >-</span><span   id="span2A_D_VEL_SENS   " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>EG</b> Rel Velo Sens [-|+] <span class="cc">CC#81</span></div>
+  <div class="param-ctrl soft-marker-c"><input  id="inputREL_VEL_SENS   "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(REL_VEL_SENS   , value)"><span    id="spanREL_VEL_SENS   " >-</span><span   id="span2REL_VEL_SENS   " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>EG</b> Level Velo Sens <span class="cc">CC#62</span></div>
+  <div class="param-ctrl"><input  id="inputEG_VEL_SENS    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(EG_VEL_SENS    , value)"><span    id="spanEG_VEL_SENS    " >-</span><span   id="span2EG_VEL_SENS    " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>Amp</b> Level Velo Sens <span class="cc">CC#63</span></div>
+  <div class="param-ctrl"><input  id="inputAMP_VEL_SENS   "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(AMP_VEL_SENS   , value)"><span    id="spanAMP_VEL_SENS   " >-</span><span   id="span2AMP_VEL_SENS   " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>EG</b> Att/Dec Key Track [-|+] <span class="cc">CC#16</span></div>
+  <div class="param-ctrl soft-marker-c"><input  id="inputA_D_KEY_TRK    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(A_D_KEY_TRK    , value)"><span    id="spanA_D_KEY_TRK    " >-</span><span   id="span2A_D_KEY_TRK    " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name">Voice Assign Mode [1|1|3|3|4|2] <span class="cc">CC#110</span></div>
+  <div class="param-ctrl"><input  id="inputVOICE_ASGN_MODE"  type="range" list="6 markers" min="0" max="127" step="1" oninput="onChangeControlChange(VOICE_ASGN_MODE, value)"><span    id="spanVOICE_ASGN_MODE" >-</span><span   id="span2VOICE_ASGN_MODE" >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name">Pan <span class="cc">CC#10</span></div>
+  <div class="param-ctrl"><input  id="inputPAN            "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(PAN            , value)"><span    id="spanPAN            " >-</span><span   id="span2PAN            " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name">Stretch Tune [-|+] <span class="cc">CC#22</span></div>
+  <div class="param-ctrl soft-marker-c"><input  id="inputSTRETCH_TUNE   "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(STRETCH_TUNE   , value)"><span    id="spanSTRETCH_TUNE   " >-</span><span   id="span2STRETCH_TUNE   " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>Osc</b>/<b>Filter</b> Drift <span class="cc">CC#82</span></div>
+  <div class="param-ctrl"><input  id="inputOSC_DRIFT      "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_DRIFT      , value)"><span    id="spanOSC_DRIFT      " >-</span><span   id="span2OSC_DRIFT      " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>Osc</b> Saw Wave Mode [Str|Cur] <span class="cc">CC#83</span></div>
+  <div class="param-ctrl"><input  id="inputOSC_SAW_W_MODE "  type="range" list="2 markers" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_SAW_W_MODE , value)"><span    id="spanOSC_SAW_W_MODE " >-</span><span   id="span2OSC_SAW_W_MODE " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name">Coarse Tune [-|+] <span class="cc">CC#86</span></div>
+  <div class="param-ctrl soft-marker-c"><input  id="inputCOARSE_TUNE    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(COARSE_TUNE    , value)"><span    id="spanCOARSE_TUNE    " >-</span><span   id="span2COARSE_TUNE    " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name">Fine Tune [-|+] <span class="cc">CC#70</span></div>
+  <div class="param-ctrl soft-marker-c"><input  id="inputFINE_TUNE      "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(FINE_TUNE      , value)"><span    id="spanFINE_TUNE      " >-</span><span   id="span2FINE_TUNE      " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>Breath</b> Filter Amt [-|+] <span class="cc">CC#60</span></div>
+  <div class="param-ctrl soft-marker-c"><input  id="inputBTH_FILTER_AMT "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(BTH_FILTER_AMT , value)"><span    id="spanBTH_FILTER_AMT " >-</span><span   id="span2BTH_FILTER_AMT " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>Breath</b> Amp Mode [Off|Q|L|LO|QO|Opn] <span class="cc">CC#61</span></div>
+  <div class="param-ctrl"><input  id="inputBTH_AMP_MOD    "  type="range" list="6 markers" min="0" max="127" step="1" oninput="onChangeControlChange(BTH_AMP_MOD    , value)"><span    id="spanBTH_AMP_MOD    " >-</span><span   id="span2BTH_AMP_MOD    " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>After Touch</b> LFO Amt <span class="cc">CC#37</span></div>
+  <div class="param-ctrl"><input  id="inputAFT_T_LFO_AMT  "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(AFT_T_LFO_AMT  , value)"><span    id="spanAFT_T_LFO_AMT  " >-</span><span   id="span2AFT_T_LFO_AMT  " >-</span></div>
+</div>
+</div>
+<div class="param-group">
+<div class="param">
+  <div class="param-name"><b>Chorus</b> Level <span class="cc">CC#93</span></div>
+  <div class="param-ctrl"><input  id="inputCHORUS_MIX     "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(CHORUS_MIX     , value)"><span    id="spanCHORUS_MIX     " >-</span><span   id="span2CHORUS_MIX     " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name">FX Routing [Cho|Dly|Byp] <span class="cc">CC#95</span></div>
+  <div class="param-ctrl"><input  id="inputFX_ROUTING     "  type="range" list="3 markers" min="0" max="127" step="1" oninput="onChangeControlChange(FX_ROUTING     , value)"><span    id="spanFX_ROUTING     " >-</span><span   id="span2FX_ROUTING     " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>Chorus</b> Rate <span class="cc">CC#58</span></div>
+  <div class="param-ctrl"><input  id="inputCHORUS_RATE    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(CHORUS_RATE    , value)"><span    id="spanCHORUS_RATE    " >-</span><span   id="span2CHORUS_RATE    " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>Chorus</b> Depth <span class="cc">CC#59</span></div>
+  <div class="param-ctrl"><input  id="inputCHORUS_DEPTH   "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(CHORUS_DEPTH   , value)"><span    id="spanCHORUS_DEPTH   " >-</span><span   id="span2CHORUS_DEPTH   " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>Delay</b> Level <span class="cc">CC#94</span></div>
+  <div class="param-ctrl"><input  id="inputDELAY_LEVEL    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(DELAY_LEVEL    , value)"><span    id="spanDELAY_LEVEL    " >-</span><span   id="span2DELAY_LEVEL    " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>Delay</b> Mode [Ste|PP|Rev] <span class="cc">CC#35</span></div>
+  <div class="param-ctrl"><input  id="inputDELAY_MODE     "  type="range" list="3 markers" min="0" max="127" step="1" oninput="onChangeControlChange(DELAY_MODE     , value)"><span    id="spanDELAY_MODE     " >-</span><span   id="span2DELAY_MODE     " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>Delay</b> Time <span class="cc">CC#90</span></div>
+  <div class="param-ctrl"><input  id="inputDELAY_TIME     "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(DELAY_TIME     , value)"><span    id="spanDELAY_TIME     " >-</span><span   id="span2DELAY_TIME     " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>Delay</b> Feedback <span class="cc">CC#92</span></div>
+  <div class="param-ctrl"><input  id="inputDELAY_FEEDBACK "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(DELAY_FEEDBACK , value)"><span    id="spanDELAY_FEEDBACK " >-</span><span   id="span2DELAY_FEEDBACK " >-</span></div>
+</div>
+</div>
+</div>
+
+<div class="section">
+<div class="kbd-bar">
+<span>Software Keyboard</span>
+<button type="button" onclick="kbdShiftOctave(-1)" title="Octave Down">&#9664;</button>
+<button type="button" onclick="kbdShiftOctave(1)" title="Octave Up">&#9654;</button>
+<button type="button" class="kbd-panic" onclick="panic()">Panic</button>
+</div>
+<div class="keyboard-scroll" id="kbdScroll">
+<div class="keyboard" id="keyboard"></div>
+</div>
+</div>
+
+</div>
+
+<datalist id="0 markers">
+</datalist>
+
+<datalist id="2 markers">
+  <option value="0"></option>
+  <option value="127"></option>
+</datalist>
+
+<datalist id="3 markers">
+  <option value="0"></option>
+  <option value="64"></option>
+  <option value="127"></option>
+</datalist>
+
+<datalist id="6 markers">
+  <option value="0"></option>
+  <option value="26"></option>
+  <option value="51"></option>
+  <option value="77"></option>
+  <option value="102"></option>
+  <option value="127"></option>
+</datalist>
+
+</body>
+</html>
