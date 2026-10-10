@@ -9,16 +9,24 @@
         - "Details" renamed to "Save & Load", with File and Store too (hidden by default)
         - Save & Load and the Software Keyboard are shown or hidden as the last time
     - PRA32-U2 Editor: Change the Software Keyboard to a new one, above the parameters
-        - All the notes (0-127) with its own scroll bar; 37 keys (C3 - C6) in a 960 px window; as large as the text
-        - The 12 semitones at equal intervals in the upper half (the black keys as long as the upper half), and the white keys only in the lower half (C - E as wide as 5 / 3 semitones, and F - B 7 / 4, as in a piano)
-        - Gliding over the keys, as legato (the Note On of the new key before the Note Off of the old key)
-        - The PC keyboard while shown (A - K for C - C, W - U for the black keys, and Z / X for the octave, as in DAWs)
+        - All the notes (0-127) with its own scroll bar
+            - 37 keys (C3 - C6) in a 960 px window, as large as the text
+        - The upper half: the 12 semitones at equal intervals (the black keys as long as the upper half)
+        - The lower half: the white keys only, as in a piano
+            - C - E as wide as 5 / 3 semitones, and F - B as wide as 7 / 4 semitones
+        - Gliding over the keys, as legato
+            - The Note On of the new key before the Note Off of the old key
+        - The PC keyboard while shown, as in DAWs
+            - A - K for C - C, W - U for the black keys, and Z / X for the octave
         - The Panic button at the upper right
         - Can be hidden (shown by default)
-    - PRA32-U2 Editor: Add the names of the user presets (up to 10 ASCII letters, digits, and symbols, as the Factory Presets), entered by Store and shown on the User Preset buttons (e.g. "#0 My Lead")
-        - The names are also exported and imported by Export All and Import All (a file of an older version clears them)
+    - PRA32-U2 Editor: Add the names of the user presets
+        - Up to 10 ASCII letters, digits, and symbols (as the Factory Presets)
+        - Entered by Store, and shown on the User Preset buttons (e.g. "#0 My Lead")
+        - Exported and imported by Export All and Import All (a file of an older version clears them)
         - "pra32-u2-prog-factory-presets.json" has the names of the Factory Presets
-    - PRA32-U2 Editor: Add "pra32-u2-prog-all-initial.json" for Import All, to set all the user presets (#0-15) to "#23 Initial", without names
+    - PRA32-U2 Editor: Add "pra32-u2-prog-all-initial.json" for Import All
+        - All the user presets (#0-15) are "#23 Initial", without names
     - Tested with Arduino-Pico version 6.2.0
 - v3.11.0 (2026-10-10):
     - Rename the Preset "#19 Simple" to "#19 Plain Poly", to show that it is a Poly Preset (as "#23 Initial" is a Mono Preset)
