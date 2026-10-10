@@ -5,7 +5,9 @@
 // Look-ahead peak limiter for the final output, followed by soft_clip_output()
 // (1.0 = 1 << 23): the output is delayed by 1 ms, and the gain is lowered by
 // the time a peak above the threshold arrives, so that loud chords with a high
-// Resonance stay below the soft clipping instead of being distorted by it
+// Resonance stay below the soft clipping instead of being distorted by it;
+// the output is also lowered by 2.5 dB (OUTPUT_GAIN), to leave headroom above
+// the Presets, so that they are rarely limited
 class PRA32_U2_OutputLimiter {
   static_assert(SAMPLING_RATE == 48000, "the look-ahead time and the rates are for 48 kHz");
 
@@ -23,6 +25,11 @@ class PRA32_U2_OutputLimiter {
   // At the knee of soft_clip_output(); the gain comes down over the attack
   // time, so a sudden peak still overshoots it a little, into the knee
   static const int32_t  THRESHOLD             = 6291456;  // 0.75
+
+  // 0.75 (-2.5 dB) in Q16, applied with the limiting gain (no extra multiplication per sample);
+  // the input over INPUT_THRESHOLD comes out over THRESHOLD and is limited
+  static const int32_t  OUTPUT_GAIN           = 49152;    // 0.75
+  static const int32_t  INPUT_THRESHOLD       = 8388608;  // THRESHOLD / OUTPUT_GAIN (1.0)
 
   // 1 - e^(-1 / n) in Q24, where n is the time constant in control intervals
   // (12 kHz): attack 1 ms, release 100 ms
@@ -52,14 +59,14 @@ public:
   , m_peaks()
   , m_peak_index()
   , m_envelope()
-  , m_gain_current(GAIN_ONE)
-  , m_gain_next(GAIN_ONE)
+  , m_gain_current(OUTPUT_GAIN)
+  , m_gain_next(OUTPUT_GAIN)
   , m_gain_step()
   , m_depth(128)
   {
   }
 
-  // 0: Off (the output is still delayed by 1 ms and clipped), 127: full limiting (default);
+  // 0: Off (the output is still delayed by 1 ms, lowered by 2.5 dB, and clipped), 127: full limiting (default);
   // 2 controller values per step, 65 steps, as the Delay Level
   INLINE void set_depth(uint8_t controller_value) {
     m_depth = ((controller_value + 1) >> 1) << 1;
@@ -103,15 +110,17 @@ private:
     const int32_t rate = (peak_hold > m_envelope) ? ATTACK_RATE : RELEASE_RATE;
     m_envelope += multiply_shift_right(peak_hold - m_envelope, rate, 24);
 
-    // THRESHOLD / envelope in Q16, from a 32-bit division; the envelope is
-    // above the threshold, so its upper bits keep enough precision
+    // INPUT_THRESHOLD / envelope in Q16, from a 32-bit division (INPUT_THRESHOLD << 8
+    // fits in 32 bits unsigned); the envelope is above the threshold, so its upper bits
+    // keep enough precision
     int32_t gain_next = GAIN_ONE;
-    if (m_envelope > THRESHOLD) {
-      gain_next = static_cast<int32_t>(static_cast<uint32_t>(THRESHOLD << 8) /
+    if (m_envelope > INPUT_THRESHOLD) {
+      gain_next = static_cast<int32_t>((static_cast<uint32_t>(INPUT_THRESHOLD) << 8) /
                                        static_cast<uint32_t>(m_envelope >> 8));
     }
     // The Depth scales the gain reduction, not the gain
-    m_gain_next = GAIN_ONE - (((GAIN_ONE - gain_next) * m_depth) >> 7);
+    gain_next = GAIN_ONE - (((GAIN_ONE - gain_next) * m_depth) >> 7);
+    m_gain_next = multiply_shift_right(gain_next, OUTPUT_GAIN, 16);
 
     // Rounded up, so that the target is reached by the end of the interval
     const int32_t delta = m_gain_next - m_gain_current;
