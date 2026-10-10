@@ -876,7 +876,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
     break;
   case DELAY_MODE      :
     {
-      char ary[3][5] = {"  S","  P","  R"};
+      char ary[3][5] = {"Ste"," PP","Rev"};
       uint32_t index = ((controller_value * 4) + 128) >> 8;
       std::strcpy(value_display_text, ary[index]);
       result = true;

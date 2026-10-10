@@ -375,7 +375,7 @@
     - 64: Delay Time +/- 2.7 ms
     - 126: Delay Time +/- 5.3 ms (max)
 - Delay Level: Delay Send Level
-- Delay Mode [S|P|R]
+- Delay Mode [Ste|PP|Rev]
     - 0 (0-31): Stereo Delay
     - 64 (32-95): Ping Pong Delay
     - 127 (96-127): Reverb
