@@ -2,7 +2,7 @@
  * Digital Synth PRA32-U2
  */
 
-#define PRA32_U2_VERSION                       "v3.10.0   "
+#define PRA32_U2_VERSION                       "v3.11.0   "
 
 //#define PRA32_U2_USE_DEBUG_PRINT
 
@@ -67,7 +67,8 @@
 //#define PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN    (17)
 //#define PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN     (19)
 //#define PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN         (21)
-#define PRA32_U2_KEY_ANTI_CHATTERING_WAIT        (25)
+#define PRA32_U2_KEY_PRESS_STABLE_WAIT           (15)
+#define PRA32_U2_KEY_RELEASE_STABLE_WAIT         (30)
 #define PRA32_U2_KEY_LONG_PRESS_WAIT             (375)
 
 #define PRA32_U2_USE_CONTROL_PANEL_ANALOG_INPUT  // Use ADC0, ADC1, and ADC2

@@ -1,4 +1,4 @@
-# PRA32-U2 Native v3.10.0 (Experimental)
+# PRA32-U2 Native v3.11.0
 
 - 2026-10-10 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
@@ -6,13 +6,23 @@
 PRA32-U2 Native: a software synthesizer (VST3 plugin and standalone application) version of Digital Synth PRA32-U2
 
 - PRA32-U2 for PCs: a VST3 plugin and a standalone application, built with [JUCE](https://juce.com)
-- **Experimental**: the features and the behaviors may change, and there may be bugs
+- PRA32-U2 (the hardware) is the main, and PRA32-U2 Native follows it, so the sound may change in later versions
+    - The changes of the sound are noted in "PRA32-U2-Change-History.md" of PRA32-U2 as far as possible
 - The signal processing is the same as PRA32-U2 (Digital-Synth-PRA32-U2/*.h are used as they are)
 - Version: the same as PRA32-U2 (`PRA32_U2_VERSION` in "Digital-Synth-PRA32-U2.ino"), shown at the top of the editor
-- Binaries: Windows (x64) only, VST3 and Standalone: "bin/PRA32-U2-Native-v*-Windows-x64.zip"
-    - Not signed, so Windows SmartScreen may warn
-    - Built and validated (pluginval) by GitHub Actions ("PRA32-U2 Build (UF2 and Native)" in ".github/workflows/pra32-u2-native-windows.yml")
-    - On Mac and Linux, build from the source (see "How to Build")
+- Binaries: "bin/", built and validated (pluginval) by GitHub Actions ("PRA32-U2 Build (UF2 and Native)" in ".github/workflows/pra32-u2-native-windows.yml")
+    - Windows (x64), VST3 and Standalone: "PRA32-U2-Native-v*-Windows-x64.zip"
+        - Not signed, so Windows SmartScreen may warn
+    - Mac (macOS 11 or later, Universal: Apple silicon and Intel), VST3, AU, and Standalone: "PRA32-U2-Native-v*-macOS-Universal.zip"
+        - Not signed with a Developer ID and not notarized, so Gatekeeper blocks them
+          (e.g. "cannot be opened because Apple cannot check it for malicious software", or "is damaged", and the host fails to load the plugin)
+        - Remove the quarantine attribute in Terminal, in the folder of the extracted files (not needed for the binaries built on your Mac):
+          `xattr -dr com.apple.quarantine "PRA32-U2 Native.vst3" "PRA32-U2 Native.component" "PRA32-U2 Native.app"`
+        - AU is also validated with auval
+    - Linux (x64, glibc 2.35 or later, e.g. Ubuntu 22.04 or later), VST3 and Standalone: "PRA32-U2-Native-v*-Linux-x64.zip"
+    - Developed mainly with Cubase on Windows (not every version is tested with every host)
+        - The Mac and Linux binaries are not tested (only validated by GitHub Actions)
+    - Or build from the source (see "How to Build")
 
 
 ## Features
@@ -44,6 +54,9 @@ PRA32-U2 Native: a software synthesizer (VST3 plugin and standalone application)
     - The control numbers are the base of the compatibility, the same as PRA32-U2 (and PRA32-U2 Editor)
         - The parameter numbers (indices, and the VST3 parameter IDs) are the same as the control numbers (CC#0-127)
         - The plugin state (the host's project, and the Standalone's settings) stores the values by the control numbers
+          (and the version of PRA32-U2 Native that stored it)
+        - The parameters not in the plugin state (e.g. added in a later version) are set to the values of "#23 Initial",
+          as in PRA32-U2 Editor
         - The control numbers that are not the sound parameters have the parameters named "---" (e.g. "CC#1 ---"),
           which do nothing and cannot be automated (these controls work by MIDI, e.g. CC#1 Modulation)
         - The hosts list the parameters in the order of the control numbers;
@@ -67,6 +80,7 @@ PRA32-U2 Native: a software synthesizer (VST3 plugin and standalone application)
 - Connect "pra32-u2-editor.html" to PRA32-U2 Native with a virtual MIDI cable
     - On Windows, [loopMIDI](https://www.tobias-erichsen.de/software/loopmidi.html) is recommended
     - On Mac, a virtual MIDI bus (port) can be created by using the IAC bus
+    - On Linux, "Midi Through Port-0" (ALSA) can be used (if it is not found, run `sudo modprobe snd-seq-dummy`)
 - Standalone: select the virtual MIDI cable as the MIDI input in "Options" > "Audio/MIDI Settings..."
 - VST3: route the virtual MIDI cable to the track of PRA32-U2 Native in the host
 
@@ -106,7 +120,7 @@ cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
 cmake --build build
 ```
 
-- The outputs are in "build/PRA32_U2_Native_artefacts/Release/" ("VST3/PRA32-U2 Native.vst3" and "Standalone/")
+- The outputs are in "build/PRA32_U2_Native_artefacts/Release/" ("VST3/PRA32-U2 Native.vst3", "Standalone/", and "AU/" on Mac)
 - The source files
     - "Source/PRA32U2Engine.cpp": the only file that includes the PRA32-U2 core
     - "Source/PRA32U2NativeCompat.h": the compatibility definitions for PCs

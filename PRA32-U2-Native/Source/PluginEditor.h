@@ -28,13 +28,39 @@ public:
 private:
   class ParameterRow;
 
-  // The same as JUCE's default look and feel, except that the value texts of the sliders are left-justified
+  // The same as JUCE's default look and feel, except that the value texts of the sliders are left-justified,
+  // with the font of the rows
   class LookAndFeel : public juce::LookAndFeel_V4 {
   public:
+    static constexpr float ROW_FONT_HEIGHT = 14.0f;  // 15 in JUCE's Label; a little smaller, for the lower rows
+
     juce::Label* createSliderTextBox(juce::Slider& slider) override {
       auto* label = juce::LookAndFeel_V4::createSliderTextBox(slider);
       label->setJustificationType(juce::Justification::centredLeft);
+      label->setFont(juce::FontOptions(ROW_FONT_HEIGHT));
       return label;
+    }
+  };
+
+  // The same as juce::Viewport, except that the vertical scroll bar leaves a margin at the bottom for the corner resizer
+  class Viewport : public juce::Viewport {
+  public:
+    static constexpr int BOTTOM_MARGIN = 18;  // The size of the corner resizer of juce::AudioProcessorEditor
+
+    void resized() override {
+      juce::Viewport::resized();
+      trimScrollBar();
+    }
+
+    // juce::Viewport sets the bounds of the scroll bar before calling this (e.g. when scrolled)
+    void visibleAreaChanged(const juce::Rectangle<int>&) override {
+      trimScrollBar();
+    }
+
+  private:
+    void trimScrollBar() {
+      auto& scrollBar = getVerticalScrollBar();
+      scrollBar.setBounds(scrollBar.getX(), 0, scrollBar.getWidth(), juce::jmax(0, getHeight() - BOTTOM_MARGIN));
     }
   };
 
@@ -48,7 +74,7 @@ private:
   juce::TextButton                            m_programChangeButton;
   juce::TextButton                            m_randomizeSynthButton;
   juce::TextButton                            m_randomizeFxButton;
-  juce::Viewport                              m_viewport;
+  Viewport                                    m_viewport;
   juce::Component                             m_content;
   std::vector<std::unique_ptr<ParameterRow>>  m_rows;
 
