@@ -1244,6 +1244,24 @@ INLINE void PRA32_U2_ControlPanel_update_analog_inputs(uint32_t loop_counter) {
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 }
 
+INLINE uint32_t PRA32_U2_ControlPanel_debounce_key(uint32_t pin, uint32_t current_value, uint32_t& stable_counter) {
+  uint32_t value = digitalRead(pin) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
+
+  // Accept a new level only after it has been read continuously for PRA32_U2_KEY_STABLE_WAIT times
+  if (value == current_value) {
+    stable_counter = 0;
+    return current_value;
+  }
+
+  ++stable_counter;
+  if (stable_counter < PRA32_U2_KEY_STABLE_WAIT) {
+    return current_value;
+  }
+
+  stable_counter = 0;
+  return value;
+}
+
 INLINE void PRA32_U2_ControlPanel_update_control() {
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
   static uint32_t s_initialize_counter = 0;
@@ -1278,12 +1296,19 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
   static uint32_t s_prog_minus_key_long_pressed = false;
   static uint32_t s_prog_plus_key_long_pressed  = false;
 
+  static uint32_t s_prev_key_stable_counter = 0;
+  static uint32_t s_next_key_stable_counter = 0;
+  static uint32_t s_play_key_stable_counter = 0;
+
+  static uint32_t s_prog_minus_key_stable_counter = 0;
+  static uint32_t s_prog_plus_key_stable_counter  = 0;
+
   static uint32_t s_key_inpuy_counter = 0;
   ++s_key_inpuy_counter;
 
 #if defined(PRA32_U2_KEY_INPUT_PREV_KEY_PIN)
   if (s_key_inpuy_counter - s_prev_key_value_changed_time >= PRA32_U2_KEY_ANTI_CHATTERING_WAIT) {
-    uint32_t value = digitalRead(PRA32_U2_KEY_INPUT_PREV_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
+    uint32_t value = PRA32_U2_ControlPanel_debounce_key(PRA32_U2_KEY_INPUT_PREV_KEY_PIN, s_prev_key_current_value, s_prev_key_stable_counter);
 
     if (s_prev_key_current_value != value) {
       s_prev_key_current_value = value;
@@ -1368,7 +1393,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
 
 #if defined(PRA32_U2_KEY_INPUT_NEXT_KEY_PIN)
   if (s_key_inpuy_counter - s_next_key_value_changed_time >= PRA32_U2_KEY_ANTI_CHATTERING_WAIT) {
-    uint32_t value = digitalRead(PRA32_U2_KEY_INPUT_NEXT_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
+    uint32_t value = PRA32_U2_ControlPanel_debounce_key(PRA32_U2_KEY_INPUT_NEXT_KEY_PIN, s_next_key_current_value, s_next_key_stable_counter);
 
     if (s_next_key_current_value != value) {
       s_next_key_current_value = value;
@@ -1453,7 +1478,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
 
 #if defined(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN)
   if (s_key_inpuy_counter - s_play_key_value_changed_time >= PRA32_U2_KEY_ANTI_CHATTERING_WAIT) {
-    uint32_t value = digitalRead(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
+    uint32_t value = PRA32_U2_ControlPanel_debounce_key(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN, s_play_key_current_value, s_play_key_stable_counter);
 
     if (s_play_key_current_value != value) {
       s_play_key_current_value = value;
@@ -1489,7 +1514,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
 
 #if defined(PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN)
   if (s_key_inpuy_counter - s_prog_minus_key_value_changed_time >= PRA32_U2_KEY_ANTI_CHATTERING_WAIT) {
-    uint32_t value = digitalRead(PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
+    uint32_t value = PRA32_U2_ControlPanel_debounce_key(PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN, s_prog_minus_key_current_value, s_prog_minus_key_stable_counter);
     if (s_prog_minus_key_current_value != value) {
       s_prog_minus_key_current_value = value;
       s_prog_minus_key_value_changed_time = s_key_inpuy_counter;
@@ -1533,7 +1558,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
 
 #if defined(PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN)
   if (s_key_inpuy_counter - s_prog_plus_key_value_changed_time >= PRA32_U2_KEY_ANTI_CHATTERING_WAIT) {
-    uint32_t value = digitalRead(PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
+    uint32_t value = PRA32_U2_ControlPanel_debounce_key(PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN, s_prog_plus_key_current_value, s_prog_plus_key_stable_counter);
     if (s_prog_plus_key_current_value != value) {
       s_prog_plus_key_current_value = value;
       s_prog_plus_key_value_changed_time = s_key_inpuy_counter;
