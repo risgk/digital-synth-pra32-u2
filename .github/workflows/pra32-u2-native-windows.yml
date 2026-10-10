@@ -1,4 +1,4 @@
-# PRA32-U2 Build: the UF2 files ("bin/") and PRA32-U2 Native (Experimental) for Windows ("PRA32-U2-Native/bin/")
+# PRA32-U2 Build: the UF2 files ("bin/") and PRA32-U2 Native for Windows ("PRA32-U2-Native/bin/")
 # - UF2: built with arduino-cli (Ubuntu), the same as the Arduino IDE builds (see README.md)
 # - PRA32-U2 Native: built with Visual Studio 2022 (Windows) and validated with pluginval (see PRA32-U2-Native/README.md)
 # (The file name is kept, because the "Run workflow" button needs this file on the default branch)

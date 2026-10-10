@@ -1,4 +1,4 @@
-# PRA32-U2 Native v3.10.0 (Experimental)
+# PRA32-U2 Native v3.10.0
 
 - 2026-10-10 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
@@ -6,13 +6,15 @@
 PRA32-U2 Native: a software synthesizer (VST3 plugin and standalone application) version of Digital Synth PRA32-U2
 
 - PRA32-U2 for PCs: a VST3 plugin and a standalone application, built with [JUCE](https://juce.com)
-- **Experimental**: the features and the behaviors may change, and there may be bugs
+- PRA32-U2 (the hardware) is the main, and PRA32-U2 Native follows it, so the sound may change in later versions
+    - The changes of the sound are noted in "PRA32-U2-Change-History.md" of PRA32-U2 as far as possible
 - The signal processing is the same as PRA32-U2 (Digital-Synth-PRA32-U2/*.h are used as they are)
 - Version: the same as PRA32-U2 (`PRA32_U2_VERSION` in "Digital-Synth-PRA32-U2.ino"), shown at the top of the editor
 - Binaries: Windows (x64) only, VST3 and Standalone: "bin/PRA32-U2-Native-v*-Windows-x64.zip"
     - Not signed, so Windows SmartScreen may warn
     - Built and validated (pluginval) by GitHub Actions ("PRA32-U2 Build (UF2 and Native)" in ".github/workflows/pra32-u2-native-windows.yml")
-    - On Mac and Linux, build from the source (see "How to Build")
+    - Developed mainly with Cubase on Windows (not every version is tested with every host)
+    - On Mac and Linux, build from the source (see "How to Build"); not tested
 
 
 ## Features
@@ -44,6 +46,9 @@ PRA32-U2 Native: a software synthesizer (VST3 plugin and standalone application)
     - The control numbers are the base of the compatibility, the same as PRA32-U2 (and PRA32-U2 Editor)
         - The parameter numbers (indices, and the VST3 parameter IDs) are the same as the control numbers (CC#0-127)
         - The plugin state (the host's project, and the Standalone's settings) stores the values by the control numbers
+          (and the version of PRA32-U2 Native that stored it)
+        - The parameters not in the plugin state (e.g. added in a later version) are set to the values of "#23 Initial",
+          as in PRA32-U2 Editor
         - The control numbers that are not the sound parameters have the parameters named "---" (e.g. "CC#1 ---"),
           which do nothing and cannot be automated (these controls work by MIDI, e.g. CC#1 Modulation)
         - The hosts list the parameters in the order of the control numbers;
