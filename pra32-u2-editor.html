@@ -180,7 +180,7 @@ button {
 .misc-group > span:first-child {
   line-height: 21px;  /* the height of a button: the label at the first line of the buttons */
 }
-/* The labels of Misc and File as wide as those of the program buttons, so that the buttons start at the same column */
+/* The labels of Actions and File as wide as those of the program buttons, so that the buttons start at the same column */
 .misc-group > span:first-child {
   min-width: 100px;
 }
@@ -888,11 +888,11 @@ window.onload = function() {
     document.fonts.ready.then(fitLayout);
   }
   window.addEventListener("resize", fitLayout);
-  // Details is hidden by default, and shown or hidden as the last time (as the keyboard)
-  var progDetails = document.getElementById("progDetails");
-  progDetails.open = (localStorage.getItem("keyDetailsOpen") == "1");
-  progDetails.addEventListener("toggle", function() {
-    localStorage.setItem("keyDetailsOpen", progDetails.open ? "1" : "0");
+  // User Preset is hidden by default, and shown or hidden as the last time (as the keyboard)
+  var userPresetDetails = document.getElementById("userPresetDetails");
+  userPresetDetails.open = (localStorage.getItem("keyUserPresetOpen") == "1");
+  userPresetDetails.addEventListener("toggle", function() {
+    localStorage.setItem("keyUserPresetOpen", userPresetDetails.open ? "1" : "0");
   });
   document.querySelectorAll("details").forEach(function(details) {
     details.addEventListener("toggle", fitLayout);
@@ -2164,7 +2164,7 @@ function getStoredCCValueString(index, number) {
 </div>
 
 <div class="section misc">
-<div class="misc-group"><span>Misc</span><div class="misc-buttons">
+<div class="misc-group"><span>Actions</span><div class="misc-buttons">
 <button type="button" onclick="sendCurrentParameters()">Send Current</button>
 <button type="button" onclick="panic()">Panic</button>
 <button type="button" onclick="setRandom()">Randomize Synth <span class="cc">PC#127</span></button>
@@ -2200,8 +2200,8 @@ function getStoredCCValueString(index, number) {
 </div>
 </div>
 
-<details class="section" id="progDetails">
-<summary>Details</summary>
+<details class="section" id="userPresetDetails">
+<summary>User Preset</summary>
 <div class="section misc">
 <div class="misc-group"><span>File</span><div class="misc-buttons">
 <input type="file" id="fileImportAll" style="display:none" accept=".json"/>
