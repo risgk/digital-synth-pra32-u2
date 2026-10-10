@@ -195,6 +195,14 @@ button {
 details.section > summary {
   margin-bottom: 8px;
 }
+details.section:not([open]) > summary {
+  margin-bottom: 0;  /* the space below a hidden one is that between the sections */
+}
+/* A line above User Preset and the keyboard, as long as the lines of the parameters (--params-width, set by fitLayout()) */
+#userPresetDetails, #kbdDetails {
+  background: linear-gradient(#c0c0c0, #c0c0c0) left top / var(--params-width, 100%) 1px no-repeat;
+  padding-top: 7px;
+}
 /* The control numbers in the parameter names (as in PRA32-U2 Native), and the program number in "Randomize Synth",
    small and gray so as not to stand out */
 span.cc {
@@ -220,6 +228,9 @@ span.cc {
   row-gap: 0;
   padding: 6px 0;
   border-bottom: 1px solid #c0c0c0;
+}
+.param-group:last-child {
+  border-bottom: none;  /* no line at the bottom */
 }
 /* A break only in 2 or 1 column (MIDI In 1, 2 / MIDI In 3, 4) */
 .narrow-only {
@@ -375,10 +386,7 @@ span.cc {
 }
 
 /* ---- Soft keyboard (after SPMS-1 Editor): C-1 - G9 (37 keys, C3 - C6, in a 960px window), scrolled by the octave buttons or the scroll bar ---- */
-/* A line above the keyboard, as below the program buttons */
 #kbdDetails {
-  border-top: 1px solid #c0c0c0;
-  padding-top: 6px;
   margin-bottom: 14px;
 }
 /* The bar of the keyboard is the summary (a list item, not a flex box, for the marker), with the buttons on the line
@@ -1507,6 +1515,7 @@ function writeParameters(number) {
 
 // The layout measured with the fonts (their widths differ among the OSes and the Web browsers)
 function fitLayout() {
+  document.querySelector(".app").style.setProperty("--params-width", document.querySelector(".params").offsetWidth + "px");
   kbdFitScale();
   fitParamNames();
   fitButtons();
