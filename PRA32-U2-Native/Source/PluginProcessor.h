@@ -89,6 +89,9 @@ private:
   std::vector<int>                         m_synthValues;  // The last values of the synth
   std::vector<int>                         m_knownValues;  // The values the synth has (or will have)
 
+  // The values of the Preset "#23 Initial", for the parameters not in a state (e.g. added in a later version)
+  std::vector<int>                         m_initialValues;
+
   // The values changed by the synth, to be set to the parameters on the message thread (-1: none)
   std::unique_ptr<std::atomic<int>[]>      m_pendingValues;
 

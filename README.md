@@ -1,4 +1,4 @@
-# Digital Synth PRA32-U2 v3.10.0
+# Digital Synth PRA32-U2 v3.11.0
 
 - 2026-10-10 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
@@ -17,7 +17,8 @@
 - Optional
     - **[PRA32-U2/M](#pra32-u2m-pra32-u2-multi-timbre-edition-optional)** (PRA32-U2 Multi-Timbre Edition) can also be configured
     - **[PRA32-U2/P](./README-PRA32-U2-P.md)** (PRA32-U2 with Panel) and **PRA32-U2/M/P** (PRA32-U2 Multi-Timbre Edition with Panel) can also be configured by adding certain parts
-- **[PRA32-U2 Native](./PRA32-U2-Native/README.md)** (Experimental): a software synthesizer (VST3 plugin and standalone application) version of PRA32-U2 for PCs
+- **[PRA32-U2 Native](./PRA32-U2-Native/README.md)**: a software synthesizer (VST3 plugin and standalone application) version of PRA32-U2 for PCs
+- **[PRA32-U2 Web](./PRA32-U2-Web/README.md)**: a software synthesizer version of PRA32-U2 that runs in a Web browser, built into PRA32-U2 Editor
 - Prebuilt UF2 files (in the "bin" folder)
     - PRA32-U2/M (Recommended): "Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico 2 and Pimoroni Pico Audio Pack
         - A superset of PRA32-U2: the Main Synth (Basic Channel + 0) works the same as PRA32-U2, and the Sub Synths and Layering are added
@@ -276,6 +277,7 @@ flowchart LR
     - Modify `PRA32_U2_MIDI_CH` to change the MIDI Channel
 - We recommend using Google Chrome, which implements Web MIDI API
 - Select "PRA32-U2" in the list "MIDI Out"
+    - Select "PRA32-U2 Web (Built-in)" to use [PRA32-U2 Web](./PRA32-U2-Web/README.md), without PRA32-U2
 - Functions
     - PRA32-U2 Editor converts Program Changes (#0-15 for user presets, #16-31 for factory presets) into Control Changes
     - When Program Change #127 is entered or Control Change #111 is changed from Off (63 or lower) to On (64 or higher), "Random Synth" is processed
@@ -318,7 +320,10 @@ flowchart LR
 ## [PRA32-U2/P](./README-PRA32-U2-P.md) (PRA32-U2 with Panel) (Optional)
 
 
-## [PRA32-U2 Native](./PRA32-U2-Native/README.md) (Experimental)
+## [PRA32-U2 Native](./PRA32-U2-Native/README.md)
+
+
+## [PRA32-U2 Web](./PRA32-U2-Web/README.md)
 
 
 ## Simple Circuit for PWM Audio (Optional)
@@ -361,11 +366,11 @@ flowchart LR
 
 ![CC0](http://i.creativecommons.org/p/zero/1.0/88x31.png)
 
-**Digital Synth PRA32-U2 v3.10.0 by ISGK Instruments (Ryo Ishigaki)**
+**Digital Synth PRA32-U2 v3.11.0 by ISGK Instruments (Ryo Ishigaki)**
 
 To the extent possible under law, ISGK Instruments (Ryo Ishigaki)
 has waived all copyright and related or neighboring rights
-to Digital Synth PRA32-U2 v3.10.0.
+to Digital Synth PRA32-U2 v3.11.0.
 
 You should have received a copy of the CC0 legalcode along with this
 work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.

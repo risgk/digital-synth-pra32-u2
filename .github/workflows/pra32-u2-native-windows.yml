@@ -1,14 +1,17 @@
-# PRA32-U2 Build: the UF2 files ("bin/") and PRA32-U2 Native (Experimental) for Windows ("PRA32-U2-Native/bin/")
+# PRA32-U2 Build: the UF2 files ("bin/"), PRA32-U2 Native for Windows, macOS, and Linux ("PRA32-U2-Native/bin/"),
+# and PRA32-U2 Web ("pra32-u2-web-synth.js")
 # - UF2: built with arduino-cli (Ubuntu), the same as the Arduino IDE builds (see README.md)
-# - PRA32-U2 Native: built with Visual Studio 2022 (Windows) and validated with pluginval (see PRA32-U2-Native/README.md)
+# - PRA32-U2 Native: built with Visual Studio 2022 (Windows), Xcode (macOS), and GCC (Linux),
+#   and validated with pluginval (and auval for AU) (see PRA32-U2-Native/README.md)
+# - PRA32-U2 Web: built with Emscripten (Ubuntu), and tested with Node.js (see PRA32-U2-Web/README.md)
 # (The file name is kept, because the "Run workflow" button needs this file on the default branch)
-name: PRA32-U2 Build (UF2 and Native)
+name: PRA32-U2 Build (UF2, Native, and Web)
 
 on:
   workflow_dispatch:  # Manual runs only (e.g. at a release)
     inputs:
       commit_package:
-        description: 'Commit the UF2 files (bin/) and the package (zip, PRA32-U2-Native/bin/) on the selected branch'
+        description: 'Commit the UF2 files (bin/), the packages (zip, PRA32-U2-Native/bin/), and pra32-u2-web-synth.js on the selected branch'
         type: boolean
         default: false
 
@@ -20,6 +23,8 @@ env:
   ARDUINO_PICO_VERSION: '6.2.0'  # The same as "Tested with Arduino-Pico version ..." in PRA32-U2-Change-History.md
   MIDI_LIBRARY_VERSION: '5.0.2'
   ARDUINO_PICO_INDEX_URL: 'https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json'
+  EMSDK_VERSION: '6.0.12'  # Emscripten, for PRA32-U2 Web
+  EMSDK_QUIET: '1'
   UF2_FQBN: 'rp2040:rp2040:rpipico2:flash=4194304_0,freq=150,arch=arm,opt=Small,os=none,profile=Disabled,rtti=Disabled,stackprotect=Disabled,exceptions=Disabled,dbgport=Disabled,dbglvl=None,usbstack=tinyusb,ipbtstack=ipv4only,uploadmethod=default'
 
 jobs:
@@ -28,11 +33,12 @@ jobs:
     outputs:
       name: ${{ steps.build.outputs.name }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: arduino/setup-arduino-cli@v2
-        with:
-          version: ${{ env.ARDUINO_CLI_VERSION }}
+      - name: Install arduino-cli
+        run: |
+          curl -fsSL "https://downloads.arduino.cc/arduino-cli/arduino-cli_${ARDUINO_CLI_VERSION}_Linux_64bit.tar.gz" | tar -xz -C "$RUNNER_TEMP" arduino-cli
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
 
       - name: Install the core and the library
         run: |
@@ -58,17 +64,17 @@ jobs:
           arduino-cli compile --fqbn "$UF2_FQBN" --output-dir out/m work/Digital-Synth-PRA32-U2
           cp out/m/Digital-Synth-PRA32-U2.ino.uf2 uf2/Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: ${{ steps.build.outputs.name }}
           path: uf2
 
-  native:
+  native-windows:
     runs-on: windows-2022
     outputs:
       name: ${{ steps.package.outputs.name }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Configure
         run: cmake -S PRA32-U2-Native -B PRA32-U2-Native/build -G "Visual Studio 17 2022" -A x64
@@ -100,40 +106,183 @@ jobs:
           Copy-Item "PRA32-U2-Native\build\_deps\juce-src\modules\juce_audio_processors_headless\format_types\VST3_SDK\LICENSE.txt" "$out\LICENSE-VST3-SDK.txt"
           Copy-Item "PRA32-U2-Native\build\_deps\juce-src\LICENSE.md" "$out\LICENSE-JUCE.md"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: ${{ steps.package.outputs.name }}
           path: package/${{ steps.package.outputs.name }}
 
+  # PRA32-U2 Native for macOS (Universal: arm64 and x86_64, VST3, AU, and Standalone)
+  native-macos:
+    runs-on: macos-15
+    outputs:
+      name: ${{ steps.package.outputs.name }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Configure
+        run: cmake -S PRA32-U2-Native -B PRA32-U2-Native/build -G Xcode -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0
+
+      - name: Build
+        run: cmake --build PRA32-U2-Native/build --config Release --parallel -- -quiet  # Only the warnings and the errors
+
+      - name: Validate (pluginval and auval)
+        run: |
+          artefacts="PRA32-U2-Native/build/PRA32_U2_Native_artefacts/Release"
+          lipo -info "$artefacts/VST3/PRA32-U2 Native.vst3/Contents/MacOS/PRA32-U2 Native"
+          curl -sSLo pluginval.zip https://github.com/Tracktion/pluginval/releases/download/v1.0.4/pluginval_macOS.zip
+          unzip -q pluginval.zip -d pluginval
+          pluginval/pluginval.app/Contents/MacOS/pluginval --strictness-level 10 --validate "$artefacts/VST3/PRA32-U2 Native.vst3"
+
+          # AU: installed for the current user, so that auval finds it
+          mkdir -p ~/Library/Audio/Plug-Ins/Components
+          cp -R "$artefacts/AU/PRA32-U2 Native.component" ~/Library/Audio/Plug-Ins/Components/
+          killall -9 AudioComponentRegistrar || true
+          auval -v aumu P32N Isgk
+          pluginval/pluginval.app/Contents/MacOS/pluginval --strictness-level 10 --validate ~/Library/Audio/Plug-Ins/Components/"PRA32-U2 Native.component"
+
+      - name: Package (VST3, AU, and Standalone)
+        id: package
+        run: |
+          version=$(cat PRA32-U2-Native/build/pra32-u2-native-version.txt)
+          name="PRA32-U2-Native-v$version-macOS-Universal"
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+          artefacts="PRA32-U2-Native/build/PRA32_U2_Native_artefacts/Release"
+          out="package/$name"
+          mkdir -p "$out"
+          cp -R "$artefacts/VST3/PRA32-U2 Native.vst3" "$artefacts/AU/PRA32-U2 Native.component" "$artefacts/Standalone/PRA32-U2 Native.app" "$out/"
+          cp PRA32-U2-Native/README.md PRA32-U2-Native/LICENSE-AGPLv3.txt "$out/"
+          cp PRA32-U2-Native/build/_deps/juce-src/modules/juce_audio_processors_headless/format_types/VST3_SDK/LICENSE.txt "$out/LICENSE-VST3-SDK.txt"
+          cp PRA32-U2-Native/build/_deps/juce-src/LICENSE.md "$out/LICENSE-JUCE.md"
+          # Zipped here to keep the bundles (symbolic links and permissions) in the artifact
+          (cd package && ditto -c -k --keepParent "$name" "$name.zip")
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: ${{ steps.package.outputs.name }}
+          path: package/${{ steps.package.outputs.name }}.zip
+
+  # PRA32-U2 Native for Linux (x64, VST3 and Standalone)
+  native-linux:
+    runs-on: ubuntu-22.04  # The older glibc, so that the binaries run on more distributions
+    outputs:
+      name: ${{ steps.package.outputs.name }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install the dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ninja-build libasound2-dev libfreetype-dev libfontconfig1-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxcomposite-dev libxext-dev xvfb
+
+      - name: Configure
+        run: cmake -S PRA32-U2-Native -B PRA32-U2-Native/build -G Ninja -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build PRA32-U2-Native/build --parallel
+
+      - name: Validate (pluginval)
+        run: |
+          curl -sSLo pluginval.zip https://github.com/Tracktion/pluginval/releases/download/v1.0.4/pluginval_Linux.zip
+          unzip -q pluginval.zip -d pluginval
+          xvfb-run -a pluginval/pluginval --strictness-level 10 --validate "PRA32-U2-Native/build/PRA32_U2_Native_artefacts/Release/VST3/PRA32-U2 Native.vst3"
+
+      - name: Package (VST3 and Standalone)
+        id: package
+        run: |
+          version=$(cat PRA32-U2-Native/build/pra32-u2-native-version.txt)
+          name="PRA32-U2-Native-v$version-Linux-x64"
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+          artefacts="PRA32-U2-Native/build/PRA32_U2_Native_artefacts/Release"
+          out="package/$name"
+          mkdir -p "$out"
+          cp -R "$artefacts/VST3/PRA32-U2 Native.vst3" "$artefacts/Standalone/PRA32-U2 Native" "$out/"
+          cp PRA32-U2-Native/README.md PRA32-U2-Native/LICENSE-AGPLv3.txt "$out/"
+          cp PRA32-U2-Native/build/_deps/juce-src/modules/juce_audio_processors_headless/format_types/VST3_SDK/LICENSE.txt "$out/LICENSE-VST3-SDK.txt"
+          cp PRA32-U2-Native/build/_deps/juce-src/LICENSE.md "$out/LICENSE-JUCE.md"
+          # Zipped here to keep the permissions (the executable) in the artifact
+          (cd package && zip -q -r "$name.zip" "$name")
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: ${{ steps.package.outputs.name }}
+          path: package/${{ steps.package.outputs.name }}.zip
+
+  # PRA32-U2 Web ("pra32-u2-web-synth.js", for "pra32-u2-editor.html")
+  web:
+    runs-on: ubuntu-latest
+    outputs:
+      name: ${{ steps.build.outputs.name }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install Emscripten
+        run: |
+          git clone -q --depth 1 https://github.com/emscripten-core/emsdk.git "$RUNNER_TEMP/emsdk"
+          "$RUNNER_TEMP/emsdk/emsdk" install "$EMSDK_VERSION"
+          "$RUNNER_TEMP/emsdk/emsdk" activate "$EMSDK_VERSION"
+
+      - name: Build
+        id: build
+        run: |
+          source "$RUNNER_TEMP/emsdk/emsdk_env.sh"
+          version=$(sed -n 's/^#define PRA32_U2_VERSION *"v\([0-9.]*\).*/\1/p' Digital-Synth-PRA32-U2/Digital-Synth-PRA32-U2.ino)
+          echo "name=PRA32-U2-Web-v$version" >> "$GITHUB_OUTPUT"
+          (cd PRA32-U2-Web && node pra32-u2-web-build.js)
+
+      - name: Test
+        run: |
+          source "$RUNNER_TEMP/emsdk/emsdk_env.sh"
+          (cd PRA32-U2-Web && node pra32-u2-web-test.js)
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: ${{ steps.build.outputs.name }}
+          path: pra32-u2-web-synth.js
+
   commit:
     if: inputs.commit_package
-    needs: [uf2, native]
+    needs: [uf2, native-windows, native-macos, native-linux, web]
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           name: ${{ needs.uf2.outputs.name }}
           path: uf2
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
-          name: ${{ needs.native.outputs.name }}
-          path: package/${{ needs.native.outputs.name }}
+          name: ${{ needs.native-windows.outputs.name }}
+          path: package/${{ needs.native-windows.outputs.name }}
 
-      - name: Commit the UF2 files and the package
+      - uses: actions/download-artifact@v7  # Zipped by the job (the bundles of macOS)
+        with:
+          name: ${{ needs.native-macos.outputs.name }}
+          path: zip
+
+      - uses: actions/download-artifact@v7  # Zipped by the job (the permissions)
+        with:
+          name: ${{ needs.native-linux.outputs.name }}
+          path: zip
+
+      - uses: actions/download-artifact@v7
+        with:
+          name: ${{ needs.web.outputs.name }}
+          path: web
+
+      - name: Commit the UF2 files and the packages
         run: |
-          name="${{ needs.native.outputs.name }}"
+          name="${{ needs.native-windows.outputs.name }}"
           branch="${{ github.ref_name }}"
           git fetch -q origin "$branch"
 
           # Not committed if the sources were changed after this build (the binaries would be older than the sources)
-          changed=$(git diff --name-only "${{ github.sha }}" "origin/$branch" -- . ":(exclude)bin" ":(exclude)PRA32-U2-Native/bin" ":(exclude).github")
+          changed=$(git diff --name-only "${{ github.sha }}" "origin/$branch" -- . ":(exclude)bin" ":(exclude)PRA32-U2-Native/bin" ":(exclude)pra32-u2-web-synth.js" ":(exclude).github")
           if [ -n "$changed" ]; then
             echo "::warning::Not committed: the sources were changed after ${{ github.sha }} (run this workflow again)"
             echo "$changed" | sed 's/^/  /'
@@ -146,8 +295,10 @@ jobs:
           git rm -q --ignore-unmatch "PRA32-U2-Native/bin/*.zip"  # Only the latest package is kept
           mkdir -p PRA32-U2-Native/bin  # After git rm, which removes the empty folder
           (cd package && zip -q -r "../PRA32-U2-Native/bin/$name.zip" "$name")
-          git add bin "PRA32-U2-Native/bin/$name.zip"
+          cp zip/*.zip PRA32-U2-Native/bin/
+          cp web/pra32-u2-web-synth.js .
+          git add bin PRA32-U2-Native/bin pra32-u2-web-synth.js
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "Update the UF2 files and the PRA32-U2 Native package: $name" -m "Built by ${{ github.workflow }} run #${{ github.run_number }} from ${{ github.sha }}"
+          git commit -m "Update the UF2 files, the PRA32-U2 Native packages, and PRA32-U2 Web: $name, ${{ needs.native-macos.outputs.name }}, ${{ needs.native-linux.outputs.name }}, ${{ needs.web.outputs.name }}" -m "Built by ${{ github.workflow }} run #${{ github.run_number }} from ${{ github.sha }}"
           git push origin "HEAD:$branch"
