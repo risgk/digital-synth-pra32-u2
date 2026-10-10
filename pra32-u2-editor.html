@@ -63,8 +63,8 @@ td.sp-4 {
 }
 /* Buttons fill their column, so the gaps between them are the same in all rows
    (a column is as wide as its widest button, e.g. "#23 Initial" above "#19 Plain Poly"). */
-table.section:not(.param-grid) td > input[type="button"],
-table.section:not(.param-grid) td > button {
+table.section:not(.param-grid):not(.keyboard-head) td > input[type="button"],
+table.section:not(.param-grid):not(.keyboard-head) td > button {
   width: 100%;
   text-align: left;
 }
@@ -148,6 +148,16 @@ td.keyh {
   width: 28px;
   height: 63px;
   border: 1px solid transparent;
+}
+/* As wide as the Software Keyboard (up to the screen width), so that the
+   Panic button is at the upper right of the keyboard. */
+table.keyboard-head {
+  width: 100%;
+  max-width: 917px;
+}
+td.keyboard-head-right {
+  width: 100%;
+  text-align: right;
 }
 .keyboard-scroll {
   overflow-x: auto;
@@ -1167,15 +1177,17 @@ function writeParameters(number) {
 }
 
 function noteOn(noteNumber) {
-  if (midiOutput) {
-    midiOutput.send([(NOTE_ON | midi_ch), noteNumber + transpose, NOTE_ON_VELOCITY]);
+  var transposedNoteNumber = noteNumber + transpose;
+  if (midiOutput && (transposedNoteNumber >= 0) && (transposedNoteNumber <= 127)) {
+    midiOutput.send([(NOTE_ON | midi_ch), transposedNoteNumber, NOTE_ON_VELOCITY]);
     sleep(2);
   }
 }
 
 function noteOff(noteNumber) {
-  if (midiOutput) {
-    midiOutput.send([(NOTE_OFF | midi_ch), noteNumber + transpose, NOTE_OFF_VELOCITY]);
+  var transposedNoteNumber = noteNumber + transpose;
+  if (midiOutput && (transposedNoteNumber >= 0) && (transposedNoteNumber <= 127)) {
+    midiOutput.send([(NOTE_OFF | midi_ch), transposedNoteNumber, NOTE_OFF_VELOCITY]);
     sleep(2);
   }
 }
@@ -1978,11 +1990,12 @@ function getStoredCCValueString(index, number) {
 </tr>
 </table>
 
-<table class="section">
-<tr><td colspan="3">Software Kbd Transpose</td>
+<table class="section keyboard-head">
+<tr><td colspan="3">Software Keyboard Transpose</td>
     </tr>
 <tr><td><input id="inputTranspose" type="range" list="skt" min="-48" max="60" step="12" oninput="onChangeTranspose(value)" ></td>
-    <td><span id="spanTranspose" >-</span></td></tr>
+    <td><span id="spanTranspose" >-</span></td>
+    <td class="keyboard-head-right"><input type="button" value="Panic" onclick="panic()"></td></tr>
 </table>
 
 <div class="keyboard-scroll">
