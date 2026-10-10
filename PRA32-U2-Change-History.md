@@ -1,5 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v3.11.1 (2026-??-??):
+    - Tested with Arduino-Pico version 6.2.0
 - v3.11.0 (2026-10-10):
     - Rename the Preset "#19 Simple" to "#19 Plain Poly", to show that it is a Poly Preset (as "#23 Initial" is a Mono Preset)
     - Add the missing `template` keywords to the calls of `PRA32_U2_Filter::process_at_low_rate()`, for Apple Clang (Xcode 15) (no change in the sound)
