@@ -9,6 +9,8 @@
         - User Preset and the Software Keyboard are shown or hidden as the last time
     - PRA32-U2 Editor: Change the Software Keyboard to a new one, above the parameters
         - All the notes (0-127) with its own scroll bar; 37 keys (C3 - C6) in a 960 px window; as large as the text
+        - The 12 semitones at equal intervals in the upper half (the black keys as long as the upper half), and the white keys only in the lower half (C - E as wide as 5 / 3 semitones, and F - B 7 / 4, as in a piano)
+        - Gliding over the keys, as legato (the Note On of the new key before the Note Off of the old key)
         - The Panic button at the upper right
         - Can be hidden (shown by default)
     - Tested with Arduino-Pico version 6.2.0
