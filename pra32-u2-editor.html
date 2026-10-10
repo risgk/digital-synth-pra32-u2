@@ -39,8 +39,10 @@ body {
 .app {
   container-type: inline-size;
 }
+/* The spaces between the sections short (only to show that they are separate),
+   as those between the groups and the banks of the program buttons (8px) */
 .section {
-  margin-bottom: 14px;
+  margin-bottom: 8px;
 }
 
 /* ---- Header ---- */
@@ -60,6 +62,8 @@ body {
   flex-wrap: wrap;
   column-gap: 16px;
   align-items: center;
+  margin-top: -2px;     /* minus the margins of the items, so that the spaces are 8px */
+  margin-bottom: 6px;
 }
 .midi-item {
   margin: 2px 0;  /* the space between the lines (not row-gap, which an empty line of a break would double) */
@@ -74,7 +78,7 @@ body {
   max-width: 100%;
   text-overflow: ellipsis;
 }
-/* A line break in a flex container (MIDI Ch / MIDI In / MIDI Out, and Misc / File in 2 or 1 column) */
+/* A line break in a flex container (MIDI Ch / MIDI In / MIDI Out, and Recall / Store and Program Change / Write in 2 or 1 column) */
 .midi-break, .line-break, .bank-break {
   flex-basis: 100%;
   height: 0;
@@ -168,9 +172,6 @@ button {
   column-gap: 32px;
 }
 .misc-group {
-  margin: 4px 0;  /* the space between the lines (not row-gap, which an empty line of a break would double) */
-}
-.misc-group {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
@@ -179,10 +180,9 @@ button {
 .misc-group > span:first-child {
   line-height: 21px;  /* the height of a button: the label at the first line of the buttons */
 }
-/* The label of Misc (and File in 2 or 1 column) as wide as those of the program buttons,
-   so that the buttons start at the same column */
+/* The labels of Misc and File as wide as those of the program buttons, so that the buttons start at the same column */
 .misc-group > span:first-child {
-  min-width: 28px;
+  min-width: 100px;
 }
 /* The buttons wrap under the first button (e.g. "Randomize FX" under "Send Current"), not under the label */
 .misc-buttons {
@@ -192,11 +192,8 @@ button {
   flex: 1 1 0;
   min-width: 0;
 }
-.misc-group:first-child > span:first-child {
-  min-width: 100px;
-}
 details.section > summary {
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 /* The control numbers in the parameter names (as in PRA32-U2 Native), and the program number in "Randomize Synth",
    small and gray so as not to stand out */
@@ -234,9 +231,6 @@ span.cc {
   }
   .narrow-only {
     display: block;
-  }
-  .misc-group > span:first-child {
-    min-width: 100px;
   }
   /* The banks of Factory Preset (#16-23 / #24-31) in 2 lines, by the break between them */
   .banks.split-2 {
@@ -381,19 +375,32 @@ span.cc {
 }
 
 /* ---- Soft keyboard (after SPMS-1 Editor): C-1 - G9 (37 keys, C3 - C6, in a 960px window), scrolled by the octave buttons or the scroll bar ---- */
-.kbd-bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px 8px;
-  margin-bottom: 6px;
+/* A line above the keyboard, as below the program buttons */
+#kbdDetails {
+  border-top: 1px solid #c0c0c0;
+  padding-top: 6px;
+  margin-bottom: 14px;
 }
+/* The bar of the keyboard is the summary (a list item, not a flex box, for the marker), with the buttons on the line
+   of the label. The buttons are hidden while the keyboard is hidden */
 .kbd-bar button {
   min-width: 32px;
+  margin-left: 4px;
+}
+.kbd-bar #spanKbdLabel {
+  margin-right: 4px;
+}
+#kbdDetails:not([open]) .kbd-bar button {
+  display: none;
 }
 /* Panic at the upper right of the keyboard (as in PRA32-U2 Editor) */
 .kbd-bar .kbd-panic {
-  margin-left: auto;
+  float: right;
+}
+.kbd-bar::after {
+  content: "";
+  display: block;
+  clear: both;
 }
 /* The sizes of the keys: times the scale of the text (--kbd-scale, set by kbdFitScale()) */
 .keyboard-frame {
@@ -881,7 +888,15 @@ window.onload = function() {
     document.fonts.ready.then(fitLayout);
   }
   window.addEventListener("resize", fitLayout);
-  document.querySelector("details").addEventListener("toggle", fitLayout);
+  // Details is hidden by default, and shown or hidden as the last time (as the keyboard)
+  var progDetails = document.getElementById("progDetails");
+  progDetails.open = (localStorage.getItem("keyDetailsOpen") == "1");
+  progDetails.addEventListener("toggle", function() {
+    localStorage.setItem("keyDetailsOpen", progDetails.open ? "1" : "0");
+  });
+  document.querySelectorAll("details").forEach(function(details) {
+    details.addEventListener("toggle", fitLayout);
+  });
 
   document.getElementById("fileImportAll").addEventListener("change", fileImportAllChange, false);
   document.getElementById("fileImportCurrent").addEventListener("change", fileImportCurrentChange, false);
@@ -1708,7 +1723,15 @@ function createKeyboard() {
     kbdRelease(event.pointerId);
     kbdPress(event.pointerId, note);
   });
-  kb.addEventListener("pointerleave", function(event) { kbdRelease(event.pointerId); });
+  // A mouse that leaves the keyboard while pressed: the note stays on (no Note Off when the button is released),
+  // as in the keyboard before, so that a note can be held (Panic turns it off). A touch that leaves it: Note Off
+  kb.addEventListener("pointerleave", function(event) {
+    if (event.pointerType == "mouse") {
+      kbdPointers.delete(event.pointerId);
+    } else {
+      kbdRelease(event.pointerId);
+    }
+  });
   window.addEventListener("pointerup", function(event) { kbdRelease(event.pointerId); });
   window.addEventListener("pointercancel", function(event) { kbdRelease(event.pointerId); });
   window.addEventListener("blur", function() {
@@ -1773,6 +1796,28 @@ function createKeyboard() {
   if (window.ResizeObserver) {
     new ResizeObserver(function() { kbdFitScale(); }).observe(document.getElementById("spanKbdLabel"));
   }
+
+  // The keyboard is shown by default, and shown or hidden as the last time. It cannot be scrolled while hidden,
+  // so the position of the last time is set when it is shown
+  var details = document.getElementById("kbdDetails");
+  details.open = (localStorage.getItem("keyKbdOpen") != "0");
+  // The buttons on the summary do not show or hide the keyboard
+  details.querySelector("summary").addEventListener("click", function(event) {
+    if (event.target.closest("button")) {
+      event.preventDefault();
+    }
+  });
+  details.addEventListener("toggle", function() {
+    localStorage.setItem("keyKbdOpen", details.open ? "1" : "0");
+    if (details.open) {
+      kbdFitScale();
+      var center = parseFloat(localStorage.getItem("keyKbdCenter37"));
+      if (!isNaN(center)) {
+        kbdSetCenter(center);
+      }
+      kbdUpdateScrollbar();
+    }
+  });
 }
 
 // The keyboard as large as the text: the scale of the text is measured as the width of a text in the page
@@ -1852,8 +1897,9 @@ function kbdScrollToTranspose() {
     return;
   }
   var note = Math.max(KBD_NOTE_MIN, Math.min(KBD_NOTE_MAX, KBD_CENTER_NOTE + transpose));
-  kbdSetCenter(kbdWhiteIndex(note) + KBD_CENTER_OFFSET);
-  localStorage.setItem("keyKbdCenter37", kbdGetCenter().toFixed(2));
+  var center = kbdWhiteIndex(note) + KBD_CENTER_OFFSET;
+  kbdSetCenter(center);
+  localStorage.setItem("keyKbdCenter37", center.toFixed(2));  // not measured, as the keyboard may be hidden
 }
 
 // An octave from the current position (also after the scroll bar), with the center of 37 keys from a C:
@@ -2117,6 +2163,14 @@ function getStoredCCValueString(index, number) {
 <select id="selectOutputPort" size="1" onchange="onChangeOutputPort(); savePortSelection('selectOutputPort', midiOutputs)"></select></div>
 </div>
 
+<div class="section misc">
+<div class="misc-group"><span>Misc</span><div class="misc-buttons">
+<button type="button" onclick="sendCurrentParameters()">Send Current</button>
+<button type="button" onclick="panic()">Panic</button>
+<button type="button" onclick="setRandom()">Randomize Synth <span class="cc">PC#127</span></button>
+<button type="button" onclick="setRandomChorus()">Randomize FX</button></div></div>
+</div>
+
 <div class="section prog-row">
 <div class="prog-group">
 <div class="prog-label "><span>Factory Preset</span> <span>(from Browser)</span></div>
@@ -2146,13 +2200,9 @@ function getStoredCCValueString(index, number) {
 </div>
 </div>
 
+<details class="section" id="progDetails">
+<summary>Details</summary>
 <div class="section misc">
-<div class="misc-group"><span>Misc</span><div class="misc-buttons">
-<button type="button" onclick="sendCurrentParameters()">Send Current</button>
-<button type="button" onclick="panic()">Panic</button>
-<button type="button" onclick="setRandom()">Randomize Synth <span class="cc">PC#127</span></button>
-<button type="button" onclick="setRandomChorus()">Randomize FX</button></div></div>
-<div class="line-break narrow-only"></div>
 <div class="misc-group"><span>File</span><div class="misc-buttons">
 <input type="file" id="fileImportAll" style="display:none" accept=".json"/>
 <button type="button" onclick="fileImportAll()">Import All</button>
@@ -2217,8 +2267,6 @@ function getStoredCCValueString(index, number) {
 </div>
 </div>
 
-<details class="section">
-<summary><span style="color:green">Details</span></summary>
 <div class="prog-row">
 <div class="prog-group">
 <div class="prog-label lbl-green" style="color:green"><span>Program Change</span> <span>(to PRA32-U2)</span></div>
@@ -2273,6 +2321,20 @@ function getStoredCCValueString(index, number) {
 </div>
 </div>
 </div>
+</div>
+</details>
+
+<details class="section" id="kbdDetails" open>
+<summary class="kbd-bar"><span id="spanKbdLabel">Software Keyboard</span>
+<button type="button" onclick="kbdShiftOctave(-1)" title="Octave Down">&#9664;</button>
+<button type="button" onclick="kbdShiftOctave(1)" title="Octave Up">&#9654;</button>
+<button type="button" class="kbd-panic" onclick="panic()">Panic</button>
+</summary>
+<div class="keyboard-frame">
+<div class="keyboard-scroll" id="kbdScroll">
+<div class="keyboard" id="keyboard"></div>
+</div>
+<div class="kbd-scrollbar" id="kbdScrollbar"><div class="kbd-scrollbar-thumb" id="kbdScrollbarThumb"></div></div>
 </div>
 </details>
 
@@ -2522,21 +2584,6 @@ function getStoredCCValueString(index, number) {
   <div class="param-name"><b>Delay</b> Feedback <span class="cc">CC#92</span></div>
   <div class="param-ctrl"><input  id="inputDELAY_FEEDBACK "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(DELAY_FEEDBACK , value)"><span    id="spanDELAY_FEEDBACK " >-</span><span   id="span2DELAY_FEEDBACK " >-</span></div>
 </div>
-</div>
-</div>
-
-<div class="section">
-<div class="kbd-bar">
-<span id="spanKbdLabel">Software Keyboard</span>
-<button type="button" onclick="kbdShiftOctave(-1)" title="Octave Down">&#9664;</button>
-<button type="button" onclick="kbdShiftOctave(1)" title="Octave Up">&#9654;</button>
-<button type="button" class="kbd-panic" onclick="panic()">Panic</button>
-</div>
-<div class="keyboard-frame">
-<div class="keyboard-scroll" id="kbdScroll">
-<div class="keyboard" id="keyboard"></div>
-</div>
-<div class="kbd-scrollbar" id="kbdScrollbar"><div class="kbd-scrollbar-thumb" id="kbdScrollbarThumb"></div></div>
 </div>
 </div>
 
