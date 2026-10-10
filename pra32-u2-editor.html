@@ -1021,7 +1021,7 @@ function updateDisplayOfControl(number, value) {
     break;
   case DELAY_MODE      :
     {
-      var ary = ["S","P","R"];
+      var ary = ["Ste","PP","Rev"];
       var index = ((value * 4) + 128) >> 8;
       dispValue = ary[index];
     }
@@ -1952,7 +1952,7 @@ function getStoredCCValueString(index, number) {
 </tr>
 <tr>
 <td colspan="3"><b>Delay</b> Level <span class="cc">CC#94</span>                      </td>
-<td colspan="3"><b>Delay</b> Mode [S|P|R] <span class="cc">CC#35</span>               </td>
+<td colspan="3"><b>Delay</b> Mode [Ste|PP|Rev] <span class="cc">CC#35</span>          </td>
 <td colspan="3"><b>Delay</b> Time <span class="cc">CC#90</span>                       </td>
 <td colspan="3"><b>Delay</b> Feedback <span class="cc">CC#92</span>                   </td>
 </tr>
