@@ -11,6 +11,7 @@
     - PRA32-U2 Native: Change the plugin state to store the version of PRA32-U2 Native, and the parameters not in the plugin state (e.g. added in a later version) to be set to the values of "#23 Initial" (as in PRA32-U2 Editor)
     - PRA32-U2 Native: No longer Experimental (developed mainly with Cubase on Windows)
     - PRA32-U2 Native: Add the binaries for Mac (macOS 11 or later, Universal, VST3, AU, and Standalone; not notarized) and Linux (x64, VST3 and Standalone), built and validated by GitHub Actions (not tested)
+    - PRA32-U2 Web (Experimental): Add a software synthesizer version of PRA32-U2 that runs in a Web browser, built into PRA32-U2 Editor ("PRA32-U2 Web (Built-in)" in "MIDI Out")
     - Tested with Arduino-Pico version 6.2.0
 - v3.10.0 (2026-10-10):
     - Change the output level to 0.75 times (-2.5 dB, in the Output Limiter), so that the Presets are rarely limited by the Output Limiter
