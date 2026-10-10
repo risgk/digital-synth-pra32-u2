@@ -2,13 +2,15 @@
 
 - v3.11.0 (2026-??-??):
     - Rename the Preset "#19 Simple" to "#19 Plain Poly", to show that it is a Poly Preset (as "#23 Initial" is a Mono Preset)
+    - Add the missing `template` keywords to the calls of `PRA32_U2_Filter::process_at_low_rate()`, for Apple Clang (Xcode 15) (no change in the sound)
     - PRA32-U2/P: Add the Preset names to "Read Program 16-31" (e.g. "Read #16" "Synth Pad"), and "User" to "Read/Write Program 0-15" (e.g. "Read #0" "User")
     - PRA32-U2/P: Improve the anti-chattering of the keys (a press is accepted after it continues for about 20 ms, `PRA32_U2_KEY_PRESS_STABLE_WAIT`, and a release for about 40 ms, `PRA32_U2_KEY_RELEASE_STABLE_WAIT`; `PRA32_U2_KEY_ANTI_CHATTERING_WAIT` is removed), so that one press of a key with a long bounce does not step twice, a short open while holding a key is not taken as a short press, and fast repeated presses are not missed
     - PRA32-U2 Native: Change the rows of the editor to be lower (from 32 px to 30 px), with a smaller font (from 15 px to 14 px), so that the editor (20 rows) fits in a 720 px high screen
     - PRA32-U2 Native: Change the height of the editor to be resizable with the corner resizer (from 4 rows to all the rows; the width is fixed)
         - The scroll bar is thicker (from 8 px to 16 px), with margins below it (for the corner resizer) and right of it (for the resize border of the Standalone)
     - PRA32-U2 Native: Change the plugin state to store the version of PRA32-U2 Native, and the parameters not in the plugin state (e.g. added in a later version) to be set to the values of "#23 Initial" (as in PRA32-U2 Editor)
-    - PRA32-U2 Native: No longer Experimental (developed mainly with Cubase on Windows; on Mac and Linux, build from the source, not tested)
+    - PRA32-U2 Native: No longer Experimental (developed mainly with Cubase on Windows)
+    - PRA32-U2 Native: Add the binaries for Mac (macOS 11 or later, Universal, VST3, AU, and Standalone; not notarized) and Linux (x64, VST3 and Standalone), built and validated by GitHub Actions (not tested)
     - Tested with Arduino-Pico version 6.2.0
 - v3.10.0 (2026-10-10):
     - Change the output level to 0.75 times (-2.5 dB, in the Output Limiter), so that the Presets are rarely limited by the Output Limiter
