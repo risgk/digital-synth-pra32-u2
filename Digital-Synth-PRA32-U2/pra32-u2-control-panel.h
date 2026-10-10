@@ -1309,76 +1309,18 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
   ++s_key_inpuy_counter;
 
 #if defined(PRA32_U2_KEY_INPUT_PREV_KEY_PIN)
-  if (s_key_inpuy_counter - s_prev_key_value_changed_time >= PRA32_U2_KEY_ANTI_CHATTERING_WAIT) {
-    uint32_t value = PRA32_U2_ControlPanel_debounce_key(PRA32_U2_KEY_INPUT_PREV_KEY_PIN, s_prev_key_current_value, s_prev_key_stable_counter);
+  uint32_t prev_key_value = PRA32_U2_ControlPanel_debounce_key(PRA32_U2_KEY_INPUT_PREV_KEY_PIN, s_prev_key_current_value, s_prev_key_stable_counter);
 
-    if (s_prev_key_current_value != value) {
-      s_prev_key_current_value = value;
-      s_prev_key_value_changed_time = s_key_inpuy_counter;
+  if (s_prev_key_current_value != prev_key_value) {
+    s_prev_key_current_value = prev_key_value;
+    s_prev_key_value_changed_time = s_key_inpuy_counter;
 
-      if (s_prev_key_current_value == 0) {
-        // Prev key released
-        if (s_prev_key_long_pressed == false) {
-#if defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
-          uint32_t shift_key_pressed = digitalRead(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
-          if (shift_key_pressed) {
-            if (s_current_page_group == 0) {
-              s_current_page_group = NUMBER_OF_PAGE_GROUPS - 1;
-            } else {
-              --s_current_page_group;
-            }
-
-            PRA32_U2_ControlPanel_update_page();
-            return;
-          }
-
-#endif  // defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
-          if (s_current_page_index[s_current_page_group] == 0) {
-            s_current_page_index[s_current_page_group] = g_number_of_pages[s_current_page_group] - 1;
-          } else {
-            --s_current_page_index[s_current_page_group];
-          }
-
-          PRA32_U2_ControlPanel_update_page();
-          return;
-        }
-
-        s_prev_key_long_pressed = false;
-        return;
-      }
-
-#if (PRA32_U2_NUMBER_OF_SYNTHS > 1)
-      if (s_prev_key_current_value == 1) {
-        // Prev key pressed
-        if (s_prev_key_long_pressed == false) {
-#if defined(PRA32_U2_KEY_INPUT_NEXT_KEY_PIN)
-          uint32_t next_key_pressed = digitalRead(PRA32_U2_KEY_INPUT_NEXT_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
-          if (next_key_pressed) {
-            if (s_panel_playing_note_pitch <= 127) {
-              handleNoteOff(getTargetMIDICh(s_current_synth), s_panel_playing_note_pitch, 64);
-            }
-
-            s_current_synth = (s_current_synth + 1) >= PRA32_U2_NUMBER_OF_SYNTHS ? 0 : (s_current_synth + 1);
-            s_display_buffer[0][14] = s_hex_chars[getTargetMIDICh(s_current_synth) - 1];
-
-            s_prev_key_long_pressed = true;
-            s_next_key_long_pressed = true;
-
-            PRA32_U2_ControlPanel_update_page();
-            return;
-          }
-
-#endif  // defined(PRA32_U2_KEY_INPUT_PREV_KEY_PIN)
-        }
-      }
-#endif  // (PRA32_U2_NUMBER_OF_SYNTHS > 1)
-    }
-
-    if (s_prev_key_current_value == 1) {
+    if (s_prev_key_current_value == 0) {
+      // Prev key released
       if (s_prev_key_long_pressed == false) {
-        if (s_key_inpuy_counter - s_prev_key_value_changed_time >= PRA32_U2_KEY_LONG_PRESS_WAIT) {
-          s_prev_key_long_pressed = true;
-
+#if defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
+        uint32_t shift_key_pressed = digitalRead(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
+        if (shift_key_pressed) {
           if (s_current_page_group == 0) {
             s_current_page_group = NUMBER_OF_PAGE_GROUPS - 1;
           } else {
@@ -1388,82 +1330,80 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
           PRA32_U2_ControlPanel_update_page();
           return;
         }
+
+#endif  // defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
+        if (s_current_page_index[s_current_page_group] == 0) {
+          s_current_page_index[s_current_page_group] = g_number_of_pages[s_current_page_group] - 1;
+        } else {
+          --s_current_page_index[s_current_page_group];
+        }
+
+        PRA32_U2_ControlPanel_update_page();
+        return;
+      }
+
+      s_prev_key_long_pressed = false;
+      return;
+    }
+
+#if (PRA32_U2_NUMBER_OF_SYNTHS > 1)
+    if (s_prev_key_current_value == 1) {
+      // Prev key pressed
+      if (s_prev_key_long_pressed == false) {
+#if defined(PRA32_U2_KEY_INPUT_NEXT_KEY_PIN)
+        uint32_t next_key_pressed = digitalRead(PRA32_U2_KEY_INPUT_NEXT_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
+        if (next_key_pressed) {
+          if (s_panel_playing_note_pitch <= 127) {
+            handleNoteOff(getTargetMIDICh(s_current_synth), s_panel_playing_note_pitch, 64);
+          }
+
+          s_current_synth = (s_current_synth + 1) >= PRA32_U2_NUMBER_OF_SYNTHS ? 0 : (s_current_synth + 1);
+          s_display_buffer[0][14] = s_hex_chars[getTargetMIDICh(s_current_synth) - 1];
+
+          s_prev_key_long_pressed = true;
+          s_next_key_long_pressed = true;
+
+          PRA32_U2_ControlPanel_update_page();
+          return;
+        }
+
+#endif  // defined(PRA32_U2_KEY_INPUT_PREV_KEY_PIN)
+      }
+    }
+#endif  // (PRA32_U2_NUMBER_OF_SYNTHS > 1)
+  }
+
+  if (s_prev_key_current_value == 1) {
+    if (s_prev_key_long_pressed == false) {
+      if (s_key_inpuy_counter - s_prev_key_value_changed_time >= PRA32_U2_KEY_LONG_PRESS_WAIT) {
+        s_prev_key_long_pressed = true;
+
+        if (s_current_page_group == 0) {
+          s_current_page_group = NUMBER_OF_PAGE_GROUPS - 1;
+        } else {
+          --s_current_page_group;
+        }
+
+        PRA32_U2_ControlPanel_update_page();
+        return;
       }
     }
   }
 #endif  // defined(PRA32_U2_KEY_INPUT_PREV_KEY_PIN)
 
 #if defined(PRA32_U2_KEY_INPUT_NEXT_KEY_PIN)
-  if (s_key_inpuy_counter - s_next_key_value_changed_time >= PRA32_U2_KEY_ANTI_CHATTERING_WAIT) {
-    uint32_t value = PRA32_U2_ControlPanel_debounce_key(PRA32_U2_KEY_INPUT_NEXT_KEY_PIN, s_next_key_current_value, s_next_key_stable_counter);
+  uint32_t next_key_value = PRA32_U2_ControlPanel_debounce_key(PRA32_U2_KEY_INPUT_NEXT_KEY_PIN, s_next_key_current_value, s_next_key_stable_counter);
 
-    if (s_next_key_current_value != value) {
-      s_next_key_current_value = value;
-      s_next_key_value_changed_time = s_key_inpuy_counter;
+  if (s_next_key_current_value != next_key_value) {
+    s_next_key_current_value = next_key_value;
+    s_next_key_value_changed_time = s_key_inpuy_counter;
 
-      if (s_next_key_current_value == 0) {
-        // Next key released
-        if (s_next_key_long_pressed == false) {
-#if defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
-          uint32_t shift_key_pressed = digitalRead(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
-          if (shift_key_pressed) {
-            if (s_current_page_group == NUMBER_OF_PAGE_GROUPS - 1) {
-              s_current_page_group = 0;
-            } else {
-              ++s_current_page_group;
-            }
-
-            PRA32_U2_ControlPanel_update_page();
-            return;
-          }
-
-#endif  // defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
-          if (s_current_page_index[s_current_page_group] == g_number_of_pages[s_current_page_group] - 1) {
-            s_current_page_index[s_current_page_group] = 0;
-          } else {
-            ++s_current_page_index[s_current_page_group];
-          }
-
-          PRA32_U2_ControlPanel_update_page();
-          return;
-        }
-
-        s_next_key_long_pressed = false;
-        return;
-      }
-
-#if (PRA32_U2_NUMBER_OF_SYNTHS > 1)
-      if (s_next_key_current_value == 1) {
-        // Next key pressed
-        if (s_next_key_long_pressed == false) {
-#if defined(PRA32_U2_KEY_INPUT_PREV_KEY_PIN)
-          uint32_t prev_key_pressed = digitalRead(PRA32_U2_KEY_INPUT_PREV_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
-          if (prev_key_pressed) {
-            if (s_panel_playing_note_pitch <= 127) {
-              handleNoteOff(getTargetMIDICh(s_current_synth), s_panel_playing_note_pitch, 64);
-            }
-
-            s_current_synth = (s_current_synth + 1) >= PRA32_U2_NUMBER_OF_SYNTHS ? 0 : (s_current_synth + 1);
-            s_display_buffer[0][14] = s_hex_chars[getTargetMIDICh(s_current_synth) - 1];
-
-            s_prev_key_long_pressed = true;
-            s_next_key_long_pressed = true;
-
-            PRA32_U2_ControlPanel_update_page();
-            return;
-          }
-
-#endif  // defined(PRA32_U2_KEY_INPUT_PREV_KEY_PIN)
-        }
-      }
-#endif  // (PRA32_U2_NUMBER_OF_SYNTHS > 1)
-    }
-
-    if (s_next_key_current_value == 1) {
+    if (s_next_key_current_value == 0) {
+      // Next key released
       if (s_next_key_long_pressed == false) {
-        if (s_key_inpuy_counter - s_next_key_value_changed_time >= PRA32_U2_KEY_LONG_PRESS_WAIT) {
-          s_next_key_long_pressed = true;
-
+#if defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
+        uint32_t shift_key_pressed = digitalRead(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
+        if (shift_key_pressed) {
           if (s_current_page_group == NUMBER_OF_PAGE_GROUPS - 1) {
             s_current_page_group = 0;
           } else {
@@ -1473,77 +1413,112 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
           PRA32_U2_ControlPanel_update_page();
           return;
         }
+
+#endif  // defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
+        if (s_current_page_index[s_current_page_group] == g_number_of_pages[s_current_page_group] - 1) {
+          s_current_page_index[s_current_page_group] = 0;
+        } else {
+          ++s_current_page_index[s_current_page_group];
+        }
+
+        PRA32_U2_ControlPanel_update_page();
+        return;
+      }
+
+      s_next_key_long_pressed = false;
+      return;
+    }
+
+#if (PRA32_U2_NUMBER_OF_SYNTHS > 1)
+    if (s_next_key_current_value == 1) {
+      // Next key pressed
+      if (s_next_key_long_pressed == false) {
+#if defined(PRA32_U2_KEY_INPUT_PREV_KEY_PIN)
+        uint32_t prev_key_pressed = digitalRead(PRA32_U2_KEY_INPUT_PREV_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
+        if (prev_key_pressed) {
+          if (s_panel_playing_note_pitch <= 127) {
+            handleNoteOff(getTargetMIDICh(s_current_synth), s_panel_playing_note_pitch, 64);
+          }
+
+          s_current_synth = (s_current_synth + 1) >= PRA32_U2_NUMBER_OF_SYNTHS ? 0 : (s_current_synth + 1);
+          s_display_buffer[0][14] = s_hex_chars[getTargetMIDICh(s_current_synth) - 1];
+
+          s_prev_key_long_pressed = true;
+          s_next_key_long_pressed = true;
+
+          PRA32_U2_ControlPanel_update_page();
+          return;
+        }
+
+#endif  // defined(PRA32_U2_KEY_INPUT_PREV_KEY_PIN)
+      }
+    }
+#endif  // (PRA32_U2_NUMBER_OF_SYNTHS > 1)
+  }
+
+  if (s_next_key_current_value == 1) {
+    if (s_next_key_long_pressed == false) {
+      if (s_key_inpuy_counter - s_next_key_value_changed_time >= PRA32_U2_KEY_LONG_PRESS_WAIT) {
+        s_next_key_long_pressed = true;
+
+        if (s_current_page_group == NUMBER_OF_PAGE_GROUPS - 1) {
+          s_current_page_group = 0;
+        } else {
+          ++s_current_page_group;
+        }
+
+        PRA32_U2_ControlPanel_update_page();
+        return;
       }
     }
   }
 #endif  // defined(PRA32_U2_KEY_INPUT_NEXT_KEY_PIN)
 
 #if defined(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN)
-  if (s_key_inpuy_counter - s_play_key_value_changed_time >= PRA32_U2_KEY_ANTI_CHATTERING_WAIT) {
-    uint32_t value = PRA32_U2_ControlPanel_debounce_key(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN, s_play_key_current_value, s_play_key_stable_counter);
+  uint32_t play_key_value = PRA32_U2_ControlPanel_debounce_key(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN, s_play_key_current_value, s_play_key_stable_counter);
 
-    if (s_play_key_current_value != value) {
-      s_play_key_current_value = value;
-      s_play_key_value_changed_time = s_key_inpuy_counter;
+  if (s_play_key_current_value != play_key_value) {
+    s_play_key_current_value = play_key_value;
+    s_play_key_value_changed_time = s_key_inpuy_counter;
 
-      if (s_play_key_current_value == 1) {
-        // Play key pressed
-        if (s_play_mode == 0) {  // Normal Mode
-          s_playing_status = PlayingStatus_Playing;
-          s_display_buffer[0][20] = '*';
-          s_panel_play_note_gate    = true;
-          s_panel_play_note_trigger = true;
-        }
-      } else {
-        // Play key released
-        if (s_play_mode == 0) {  // Normal Mode
-          s_playing_status = PlayingStatus_Stop;
-          s_display_buffer[0][20] = ' ';
-          s_panel_play_note_gate = false;
-        } else {  // Seq Mode
-          if (s_playing_status == PlayingStatus_Stop) {
-            PRA32_U2_ControlPanel_seq_start();
-          } else {
-            PRA32_U2_ControlPanel_seq_stop();
-          }
+    if (s_play_key_current_value == 1) {
+      // Play key pressed
+      if (s_play_mode == 0) {  // Normal Mode
+        s_playing_status = PlayingStatus_Playing;
+        s_display_buffer[0][20] = '*';
+        s_panel_play_note_gate    = true;
+        s_panel_play_note_trigger = true;
+      }
+    } else {
+      // Play key released
+      if (s_play_mode == 0) {  // Normal Mode
+        s_playing_status = PlayingStatus_Stop;
+        s_display_buffer[0][20] = ' ';
+        s_panel_play_note_gate = false;
+      } else {  // Seq Mode
+        if (s_playing_status == PlayingStatus_Stop) {
+          PRA32_U2_ControlPanel_seq_start();
+        } else {
+          PRA32_U2_ControlPanel_seq_stop();
         }
       }
-
-      return;
     }
+
+    return;
   }
 #endif  // defined(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN)
 
 #if defined(PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN)
-  if (s_key_inpuy_counter - s_prog_minus_key_value_changed_time >= PRA32_U2_KEY_ANTI_CHATTERING_WAIT) {
-    uint32_t value = PRA32_U2_ControlPanel_debounce_key(PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN, s_prog_minus_key_current_value, s_prog_minus_key_stable_counter);
-    if (s_prog_minus_key_current_value != value) {
-      s_prog_minus_key_current_value = value;
-      s_prog_minus_key_value_changed_time = s_key_inpuy_counter;
-      if (s_prog_minus_key_current_value == 0) {
-        // Prog - key released
-        if (s_prog_minus_key_long_pressed == false) {
-#if defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
-          uint32_t shift_key_pressed = digitalRead(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
-          if (shift_key_pressed) {
-            if (s_current_program[s_current_synth] == 0) {
-              s_current_program[s_current_synth] = USER_PROGRAM_NUMBER_MAX;
-            } else {
-              --s_current_program[s_current_synth];
-            }
-            handleProgramChange(getTargetMIDICh(s_current_synth), s_current_program[s_current_synth]);
-            s_display_buffer[0][17] = s_hex_chars[s_current_program[s_current_synth]];
-          }
-#endif  // defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
-        }
-        s_prog_minus_key_long_pressed = false;
-        return;
-      }
-    }
-    if (s_prog_minus_key_current_value == 1) {
+  uint32_t prog_minus_key_value = PRA32_U2_ControlPanel_debounce_key(PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN, s_prog_minus_key_current_value, s_prog_minus_key_stable_counter);
+  if (s_prog_minus_key_current_value != prog_minus_key_value) {
+    s_prog_minus_key_current_value = prog_minus_key_value;
+    s_prog_minus_key_value_changed_time = s_key_inpuy_counter;
+    if (s_prog_minus_key_current_value == 0) {
+      // Prog - key released
       if (s_prog_minus_key_long_pressed == false) {
-        if (s_key_inpuy_counter - s_prog_minus_key_value_changed_time >= PRA32_U2_KEY_LONG_PRESS_WAIT) {
-          s_prog_minus_key_long_pressed = true;
+#if defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
+        uint32_t shift_key_pressed = digitalRead(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
+        if (shift_key_pressed) {
           if (s_current_program[s_current_synth] == 0) {
             s_current_program[s_current_synth] = USER_PROGRAM_NUMBER_MAX;
           } else {
@@ -1551,43 +1526,41 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
           }
           handleProgramChange(getTargetMIDICh(s_current_synth), s_current_program[s_current_synth]);
           s_display_buffer[0][17] = s_hex_chars[s_current_program[s_current_synth]];
-          return;
         }
+#endif  // defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
+      }
+      s_prog_minus_key_long_pressed = false;
+      return;
+    }
+  }
+  if (s_prog_minus_key_current_value == 1) {
+    if (s_prog_minus_key_long_pressed == false) {
+      if (s_key_inpuy_counter - s_prog_minus_key_value_changed_time >= PRA32_U2_KEY_LONG_PRESS_WAIT) {
+        s_prog_minus_key_long_pressed = true;
+        if (s_current_program[s_current_synth] == 0) {
+          s_current_program[s_current_synth] = USER_PROGRAM_NUMBER_MAX;
+        } else {
+          --s_current_program[s_current_synth];
+        }
+        handleProgramChange(getTargetMIDICh(s_current_synth), s_current_program[s_current_synth]);
+        s_display_buffer[0][17] = s_hex_chars[s_current_program[s_current_synth]];
+        return;
       }
     }
   }
 #endif  // defined(PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN)
 
 #if defined(PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN)
-  if (s_key_inpuy_counter - s_prog_plus_key_value_changed_time >= PRA32_U2_KEY_ANTI_CHATTERING_WAIT) {
-    uint32_t value = PRA32_U2_ControlPanel_debounce_key(PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN, s_prog_plus_key_current_value, s_prog_plus_key_stable_counter);
-    if (s_prog_plus_key_current_value != value) {
-      s_prog_plus_key_current_value = value;
-      s_prog_plus_key_value_changed_time = s_key_inpuy_counter;
-      if (s_prog_plus_key_current_value == 0) {
-        // Prog + key released
-        if (s_prog_plus_key_long_pressed == false) {
-#if defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
-          uint32_t shift_key_pressed = digitalRead(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
-          if (shift_key_pressed) {
-            if (s_current_program[s_current_synth] == USER_PROGRAM_NUMBER_MAX) {
-              s_current_program[s_current_synth] = 0;
-            } else {
-              ++s_current_program[s_current_synth];
-            }
-            handleProgramChange(getTargetMIDICh(s_current_synth), s_current_program[s_current_synth]);
-            s_display_buffer[0][17] = s_hex_chars[s_current_program[s_current_synth]];
-          }
-#endif  // defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
-        }
-        s_prog_plus_key_long_pressed = false;
-        return;
-      }
-    }
-    if (s_prog_plus_key_current_value == 1) {
+  uint32_t prog_plus_key_value = PRA32_U2_ControlPanel_debounce_key(PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN, s_prog_plus_key_current_value, s_prog_plus_key_stable_counter);
+  if (s_prog_plus_key_current_value != prog_plus_key_value) {
+    s_prog_plus_key_current_value = prog_plus_key_value;
+    s_prog_plus_key_value_changed_time = s_key_inpuy_counter;
+    if (s_prog_plus_key_current_value == 0) {
+      // Prog + key released
       if (s_prog_plus_key_long_pressed == false) {
-        if (s_key_inpuy_counter - s_prog_plus_key_value_changed_time >= PRA32_U2_KEY_LONG_PRESS_WAIT) {
-          s_prog_plus_key_long_pressed = true;
+#if defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
+        uint32_t shift_key_pressed = digitalRead(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
+        if (shift_key_pressed) {
           if (s_current_program[s_current_synth] == USER_PROGRAM_NUMBER_MAX) {
             s_current_program[s_current_synth] = 0;
           } else {
@@ -1595,8 +1568,25 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
           }
           handleProgramChange(getTargetMIDICh(s_current_synth), s_current_program[s_current_synth]);
           s_display_buffer[0][17] = s_hex_chars[s_current_program[s_current_synth]];
-          return;
         }
+#endif  // defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
+      }
+      s_prog_plus_key_long_pressed = false;
+      return;
+    }
+  }
+  if (s_prog_plus_key_current_value == 1) {
+    if (s_prog_plus_key_long_pressed == false) {
+      if (s_key_inpuy_counter - s_prog_plus_key_value_changed_time >= PRA32_U2_KEY_LONG_PRESS_WAIT) {
+        s_prog_plus_key_long_pressed = true;
+        if (s_current_program[s_current_synth] == USER_PROGRAM_NUMBER_MAX) {
+          s_current_program[s_current_synth] = 0;
+        } else {
+          ++s_current_program[s_current_synth];
+        }
+        handleProgramChange(getTargetMIDICh(s_current_synth), s_current_program[s_current_synth]);
+        s_display_buffer[0][17] = s_hex_chars[s_current_program[s_current_synth]];
+        return;
       }
     }
   }
