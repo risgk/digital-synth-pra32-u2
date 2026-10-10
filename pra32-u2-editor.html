@@ -198,10 +198,10 @@ details.section > summary {
 details.section:not([open]) > summary {
   margin-bottom: 0;  /* the space below a hidden one is that between the sections */
 }
-/* A line above User Preset and the keyboard, as long as the lines of the parameters (--params-width, set by fitLayout()) */
+/* A line above User Preset and the keyboard, to the right end of the window (as the lines of the parameters) */
 #userPresetDetails, #kbdDetails {
-  background: linear-gradient(#c0c0c0, #c0c0c0) left top / var(--params-width, 100%) 1px no-repeat;
-  padding-top: 7px;
+  border-top: 1px solid #c0c0c0;
+  padding-top: 6px;
 }
 /* The control numbers in the parameter names (as in PRA32-U2 Native), and the program number in "Randomize Synth",
    small and gray so as not to stand out */
@@ -213,11 +213,10 @@ span.cc {
 /* ---- Parameters ----
    A parameter is the name (above) and the slider, the value, and the value label (below).
    The names of a row share their height (subgrid), so the sliders of a row line up even if a name wraps */
-/* As wide as the columns of the mode (4: 912px, 2: 456px, 1: 228px), so that the lines end at the right of the columns */
+/* The lines to the right end of the window (the columns of the mode: 4: 912px, 2: 456px, 1: 228px) */
 .params {
   /* Computed here (not only in :root), so that the widths of the compact 2 columns are used */
   --param-width: calc(var(--slider-width) + var(--value-width) + var(--value-label-width));
-  width: fit-content;
   border-top: 1px solid #c0c0c0;
   margin-bottom: 14px;
 }
@@ -413,8 +412,8 @@ span.cc {
 /* The sizes of the keys: times the scale of the text (--kbd-scale, set by kbdFitScale()) */
 .keyboard-frame {
   --kbd-scale: 1;
-  --kbd-white-width: calc(41px * var(--kbd-scale));  /* KBD_WHITE_WIDTH */
-  --kbd-black-width: calc(26px * var(--kbd-scale));
+  --kbd-key-width: calc(24px * var(--kbd-scale));          /* KBD_KEY_WIDTH: a semitone in the upper half */
+  --kbd-half-height: calc(70px * var(--kbd-scale));
   border-radius: 6px;
   background: var(--kbd-frame-color);
   padding: 8px 5px 5px 5px;
@@ -450,30 +449,43 @@ span.cc {
   height: calc(140px * var(--kbd-scale));
   touch-action: none;  /* a touch plays (and glides over) the keys, and does not scroll */
 }
+/* The upper half: the 12 semitones at equal intervals (the black keys as wide and as long as the upper parts of
+   the white keys). The lower half: the white keys only (as in a piano, C - E as wide as 5 semitones / 3 (40px),
+   and F - B as wide as 7 semitones / 4 (42px), so that the lines between E and F and between B and C are straight).
+   A white key is the 2 parts, joined at the middle without a line (the halves are exactly as long as each other) */
 .key {
   position: absolute;
-  top: 0;
   cursor: pointer;
 }
-.key.white {
-  width: var(--kbd-white-width);
-  height: calc(140px * var(--kbd-scale));
+.key.upper {
+  top: 0;
+  width: var(--kbd-key-width);
+  height: var(--kbd-half-height);
+  z-index: 2;
+}
+.key.upper.white {
   background: #fff;
   border: 1px solid #ccc;
+  border-bottom: none;
+}
+.key.lower {
+  top: var(--kbd-half-height);
+  height: var(--kbd-half-height);
+  background: #fff;
+  border: 1px solid #ccc;
+  border-top: none;
   border-radius: 0 0 4px 4px;
   z-index: 1;
 }
 .key.white.active {
   background: #ffd9c4;
+}
+.key.lower.active {
   border-bottom: 6px solid var(--pra32-color);
-  box-shadow: inset 0 0 10px rgba(255,85,0,0.55);
 }
 .key.black {
-  width: var(--kbd-black-width);
-  height: calc(85px * var(--kbd-scale));
   background: #111;
   border-radius: 0 0 3px 3px;
-  z-index: 2;
 }
 .key.black.active {
   background: var(--pra32-color);
@@ -1515,7 +1527,6 @@ function writeParameters(number) {
 
 // The layout measured with the fonts (their widths differ among the OSes and the Web browsers)
 function fitLayout() {
-  document.querySelector(".app").style.setProperty("--params-width", document.querySelector(".params").offsetWidth + "px");
   kbdFitScale();
   fitParamNames();
   fitButtons();
@@ -1591,13 +1602,13 @@ function fitParamNames() {
 
 const KBD_NOTE_MIN    = 0;    // C-1
 const KBD_NOTE_MAX    = 127;  // G9
-const KBD_WHITE_WIDTH = 41;  // 37 keys (C3 - C6, 22 white keys: 902px) in a 960px window, times kbdScale
+const KBD_KEY_WIDTH   = 24;  // a semitone (37 keys, C3 - C6: 36 semitones and a C, 904px, in a 960px window), times kbdScale
 var kbdScale = 1;            // the scale of the text (e.g. the text size of the Web browser), set by kbdFitScale()
-const KBD_CENTER_OFFSET = 4;  // the center of 37 keys from C(n) (e.g. C3 - C6): the 4th white key boundary of C(n+1)
-const KBD_CENTER_NOTE = 60;   // C4: by default, the center of the keyboard is that of C3 - C6 (between F4 and G4), plus the transpose
+const KBD_CENTER_OFFSET = (36 + 5 / 3) / 2 - 12;  // the center of 37 keys from C(n) (e.g. C3 - C6), in semitones from the left end of C(n+1)
+const KBD_CENTER_NOTE = 60;   // C4: by default, the center of the keyboard is that of C3 - C6 (about the middle of F#4), plus the transpose
 
 var kbdCounts = new Array(128).fill(0);
-var kbdKeys = [];               // note number -> the key element
+var kbdKeys = [];               // note number -> the key elements (the upper part, and the lower part of a white key)
 var kbdPointers = new Map();    // pointerId -> the note number
 
 function kbdTrack(status, note, velocity) {
@@ -1624,7 +1635,7 @@ function kbdAllNotesOff() {
 
 function kbdUpdateKey(note) {
   if (kbdKeys[note]) {
-    kbdKeys[note].classList.toggle("active", kbdCounts[note] > 0);
+    kbdKeys[note].forEach(function(key) { key.classList.toggle("active", kbdCounts[note] > 0); });
   }
 }
 
@@ -1658,9 +1669,15 @@ function noteOff(noteNumber) {
   sendNote(NOTE_OFF, noteNumber, NOTE_OFF_VELOCITY);
 }
 
+// A press, or a move to another key while pressed (gliding): the Note On of the new key is sent before the Note Off
+// of the old key, for legato (e.g. the Voice Mode Legato)
 function kbdPress(pointerId, note) {
+  var oldNote = kbdPointers.get(pointerId);
   noteOn(note);
   kbdPointers.set(pointerId, note);
+  if (oldNote !== undefined) {
+    noteOff(oldNote);
+  }
 }
 
 function kbdRelease(pointerId) {
@@ -1680,31 +1697,38 @@ function kbdNoteOfEvent(event) {
 function createKeyboard() {
   var kb = document.getElementById("keyboard");
   var names = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-  var whiteIndex = 0;
+
+  function createKey(note, className) {
+    var key = document.createElement("div");
+    key.className = className;
+    key.dataset.note = note;
+    key.title = names[note % 12] + (Math.floor(note / 12) - 1) + " (" + note + ")";
+    kb.appendChild(key);
+    return key;
+  }
 
   for (var note = KBD_NOTE_MIN; note <= KBD_NOTE_MAX; note++) {
     var name = names[note % 12];
-    var key = document.createElement("div");
-    key.dataset.note = note;
-    key.title = name + (Math.floor(note / 12) - 1) + " (" + note + ")";
-    if (name.indexOf("#") < 0) {
-      key.className = "key white";
-      key.style.left = "calc(" + whiteIndex + " * var(--kbd-white-width))";
+    var white = (name.indexOf("#") < 0);
+    var upper = createKey(note, "key upper " + (white ? "white" : "black"));
+    upper.style.left = "calc(" + (note - KBD_NOTE_MIN) + " * var(--kbd-key-width))";
+    kbdKeys[note] = [upper];
+    if (white) {
+      var lower = createKey(note, "key lower white");
+      var lowerLeftWidth = kbdLowerLeftWidth(note);
+      lower.style.left = "calc(" + (lowerLeftWidth[0] - kbdLowerLeftWidth(KBD_NOTE_MIN)[0]) + " * var(--kbd-key-width))";
+      lower.style.width = "calc(" + lowerLeftWidth[1] + " * var(--kbd-key-width))";
       if (name == "C") {
         var label = document.createElement("span");
         label.className = "key-label";
         label.textContent = "C" + (Math.floor(note / 12) - 1);
-        key.appendChild(label);
+        lower.appendChild(label);
       }
-      whiteIndex++;
-    } else {
-      key.className = "key black";
-      key.style.left = "calc(" + whiteIndex + " * var(--kbd-white-width) - var(--kbd-black-width) / 2)";  // centered on the boundary
+      kbdKeys[note].push(lower);
     }
-    kb.appendChild(key);
-    kbdKeys[note] = key;
   }
-  kb.style.width = "calc(" + whiteIndex + " * var(--kbd-white-width))";
+  var lastLeftWidth = kbdLowerLeftWidth(KBD_NOTE_MAX);
+  kb.style.width = "calc(" + (lastLeftWidth[0] + lastLeftWidth[1] - kbdLowerLeftWidth(KBD_NOTE_MIN)[0]) + " * var(--kbd-key-width))";
 
   kb.addEventListener("contextmenu", function(event) { event.preventDefault(); });
   kb.addEventListener("pointerdown", function(event) {
@@ -1720,7 +1744,6 @@ function createKeyboard() {
     if (event.target.hasPointerCapture && event.target.hasPointerCapture(event.pointerId)) {
       event.target.releasePointerCapture(event.pointerId);
     }
-    kbdRelease(event.pointerId);
     kbdPress(event.pointerId, note);
   });
   // Gliding (glissando): the pointer goes to another key while pressed
@@ -1729,13 +1752,14 @@ function createKeyboard() {
     if (!kbdPointers.has(event.pointerId) || (note < 0) || (note == kbdPointers.get(event.pointerId))) {
       return;
     }
-    kbdRelease(event.pointerId);
     kbdPress(event.pointerId, note);
   });
-  // A mouse that leaves the keyboard while pressed: the note stays on (no Note Off when the button is released),
-  // as in the keyboard before, so that a note can be held (Panic turns it off). A touch that leaves it: Note Off
+  // A mouse that leaves the keyboard upward or downward while pressed: the note stays on (no Note Off when the button
+  // is released), as in the keyboard before, so that a note can be held (Panic turns it off).
+  // A mouse that leaves it to the left or the right (the ends of the visible area), or a touch that leaves it: Note Off
   kb.addEventListener("pointerleave", function(event) {
-    if (event.pointerType == "mouse") {
+    var rect = kb.getBoundingClientRect();
+    if ((event.pointerType == "mouse") && ((event.clientY <= rect.top) || (event.clientY >= rect.bottom))) {
       kbdPointers.delete(event.pointerId);
     } else {
       kbdRelease(event.pointerId);
@@ -1750,7 +1774,7 @@ function createKeyboard() {
   // The position of the last time (by the octave buttons or the scroll bar), kept as the center of the visible area
   // (so that it is the same in another width of the window), or that of the transpose (C3 - C6 by default)
   var scroll = document.getElementById("kbdScroll");
-  var savedCenter = parseFloat(localStorage.getItem("keyKbdCenter37"));
+  var savedCenter = parseFloat(localStorage.getItem("keyKbdCenter128"));
   if (!isNaN(savedCenter)) {
     kbdSetCenter(savedCenter);
   } else {
@@ -1760,12 +1784,12 @@ function createKeyboard() {
   scroll.addEventListener("scroll", function() {
     clearTimeout(saveTimer);
     saveTimer = setTimeout(function() {
-      localStorage.setItem("keyKbdCenter37", kbdGetCenter().toFixed(2));
+      localStorage.setItem("keyKbdCenter128", kbdGetCenter().toFixed(2));
     }, 200);
   });
   // The center is kept when the width of the window changes
   window.addEventListener("resize", function() {
-    var center = parseFloat(localStorage.getItem("keyKbdCenter37"));
+    var center = parseFloat(localStorage.getItem("keyKbdCenter128"));
     if (!isNaN(center)) {
       kbdSetCenter(center);
     }
@@ -1820,7 +1844,7 @@ function createKeyboard() {
     localStorage.setItem("keyKbdOpen", details.open ? "1" : "0");
     if (details.open) {
       kbdFitScale();
-      var center = parseFloat(localStorage.getItem("keyKbdCenter37"));
+      var center = parseFloat(localStorage.getItem("keyKbdCenter128"));
       if (!isNaN(center)) {
         kbdSetCenter(center);
       }
@@ -1884,19 +1908,22 @@ function kbdScrollToThumbLeft(thumbLeft) {
   }
 }
 
-function kbdWhiteIndex(note) {
-  return Math.floor(note / 12) * 7 + [0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6][note % 12];
+// The left and the width of the lower part of a white key, in semitones: C - E as wide as 5 / 3, and F - B as wide as 7 / 4
+function kbdLowerLeftWidth(note) {
+  var index = [0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6][note % 12];
+  var left = (index < 3) ? (index * 5 / 3) : (5 + ((index - 3) * 7 / 4));
+  return [(Math.floor(note / 12) * 12) + left, (index < 3) ? (5 / 3) : (7 / 4)];
 }
 
-// The center of the visible area of the keyboard, in white keys from the left end (C-1)
+// The center of the visible area of the keyboard, in semitones (of the upper half) from the left end (C-1)
 function kbdGetCenter() {
   var scroll = document.getElementById("kbdScroll");
-  return (scroll.scrollLeft + (scroll.clientWidth / 2)) / (KBD_WHITE_WIDTH * kbdScale);
+  return (scroll.scrollLeft + (scroll.clientWidth / 2)) / (KBD_KEY_WIDTH * kbdScale);
 }
 
 function kbdSetCenter(center) {
   var scroll = document.getElementById("kbdScroll");
-  scroll.scrollLeft = (center * KBD_WHITE_WIDTH * kbdScale) - (scroll.clientWidth / 2);
+  scroll.scrollLeft = (center * KBD_KEY_WIDTH * kbdScale) - (scroll.clientWidth / 2);
 }
 
 // The center of 37 keys from C(3 + transpose / 12) (C3 - C6 by default)
@@ -1906,15 +1933,15 @@ function kbdScrollToTranspose() {
     return;
   }
   var note = Math.max(KBD_NOTE_MIN, Math.min(KBD_NOTE_MAX, KBD_CENTER_NOTE + transpose));
-  var center = kbdWhiteIndex(note) + KBD_CENTER_OFFSET;
+  var center = (note - KBD_NOTE_MIN) + KBD_CENTER_OFFSET;
   kbdSetCenter(center);
-  localStorage.setItem("keyKbdCenter37", center.toFixed(2));  // not measured, as the keyboard may be hidden
+  localStorage.setItem("keyKbdCenter128", center.toFixed(2));  // not measured, as the keyboard may be hidden
 }
 
 // An octave from the current position (also after the scroll bar), with the center of 37 keys from a C:
 // the next one to the left (Octave Down) or to the right (Octave Up)
 function kbdShiftOctave(delta) {
-  var position = (kbdGetCenter() - KBD_CENTER_OFFSET) / 7;  // in octaves from C-1
+  var position = (kbdGetCenter() - KBD_CENTER_OFFSET) / 12;  // in octaves from C-1
   var octave = (delta < 0) ? Math.ceil(position - 0.01) + delta : Math.floor(position + 0.01) + delta;
   octave = Math.max(0, Math.min(Math.floor(KBD_NOTE_MAX / 12), octave));
   onChangeTranspose((octave * 12) - KBD_CENTER_NOTE);
