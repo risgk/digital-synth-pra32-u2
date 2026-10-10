@@ -28,7 +28,6 @@
         - "pra32-u2-prog-factory-presets.json" has the names of the Factory Presets
     - PRA32-U2 Editor: Add "pra32-u2-prog-all-initial.json" for Import All
         - All the user presets (#0-15) are "#23 Initial", without names
-    - PRA32-U2 Editor: Shorten the wait after each MIDI message (from 2 ms to 1 ms), for a quicker response
     - Tested with Arduino-Pico version 6.2.0
 - v3.11.0 (2026-10-10):
     - Rename the Preset "#19 Simple" to "#19 Plain Poly", to show that it is a Poly Preset (as "#23 Initial" is a Mono Preset)
