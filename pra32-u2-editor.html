@@ -397,8 +397,14 @@ span.cc {
 .kbd-bar #spanKbdLabel {
   margin-right: 4px;
 }
-#kbdDetails:not([open]) .kbd-bar button {
+#kbdDetails:not([open]) .kbd-bar button, #kbdDetails:not([open]) .kbd-hint {
   display: none;
+}
+/* The keys of the PC keyboard, small and gray (as the control numbers) */
+.kbd-hint {
+  margin-left: 8px;
+  font-size: 10px;
+  color: #808080;
 }
 /* Panic at the upper right of the keyboard (as in PRA32-U2 Editor) */
 .kbd-bar .kbd-panic {
@@ -1771,6 +1777,41 @@ function createKeyboard() {
     Array.from(kbdPointers.keys()).forEach(kbdRelease);
   });
 
+  // The PC keyboard (while the keyboard is shown), as in DAWs: A - K (the middle row) are the white keys of C - C,
+  // W - U (the upper row) are the black keys, and Z / X shift the octave (as the octave buttons).
+  // The keys are by their positions (event.code), so the same in any keyboard layout and input mode.
+  // C (A) is the C of the middle octave of the visible area (C4 by default). A key held is kept as a pointer
+  // ("key:" + code), with its note, so that a key released after an octave shift turns off the note it played
+  document.addEventListener("keydown", function(event) {
+    if (!kbdPcKeyEnabled(event)) {
+      return;
+    }
+    if ((event.code == "KeyZ") || (event.code == "KeyX")) {
+      event.preventDefault();
+      if (!event.repeat) {
+        kbdShiftOctave((event.code == "KeyZ") ? -1 : 1);
+      }
+      return;
+    }
+    var offset = KBD_PC_KEYS.indexOf(event.code);
+    if (offset < 0) {
+      return;
+    }
+    event.preventDefault();
+    var id = "key:" + event.code;
+    if (event.repeat || kbdPointers.has(id)) {
+      return;
+    }
+    var base = Math.round((kbdGetCenter() - KBD_CENTER_OFFSET) / 12) * 12;  // the C of the middle octave
+    var note = base + offset;
+    if ((note >= KBD_NOTE_MIN) && (note <= KBD_NOTE_MAX)) {
+      kbdPress(id, note);
+    }
+  });
+  document.addEventListener("keyup", function(event) {
+    kbdRelease("key:" + event.code);
+  });
+
   // The position of the last time (by the octave buttons or the scroll bar), kept as the center of the visible area
   // (so that it is the same in another width of the window), or that of the transpose (C3 - C6 by default)
   var scroll = document.getElementById("kbdScroll");
@@ -1834,9 +1875,9 @@ function createKeyboard() {
   // so the position of the last time is set when it is shown
   var details = document.getElementById("kbdDetails");
   details.open = (localStorage.getItem("keyKbdOpen") != "0");
-  // The buttons on the summary do not show or hide the keyboard
+  // The buttons (and the keys of the PC keyboard) on the summary do not show or hide the keyboard
   details.querySelector("summary").addEventListener("click", function(event) {
-    if (event.target.closest("button")) {
+    if (event.target.closest("button, .kbd-hint")) {
       event.preventDefault();
     }
   });
@@ -1913,6 +1954,21 @@ function kbdLowerLeftWidth(note) {
   var index = [0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6][note % 12];
   var left = (index < 3) ? (index * 5 / 3) : (5 + ((index - 3) * 7 / 4));
   return [(Math.floor(note / 12) * 12) + left, (index < 3) ? (5 / 3) : (7 / 4)];
+}
+
+// The keys of the PC keyboard, from C (A) to C of the next octave (K)
+const KBD_PC_KEYS = ["KeyA", "KeyW", "KeyS", "KeyE", "KeyD", "KeyF", "KeyT", "KeyG", "KeyY", "KeyH", "KeyU", "KeyJ",
+                     "KeyK"];
+
+// The PC keyboard plays only while the keyboard is shown, without Ctrl, Alt, or Command (the shortcuts of the
+// Web browser), and not in a select (e.g. "MIDI Ch", which selects an item by a letter) or a text field
+function kbdPcKeyEnabled(event) {
+  var target = event.target;
+  var tag = target.tagName;
+  return document.getElementById("kbdDetails").open &&
+         !event.ctrlKey && !event.altKey && !event.metaKey &&
+         (tag != "SELECT") && (tag != "TEXTAREA") && !target.isContentEditable &&
+         !((tag == "INPUT") && (target.type != "range") && (target.type != "button"));
 }
 
 // The center of the visible area of the keyboard, in semitones (of the upper half) from the left end (C-1)
@@ -2364,6 +2420,7 @@ function getStoredCCValueString(index, number) {
 <summary class="kbd-bar"><span id="spanKbdLabel">Software Keyboard</span>
 <button type="button" onclick="kbdShiftOctave(-1)" title="Octave Down">&#9664;</button>
 <button type="button" onclick="kbdShiftOctave(1)" title="Octave Up">&#9654;</button>
+<span class="kbd-hint">PC Keys: A - K, Z / X</span>
 <button type="button" class="kbd-panic" onclick="panic()">Panic</button>
 </summary>
 <div class="keyboard-frame">
