@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2/P v3.11.0
+# Digital Synth PRA32-U2/P v3.12.0
 
-- 2026-10-10 ISGK Instruments
+- 2026-10-11 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 
@@ -15,7 +15,7 @@
     - Panel and Step Sequencer Parameters
 - This option requires 1 to 4 SWs (tactile switches), 2 to 3 VRs (ADCs), and a monochrome 128x64 OLED Display based on SSD1306 series drivers
     - Tested with Pimoroni Pico Audio Pack, M5Stack MIDI Unit (optional), Long Leg 2x20 Pin Socket * 2, Seeed Studio's Grove Shield for Pi Pico, Dual Button * 3, Rotary Angle Sensor * 3, and an OLED Display 0.96 inch
-- Uncomment out `//#define PRA32_U2_USE_CONTROL_PANEL` in "Digital-Synth-PRA32-U2.ino" and modify the constants
+- Uncomment `//#define PRA32_U2_USE_CONTROL_PANEL` in "Digital-Synth-PRA32-U2.ino" and modify the constants
 - Inputs
     - SW0: Prev Key (Push to go to the previous page, Long press to the previous group)
     - SW1: Next Key (Push to go to the next page, Long press to the next group)
@@ -41,7 +41,7 @@
 ### PRA32-U2/M/P (PRA32-U2 Multi-Timbre Edition with Panel) (Optional)
 
 - Copy all files in the "Digital-Synth-PRA32-U2" folder, except for "Digital-Synth-PRA32-U2.ino", to the "Digital-Synth-PRA32-U2-M" folder
-- Uncomment out `//#define PRA32_U2_USE_CONTROL_PANEL` in "Digital-Synth-PRA32-U2-M.ino"
+- Uncomment `//#define PRA32_U2_USE_CONTROL_PANEL` in "Digital-Synth-PRA32-U2-M.ino"
 - Prev Key + Next Key: Push to go to the next synth (channel)
     - "$0" -> "$1" -> "$2" -> "$3" -> "$D" -> "$E" -> "$F" -> "$0"
     - "$0" to "$3": Basic Channel + 0 to + 3 (Synths)
@@ -90,9 +90,12 @@
     - Seq Rand Pitch (Randomize Pitch 0-7): Change the value from 0-32 [Rdy] to 96-127 [Exe]
     - Seq Rand Velo (Randomize Velo 0-7): Change the value from 0-32 [Rdy] to 96-127 [Exe]
 - Control Parameters
+    - Pitch Bend: the MSB only (64 is the center, and 127 is the max, +8191)
     - Modulation
     - Breath Controller
+    - Expression
     - Sustain Pedal
+    - Channel Pressure
 - Control Operations
     - Panic: Change the value from 0-32 [Rdy] to 96-127 [Exe]
     - Randomize Synth (Randomize Synth Parameters, as Program Change #127): Change the value from 0-32 [Rdy] to 96-127 [Exe]
@@ -141,7 +144,7 @@
 
 | Page           | Parameter A          | Parameter B          |
 | :------------- | :------------------- | :------------------- |
-| A-00 Info      | PRA32-U2/P           | v3.11.0              |
+| A-00 Info      | PRA32-U2/P           | v3.12.0              |
 | A-01 Voice     | Voice Mode           | Voice Asgn Mode      |
 | A-02 Pitch a   | Portamento           | Pitch Bend Range     |
 | A-03 Pitch b   | Stretch Tune         |                      |
@@ -193,9 +196,10 @@
 | B-15 Seq 5     | Seq Pitch 5          | Seq Velo 5           |
 | B-16 Seq 6     | Seq Pitch 6          | Seq Velo 6           |
 | B-17 Seq 7     | Seq Pitch 7          | Seq Velo 7           |
-| B-18 Control a | Modulation           | Expression           |
-| B-19 Control b | Breath Controller    | Sustain Pedal        |
-| B-20 Control c | Panic                | Randomize Synth      |
+| B-18 Control a | Pitch Bend           | Modulation           |
+| B-19 Control b | Breath Controller    | Expression           |
+| B-20 Control c | Sustain Pedal        | Channel Pressure     |
+| B-21 Control d | Panic                | Randomize Synth      |
 | C-00 Write 0   | Write #0 User        | Write #1 User        |
 | C-01 Write 2   | Write #2 User        | Write #3 User        |
 | C-02 Write 4   | Write #4 User        | Write #5 User        |

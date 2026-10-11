@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 Parameter Guide v3.11.0
+# Digital Synth PRA32-U2 Parameter Guide v3.12.0
 
-- 2026-10-10 ISGK Instruments
+- 2026-10-11 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 ## Control Change Parameters
@@ -375,7 +375,7 @@
     - 64: Delay Time +/- 2.7 ms
     - 126: Delay Time +/- 5.3 ms (max)
 - Delay Level: Delay Send Level
-- Delay Mode [S|P|R]
+- Delay Mode [Ste|PP|Rev]
     - 0 (0-31): Stereo Delay
     - 64 (32-95): Ping Pong Delay
     - 127 (96-127): Reverb
