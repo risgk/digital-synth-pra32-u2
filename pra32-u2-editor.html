@@ -404,8 +404,15 @@ span.cc {
 .kbd-bar #spanKbdLabel {
   margin-right: 4px;
 }
-#kbdDetails:not([open]) .kbd-bar button, #kbdDetails:not([open]) .kbd-hint {
+#kbdDetails:not([open]) .kbd-bar button, #kbdDetails:not([open]) .kbd-hint, #kbdDetails:not([open]) .kbd-vel {
   display: none;
+}
+.kbd-vel {
+  margin-left: 8px;
+  white-space: nowrap;
+}
+.kbd-vel input {
+  width: 4em;
 }
 /* The keys of the PC keyboard, small and gray (as the control numbers) */
 .kbd-hint {
@@ -530,8 +537,9 @@ const USER_PROGRAM_NUMBER_MAX      = 15;
 const PROGRAM_NUMBER_MAX           = 31;
 
 const PRA32_U2_MIDI_CH  = 0;  // 0-based
-const NOTE_ON_VELOCITY  = 100
-const NOTE_OFF_VELOCITY = 64
+// The velocities of the Software Keyboard (selected in its bar, 100 and 64 by default)
+var noteOnVelocity  = 100;
+var noteOffVelocity = 64;
 
 
 const NOTE_OFF       = 0x80;
@@ -909,16 +917,20 @@ window.onload = function() {
     console.log("No MIDI support present in your browser.");
   }
 
-  var result = restoreControllers();
-  if (!result) {
-    onChangeTranspose(0);
-    preset(PRESET_NUMBER_INITIAL);
-  }
+  withoutUndo(function() {
+    var result = restoreControllers();
+    if (!result) {
+      onChangeTranspose(0);
+      preset(PRESET_NUMBER_INITIAL);
+    }
+  });
+  updateUndoButton();
 
   for (var number = 0; number <= USER_PROGRAM_NUMBER_MAX; number++) {
     updateRecallButton(number);
   }
   createKeyboard();
+  createVelocityInputs();
   fitLayout();
   if (document.fonts) {
     document.fonts.ready.then(fitLayout);
@@ -951,12 +963,59 @@ function sleep(msec) {
 function sendCurrentParameters() {
   if (midiOutput) {
     panic();
-    var result = restoreControllers();
-    if (!result) {
-      onChangeTranspose(0);
-      preset(PRESET_NUMBER_INITIAL);
-    }
+    withoutUndo(function() {
+      var result = restoreControllers();
+      if (!result) {
+        onChangeTranspose(0);
+        preset(PRESET_NUMBER_INITIAL);
+      }
+    });
   }
+}
+
+// Undo: the parameters before the last change of them all (Factory Preset, User Preset, Randomize Synth/FX, Import,
+// and Program Change from MIDI In) are kept, so that a sound being made is not lost by a wrong button.
+// Undo again goes back to the parameters before Undo (as Redo)
+var undoParameters = null;
+var undoSuspended = false;
+
+function getCurrentParameters() {
+  return controllersInLocalStorage.map(function(i) {
+    return document.getElementById("input" + controlNumberToStringMap.get(i)).value;
+  });
+}
+
+function saveUndo() {
+  if (!undoSuspended) {
+    undoParameters = getCurrentParameters();
+    updateUndoButton();
+  }
+}
+
+function withoutUndo(func) {
+  var suspended = undoSuspended;
+  undoSuspended = true;
+  try {
+    func();
+  } finally {
+    undoSuspended = suspended;
+  }
+}
+
+function undo() {
+  if (!undoParameters) {
+    return;
+  }
+  var parameters = undoParameters;
+  undoParameters = getCurrentParameters();
+  controllersInLocalStorage.forEach(function(i, index) {
+    onChangeControlChange(i, parameters[index]);
+  });
+  updateUndoButton();
+}
+
+function updateUndoButton() {
+  document.getElementById("buttonUndo").disabled = !undoParameters;
 }
 
 function panic() {
@@ -1446,12 +1505,14 @@ function onChangeControlChange(number, value) {
 }
 
 function preset(number) {
+  saveUndo();
   controllersInLocalStorage.forEach(function(i) {
     onChangeControlChange(i, presetControllers[i][number - (USER_PROGRAM_NUMBER_MAX + 1)]);
   });
 }
 
 function setRandom() {
+  saveUndo();
   controllersInLocalStorage.forEach(function(i) {
     if ((i != VOICE_MODE     ) &&
         (i != AMP_GAIN       ) &&
@@ -1484,6 +1545,7 @@ function setRandom() {
 }
 
 function setRandomChorus() {
+  saveUndo();
   controllersInLocalStorage.forEach(function(i) {
     if ((i == CHORUS_MIX     ) ||
         (i == CHORUS_RATE    ) ||
@@ -1502,6 +1564,7 @@ function rand(n) {
 }
 
 function recallParameters(number) {
+  saveUndo();
   var value;
   controllersInLocalStorage.forEach(function(i) {
     value = localStorage.getItem("keyMemory" + String(number) + controlNumberToStringMap.get(i));
@@ -1743,11 +1806,11 @@ function sendNote(status, note, velocity) {
 }
 
 function noteOn(noteNumber) {
-  sendNote(NOTE_ON, noteNumber, NOTE_ON_VELOCITY);
+  sendNote(NOTE_ON, noteNumber, noteOnVelocity);
 }
 
 function noteOff(noteNumber) {
-  sendNote(NOTE_OFF, noteNumber, NOTE_OFF_VELOCITY);
+  sendNote(NOTE_OFF, noteNumber, noteOffVelocity);
 }
 
 // A press, or a move to another key while pressed (gliding): the Note On of the new key is sent before the Note Off
@@ -1950,9 +2013,9 @@ function createKeyboard() {
   // so the position of the last time is set when it is shown
   var details = document.getElementById("kbdDetails");
   details.open = (localStorage.getItem("keyKbdOpen") != "0");
-  // The buttons (and the keys of the PC keyboard) on the summary do not show or hide the keyboard
+  // The buttons (and the keys of the PC keyboard and the velocities) on the summary do not show or hide the keyboard
   details.querySelector("summary").addEventListener("click", function(event) {
-    if (event.target.closest("button, .kbd-hint")) {
+    if (event.target.closest("button, .kbd-hint, .kbd-vel")) {
       event.preventDefault();
     }
   });
@@ -2029,6 +2092,55 @@ function kbdLowerLeftWidth(note) {
   var index = [0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6][note % 12];
   var left = (index < 3) ? (index * 5 / 3) : (5 + ((index - 3) * 7 / 4));
   return [(Math.floor(note / 12) * 12) + left, (index < 3) ? (5 / 3) : (7 / 4)];
+}
+
+// The velocities (1-127), kept in the Web browser. A value being typed is used as soon as it is valid (e.g. "1", "12",
+// and "127"), and the value entered (by Enter, leaving the field, or the spin buttons) is set to the range (1-127),
+// or back to the last valid one if not a number (e.g. empty)
+function createVelocityInputs() {
+  [["inputNoteOnVelocity", "keyNoteOnVelocity", 100], ["inputNoteOffVelocity", "keyNoteOffVelocity", 64]].forEach(function(item) {
+    var input = document.getElementById(item[0]);
+    var key = item[1];
+    var value = parseVelocity(localStorage.getItem(key));
+    input.value = String(isNaN(value) ? item[2] : value);
+    input.addEventListener("input", function() {
+      var value = parseVelocity(input.value);
+      if (!isNaN(value) && (value >= 1) && (value <= 127)) {
+        localStorage.setItem(key, value);
+        updateVelocities();
+      }
+    });
+    input.addEventListener("change", function() {
+      var value = parseVelocity(input.value);
+      value = isNaN(value) ? parseVelocity(localStorage.getItem(key)) : Math.max(1, Math.min(127, value));
+      input.value = String(isNaN(value) ? item[2] : value);
+      localStorage.setItem(key, input.value);
+      updateVelocities();
+    });
+    // A space in the field (in the summary) does not show or hide the keyboard (e.g. in Firefox)
+    input.addEventListener("keyup", function(event) {
+      if (event.key == " ") {
+        event.preventDefault();
+      }
+    });
+  });
+  updateVelocities();
+}
+
+// An integer (e.g. "64"), or NaN (e.g. "", "6.5", or "abc")
+function parseVelocity(text) {
+  return /^\s*\d+\s*$/.test(String(text)) ? parseInt(text) : NaN;
+}
+
+// The velocities in the fields, or the last ones while a field is not valid (e.g. empty while typing)
+function updateVelocities() {
+  noteOnVelocity  = getValidVelocity("inputNoteOnVelocity",  noteOnVelocity);
+  noteOffVelocity = getValidVelocity("inputNoteOffVelocity", noteOffVelocity);
+}
+
+function getValidVelocity(id, lastVelocity) {
+  var value = parseVelocity(document.getElementById(id).value);
+  return (!isNaN(value) && (value >= 1) && (value <= 127)) ? value : lastVelocity;
 }
 
 // The keys of the PC keyboard, from C (A) to C of the next octave (K)
@@ -2138,11 +2250,7 @@ function fileReaderImportAllLoad(event) {
     updateRecallButton(number);  // stored now
   }
 
-  var result = restoreControllers();
-  if (!result) {
-    onChangeTranspose(0);
-    preset(PRESET_NUMBER_INITIAL);
-  }
+  restoreControllersAfterImport();
 
   document.getElementById("fileImportAll").value = "";
 }
@@ -2166,13 +2274,22 @@ function fileReaderImportCurrentLoad(event) {
     }
   });
 
-  var result = restoreControllers();
-  if (!result) {
-    onChangeTranspose(0);
-    preset(PRESET_NUMBER_INITIAL);
-  }
+  restoreControllersAfterImport();
 
   document.getElementById("fileImportCurrent").value = "";
+}
+
+// The current parameters imported (already stored in the Web browser, but not shown yet) are set,
+// with Undo to the parameters before Import
+function restoreControllersAfterImport() {
+  saveUndo();
+  withoutUndo(function() {
+    var result = restoreControllers();
+    if (!result) {
+      onChangeTranspose(0);
+      preset(PRESET_NUMBER_INITIAL);
+    }
+  });
 }
 
 function fileExport() {
@@ -2353,7 +2470,8 @@ function getStoredCCValueString(index, number) {
 <button type="button" onclick="sendCurrentParameters()">Send Current</button>
 <button type="button" onclick="panic()">Panic</button>
 <button type="button" onclick="setRandom()">Randomize Synth <span class="cc">PC#127</span></button>
-<button type="button" onclick="setRandomChorus()">Randomize FX</button></div></div>
+<button type="button" onclick="setRandomChorus()">Randomize FX</button>
+<button type="button" id="buttonUndo" onclick="undo()" title="Back to the parameters before the last preset, Randomize, or Import (again: Redo)">Undo</button></div></div>
 </div>
 
 <div class="section prog-row">
@@ -2516,6 +2634,8 @@ function getStoredCCValueString(index, number) {
 <button type="button" onclick="kbdShiftOctave(-1)" title="Octave Down">&#9664;</button>
 <button type="button" onclick="kbdShiftOctave(1)" title="Octave Up">&#9654;</button>
 <span class="kbd-hint">PC Keys: A - K, Z / X</span>
+<span class="kbd-vel">Velocity On <input type="number" id="inputNoteOnVelocity" min="1" max="127" step="1">
+Off <input type="number" id="inputNoteOffVelocity" min="1" max="127" step="1"></span>
 <button type="button" class="kbd-panic" onclick="panic()">Panic</button>
 </summary>
 <div class="keyboard-frame">
