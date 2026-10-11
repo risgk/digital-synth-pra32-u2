@@ -1679,6 +1679,14 @@ function writeParameters(number) {
   }
 
   if (midiOutput) {
+    // The parameters shown in the Editor are sent again before writing, so that they are written even if those of
+    // PRA32-U2 differ (e.g. after PRA32-U2 is turned off and on, or changed by its panel or another MIDI device)
+    controllersInLocalStorage.forEach(function(i) {
+      var value = parseInt(document.getElementById("input" + controlNumberToStringMap.get(i)).value);
+      midiOutput.send([(CONTROL_CHANGE | midi_ch), i, value]);
+      sleep(2);
+    });
+
     midiOutput.send([(CONTROL_CHANGE | midi_ch), PROG_N_TO_W_TO,  number]);
     sleep(2);
     midiOutput.send([(CONTROL_CHANGE | midi_ch), WRITE_P_TO_PROG, 0]);
