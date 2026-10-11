@@ -35,6 +35,10 @@
     - PRA32-U2 Editor: Add the Undo button (in Actions)
         - Back to the parameters before the last Factory Preset, User Preset, Randomize Synth/FX, Import, or Program Change from MIDI In
         - Undo again goes back to the parameters before Undo (as Redo)
+    - PRA32-U2/P: Add Pitch Bend and Channel Pressure to the Control pages, in the order of PRA32-U2 Editor
+        - B-18 Control a: Pitch Bend, Modulation; B-19 Control b: Breath Controller, Expression
+        - B-20 Control c: Sustain Pedal, Channel Pressure; B-21 Control d: Panic, Randomize Synth (from B-20)
+        - Pitch Bend: the MSB only (64 is the center), and 127 is the max (+8191)
     - Tested with Arduino-Pico version 6.2.0
 - v3.11.0 (2026-10-10):
     - Rename the Preset "#19 Simple" to "#19 Plain Poly", to show that it is a Poly Preset (as "#23 Initial" is a Mono Preset)
