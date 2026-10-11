@@ -14,6 +14,8 @@
     - パラメーターをユーザー・プログラムとフラッシュに書き込む機能があります
     - PRA32-U2 は PRA32-U (Raspberry Pi Pico/RP2040 用) の後継として始まりましたが、今では別のシンセサイザーです
 - **I2S DAC** ハードウェア (例えば Pimoroni Pico Audio Pack) が必要です
+    - Pico Audio Pack 用のケース (3D プリンター用データ): [Pico Audio Pack Case by YuuichiAkagawa](https://www.thingiverse.com/thing:6404203) (Thingiverse)
+    - Adafruit PCM510x I2S DAC や GY-PCM5102 も使えます ([I2S DAC ボードの接続](#i2s-dac-ボードの接続) を参照)
     - I2S の代わりに PWM Audio も使えます (英語版の [PWM Audio](./README.md#pwm-audio-optional) を参照)
 - ビルド済みの UF2 ファイル ("bin" フォルダー内): 改造せずに使うだけなら、Arduino IDE は不要です
     - BOOTSEL ボタンを押しながら Raspberry Pi Pico 2 を PC につなぎ、UF2 ファイルを "RP2350" ドライブにコピーしてください
@@ -29,6 +31,24 @@
 - **[PRA32-U2 Web](./PRA32-U2-Web/README.md)** (英語): Web ブラウザーで動くソフトウェア・シンセサイザー版 PRA32-U2 (PRA32-U2 Editor に内蔵)
 
 ![PRA32-U2 (Pico Audio Pack)](./pra32-u2-pico-audio-pack.jpg)
+
+
+## I2S DAC ボードの接続
+
+- Pimoroni Pico Audio Pack は、Raspberry Pi Pico 2 H を差し込むだけなので、配線は不要です
+- Adafruit PCM510x I2S DAC と GY-PCM5102 は、次のようにつなぎます (ビルド済みの UF2 ファイルをそのまま使えます)
+
+    | Raspberry Pi Pico 2                       | Adafruit PCM510x I2S DAC | GY-PCM5102 |
+    | :---------------------------------------- | :----------------------- | :--------- |
+    | GP22 (Pin 29) (オプション、ミュート・オフ) | MU                       | XSMT       |
+    | GP9 (Pin 12)                              | DIN                      | DIN        |
+    | GP10 (Pin 14)                             | BCK                      | BCK        |
+    | GP11 (Pin 15)                             | WSEL                     | LCK        |
+    | VBUS (Pin 40) または 3V3(OUT) (Pin 36)    | VIN                      | VIN        |
+    | GND                                       | GND                      | GND、SCK   |
+
+- GY-PCM5102 の裏面のはんだジャンパーの推奨設定 (はんだ付けされていない場合): H1L: L、H2L: L、H3L: H、H4L: L
+- 他の I2S DAC を使う場合は、英語版の [I2S (Default)](./README.md#i2s-default) を参照してください
 
 
 ## ドキュメント (英語)
@@ -94,6 +114,21 @@
     - Sub Synth は、Main Synth が Mono 系のモードのときだけ処理されます
 - Layering: Basic Channel - 3 から - 1 (初期値 14-16) で、複数のシンセを同時に制御します
 - 詳しくは英語版の [PRA32-U2/M](./README.md#pra32-u2m-pra32-u2-multi-timbre-edition-optional) を参照してください
+
+
+## うまく動かない場合
+
+- "RP2350" ドライブが出てこない
+    - データ通信に対応した USB ケーブルを使ってください (充電専用のケーブルでは認識されません)
+    - BOOTSEL ボタンを押したまま USB ケーブルをつなぎ、つないでからボタンを離してください
+- PRA32-U2 Editor の "MIDI Out" のリストに "PRA32-U2" が出てこない
+    - Google Chrome か Microsoft Edge を使い、MIDI デバイスへのアクセスを許可してください
+    - PRA32-U2 Editor は、開いたときに MIDI ポートの一覧を作ります。Editor を開いた後に PRA32-U2 をつないだ場合は、ページを再読み込みしてください
+- 音が出ない
+    - I2S DAC の配線を確認してください (GY-PCM5102 の場合は、SCK を GND につないでいるかと、裏面のはんだジャンパーも確認してください)
+    - PRA32-U2 Editor の "MIDI Ch" が、PRA32-U2 の MIDI チャンネル (初期値 1) と合っているか確認してください
+- ノイズが気になる
+    - USB 通信のノイズの影響を受けることがあります。英語版の [UART MIDI](./README.md#uart-midi) を試してください
 
 
 ## ライセンス

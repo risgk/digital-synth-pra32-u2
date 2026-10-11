@@ -15,6 +15,7 @@
     - Can write the parameters to the user programs and the flash
     - PRA32-U2 started as the successor to PRA32-U (for Raspberry Pi Pico/RP2040), and has since become a different synthesizer
 - An **I2S DAC** hardware (e.g. Pimoroni Pico Audio Pack) is required
+    - A case for Pico Audio Pack (3D printing data): [Pico Audio Pack Case by YuuichiAkagawa](https://www.thingiverse.com/thing:6404203) (Thingiverse)
 - Prebuilt UF2 files (in the "bin" folder): Arduino IDE is not required to use PRA32-U2 without modification
     - Connect Raspberry Pi Pico 2 to a PC while pressing the BOOTSEL button, and copy a UF2 file to the "RP2350" drive
     - PRA32-U2/M (Recommended): "Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico 2 and Pimoroni Pico Audio Pack
@@ -205,6 +206,20 @@ flowchart LR
     #define PRA32_U2_I2S_SWAP_LEFT_AND_RIGHT       (false)
     ```
 
+    - Pico Audio Pack requires no wiring: just plug Raspberry Pi Pico 2 H into it
+    - Wiring of Adafruit PCM510x I2S DAC and GY-PCM5102 (the prebuilt UF2 files can be used as they are)
+
+        | Raspberry Pi Pico 2                       | Adafruit PCM510x I2S DAC | GY-PCM5102 |
+        | :---------------------------------------- | :----------------------- | :--------- |
+        | GP22 (Pin 29) (Optional, Mute Off)        | MU                       | XSMT       |
+        | GP9 (Pin 12)                              | DIN                      | DIN        |
+        | GP10 (Pin 14)                             | BCK                      | BCK        |
+        | GP11 (Pin 15)                             | WSEL                     | LCK        |
+        | VBUS (Pin 40) or 3V3(OUT) (Pin 36)        | VIN                      | VIN        |
+        | GND                                       | GND                      | GND, SCK   |
+
+    - GY-PCM5102: Recommended settings of the solder jumpers on the back (if not soldered): H1L: L, H2L: L, H3L: H, H4L: L
+
 - The following setting is for [Pimoroni Pico VGA Demo Base](https://shop.pimoroni.com/products/pimoroni-pico-vga-demo-base) (PIM553)
 
     ```
@@ -382,6 +397,21 @@ flowchart LR
     - Runs on a single core
     - "Digital-Synth-PRA32-U2-M.ino.Lite-Core-0-Only.txt"
     - "Digital-Synth-PRA32-U2-M.ino.Lite-Core-1-Only.txt"
+
+
+## Troubleshooting
+
+- The "RP2350" drive does not appear
+    - Use a USB cable that supports data transfer (not a charge-only cable)
+    - Keep pressing the BOOTSEL button while connecting the USB cable, and release it after connecting
+- "PRA32-U2" does not appear in the list "MIDI Out" of PRA32-U2 Editor
+    - Use Google Chrome or Microsoft Edge, and allow access to MIDI devices
+    - PRA32-U2 Editor makes the list of MIDI ports when it is opened; reload the page if PRA32-U2 is connected after opening PRA32-U2 Editor
+- No sound
+    - Check the wiring of the I2S DAC (for GY-PCM5102, also check that SCK is connected to GND, and the solder jumpers on the back)
+    - Check that "MIDI Ch" of PRA32-U2 Editor matches the MIDI Channel of PRA32-U2 (1 by default)
+- Noise
+    - The output may be affected by USB communication noise; try [UART MIDI](#uart-midi)
 
 
 ## License
