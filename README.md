@@ -1,29 +1,32 @@
-# Digital Synth PRA32-U2 v3.11.0
+# Digital Synth PRA32-U2 v3.12.0
 
-- 2026-10-10 ISGK Instruments
+- 2026-10-11 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
+- [日本語版 README (抄訳)](./README.ja.md)
 
 
 ## Overview
 
 - **PRA32-U2** is a 4-Voice Polyphonic Synthesizer for Raspberry Pi Pico 2/RP2350
     - Built-in Chorus and Delay/Reverb FX, followed by the Output Limiter
-        - The Output Limiter lowers the output by 2.5 dB (x 0.75), so that the Presets are rarely limited, and limits the peaks above 0.75 (e.g. by a high Filter Resonance)
+        - The Output Limiter lowers the output by 2.5 dB (x 0.75), so that the Presets are rarely limited
+        - It limits the peaks above 0.75 (e.g. by a high Filter Resonance)
     - Controlled by MIDI -- PRA32-U2 is a MIDI sound module
-    - Having the function of writing the parameters to the user programs and the flash
-    - PRA32-U2 is an upgraded model of PRA32-U (for Raspberry Pi Pico/RP2040), but some specifications differ
-- Modifiable with Arduino IDE and Arduino-Pico (by Earle F. Philhower, III)
+    - Can write the parameters to the user programs and the flash
+    - PRA32-U2 started as the successor to PRA32-U (for Raspberry Pi Pico/RP2040), and has since become a different synthesizer
 - An **I2S DAC** hardware (e.g. Pimoroni Pico Audio Pack) is required
+- Prebuilt UF2 files (in the "bin" folder): Arduino IDE is not required to use PRA32-U2 without modification
+    - Connect Raspberry Pi Pico 2 to a PC while pressing the BOOTSEL button, and copy a UF2 file to the "RP2350" drive
+    - PRA32-U2/M (Recommended): "Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico 2 and Pimoroni Pico Audio Pack
+        - A superset of PRA32-U2: the Main Synth (Basic Channel + 0) works the same as PRA32-U2, and the Sub Synths and Layering are added
+        - NOTE: It also responds to MIDI Channels 2-4 and 14-16 (by default); use PRA32-U2 if these channels are used for other devices
+    - PRA32-U2: "Digital-Synth-PRA32-U2-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico 2 and Pimoroni Pico Audio Pack
+- Modifiable with Arduino IDE and Arduino-Pico (by Earle F. Philhower, III): see [Preparation for Modification](#preparation-for-modification) (e.g. for other I2S DACs, PWM Audio, or the panel)
 - Optional
     - **[PRA32-U2/M](#pra32-u2m-pra32-u2-multi-timbre-edition-optional)** (PRA32-U2 Multi-Timbre Edition) can also be configured
     - **[PRA32-U2/P](./README-PRA32-U2-P.md)** (PRA32-U2 with Panel) and **PRA32-U2/M/P** (PRA32-U2 Multi-Timbre Edition with Panel) can also be configured by adding certain parts
 - **[PRA32-U2 Native](./PRA32-U2-Native/README.md)**: a software synthesizer (VST3 plugin and standalone application) version of PRA32-U2 for PCs
 - **[PRA32-U2 Web](./PRA32-U2-Web/README.md)**: a software synthesizer version of PRA32-U2 that runs in a Web browser, built into PRA32-U2 Editor
-- Prebuilt UF2 files (in the "bin" folder)
-    - PRA32-U2/M (Recommended): "Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico 2 and Pimoroni Pico Audio Pack
-        - A superset of PRA32-U2: the Main Synth (Basic Channel + 0) works the same as PRA32-U2, and the Sub Synths and Layering are added
-        - NOTE: It also responds to MIDI Channels 2-4 and 14-16 (by default); use PRA32-U2 if these channels are used for other devices
-    - PRA32-U2: "Digital-Synth-PRA32-U2-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico 2 and Pimoroni Pico Audio Pack
 
 ![PRA32-U2 (Pico Audio Pack)](./pra32-u2-pico-audio-pack.jpg)
 
@@ -172,7 +175,7 @@ flowchart LR
     - necobit電子 [MIDI Unit for GROVE](https://necobit.com/denshi/grove-midi-unit/) (Shipping to Japan only)
     - necobit電子 [MIDI Unit Mini for GROVE](https://necobit.com/denshi/midi-unit-mini-for-grove/) (Shipping to Japan only)
 - We recommend using [Hairless MIDI<->Serial Bridge](https://projectgus.github.io/hairless-midiserial/) on PC
-    - On Windows, We recommend using [loopMIDI](https://www.tobias-erichsen.de/software/loopmidi.html) (virtual loopback MIDI cable)
+    - On Windows, we recommend using [loopMIDI](https://www.tobias-erichsen.de/software/loopmidi.html) (virtual loopback MIDI cable)
     - On Mac, a virtual MIDI bus (port) can be created by using the IAC bus
 
 
@@ -202,22 +205,22 @@ flowchart LR
     #define PRA32_U2_I2S_SWAP_LEFT_AND_RIGHT       (false)
     ```
 
-- The following is setting is for [Pimoroni Pico VGA Demo Base](https://shop.pimoroni.com/products/pimoroni-pico-vga-demo-base) (PIM553)
+- The following setting is for [Pimoroni Pico VGA Demo Base](https://shop.pimoroni.com/products/pimoroni-pico-vga-demo-base) (PIM553)
 
     ```
     //#define PRA32_U2_I2S_DAC_MUTE_OFF_PIN          (0)
     #define PRA32_U2_I2S_DATA_PIN                  (26)
-    #define PRA32_U2_I2S_BCLK_PIN                  (27)  // LRCLK Pin is is PRA32_U2_I2S_BCLK_PIN + 1
+    #define PRA32_U2_I2S_BCLK_PIN                  (27)  // LRCLK Pin is PRA32_U2_I2S_BCLK_PIN + 1
     #define PRA32_U2_I2S_SWAP_BCLK_AND_LRCLK_PINS  (false)
     #define PRA32_U2_I2S_SWAP_LEFT_AND_RIGHT       (false)
     ```
 
-- The following is setting is for [Waveshare Pico-Audio](https://www.waveshare.com/wiki/Pico-Audio) Initial Version (WAVESHARE-20167)
+- The following setting is for [Waveshare Pico-Audio](https://www.waveshare.com/wiki/Pico-Audio) Initial Version (WAVESHARE-20167)
 
     ```
     //#define PRA32_U2_I2S_DAC_MUTE_OFF_PIN          (0)
     #define PRA32_U2_I2S_DATA_PIN                  (26)
-    #define PRA32_U2_I2S_BCLK_PIN                  (27)  // LRCLK Pin is is PRA32_U2_I2S_BCLK_PIN + 1
+    #define PRA32_U2_I2S_BCLK_PIN                  (27)  // LRCLK Pin is PRA32_U2_I2S_BCLK_PIN + 1
     #define PRA32_U2_I2S_SWAP_BCLK_AND_LRCLK_PINS  (false)
     #define PRA32_U2_I2S_SWAP_LEFT_AND_RIGHT       (true)
     ```
@@ -245,14 +248,14 @@ flowchart LR
     - NOTE: Probably smaller output volume than I2S DAC boards
     - The parameters are written to the flash after fading out the output (about 4 ms), and the output is silent while writing (about 50-100 ms, + 20 ms with the I2S DAC mute)
     - We recommend adding RC filter (post LPF) circuits to reduce PWM ripples
-        - A 1st-order LPFs with a cutoff frequency 7.2 kHz (R = 220 ohm, C = 100 nF) works well
+        - A 1st-order LPF with a cutoff frequency 7.2 kHz (R = 220 ohm, C = 100 nF) works well
     - See "PWM audio" in [Hardware design with RP2040](https://datasheets.raspberrypi.com/rp2040/hardware-design-with-rp2040.pdf)
       for details on PWM audio
 - NOTE: The RP2350 system clock (sysclk) changes to overclocked 153.6 MHz (the same as I2S), regardless of CPU Speed in the Arduino IDE "Tools" menu
     - The PWM period is exactly 3200 cycles (Sampling Rate: 48 kHz)
-- Uncomment out `//#define PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S`
+- Uncomment `//#define PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S`
   in "Digital-Synth-PRA32-U2.ino" and modify `PRA32_U2_PWM_AUDIO_L_PIN` and `PRA32_U2_PWM_AUDIO_R_PIN`
-- The following is setting is for Pimoroni Pico VGA Demo Base (PIM553)
+- The following setting is for Pimoroni Pico VGA Demo Base (PIM553)
 
     ```
     #define PRA32_U2_PWM_AUDIO_L_PIN               (28)
@@ -262,7 +265,7 @@ flowchart LR
 
 ## Files
 
-- "Digital-Synth-PRA32-U2.ino" is a Arduino sketch for Raspberry Pi Pico/RP2040/RP2350 core
+- "Digital-Synth-PRA32-U2.ino" is an Arduino sketch for Raspberry Pi Pico/RP2040/RP2350 core
     - Modify `PRA32_U2_MIDI_CH` to change the MIDI Channel
 - "pra32-u2-make-sample-wav-file.cc" is for debugging on PC
     - GCC (g++) for PC is required
@@ -274,25 +277,44 @@ flowchart LR
 ## PRA32-U2 Editor
 
 - "pra32-u2-editor.html": Editor (MIDI Controller) Application for PRA32-U2, HTML App (Web App)
-    - Modify `PRA32_U2_MIDI_CH` to change the MIDI Channel
-- We recommend using Google Chrome, which implements Web MIDI API
+    - Select the MIDI Channel in "MIDI Ch" (1 by default, `PRA32_U2_MIDI_CH`)
+- We recommend using Google Chrome or Microsoft Edge, which implement Web MIDI API
+    - Refer to "Web browsers" in [PRA32-U2 Web](./PRA32-U2-Web/README.md) for the other Web browsers (e.g. Safari)
+    - Safari (Mac, iPhone, iPad) and all the Web browsers on iPhone and iPad do not support Web MIDI API,
+      so PRA32-U2 Editor can be used only with PRA32-U2 Web (Built-in), not with PRA32-U2 or other MIDI devices
 - Select "PRA32-U2" in the list "MIDI Out"
     - Select "PRA32-U2 Web (Built-in)" to use [PRA32-U2 Web](./PRA32-U2-Web/README.md), without PRA32-U2
 - Functions
-    - PRA32-U2 Editor converts Program Changes (#0-15 for user presets, #16-31 for factory presets) into Control Changes
-    - When Program Change #127 is entered or Control Change #111 is changed from Off (63 or lower) to On (64 or higher), "Random Synth" is processed
+    - Program Changes via PRA32-U2 Editor (from "MIDI In" on the MIDI Ch of the Editor) are not passed to PRA32-U2:
+      PRA32-U2 Editor recalls the preset instead, and sends its parameters as Control Changes
+        - #0-15: the user presets of PRA32-U2 Editor (stored in the Web browser), not the programs #0-15 of PRA32-U2 (written by Write)
+        - #16-31: the factory presets (the same as the programs #16-31 of PRA32-U2)
+        - To select the programs of PRA32-U2 itself, send Program Changes to PRA32-U2 directly (without PRA32-U2 Editor),
+          or use the Program Change buttons (in "Save & Load")
+    - When Program Change #127 is entered or Control Change #111 is changed from Off (63 or lower) to On (64 or higher), "Randomize Synth" is processed
     - PRA32-U2 Editor stores the current control values and the user presets (#0-15) in a Web browser (localStorage)
     - Current parameter values and user presets (#0-15) can be imported/exported from/to JSON files
-- When not using PRA32-U2 Editor
+    - User presets: a name of up to 10 ASCII letters, digits, and symbols can be given by Store (shown on the User Preset buttons)
+    - Undo: back to the parameters before the last preset, Randomize, or Import (Undo again: Redo)
+    - Software Keyboard: a note stays on when the mouse leaves the keyboard upward or downward while pressed (Panic turns it off)
+    - Software Keyboard: the PC keyboard can also be played while it is shown (A - K for C - C, W - U for the black keys, and Z / X for the octave);
+      some PC keyboards cannot take many keys at the same time (e.g. a chord of 4 notes)
+    - Software Keyboard: the velocities of Note On and Note Off can be entered (1-127, 100 and 64 by default)
+    - Software Keyboard: Pitch Bend (springs back to the center), Modulation, Breath Controller, Expression, Sustain Pedal,
+      and Channel Pressure can be sent from the sliders below the keyboard
+- When not using PRA32-U2 Editor (e.g. with a DAW or a MIDI keyboard)
     - PRA32-U2 can also be controlled by MIDI without using PRA32-U2 Editor
-    - Refer to "PRA32-U2-MIDI-Implementation-Chart.txt" for the supported functions
-    - The default program is #0
-    - "Random Synth" is also processed by PRA32-U2 itself (Program Change #127 or Control Change #111 from Off to On)
+    - Sounds made with PRA32-U2 Editor can be written to PRA32-U2, and recalled later without PRA32-U2 Editor
+        1. Write: press a Write button (#0-15, in "Save & Load") of PRA32-U2 Editor, to write the current parameters
+           to the program of PRA32-U2 (also to the flash, so that they are kept after the power is turned off);
+           the parameters shown in PRA32-U2 Editor are sent again before writing
+        2. Send Program Change #0-15 to PRA32-U2 directly (not via PRA32-U2 Editor) to recall the program
+    - The Program Change buttons (in "Save & Load") of PRA32-U2 Editor also send Program Changes to PRA32-U2 directly
+      (NOTE: The parameters shown in PRA32-U2 Editor are not updated)
+    - The default program (when the power is turned on) is #0
+    - "Randomize Synth" is also processed by PRA32-U2 itself (Program Change #127 or Control Change #111 from Off to On)
+    - Refer to [PRA32-U2-MIDI-Implementation-Chart.md](./PRA32-U2-MIDI-Implementation-Chart.md) for the supported functions
     - Programs #0-31 can be modified by editing "pra32-u2-program-table.h"
-    - PRA32-U2 Editor functions related to parameter writing
-        - Write: Write the current parameters to PRA32-U2 (Program #0-15 and the flash)
-        - Program Change: Send Program Change to PRA32-U2 directry
-          (NOTE: The current parameters of PRA32-U2 will not be updated)
 
 
 ## PRA32-U2/M (PRA32-U2 Multi-Timbre Edition) (Optional)
@@ -314,7 +336,7 @@ flowchart LR
         - Not to use this feature, comment out `#define PRA32_U2_ENABLE_LAYERING` in "Digital-Synth-PRA32-U2-M.ino"
 - How to modify
     - Copy all files in the "Digital-Synth-PRA32-U2" folder, except for "Digital-Synth-PRA32-U2.ino", to the "Digital-Synth-PRA32-U2-M" folder
-    - "Digital-Synth-PRA32-U2-M.ino" is a Arduino sketch
+    - "Digital-Synth-PRA32-U2-M.ino" is an Arduino sketch
 
 
 ## [PRA32-U2/P](./README-PRA32-U2-P.md) (PRA32-U2 with Panel) (Optional)
@@ -366,11 +388,11 @@ flowchart LR
 
 ![CC0](http://i.creativecommons.org/p/zero/1.0/88x31.png)
 
-**Digital Synth PRA32-U2 v3.11.0 by ISGK Instruments (Ryo Ishigaki)**
+**Digital Synth PRA32-U2 v3.12.0 by ISGK Instruments (Ryo Ishigaki)**
 
 To the extent possible under law, ISGK Instruments (Ryo Ishigaki)
 has waived all copyright and related or neighboring rights
-to Digital Synth PRA32-U2 v3.11.0.
+to Digital Synth PRA32-U2 v3.12.0.
 
 You should have received a copy of the CC0 legalcode along with this
 work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.

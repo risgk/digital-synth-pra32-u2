@@ -1,6 +1,6 @@
 ```
-  [Polyphonic Synthesizer]                                        Date: 2026-10-10                      
-  Model: Digital Synth PRA32-U2   MIDI Implementation Chart       Version: 3.11.0                       
+  [Polyphonic Synthesizer]                                        Date: 2026-10-11                      
+  Model: Digital Synth PRA32-U2   MIDI Implementation Chart       Version: 3.12.0                       
 +-------------------------------+---------------+---------------+--------------------------------------+
 | Function...                   | Transmitted   | Recognized    | Remarks                              |
 +-------------------------------+---------------+---------------+--------------------------------------+
@@ -100,7 +100,7 @@
 |                            59 | x             | o             | Chorus Depth                         |
 |                               |               |               |                                      |
 |                            94 | x             | o             | Delay Level                          |
-|                            35 | x             | o             | Delay Mode [S|P|R]                   |
+|                            35 | x             | o             | Delay Mode [Ste|PP|Rev]              |
 |                            90 | x             | o             | Delay Time                           |
 |                            92 | x             | o             | Delay Feedback                       |
 |                               |               |               |                                      |

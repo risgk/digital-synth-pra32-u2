@@ -88,7 +88,7 @@ const PRA32U2Engine::ParameterInfo s_parameter_names[] = {
   { CHORUS_DEPTH   , "Chorus Depth"                           },
 
   { DELAY_LEVEL    , "Delay Level"                            },
-  { DELAY_MODE     , "Delay Mode [S|P|R]"                     },
+  { DELAY_MODE     , "Delay Mode [Ste|PP|Rev]"                },
   { DELAY_TIME     , "Delay Time"                             },
   { DELAY_FEEDBACK , "Delay Feedback"                         },
 };
@@ -228,7 +228,7 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value) {
   static const char* const BTH_AMP_MODS[6] = { "Off", "Q", "L", "LO", "QO", "Opn" };
   static const char* const FX_ROUTINGS[3]  = { "Cho", "Dly", "Byp" };
   static const char* const ASGN_MODES[6]   = { "1", "1", "3", "3", "4", "2" };
-  static const char* const DELAY_MODES[3]  = { "S", "P", "R" };
+  static const char* const DELAY_MODES[3]  = { "Ste", "PP", "Rev" };
 
   switch (controlNumber) {
   case OSC_2_COARSE    :

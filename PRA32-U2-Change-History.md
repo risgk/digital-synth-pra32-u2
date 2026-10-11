@@ -1,5 +1,47 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v3.12.0 (2026-10-11):
+    - Change the display of the Delay Mode from "S|P|R" to "Ste|PP|Rev", to be easier to understand
+    - PRA32-U2 Editor: Change the layout to a floating layout (4, 2, or 1 column by the window width)
+        - Compact 2 columns for a narrow screen (e.g. iPhone SE 2, 375 px wide)
+        - "Misc" renamed to "Actions", above Factory Preset
+        - "Recall" renamed to "User Preset", below Factory Preset
+        - "Details" renamed to "Save & Load", with File and Store too (hidden by default)
+        - Save & Load and the Software Keyboard are shown or hidden as the last time
+    - PRA32-U2 Editor: Change the Software Keyboard to a new one, above the parameters
+        - All the notes (0-127) with its own scroll bar
+            - 37 keys (C3 - C6) in a 960 px window, as large as the text
+        - The upper half: the 12 semitones at equal intervals (the black keys as long as the upper half)
+        - The lower half: the white keys only, as in a piano
+            - C - E as wide as 5 / 3 semitones, and F - B as wide as 7 / 4 semitones
+        - Gliding over the keys, as legato
+            - The Note On of the new key before the Note Off of the old key
+        - The PC keyboard while shown, as in DAWs
+            - A - K for C - C, W - U for the black keys, and Z / X for the octave
+        - The velocities of Note On and Note Off can be entered (1-127, 100 and 64 by default)
+        - The Panic button at the upper right
+        - Pitch Bend, Modulation, Breath Controller, Expression, Sustain Pedal, and Channel Pressure below it
+            - Pitch Bend springs back to the center when released (as a pitch bend wheel)
+            - Not stored; back to the values of Reset All Controllers by Panic
+        - Can be hidden (shown by default)
+    - PRA32-U2 Editor: Add the names of the user presets
+        - Up to 10 ASCII letters, digits, and symbols (as the Factory Presets)
+        - Entered by Store, and shown on the User Preset buttons (e.g. "#0 My Lead")
+        - A user preset that is "#23 Initial" without a name (e.g. not stored yet) is shown lighter, as an empty one (as "#31 ---" of the Factory Presets)
+        - Exported and imported by Export All and Import All (a file of an older version clears them)
+        - "pra32-u2-prog-factory-presets.json" has the names of the Factory Presets
+    - PRA32-U2 Editor: Add "pra32-u2-prog-all-initial.json" for Import All
+        - All the user presets (#0-15) are "#23 Initial", without names
+    - PRA32-U2 Editor: Add the Undo button (in Actions)
+        - Back to the parameters before the last Factory Preset, User Preset, Randomize Synth/FX, Import, or Program Change from MIDI In
+        - Undo again goes back to the parameters before Undo (as Redo)
+    - PRA32-U2 Editor: Change Write to send the parameters shown in the Editor again before writing
+        - So that they are written even if those of PRA32-U2 differ (e.g. after PRA32-U2 is turned off and on)
+    - PRA32-U2/P: Add Pitch Bend and Channel Pressure to the Control pages, in the order of PRA32-U2 Editor
+        - B-18 Control a: Pitch Bend, Modulation; B-19 Control b: Breath Controller, Expression
+        - B-20 Control c: Sustain Pedal, Channel Pressure; B-21 Control d: Panic, Randomize Synth (from B-20)
+        - Pitch Bend: the MSB only (64 is the center), and 127 is the max (+8191)
+    - Tested with Arduino-Pico version 6.2.0
 - v3.11.0 (2026-10-10):
     - Rename the Preset "#19 Simple" to "#19 Plain Poly", to show that it is a Poly Preset (as "#23 Initial" is a Mono Preset)
     - Add the missing `template` keywords to the calls of `PRA32_U2_Filter::process_at_low_rate()`, for Apple Clang (Xcode 15) (no change in the sound)
