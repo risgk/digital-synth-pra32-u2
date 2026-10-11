@@ -983,6 +983,15 @@ public:
       m_lfo.set_lfo_depth<1>(controller_value);
       break;
 
+    case PITCH_BEND_MSB :
+      // The LSB is 0, except for 127 (the max, +8191), so that both ends can be reached
+      pitch_bend((controller_value == 127) ? 127 : 0, controller_value);
+      break;
+
+    case CH_PRESSURE    :
+      after_touch_channel(controller_value);
+      break;
+
     case FILTER_CUTOFF  :
       m_filter[0].set_cutoff(controller_value);
       m_filter[1].set_cutoff(controller_value);
@@ -1417,6 +1426,12 @@ if constexpr (NO_FX == false) {
   /* INLINE */ void __not_in_flash_func(pitch_bend)(uint8_t lsb, uint8_t msb) {
     int16_t pitch_bend = ((static_cast<uint16_t>(msb) << 8) >> 1) + lsb - 8192;
     m_osc.set_pitch_bend(pitch_bend);
+
+    // The current value for the control panel (e.g. after Pitch Bend from MIDI or Reset All Controllers)
+    m_current_controller_value_table[PITCH_BEND_MSB] = msb;
+#if defined(PRA32_U2_USE_CONTROL_PANEL)
+    PRA32_U2_ControlPanel_on_control_change(PITCH_BEND_MSB);
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
   }
 
   /* INLINE */ void __not_in_flash_func(after_touch_poly)(uint8_t note_number, uint8_t pressure) {
@@ -1442,6 +1457,12 @@ if constexpr (NO_FX == false) {
     m_lfo.set_pressure<1>(pressure);
     m_lfo.set_pressure<2>(pressure);
     m_lfo.set_pressure<3>(pressure);
+
+    // The current value for the control panel (e.g. after Channel Pressure from MIDI or Reset All Controllers)
+    m_current_controller_value_table[CH_PRESSURE] = pressure;
+#if defined(PRA32_U2_USE_CONTROL_PANEL)
+    PRA32_U2_ControlPanel_on_control_change(CH_PRESSURE);
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
   }
 
   /* INLINE */ void __not_in_flash_func(program_change)(uint8_t program_number) {

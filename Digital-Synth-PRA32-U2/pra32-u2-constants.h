@@ -196,6 +196,9 @@ const uint8_t   VOICE_ASGN_MODE_4  = 102;
 const uint8_t   VOICE_ASGN_MODE_2  = 127;
 
 
+const uint8_t   PITCH_BEND_MSB  = 128 + 0;
+const uint8_t   CH_PRESSURE     = 128 + 1;
+
 const uint8_t   PANEL_SCALE     = 128 + 8;
 const uint8_t   PANEL_TRANSPOSE = 128 + 9;
 const uint8_t   PANEL_PLAY_MODE = 128 + 10;
