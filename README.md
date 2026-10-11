@@ -268,6 +268,8 @@ flowchart LR
     - The parameters are written to the flash after fading out the output (about 4 ms), and the output is silent while writing (about 50-100 ms, + 20 ms with the I2S DAC mute)
     - We recommend adding RC filter (post LPF) circuits to reduce PWM ripples
         - A 1st-order LPF with a cutoff frequency 7.2 kHz (R = 220 ohm, C = 100 nF) works well
+    - Without the RC filters, reduce the level with resistors (e.g. a variable resistor) or the input gain (volume) of the connected device
+        - The PWM ripples (3.3 V square waves) may saturate the input (e.g. of an audio interface) and cause beeps or noises, even when its level meter looks fine
     - See "PWM audio" in [Hardware design with RP2040](https://datasheets.raspberrypi.com/rp2040/hardware-design-with-rp2040.pdf)
       for details on PWM audio
 - NOTE: The RP2350 system clock (sysclk) changes to overclocked 153.6 MHz (the same as I2S), regardless of CPU Speed in the Arduino IDE "Tools" menu
