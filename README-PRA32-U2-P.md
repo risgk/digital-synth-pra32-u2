@@ -15,7 +15,7 @@
     - Panel and Step Sequencer Parameters
 - This option requires 1 to 4 SWs (tactile switches), 2 to 3 VRs (ADCs), and a monochrome 128x64 OLED Display based on SSD1306 series drivers
     - Tested with Pimoroni Pico Audio Pack, M5Stack MIDI Unit (optional), Long Leg 2x20 Pin Socket * 2, Seeed Studio's Grove Shield for Pi Pico, Dual Button * 3, Rotary Angle Sensor * 3, and an OLED Display 0.96 inch
-- Uncomment out `//#define PRA32_U2_USE_CONTROL_PANEL` in "Digital-Synth-PRA32-U2.ino" and modify the constants
+- Uncomment `//#define PRA32_U2_USE_CONTROL_PANEL` in "Digital-Synth-PRA32-U2.ino" and modify the constants
 - Inputs
     - SW0: Prev Key (Push to go to the previous page, Long press to the previous group)
     - SW1: Next Key (Push to go to the next page, Long press to the next group)
@@ -41,7 +41,7 @@
 ### PRA32-U2/M/P (PRA32-U2 Multi-Timbre Edition with Panel) (Optional)
 
 - Copy all files in the "Digital-Synth-PRA32-U2" folder, except for "Digital-Synth-PRA32-U2.ino", to the "Digital-Synth-PRA32-U2-M" folder
-- Uncomment out `//#define PRA32_U2_USE_CONTROL_PANEL` in "Digital-Synth-PRA32-U2-M.ino"
+- Uncomment `//#define PRA32_U2_USE_CONTROL_PANEL` in "Digital-Synth-PRA32-U2-M.ino"
 - Prev Key + Next Key: Push to go to the next synth (channel)
     - "$0" -> "$1" -> "$2" -> "$3" -> "$D" -> "$E" -> "$F" -> "$0"
     - "$0" to "$3": Basic Channel + 0 to + 3 (Synths)
