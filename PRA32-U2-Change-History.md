@@ -35,6 +35,8 @@
     - PRA32-U2 Editor: Add the Undo button (in Actions)
         - Back to the parameters before the last Factory Preset, User Preset, Randomize Synth/FX, Import, or Program Change from MIDI In
         - Undo again goes back to the parameters before Undo (as Redo)
+    - PRA32-U2 Editor: Change Write to send the parameters shown in the Editor again before writing
+        - So that they are written even if those of PRA32-U2 differ (e.g. after PRA32-U2 is turned off and on)
     - PRA32-U2/P: Add Pitch Bend and Channel Pressure to the Control pages, in the order of PRA32-U2 Editor
         - B-18 Control a: Pitch Bend, Modulation; B-19 Control b: Breath Controller, Expression
         - B-20 Control c: Sustain Pedal, Channel Pressure; B-21 Control d: Panic, Randomize Synth (from B-20)
