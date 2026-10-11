@@ -2,6 +2,10 @@
 
 - v3.12.1 (2026-??-??):
     - Change "Write Parameters to Program" (CC #106) to be written when changed from 0-31 (instead of 0-32) to 96-127, as the control panel of PRA32-U2/P
+    - Improve the PWM Audio carrier by splitting each sample into 4 PWM periods (from 48 kHz to 192 kHz)
+        - The level (3200 steps) is split into them (e.g. 801 = 201 + 200 + 200 + 200), so the resolution is the same
+        - This reduces the beeps or whines of some active speakers (especially ones with an ADC/DSP) when the RC filters are omitted
+        - `PRA32_U2_PWM_AUDIO_SUBPERIODS` can be defined as 1, 2, 4 (default), or 8 (carrier: 48, 96, 192, or 384 kHz)
     - PRA32-U2 Editor: Change the space at the bottom from 22 px to 8 px, as at the top
     - PRA32-U2 Editor: Widen the space before "Off" of the Velocity of the Software Keyboard to 8 px, as between the groups of its bar
     - PRA32-U2 Editor: Fix the Software Keyboard to follow a change of the text size even without a resize of the window
