@@ -284,9 +284,14 @@ flowchart LR
     - When Program Change #127 is entered or Control Change #111 is changed from Off (63 or lower) to On (64 or higher), "Randomize Synth" is processed
     - PRA32-U2 Editor stores the current control values and the user presets (#0-15) in a Web browser (localStorage)
     - Current parameter values and user presets (#0-15) can be imported/exported from/to JSON files
+    - User presets: a name of up to 10 ASCII letters, digits, and symbols can be given by Store (shown on the User Preset buttons)
+    - Undo: back to the parameters before the last preset, Randomize, or Import (Undo again: Redo)
     - Software Keyboard: a note stays on when the mouse leaves the keyboard upward or downward while pressed (Panic turns it off)
     - Software Keyboard: the PC keyboard can also be played while it is shown (A - K for C - C, W - U for the black keys, and Z / X for the octave);
       some PC keyboards cannot take many keys at the same time (e.g. a chord of 4 notes)
+    - Software Keyboard: the velocities of Note On and Note Off can be entered (1-127, 100 and 64 by default)
+    - Software Keyboard: Pitch Bend (springs back to the center), Modulation, Breath Controller, Expression, Sustain Pedal,
+      and Channel Pressure can be sent from the sliders below the keyboard
 - When not using PRA32-U2 Editor
     - PRA32-U2 can also be controlled by MIDI without using PRA32-U2 Editor
     - Refer to [PRA32-U2-MIDI-Implementation-Chart.md](./PRA32-U2-MIDI-Implementation-Chart.md) for the supported functions
