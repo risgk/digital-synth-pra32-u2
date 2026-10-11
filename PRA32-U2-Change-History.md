@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v3.11.1 (2026-??-??):
+- v3.12.0 (2026-??-??):
     - Change the display of the Delay Mode from "S|P|R" to "Ste|PP|Rev", to be easier to understand
     - PRA32-U2 Editor: Change the layout to a floating layout (4, 2, or 1 column by the window width)
         - Compact 2 columns for a narrow screen (e.g. iPhone SE 2, 375 px wide)
