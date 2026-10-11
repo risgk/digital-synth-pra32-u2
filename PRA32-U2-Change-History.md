@@ -2,6 +2,7 @@
 
 - v3.12.1 (2026-??-??):
     - PRA32-U2 Editor: Change the space at the bottom from 22 px to 8 px, as at the top
+    - PRA32-U2 Editor: Widen the space before "Off" of the Velocity of the Software Keyboard to 8 px, as between the groups of its bar
     - Tested with Arduino-Pico version 6.2.0
 - v3.12.0 (2026-10-11):
     - Change the display of the Delay Mode from "S|P|R" to "Ste|PP|Rev", to be easier to understand
