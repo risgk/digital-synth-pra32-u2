@@ -1,5 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v3.12.1 (2026-??-??):
+    - Tested with Arduino-Pico version 6.2.0
 - v3.12.0 (2026-10-11):
     - Change the display of the Delay Mode from "S|P|R" to "Ste|PP|Rev", to be easier to understand
     - PRA32-U2 Editor: Change the layout to a floating layout (4, 2, or 1 column by the window width)
