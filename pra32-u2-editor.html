@@ -436,12 +436,6 @@ span.cc {
   border-bottom: none;
   padding: 0;
 }
-/* An empty place before Channel Pressure (e.g. Sustain Pedal, empty, Channel Pressure), not in 1 column */
-@container (max-width: 355px) {
-  .perf-spacer {
-    display: none;
-  }
-}
 /* The sizes of the keys: times the scale of the text (--kbd-scale, set by kbdFitScale()) */
 .keyboard-frame {
   --kbd-scale: 1;
@@ -2756,7 +2750,6 @@ Off <input type="number" id="inputNoteOffVelocity" min="1" max="127" step="1"></
   <div class="param-name">Sustain Pedal [Off|On] <span class="cc">CC#64</span></div>
   <div class="param-ctrl"><input id="inputPerfSUSTAIN_PEDAL" type="range" list="2 markers" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(SUSTAIN_PEDAL, value)"><span id="spanPerfSUSTAIN_PEDAL">0</span><span id="span2PerfSUSTAIN_PEDAL">[Off]</span></div>
 </div>
-<div class="param perf-spacer"></div>
 <div class="param">
   <div class="param-name">Channel Pressure</div>
   <div class="param-ctrl"><input id="inputPerfCH_PRESSURE" type="range" list="0 markers" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(CH_PRESSURE, value)"><span id="spanPerfCH_PRESSURE">0</span><span id="span2PerfCH_PRESSURE"></span></div>
