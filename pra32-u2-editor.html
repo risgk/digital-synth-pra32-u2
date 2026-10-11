@@ -392,9 +392,7 @@ span.cc {
 }
 
 /* ---- Soft keyboard (after SPMS-1 Editor): C-1 - G9 (37 keys, C3 - C6, in a 960px window), scrolled by the octave buttons or the scroll bar ---- */
-#kbdDetails {
-  margin-bottom: 14px;
-}
+
 /* The bar of the keyboard is the summary (a list item, not a flex box, for the marker), with the buttons on the line
    of the label. The buttons are hidden while the keyboard is hidden */
 .kbd-bar button {
@@ -428,6 +426,21 @@ span.cc {
   content: "";
   display: block;
   clear: both;
+}
+/* The controls for playing below the keyboard (as Control a/b of PRA32-U2/P), as a row of the parameters without the lines */
+.params.perf {
+  border-top: none;
+  margin: 8px 0 0 0;
+}
+.params.perf .param-group {
+  border-bottom: none;
+  padding: 0;
+}
+/* An empty place before Channel Pressure (e.g. Sustain Pedal, empty, Channel Pressure), not in 1 column */
+@container (max-width: 355px) {
+  .perf-spacer {
+    display: none;
+  }
 }
 /* The sizes of the keys: times the scale of the text (--kbd-scale, set by kbdFitScale()) */
 .keyboard-frame {
@@ -546,6 +559,7 @@ const NOTE_OFF       = 0x80;
 const NOTE_ON        = 0x90;
 const CONTROL_CHANGE = 0xB0;
 const PROGRAM_CHANGE = 0xC0;
+const CH_PRESSURE    = 0xD0;  // Channel Pressure (After Touch)
 const PITCH_BEND     = 0xE0;
 
 
@@ -931,6 +945,7 @@ window.onload = function() {
   }
   createKeyboard();
   createVelocityInputs();
+  setupPitchBendSpring();
   fitLayout();
   if (document.fonts) {
     document.fonts.ready.then(fitLayout);
@@ -1020,6 +1035,7 @@ function updateUndoButton() {
 
 function panic() {
   kbdReset();
+  resetPerformanceControls();  // as Reset All Controllers below
   if (midiOutput) {
     midiOutput.send([(CONTROL_CHANGE | midi_ch), ALL_NOTES_OFF, 0]);
     sleep(2);
@@ -1142,6 +1158,15 @@ function onMIDIMessage(event) {
   if (event.data[0] == (CONTROL_CHANGE | midi_ch)) {
     var number = event.data[1];
     var value = event.data[2];
+    // As PRA32-U2: Reset All Controllers resets them all, and All Notes Off (and All Sound Off, Omni Mode Off/On,
+    // Mono/Poly Mode On) turns off the Sustain Pedal
+    if (PERFORMANCE_CONTROLS.has(number)) {  // a Control Change (Pitch Bend and Channel Pressure are 0xE0 and 0xD0)
+      updateDisplayOfPerformanceControl(number, value);
+    } else if (number == RESET_ALL_CTRLS) {
+      resetPerformanceControls();
+    } else if ((number == ALL_SOUND_OFF) || (number == ALL_NOTES_OFF) || (number >= OMNI_MODE_OFF)) {
+      updateDisplayOfPerformanceControl(SUSTAIN_PEDAL, 0);
+    }
     if (controllersInLocalStorage.indexOf(number) >= 0) {
       updateDisplayOfControl(number, value);
       if ((number == OSC_1_WAVE) || (number == OSC_2_WAVE) || (number == MIXER_SUB_OSC) || (number == VOICE_MODE) || (number == EG_AMP_MOD) || (number == REL_EQ_DECAY)) {
@@ -1165,6 +1190,12 @@ function onMIDIMessage(event) {
         return;
       }
     }
+  }
+
+  if ((event.data[0] == (CH_PRESSURE | midi_ch)) && (event.data.length >= 2)) {
+    updateDisplayOfPerformanceControl(CH_PRESSURE, event.data[1]);
+  } else if ((event.data[0] == (PITCH_BEND | midi_ch)) && (event.data.length >= 3)) {
+    updateDisplayOfPerformanceControl(PITCH_BEND, ((event.data[2] << 7) | event.data[1]) - 8192);
   }
 
   const PROGRAM_CHANGE = 0xC0;
@@ -2094,6 +2125,65 @@ function kbdLowerLeftWidth(note) {
   return [(Math.floor(note / 12) * 12) + left, (index < 3) ? (5 / 3) : (7 / 4)];
 }
 
+// The controls for playing (as Control a/b of PRA32-U2/P): not stored (as a performance; the values of Reset All
+// Controllers of PRA32-U2 when the page is opened), and back to them by Panic.
+// Those from MIDI In (on the MIDI Ch of the Editor) are shown too
+const PERFORMANCE_CONTROLS = new Map([
+  [PITCH_BEND    , ["PITCH_BEND"    , 0  ]],  // not a Control Change, but Pitch Bend (-8192 - +8191)
+  [MODULATION    , ["MODULATION"    , 0  ]],
+  [BTH_CONTROLLER, ["BTH_CONTROLLER", 0  ]],
+  [EXPRESSION    , ["EXPRESSION"    , 127]],
+  [SUSTAIN_PEDAL , ["SUSTAIN_PEDAL" , 0  ]],
+  [CH_PRESSURE   , ["CH_PRESSURE"   , 0  ]],  // not a Control Change, but Channel Pressure (After Touch)
+]);
+
+function onChangePerformanceControl(number, value) {
+  updateDisplayOfPerformanceControl(number, value);
+  if (midiOutput) {
+    if (number == PITCH_BEND) {
+      var bend = parseInt(value) + 8192;
+      midiOutput.send([(PITCH_BEND | midi_ch), bend & 0x7F, bend >> 7]);
+    } else if (number == CH_PRESSURE) {
+      midiOutput.send([(CH_PRESSURE | midi_ch), parseInt(value)]);
+    } else {
+      midiOutput.send([(CONTROL_CHANGE | midi_ch), number, parseInt(value)]);
+    }
+    sleep(2);
+  }
+}
+
+function updateDisplayOfPerformanceControl(number, value) {
+  var key = PERFORMANCE_CONTROLS.get(number)[0];
+  value = parseInt(value);
+  document.getElementById("inputPerf" + key).value = value;
+  document.getElementById("spanPerf" + key).textContent = String(value);
+  if (number == SUSTAIN_PEDAL) {
+    document.getElementById("span2Perf" + key).textContent = (value >= 64) ? "[On]" : "[Off]";
+  }
+}
+
+// Pitch Bend springs back to the center when the slider is released (as a pitch bend wheel)
+function setupPitchBendSpring() {
+  var input = document.getElementById("inputPerfPITCH_BEND");
+  var pressed = false;
+  function release() {
+    pressed = false;
+    if (parseInt(input.value) != 0) {
+      onChangePerformanceControl(PITCH_BEND, 0);
+    }
+  }
+  input.addEventListener("pointerdown", function() { pressed = true; });
+  window.addEventListener("pointerup", function() { if (pressed) { release(); } });
+  window.addEventListener("pointercancel", function() { if (pressed) { release(); } });
+  input.addEventListener("change", release);  // e.g. by the arrow keys
+}
+
+function resetPerformanceControls() {
+  PERFORMANCE_CONTROLS.forEach(function(item, number) {
+    updateDisplayOfPerformanceControl(number, item[1]);
+  });
+}
+
 // The velocities (1-127), kept in the Web browser. A value being typed is used as soon as it is valid (e.g. "1", "12",
 // and "127"), and the value entered (by Enter, leaving the field, or the spin buttons) is set to the range (1-127),
 // or back to the last valid one if not a number (e.g. empty)
@@ -2643,6 +2733,35 @@ Off <input type="number" id="inputNoteOffVelocity" min="1" max="127" step="1"></
 <div class="keyboard" id="keyboard"></div>
 </div>
 <div class="kbd-scrollbar" id="kbdScrollbar"><div class="kbd-scrollbar-thumb" id="kbdScrollbarThumb"></div></div>
+</div>
+<div class="params perf">
+<div class="param-group">
+<div class="param">
+  <div class="param-name">Pitch Bend</div>
+  <div class="param-ctrl soft-marker-c"><input id="inputPerfPITCH_BEND" type="range" list="0 markers" min="-8192" max="8191" step="1" value="0" oninput="onChangePerformanceControl(PITCH_BEND, value)"><span id="spanPerfPITCH_BEND">0</span><span id="span2PerfPITCH_BEND"></span></div>
+</div>
+<div class="param">
+  <div class="param-name">Modulation <span class="cc">CC#1</span></div>
+  <div class="param-ctrl"><input id="inputPerfMODULATION" type="range" list="0 markers" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(MODULATION, value)"><span id="spanPerfMODULATION">0</span><span id="span2PerfMODULATION"></span></div>
+</div>
+<div class="param">
+  <div class="param-name">Breath Controller <span class="cc">CC#2</span></div>
+  <div class="param-ctrl"><input id="inputPerfBTH_CONTROLLER" type="range" list="0 markers" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(BTH_CONTROLLER, value)"><span id="spanPerfBTH_CONTROLLER">0</span><span id="span2PerfBTH_CONTROLLER"></span></div>
+</div>
+<div class="param">
+  <div class="param-name">Expression <span class="cc">CC#11</span></div>
+  <div class="param-ctrl"><input id="inputPerfEXPRESSION" type="range" list="0 markers" min="0" max="127" step="1" value="127" oninput="onChangePerformanceControl(EXPRESSION, value)"><span id="spanPerfEXPRESSION">127</span><span id="span2PerfEXPRESSION"></span></div>
+</div>
+<div class="param">
+  <div class="param-name">Sustain Pedal [Off|On] <span class="cc">CC#64</span></div>
+  <div class="param-ctrl"><input id="inputPerfSUSTAIN_PEDAL" type="range" list="2 markers" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(SUSTAIN_PEDAL, value)"><span id="spanPerfSUSTAIN_PEDAL">0</span><span id="span2PerfSUSTAIN_PEDAL">[Off]</span></div>
+</div>
+<div class="param perf-spacer"></div>
+<div class="param">
+  <div class="param-name">Channel Pressure</div>
+  <div class="param-ctrl"><input id="inputPerfCH_PRESSURE" type="range" list="0 markers" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(CH_PRESSURE, value)"><span id="spanPerfCH_PRESSURE">0</span><span id="span2PerfCH_PRESSURE"></span></div>
+</div>
+</div>
 </div>
 </details>
 
