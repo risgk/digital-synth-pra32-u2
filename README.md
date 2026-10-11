@@ -2,6 +2,7 @@
 
 - 2026-10-10 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
+- [日本語版 README (抄訳)](./README.ja.md)
 
 
 ## Overview
@@ -11,7 +12,7 @@
         - The Output Limiter lowers the output by 2.5 dB (x 0.75), so that the Presets are rarely limited, and limits the peaks above 0.75 (e.g. by a high Filter Resonance)
     - Controlled by MIDI -- PRA32-U2 is a MIDI sound module
     - Having the function of writing the parameters to the user programs and the flash
-    - PRA32-U2 is an upgraded model of PRA32-U (for Raspberry Pi Pico/RP2040), but some specifications differ
+    - PRA32-U2 started as the successor to PRA32-U (for Raspberry Pi Pico/RP2040), and has since become a different synthesizer
 - Modifiable with Arduino IDE and Arduino-Pico (by Earle F. Philhower, III)
 - An **I2S DAC** hardware (e.g. Pimoroni Pico Audio Pack) is required
 - Optional
