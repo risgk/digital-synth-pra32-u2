@@ -4,6 +4,9 @@
     - Change "Write Parameters to Program" (CC #106) to be written when changed from 0-31 (instead of 0-32) to 96-127, as the control panel of PRA32-U2/P
     - PRA32-U2 Editor: Change the space at the bottom from 22 px to 8 px, as at the top
     - PRA32-U2 Editor: Widen the space before "Off" of the Velocity of the Software Keyboard to 8 px, as between the groups of its bar
+    - PRA32-U2 Editor: Fix the Software Keyboard to follow a change of the text size even without a resize of the window
+    - PRA32-U2 Editor: Fix the page to start even when localStorage is not available (e.g. disabled by the Web browser)
+        - The settings are kept only until the page is closed
     - PRA32-U2/P: Change [Rdy] of the operations (e.g. Panic and Write Program) from 0-32 to 0-31, as wide as [Exe] (96-127)
     - Tested with Arduino-Pico version 6.2.0
 - v3.12.0 (2026-10-11):
