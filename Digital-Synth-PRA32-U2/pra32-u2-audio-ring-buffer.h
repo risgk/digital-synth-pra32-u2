@@ -17,7 +17,6 @@ class PRA32_U2_AudioRingBuffer {
 
   uint32_t  m_buffer_frames;
   uint32_t  m_ring_words;
-  uint32_t  m_words_per_frame_shift;
   uint32_t  m_silence_word;
   uint32_t* m_ring_start[2];
   int       m_dma_data[2];
@@ -26,6 +25,7 @@ class PRA32_U2_AudioRingBuffer {
 
 protected:
   uint32_t  m_number_of_rings;
+  uint32_t  m_words_per_frame_shift;
   uint32_t* m_ring[2];
   uint32_t  m_write_index;  // in words
   uint32_t  m_writable;     // in frames
@@ -33,22 +33,22 @@ protected:
   PRA32_U2_AudioRingBuffer()
   : m_buffer_frames(DEFAULT_BUFFER_FRAMES)
   , m_ring_words()
-  , m_words_per_frame_shift()
   , m_silence_word()
   , m_ring_start{}
   , m_dma_data{-1, -1}
   , m_dma_control{-1, -1}
   , m_dma_read_addr()
   , m_number_of_rings()
+  , m_words_per_frame_shift()
   , m_ring{}
   , m_write_index()
   , m_writable()
   {}
 
-  // words_per_frame: 1 or 2
+  // words_per_frame: 1, 2, 4, or 8
   void ring_allocate(uint32_t number_of_rings, uint32_t words_per_frame, uint32_t silence_word) {
     m_number_of_rings = number_of_rings;
-    m_words_per_frame_shift = (words_per_frame == 2) ? 1 : 0;
+    m_words_per_frame_shift = (words_per_frame >= 8) ? 3 : (words_per_frame >= 4) ? 2 : (words_per_frame >= 2) ? 1 : 0;
     m_ring_words = m_buffer_frames << m_words_per_frame_shift;
     m_silence_word = silence_word;
 
@@ -148,8 +148,9 @@ public:
     }
     ring_wait_for_writable();
     for (uint32_t k = 0; k < m_number_of_rings; ++k) {
-      m_ring[k][m_write_index] = m_silence_word;
-      m_ring[k][m_write_index + m_words_per_frame_shift] = m_silence_word;
+      for (uint32_t i = 0; i < (1u << m_words_per_frame_shift); ++i) {
+        m_ring[k][m_write_index + i] = m_silence_word;
+      }
     }
     ring_advance();
   }
