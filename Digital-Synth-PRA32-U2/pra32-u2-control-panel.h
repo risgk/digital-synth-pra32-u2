@@ -746,6 +746,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case A_D_VEL_SENS    :
   case REL_VEL_SENS    :
   case PANEL_TRANSPOSE :
+  case PITCH_BEND_MSB  :
     {
       std::sprintf(value_display_text, "%+3d", static_cast<int>(controller_value) - 64);
       result = true;
