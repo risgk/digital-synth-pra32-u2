@@ -18,6 +18,7 @@
             - The Note On of the new key before the Note Off of the old key
         - The PC keyboard while shown, as in DAWs
             - A - K for C - C, W - U for the black keys, and Z / X for the octave
+        - The velocities of Note On and Note Off can be entered (1-127, 100 and 64 by default)
         - The Panic button at the upper right
         - Can be hidden (shown by default)
     - PRA32-U2 Editor: Add the names of the user presets
@@ -28,6 +29,9 @@
         - "pra32-u2-prog-factory-presets.json" has the names of the Factory Presets
     - PRA32-U2 Editor: Add "pra32-u2-prog-all-initial.json" for Import All
         - All the user presets (#0-15) are "#23 Initial", without names
+    - PRA32-U2 Editor: Add the Undo button (in Actions)
+        - Back to the parameters before the last Factory Preset, User Preset, Randomize Synth/FX, Import, or Program Change from MIDI In
+        - Undo again goes back to the parameters before Undo (as Redo)
     - Tested with Arduino-Pico version 6.2.0
 - v3.11.0 (2026-10-10):
     - Rename the Preset "#19 Simple" to "#19 Plain Poly", to show that it is a Poly Preset (as "#23 Initial" is a Mono Preset)
