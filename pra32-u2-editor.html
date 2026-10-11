@@ -1075,12 +1075,11 @@ function afterChangeOsc1Or2WaveOrMixerSubOscOrVoiceModeOrEGAmpModOrRelEqDecay() 
 // and each message is sent as a whole, so the messages from the inputs are merged without being mixed.
 // System Exclusive is not received (sysex: false), and is dropped if any (as a data without a status byte is)
 function onMIDIMessage(event) {
-  console.log(event.data);
-
   var status = event.data[0];
   if (!(status >= 0x80) || (status == 0xF0) || (status == 0xF7)) {
     return;
   }
+
   if (event.data[0] == (CONTROL_CHANGE | midi_ch)) {
     var number = event.data[1];
     var value = event.data[2];
