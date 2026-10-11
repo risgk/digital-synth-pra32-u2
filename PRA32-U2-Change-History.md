@@ -20,6 +20,9 @@
             - A - K for C - C, W - U for the black keys, and Z / X for the octave
         - The velocities of Note On and Note Off can be entered (1-127, 100 and 64 by default)
         - The Panic button at the upper right
+        - Pitch Bend, Modulation, Breath Controller, Expression, Sustain Pedal, and Channel Pressure below it
+            - Pitch Bend springs back to the center when released (as a pitch bend wheel)
+            - Not stored; back to the values of Reset All Controllers by Panic
         - Can be hidden (shown by default)
     - PRA32-U2 Editor: Add the names of the user presets
         - Up to 10 ASCII letters, digits, and symbols (as the Factory Presets)
