@@ -29,7 +29,7 @@ PRA32-U2 Web: a software synthesizer version of Digital Synth PRA32-U2 that runs
       (Web MIDI API, i.e. "MIDI In" and "MIDI Out" to the devices, needs a permission)
     - Firefox: Web MIDI API needs a permission (a site permission add-on)
     - Safari (Mac, iPhone, iPad) and all the Web browsers on iPhone and iPad: Web MIDI API is not supported,
-      so only the keyboard of PRA32-U2 Editor can be used
+      so only the keyboard of PRA32-U2 Editor can be used to play PRA32-U2 Web (MIDI devices cannot be used)
 - Multiple windows (tabs) can be opened, and each of them has its own PRA32-U2 Web
     - PRA32-U2 Editor receives all the MIDI channels from "MIDI In" and sends them to "MIDI Out" (Omni On)
     - The windows share the current parameters and the user presets stored in the Web browser (localStorage)
