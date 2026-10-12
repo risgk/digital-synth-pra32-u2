@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v3.13.1 (2026-??-??):
+    - Add a note to the README that the RC filters for PWM Audio also reduce the radio noise (EMI) from the cables, when put close to the pins
     - Tested with Arduino-Pico version 6.2.0
 - v3.13.0 (2026-10-12):
     - Change the PWM Audio carrier from 48 kHz to 192 kHz, by splitting each sample into 4 PWM periods
