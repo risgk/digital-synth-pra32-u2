@@ -6,7 +6,8 @@
         - The level (3200 steps) is split into them (e.g. 801 = 201 + 200 + 200 + 200), so the resolution is the same
         - This reduces the beeps or whines of some active speakers (especially ones with an ADC/DSP) when the RC filters are omitted
         - `PRA32_U2_PWM_AUDIO_SUBPERIODS` can be defined as 1, 2, 4 (default), or 8 (carrier: 48, 96, 192, or 384 kHz)
-        - Without the RC filters, reduce the level with resistors or the input gain of the connected device (added to the README)
+    - Change the RC filters for PWM Audio from recommended to optional (README)
+        - Without them, reduce the level with a volume control (e.g. a cable with an inline stereo volume control), resistors, or the input gain of the connected device
             - The PWM ripples (3.3 V square waves) may saturate the input (e.g. of an audio interface) and cause beeps or noises, even when its level meter looks fine
     - PRA32-U2 Editor: Change the space at the bottom from 22 px to 8 px, as at the top
     - PRA32-U2 Editor: Widen the space before "Off" of the Velocity of the Software Keyboard to 8 px, as between the groups of its bar
