@@ -1382,8 +1382,8 @@ if constexpr (NO_FX == false) {
       m_program_number_to_write = controller_value % (PROGRAM_NUMBER_MAX + 1);
       break;
     case WRITE_P_TO_PROG:
-      // Written when changed from 0-32 to 96-127 (as "Write Program" of the control panel), for safety
-      if (controller_value <= 32) {
+      // Written when changed from 0-31 to 96-127 (as "Write Program" of the control panel), for safety
+      if (controller_value <= 31) {
         m_ready_to_write_p_to_prog = true;
       } else if (m_ready_to_write_p_to_prog && (controller_value >= 96)) {
         write_parameters_to_program(m_program_number_to_write);

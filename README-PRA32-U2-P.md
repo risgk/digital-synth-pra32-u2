@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2/P v3.12.0
+# Digital Synth PRA32-U2/P v3.13.0
 
-- 2026-10-11 ISGK Instruments
+- 2026-10-12 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 
@@ -87,8 +87,8 @@
     - Seq Pitch 0-7: 0 is Off, 1-4 is lowest, 124-127 is highest
     - Seq Velo 0-7 (Velocity 0-7)
 - Step Sequencer Operations
-    - Seq Rand Pitch (Randomize Pitch 0-7): Change the value from 0-32 [Rdy] to 96-127 [Exe]
-    - Seq Rand Velo (Randomize Velo 0-7): Change the value from 0-32 [Rdy] to 96-127 [Exe]
+    - Seq Rand Pitch (Randomize Pitch 0-7): Change the value from 0-31 [Rdy] to 96-127 [Exe]
+    - Seq Rand Velo (Randomize Velo 0-7): Change the value from 0-31 [Rdy] to 96-127 [Exe]
 - Control Parameters
     - Pitch Bend: the MSB only (64 is the center, and 127 is the max, +8191)
     - Modulation
@@ -97,22 +97,22 @@
     - Sustain Pedal
     - Channel Pressure
 - Control Operations
-    - Panic: Change the value from 0-32 [Rdy] to 96-127 [Exe]
-    - Randomize Synth (Randomize Synth Parameters, as Program Change #127): Change the value from 0-32 [Rdy] to 96-127 [Exe]
+    - Panic: Change the value from 0-31 [Rdy] to 96-127 [Exe]
+    - Randomize Synth (Randomize Synth Parameters, as Program Change #127): Change the value from 0-31 [Rdy] to 96-127 [Exe]
 
 
 #### Group C
 
 - Write Operations
     - Write #0-15 (User), Write Panel Prms (Write Panel and Step Sequencer Parameters)
-        - Change the value from 0-32 [Rdy] to 96-127 [Exe] to write to the flash
+        - Change the value from 0-31 [Rdy] to 96-127 [Exe] to write to the flash
 
 
 #### Group D
 
 - Read Operations
     - Read #0-15 (User), #16-31 (Factory Presets), Read Panel Prms, Init Panel Prms
-        - Change the value from 0-32 [Rdy] to 96-127 [Exe] to read from the flash
+        - Change the value from 0-31 [Rdy] to 96-127 [Exe] to read from the flash
 
 
 ### Circuit Diagram
@@ -144,7 +144,7 @@
 
 | Page           | Parameter A          | Parameter B          |
 | :------------- | :------------------- | :------------------- |
-| A-00 Info      | PRA32-U2/P           | v3.12.0              |
+| A-00 Info      | PRA32-U2/P           | v3.13.0              |
 | A-01 Voice     | Voice Mode           | Voice Asgn Mode      |
 | A-02 Pitch a   | Portamento           | Pitch Bend Range     |
 | A-03 Pitch b   | Stretch Tune         |                      |

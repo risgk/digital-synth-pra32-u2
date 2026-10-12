@@ -1,5 +1,24 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v3.13.0 (2026-10-12):
+    - Change the PWM Audio carrier from 48 kHz to 192 kHz, by splitting each sample into 4 PWM periods
+        - The level (3200 steps) is split into them (e.g. 801 = 201 + 200 + 200 + 200), so the resolution is the same
+        - This reduces the beeps or whines of some active speakers (especially ones with an ADC/DSP) when the RC filters are omitted
+        - `PRA32_U2_PWM_AUDIO_SUBPERIODS` can be defined as 1, 2, 4 (default), or 8 (carrier: 48, 96, 192, or 384 kHz)
+    - Change the RC filters for PWM Audio from recommended to optional (README)
+        - Without them, reduce the level with a volume control (e.g. a cable with an inline stereo volume control), resistors, or the input gain of the connected device
+            - The PWM ripples (3.3 V square waves) may saturate the input (e.g. of an audio interface) and cause beeps or noises, even when its level meter looks fine
+    - Change "Write Parameters to Program" (CC #106) to be written when changed from 0-31 (instead of 0-32) to 96-127, as the control panel of PRA32-U2/P
+    - Add the wiring of Adafruit PCM510x I2S DAC and GY-PCM5102, Troubleshooting, and a case for Pico Audio Pack to the READMEs
+    - Move the details of the Output Limiter from the Overview (README) to the Parameter Guide ("Amp Gain") only, and change its threshold there to the one at its input (from 0.75 to 1.0, full scale); the Output Limiter itself is not changed
+    - Fix the note of "Write Parameters to Program" in the MIDI Implementation Chart, from Program #0-7 (the value mod 16) to #0-15 (the value mod 32; #16-31 are not written)
+    - PRA32-U2 Editor: Change the space at the bottom from 22 px to 8 px, as at the top
+    - PRA32-U2 Editor: Change the space before "Off" of the Velocity of the Software Keyboard from about 4 px to 8 px, as between the groups of its bar
+    - PRA32-U2 Editor: Fix the Software Keyboard to follow a change of the text size even without a resize of the window
+    - PRA32-U2 Editor: Fix the page to start even when localStorage is not available (e.g. disabled by the Web browser)
+        - The settings are kept only until the page is closed
+    - PRA32-U2/P: Change [Rdy] of the operations (e.g. Panic and Write Program) from 0-32 to 0-31, as wide as [Exe] (96-127)
+    - Tested with Arduino-Pico version 6.2.0
 - v3.12.0 (2026-10-11):
     - Change the display of the Delay Mode from "S|P|R" to "Ste|PP|Rev", to be easier to understand
     - PRA32-U2 Editor: Change the layout to a floating layout (4, 2, or 1 column by the window width)

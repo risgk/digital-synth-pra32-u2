@@ -579,7 +579,7 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
     } else if ((s_adc_control_target[adc_number] >= RD_PROGRAM_0) && (s_adc_control_target[adc_number] <= RD_PROGRAM_31)) {
       static boolean s_ready_to_read[PROGRAM_NUMBER_MAX + 1] = {};
       uint8_t program_number_to_read = s_adc_control_target[adc_number] - RD_PROGRAM_0;
-      if (s_adc_control_value[adc_number] <= 32) {
+      if (s_adc_control_value[adc_number] <= 31) {
         s_ready_to_read[program_number_to_read] = true;
       } else if (s_ready_to_read[program_number_to_read] && (s_adc_control_value[adc_number] >= 96)) {
         handleProgramChange(getTargetMIDICh(s_current_synth), s_adc_control_target[adc_number] - RD_PROGRAM_0);
@@ -588,7 +588,7 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
     } else if ((s_adc_control_target[adc_number] >= WR_PROGRAM_0) && (s_adc_control_target[adc_number] <= WR_PROGRAM_15)) {
       static boolean s_ready_to_write[PROGRAM_NUMBER_MAX + 1] = {};
       uint8_t program_number_to_write = s_adc_control_target[adc_number] - WR_PROGRAM_0;
-      if (s_adc_control_value[adc_number] <= 32) {
+      if (s_adc_control_value[adc_number] <= 31) {
         s_ready_to_write[program_number_to_write] = true;
       } else if (s_ready_to_write[program_number_to_write] && (s_adc_control_value[adc_number] >= 96)) {
         writeParametersToProgram(getTargetMIDICh(s_current_synth), program_number_to_write);
@@ -596,7 +596,7 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
       }
     } else if (s_adc_control_target[adc_number] == RD_PANEL_PRMS) {
       static boolean s_ready_to_read_panel_prms;
-      if (s_adc_control_value[adc_number] <= 32) {
+      if (s_adc_control_value[adc_number] <= 31) {
         s_ready_to_read_panel_prms = true;
       } else if (s_ready_to_read_panel_prms && (s_adc_control_value[adc_number] >= 96)) {
         handleProgramChange(getTargetMIDICh(s_current_synth), 128);
@@ -604,7 +604,7 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
       }
     } else if (s_adc_control_target[adc_number] == IN_PANEL_PRMS) {
       static boolean s_ready_to_init_panel_prms;
-      if (s_adc_control_value[adc_number] <= 32) {
+      if (s_adc_control_value[adc_number] <= 31) {
         s_ready_to_init_panel_prms = true;
       } else if (s_ready_to_init_panel_prms && (s_adc_control_value[adc_number] >= 96)) {
         handleProgramChange(getTargetMIDICh(s_current_synth), 129);
@@ -612,7 +612,7 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
       }
     } else if (s_adc_control_target[adc_number] == WR_PANEL_PRMS) {
       static boolean s_ready_to_write_panel_prms;
-      if (s_adc_control_value[adc_number] <= 32) {
+      if (s_adc_control_value[adc_number] <= 31) {
         s_ready_to_write_panel_prms = true;
       } else if (s_ready_to_write_panel_prms && (s_adc_control_value[adc_number] >= 96)) {
         g_synth.write_parameters_to_program(128);
@@ -620,7 +620,7 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
       }
     } else if (s_adc_control_target[adc_number] == SEQ_RAND_PITCH) {
       static boolean s_ready_to_rand_pitch;
-      if (s_adc_control_value[adc_number] <= 32) {
+      if (s_adc_control_value[adc_number] <= 31) {
         s_ready_to_rand_pitch = true;
       } else if (s_ready_to_rand_pitch && (s_adc_control_value[adc_number] >= 96)) {
         uint8_t array[8] = {};
@@ -638,7 +638,7 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
       }
     } else if (s_adc_control_target[adc_number] == SEQ_RAND_VELO) {
       static boolean s_ready_to_rand_velo;
-      if (s_adc_control_value[adc_number] <= 32) {
+      if (s_adc_control_value[adc_number] <= 31) {
         s_ready_to_rand_velo = true;
       } else if (s_ready_to_rand_velo && (s_adc_control_value[adc_number] >= 96)) {
         uint8_t array[8] = {};
@@ -656,7 +656,7 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
       }
     } else if (s_adc_control_target[adc_number] == PANIC_OP) {
       static boolean s_ready_to_panic;
-      if (s_adc_control_value[adc_number] <= 32) {
+      if (s_adc_control_value[adc_number] <= 31) {
         s_ready_to_panic = true;
       } else if (s_ready_to_panic && (s_adc_control_value[adc_number] >= 96)) {
         handleControlChange(getTargetMIDICh(s_current_synth), ALL_SOUND_OFF  , 0);
@@ -666,7 +666,7 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
       }
     } else if (s_adc_control_target[adc_number] == RAND_SYNTH_OP) {
       static boolean s_ready_to_rand_synth;
-      if (s_adc_control_value[adc_number] <= 32) {
+      if (s_adc_control_value[adc_number] <= 31) {
         s_ready_to_rand_synth = true;
       } else if (s_ready_to_rand_synth && (s_adc_control_value[adc_number] >= 96)) {
         handleProgramChange(getTargetMIDICh(s_current_synth), 127);
@@ -957,7 +957,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case  PANIC_OP       :
   case  RAND_SYNTH_OP  :
     {
-      if        (controller_value <= 32) {
+      if        (controller_value <= 31) {
         value_display_text[0] = 'R';
         value_display_text[1] = 'd';
         value_display_text[2] = 'y';
