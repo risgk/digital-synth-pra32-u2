@@ -12,7 +12,7 @@
     - Add the wiring of Adafruit PCM510x I2S DAC and GY-PCM5102, Troubleshooting, and a case for Pico Audio Pack to the READMEs
     - Move the details of the Output Limiter from the Overview (README) to the Parameter Guide ("Amp Gain") only, and change its threshold there to the one at its input (from 0.75 to 1.0, full scale); the Output Limiter itself is not changed
     - PRA32-U2 Editor: Change the space at the bottom from 22 px to 8 px, as at the top
-    - PRA32-U2 Editor: Widen the space before "Off" of the Velocity of the Software Keyboard to 8 px, as between the groups of its bar
+    - PRA32-U2 Editor: Change the space before "Off" of the Velocity of the Software Keyboard from about 4 px to 8 px, as between the groups of its bar
     - PRA32-U2 Editor: Fix the Software Keyboard to follow a change of the text size even without a resize of the window
     - PRA32-U2 Editor: Fix the page to start even when localStorage is not available (e.g. disabled by the Web browser)
         - The settings are kept only until the page is closed
