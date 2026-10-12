@@ -138,9 +138,10 @@
 |              : Reset          | x             | x             |                                      |
 +-------------------------------+---------------+---------------+--------------------------------------+
 | Notes                         | $2 : Disabled if Osc 1 Wave is Tri (Triangle Wave)                   |
-|                               | $4 : To write the current parameters to Program #0-7 and the         |
-|                               |   flash, set "Program Number to Write to" (# is the value mod 16)    |
-|                               |   and then change "Write Parameters to Program" from 0-31 to 96-127  |
+|                               | $4 : To write the current parameters to Program #0-15 and the        |
+|                               |   flash, set "Program Number to Write to" (# is the value mod 32;    |
+|                               |   #16-31 are not written), and then change "Write Parameters to      |
+|                               |   Program" from 0-31 to 96-127                                       |
 |                               | $5 : Basic Channel can be changed in PRA32-U2/P                      |
 |                               | $6 : o in PRA32-U2/P (No transmission via USB MIDI)                  |
 |                               | $7 : o in PRA32-U2/P if Seq Clock Src is External                    |

@@ -263,7 +263,7 @@ flowchart LR
         - This reduces the beeps or whines of some active speakers (especially ones with an ADC/DSP) when the RC filters are omitted
         - Define `PRA32_U2_PWM_AUDIO_SUBPERIODS` as 1, 2, 4 (default), or 8 before including "pra32-u2-pwm-audio.h" to change it (carrier: 48, 96, 192, or 384 kHz)
     - NOTE: Probably smaller output volume than I2S DAC boards
-    - The parameters are written to the flash after fading out the output (about 4 ms), and the output is silent while writing (about 50-100 ms, + 20 ms with the I2S DAC mute)
+    - The parameters are written to the flash after fading out the output (about 4 ms), and the output is silent while writing (about 50-100 ms)
     - Without the RC filters, the PWM ripples (3.3 V square waves) reach the connected device along with the audio,
       and may saturate its input (e.g. of an audio interface) and cause beeps or noises, even when its level meter looks fine
         - Reduce the level with a volume control (e.g. a cable with an inline stereo volume control), resistors, or the input gain (volume) of the connected device
@@ -273,7 +273,7 @@ flowchart LR
     - See "PWM audio" in [Hardware design with RP2040](https://datasheets.raspberrypi.com/rp2040/hardware-design-with-rp2040.pdf)
       for details on PWM audio
 - NOTE: The RP2350 system clock (sysclk) changes to overclocked 153.6 MHz (the same as I2S), regardless of CPU Speed in the Arduino IDE "Tools" menu
-    - The sample period is exactly 3200 cycles (Sampling Rate: 48 kHz), and the PWM period is 800 cycles
+    - The sample period is exactly 3200 cycles (Sampling Rate: 48 kHz), and the PWM period is 800 cycles (by default)
 - Uncomment `//#define PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S`
   in "Digital-Synth-PRA32-U2.ino" and modify `PRA32_U2_PWM_AUDIO_L_PIN` and `PRA32_U2_PWM_AUDIO_R_PIN`
 - The following setting is for Pimoroni Pico VGA Demo Base (PIM553)
@@ -421,6 +421,7 @@ flowchart LR
     - Check that "MIDI Ch" of PRA32-U2 Editor matches the MIDI Channel of PRA32-U2 (1 by default)
 - Noise
     - The output may be affected by USB communication noise; try [UART MIDI](#uart-midi)
+    - With PWM Audio without the RC filters, reduce the level: see [PWM Audio (Optional)](#pwm-audio-optional)
 
 
 ## License
