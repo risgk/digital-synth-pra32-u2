@@ -270,6 +270,7 @@ flowchart LR
         - Start with the volume turned down: at the top, the full 3.3 V square waves reach the device
     - Optional: RC filter (post LPF) circuits take out the PWM ripples themselves
         - A 1st-order LPF with a cutoff frequency 7.2 kHz (R = 220 ohm, C = 100 nF) works well
+        - They also reduce the radio noise (EMI) radiated from the cables carrying the square waves: put them close to the pins
     - See "PWM audio" in [Hardware design with RP2040](https://datasheets.raspberrypi.com/rp2040/hardware-design-with-rp2040.pdf)
       for details on PWM audio
 - NOTE: The RP2350 system clock (sysclk) changes to overclocked 153.6 MHz (the same as I2S), regardless of CPU Speed in the Arduino IDE "Tools" menu
