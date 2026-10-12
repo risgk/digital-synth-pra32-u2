@@ -9,8 +9,6 @@
 
 - **PRA32-U2** is a 4-Voice Polyphonic Synthesizer for Raspberry Pi Pico 2/RP2350
     - Built-in Chorus and Delay/Reverb FX, followed by the Output Limiter
-        - The Output Limiter lowers the output by 2.5 dB (x 0.75), so that the Presets are rarely limited
-        - It limits the peaks above 0.75 (e.g. by a high Filter Resonance)
     - Controlled by MIDI -- PRA32-U2 is a MIDI sound module
     - Can write the parameters to the user programs and the flash
     - PRA32-U2 started as the successor to PRA32-U (for Raspberry Pi Pico/RP2040), and has since become a different synthesizer

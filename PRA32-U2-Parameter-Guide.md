@@ -271,7 +271,7 @@
     - 127: 100% (max)
         - NOTE: The actual LFO depth is the "LFO Depth" value plus the "Modulation" value and the after touch effect
 - Amp Gain
-    - NOTE: The Output Limiter (after the FX) lowers the output by 2.5 dB (x 0.75), and limits the peaks above 0.75 (with the Presets, the Output Limiter rarely works)
+    - NOTE: The Output Limiter (after the FX) limits the peaks above 1.0 (full scale) at its input, and lowers the output by 2.5 dB (x 0.75) (with the Presets, the Output Limiter rarely works)
 - Filter Mode [LP|BP|HP]
     - 0 (0-31): Low Pass
     - 64 (32-95): Band Pass
