@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v3.13.1 (2026-??-??):
+    - Fix UART MIDI with `SoftwareSerial` (README) not working, by dropping the redundant `begin()` of the UART MIDI serial
     - Add a note to the README that the RC filters for PWM Audio also reduce the radio noise (EMI) from the cables, when put close to the pins
     - Tested with Arduino-Pico version 6.2.0
 - v3.13.0 (2026-10-12):
