@@ -225,7 +225,6 @@ span.cc {
   /* Computed here (not only in :root), so that the widths of the compact 2 columns are used */
   --param-width: calc(var(--slider-width) + var(--value-width) + var(--value-label-width));
   border-top: 1px solid #c0c0c0;
-  margin-bottom: 14px;
 }
 .param-group {
   display: grid;
@@ -399,7 +398,9 @@ span.cc {
   min-width: 32px;
   margin-left: 4px;
 }
+/* An inline-block, as a ResizeObserver sees no size of an inline box (kbdFitScale() would not be called) */
 .kbd-bar #spanKbdLabel {
+  display: inline-block;
   margin-right: 4px;
 }
 #kbdDetails:not([open]) .kbd-bar button, #kbdDetails:not([open]) .kbd-hint, #kbdDetails:not([open]) .kbd-vel {
@@ -411,6 +412,9 @@ span.cc {
 }
 .kbd-vel input {
   width: 4em;
+}
+#inputNoteOnVelocity {
+  margin-right: 4px;  /* with the space, 8px before "Off" (as between the groups of the bar) */
 }
 /* The keys of the PC keyboard, small and gray (as the control numbers) */
 .kbd-hint {
@@ -538,7 +542,22 @@ span.cc {
 }
 </style>
 <script>
-const APP_NAME_VERSION = "PRA32-U2 Editor v3.12.0";
+const APP_NAME_VERSION = "PRA32-U2 Editor v3.13.0";
+
+// localStorage that throws (e.g. disabled by the Web browser) is replaced by one in memory, as the start of the page
+// reads it without try / catch. The settings are then kept only until the page is closed
+(function() {
+  try {
+    localStorage.getItem("keyMIDICh");
+  } catch (e) {
+    var items = new Map();
+    Object.defineProperty(window, "localStorage", { configurable: true, value: {
+      getItem:    function(key) { return items.has(key) ? items.get(key) : null; },
+      setItem:    function(key, value) { items.set(key, String(value)); },
+      removeItem: function(key) { items.delete(key); },
+    } });
+  }
+})();
 
 const USER_PROGRAM_NUMBER_MAX      = 15;
 const PROGRAM_NUMBER_MAX           = 31;

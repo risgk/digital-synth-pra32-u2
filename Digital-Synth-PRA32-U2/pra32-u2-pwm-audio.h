@@ -2,9 +2,17 @@
 
 // PWM Audio Output (independent of the Arduino-Pico PWMAudio library)
 //
-// - The PWM period is (sys_clk / sampling rate) cycles, and each PWM slice paces its DMA by its own wrap DREQ,
-//   so exactly one sample is latched at each PWM wrap (no sample drops or repeats due to clock or phase mismatch)
-// - setSysClk(48000) sets sys_clk to 153.6 MHz (the same as I2S), so the PWM period is exactly 3200 cycles
+// - The sample period is (sys_clk / sampling rate) cycles, and it is divided into PRA32_U2_PWM_AUDIO_SUBPERIODS PWM periods
+//   (the PWM carrier is sampling rate * PRA32_U2_PWM_AUDIO_SUBPERIODS)
+//   - Each PWM slice paces its DMA by its own wrap DREQ, so exactly one subperiod level is latched at each PWM wrap
+//     (no sample drops or repeats due to clock or phase mismatch)
+// - setSysClk(48000) sets sys_clk to 153.6 MHz (the same as I2S), so the sample period is exactly 3200 cycles
+//   - With 4 subperiods (default), the PWM period is 800 cycles (carrier: 192 kHz instead of 48 kHz)
+// - The level of a sample (3200 steps) is split into the subperiods (e.g. 801 = 201 + 200 + 200 + 200),
+//   so the sum (the average) is exact, and the resolution is the same as with 1 subperiod
+//   - A higher carrier is more attenuated by the input filters of amplifiers and active speakers,
+//     and is less likely to cause audible beat or alias tones (e.g. 48 kHz aliases to 3.9 kHz with a 44.1 kHz ADC)
+//   - The extra CPU load is only a few additions and writes per sample (the noise shaping is still once per sample)
 // - See "pra32-u2-audio-ring-buffer.h" for the transmit buffer (setBufferFrames())
 // - write24() takes the same 32-bit (left-justified 24-bit) samples as PRA32_U2_I2SOutput::write24(), and blocks while the buffer is full
 // - The quantization error of the PWM level (3200 steps) is fed back to the next sample (1st-order noise shaping),
@@ -18,11 +26,17 @@
 #include <hardware/clocks.h>
 #include <hardware/gpio.h>
 
+#if !defined(PRA32_U2_PWM_AUDIO_SUBPERIODS)
+#define PRA32_U2_PWM_AUDIO_SUBPERIODS (4)  // 1, 2, 4, or 8 (PWM carrier: 48, 96, 192, or 384 kHz)
+#endif
+
 class PRA32_U2_PWMAudioOutput : public PRA32_U2_AudioRingBuffer {
   uint32_t  m_pin[2];
   uint32_t  m_slice[2];
   uint32_t  m_shift[2];
-  uint32_t  m_period;
+  uint32_t  m_period;     // Sample period
+  uint32_t  m_subperiod;  // PWM period
+  uint32_t  m_subperiod_offset[8];
   int32_t   m_error[2];  // Q16 error of the PWM level
   uint32_t  m_dither_seed;
 
@@ -32,6 +46,8 @@ public:
   , m_slice{}
   , m_shift{}
   , m_period()
+  , m_subperiod()
+  , m_subperiod_offset{}
   , m_error{}
   , m_dither_seed(1)
   {}
@@ -45,11 +61,26 @@ public:
   }
 
   bool begin(uint32_t sampling_rate) {
-    m_period = (clock_get_hz(clk_sys) + (sampling_rate / 2)) / sampling_rate;
-    if (m_period > 16384) {
-      m_period = 16384;  // So that the Q16 level fits in int32_t
+    const uint32_t subperiods = PRA32_U2_PWM_AUDIO_SUBPERIODS;
+    static_assert((subperiods == 1) || (subperiods == 2) || (subperiods == 4) || (subperiods == 8),
+                  "PRA32_U2_PWM_AUDIO_SUBPERIODS must be 1, 2, 4, or 8");
+
+    m_subperiod = (clock_get_hz(clk_sys) + (sampling_rate * subperiods / 2)) / (sampling_rate * subperiods);
+    if (m_subperiod * subperiods > 16384) {
+      m_subperiod = 16384 / subperiods;  // So that the Q16 level fits in int32_t
     }
-    uint32_t mid_level = m_period / 2;
+    m_period = m_subperiod * subperiods;
+    uint32_t mid_level = m_subperiod / 2;
+
+    // Subperiod i gets ((level + offset[i]) / subperiods), and the offsets are 0 to (subperiods - 1),
+    // so the sum is exactly level (the remainder steps are spread by the bit-reversed order, e.g. 3, 1, 2, 0)
+    for (uint32_t i = 0; i < subperiods; ++i) {
+      uint32_t reversed = 0;
+      for (uint32_t b = 1; b < subperiods; b <<= 1) {
+        reversed = (reversed << 1) | ((i & b) ? 1 : 0);
+      }
+      m_subperiod_offset[i] = (subperiods - 1) - reversed;
+    }
     m_error[0] = 0;
     m_error[1] = 0;
 
@@ -60,7 +91,8 @@ public:
 
     // If L and R are on the same slice, 1 ring (1 word per frame) has both L (CC A or B) and R (CC B or A)
     // Otherwise, 2 rings for each slice are used (both CC A and B have the same level)
-    ring_allocate((m_slice[0] == m_slice[1]) ? 1 : 2, 1, mid_level | (mid_level << 16));
+    // 1 frame = PRA32_U2_PWM_AUDIO_SUBPERIODS words
+    ring_allocate((m_slice[0] == m_slice[1]) ? 1 : 2, subperiods, mid_level | (mid_level << 16));
 
     uint32_t enable_mask = 0;
     for (uint32_t k = 0; k < m_number_of_rings; ++k) {
@@ -68,7 +100,7 @@ public:
 
       pwm_config pwm_cfg = pwm_get_default_config();
       pwm_config_set_clkdiv_int(&pwm_cfg, 1);
-      pwm_config_set_wrap(&pwm_cfg, m_period - 1);  // The PWM period is (TOP + 1) cycles
+      pwm_config_set_wrap(&pwm_cfg, m_subperiod - 1);  // The PWM period is (TOP + 1) cycles
       pwm_init(slice, &pwm_cfg, false);
       pwm_hw->slice[slice].cc = mid_level | (mid_level << 16);
 
@@ -120,11 +152,22 @@ public:
     level_l = (level_l > static_cast<int32_t>(m_period)) ? static_cast<int32_t>(m_period) : level_l;  // period: 100% duty
     level_r = (level_r > static_cast<int32_t>(m_period)) ? static_cast<int32_t>(m_period) : level_r;
 
+    // Splits the level (0 to period) into the subperiod levels (0 to subperiod, subperiod: 100% duty)
+    const uint32_t subperiods = PRA32_U2_PWM_AUDIO_SUBPERIODS;
+    const uint32_t shift = (subperiods == 8) ? 3 : (subperiods == 4) ? 2 : (subperiods == 2) ? 1 : 0;
     if (m_number_of_rings == 1) {
-      m_ring[0][m_write_index] = (static_cast<uint32_t>(level_l) << m_shift[0]) | (static_cast<uint32_t>(level_r) << m_shift[1]);
+      for (uint32_t i = 0; i < subperiods; ++i) {
+        uint32_t sub_l = (static_cast<uint32_t>(level_l) + m_subperiod_offset[i]) >> shift;
+        uint32_t sub_r = (static_cast<uint32_t>(level_r) + m_subperiod_offset[i]) >> shift;
+        m_ring[0][m_write_index + i] = (sub_l << m_shift[0]) | (sub_r << m_shift[1]);
+      }
     } else {
-      m_ring[0][m_write_index] = static_cast<uint32_t>(level_l) * 0x00010001u;
-      m_ring[1][m_write_index] = static_cast<uint32_t>(level_r) * 0x00010001u;
+      for (uint32_t i = 0; i < subperiods; ++i) {
+        uint32_t sub_l = (static_cast<uint32_t>(level_l) + m_subperiod_offset[i]) >> shift;
+        uint32_t sub_r = (static_cast<uint32_t>(level_r) + m_subperiod_offset[i]) >> shift;
+        m_ring[0][m_write_index + i] = sub_l * 0x00010001u;
+        m_ring[1][m_write_index + i] = sub_r * 0x00010001u;
+      }
     }
 
     ring_advance();

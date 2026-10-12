@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 v3.12.0
+# Digital Synth PRA32-U2 v3.13.0
 
-- 2026-10-11 ISGK Instruments
+- 2026-10-12 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 - [日本語版 README (抄訳)](./README.ja.md)
 
@@ -9,12 +9,11 @@
 
 - **PRA32-U2** is a 4-Voice Polyphonic Synthesizer for Raspberry Pi Pico 2/RP2350
     - Built-in Chorus and Delay/Reverb FX, followed by the Output Limiter
-        - The Output Limiter lowers the output by 2.5 dB (x 0.75), so that the Presets are rarely limited
-        - It limits the peaks above 0.75 (e.g. by a high Filter Resonance)
     - Controlled by MIDI -- PRA32-U2 is a MIDI sound module
     - Can write the parameters to the user programs and the flash
     - PRA32-U2 started as the successor to PRA32-U (for Raspberry Pi Pico/RP2040), and has since become a different synthesizer
 - An **I2S DAC** hardware (e.g. Pimoroni Pico Audio Pack) is required
+    - A case for Pico Audio Pack (3D printing data): [Pico Audio Pack Case by YuuichiAkagawa](https://www.thingiverse.com/thing:6404203) (Thingiverse)
 - Prebuilt UF2 files (in the "bin" folder): Arduino IDE is not required to use PRA32-U2 without modification
     - Connect Raspberry Pi Pico 2 to a PC while pressing the BOOTSEL button, and copy a UF2 file to the "RP2350" drive
     - PRA32-U2/M (Recommended): "Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico 2 and Pimoroni Pico Audio Pack
@@ -205,6 +204,20 @@ flowchart LR
     #define PRA32_U2_I2S_SWAP_LEFT_AND_RIGHT       (false)
     ```
 
+    - Pico Audio Pack requires no wiring: just plug Raspberry Pi Pico 2 H into it
+    - Wiring of Adafruit PCM510x I2S DAC and GY-PCM5102 (the prebuilt UF2 files can be used as they are)
+
+        | Raspberry Pi Pico 2                       | Adafruit PCM510x I2S DAC | GY-PCM5102 |
+        | :---------------------------------------- | :----------------------- | :--------- |
+        | GP22 (Pin 29) (Optional, Mute Off)        | MU                       | XSMT       |
+        | GP9 (Pin 12)                              | DIN                      | DIN        |
+        | GP10 (Pin 14)                             | BCK                      | BCK        |
+        | GP11 (Pin 15)                             | WSEL                     | LCK        |
+        | VBUS (Pin 40) or 3V3(OUT) (Pin 36)        | VIN                      | VIN        |
+        | GND                                       | GND                      | GND, SCK   |
+
+    - GY-PCM5102: Recommended settings of the solder jumpers on the back (if not soldered): H1L: L, H2L: L, H3L: H, H4L: L
+
 - The following setting is for [Pimoroni Pico VGA Demo Base](https://shop.pimoroni.com/products/pimoroni-pico-vga-demo-base) (PIM553)
 
     ```
@@ -245,14 +258,22 @@ flowchart LR
 - PWM Audio can also be used instead of I2S (PWM Audio does not require an I2S DAC hardware)
     - PRA32-U2's own PWM Audio Output ("pra32-u2-pwm-audio.h") is used (Arduino-Pico PWMAudio Library is not used)
     - The PWM level (3200 steps) is quantized with the 1st-order noise shaping and the TPDF dither, which moves the quantization noise to the high frequencies
+    - Each sample is output as 4 PWM periods of 800 cycles (PWM carrier: 192 kHz), and the level is split into them (e.g. 801 = 201 + 200 + 200 + 200)
+        - The resolution is the same as 1 PWM period of 3200 cycles (48 kHz carrier), but the carrier is easier to filter out
+        - This reduces the beeps or whines of some active speakers (especially ones with an ADC/DSP) when the RC filters are omitted
+        - Define `PRA32_U2_PWM_AUDIO_SUBPERIODS` as 1, 2, 4 (default), or 8 before including "pra32-u2-pwm-audio.h" to change it (carrier: 48, 96, 192, or 384 kHz)
     - NOTE: Probably smaller output volume than I2S DAC boards
-    - The parameters are written to the flash after fading out the output (about 4 ms), and the output is silent while writing (about 50-100 ms, + 20 ms with the I2S DAC mute)
-    - We recommend adding RC filter (post LPF) circuits to reduce PWM ripples
+    - The parameters are written to the flash after fading out the output (about 4 ms), and the output is silent while writing (about 50-100 ms)
+    - Without the RC filters, the PWM ripples (3.3 V square waves) reach the connected device along with the audio,
+      and may saturate its input (e.g. of an audio interface) and cause beeps or noises, even when its level meter looks fine
+        - Reduce the level with a volume control (e.g. a cable with an inline stereo volume control), resistors, or the input gain (volume) of the connected device
+        - Start with the volume turned down: at the top, the full 3.3 V square waves reach the device
+    - Optional: RC filter (post LPF) circuits take out the PWM ripples themselves
         - A 1st-order LPF with a cutoff frequency 7.2 kHz (R = 220 ohm, C = 100 nF) works well
     - See "PWM audio" in [Hardware design with RP2040](https://datasheets.raspberrypi.com/rp2040/hardware-design-with-rp2040.pdf)
       for details on PWM audio
 - NOTE: The RP2350 system clock (sysclk) changes to overclocked 153.6 MHz (the same as I2S), regardless of CPU Speed in the Arduino IDE "Tools" menu
-    - The PWM period is exactly 3200 cycles (Sampling Rate: 48 kHz)
+    - The sample period is exactly 3200 cycles (Sampling Rate: 48 kHz), and the PWM period is 800 cycles (by default)
 - Uncomment `//#define PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S`
   in "Digital-Synth-PRA32-U2.ino" and modify `PRA32_U2_PWM_AUDIO_L_PIN` and `PRA32_U2_PWM_AUDIO_R_PIN`
 - The following setting is for Pimoroni Pico VGA Demo Base (PIM553)
@@ -356,6 +377,8 @@ flowchart LR
 
 - This image was created with Fritzing.
     - Actually, it is necessary to use Raspberry Pi Pico 2 (instead of Raspberry Pi Pico)
+- The RC filters (R1, R2, C1, and C2) are optional: see [PWM Audio (Optional)](#pwm-audio-optional)
+    - Without them, connect GP28 and GP27 to the audio jack directly (replace R1 and R2 with wires, and remove C1 and C2)
 - Adding 10 uF electrolytic capacitors (AC coupling capacitors) will cut the DC components of the audio outputs.
 - NOTE: Connect an amplifier or an active speaker to the audio jack.
   Connecting a headphone or a passive speaker may cause a large current to flow and damage the devices.
@@ -367,6 +390,7 @@ flowchart LR
 
 - This image was created with Fritzing.
     - Actually, it is necessary to use Raspberry Pi Pico 2 (instead of Raspberry Pi Pico)
+- The resistors and the capacitors (the RC filters) are optional, as in [Circuit Diagram](#circuit-diagram)
 
 
 ## Customization Examples
@@ -384,15 +408,31 @@ flowchart LR
     - "Digital-Synth-PRA32-U2-M.ino.Lite-Core-1-Only.txt"
 
 
+## Troubleshooting
+
+- The "RP2350" drive does not appear
+    - Use a USB cable that supports data transfer (not a charge-only cable)
+    - Keep pressing the BOOTSEL button while connecting the USB cable, and release it after connecting
+- "PRA32-U2" does not appear in the list "MIDI Out" of PRA32-U2 Editor
+    - Use Google Chrome or Microsoft Edge, and allow access to MIDI devices
+    - PRA32-U2 Editor makes the list of MIDI ports when it is opened; reload the page if PRA32-U2 is connected after opening PRA32-U2 Editor
+- No sound
+    - Check the wiring of the I2S DAC (for GY-PCM5102, also check that SCK is connected to GND, and the solder jumpers on the back)
+    - Check that "MIDI Ch" of PRA32-U2 Editor matches the MIDI Channel of PRA32-U2 (1 by default)
+- Noise
+    - The output may be affected by USB communication noise; try [UART MIDI](#uart-midi)
+    - With PWM Audio without the RC filters, reduce the level: see [PWM Audio (Optional)](#pwm-audio-optional)
+
+
 ## License
 
 ![CC0](http://i.creativecommons.org/p/zero/1.0/88x31.png)
 
-**Digital Synth PRA32-U2 v3.12.0 by ISGK Instruments (Ryo Ishigaki)**
+**Digital Synth PRA32-U2 v3.13.0 by ISGK Instruments (Ryo Ishigaki)**
 
 To the extent possible under law, ISGK Instruments (Ryo Ishigaki)
 has waived all copyright and related or neighboring rights
-to Digital Synth PRA32-U2 v3.12.0.
+to Digital Synth PRA32-U2 v3.13.0.
 
 You should have received a copy of the CC0 legalcode along with this
 work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
