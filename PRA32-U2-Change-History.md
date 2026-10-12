@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v3.12.1 (2026-??-??):
+- v3.13.0 (2026-??-??):
     - Change "Write Parameters to Program" (CC #106) to be written when changed from 0-31 (instead of 0-32) to 96-127, as the control panel of PRA32-U2/P
     - Improve the PWM Audio carrier by splitting each sample into 4 PWM periods (from 48 kHz to 192 kHz)
         - The level (3200 steps) is split into them (e.g. 801 = 201 + 200 + 200 + 200), so the resolution is the same
@@ -9,8 +9,8 @@
     - Change the RC filters for PWM Audio from recommended to optional (README)
         - Without them, reduce the level with a volume control (e.g. a cable with an inline stereo volume control), resistors, or the input gain of the connected device
             - The PWM ripples (3.3 V square waves) may saturate the input (e.g. of an audio interface) and cause beeps or noises, even when its level meter looks fine
-    - Remove the details of the Output Limiter from the Overview (README), which are also in the Parameter Guide ("Amp Gain")
-    - Change the threshold of the Output Limiter in the Parameter Guide to the one at its input (from 0.75 to 1.0, full scale); the Output Limiter itself is not changed
+    - Add the wiring of Adafruit PCM510x I2S DAC and GY-PCM5102, Troubleshooting, and a case for Pico Audio Pack to the READMEs
+    - Move the details of the Output Limiter from the Overview (README) to the Parameter Guide ("Amp Gain") only, and change its threshold there to the one at its input (from 0.75 to 1.0, full scale); the Output Limiter itself is not changed
     - PRA32-U2 Editor: Change the space at the bottom from 22 px to 8 px, as at the top
     - PRA32-U2 Editor: Widen the space before "Off" of the Velocity of the Software Keyboard to 8 px, as between the groups of its bar
     - PRA32-U2 Editor: Fix the Software Keyboard to follow a change of the text size even without a resize of the window
