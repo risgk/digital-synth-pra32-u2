@@ -129,6 +129,7 @@
     - PRA32-U2 Editor の "MIDI Ch" が、PRA32-U2 の MIDI チャンネル (初期値 1) と合っているか確認してください
 - ノイズが気になる
     - USB 通信のノイズの影響を受けることがあります。英語版の [UART MIDI](./README.md#uart-midi) を試してください
+    - RC フィルタなしの PWM Audio では、レベルを下げてください (英語版の [PWM Audio](./README.md#pwm-audio-optional) を参照)
 
 
 ## ライセンス
