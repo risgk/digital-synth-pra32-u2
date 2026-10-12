@@ -306,7 +306,6 @@ void __not_in_flash_func(setup)() {
   UART_MIDI.setHandleStop(handleStop);
   UART_MIDI.begin(MIDI_CHANNEL_OMNI);
   UART_MIDI.turnThruOff();
-  PRA32_U2_UART_MIDI_SERIAL.begin(PRA32_U2_UART_MIDI_SPEED);
 #endif  // defined(PRA32_U2_USE_UART_MIDI)
 
 #if defined(ARDUINO_RASPBERRY_PI_PICO) || defined(ARDUINO_RASPBERRY_PI_PICO_2)
