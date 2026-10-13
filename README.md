@@ -264,13 +264,13 @@ flowchart LR
         - Define `PRA32_U2_PWM_AUDIO_SUBPERIODS` as 1, 2, 4 (default), or 8 before including "pra32-u2-pwm-audio.h" to change it (carrier: 48, 96, 192, or 384 kHz)
     - NOTE: Probably smaller output volume than I2S DAC boards
     - The parameters are written to the flash after fading out the output (about 4 ms), and the output is silent while writing (about 50-100 ms)
+    - We recommend adding RC filter (post LPF) circuits to reduce the PWM ripples
+        - A 1st-order LPF with a cutoff frequency 7.2 kHz (R = 220 ohm, C = 100 nF) works well
+        - They also reduce the radio noise (EMI) radiated from the cables carrying the square waves: put them close to the pins
     - Without the RC filters, the PWM ripples (3.3 V square waves) reach the connected device along with the audio,
       and may saturate its input (e.g. of an audio interface) and cause beeps or noises, even when its level meter looks fine
         - Reduce the level with a volume control (e.g. a cable with an inline stereo volume control), resistors, or the input gain (volume) of the connected device
         - Start with the volume turned down: at the top, the full 3.3 V square waves reach the device
-    - Optional: RC filter (post LPF) circuits take out the PWM ripples themselves
-        - A 1st-order LPF with a cutoff frequency 7.2 kHz (R = 220 ohm, C = 100 nF) works well
-        - They also reduce the radio noise (EMI) radiated from the cables carrying the square waves: put them close to the pins
     - See "PWM audio" in [Hardware design with RP2040](https://datasheets.raspberrypi.com/rp2040/hardware-design-with-rp2040.pdf)
       for details on PWM audio
 - NOTE: The RP2350 system clock (sysclk) changes to overclocked 153.6 MHz (the same as I2S), regardless of CPU Speed in the Arduino IDE "Tools" menu
@@ -378,7 +378,7 @@ flowchart LR
 
 - This image was created with Fritzing.
     - Actually, it is necessary to use Raspberry Pi Pico 2 (instead of Raspberry Pi Pico)
-- The RC filters (R1, R2, C1, and C2) are optional: see [PWM Audio (Optional)](#pwm-audio-optional)
+- The RC filters (R1, R2, C1, and C2) are recommended: see [PWM Audio (Optional)](#pwm-audio-optional)
     - Without them, connect GP28 and GP27 to the audio jack directly (replace R1 and R2 with wires, and remove C1 and C2)
 - Adding 10 uF electrolytic capacitors (AC coupling capacitors) will cut the DC components of the audio outputs.
 - NOTE: Connect an amplifier or an active speaker to the audio jack.
@@ -391,7 +391,7 @@ flowchart LR
 
 - This image was created with Fritzing.
     - Actually, it is necessary to use Raspberry Pi Pico 2 (instead of Raspberry Pi Pico)
-- The resistors and the capacitors (the RC filters) are optional, as in [Circuit Diagram](#circuit-diagram)
+- The resistors and the capacitors (the RC filters) are recommended, as in [Circuit Diagram](#circuit-diagram)
 
 
 ## Customization Examples
