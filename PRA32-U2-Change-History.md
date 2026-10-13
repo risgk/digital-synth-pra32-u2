@@ -1,5 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v3.13.2 (2026-??-??):
+    - Tested with Arduino-Pico version 6.2.0
 - v3.13.1 (2026-10-13):
     - Fix UART MIDI with `SoftwareSerial` (README) not working, by dropping the redundant `begin()` of the UART MIDI serial
     - Fix the RC filters for PWM Audio being marked as optional in the README, by changing them back to recommended, as before v3.13.0
