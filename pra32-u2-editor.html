@@ -416,14 +416,22 @@ span.cc {
 #inputNoteOnVelocity {
   margin-right: 4px;  /* with the space, 8px before "Off" (as between the groups of the bar) */
 }
+/* Hold while on: as the white keys that are on */
+.kbd-bar button.kbd-hold-on {
+  background: #ffd9c4;
+  border: 1px solid var(--pra32-color);
+  border-radius: 3px;
+  color: var(--pra32-color-dark);
+  font-weight: bold;
+}
 /* The keys of the PC keyboard, small and gray (as the control numbers) */
 .kbd-hint {
   margin-left: 8px;
   font-size: 10px;
   color: #808080;
 }
-/* Panic at the upper right of the keyboard (as in PRA32-U2 Editor) */
-.kbd-bar .kbd-panic {
+/* Panic at the upper right of the keyboard (as in PRA32-U2 Editor), and Hold to its left (after it in the HTML, as they float) */
+.kbd-bar .kbd-panic, .kbd-bar .kbd-hold {
   float: right;
 }
 .kbd-bar::after {
@@ -1795,6 +1803,10 @@ function fitParamNames() {
 // A note held twice (e.g. 2 fingers on a key, or a key of the soft keyboard and the same key of an external
 // keyboard): a Note On and a Note Off are sent for each key, as they are. PRA32-U2 counts them, so the note stays
 // on (and the key lights) until both keys are released.
+//
+// Hold (as a Sustain Pedal, in the Editor): while it is on, a key released keeps its note on (no Note Off),
+// and the note is turned off when Hold is turned off. A key pressed again while its note is held takes over
+// the note (a Note On, and then the Note Off of the held one, so that the count stays 1)
 
 const KBD_NOTE_MIN    = 0;    // C-1
 const KBD_NOTE_MAX    = 127;  // G9
@@ -1806,6 +1818,8 @@ const KBD_CENTER_NOTE = 60;   // C4: by default, the center of the keyboard is t
 var kbdCounts = new Array(128).fill(0);
 var kbdKeys = [];               // note number -> the key elements (the upper part, and the lower part of a white key)
 var kbdPointers = new Map();    // pointerId -> the note number
+var kbdHold = false;
+var kbdHeld = new Set();        // the notes of the keys released while Hold is on (still on)
 
 function kbdTrack(status, note, velocity) {
   if ((status == NOTE_ON) && (velocity > 0)) {
@@ -1817,12 +1831,14 @@ function kbdTrack(status, note, velocity) {
 }
 
 // Panic: forgets the keys held (their release sends nothing, and gliding does not play), and turns off all the keys
+// (Hold stays on or off)
 function kbdReset() {
   kbdPointers.clear();
   kbdAllNotesOff();
 }
 
 function kbdAllNotesOff() {
+  kbdHeld.clear();
   for (var note = 0; note < 128; note++) {
     kbdCounts[note] = 0;
     kbdUpdateKey(note);
@@ -1871,8 +1887,11 @@ function kbdPress(pointerId, note) {
   var oldNote = kbdPointers.get(pointerId);
   noteOn(note);
   kbdPointers.set(pointerId, note);
+  if (kbdHeld.delete(note)) {
+    noteOff(note);
+  }
   if (oldNote !== undefined) {
-    noteOff(oldNote);
+    kbdLetGo(oldNote);
   }
 }
 
@@ -1882,7 +1901,29 @@ function kbdRelease(pointerId) {
   }
   var note = kbdPointers.get(pointerId);
   kbdPointers.delete(pointerId);
-  noteOff(note);
+  kbdLetGo(note);
+}
+
+// The note of a key released (or left by gliding): Note Off, or held while Hold is on (a note already held,
+// e.g. by 2 fingers on a key, is turned off, so that it is held once)
+function kbdLetGo(note) {
+  if (kbdHold && !kbdHeld.has(note)) {
+    kbdHeld.add(note);
+  } else {
+    noteOff(note);
+  }
+}
+
+function kbdSetHold(on) {
+  kbdHold = on;
+  var button = document.getElementById("buttonKbdHold");
+  button.classList.toggle("kbd-hold-on", on);
+  button.setAttribute("aria-pressed", on ? "true" : "false");
+  if (!on) {
+    var notes = Array.from(kbdHeld);
+    kbdHeld.clear();
+    notes.forEach(noteOff);
+  }
 }
 
 function kbdNoteOfEvent(event) {
@@ -1950,17 +1991,8 @@ function createKeyboard() {
     }
     kbdPress(event.pointerId, note);
   });
-  // A mouse that leaves the keyboard upward or downward while pressed: the note stays on (no Note Off when the button
-  // is released), as in the keyboard before, so that a note can be held (Panic turns it off).
-  // A mouse that leaves it to the left or the right (the ends of the visible area), or a touch that leaves it: Note Off
-  kb.addEventListener("pointerleave", function(event) {
-    var rect = kb.getBoundingClientRect();
-    if ((event.pointerType == "mouse") && ((event.clientY <= rect.top) || (event.clientY >= rect.bottom))) {
-      kbdPointers.delete(event.pointerId);
-    } else {
-      kbdRelease(event.pointerId);
-    }
-  });
+  // A pointer that leaves the keyboard while pressed releases the key (to hold a note, use Hold)
+  kb.addEventListener("pointerleave", function(event) { kbdRelease(event.pointerId); });
   window.addEventListener("pointerup", function(event) { kbdRelease(event.pointerId); });
   window.addEventListener("pointercancel", function(event) { kbdRelease(event.pointerId); });
   window.addEventListener("blur", function() {
@@ -2748,6 +2780,7 @@ function getStoredCCValueString(index, number) {
 <span class="kbd-vel">Velocity On <input type="number" id="inputNoteOnVelocity" min="1" max="127" step="1">
 Off <input type="number" id="inputNoteOffVelocity" min="1" max="127" step="1"></span>
 <button type="button" class="kbd-panic" onclick="panic()">Panic</button>
+<button type="button" class="kbd-hold" id="buttonKbdHold" aria-pressed="false" onclick="kbdSetHold(!kbdHold)" title="Hold: the keys released keep their notes on, until Hold is turned off">Hold</button>
 </summary>
 <div class="keyboard-frame">
 <div class="keyboard-scroll" id="kbdScroll">
