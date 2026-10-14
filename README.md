@@ -318,7 +318,7 @@ flowchart LR
     - Current parameter values and user presets (#0-15) can be imported/exported from/to JSON files
     - User presets: a name of up to 10 ASCII letters, digits, and symbols can be given by Store (shown on the User Preset buttons)
     - Undo: back to the parameters before the last preset, Randomize, or Import (Undo again: Redo)
-    - Software Keyboard: a note stays on when the mouse leaves the keyboard upward or downward while pressed (Panic turns it off)
+    - Software Keyboard: while Hold is on, the keys released keep their notes on (turning Hold off turns them off)
     - Software Keyboard: the PC keyboard can also be played while it is shown (A - K for C - C, W - U for the black keys, and Z / X for the octave);
       some PC keyboards cannot take many keys at the same time (e.g. a chord of 4 notes)
     - Software Keyboard: the velocities of Note On and Note Off can be entered (1-127, 100 and 64 by default)
