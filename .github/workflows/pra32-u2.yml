@@ -4,7 +4,6 @@
 # - PRA32-U2 Native: built with Visual Studio 2022 (Windows), Xcode (macOS), and GCC (Linux),
 #   and validated with pluginval (and auval for AU) (see PRA32-U2-Native/README.md)
 # - PRA32-U2 Web: built with Emscripten (Ubuntu), and tested with Node.js (see PRA32-U2-Web/README.md)
-# (The file name is kept, because the "Run workflow" button needs this file on the default branch)
 name: PRA32-U2 Build (UF2, Native, and Web)
 
 on:
