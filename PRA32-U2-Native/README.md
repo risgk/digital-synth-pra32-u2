@@ -10,7 +10,7 @@ PRA32-U2 Native: a software synthesizer (VST3 plugin and standalone application)
     - The changes of the sound are noted in "PRA32-U2-Change-History.md" of PRA32-U2 as far as possible
 - The signal processing is the same as PRA32-U2 (Digital-Synth-PRA32-U2/*.h are used as they are)
 - Version: the same as PRA32-U2 (`PRA32_U2_VERSION` in "Digital-Synth-PRA32-U2.ino"), shown at the top of the editor
-- Binaries: "bin/", built and validated (pluginval) by GitHub Actions ("PRA32-U2 Build (UF2 and Native)" in ".github/workflows/pra32-u2-native-windows.yml")
+- Binaries: "bin/", built and validated (pluginval) by GitHub Actions ("PRA32-U2 Build (UF2, Native, and Web)" in ".github/workflows/pra32-u2.yml")
     - Windows (x64), VST3 and Standalone: "PRA32-U2-Native-v*-Windows-x64.zip"
         - Not signed, so Windows SmartScreen may warn
     - Mac (macOS 11 or later, Universal: Apple silicon and Intel), VST3, AU, and Standalone: "PRA32-U2-Native-v*-macOS-Universal.zip"
