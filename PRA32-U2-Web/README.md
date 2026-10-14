@@ -55,7 +55,7 @@ PRA32-U2 Web: a software synthesizer version of Digital Synth PRA32-U2 that runs
 ## How to Build
 
 - Requirements: [Emscripten](https://emscripten.org) (em++ and Node.js; installed with emsdk) and Git
-    - Built with Emscripten 6.0.12 (`EMSDK_VERSION` in ".github/workflows/pra32-u2-native-windows.yml")
+    - Built with Emscripten 6.0.12 (`EMSDK_VERSION` in ".github/workflows/pra32-u2.yml")
 - Install Emscripten (emsdk), once (in any folder, outside this repository):
 
 ```
@@ -77,7 +77,7 @@ node pra32-u2-web-test.js
 ```
 
 - The output: "../pra32-u2-web-synth.js"
-- GitHub Actions: "PRA32-U2 Build (UF2, Native, and Web)" in ".github/workflows/pra32-u2-native-windows.yml"
+- GitHub Actions: "PRA32-U2 Build (UF2, Native, and Web)" in ".github/workflows/pra32-u2.yml"
   builds and tests "pra32-u2-web-synth.js" (and commits it with "commit_package")
 - The source files
     - "Source/PRA32U2WebMain.cpp": the C API for the AudioWorkletProcessor
