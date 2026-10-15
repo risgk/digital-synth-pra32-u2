@@ -3,6 +3,7 @@
 - v3.13.2 (2026-??-??):
     - PRA32-U2 Editor: Add Hold to the Software Keyboard: while it is on, the keys released keep their notes on, until it is turned off
     - PRA32-U2 Editor: Change the Software Keyboard to send the Note Off when the mouse leaves the keyboard upward or downward while pressed (use Hold instead)
+    - Change "Randomize Synth" (Program Change #127, Control Change #111, and PRA32-U2 Editor) not to change Amp Attack, Amp Decay, Amp Sustain, and Amp Release, as Amp Gain
     - Change the Filter soft clipping of the band pass state to a nonlinear leak on the band pass integrator, solved every sample by the one-step simplified Newton method (the chord method)
         - It sounds the same at 48 kHz (the same curve and rate, now solved within the sample instead of a sample late), and the leak's rate is fixed in time, so the sound does not change with the sampling rate
     - Fix notes sometimes being held on with dense UART MIDI input (e.g. fast chords), by changing the UART MIDI bytes read per 64 frames from 3 to 8, and the UART MIDI receive FIFO from 32 to 256 bytes
