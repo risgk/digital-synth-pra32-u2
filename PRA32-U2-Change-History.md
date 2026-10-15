@@ -5,6 +5,9 @@
     - PRA32-U2 Editor: Change the Software Keyboard to send the Note Off when the mouse leaves the keyboard upward or downward while pressed (use Hold instead)
     - Change the Filter soft clipping of the band pass state to a nonlinear leak on the band pass integrator, solved every sample by the one-step simplified Newton method (the chord method)
         - It sounds the same at 48 kHz (the same curve and rate, now solved within the sample instead of a sample late), and the leak's rate is fixed in time, so the sound does not change with the sampling rate
+    - Fix notes sometimes being held on with dense UART MIDI input (e.g. fast chords), by changing the UART MIDI bytes read per 64 frames from 3 to 8, and the UART MIDI receive FIFO from 32 to 256 bytes
+        - Up to about 4.2 bytes arrive per 64 frames at 31250 bps, but only 3 were read (the MIDI Library parses 1 byte per read), so the FIFO overflowed and some Note Offs were lost
+    - Change the `SoftwareSerial` option of UART MIDI (README) to `SerialPIO`, which can take the same 256-byte receive FIFO
     - Tested with Arduino-Pico version 6.2.0
 - v3.13.1 (2026-10-13):
     - Fix UART MIDI with `SoftwareSerial` (README) not working, by dropping the redundant `begin()` of the UART MIDI serial
