@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 v3.13.1
+# Digital Synth PRA32-U2 v3.14.0
 
-- 2026-10-13 ISGK Instruments
+- 2026-10-15 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 - [English README](./README.md) の抄訳です (英語版が正です)。詳しい仕様は英語版を参照してください
     - 英語のドキュメントは、必要に応じて Web ブラウザーなどの自動翻訳を使ってお読みください
@@ -95,7 +95,7 @@
     - Undo: 直前のプリセット、Randomize、Import の前のパラメーターに戻します (もう一度押すと Redo)
     - Software Keyboard: マウス、タッチ、PC のキーボード (A - K が C - C、W - U が黒鍵、Z / X がオクターブ) で弾けます
         - ノートオンとノートオフのベロシティを入力できます (1-127、初期値は 100 と 64)
-        - 押したままマウスを鍵盤の上か下に出すと、ノートが鳴り続けます (Panic で止まります)
+        - Hold がオンの間は、離した鍵盤のノートが鳴り続けます (Hold をオフにすると止まります)
         - 鍵盤の下のスライダーで、Pitch Bend (離すと中央に戻ります)、Modulation、Breath Controller、Expression、Sustain Pedal、Channel Pressure を送れます
     - Write: 現在のパラメーターを PRA32-U2 (プログラム #0-15 とフラッシュ) に書き込みます (下記)
 - PRA32-U2 Editor を使わない場合 (例えば DAW や MIDI キーボードから)

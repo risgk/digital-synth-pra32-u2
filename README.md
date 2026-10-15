@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 v3.13.1
+# Digital Synth PRA32-U2 v3.14.0
 
-- 2026-10-13 ISGK Instruments
+- 2026-10-15 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 - [日本語版 README (抄訳)](./README.ja.md)
 
@@ -63,13 +63,17 @@ graph LR
 
 ## Filter Diagrams
 
-A zero-delay feedback state variable filter: at the sum, the loop equation is solved in closed
-form, so the high pass is found in one step. The soft clip acts only where the band pass state
-is read back, and it is what holds the resonance down; the low pass state stays linear, with a
-clamp at 16 as a guard that ordinary use never reaches. The soft clip is biased by 1/8, so that
-it adds even harmonics as the band pass state is driven (at a high Resonance or near the
-cutoff), with its small-signal gain made up for, so that the resonance is kept; a DC blocker on
-the output removes the DC that comes with it. The output clip comes last. Above the Filter
+A zero-delay feedback state variable filter. The band pass integrator leaks, more and more as
+the band pass bends into a soft clip curve (ceiling 4.0), and that is what holds the resonance
+down; at small levels the leak is next to nothing, so the pass band passes nearly clean. The
+loop equation, leak included, is solved every sample by the one-step simplified Newton method
+(the chord method, with the slope held at the linear part) from the linear solution,
+which needs no division and lands close to the root. The leak's rate is fixed in time, so the sound
+does not change with the sampling rate. The low pass state stays linear, with a clamp at 16 as
+a guard that ordinary use never reaches. The curve is biased by 1/8, so that the leak adds even
+harmonics as the band pass is driven (at a high Resonance or near the cutoff), with its
+small-signal gain made up for, so that the resonance is kept; a DC blocker on the output
+removes the DC that comes with it. The output clip comes last. Above the Filter
 Resonance 122, k turns negative and the loop oscillates.
 
 ```mermaid
@@ -83,7 +87,7 @@ flowchart LR
     MS --> DC["DC blocker<br/>7.5 Hz"]
     DC --> OC["Output clip<br/>linear up to 0.75"]
     OC --> OUT([Output])
-    SC["State clip<br/>biased 1/8, ceiling 4.0, α comp."] -.- I1
+    SC["Nonlinear leak<br/>biased 1/8, ceiling 4.0, one-step simplified Newton"] -.- I1
     L2["s2 is linear<br/>guard clamp at 16"] -.- I2
     I1 -->|"−k·BP"| SUM
     I2 -->|"−LP"| SUM
@@ -92,7 +96,7 @@ flowchart LR
 ```
 
 The same structure redrawn as an op-amp integrator filter. The asymmetric diode pair stands for
-the biased state clip, the coupling capacitor for the DC blocker, and the output clipper for the
+the biased nonlinear leak, the coupling capacitor for the DC blocker, and the output clipper for the
 output clip. It is an interpretation, not a reproduction of an actual circuit.
 
 ```mermaid
@@ -151,19 +155,19 @@ flowchart LR
 - Modify `PRA32_U2_UART_MIDI_SPEED`, `PRA32_U2_UART_MIDI_TX_PIN`, and `PRA32_U2_UART_MIDI_RX_PIN`
     - Speed: 31250 bps (default, for DIN/TRS MIDI) or 38400 bps (for PC)
     - GP4 and GP5 pins are used by UART1 TX and UART1 RX by default
-    - You can also use `SoftwareSerial` by making the following changes:
+    - You can also use `SerialPIO` (a PIO-based UART on any pins) by making the following changes:
 
         ```cpp
-        #include <SoftwareSerial.h>
         #define PRA32_U2_UART_MIDI_TX_PIN              (4)
         #define PRA32_U2_UART_MIDI_RX_PIN              (5)
-        SoftwareSerial mySerial(PRA32_U2_UART_MIDI_RX_PIN, PRA32_U2_UART_MIDI_TX_PIN);
+        SerialPIO mySerial(PRA32_U2_UART_MIDI_TX_PIN, PRA32_U2_UART_MIDI_RX_PIN, 256);  // FIFO: 256 bytes
         #define PRA32_U2_UART_MIDI_SERIAL              mySerial
         ```
 
         ```cpp
         //  PRA32_U2_UART_MIDI_SERIAL.setTX(PRA32_U2_UART_MIDI_TX_PIN);
         //  PRA32_U2_UART_MIDI_SERIAL.setRX(PRA32_U2_UART_MIDI_RX_PIN);
+        //  PRA32_U2_UART_MIDI_SERIAL.setFIFOSize(256);  // To absorb bursts (default: 32 bytes)
         ```
 
 - DIN/TRS MIDI is available by using (and modifying) Adafruit MIDI FeatherWing Kit, for example
@@ -318,7 +322,7 @@ flowchart LR
     - Current parameter values and user presets (#0-15) can be imported/exported from/to JSON files
     - User presets: a name of up to 10 ASCII letters, digits, and symbols can be given by Store (shown on the User Preset buttons)
     - Undo: back to the parameters before the last preset, Randomize, or Import (Undo again: Redo)
-    - Software Keyboard: a note stays on when the mouse leaves the keyboard upward or downward while pressed (Panic turns it off)
+    - Software Keyboard: while Hold is on, the keys released keep their notes on (turning Hold off turns them off)
     - Software Keyboard: the PC keyboard can also be played while it is shown (A - K for C - C, W - U for the black keys, and Z / X for the octave);
       some PC keyboards cannot take many keys at the same time (e.g. a chord of 4 notes)
     - Software Keyboard: the velocities of Note On and Note Off can be entered (1-127, 100 and 64 by default)
@@ -429,11 +433,11 @@ flowchart LR
 
 ![CC0](http://i.creativecommons.org/p/zero/1.0/88x31.png)
 
-**Digital Synth PRA32-U2 v3.13.1 by ISGK Instruments (Ryo Ishigaki)**
+**Digital Synth PRA32-U2 v3.14.0 by ISGK Instruments (Ryo Ishigaki)**
 
 To the extent possible under law, ISGK Instruments (Ryo Ishigaki)
 has waived all copyright and related or neighboring rights
-to Digital Synth PRA32-U2 v3.13.1.
+to Digital Synth PRA32-U2 v3.14.0.
 
 You should have received a copy of the CC0 legalcode along with this
 work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
