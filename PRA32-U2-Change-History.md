@@ -1,5 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v3.14.1 (2026-??-??):
+    - Tested with Arduino-Pico version 6.2.0
 - v3.14.0 (2026-10-15):
     - PRA32-U2 Editor: Add Hold to the Software Keyboard: while it is on, the keys released keep their notes on, until it is turned off
     - PRA32-U2 Editor: Change the Software Keyboard to send the Note Off when the mouse leaves the keyboard upward or downward while pressed (use Hold instead)
