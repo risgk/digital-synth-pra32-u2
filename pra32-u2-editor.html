@@ -1590,7 +1590,11 @@ function setRandom() {
         (i != FINE_TUNE      ) &&
         (i != BTH_FILTER_AMT ) &&
         (i != BTH_AMP_MOD    ) &&
-        (i != AFT_T_LFO_AMT  )) {
+        (i != AFT_T_LFO_AMT  ) &&
+        (i != AMP_ATTACK     ) &&
+        (i != AMP_DECAY      ) &&
+        (i != AMP_SUSTAIN    ) &&
+        (i != AMP_RELEASE    )) {
       onChangeControlChange(i, rand(128));
     }
   });
