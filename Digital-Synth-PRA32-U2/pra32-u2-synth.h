@@ -1514,7 +1514,11 @@ if constexpr (NO_FX == false) {
           (control_number != FINE_TUNE      ) &&
           (control_number != BTH_FILTER_AMT ) &&
           (control_number != BTH_AMP_MOD    ) &&
-          (control_number != AFT_T_LFO_AMT  )) {
+          (control_number != AFT_T_LFO_AMT  ) &&
+          (control_number != AMP_ATTACK     ) &&
+          (control_number != AMP_DECAY      ) &&
+          (control_number != AMP_SUSTAIN    ) &&
+          (control_number != AMP_RELEASE    )) {
         rand_state = PRA32_U2_NoiseGen::next_state(rand_state);
         control_change(control_number, rand_state >> 25);
       }
