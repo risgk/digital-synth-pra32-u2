@@ -63,13 +63,17 @@ graph LR
 
 ## Filter Diagrams
 
-A zero-delay feedback state variable filter: at the sum, the loop equation is solved in closed
-form, so the high pass is found in one step. The soft clip acts only where the band pass state
-is read back, and it is what holds the resonance down; the low pass state stays linear, with a
-clamp at 16 as a guard that ordinary use never reaches. The soft clip is biased by 1/8, so that
-it adds even harmonics as the band pass state is driven (at a high Resonance or near the
-cutoff), with its small-signal gain made up for, so that the resonance is kept; a DC blocker on
-the output removes the DC that comes with it. The output clip comes last. Above the Filter
+A zero-delay feedback state variable filter. The band pass integrator leaks, more and more as
+the band pass bends into a soft clip curve (ceiling 4.0), and that is what holds the resonance
+down; at small levels the leak is next to nothing, so the pass band passes nearly clean. The
+loop equation, leak included, is solved every sample by the one-step simplified Newton method
+(the chord method, with the slope held at the linear part) from the linear solution,
+which needs no division and lands close to the root. The leak's rate is fixed in time, so the sound
+does not change with the sampling rate. The low pass state stays linear, with a clamp at 16 as
+a guard that ordinary use never reaches. The curve is biased by 1/8, so that the leak adds even
+harmonics as the band pass is driven (at a high Resonance or near the cutoff), with its
+small-signal gain made up for, so that the resonance is kept; a DC blocker on the output
+removes the DC that comes with it. The output clip comes last. Above the Filter
 Resonance 122, k turns negative and the loop oscillates.
 
 ```mermaid
@@ -83,7 +87,7 @@ flowchart LR
     MS --> DC["DC blocker<br/>7.5 Hz"]
     DC --> OC["Output clip<br/>linear up to 0.75"]
     OC --> OUT([Output])
-    SC["State clip<br/>biased 1/8, ceiling 4.0, α comp."] -.- I1
+    SC["Nonlinear leak<br/>biased 1/8, ceiling 4.0, one-step simplified Newton"] -.- I1
     L2["s2 is linear<br/>guard clamp at 16"] -.- I2
     I1 -->|"−k·BP"| SUM
     I2 -->|"−LP"| SUM
@@ -92,7 +96,7 @@ flowchart LR
 ```
 
 The same structure redrawn as an op-amp integrator filter. The asymmetric diode pair stands for
-the biased state clip, the coupling capacitor for the DC blocker, and the output clipper for the
+the biased nonlinear leak, the coupling capacitor for the DC blocker, and the output clipper for the
 output clip. It is an interpretation, not a reproduction of an actual circuit.
 
 ```mermaid
