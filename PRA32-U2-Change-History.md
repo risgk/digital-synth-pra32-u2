@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v3.13.2 (2026-??-??):
+- v3.14.0 (2026-10-15):
     - PRA32-U2 Editor: Add Hold to the Software Keyboard: while it is on, the keys released keep their notes on, until it is turned off
     - PRA32-U2 Editor: Change the Software Keyboard to send the Note Off when the mouse leaves the keyboard upward or downward while pressed (use Hold instead)
     - Change "Randomize Synth" (Program Change #127, Control Change #111, and PRA32-U2 Editor) not to change Amp Attack, Amp Decay, Amp Sustain, and Amp Release, as Amp Gain
