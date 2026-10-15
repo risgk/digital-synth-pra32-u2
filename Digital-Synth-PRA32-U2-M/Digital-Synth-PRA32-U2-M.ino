@@ -334,6 +334,7 @@ void __not_in_flash_func(setup)() {
   pinMode(PRA32_U2_UART_MIDI_RX_PIN, INPUT_PULLUP);
   PRA32_U2_UART_MIDI_SERIAL.setTX(PRA32_U2_UART_MIDI_TX_PIN);
   PRA32_U2_UART_MIDI_SERIAL.setRX(PRA32_U2_UART_MIDI_RX_PIN);
+  PRA32_U2_UART_MIDI_SERIAL.setFIFOSize(256);  // To absorb bursts (default: 32 bytes)
   UART_MIDI.setHandleNoteOn(handleNoteOn);
   UART_MIDI.setHandleNoteOff(handleNoteOff);
   UART_MIDI.setHandleControlChange(handleControlChange);
@@ -384,15 +385,19 @@ void __not_in_flash_func(loop)() {
   mutex_enter_blocking(&__usb_mutex);
 #endif  // defined(PRA32_U2_USE_USB_MIDI)
 
-  for (uint32_t i = 0; i < ((PRA32_U2_I2S_BUFFER_WORDS + 31) / 32) + 1; i++) {
 #if defined(PRA32_U2_USE_USB_MIDI)
+  for (uint32_t i = 0; i < ((PRA32_U2_I2S_BUFFER_WORDS + 31) / 32) + 1; i++) {
     USB_MIDI.read();
+  }
 #endif  // defined(PRA32_U2_USE_USB_MIDI)
 
 #if defined(PRA32_U2_USE_UART_MIDI)
+  // The MIDI Library parses 1 byte per read(), and up to about 4.2 bytes arrive per 64 frames
+  // at 31250 bps, so read 8 bytes per 64 frames not to overflow the receive FIFO
+  for (uint32_t i = 0; i < (PRA32_U2_I2S_BUFFER_WORDS + 7) / 8; i++) {
     UART_MIDI.read();
-#endif
   }
+#endif  // defined(PRA32_U2_USE_UART_MIDI)
 
   PRA32_U2_ControlPanel_update_control();
 

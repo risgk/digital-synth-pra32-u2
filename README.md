@@ -155,19 +155,19 @@ flowchart LR
 - Modify `PRA32_U2_UART_MIDI_SPEED`, `PRA32_U2_UART_MIDI_TX_PIN`, and `PRA32_U2_UART_MIDI_RX_PIN`
     - Speed: 31250 bps (default, for DIN/TRS MIDI) or 38400 bps (for PC)
     - GP4 and GP5 pins are used by UART1 TX and UART1 RX by default
-    - You can also use `SoftwareSerial` by making the following changes:
+    - You can also use `SerialPIO` (a PIO-based UART on any pins) by making the following changes:
 
         ```cpp
-        #include <SoftwareSerial.h>
         #define PRA32_U2_UART_MIDI_TX_PIN              (4)
         #define PRA32_U2_UART_MIDI_RX_PIN              (5)
-        SoftwareSerial mySerial(PRA32_U2_UART_MIDI_RX_PIN, PRA32_U2_UART_MIDI_TX_PIN);
+        SerialPIO mySerial(PRA32_U2_UART_MIDI_TX_PIN, PRA32_U2_UART_MIDI_RX_PIN, 256);  // FIFO: 256 bytes
         #define PRA32_U2_UART_MIDI_SERIAL              mySerial
         ```
 
         ```cpp
         //  PRA32_U2_UART_MIDI_SERIAL.setTX(PRA32_U2_UART_MIDI_TX_PIN);
         //  PRA32_U2_UART_MIDI_SERIAL.setRX(PRA32_U2_UART_MIDI_RX_PIN);
+        //  PRA32_U2_UART_MIDI_SERIAL.setFIFOSize(256);  // To absorb bursts (default: 32 bytes)
         ```
 
 - DIN/TRS MIDI is available by using (and modifying) Adafruit MIDI FeatherWing Kit, for example
