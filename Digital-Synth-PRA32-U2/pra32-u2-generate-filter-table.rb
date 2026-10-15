@@ -42,13 +42,16 @@ def resonance_k(controller_value)
   end
 end
 
-# The self-oscillation takes k below 0 by t * kappa * (1 + g^2)^2 / g, where
+# The self-oscillation takes k below 0 by t * kappa / g, where
 # t = (controller value - 122) / 5, clamped to 0 .. 1; the level is about
-# 11.4 * sqrt(kappa), and (1 + g^2)^2 / g holds it across the cutoff. kappa is
-# scaled by 48000 / f_s, like the soft clipping of the band pass state
+# 11.4 * sqrt(kappa): the leak of the band pass integrator takes out
+# h * A^2 / 64 for the amplitude A where the negative damping puts in g * |k|,
+# h being the leak's step (0.5 at 48 kHz), and as both sit in the same
+# implicit equation, 1 / g holds the level across the cutoff. kappa is scaled
+# by 48000 / f_s, as h is
 #
 # A loud input weakens or stops the self-oscillation. The input also passes
-# through the soft clipping of the band pass state, whose gain 1 - c^2 / 48
+# through the leak of the band pass integrator, which grows as c^2 / 48 and
 # damps the oscillation as well: with the oscillation A cos(w t) and an input
 # component B cos(v t) in the state, the cubic gives the oscillation the
 # damping (3 / 4) * A^3 + (3 / 2) * A * B^2, so the level falls to about
@@ -71,7 +74,7 @@ end
 SELF_OSC_LEVEL = 0.5
 SELF_OSC_KAPPA = ((SELF_OSC_LEVEL / 11.4) ** 2) * (48000.0 / SAMPLING_RATE)
 
-# The soft clipping of the band pass state gives the self-oscillation a 3rd
+# The leak of the band pass integrator gives the self-oscillation a 3rd
 # harmonic, which folds back to f_s - 3 * f_0 once 3 * f_0 is above f_s / 2
 # (e.g. an inharmonic 11.8 kHz tone for f_0 = 19.9 kHz at 48 kHz). The
 # self-oscillation fades out from f_s / 6 to f_s / 4.8, linearly in the cutoff
@@ -79,8 +82,9 @@ SELF_OSC_KAPPA = ((SELF_OSC_LEVEL / 11.4) ** 2) * (48000.0 / SAMPLING_RATE)
 # at 48 kHz); above f_s / 4.8, the filter acts as at the Resonance 122
 #
 # An alternative, not adopted for its cost, removes the 3rd harmonic at its
-# source: in the self-oscillation range, the soft clipping of the band pass
-# state c is weighted by the low pass state o (both clamped to -4 .. +4),
+# source (worked out and measured when the band pass state was soft-clipped
+# once a sample, before the leak): in the self-oscillation range, the soft
+# clipping of the band pass state c is weighted by the low pass state o (both clamped to -4 .. +4),
 #   gain = 1 - e / 48,  e = c^2 * (1 - t / 4) + o^2 * (3 * t / 4)
 # (e = c^2 at t = 0). Self-oscillating, the two states run at nearly equal
 # amplitude a quarter cycle apart, so e holds nearly still over a cycle and
@@ -132,10 +136,10 @@ generate_table("g_filter_g_table", "g = tan(pi * f_0 / f_s)", FILTER_G_FRACTION_
 end
 
 # The filter multiplies this by t * 5, so that t needs no division
-generate_table("g_filter_self_osc_table", "kappa * (1 + g^2)^2 / g / 5", FILTER_TABLE_FRACTION_BITS) do |controller_value|
+generate_table("g_filter_self_osc_table", "kappa / g / 5", FILTER_TABLE_FRACTION_BITS) do |controller_value|
   g = cutoff_g(controller_value)
-  h = SELF_OSC_KAPPA * ((1.0 + g * g) ** 2) / g / 5.0
-  printf("cutoff: %3d, kappa * (1 + g^2)^2 / g / 5: %9.6f\n", controller_value, h)
+  h = SELF_OSC_KAPPA / g / 5.0
+  printf("cutoff: %3d, kappa / g / 5: %9.6f\n", controller_value, h)
   h
 end
 
