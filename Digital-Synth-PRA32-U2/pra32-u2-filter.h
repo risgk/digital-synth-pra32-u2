@@ -34,9 +34,9 @@ static INLINE int32_t saturate_to_ceiling(int32_t value) {
 static const uint8_t SOFT_CLIP_SQUARED_SHIFT = ((23 + FILTER_CALC_SCALING_BITS) * 2) - FILTER_TABLE_FRACTION_BITS
                                              + (2 * SOFT_CLIP_CEILING_BITS);
 
-// Cubic soft clipping with the ceiling at 4.0, realized by "gain prediction":
-// instead of evaluating a waveshaper on the signal, the gain of the clipper is
-// predicted from the signal and applied by a single multiplication
+// Cubic soft clipping with the ceiling at 4.0, written as a gain applied by a
+// single multiplication (not the "gain prediction" of the KVR thread, which
+// puts a predicted gain into the zero-delay feedback equation)
 //   soft_clip(x) = gain(x) * c,  c = clamp(x, -4, +4),  gain(x) = 1 - c^2 / 48
 static INLINE int32_t soft_clip(int32_t value) {
   // Note: Without anti-aliasing (oversampling)
@@ -77,20 +77,29 @@ static INLINE int32_t soft_clip_biased(int32_t value) {
                               SOFT_CLIP_BIAS_GAIN_COMP, FILTER_TABLE_FRACTION_BITS);
 }
 
-// The band pass state is soft-clipped once per sample, so the distortion
-// grows with the sampling rate; blending the clipper by alpha = 48000 / f_s
-// keeps the sound at 48 kHz on other sampling rates
-//   soft_clip_state(x) = x - alpha * (x - soft_clip_biased(x))
-static_assert(SAMPLING_RATE > 24000, "alpha must be less than 2.0 (Q30)");
-static const int32_t FILTER_STATE_CLIP_ALPHA = (48000LL << FILTER_TABLE_FRACTION_BITS) / SAMPLING_RATE;  // Q30
-
-static INLINE int32_t soft_clip_state(int32_t value) {
-  if constexpr (SAMPLING_RATE == 48000) {
-    return soft_clip_biased(value);  // alpha = 1
-  } else {
-    return value - multiply_shift_right(value - soft_clip_biased(value), FILTER_STATE_CLIP_ALPHA, FILTER_TABLE_FRACTION_BITS);
-  }
+// The leak of the band pass integrator (see PRA32_U2_Filter::process()):
+//   leak(y) = y - soft_clip_biased(y)
+// 0 with the slope 0 at y = 0, so that the leak is nothing at small levels;
+// its slope leak'(y) = 1 - (1 - c^2 / 16) / (1 - B^2 / 16), c being the
+// clamped y + B, grows to 1 at the ceiling and stays there
+static INLINE int32_t band_pass_leak(int32_t value) {
+  return value - soft_clip_biased(value);
 }
+
+// The band pass integrator leaks at LEAK_RATE * leak(y) on top of what it
+// integrates, y being the band pass. In continuous time,
+//   dy/dt = w_c * high_pass - LEAK_RATE * (y - soft_clip_biased(y))
+// an integrator with a soft limiter across its capacitor: nothing at small
+// levels, more and more as y bends into the cubic, which is what holds the
+// resonance down while the pass band passes nearly clean. The rate is the one
+// the Filter used to have implicitly, when it soft-clipped the band pass state
+// once a sample at 48 kHz, so the sound at 48 kHz is kept; fixed in time
+// rather than per sample, it no longer changes with the sampling rate.
+// FILTER_LEAK_STEP is LEAK_RATE * T / 2 for the trapezoidal rule, as g is
+// w_c * T / 2 (prewarped): 0.5 at 48 kHz (Q30)
+static const int64_t FILTER_LEAK_RATE = 48000;
+static_assert(SAMPLING_RATE >= 24000, "the leak's step must be at most 1.0 (Q30)");
+static const int32_t FILTER_LEAK_STEP = (FILTER_LEAK_RATE << (FILTER_TABLE_FRACTION_BITS - 1)) / SAMPLING_RATE;
 
 // Linear interpolation between the coefficients of two adjacent controller
 // values; controller_value_q16 is the controller value scaled by 65536, and is
@@ -352,7 +361,7 @@ public:
 
   INLINE int32_t process(int32_t audio_input_int24) {
 #if 1
-    // ZDF (Zero-Delay Feedback) / TPT (Topology-Preserving Transform) State Variable Filter (with delayed soft clipping of the band pass state)
+    // ZDF (Zero-Delay Feedback) / TPT (Topology-Preserving Transform) State Variable Filter (with a nonlinear leak on the band pass integrator, solved by one step of the simplified Newton method)
     int32_t x_0 = audio_input_int24 << FILTER_CALC_SCALING_BITS;
 
     // Ramp the coefficients toward the ones computed at the last update
@@ -360,41 +369,65 @@ public:
     m_one_over_a_0      += m_one_over_a_0_slope;
     m_g_plus_k_over_a_0 += m_g_plus_k_over_a_0_slope;
 
-    // The soft clipping in the feedback path is predicted from the integrator
-    // state of the previous sample, so its gain is constant within the
-    // sample: the zero-delay feedback equation keeps its closed-form solution
-    // and needs no iteration
-    // Only the band pass state is soft-clipped: the low pass passes clean and
-    // the resonance stays in tune, still held down by the clip on the band pass
-    // state; the output clip below trims what peaks remain.
-    // To clip both states, use the line in the comment instead:
-    //   int32_t s_2 = soft_clip_state(m_s_2);
-    int32_t s_1 = soft_clip_state(m_s_1);
-    // Without the soft clipping, nothing bounds the low pass state; the clamp
-    // at 16, well above anything ordinary use reaches, keeps it within the
-    // headroom of 32
+    // The leak holds the band pass state down, and nothing else bounds the low
+    // pass state; the clamps at 16, well above anything ordinary use reaches,
+    // keep both within the headroom of 32 whatever the rounding does
+    int32_t s_1 = saturate_to_ceiling<LOW_PASS_STATE_CEILING_BITS>(m_s_1);
     int32_t s_2 = saturate_to_ceiling<LOW_PASS_STATE_CEILING_BITS>(m_s_2);
 
-    // high_pass = (x_0 - (g + k) * s_1 - s_2) / a_0
-    int32_t high_pass = multiply_shift_right(m_one_over_a_0,      x_0 - s_2, FILTER_TABLE_FRACTION_BITS)
-                      - multiply_shift_right(m_g_plus_k_over_a_0, s_1,       FILTER_TABLE_FRACTION_BITS);
+    // Without the leak, the zero-delay feedback equation has the closed-form
+    // solution y_lin = s_1 + g * high_pass_lin, with
+    //   high_pass_lin = (x_0 - (g + k) * s_1 - s_2) / a_0
+    // With it (see FILTER_LEAK_RATE), the band pass y solves
+    //   F(y) = a_0 * (y - y_lin) + h * leak(y) = 0,  h = FILTER_LEAK_STEP
+    // This takes one step of the simplified Newton method (the chord method)
+    // from y_lin: the slope F'(y) = a_0 + h * leak'(y) of Newton's method is
+    // held at its linear part a_0, which leaves no division, as 1 / a_0 is
+    // already at hand, and no slope to compute:
+    //   y = y_lin - F(y_lin) / a_0 = y_lin - h * leak(y_lin) / a_0
+    // (the same as one fixed-point iteration of y = y_lin - h * leak(y) / a_0).
+    // Its error shrinks by h * leak'(y) / a_0 per step, against squaring in
+    // Newton's method: next to nothing where the curve is nearly straight, as
+    // leak'(y) grows as c^2 / 16, and at most a half past the ceiling, where
+    // the step falls short and the next sample takes up the rest. In the
+    // renders it is within -56 dB (RMS) of the exact root at a high Resonance,
+    // and -39 dB self-oscillating (mostly as a slight phase difference).
+    // This differs from both the delayed soft clipping this replaces, which
+    // clipped the band pass state of the previous sample before the linear
+    // solve, and the "gain prediction" of the KVR thread, which puts a gain
+    // predicted from the previous sample into the linear solve (which then
+    // needs a division per sample): here the leak is evaluated at this
+    // sample's linear solution, and taken off as the chord step says
+    int32_t high_pass_lin = multiply_shift_right(m_one_over_a_0,      x_0 - s_2, FILTER_TABLE_FRACTION_BITS)
+                          - multiply_shift_right(m_g_plus_k_over_a_0, s_1,       FILTER_TABLE_FRACTION_BITS);
+    int32_t band_pass_lin = s_1 + multiply_shift_right(m_g, high_pass_lin, FILTER_G_FRACTION_BITS);
 
-    // Two trapezoidal integrators in series
-    int32_t v_1 = multiply_shift_right(m_g, high_pass, FILTER_G_FRACTION_BITS);
-    int32_t band_pass = v_1 + s_1;
-    int32_t v_2 = multiply_shift_right(m_g, band_pass, FILTER_G_FRACTION_BITS);
-    int32_t low_pass = v_2 + s_2;
-    m_s_1 = band_pass + v_1;
-    m_s_2 = low_pass  + v_2;
+    int32_t leak_step_over_a_0;
+    if constexpr (FILTER_LEAK_STEP == (1 << (FILTER_TABLE_FRACTION_BITS - 1))) {
+      leak_step_over_a_0 = m_one_over_a_0 >> 1;  // h = 0.5 (48 kHz)
+    } else {
+      leak_step_over_a_0 = multiply_shift_right(FILTER_LEAK_STEP, m_one_over_a_0, FILTER_TABLE_FRACTION_BITS);
+    }
+    int32_t band_pass = band_pass_lin - multiply_shift_right(band_pass_leak(band_pass_lin), leak_step_over_a_0, FILTER_TABLE_FRACTION_BITS);
+
+    // Two trapezoidal integrators in series: each new state is twice the
+    // output less the old state, s_1 + 2 * (g * high_pass - h * leak) and
+    // s_2 + 2 * g * band_pass, the leak taken as the chord step took it
+    int32_t low_pass = s_2 + multiply_shift_right(m_g, band_pass, FILTER_G_FRACTION_BITS);
+    m_s_1 = band_pass + band_pass - s_1;
+    m_s_2 = low_pass  + low_pass  - s_2;
 
     int32_t y_0 = low_pass;
     if (m_filter_mode == 1) {
       y_0 = band_pass;
     } else if (m_filter_mode == 2) {
-      y_0 = high_pass;
+      // The high pass of the linear solution: the exact one,
+      // x_0 - s_2 - (g + k) * band_pass, differs by (g + k) times the chord
+      // step's correction, which is small at the levels the High Pass passes
+      y_0 = high_pass_lin;
     }
 
-    // Remove the DC from the biased soft clipping of the band pass state
+    // Remove the DC from the biased leak of the band pass
     m_dc_blocker += (y_0 - m_dc_blocker) >> DC_BLOCKER_SHIFT;
     y_0 -= m_dc_blocker;
 #else
@@ -447,8 +480,8 @@ private:
                       + multiply_shift_right(self_osc_over, self_osc_weight, FILTER_TABLE_FRACTION_BITS);
     int32_t k = interpolate_filter_table(g_filter_k_table, resonance);
 
-    // k -= t * kappa * (1 + g^2)^2 / g, where t = (Resonance - 122) / 5, clamped to 0 .. 1,
-    // and the table holds kappa * (1 + g^2)^2 / g / 5
+    // k -= t * kappa / g, where t = (Resonance - 122) / 5, clamped to 0 .. 1,
+    // and the table holds kappa / g / 5
     int32_t self_osc_t_times_5 = clamp(resonance - SELF_OSC_START_Q16, 0, SELF_OSC_RANGE_Q16);
     int32_t self_osc_k = multiply_shift_right(interpolate_filter_table(g_filter_self_osc_table, m_cutoff_current), self_osc_t_times_5,
                                               16 + FILTER_TABLE_FRACTION_BITS - FILTER_G_FRACTION_BITS);  // Q26
@@ -470,9 +503,9 @@ private:
     // next 4 samples (the update interval), so that a fast cutoff sweep is a
     // line rather than a staircase at a quarter of the sampling rate. Each is
     // ramped on its own, so within a ramp they only approximately satisfy
-    // a_0 = 1 + g * (g + k); the states stay bounded by the soft clipping and
-    // the clamp on the low pass state. Each ramp starts from the last computed
-    // value, so the rounding of the steps does not build up
+    // a_0 = 1 + g * (g + k); the states stay bounded by the leak and the clamp
+    // on the low pass state. Each ramp starts from the last computed value, so
+    // the rounding of the steps does not build up
     m_g                 = m_g_last;
     m_one_over_a_0      = m_one_over_a_0_last;
     m_g_plus_k_over_a_0 = m_g_plus_k_over_a_0_last;

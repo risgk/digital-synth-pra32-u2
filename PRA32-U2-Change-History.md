@@ -3,6 +3,8 @@
 - v3.13.2 (2026-??-??):
     - PRA32-U2 Editor: Add Hold to the Software Keyboard: while it is on, the keys released keep their notes on, until it is turned off
     - PRA32-U2 Editor: Change the Software Keyboard to send the Note Off when the mouse leaves the keyboard upward or downward while pressed (use Hold instead)
+    - Change the Filter soft clipping of the band pass state to a nonlinear leak on the band pass integrator, solved every sample by the one-step simplified Newton method (the chord method)
+        - It sounds the same at 48 kHz (the same curve and rate, now solved within the sample instead of a sample late), and the leak's rate is fixed in time, so the sound does not change with the sampling rate
     - Tested with Arduino-Pico version 6.2.0
 - v3.13.1 (2026-10-13):
     - Fix UART MIDI with `SoftwareSerial` (README) not working, by dropping the redundant `begin()` of the UART MIDI serial
