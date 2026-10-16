@@ -75,12 +75,12 @@
     - 51 (39-63): Triangle Wave
     - 77 (64-89): Sine Wave
     - 102 (90-115): Same as Osc 1 Wave
-        - Saw Wave
-        - Square Wave
-        - Triangle Wave
-        - Sine Wave
-        - Square Wave
-        - Square Wave
+        - Osc 1 Wave: Saw Wave -> Saw Wave
+        - Osc 1 Wave: Square Wave -> Square Wave
+        - Osc 1 Wave: Triangle Wave -> Triangle Wave
+        - Osc 1 Wave: Sine Wave -> Sine Wave
+        - Osc 1 Wave: Wave Tables with Constraints -> Square Wave
+        - Osc 1 Wave: Pulse Wave -> Square Wave
     - 127 (116-127): White Noise
 - Mixer Osc Mix [1|2]
     - 0: Osc 1 100% (min)
@@ -234,6 +234,7 @@
     - 1: 1.1 ms
     - 64: 100 ms
     - 127: 9.3 s
+    - NOTE: The Portamento is turned on and off by "Portamento Mode" (and "Portamento Switch")
 - LFO Wave [Tri|Sin|Nos|Saw|S&H|Sqr]
     - 0 (0-12): Triangle Wave (Key Trigger Off, -0.5 to +0.5)
     - 26 (13-38): Sine Wave (Key Trigger Off, -0.5 to +0.5)
@@ -269,7 +270,7 @@
     - 125: 97.7%
     - 126: 98.5%
     - 127: 100% (max)
-        - NOTE: The actual LFO depth is the "LFO Depth" value plus the "Modulation Wheel" value and the after touch effect
+    - NOTE: The actual LFO depth is the "LFO Depth" value plus the "Modulation Wheel" value and the after touch effect (up to 100%)
 - Amp Gain
     - NOTE: The Output Limiter (after the FX) limits the peaks above 1.0 (full scale) at its input, and lowers the output by 2.5 dB (x 0.75) (with the Presets, the Output Limiter rarely works)
 - Filter Mode [LP|BP|HP]
@@ -285,7 +286,7 @@
 - EG/Amp Rel = Dec [Off|On]
     - 0 (0-63): Off
     - 127 (64-127): On, EG Release = EG Decay and Amp Release = Amp Decay
-- EG Att/Dec Velo Sens [-|+]: EG Attack/Release Velocity Sensitivity, Modulates the attack/decay times by note on velocity
+- EG Att/Dec Velo Sens [-|+]: EG Attack/Decay Velocity Sensitivity, Modulates the attack/decay times by note on velocity
     - -64 (0): -100% (+63 to -63)
     - -32 (31-32): -50% (+31.5 to -31.5)
     - +0 (63-64): +0% (-0 to +0)
@@ -307,14 +308,19 @@
     - +32 (95-96): Delta Value = +6 / octave (Delta Second = 1.54x / octave)
     - +52 (115-116): Delta Value = +9.75 / octave (Delta Second = 2.02x / octave)
     - +63 (127): Delta Value = +12 / octave (Delta Second = 2.37x / octave)
-- Voice Assign Mode [1|1|3|3|4|2]: In Polyphonic Mode,
+- Voice Assign Mode [1|1|3|3|4|2]: The voice assignment in the Polyphonic Mode
     - 0 (0-12): Mode 1, Free voice with next number has priority (Round Robin), Release is effective
     - 26 (13-38): Mode 1, Free voice with next number has priority (Round Robin), Release is effective
     - 51 (39-63): Mode 3, Reuse note-off voices, Free voice with next number has priority (Round Robin), Release and polyphonic after touch are effective
     - 77 (64-89): Mode 3, Reuse note-off voices, Free voice with next number has priority (Round Robin), Release and polyphonic after touch are effective
     - 102 (90-115): Mode 4, Reuse note-off voices, Free voice with small number has priority, Portamento and polyphonic after touch are effective
     - 127 (116-127): Mode 2, Free voice with small number has priority, Portamento is effective
-- Pan
+- Pan: Constant power panning
+    - -64 (0-1): Left (L +3.0 dB, R Off) (min)
+    - -32 (32): L +2.3 dB, R -5.6 dB
+    - +0 (64): Center (L -0.1 dB, R -0.1 dB)
+    - +32 (96): L -5.6 dB, R +2.3 dB
+    - +63 (127): Right (L Off, R +3.0 dB) (max)
 - Stretch Tune [-|+]
     - 0: +0 cent at note number 108 (-0 cent at note number 12)
     - 32: +9.4 cent at note number 108 (-9.4 cent at note number 12)
@@ -358,12 +364,14 @@
             - NOTE: Low notes may still be heard faintly at the min Cutoff
         - Opn can also be used for drones: the voices keep sounding at the last notes (in the Polyphonic Mode, the last chord of up to 4 notes), and the Filter EG and LFO still work
         - LO and QO are intended for the Monophonic or Legato Voice Mode, as the note-off voices keep sounding in the Polyphonic Mode
-- After Touch LFO Amt
+- After Touch LFO Amt: The LFO depth added by the max after touch (Polyphonic Key Pressure or Channel Pressure)
+    - 0: +0% (min)
+    - 64: +50%
+    - 127: +100% (max)
 - Portamento Mode [Sw|Aut]: What turns on and off the Portamento
     - 0 (0-63): Switch (Sw), The Portamento is on only while Portamento Switch (Control Change #65) is On (64-127)
     - 127 (64-127): Auto (Aut), The Portamento is always on
     - NOTE: In Legato Portamento (Voice Mode: LP), the Portamento is effective only for the legato notes, also while it is on
-    - NOTE: Portamento Switch is Off (0) at startup and by Reset All Controllers, and is not stored in the programs
 - Chorus Level: Chorus Send Level
 - FX Routing [Cho|Dly|Byp]: Where the output is input to the FX (the FX are connected in series: Chorus -> Delay)
     - 0 (0-31): Chorus (through the Chorus and the Delay)
@@ -411,6 +419,18 @@
     - 0: Feedback 0% (min)
     - 64: Feedback 25%
     - 127: Feedback 49.6% (max)
+
+## Performance Controllers
+
+- Not stored in the programs; the values at startup and by Reset All Controllers are shown as "Reset"
+- Pitch Bend: Bends the pitch by "Pitch Bend Range" (Reset: center)
+- Modulation Wheel (Control Change #1): Adds to the LFO depth (127: +100%) (Reset: 0)
+- Breath Controller (Control Change #2): Modulates the Filter Cutoff by "Breath Filter Amt", and the Amp by "Breath Amp Mode" (Reset: 0)
+- Expression (Control Change #11): The level, in a quadratic curve (64: 25%, about -12 dB) (Reset: 127)
+- Sustain Pedal [Off|On] (Control Change #64): While it is On (64-127), the note offs are held, and they are released when it is turned Off (Reset: Off)
+    - It is also turned Off by All Notes Off, All Sound Off, Omni Mode Off/On, and Mono/Poly Mode On
+- Portamento Switch [Off|On] (Control Change #65): While it is On (64-127), the Portamento is on, if "Portamento Mode" is Sw (Reset: Off)
+- After Touch (Polyphonic Key Pressure and Channel Pressure): Adds to the LFO depth by "After Touch LFO Amt" (Reset: 0)
 
 ## Parameter Smoothing
 
