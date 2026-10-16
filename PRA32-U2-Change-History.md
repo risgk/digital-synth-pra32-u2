@@ -17,7 +17,7 @@
     - PRA32-U2 Editor: Show "Voice" and "Portamento" of the parameter names in bold, as the other groups (e.g. "EG" and "LFO")
     - PRA32-U2 Native: Add Portamento Mode
     - Add "Performance Controllers" to the Parameter Guide, add the values of Pan and After Touch LFO Amt, and fix the description of EG Att/Dec Velo Sens (Attack/Decay, not Attack/Release)
-    - Rename "Random Synth Params" to "Randomize Synth" in the MIDI Implementation Chart, add the note of Portamento Switch, and renumber the notes ($1-7)
+    - Rename "Random Synth Params" to "Randomize Synth" in the MIDI Implementation Chart, add the notes of Portamento Switch and Program Change #0-7 by CC, and renumber the notes ($1-8)
     - Add "No portamento" to Troubleshooting (README), and add AU and PRA32-U2/M (not supported) to the README of PRA32-U2 Native
     - Tested with Arduino-Pico version 6.2.0
 - v3.14.0 (2026-10-15):

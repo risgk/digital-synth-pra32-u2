@@ -107,14 +107,14 @@
 |                               |               |               |                                      |
 |                            87 | x             | o             | Program Number to Write to $2        |
 |                           106 | x             | o             | Write Parameters to Program $2       |
-|                           112 | x             | o             | Program Change #0 by CC              |
-|                           113 | x             | o             | Program Change #1 by CC              |
-|                           114 | x             | o             | Program Change #2 by CC              |
-|                           115 | x             | o             | Program Change #3 by CC              |
-|                           116 | x             | o             | Program Change #4 by CC              |
-|                           117 | x             | o             | Program Change #5 by CC              |
-|                           118 | x             | o             | Program Change #6 by CC              |
-|                           119 | x             | o             | Program Change #7 by CC              |
+|                           112 | x             | o             | Program Change #0 by CC $8           |
+|                           113 | x             | o             | Program Change #1 by CC $8           |
+|                           114 | x             | o             | Program Change #2 by CC $8           |
+|                           115 | x             | o             | Program Change #3 by CC $8           |
+|                           116 | x             | o             | Program Change #4 by CC $8           |
+|                           117 | x             | o             | Program Change #5 by CC $8           |
+|                           118 | x             | o             | Program Change #6 by CC $8           |
+|                           119 | x             | o             | Program Change #7 by CC $8           |
 |                           111 | x             | o             | Randomize Synth $6                   |
 +-------------------------------+---------------+---------------+--------------------------------------+
 | Program                       | x             | o             |                                      |
@@ -148,6 +148,7 @@
 |                               | $6 : Randomize the synth parameters (as "Randomize Synth" in         |
 |                               |   PRA32-U2 Editor) when changed from 0-63 to 64-127                  |
 |                               | $7 : Effective only if Portamento Mode is Sw                         |
+|                               | $8 : Change to the program when changed from 0-63 to 64-127          |
 +-------------------------------+----------------------------------------------------------------------+
   Mode 1: Omni On,  Poly          Mode 2: Omni On,  Mono          o: Yes                                
   Mode 3: Omni Off, Poly          Mode 4: Omni Off, Mono          x: No                                 
