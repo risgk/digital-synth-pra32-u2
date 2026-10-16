@@ -1,5 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v3.15.1 (2026-??-??):
+    - Tested with Arduino-Pico version 6.2.0
 - v3.15.0 (2026-10-16):
     - Add the "Portamento Mode [Sw|Aut]" parameter (Control Change #34)
         - Aut (Auto, default): The Portamento is always on, as before
