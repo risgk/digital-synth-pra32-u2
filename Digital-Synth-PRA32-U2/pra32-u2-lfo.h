@@ -148,7 +148,7 @@ private:
   template <uint8_t N>
   INLINE void update_lfo_depth_current() {
     // The depth scales the LFO output for all destinations, like an Amt parameter,
-    // so it is smoothed slower, in Q16 (with the Modulation and the After Touch,
+    // so it is smoothed slower, in Q16 (with the Modulation Wheel and the After Touch,
     // which are often sent in sparse and irregular steps)
     int32_t lfo_depth_target = high_byte((m_lfo_depth_target[0] << 1) * m_lfo_fade_level) + m_lfo_depth_target[1]
                               + ((m_pressure_amt * m_pressure[N]) >> 7);
