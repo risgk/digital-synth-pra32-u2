@@ -28,7 +28,7 @@ PRA32-U2 Native: a software synthesizer (VST3 plugin and standalone application)
 ## Features
 
 - No GUI of its own (only the standard JUCE components)
-    - VST3 and Standalone: a generic parameter editor (sliders and values, the same as JUCE's,
+    - VST3, AU, and Standalone: a generic parameter editor (sliders and values, the same as JUCE's,
       with wider parameter names, and the names and the values left-justified)
         - The sound parameters are shown in the same order as PRA32-U2 Editor, with the supplements in [] in the names
         - The sliders have the markers as in PRA32-U2 Editor (e.g. 6 markers for "Osc 1 Wave")
@@ -47,7 +47,7 @@ PRA32-U2 Native: a software synthesizer (VST3 plugin and standalone application)
 - Parameters: the sound parameters of PRA32-U2 (the same as the parameters of the programs)
     - The names are the same as in PRA32-U2 Editor, after the control numbers,
       so that the hosts that show only the beginning of the names show the control numbers
-        - VST3: without the supplements in [] (e.g. "CC#102 Osc 1 Wave"), so that the names are not too long
+        - VST3 and AU: without the supplements in [] (e.g. "CC#102 Osc 1 Wave"), so that the names are not too long
           (e.g. Cubase omits the middle of a long name); the values show them (e.g. "0 [Saw]")
         - Standalone: with the supplements (e.g. "CC#102 Osc 1 Wave [Saw|Sqr|Tri|Sin|WT|Pls]")
     - Each parameter has the same value as its Control Change (0-127; the normalized value is CC / 127, i.e. 127 = 1.0)
@@ -91,6 +91,7 @@ PRA32-U2 Native: a software synthesizer (VST3 plugin and standalone application)
   so the written programs are lost when the plugin (application) is closed
     - PRA32-U2 Editor stores the user programs in the Web browser
 - The control panel (PRA32-U2/P) and the step sequencer are not supported
+- PRA32-U2/M (Multi-Timbre Edition) is not supported
 - MIDI output is not supported
 
 
@@ -127,8 +128,8 @@ cmake --build build
       (e.g. `__attribute__((...))` is removed for MSVC)
     - "Source/PRA32U2Resampler.*": the resampler from 48 kHz
     - "Source/PRA32U2Renderer.*": the engine at 48 kHz + the resampler + the MIDI event scheduling
-    - "Source/PluginProcessor.*": the JUCE plugin (VST3 / Standalone)
-    - "Source/PluginEditor.*": the editor of the Standalone
+    - "Source/PluginProcessor.*": the JUCE plugin (VST3 / AU / Standalone)
+    - "Source/PluginEditor.*": the editor (the generic parameter editor, for all the formats)
 
 
 ## License
