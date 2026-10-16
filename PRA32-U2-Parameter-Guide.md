@@ -317,9 +317,9 @@
     - 127 (116-127): Mode 2, Free voice with small number has priority, Portamento is effective
 - Pan: Constant power panning
     - -64 (0-1): Left (L +3.0 dB, R Off) (min)
-    - -32 (32): L +2.3 dB, R -5.6 dB
-    - +0 (64): Center (L -0.1 dB, R -0.1 dB)
-    - +32 (96): L -5.6 dB, R +2.3 dB
+    - -32 (32): L +2.3 dB, R -5.5 dB
+    - +0 (64): Center (L 0 dB, R 0 dB)
+    - +32 (96): L -5.5 dB, R +2.3 dB
     - +63 (127): Right (L Off, R +3.0 dB) (max)
 - Stretch Tune [-|+]
     - 0: +0 cent at note number 108 (-0 cent at note number 12)

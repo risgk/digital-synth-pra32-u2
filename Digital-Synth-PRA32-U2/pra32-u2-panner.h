@@ -26,8 +26,9 @@ PRA32_U2_Panner()
   , m_gain_linear_l(16384 << 2)
   , m_gain_linear_r(16384 << 2)
   {
+    // 1 (and 0) is the left end, 64 is the center (0 dB), and 127 is the right end, in 126 steps (as GM2)
     for (uint8_t i = 1; i < OSC_PAN_TABLE_LENGTH - 1; ++i) {
-      m_pan_table[i] = static_cast<int16_t>(std::sqrt(2.0) * std::sin((PI * (i - 1)) / (2 * (OSC_PAN_TABLE_LENGTH - 1))) * (1 << 14)) << 2;
+      m_pan_table[i] = static_cast<int16_t>(std::sqrt(2.0) * std::sin((PI * (i - 1)) / (2 * (OSC_PAN_TABLE_LENGTH - 3))) * (1 << 14)) << 2;
     }
 
     m_pan_table[0]                        = m_pan_table[1];
