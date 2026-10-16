@@ -128,9 +128,10 @@
     - 116: Q = 59.7
     - 120: Q = 152
     - 122: Q = 256
-    - 123: Self-oscillation (level 0.22)
-    - 125: Self-oscillation (level 0.39)
-    - 127: Self-oscillation (level 0.50) (max)
+    - 123: Self-oscillation (peak level 0.22)
+    - 125: Self-oscillation (peak level 0.39)
+    - 127: Self-oscillation (peak level 0.50) (max)
+        - NOTE: The full scale is 1.0 (e.g. the peak level of the Osc 1 Saw Wave is 0.25)
     - The self-oscillation fades out as the cutoff (including the modulation) rises from the Cutoff 111 (f = 7.9 kHz) to 116 (f = 10.5 kHz), and above that the Resonance 123-127 acts as 122
     - A loud input near the cutoff (e.g. the Square or the Multi Saw) weakens or stops the self-oscillation, and an input harmonic near it pulls it to the pitch of that harmonic
     - NOTE: With a high Resonance (about 112 or above), chords get louder, and the Output Limiter lowers the level; if it is too much, lower the "Amp Gain"
