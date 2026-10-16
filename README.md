@@ -249,7 +249,7 @@ flowchart LR
     - Smaller values reduce the latency, but may cause audio dropouts when the processing of a loop takes longer
 - `PRA32_U2_I2S_BUFFER_WORDS` is also the number of frames processed in each loop (the default is 64 frames)
 - These settings are also used for PWM Audio
-- The latency from receiving a MIDI message to the audio output is about 3.8-5.1 ms (4.4 ms on average) by default
+- The latency from receiving a MIDI message to the audio output is about 3.7-5.0 ms (4.3 ms on average) by default (2.7 ms + 0-1.3 ms + 1 ms, below)
     - The output buffer is almost always full, so the frames processed in a loop are output about 2.7 ms after the loop starts
     - The MIDI messages are read once at the start of each loop (every 64 frames, 1.3 ms)
     - The Output Limiter delays the output by 1 ms (look-ahead), even when it is off
