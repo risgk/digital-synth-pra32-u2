@@ -81,6 +81,7 @@ const PRA32U2Engine::ParameterInfo s_parameter_names[] = {
   { BTH_FILTER_AMT , "Breath Filter Amt [-|+]"                },
   { BTH_AMP_MOD    , "Breath Amp Mode [Off|Q|L|LO|QO|Opn]"    },
   { AFT_T_LFO_AMT  , "After Touch LFO Amt"                    },
+  { PORTA_MODE     , "Portamento Mode [Sw|Aut]"               },
 
   { CHORUS_MIX     , "Chorus Level"                           },
   { FX_ROUTING     , "FX Routing [Cho|Dly|Byp]"               },
@@ -166,6 +167,7 @@ int PRA32U2Engine::getMarkers(uint8_t controlNumber, const uint8_t** markerValue
   case EG_AMP_MOD      :
   case REL_EQ_DECAY    :
   case OSC_SAW_W_MODE  :
+  case PORTA_MODE      :
     *markerValues = MARKERS_2;
     return 2;
   case MIXER_SUB_OSC   :
@@ -225,6 +227,7 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value) {
   static const char* const FILTER_MODES[3] = { "LP", "BP", "HP" };
   static const char* const OFF_ON[2]       = { "Off", "On" };
   static const char* const SAW_W_MODES[2]  = { "Str", "Cur" };
+  static const char* const PORTA_MODES[2]  = { "Sw", "Aut" };
   static const char* const BTH_AMP_MODS[6] = { "Off", "Q", "L", "LO", "QO", "Opn" };
   static const char* const FX_ROUTINGS[3]  = { "Cho", "Dly", "Byp" };
   static const char* const ASGN_MODES[6]   = { "1", "1", "3", "3", "4", "2" };
@@ -257,6 +260,7 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value) {
   case EG_AMP_MOD      :
   case REL_EQ_DECAY    : dispValue = select2(v, OFF_ON);             break;
   case OSC_SAW_W_MODE  : dispValue = select2(v, SAW_W_MODES);        break;
+  case PORTA_MODE      : dispValue = select2(v, PORTA_MODES);        break;
   case BTH_AMP_MOD     : dispValue = select6(v, BTH_AMP_MODS);       break;
   case FX_ROUTING      : dispValue = select3(v, FX_ROUTINGS);        break;
   case VOICE_ASGN_MODE : dispValue = select6(v, ASGN_MODES);         break;

@@ -1,6 +1,12 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v3.14.1 (2026-??-??):
+- v3.15.0 (2026-??-??):
+    - Add the "Portamento Mode [Sw|Aut]" parameter (Control Change #34): Sw (Switch, the Portamento is on only while Portamento Switch is On) or Aut (Auto, default, as before)
+    - Support Portamento Switch (Control Change #65, Portamento On/Off): Off at startup and by Reset All Controllers, not stored in the programs, effective only when Portamento Mode is Sw
+        - In Legato Portamento (Voice Mode: LP), the Portamento is effective only for the legato notes, also while it is on
+    - PRA32-U2/P: Change A-02 Pitch a to Portamento, Portamento Mode; A-03 Pitch b to Pitch Bend Range, Stretch Tune; B-20 Control c to Sustain Pedal, Portamento Switch; B-21 Control d to Channel Pressure (from B-20); and add B-22 Control e: Panic, Randomize Synth (from B-21)
+    - PRA32-U2 Editor: Add Portamento Mode, and Portamento Switch to the sliders below the Software Keyboard
+    - PRA32-U2 Native: Add Portamento Mode
     - Tested with Arduino-Pico version 6.2.0
 - v3.14.0 (2026-10-15):
     - PRA32-U2 Editor: Add Hold to the Software Keyboard: while it is on, the keys released keep their notes on, until it is turned off

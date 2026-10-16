@@ -146,8 +146,8 @@
 | :------------- | :------------------- | :------------------- |
 | A-00 Info      | PRA32-U2/P           | v3.14.0              |
 | A-01 Voice     | Voice Mode           | Voice Asgn Mode      |
-| A-02 Pitch a   | Portamento           | Pitch Bend Range     |
-| A-03 Pitch b   | Stretch Tune         |                      |
+| A-02 Pitch a   | Portamento           | Portamento Mode      |
+| A-03 Pitch b   | Pitch Bend Range     | Stretch Tune         |
 | A-04 Pitch c   | Coarse Tune          | Fine Tune            |
 | A-05 Osc a     | Osc 1 Wave           | Mixer Noise/Sub      |
 | A-06 Osc b     | Osc 1 Shape          | Osc 1 Morph          |
@@ -198,8 +198,9 @@
 | B-17 Seq 7     | Seq Pitch 7          | Seq Velo 7           |
 | B-18 Control a | Pitch Bend           | Modulation           |
 | B-19 Control b | Breath Controller    | Expression           |
-| B-20 Control c | Sustain Pedal        | Channel Pressure     |
-| B-21 Control d | Panic                | Randomize Synth      |
+| B-20 Control c | Sustain Pedal        | Portamento Switch    |
+| B-21 Control d | Channel Pressure     |                      |
+| B-22 Control e | Panic                | Randomize Synth      |
 | C-00 Write 0   | Write #0 User        | Write #1 User        |
 | C-01 Write 2   | Write #2 User        | Write #3 User        |
 | C-02 Write 4   | Write #4 User        | Write #5 User        |
