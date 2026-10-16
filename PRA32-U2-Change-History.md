@@ -16,9 +16,9 @@
     - PRA32-U2 Editor: Add Portamento Mode, and add Portamento Switch to the sliders below the Software Keyboard (shown in light gray if Portamento Mode is Aut)
     - PRA32-U2 Editor: Show "Voice" and "Portamento" of the parameter names in bold, as the other groups (e.g. "EG" and "LFO")
     - PRA32-U2 Native: Add Portamento Mode
-    - Add "Performance Controllers" to the Parameter Guide, add the values of Pan and After Touch LFO Amt, and fix the description of EG Att/Dec Velo Sens (Attack/Decay, not Attack/Release)
+    - Add "Performance Controllers" to the Parameter Guide, add the values of Pan and After Touch LFO Amt, and fix the description of EG Att/Dec Velo Sens (Attack/Decay, not Attack/Release) and the values of LFO Depth (1: 0.8%, not 10.8%)
     - Rename "Random Synth Params" to "Randomize Synth" in the MIDI Implementation Chart, add the notes of Portamento Switch and Program Change #0-7 by CC, and renumber the notes ($1-8)
-    - Add "No portamento" to Troubleshooting (README), and add AU and PRA32-U2/M (not supported) to the README of PRA32-U2 Native
+    - Add "No portamento" to Troubleshooting (README), fix B-05 in the README of PRA32-U2/P (Seq Pitch Ofst, not Seq Transpose), and add AU and PRA32-U2/M (not supported) to the README of PRA32-U2 Native
     - Tested with Arduino-Pico version 6.2.0
 - v3.14.0 (2026-10-15):
     - PRA32-U2 Editor: Add Hold to the Software Keyboard: while it is on, the keys released keep their notes on, until it is turned off

@@ -265,10 +265,10 @@
     - 100: No Low-Pass Filtering (max)
 - LFO Depth
     - 0: 0% (min)
-    - 1: 10.8%
+    - 1: 0.8%
     - 64: 50%
     - 125: 97.7%
-    - 126: 98.5%
+    - 126: 98.4%
     - 127: 100% (max)
     - NOTE: The actual LFO depth is the "LFO Depth" value plus the "Modulation Wheel" value and the after touch effect (up to 100%)
 - Amp Gain
@@ -386,7 +386,7 @@
     - 0: Delay Time +/- 0 ms (min)
     - 32: Delay Time +/- 1.3 ms
     - 64: Delay Time +/- 2.7 ms
-    - 126: Delay Time +/- 5.3 ms (max)
+    - 126 (126-127): Delay Time +/- 5.3 ms (max)
 - Delay Level: Delay Send Level
 - Delay Mode [Ste|PP|Rev]
     - 0 (0-31): Stereo Delay
