@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2/P v3.14.0
+# Digital Synth PRA32-U2/P v3.15.0
 
-- 2026-10-15 ISGK Instruments
+- 2026-10-16 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 
@@ -13,7 +13,9 @@
     - Playing by panel operation
     - Built-in monophonic 8-step sequencer
     - Panel and Step Sequencer Parameters
-- This option requires 1 to 4 SWs (tactile switches), 2 to 3 VRs (ADCs), and a monochrome 128x64 OLED Display based on SSD1306 series drivers
+- This option requires 2 to 6 SWs (tactile switches), 2 to 3 VRs (ADCs), and a monochrome 128x64 OLED Display based on SSD1306 series drivers
+    - SWs: Prev and Next, and optionally Play, Prog -, Prog +, and Shift (see Inputs)
+    - OLED Display: I2C1, SDA: GP6, SCL: GP7, Address: 0x3C (by default)
     - Tested with Pimoroni Pico Audio Pack, M5Stack MIDI Unit (optional), Long Leg 2x20 Pin Socket * 2, Seeed Studio's Grove Shield for Pi Pico, Dual Button * 3, Rotary Angle Sensor * 3, and an OLED Display 0.96 inch
 - Uncomment `//#define PRA32_U2_USE_CONTROL_PANEL` in "Digital-Synth-PRA32-U2.ino" and modify the constants
 - Inputs
@@ -22,14 +24,14 @@
     - SW2: Play Key (Normal Mode: press to play, Sequencer Mode: push to start/stop) (Removable)
         - Not to use this key, comment out `#define PRA32_U2_KEY_INPUT_PLAY_KEY_PIN          (20)` in "Digital-Synth-PRA32-U2.ino"
     - SW3: Prog - Key (Long press to change to the previous user program) (optional)
-        - To use this key, uncomment out `//#define PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN    (17)` in "Digital-Synth-PRA32-U2.ino"
+        - To use this key, uncomment `//#define PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN    (17)` in "Digital-Synth-PRA32-U2.ino"
     - SW4: Prog + Key (Long press to change to the next user program) (optional)
-        - To use this key, uncomment out `//#define PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN     (19)` in "Digital-Synth-PRA32-U2.ino"
+        - To use this key, uncomment `//#define PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN     (19)` in "Digital-Synth-PRA32-U2.ino"
     - SW5: Shift Key (optional)
         - Shift + Prev/Next Key: Go to the previous/next group without long-pressing
         - Shift + Prog -/+ Key: Change to the previous/next user program without long-pressing
         - Shift + VR0/1/2: Prevent values from changing across 64
-        - To use this key, uncomment out `//#define PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN         (21)` in "Digital-Synth-PRA32-U2.ino"
+        - To use this key, uncomment `//#define PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN         (21)` in "Digital-Synth-PRA32-U2.ino"
     - VR0 (ADC0): Parameter A
     - VR1 (ADC1): Parameter B
     - VR2 (ADC2): Parameter C for Play (Removable)
@@ -78,7 +80,7 @@
     - Seq Clock Src [Int|Ext]: Internal, External (Rx MIDI Clock)
     - Seq Pitch Ofst (Offset) [-|+]: Offset Seq Pitch 0-7 (min -60 to max +60)
     - Seq T/Rx St/Sp (Transmit/Receive Start/Stop): Off, On
-    - Seq Tempo: 30-240 BPM
+    - Seq Tempo: 30-240 BPM (in steps of 2 BPM)
     - Seq Gate Time [1/6|2/6|3/6|4/6|5/6|6/6]
     - Seq Mode [Fwd|Rvs|Bnc]: Forward, Reverse, Bounce
     - Seq Num Steps (Number of Steps): 1-32 (current step mod 8 is used as the index for Seq Pitch and Seq Velo)
@@ -89,12 +91,13 @@
 - Step Sequencer Operations
     - Seq Rand Pitch (Randomize Pitch 0-7): Change the value from 0-31 [Rdy] to 96-127 [Exe]
     - Seq Rand Velo (Randomize Velo 0-7): Change the value from 0-31 [Rdy] to 96-127 [Exe]
-- Control Parameters
+- Control Parameters (see [Performance Controllers](./PRA32-U2-Parameter-Guide.md#performance-controllers) in the Parameter Guide)
     - Pitch Bend: the MSB only (64 is the center, and 127 is the max, +8191)
-    - Modulation
+    - Modulation Wheel
     - Breath Controller
     - Expression
     - Sustain Pedal
+    - Portamento Switch
     - Channel Pressure
 - Control Operations
     - Panic: Change the value from 0-31 [Rdy] to 96-127 [Exe]
@@ -126,16 +129,16 @@
 
 ### An Example of Construction Using a Universal PCB
 
-- Using a universal PCB, GY-PCM5102 (PCM5102A I2S DAC Module), 6 SWs, 3 VRs, a OLED Display, and a M5Stack MIDI Unit (optional)
-    - An connection between Raspberry Pico 2's Mute Off Pin and GY-PCM5102's XSMT is omitted
+- Using a universal PCB, GY-PCM5102 (PCM5102A I2S DAC Module), 6 SWs, 3 VRs, an OLED Display, and an M5Stack MIDI Unit (optional)
+    - A connection between Raspberry Pi Pico 2's Mute Off Pin and GY-PCM5102's XSMT is omitted
 
 ![PRA32-U2/P (Universal PCB)](./pra32-u2-with-panel-universal-pcb.jpg)
 
 
 ### An Example of Construction Using a Breadboard
 
-- Using a breadboard, GY-PCM5102 (PCM5102A I2S DAC Module), 3 SWs, 3 VRs, and a OLED Display
-    - An connection between Raspberry Pico 2's Mute Off Pin and GY-PCM5102's XSMT is omitted
+- Using a breadboard, GY-PCM5102 (PCM5102A I2S DAC Module), 3 SWs, 3 VRs, and an OLED Display
+    - A connection between Raspberry Pi Pico 2's Mute Off Pin and GY-PCM5102's XSMT is omitted
 
 ![PRA32-U2/P (Bread Board)](./pra32-u2-with-panel-breadboard.jpg)
 
@@ -144,10 +147,10 @@
 
 | Page           | Parameter A          | Parameter B          |
 | :------------- | :------------------- | :------------------- |
-| A-00 Info      | PRA32-U2/P           | v3.14.0              |
+| A-00 Info      | PRA32-U2/P           | v3.15.0              |
 | A-01 Voice     | Voice Mode           | Voice Asgn Mode      |
-| A-02 Pitch a   | Portamento           | Pitch Bend Range     |
-| A-03 Pitch b   | Stretch Tune         |                      |
+| A-02 Pitch a   | Portamento Time      | Portamento Mode      |
+| A-03 Pitch b   | Pitch Bend Range     | Stretch Tune         |
 | A-04 Pitch c   | Coarse Tune          | Fine Tune            |
 | A-05 Osc a     | Osc 1 Wave           | Mixer Noise/Sub      |
 | A-06 Osc b     | Osc 1 Shape          | Osc 1 Morph          |
@@ -183,7 +186,7 @@
 | B-02 Panel c   | Panel Scale          | Panel Pitch Ofst     |
 | B-03 Panel d   | Panel Transpose      |                      |
 | B-04 Seq a     | Seq Step Note        | Seq Clock Src        |
-| B-05 Seq b     | Seq Transpose        | Seq T/Rx St/Sp       |
+| B-05 Seq b     | Seq Pitch Ofst       | Seq T/Rx St/Sp       |
 | B-06 Seq c     | Seq Tempo            | Seq Gate Time        |
 | B-07 Seq d     | Seq Mode             | Seq Num Steps        |
 | B-08 Seq e     | Seq On Steps         | Seq Act Steps        |
@@ -196,10 +199,11 @@
 | B-15 Seq 5     | Seq Pitch 5          | Seq Velo 5           |
 | B-16 Seq 6     | Seq Pitch 6          | Seq Velo 6           |
 | B-17 Seq 7     | Seq Pitch 7          | Seq Velo 7           |
-| B-18 Control a | Pitch Bend           | Modulation           |
+| B-18 Control a | Pitch Bend           | Modulation Wheel     |
 | B-19 Control b | Breath Controller    | Expression           |
-| B-20 Control c | Sustain Pedal        | Channel Pressure     |
-| B-21 Control d | Panic                | Randomize Synth      |
+| B-20 Control c | Sustain Pedal        | Portamento Switch    |
+| B-21 Control d | Channel Pressure     |                      |
+| B-22 Control e | Panic                | Randomize Synth      |
 | C-00 Write 0   | Write #0 User        | Write #1 User        |
 | C-01 Write 2   | Write #2 User        | Write #3 User        |
 | C-02 Write 4   | Write #4 User        | Write #5 User        |

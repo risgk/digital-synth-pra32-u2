@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 v3.14.0
+# Digital Synth PRA32-U2 v3.15.0
 
-- 2026-10-15 ISGK Instruments
+- 2026-10-16 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 - [日本語版 README (抄訳)](./README.ja.md)
 
@@ -54,7 +54,6 @@ graph LR
     V1A --> VM[Voice Mixer]
     V2[Voice 2] & V3[Voice 3] & V4[Voice 4] --> VM
     VM --> P[Panner] --> C[Chorus FX] --> D[Delay/Reverb FX] --> OL["Output Limiter<br/>(x 0.75)"] --> AO[Audio Out]
-    P --> C --> D --> OL --> AO
     N[Noise Gen]  --> V1O2 & V1OM & V2 & V3 & V4
     N -.-> L[LFO w/ S/H]
     L -.-> V1O1 & V1O2 & V1F & V2 & V3 & V4
@@ -145,7 +144,7 @@ flowchart LR
 
 - NOTE: Select USB Stack: "Adafruit TinyUSB" in the Arduino IDE "Tools" menu
 - To disable, comment out `#define PRA32_U2_USE_USB_MIDI` in "Digital-Synth-PRA32-U2.ino"
-- MIDI Device Name: "PRA32-U2"
+- MIDI Device Name: "PRA32-U2" ("PRA32-U2/M" for PRA32-U2/M, "PRA32-U2/P" for PRA32-U2/P, and "PRA32-U2/M/P" for PRA32-U2/M/P)
 
 
 #### UART MIDI
@@ -250,7 +249,7 @@ flowchart LR
     - Smaller values reduce the latency, but may cause audio dropouts when the processing of a loop takes longer
 - `PRA32_U2_I2S_BUFFER_WORDS` is also the number of frames processed in each loop (the default is 64 frames)
 - These settings are also used for PWM Audio
-- The latency from receiving a MIDI message to the audio output is about 3.8-5.1 ms (4.4 ms on average) by default
+- The latency from receiving a MIDI message to the audio output is about 3.7-5.0 ms (4.3 ms on average) by default (2.7 ms + 0-1.3 ms + 1 ms, below)
     - The output buffer is almost always full, so the frames processed in a loop are output about 2.7 ms after the loop starts
     - The MIDI messages are read once at the start of each loop (every 64 frames, 1.3 ms)
     - The Output Limiter delays the output by 1 ms (look-ahead), even when it is off
@@ -292,7 +291,7 @@ flowchart LR
 ## Files
 
 - "Digital-Synth-PRA32-U2.ino" is an Arduino sketch for Raspberry Pi Pico/RP2040/RP2350 core
-    - Modify `PRA32_U2_MIDI_CH` to change the MIDI Channel
+    - Modify `PRA32_U2_MIDI_CH` to change the MIDI Channel (0-based: 0 is MIDI Channel 1)
 - "pra32-u2-make-sample-wav-file.cc" is for debugging on PC
     - GCC (g++) for PC is required
     - "pra32-u2-make-sample-wav-file-cc.bat" makes a sample WAV file (working on Windows)
@@ -308,7 +307,7 @@ flowchart LR
     - Refer to "Web browsers" in [PRA32-U2 Web](./PRA32-U2-Web/README.md) for the other Web browsers (e.g. Safari)
     - Safari (Mac, iPhone, iPad) and all the Web browsers on iPhone and iPad do not support Web MIDI API,
       so PRA32-U2 Editor can be used only with PRA32-U2 Web (Built-in), not with PRA32-U2 or other MIDI devices
-- Select "PRA32-U2" in the list "MIDI Out"
+- Select "PRA32-U2" (or "PRA32-U2/M", etc.) in the list "MIDI Out"
     - Select "PRA32-U2 Web (Built-in)" to use [PRA32-U2 Web](./PRA32-U2-Web/README.md), without PRA32-U2
 - Functions
     - Program Changes via PRA32-U2 Editor (from "MIDI In" on the MIDI Ch of the Editor) are not passed to PRA32-U2:
@@ -322,12 +321,13 @@ flowchart LR
     - Current parameter values and user presets (#0-15) can be imported/exported from/to JSON files
     - User presets: a name of up to 10 ASCII letters, digits, and symbols can be given by Store (shown on the User Preset buttons)
     - Undo: back to the parameters before the last preset, Randomize, or Import (Undo again: Redo)
-    - Software Keyboard: while Hold is on, the keys released keep their notes on (turning Hold off turns them off)
-    - Software Keyboard: the PC keyboard can also be played while it is shown (A - K for C - C, W - U for the black keys, and Z / X for the octave);
-      some PC keyboards cannot take many keys at the same time (e.g. a chord of 4 notes)
-    - Software Keyboard: the velocities of Note On and Note Off can be entered (1-127, 100 and 64 by default)
-    - Software Keyboard: Pitch Bend (springs back to the center), Modulation, Breath Controller, Expression, Sustain Pedal,
-      and Channel Pressure can be sent from the sliders below the keyboard
+    - Software Keyboard
+        - While Hold is on, the keys released keep their notes on (turning Hold off turns them off)
+        - The PC keyboard can also be played while it is shown (A - K for C - C, W - U for the black keys, and Z / X for the octave);
+          some PC keyboards cannot take many keys at the same time (e.g. a chord of 4 notes)
+        - The velocities of Note On and Note Off can be entered (1-127, 100 and 64 by default)
+        - Pitch Bend (springs back to the center), Modulation Wheel, Breath Controller, Expression, Sustain Pedal, Portamento Switch,
+          and Channel Pressure can be sent from the sliders below the keyboard
 - When not using PRA32-U2 Editor (e.g. with a DAW or a MIDI keyboard)
     - PRA32-U2 can also be controlled by MIDI without using PRA32-U2 Editor
     - Sounds made with PRA32-U2 Editor can be written to PRA32-U2, and recalled later without PRA32-U2 Editor
@@ -418,7 +418,7 @@ flowchart LR
 - The "RP2350" drive does not appear
     - Use a USB cable that supports data transfer (not a charge-only cable)
     - Keep pressing the BOOTSEL button while connecting the USB cable, and release it after connecting
-- "PRA32-U2" does not appear in the list "MIDI Out" of PRA32-U2 Editor
+- "PRA32-U2" (or "PRA32-U2/M", etc.) does not appear in the list "MIDI Out" of PRA32-U2 Editor
     - Use Google Chrome or Microsoft Edge, and allow access to MIDI devices
     - PRA32-U2 Editor makes the list of MIDI ports when it is opened; reload the page if PRA32-U2 is connected after opening PRA32-U2 Editor
 - No sound
@@ -427,17 +427,22 @@ flowchart LR
 - Noise
     - The output may be affected by USB communication noise; try [UART MIDI](#uart-midi)
     - With PWM Audio without the RC filters, reduce the level: see [PWM Audio (Optional)](#pwm-audio-optional)
+- No portamento
+    - Check that Portamento Time is not 0
+    - Check that Portamento Mode is Aut, or that Portamento Switch (Control Change #65) is On if Portamento Mode is Sw
+    - In Legato Portamento (Voice Mode: LP), the Portamento is effective only for the legato notes
+    - In the Polyphonic Mode, the Portamento is effective only when Voice Assign Mode is 2 or 4
 
 
 ## License
 
 ![CC0](http://i.creativecommons.org/p/zero/1.0/88x31.png)
 
-**Digital Synth PRA32-U2 v3.14.0 by ISGK Instruments (Ryo Ishigaki)**
+**Digital Synth PRA32-U2 v3.15.0 by ISGK Instruments (Ryo Ishigaki)**
 
 To the extent possible under law, ISGK Instruments (Ryo Ishigaki)
 has waived all copyright and related or neighboring rights
-to Digital Synth PRA32-U2 v3.14.0.
+to Digital Synth PRA32-U2 v3.15.0.
 
 You should have received a copy of the CC0 legalcode along with this
 work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.

@@ -86,7 +86,7 @@ static INLINE int32_t approach_exp_wide(int32_t current_value, int32_t target_va
   return target_value - static_cast<int32_t>((delta + ((delta >> 63) & 0xFFFF)) >> 16);
 }
 
-// Parameter smoothing (see also "Parameter Smoothing" in README.md)
+// Parameter smoothing (see also "Parameter Smoothing" in PRA32-U2-Parameter-Guide.md)
 // The smoothing is updated at 6 kHz, i.e. every other control period of 12 kHz
 // (once per 8 samples): the amounts in the even periods, and the balances in
 // the odd periods, so that the load is spread (see is_balance_smoothing_period()).
@@ -97,7 +97,7 @@ static INLINE int32_t approach_exp_wide(int32_t current_value, int32_t target_va
 //     EG/LFO Mod Amt (Dst: F)
 //   - Osc: Osc 1 Shape, EG/LFO Mod Amt (Dst: 1S)
 //   - Amp: Amp Gain
-//   - LFO: LFO Depth (the sum with the LFO Fade, the Modulation, and the After Touch, per voice)
+//   - LFO: LFO Depth (the sum with the LFO Fade, the Modulation Wheel, and the After Touch, per voice)
 //   - Chorus FX: Chorus Level, Chorus Depth, the base delay time (internal)
 //   - Delay FX: Delay Level, Delay Feedback (with the Reverb table interpolated)
 // - Slow (in the odd periods): approach_exp_slow(), the same as above,

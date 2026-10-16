@@ -1,5 +1,34 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v3.15.0 (2026-10-16):
+    - Add the "Portamento Mode [Sw|Aut]" parameter (Control Change #34)
+        - Aut (Auto, default): The Portamento is always on, as before
+        - Sw (Switch): The Portamento is on only while Portamento Switch is On
+    - Support Portamento Switch (Control Change #65, Portamento On/Off): Off at startup and by Reset All Controllers, and not stored in the programs
+    - Rename "Portamento" (Control Change #5) to "Portamento Time", and "Modulation" (Control Change #1) to "Modulation Wheel" (only the names shown)
+    - Fix Pan: the center (64) was -0.1 dB, and is now 0 dB, as GM2 (1 and 0: the left end, 127: the right end, in 126 steps)
+    - Fix Delay Time 112 and 113: they were 336.7 ms and 340 ms, and are now 333.3 ms and 336.7 ms, as the panel and PRA32-U2 Editor show (114-127: 340 ms)
+    - Fix Osc 2 Wave O1 (Same as Osc 1 Wave) with the Osc 1 Saw Wave being the Straight Saw Wave, even if Osc Saw Wave Mode is Cur (Curved), after Osc 1 Wave or Osc 2 Wave was changed
+    - PRA32-U2/P: Change the pages for the Portamento
+        - A-02 Pitch a: Portamento Time, Portamento Mode
+        - A-03 Pitch b: Pitch Bend Range, Stretch Tune
+        - B-20 Control c: Sustain Pedal, Portamento Switch
+        - B-21 Control d: Channel Pressure
+        - B-22 Control e: Panic, Randomize Synth (from B-21)
+    - PRA32-U2 Editor: Add Portamento Mode, and add Portamento Switch to the sliders below the Software Keyboard (shown in light gray if Portamento Mode is Aut)
+    - PRA32-U2 Editor: Show "Voice" and "Portamento" of the parameter names in bold, as the other groups (e.g. "EG" and "LFO")
+    - PRA32-U2 Native: Add Portamento Mode
+    - Parameter Guide
+        - Add "Performance Controllers", and the values of Pan and After Touch LFO Amt
+        - Fix the values of Stretch Tune (bipolar), the self-oscillation of Filter Resonance (peak level 0.5 since v3.8.0), LFO Depth, LFO Fade Time, Pitch Bend Range (max 64), the Frequency Ratio of Osc 1 Morph (28: 4.0), and others
+        - Fix the description of EG Att/Dec Velo Sens (Attack/Decay, not Attack/Release)
+        - Round the approximate values (e.g. times and frequencies) to 3 significant figures
+    - MIDI Implementation Chart: Rename "Random Synth Params" to "Randomize Synth", add the notes of Portamento Switch and Program Change #0-7 by CC, and renumber the notes ($1-8)
+    - README: Add "No portamento" to Troubleshooting, add the MIDI device names of PRA32-U2/M, /P, and /M/P, and fix the latency (3.7-5.0 ms, not 3.8-5.1 ms)
+    - README.ja.md: Add `PRA32_U2_MIDI_CH` and Randomize Synth
+    - README of PRA32-U2/P: Fix B-05 (Seq Pitch Ofst, not Seq Transpose) and the number of SWs (2 to 6, not 1 to 4), and add the pins of the OLED Display
+    - README of PRA32-U2 Native: Add AU, and that PRA32-U2/M is not supported
+    - Tested with Arduino-Pico version 6.2.0
 - v3.14.0 (2026-10-15):
     - PRA32-U2 Editor: Add Hold to the Software Keyboard: while it is on, the keys released keep their notes on, until it is turned off
     - PRA32-U2 Editor: Change the Software Keyboard to send the Note Off when the mouse leaves the keyboard upward or downward while pressed (use Hold instead)
