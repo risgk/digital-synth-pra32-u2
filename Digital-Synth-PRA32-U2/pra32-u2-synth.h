@@ -67,15 +67,15 @@ static uint8_t s_program_table_parameters[] = {
   LFO_FILTER_AMT ,
   AMP_GAIN       ,
 
-  AMP_ATTACK     ,
-  AMP_DECAY      ,
-  AMP_SUSTAIN    ,
-  AMP_RELEASE    ,
-
   FILTER_MODE    ,
   P_BEND_RANGE   ,
   EG_AMP_MOD     ,
   REL_EQ_DECAY   ,
+
+  AMP_ATTACK     ,
+  AMP_DECAY      ,
+  AMP_SUSTAIN    ,
+  AMP_RELEASE    ,
 
   A_D_VEL_SENS   ,
   REL_VEL_SENS   ,
@@ -380,15 +380,15 @@ public:
     std::memcpy(m_program_table[LFO_FILTER_AMT ], g_preset_table_LFO_FILTER_AMT , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[AMP_GAIN       ], g_preset_table_AMP_GAIN       , sizeof(m_program_table[0]));
 
-    std::memcpy(m_program_table[AMP_ATTACK     ], g_preset_table_AMP_ATTACK     , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[AMP_DECAY      ], g_preset_table_AMP_DECAY      , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[AMP_SUSTAIN    ], g_preset_table_AMP_SUSTAIN    , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[AMP_RELEASE    ], g_preset_table_AMP_RELEASE    , sizeof(m_program_table[0]));
-
     std::memcpy(m_program_table[FILTER_MODE    ], g_preset_table_FILTER_MODE    , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[P_BEND_RANGE   ], g_preset_table_P_BEND_RANGE   , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[EG_AMP_MOD     ], g_preset_table_EG_AMP_MOD     , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[REL_EQ_DECAY   ], g_preset_table_REL_EQ_DECAY   , sizeof(m_program_table[0]));
+
+    std::memcpy(m_program_table[AMP_ATTACK     ], g_preset_table_AMP_ATTACK     , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[AMP_DECAY      ], g_preset_table_AMP_DECAY      , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[AMP_SUSTAIN    ], g_preset_table_AMP_SUSTAIN    , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[AMP_RELEASE    ], g_preset_table_AMP_RELEASE    , sizeof(m_program_table[0]));
 
     std::memcpy(m_program_table[A_D_VEL_SENS   ], g_preset_table_A_D_VEL_SENS   , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[REL_VEL_SENS   ], g_preset_table_REL_VEL_SENS   , sizeof(m_program_table[0]));
