@@ -144,7 +144,7 @@ flowchart LR
 
 - NOTE: Select USB Stack: "Adafruit TinyUSB" in the Arduino IDE "Tools" menu
 - To disable, comment out `#define PRA32_U2_USE_USB_MIDI` in "Digital-Synth-PRA32-U2.ino"
-- MIDI Device Name: "PRA32-U2"
+- MIDI Device Name: "PRA32-U2" ("PRA32-U2/M" for PRA32-U2/M, "PRA32-U2/P" for PRA32-U2/P, and "PRA32-U2/M/P" for PRA32-U2/M/P)
 
 
 #### UART MIDI
@@ -291,7 +291,7 @@ flowchart LR
 ## Files
 
 - "Digital-Synth-PRA32-U2.ino" is an Arduino sketch for Raspberry Pi Pico/RP2040/RP2350 core
-    - Modify `PRA32_U2_MIDI_CH` to change the MIDI Channel
+    - Modify `PRA32_U2_MIDI_CH` to change the MIDI Channel (0-based: 0 is MIDI Channel 1)
 - "pra32-u2-make-sample-wav-file.cc" is for debugging on PC
     - GCC (g++) for PC is required
     - "pra32-u2-make-sample-wav-file-cc.bat" makes a sample WAV file (working on Windows)
@@ -307,7 +307,7 @@ flowchart LR
     - Refer to "Web browsers" in [PRA32-U2 Web](./PRA32-U2-Web/README.md) for the other Web browsers (e.g. Safari)
     - Safari (Mac, iPhone, iPad) and all the Web browsers on iPhone and iPad do not support Web MIDI API,
       so PRA32-U2 Editor can be used only with PRA32-U2 Web (Built-in), not with PRA32-U2 or other MIDI devices
-- Select "PRA32-U2" in the list "MIDI Out"
+- Select "PRA32-U2" (or "PRA32-U2/M", etc.) in the list "MIDI Out"
     - Select "PRA32-U2 Web (Built-in)" to use [PRA32-U2 Web](./PRA32-U2-Web/README.md), without PRA32-U2
 - Functions
     - Program Changes via PRA32-U2 Editor (from "MIDI In" on the MIDI Ch of the Editor) are not passed to PRA32-U2:
@@ -418,7 +418,7 @@ flowchart LR
 - The "RP2350" drive does not appear
     - Use a USB cable that supports data transfer (not a charge-only cable)
     - Keep pressing the BOOTSEL button while connecting the USB cable, and release it after connecting
-- "PRA32-U2" does not appear in the list "MIDI Out" of PRA32-U2 Editor
+- "PRA32-U2" (or "PRA32-U2/M", etc.) does not appear in the list "MIDI Out" of PRA32-U2 Editor
     - Use Google Chrome or Microsoft Edge, and allow access to MIDI devices
     - PRA32-U2 Editor makes the list of MIDI ports when it is opened; reload the page if PRA32-U2 is connected after opening PRA32-U2 Editor
 - No sound
