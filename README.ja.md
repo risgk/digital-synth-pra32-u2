@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 v3.14.0
+# Digital Synth PRA32-U2 v3.15.0
 
-- 2026-10-15 ISGK Instruments
+- 2026-10-16 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 - [English README](./README.md) の抄訳です (英語版が正です)。詳しい仕様は英語版を参照してください
     - 英語のドキュメントは、必要に応じて Web ブラウザーなどの自動翻訳を使ってお読みください
@@ -71,6 +71,7 @@
     - 動作確認したバージョンは英語版の [Preparation for Modification](./README.md#preparation-for-modification) を参照してください
 - Arduino **MIDI Library** (Francois Best 氏、lathoub 氏による) をインストールしてください
 - Arduino IDE の "ツール" メニューで USB Stack: "Adafruit TinyUSB" を選んでください (USB MIDI 用)
+- MIDI チャンネルを変えるには、"Digital-Synth-PRA32-U2.ino" の `PRA32_U2_MIDI_CH` を変更してください (0 始まりで、0 が MIDI チャンネル 1 です)
 
 
 ## PRA32-U2 Editor
@@ -81,7 +82,7 @@
     - その他の Web ブラウザー (例えば Safari) については、[PRA32-U2 Web](./PRA32-U2-Web/README.md) の "Web browsers" (英語) を参照してください
     - Safari (Mac、iPhone、iPad) と iPhone・iPad のすべての Web ブラウザーは Web MIDI API に対応していないため、
       PRA32-U2 Editor は PRA32-U2 Web (Built-in) でだけ使えます (PRA32-U2 や他の MIDI 機器とはつながりません)
-- "MIDI Out" のリストで "PRA32-U2" を選んでください
+- "MIDI Out" のリストで "PRA32-U2" (PRA32-U2/M の場合は "PRA32-U2/M" など) を選んでください
     - PRA32-U2 なしで [PRA32-U2 Web](./PRA32-U2-Web/README.md) を使うには、"PRA32-U2 Web (Built-in)" を選んでください
 - PRA32-U2 Editor を経由すると、プログラム・チェンジの扱いが変わります
     - "MIDI In" から (Editor の MIDI Ch で) 届いたプログラム・チェンジは PRA32-U2 に送らず、Editor がプリセットを読み込んで、そのパラメーターをコントロール・チェンジで送ります
@@ -92,11 +93,12 @@
     - ファクトリー・プリセット (#16-31) とユーザー・プリセット (#0-15) の読み込み
     - ユーザー・プリセットはブラウザーに保存され、Store で 10 文字までの名前 (ASCII の英数字と記号) を付けられます
     - JSON ファイルへのエクスポートと、JSON ファイルからのインポート
+    - Randomize Synth と Randomize FX: シンセや FX のパラメーターをランダムに設定します
     - Undo: 直前のプリセット、Randomize、Import の前のパラメーターに戻します (もう一度押すと Redo)
     - Software Keyboard: マウス、タッチ、PC のキーボード (A - K が C - C、W - U が黒鍵、Z / X がオクターブ) で弾けます
         - ノートオンとノートオフのベロシティを入力できます (1-127、初期値は 100 と 64)
         - Hold がオンの間は、離した鍵盤のノートが鳴り続けます (Hold をオフにすると止まります)
-        - 鍵盤の下のスライダーで、Pitch Bend (離すと中央に戻ります)、Modulation、Breath Controller、Expression、Sustain Pedal、Channel Pressure を送れます
+        - 鍵盤の下のスライダーで、Pitch Bend (離すと中央に戻ります)、Modulation Wheel、Breath Controller、Expression、Sustain Pedal、Portamento Switch、Channel Pressure を送れます
     - Write: 現在のパラメーターを PRA32-U2 (プログラム #0-15 とフラッシュ) に書き込みます (下記)
 - PRA32-U2 Editor を使わない場合 (例えば DAW や MIDI キーボードから)
     - PRA32-U2 は、PRA32-U2 Editor を使わずに MIDI で制御することもできます
@@ -105,6 +107,7 @@
            (フラッシュにも書き込まれるので、電源を切っても残ります)。書き込みの前に、Editor に表示されているパラメーターを送り直します
         2. Editor を経由せずに、PRA32-U2 にプログラム・チェンジ #0-15 を直接送ると、そのプログラムを呼び出せます
     - 電源を入れたときのプログラムは #0 です
+    - Randomize Synth は PRA32-U2 自身でも実行できます (プログラム・チェンジ #127、またはコントロール・チェンジ #111 を Off (63 以下) から On (64 以上) に)
     - 対応している機能は [MIDI Implementation Chart](./PRA32-U2-MIDI-Implementation-Chart.md) (英語) を参照してください
 
 
@@ -121,7 +124,7 @@
 - "RP2350" ドライブが出てこない
     - データ通信に対応した USB ケーブルを使ってください (充電専用のケーブルでは認識されません)
     - BOOTSEL ボタンを押したまま USB ケーブルをつなぎ、つないでからボタンを離してください
-- PRA32-U2 Editor の "MIDI Out" のリストに "PRA32-U2" が出てこない
+- PRA32-U2 Editor の "MIDI Out" のリストに "PRA32-U2" (または "PRA32-U2/M" など) が出てこない
     - Google Chrome か Microsoft Edge を使い、MIDI デバイスへのアクセスを許可してください
     - PRA32-U2 Editor は、開いたときに MIDI ポートの一覧を作ります。Editor を開いた後に PRA32-U2 をつないだ場合は、ページを再読み込みしてください
 - 音が出ない
@@ -129,7 +132,12 @@
     - PRA32-U2 Editor の "MIDI Ch" が、PRA32-U2 の MIDI チャンネル (初期値 1) と合っているか確認してください
 - ノイズが気になる
     - USB 通信のノイズの影響を受けることがあります。英語版の [UART MIDI](./README.md#uart-midi) を試してください
-    - RC フィルタなしの PWM Audio では、レベルを下げてください (英語版の [PWM Audio](./README.md#pwm-audio-optional) を参照)
+    - RC フィルターなしの PWM Audio では、レベルを下げてください (英語版の [PWM Audio](./README.md#pwm-audio-optional) を参照)
+- ポルタメントが掛からない
+    - Portamento Time が 0 になっていないか確認してください
+    - Portamento Mode が Aut か、Sw の場合は Portamento Switch (コントロール・チェンジ #65) が On か確認してください
+    - Legato Portamento (Voice Mode: LP) では、レガートで弾いたときだけポルタメントが掛かります
+    - Polyphonic のときは、Voice Assign Mode が 2 か 4 のときだけポルタメントが掛かります
 
 
 ## ライセンス

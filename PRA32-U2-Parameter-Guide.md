@@ -1,12 +1,12 @@
-# Digital Synth PRA32-U2 Parameter Guide v3.14.0
+# Digital Synth PRA32-U2 Parameter Guide v3.15.0
 
-- 2026-10-15 ISGK Instruments
+- 2026-10-16 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 ## Control Change Parameters
 
 - Notes
-    - $2 : Disabled if Osc 1 Wave is Tri (Triangle Wave)
+    - $1 : Disabled if Osc 1 Wave is Tri (Triangle Wave)
 - Osc 1 Wave [Saw|Sqr|Tri|Sin|WT|Pls]
     - 0 (0-12): Saw Wave
     - 26 (13-38): Square Wave
@@ -24,7 +24,7 @@
     - +60 (123-124): Sub Osc 93.8%
     - +62 (125-126): Sub Osc 96.9%
     - +63 (127): Sub Osc 100% (max)
-- Osc 1 Shape $2
+- Osc 1 Shape $1
     - Saw Wave: Multi Saw Detune
     - Square Wave: Sync Square Pitch
     - Sine Wave (Frequency Modulation or Phase Modulation): Modulation Depth
@@ -36,7 +36,7 @@
         - 96: Pulse Width 12.5%, or 2nd Saw Phase 87.5%
         - 126: Pulse Width 0.8%, or 2nd Saw Phase 99.2%
         - 127: Pulse Width 0%, or 2nd Saw Phase 100%
-- Osc 1 Morph $2
+- Osc 1 Morph $1
     - Saw Wave:
         - 0: Normal Saw 100% (min)
         - 64 (63-64): Normal Saw 50% + Multi Saw 50%
@@ -51,7 +51,7 @@
         - 8 (6-9): Ratio 1.5
         - 12 (10-13): Ratio 2.0
         - 20 (18-21): Ratio 3.0
-        - 28 (26-29): Ratio 3.5
+        - 28 (26-29): Ratio 4.0
         - 108 (106-109): Ratio 14.0
         - 124 (122-125): Ratio 16.0
         - 127 (126-127): Ratio 16.5 (max)
@@ -75,20 +75,20 @@
     - 51 (39-63): Triangle Wave
     - 77 (64-89): Sine Wave
     - 102 (90-115): Same as Osc 1 Wave
-        - Saw Wave
-        - Square Wave
-        - Triangle Wave
-        - Sine Wave
-        - Square Wave
-        - Square Wave
+        - Osc 1 Wave: Saw Wave -> Saw Wave
+        - Osc 1 Wave: Square Wave -> Square Wave
+        - Osc 1 Wave: Triangle Wave -> Triangle Wave
+        - Osc 1 Wave: Sine Wave -> Sine Wave
+        - Osc 1 Wave: Wave Tables with Constraints -> Square Wave
+        - Osc 1 Wave: Pulse Wave -> Square Wave
     - 127 (116-127): White Noise
 - Mixer Osc Mix [1|2]
     - 0: Osc 1 100% (min)
     - 64 (63-64): Osc 1 50% + Osc 2 50%
     - 127: Osc 2 100% (max)
 - Osc 2 Coarse [-|+]
-    - -60 (4): -60 semitone (min)
-    - +60 (124): +60 semitone (max)
+    - -60 (0-4): -60 semitone (min)
+    - +60 (124-127): +60 semitone (max)
 - Osc 2 Pitch [-|+]
     - -55 (9): -12 semitone (min)
     - -41 (23): -5 semitone
@@ -105,7 +105,7 @@
     - 0: f = 13.0 Hz (min)
     - 1: f = 13.8 Hz
     - 4: f = 16.4 Hz
-    - 7: f = 19.5 Hz
+    - 7: f = 19.4 Hz
     - 52: f = 261.6 Hz
     - 61: f = 440.0 Hz
     - 64: f = 523.3 Hz
@@ -114,7 +114,7 @@
     - 124: f = 16744.0 Hz
     - 127: f = 19912.1 Hz (max)
 - Filter Resonance
-    - 0: Q = 0.71 (min)
+    - 0: Q = 0.707 (min)
     - 16: Q = 1.00
     - 32: Q = 1.41
     - 48: Q = 2.00
@@ -128,15 +128,16 @@
     - 116: Q = 59.7
     - 120: Q = 152
     - 122: Q = 256
-    - 123: Self-oscillation (level 0.18)
-    - 125: Self-oscillation (level 0.31)
-    - 127: Self-oscillation (level 0.4) (max)
+    - 123: Self-oscillation (peak level 0.22)
+    - 125: Self-oscillation (peak level 0.39)
+    - 127: Self-oscillation (peak level 0.50) (max)
+        - NOTE: The full scale is 1.0 (e.g. the peak level of the Osc 1 Saw Wave is 0.25)
     - The self-oscillation fades out as the cutoff (including the modulation) rises from the Cutoff 111 (f = 7.9 kHz) to 116 (f = 10.5 kHz), and above that the Resonance 123-127 acts as 122
     - A loud input near the cutoff (e.g. the Square or the Multi Saw) weakens or stops the self-oscillation, and an input harmonic near it pulls it to the pitch of that harmonic
     - NOTE: With a high Resonance (about 112 or above), chords get louder, and the Output Limiter lowers the level; if it is too much, lower the "Amp Gain"
 - Filter EG Amt [-|+], LFO Filter Amt [-|+]
-    - -60 (4): -120 (min)
-    - +60 (124): +120 (max)
+    - -60 (0-4): -120 (min)
+    - +60 (124-127): +120 (max)
 - Filter Key Track [-|+]
     - 0 (0-3): -1.000 (min)
     - 8 (4-11): -0.875
@@ -213,8 +214,8 @@
         - +62 (126): Shape +248
         - +63 (127): Shape +256 (max)
     - Cutoff
-        - -60 (4): -120 (min)
-        - +60 (124): +120 (max)
+        - -60 (0-4): -120 (min)
+        - +60 (124-127): +120 (max)
 - EG Mod Dst [P|P|2P|2P|F|1S], LFO Mod Dst [P|P|2P|2P|F|1S]
     - 0 (0-12): Osc 1 & 2 Pitch
     - 26 (13-38): Osc 1 & 2 Pitch
@@ -229,11 +230,12 @@
     - 77 (64-89): Monophonic (EG & LFO Multi Trigger)
     - 102 (90-115): Legato Portamento (Monophonic, EG & LFO Single Trigger, Auto Portamento)
     - 127 (116-127): Legato (Monophonic, EG & LFO Single Trigger)
-- Portamento
-    - 0: Portamento Time 0 ms
-    - 1: Portamento Time 1.1 ms
-    - 64: Portamento Time 100 ms
-    - 127: Portamento Time 9.3 s
+- Portamento Time
+    - 0: 0 ms
+    - 1: 1.07 ms
+    - 64: 100 ms
+    - 127: 9.31 s
+    - NOTE: The Portamento is turned on and off by "Portamento Mode" (and "Portamento Switch")
 - LFO Wave [Tri|Sin|Nos|Saw|S&H|Sqr]
     - 0 (0-12): Triangle Wave (Key Trigger Off, -0.5 to +0.5)
     - 26 (13-38): Sine Wave (Key Trigger Off, -0.5 to +0.5)
@@ -242,34 +244,34 @@
     - 102 (90-115): Sample & Hold (Key Trigger On, -0.5 to +0.5)
     - 127 (116-127): Square Wave (Key Trigger On, 0.0 to 1.0)
 - LFO Fade Time
-    - 0: 0.00 ms (min)
-    - 32: 316 ms
-    - 64: 1.00 s
+    - 0: 0 ms (min)
+    - 32: 309 ms
+    - 64: 992 ms
     - 96: 3.16 s
-    - 127: 9.65 s (max)
+    - 127: 9.64 s (max)
 - LFO Rate
-    - 0: 0.0 Hz (min)
-    - 1: 0.072 Hz
-    - 64: 2.7 Hz
-    - 80: 6.9 Hz
-    - 127: 103.8 Hz (max)
+    - 0: 0 Hz (min)
+    - 1: 0.0715 Hz
+    - 64: 2.73 Hz
+    - 80: 6.87 Hz
+    - 127: 104 Hz (max)
 - LFO Rate (Red Noise: sets the low-pass cutoff of the noise, the level stays the same)
-    - 0: 0.0 Hz (min)
-    - 1: 0.015 Hz
-    - 32: 1.5 Hz
+    - 0: 0 Hz (min)
+    - 1: 0.0146 Hz
+    - 32: 1.54 Hz
     - 64: 189 Hz
-    - 80: 2.4 kHz
-    - 83: 5.1 kHz
+    - 80: 2.35 kHz
+    - 83: 5.12 kHz
     - 84: Almost No Low-Pass Filtering
-    - 100: No Low-Pass Filtering (max)
+    - 100 (100-127): No Low-Pass Filtering (max)
 - LFO Depth
     - 0: 0% (min)
-    - 1: 10.8%
+    - 1: 0.8%
     - 64: 50%
     - 125: 97.7%
-    - 126: 98.5%
+    - 126: 98.4%
     - 127: 100% (max)
-        - NOTE: The actual LFO depth is the "LFO Depth" value plus the "Modulation" value and the after touch effect
+    - NOTE: The actual LFO depth is the "LFO Depth" value plus the "Modulation Wheel" value and the after touch effect (up to 100%)
 - Amp Gain
     - NOTE: The Output Limiter (after the FX) limits the peaks above 1.0 (full scale) at its input, and lowers the output by 2.5 dB (x 0.75) (with the Presets, the Output Limiter rarely works)
 - Filter Mode [LP|BP|HP]
@@ -278,14 +280,14 @@
     - 127 (96-127): High Pass
 - Pitch Bend Range
     - 0: 0 semitone (min)
-    - 60: 60 semitone (max)
+    - 64 (64-127): 64 semitone (max)
 - EG Amp Mod [Off|On]
     - 0 (0-63): Off
     - 127 (64-127): On
 - EG/Amp Rel = Dec [Off|On]
     - 0 (0-63): Off
     - 127 (64-127): On, EG Release = EG Decay and Amp Release = Amp Decay
-- EG Att/Dec Velo Sens [-|+]: EG Attack/Release Velocity Sensitivity, Modulates the attack/decay times by note on velocity
+- EG Att/Dec Velo Sens [-|+]: EG Attack/Decay Velocity Sensitivity, Modulates the attack/decay times by note on velocity
     - -64 (0): -100% (+63 to -63)
     - -32 (31-32): -50% (+31.5 to -31.5)
     - +0 (63-64): +0% (-0 to +0)
@@ -307,19 +309,26 @@
     - +32 (95-96): Delta Value = +6 / octave (Delta Second = 1.54x / octave)
     - +52 (115-116): Delta Value = +9.75 / octave (Delta Second = 2.02x / octave)
     - +63 (127): Delta Value = +12 / octave (Delta Second = 2.37x / octave)
-- Voice Assign Mode [1|1|3|3|4|2]: In Polyphonic Mode,
+- Voice Assign Mode [1|1|3|3|4|2]: The voice assignment in the Polyphonic Mode
     - 0 (0-12): Mode 1, Free voice with next number has priority (Round Robin), Release is effective
     - 26 (13-38): Mode 1, Free voice with next number has priority (Round Robin), Release is effective
     - 51 (39-63): Mode 3, Reuse note-off voices, Free voice with next number has priority (Round Robin), Release and polyphonic after touch are effective
     - 77 (64-89): Mode 3, Reuse note-off voices, Free voice with next number has priority (Round Robin), Release and polyphonic after touch are effective
     - 102 (90-115): Mode 4, Reuse note-off voices, Free voice with small number has priority, Portamento and polyphonic after touch are effective
     - 127 (116-127): Mode 2, Free voice with small number has priority, Portamento is effective
-- Pan
+- Pan: Constant power panning
+    - -64 (0-1): Left (L +3.0 dB, R Off) (min)
+    - -32 (32): L +2.3 dB, R -5.5 dB
+    - +0 (64): Center (L 0 dB, R 0 dB)
+    - +32 (96): L -5.5 dB, R +2.3 dB
+    - +63 (127): Right (L Off, R +3.0 dB) (max)
 - Stretch Tune [-|+]
-    - 0: +0 cent at note number 108 (-0 cent at note number 12)
-    - 32: +9.4 cent at note number 108 (-9.4 cent at note number 12)
-    - 64: +18.8 cent at note number 108 (-18.8 cent at note number 12)
-    - 127: +37.2 cent at note number 108 (-37.2 cent at note number 12)
+    - -64 (0): -37.5 cent at note number 108 (+37.5 cent at note number 12) (min)
+    - -32 (32): -18.8 cent at note number 108 (+18.8 cent at note number 12)
+    - +0 (64): +0 cent
+    - +16 (80): +9.4 cent at note number 108 (-9.4 cent at note number 12)
+    - +32 (96): +18.8 cent at note number 108 (-18.8 cent at note number 12)
+    - +63 (127): +36.9 cent at note number 108 (-36.9 cent at note number 12) (max)
 - Osc/Filter Drift: Randomly drifts the pitch of each oscillator, and the Filter Cutoff of each voice by the same amount (100 cent = 1 Cutoff value)
     - 0: Off
     - 32: About 0.7 cent (RMS)
@@ -341,9 +350,9 @@
     - +1 (65): +1.5625 cent
     - +63 (127): +98.4375 cent
 - Breath Filter Amt [-|+]: 2x the other Amt parameters (e.g. Filter EG Amt), so that a weak breath also opens the Filter
-    - -60 (4): -240 (min)
+    - -60 (0-4): -240 (min)
     - +30 (94): +120, the Cutoff +120 with the max breath
-    - +60 (124): +240 (max), the Cutoff +120 with the half breath
+    - +60 (124-127): +240 (max), the Cutoff +120 with the half breath
 - Breath Amp Mode [Off|Q|L|LO|QO|Opn]
     - 0 (0-12): Off, The Amp follows the EG (the Breath Controller does not modulate the Amp)
     - 26 (13-38): Quadratic Curve (Q), The Amp follows the EG, x the Breath Controller (Quadratic Curve)
@@ -358,7 +367,14 @@
             - NOTE: Low notes may still be heard faintly at the min Cutoff
         - Opn can also be used for drones: the voices keep sounding at the last notes (in the Polyphonic Mode, the last chord of up to 4 notes), and the Filter EG and LFO still work
         - LO and QO are intended for the Monophonic or Legato Voice Mode, as the note-off voices keep sounding in the Polyphonic Mode
-- After Touch LFO Amt
+- After Touch LFO Amt: The LFO depth added by the max after touch (Polyphonic Key Pressure or Channel Pressure)
+    - 0: +0% (min)
+    - 64: +50%
+    - 127: +100% (max)
+- Portamento Mode [Sw|Aut]: What turns on and off the Portamento
+    - 0 (0-63): Switch (Sw), The Portamento is on only while Portamento Switch (Control Change #65) is On (64-127)
+    - 127 (64-127): Auto (Aut), The Portamento is always on
+    - NOTE: In Legato Portamento (Voice Mode: LP), the Portamento is effective only for the legato notes, also while it is on
 - Chorus Level: Chorus Send Level
 - FX Routing [Cho|Dly|Byp]: Where the output is input to the FX (the FX are connected in series: Chorus -> Delay)
     - 0 (0-31): Chorus (through the Chorus and the Delay)
@@ -366,14 +382,14 @@
     - 127 (96-127): Bypass (through neither)
     - In PRA32-U2/M, each synth has its own FX Routing, while the other FX parameters of the Main Synth apply to all synths
 - Chorus Rate
-    - 0: LFO Frequency 0.012 Hz (min)
-    - 64: LFO Frequency 0.48 Hz
+    - 0: LFO Frequency 0.0114 Hz (min)
+    - 64: LFO Frequency 0.482 Hz
     - 127: LFO Frequency 18.4 Hz (max)
 - Chorus Depth
     - 0: Delay Time +/- 0 ms (min)
-    - 32: Delay Time +/- 1.3 ms
-    - 64: Delay Time +/- 2.7 ms
-    - 126: Delay Time +/- 5.3 ms (max)
+    - 32: Delay Time +/- 1.33 ms
+    - 64: Delay Time +/- 2.67 ms
+    - 126 (126-127): Delay Time +/- 5.25 ms (max)
 - Delay Level: Delay Send Level
 - Delay Mode [Ste|PP|Rev]
     - 0 (0-31): Stereo Delay
@@ -407,6 +423,18 @@
     - 64: Feedback 25%
     - 127: Feedback 49.6% (max)
 
+## Performance Controllers
+
+- Not stored in the programs; the values at startup and by Reset All Controllers are shown as "Reset"
+- Pitch Bend: Bends the pitch by "Pitch Bend Range" (Reset: center)
+- Modulation Wheel (Control Change #1): Adds to the LFO depth (127: +100%) (Reset: 0)
+- Breath Controller (Control Change #2): Modulates the Filter Cutoff by "Breath Filter Amt", and the Amp by "Breath Amp Mode" (Reset: 0)
+- Expression (Control Change #11): The level, in a quadratic curve (64: 25%, about -12 dB) (Reset: 127)
+- Sustain Pedal [Off|On] (Control Change #64): While it is On (64-127), the note offs are held, and they are released when it is turned Off (Reset: Off)
+    - It is also turned Off by All Notes Off, All Sound Off, Omni Mode Off/On, and Mono/Poly Mode On
+- Portamento Switch [Off|On] (Control Change #65): While it is On (64-127), the Portamento is on, if "Portamento Mode" is Sw (Reset: Off)
+- After Touch (Polyphonic Key Pressure and Channel Pressure): Adds to the LFO depth by "After Touch LFO Amt" (Reset: 0)
+
 ## Parameter Smoothing
 
 - The parameters are smoothed, so that their steps (e.g. sent by MIDI controllers every 10 ms) are not heard
@@ -418,7 +446,7 @@
     - Osc 1 Shape
     - EG Mod Amt and LFO Mod Amt, when EG Mod Dst and LFO Mod Dst are F (Filter Cutoff) or 1S (Osc 1 Shape)
     - Amp Gain
-    - LFO Depth (with LFO Fade Time, Modulation, and After Touch)
+    - LFO Depth (with LFO Fade Time, Modulation Wheel, and After Touch)
     - Chorus Level, Chorus Depth, Delay Level, Delay Feedback
 - The balances (between two sounds, or left and right), which keep the total amount about the same
     - Osc 1 Morph, Mixer Osc Mix, Mixer Noise/Sub Osc, Pan

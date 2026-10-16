@@ -550,7 +550,7 @@ span.cc {
 }
 </style>
 <script>
-const APP_NAME_VERSION = "PRA32-U2 Editor v3.14.0";
+const APP_NAME_VERSION = "PRA32-U2 Editor v3.15.0";
 
 // localStorage that throws (e.g. disabled by the Web browser) is replaced by one in memory, as the start of the page
 // reads it without try / catch. The settings are then kept only until the page is closed
@@ -588,6 +588,7 @@ const MODULATION      = 1;
 const BTH_CONTROLLER  = 2;
 const EXPRESSION      = 11;
 const SUSTAIN_PEDAL   = 64;
+const PORTAMENTO_SW   = 65;
 
 
 const OSC_1_WAVE      = 102;
@@ -653,7 +654,7 @@ const FINE_TUNE       = 70;
 const BTH_FILTER_AMT  = 60;
 const BTH_AMP_MOD     = 61;
 const AFT_T_LFO_AMT   = 37;
-
+const PORTA_MODE      = 34;
 
 const CHORUS_MIX      = 93;
 const FX_ROUTING      = 95;
@@ -755,7 +756,7 @@ var controlNumberToStringMap = new Map([
   [ BTH_FILTER_AMT , "BTH_FILTER_AMT " ],
   [ BTH_AMP_MOD    , "BTH_AMP_MOD    " ],
   [ AFT_T_LFO_AMT  , "AFT_T_LFO_AMT  " ],
-
+  [ PORTA_MODE     , "PORTA_MODE     " ],
 
   [ CHORUS_MIX     , "CHORUS_MIX     " ],
   [ FX_ROUTING     , "FX_ROUTING     " ],
@@ -833,7 +834,7 @@ var controllersInLocalStorage = [
   BTH_FILTER_AMT ,
   BTH_AMP_MOD    ,
   AFT_T_LFO_AMT  ,
-
+  PORTA_MODE     ,
 
   CHORUS_MIX     ,
   FX_ROUTING     ,
@@ -913,7 +914,7 @@ presetControllers[FINE_TUNE      ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   
 presetControllers[BTH_FILTER_AMT ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 presetControllers[BTH_AMP_MOD    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 presetControllers[AFT_T_LFO_AMT  ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
-
+presetControllers[PORTA_MODE     ] = [127, 127, 127, 127, 127, 127, 127, 127,   127, 127, 127, 127, 127, 127, 127, 127];
 
 presetControllers[CHORUS_MIX     ] = [127, 127, 127, 127, 127, 127, 127, 0  ,   127, 127, 127, 127, 127, 127, 127, 0  ];
 presetControllers[FX_ROUTING     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
@@ -1109,61 +1110,38 @@ var midiOutput  = null;
 var specialProgramChangeCCValues = [0, 0, 0, 0, 0, 0, 0, 0];
 var specialRandomControlCCValue = 0;
 
-function afterChangeOsc1Or2WaveOrMixerSubOscOrVoiceModeOrEGAmpModOrRelEqDecay() {
-  var valueOsc1Wave = localStorage.getItem("keyOSC_1_WAVE     ");
-  var indexOsc1Wave = Math.floor(((valueOsc1Wave * 10) + 128) >> 8);
-  if ((indexOsc1Wave == 0) || (indexOsc1Wave == 1) || (indexOsc1Wave == 3) || (indexOsc1Wave == 4) || (indexOsc1Wave == 5)) {
-    document.getElementById( "spanOSC_1_SHAPE    ").style.color = 'black';
-    document.getElementById("span2OSC_1_SHAPE    ").style.color = 'black';
-    document.getElementById( "spanOSC_1_MORPH    ").style.color = 'black';
-    document.getElementById("span2OSC_1_MORPH    ").style.color = 'black';
-  } else {
-    document.getElementById( "spanOSC_1_SHAPE    ").style.color = 'lightgray';
-    document.getElementById("span2OSC_1_SHAPE    ").style.color = 'lightgray';
-    document.getElementById( "spanOSC_1_MORPH    ").style.color = 'lightgray';
-    document.getElementById("span2OSC_1_MORPH    ").style.color = 'lightgray';
-  }
+// The parameters that change which parameters are dimmed (shown in light gray, as they have no effect)
+const DIMMING_CONTROLS = [OSC_1_WAVE, EG_AMP_MOD, REL_EQ_DECAY, PORTA_MODE];
 
-  var valueEGAmpMod = localStorage.getItem("keyEG_AMP_MOD     ");
-  if (valueEGAmpMod >= 64) {
-    document.getElementById( "spanAMP_ATTACK     ").style.color = 'lightgray';
-    document.getElementById("span2AMP_ATTACK     ").style.color = 'lightgray';
-    document.getElementById( "spanAMP_DECAY      ").style.color = 'lightgray';
-    document.getElementById("span2AMP_DECAY      ").style.color = 'lightgray';
-    document.getElementById( "spanAMP_SUSTAIN    ").style.color = 'lightgray';
-    document.getElementById("span2AMP_SUSTAIN    ").style.color = 'lightgray';
-    document.getElementById( "spanAMP_RELEASE    ").style.color = 'lightgray';
-    document.getElementById("span2AMP_RELEASE    ").style.color = 'lightgray';
+function setDimmed(ids, dimmed) {
+  ids.forEach(function(id) {
+    document.getElementById(id).style.color = dimmed ? 'lightgray' : 'black';
+  });
+}
 
-    var valueRelEqDecay = localStorage.getItem("keyREL_EQ_DECAY   ");
-    if (valueRelEqDecay >= 64) {
-      document.getElementById( "spanEG_RELEASE     ").style.color = 'lightgray';
-      document.getElementById("span2EG_RELEASE     ").style.color = 'lightgray';
-    } else {
-      document.getElementById( "spanEG_RELEASE     ").style.color = 'black';
-      document.getElementById("span2EG_RELEASE     ").style.color = 'black';
-    }
-  } else {
-    document.getElementById( "spanAMP_ATTACK     ").style.color = 'black';
-    document.getElementById("span2AMP_ATTACK     ").style.color = 'black';
-    document.getElementById( "spanAMP_DECAY      ").style.color = 'black';
-    document.getElementById("span2AMP_DECAY      ").style.color = 'black';
-    document.getElementById( "spanAMP_SUSTAIN    ").style.color = 'black';
-    document.getElementById("span2AMP_SUSTAIN    ").style.color = 'black';
+function setParameterDimmed(number, dimmed) {
+  var key = controlNumberToStringMap.get(number);
+  setDimmed(["span" + key, "span2" + key], dimmed);
+}
 
-    var valueRelEqDecay = localStorage.getItem("keyREL_EQ_DECAY   ");
-    if (valueRelEqDecay >= 64) {
-      document.getElementById( "spanEG_RELEASE     ").style.color = 'lightgray';
-      document.getElementById("span2EG_RELEASE     ").style.color = 'lightgray';
-      document.getElementById( "spanAMP_RELEASE    ").style.color = 'lightgray';
-      document.getElementById("span2AMP_RELEASE    ").style.color = 'lightgray';
-    } else {
-      document.getElementById( "spanEG_RELEASE     ").style.color = 'black';
-      document.getElementById("span2EG_RELEASE     ").style.color = 'black';
-      document.getElementById( "spanAMP_RELEASE    ").style.color = 'black';
-      document.getElementById("span2AMP_RELEASE    ").style.color = 'black';
-    }
-  }
+function updateDimmedParameters() {
+  // Osc 1 Shape and Osc 1 Morph: disabled if Osc 1 Wave is Tri
+  var indexOsc1Wave = Math.floor(((localStorage.getItem("keyOSC_1_WAVE     ") * 10) + 128) >> 8);
+  setParameterDimmed(OSC_1_SHAPE, indexOsc1Wave == 2);
+  setParameterDimmed(OSC_1_MORPH, indexOsc1Wave == 2);
+
+  // Amp Attack, Amp Decay, Amp Sustain, and Amp Release: not used if EG Amp Mod is On,
+  // and EG Release and Amp Release: not used if EG/Amp Rel = Dec is On
+  var egAmpMod   = (localStorage.getItem("keyEG_AMP_MOD     ") >= 64);
+  var relEqDecay = (localStorage.getItem("keyREL_EQ_DECAY   ") >= 64);
+  setParameterDimmed(AMP_ATTACK , egAmpMod);
+  setParameterDimmed(AMP_DECAY  , egAmpMod);
+  setParameterDimmed(AMP_SUSTAIN, egAmpMod);
+  setParameterDimmed(AMP_RELEASE, egAmpMod || relEqDecay);
+  setParameterDimmed(EG_RELEASE , relEqDecay);
+
+  // Portamento Switch (a performance control): not effective if Portamento Mode is Aut
+  setDimmed(["spanPerfPORTAMENTO_SW", "span2PerfPORTAMENTO_SW"], (localStorage.getItem("keyPORTA_MODE     ") >= 64));
 }
 
 // MIDI In 1-4 to MIDI Out (thru and merge). Web MIDI API gives a complete message with its status byte for each event
@@ -1190,8 +1168,8 @@ function onMIDIMessage(event) {
     }
     if (controllersInLocalStorage.indexOf(number) >= 0) {
       updateDisplayOfControl(number, value);
-      if ((number == OSC_1_WAVE) || (number == OSC_2_WAVE) || (number == MIXER_SUB_OSC) || (number == VOICE_MODE) || (number == EG_AMP_MOD) || (number == REL_EQ_DECAY)) {
-        afterChangeOsc1Or2WaveOrMixerSubOscOrVoiceModeOrEGAmpModOrRelEqDecay();
+      if (DIMMING_CONTROLS.indexOf(number) >= 0) {
+        updateDimmedParameters();
       }
     } else if (number >= PC_BY_CC_0 && number <= PC_BY_CC_7) {
       // Program Change by CC
@@ -1490,6 +1468,13 @@ function updateDisplayOfControl(number, value) {
       dispValue = ary[index];
     }
     break;
+  case PORTA_MODE      :
+    {
+      var ary = ["Sw","Aut"];
+      var index = Math.floor(((value * 2) + 128) >> 8);
+      dispValue = ary[index];
+    }
+    break;
   case BTH_AMP_MOD     :
     {
       var ary = ["Off","Q","L","LO","QO","Opn"];
@@ -1545,8 +1530,8 @@ function updateDisplayOfControl(number, value) {
 
 function onChangeControlChange(number, value) {
   updateDisplayOfControl(number, value);
-  if ((number == OSC_1_WAVE) || (number == OSC_2_WAVE) || (number == MIXER_SUB_OSC) || (number == VOICE_MODE) || (number == EG_AMP_MOD) || (number == REL_EQ_DECAY)) {
-    afterChangeOsc1Or2WaveOrMixerSubOscOrVoiceModeOrEGAmpModOrRelEqDecay();
+  if (DIMMING_CONTROLS.indexOf(number) >= 0) {
+    updateDimmedParameters();
   }
   if (midiOutput) {
     if ((number <= 127) && (parseInt(value) <= 127)) {
@@ -1591,6 +1576,7 @@ function setRandom() {
         (i != BTH_FILTER_AMT ) &&
         (i != BTH_AMP_MOD    ) &&
         (i != AFT_T_LFO_AMT  ) &&
+        (i != PORTA_MODE     ) &&
         (i != AMP_ATTACK     ) &&
         (i != AMP_DECAY      ) &&
         (i != AMP_SUSTAIN    ) &&
@@ -1650,7 +1636,7 @@ function setUserPresetName(number, name) {
   updateRecallButton(number);
 }
 
-// A user preset that is "#23 Initial" without a name (e.g. not stored yet, which Recall sets to "#23 Initial", or
+// A user preset that is "#23 Initial" without a name (e.g. not stored yet, which the User Preset button recalls as "#23 Initial", or
 // imported from "pra32-u2-prog-all-initial.json") is shown lighter, as an empty one
 function isUserPresetEmpty(number) {
   if (getUserPresetName(number) != "") {
@@ -2191,6 +2177,7 @@ const PERFORMANCE_CONTROLS = new Map([
   [BTH_CONTROLLER, ["BTH_CONTROLLER", 0  ]],
   [EXPRESSION    , ["EXPRESSION"    , 127]],
   [SUSTAIN_PEDAL , ["SUSTAIN_PEDAL" , 0  ]],
+  [PORTAMENTO_SW , ["PORTAMENTO_SW" , 0  ]],
   [CH_PRESSURE   , ["CH_PRESSURE"   , 0  ]],  // not a Control Change, but Channel Pressure (After Touch)
 ]);
 
@@ -2214,7 +2201,7 @@ function updateDisplayOfPerformanceControl(number, value) {
   value = parseInt(value);
   document.getElementById("inputPerf" + key).value = value;
   document.getElementById("spanPerf" + key).textContent = String(value);
-  if (number == SUSTAIN_PEDAL) {
+  if ((number == SUSTAIN_PEDAL) || (number == PORTAMENTO_SW)) {
     document.getElementById("span2Perf" + key).textContent = (value >= 64) ? "[On]" : "[Off]";
   }
 }
@@ -2512,7 +2499,7 @@ function fileExport() {
   str += fileExportOneLine(BTH_FILTER_AMT );
   str += fileExportOneLine(BTH_AMP_MOD    );
   str += fileExportOneLine(AFT_T_LFO_AMT  );
-  str += "\n";
+  str += fileExportOneLine(PORTA_MODE     );
   str += "\n";
   str += fileExportOneLine(CHORUS_MIX     );
   str += fileExportOneLine(FX_ROUTING     );
@@ -2799,7 +2786,7 @@ Off <input type="number" id="inputNoteOffVelocity" min="1" max="127" step="1"></
   <div class="param-ctrl soft-marker-c"><input id="inputPerfPITCH_BEND" type="range" list="0 markers" min="-8192" max="8191" step="1" value="0" oninput="onChangePerformanceControl(PITCH_BEND, value)"><span id="spanPerfPITCH_BEND">0</span><span id="span2PerfPITCH_BEND"></span></div>
 </div>
 <div class="param">
-  <div class="param-name">Modulation <span class="cc">CC#1</span></div>
+  <div class="param-name">Modulation Wheel <span class="cc">CC#1</span></div>
   <div class="param-ctrl"><input id="inputPerfMODULATION" type="range" list="0 markers" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(MODULATION, value)"><span id="spanPerfMODULATION">0</span><span id="span2PerfMODULATION"></span></div>
 </div>
 <div class="param">
@@ -2813,6 +2800,10 @@ Off <input type="number" id="inputNoteOffVelocity" min="1" max="127" step="1"></
 <div class="param">
   <div class="param-name">Sustain Pedal [Off|On] <span class="cc">CC#64</span></div>
   <div class="param-ctrl"><input id="inputPerfSUSTAIN_PEDAL" type="range" list="2 markers" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(SUSTAIN_PEDAL, value)"><span id="spanPerfSUSTAIN_PEDAL">0</span><span id="span2PerfSUSTAIN_PEDAL">[Off]</span></div>
+</div>
+<div class="param">
+  <div class="param-name">Portamento Switch [Off|On] <span class="cc">CC#65</span></div>
+  <div class="param-ctrl"><input id="inputPerfPORTAMENTO_SW" type="range" list="2 markers" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(PORTAMENTO_SW, value)"><span id="spanPerfPORTAMENTO_SW">0</span><span id="span2PerfPORTAMENTO_SW">[Off]</span></div>
 </div>
 <div class="param">
   <div class="param-name">Channel Pressure</div>
@@ -2899,11 +2890,11 @@ Off <input type="number" id="inputNoteOffVelocity" min="1" max="127" step="1"></
   <div class="param-ctrl"><input  id="inputEG_OSC_DST     "  type="range" list="6 markers" min="0" max="127" step="1" oninput="onChangeControlChange(EG_OSC_DST     , value)"><span    id="spanEG_OSC_DST     " >-</span><span   id="span2EG_OSC_DST     " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name">Voice Mode [Pol|Pol|Mon|Mon|LP|Lgt] <span class="cc">CC#18</span></div>
+  <div class="param-name"><b>Voice</b> Mode [Pol|Pol|Mon|Mon|LP|Lgt] <span class="cc">CC#18</span></div>
   <div class="param-ctrl"><input  id="inputVOICE_MODE     "  type="range" list="6 markers" min="0" max="127" step="1" oninput="onChangeControlChange(VOICE_MODE     , value)"><span    id="spanVOICE_MODE     " >-</span><span   id="span2VOICE_MODE     " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name">Portamento <span class="cc">CC#5</span></div>
+  <div class="param-name"><b>Portamento</b> Time <span class="cc">CC#5</span></div>
   <div class="param-ctrl"><input  id="inputPORTAMENTO     "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(PORTAMENTO     , value)"><span    id="spanPORTAMENTO     " >-</span><span   id="span2PORTAMENTO     " >-</span></div>
 </div>
 <div class="param">
@@ -2995,7 +2986,7 @@ Off <input type="number" id="inputNoteOffVelocity" min="1" max="127" step="1"></
   <div class="param-ctrl soft-marker-c"><input  id="inputA_D_KEY_TRK    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(A_D_KEY_TRK    , value)"><span    id="spanA_D_KEY_TRK    " >-</span><span   id="span2A_D_KEY_TRK    " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name">Voice Assign Mode [1|1|3|3|4|2] <span class="cc">CC#110</span></div>
+  <div class="param-name"><b>Voice</b> Assign Mode [1|1|3|3|4|2] <span class="cc">CC#110</span></div>
   <div class="param-ctrl"><input  id="inputVOICE_ASGN_MODE"  type="range" list="6 markers" min="0" max="127" step="1" oninput="onChangeControlChange(VOICE_ASGN_MODE, value)"><span    id="spanVOICE_ASGN_MODE" >-</span><span   id="span2VOICE_ASGN_MODE" >-</span></div>
 </div>
 <div class="param">
@@ -3033,6 +3024,10 @@ Off <input type="number" id="inputNoteOffVelocity" min="1" max="127" step="1"></
 <div class="param">
   <div class="param-name"><b>After Touch</b> LFO Amt <span class="cc">CC#37</span></div>
   <div class="param-ctrl"><input  id="inputAFT_T_LFO_AMT  "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(AFT_T_LFO_AMT  , value)"><span    id="spanAFT_T_LFO_AMT  " >-</span><span   id="span2AFT_T_LFO_AMT  " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>Portamento</b> Mode [Sw|Aut] <span class="cc">CC#34</span></div>
+  <div class="param-ctrl"><input  id="inputPORTA_MODE     "  type="range" list="2 markers" min="0" max="127" step="1" oninput="onChangeControlChange(PORTA_MODE     , value)"><span    id="spanPORTA_MODE     " >-</span><span   id="span2PORTA_MODE     " >-</span></div>
 </div>
 </div>
 <div class="param-group">

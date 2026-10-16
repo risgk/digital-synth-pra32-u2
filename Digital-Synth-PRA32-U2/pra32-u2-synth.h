@@ -95,7 +95,7 @@ static uint8_t s_program_table_parameters[] = {
   BTH_FILTER_AMT ,
   BTH_AMP_MOD    ,
   AFT_T_LFO_AMT  ,
-
+  PORTA_MODE     ,
 
   CHORUS_MIX     ,
   FX_ROUTING     ,
@@ -238,6 +238,9 @@ class PRA32_U2_Synth {
 
   uint8_t           m_output_error;
   uint8_t           m_portamento;
+  uint8_t           m_portamento_time;
+  boolean           m_portamento_mode_cc;
+  boolean           m_portamento_sw;
 
   uint8_t           m_chorus_mode;
   uint8_t           m_fx_routing;
@@ -289,6 +292,9 @@ public:
 
   , m_output_error()
   , m_portamento()
+  , m_portamento_time()
+  , m_portamento_mode_cc()
+  , m_portamento_sw()
 
   , m_chorus_mode()
   , m_fx_routing()
@@ -402,7 +408,7 @@ public:
     std::memcpy(m_program_table[BTH_FILTER_AMT ], g_preset_table_BTH_FILTER_AMT , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[BTH_AMP_MOD    ], g_preset_table_BTH_AMP_MOD    , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[AFT_T_LFO_AMT  ], g_preset_table_AFT_T_LFO_AMT  , sizeof(m_program_table[0]));
-
+    std::memcpy(m_program_table[PORTA_MODE     ], g_preset_table_PORTA_MODE     , sizeof(m_program_table[0]));
 
     std::memcpy(m_program_table[CHORUS_MIX     ], g_preset_table_CHORUS_MIX     , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[FX_ROUTING     ], g_preset_table_FX_ROUTING     , sizeof(m_program_table[0]));
@@ -968,6 +974,7 @@ public:
     control_change(EXPRESSION      , 127);
     control_change(BTH_CONTROLLER  , 0  );
     control_change(SUSTAIN_PEDAL   , 0  );
+    control_change(PORTAMENTO_SW   , 0  );
     after_touch_channel(0);
   }
 
@@ -1046,6 +1053,11 @@ public:
 
     case SUSTAIN_PEDAL   :
       set_sustain_pedal(controller_value);
+      break;
+
+    case PORTAMENTO_SW   :
+      m_portamento_sw = (controller_value >= 64);
+      update_portamento();
       break;
 
     case EG_ATTACK      :
@@ -1138,7 +1150,12 @@ if constexpr (NO_FX == false) {
       break;
 
     case PORTAMENTO     :
-      m_portamento = controller_value;
+      m_portamento_time = controller_value;
+      update_portamento();
+      break;
+    case PORTA_MODE     :
+      m_portamento_mode_cc = (controller_value < 64);
+      update_portamento();
       break;
 
     case MIXER_OSC_MIX  :
@@ -1515,6 +1532,7 @@ if constexpr (NO_FX == false) {
           (control_number != BTH_FILTER_AMT ) &&
           (control_number != BTH_AMP_MOD    ) &&
           (control_number != AFT_T_LFO_AMT  ) &&
+          (control_number != PORTA_MODE     ) &&
           (control_number != AMP_ATTACK     ) &&
           (control_number != AMP_DECAY      ) &&
           (control_number != AMP_SUSTAIN    ) &&
@@ -1914,6 +1932,16 @@ if constexpr (RESTRICT_POLY_AND_CORES == false) {
     if (m_voice_mode != new_voice_mode) {
       m_voice_mode = new_voice_mode;
       all_notes_off(true);
+    }
+  }
+
+  INLINE void update_portamento() {
+    // Sw (0-63): Portamento is effective only while Portamento Switch (CC #65) is on (in LP, only for the legato notes)
+    // Aut (64-127): Portamento is always effective (in LP, only for the legato notes)
+    if (m_portamento_mode_cc && (m_portamento_sw == false)) {
+      m_portamento = 0;
+    } else {
+      m_portamento = m_portamento_time;
     }
   }
 
