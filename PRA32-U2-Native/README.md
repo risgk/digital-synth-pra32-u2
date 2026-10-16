@@ -58,7 +58,7 @@ PRA32-U2 Native: a software synthesizer (VST3 plugin and standalone application)
         - The parameters not in the plugin state (e.g. added in a later version) are set to the values of "#23 Initial",
           as in PRA32-U2 Editor
         - The control numbers that are not the sound parameters have the parameters named "---" (e.g. "CC#1 ---"),
-          which do nothing and cannot be automated (these controls work by MIDI, e.g. CC#1 Modulation)
+          which do nothing and cannot be automated (these controls work by MIDI, e.g. CC#1 Modulation Wheel)
         - The hosts list the parameters in the order of the control numbers;
           the Standalone shows only the sound parameters, in the same order as PRA32-U2 Editor
     - The values are shown as in PRA32-U2 Editor (e.g. "26 [Sqr]", "67 [+3]")

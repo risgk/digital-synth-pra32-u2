@@ -96,7 +96,7 @@
     - Software Keyboard: マウス、タッチ、PC のキーボード (A - K が C - C、W - U が黒鍵、Z / X がオクターブ) で弾けます
         - ノートオンとノートオフのベロシティを入力できます (1-127、初期値は 100 と 64)
         - Hold がオンの間は、離した鍵盤のノートが鳴り続けます (Hold をオフにすると止まります)
-        - 鍵盤の下のスライダーで、Pitch Bend (離すと中央に戻ります)、Modulation、Breath Controller、Expression、Sustain Pedal、Portamento Switch、Channel Pressure を送れます
+        - 鍵盤の下のスライダーで、Pitch Bend (離すと中央に戻ります)、Modulation Wheel、Breath Controller、Expression、Sustain Pedal、Portamento Switch、Channel Pressure を送れます
     - Write: 現在のパラメーターを PRA32-U2 (プログラム #0-15 とフラッシュ) に書き込みます (下記)
 - PRA32-U2 Editor を使わない場合 (例えば DAW や MIDI キーボードから)
     - PRA32-U2 は、PRA32-U2 Editor を使わずに MIDI で制御することもできます

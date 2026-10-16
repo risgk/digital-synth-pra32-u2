@@ -269,7 +269,7 @@
     - 125: 97.7%
     - 126: 98.5%
     - 127: 100% (max)
-        - NOTE: The actual LFO depth is the "LFO Depth" value plus the "Modulation" value and the after touch effect
+        - NOTE: The actual LFO depth is the "LFO Depth" value plus the "Modulation Wheel" value and the after touch effect
 - Amp Gain
     - NOTE: The Output Limiter (after the FX) limits the peaks above 1.0 (full scale) at its input, and lowers the output by 2.5 dB (x 0.75) (with the Presets, the Output Limiter rarely works)
 - Filter Mode [LP|BP|HP]
@@ -423,7 +423,7 @@
     - Osc 1 Shape
     - EG Mod Amt and LFO Mod Amt, when EG Mod Dst and LFO Mod Dst are F (Filter Cutoff) or 1S (Osc 1 Shape)
     - Amp Gain
-    - LFO Depth (with LFO Fade Time, Modulation, and After Touch)
+    - LFO Depth (with LFO Fade Time, Modulation Wheel, and After Touch)
     - Chorus Level, Chorus Depth, Delay Level, Delay Feedback
 - The balances (between two sounds, or left and right), which keep the total amount about the same
     - Osc 1 Morph, Mixer Osc Mix, Mixer Noise/Sub Osc, Pan
