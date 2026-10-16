@@ -97,7 +97,6 @@ static uint8_t s_program_table_parameters[] = {
   AFT_T_LFO_AMT  ,
   PORTA_MODE     ,
 
-
   CHORUS_MIX     ,
   FX_ROUTING     ,
   CHORUS_RATE    ,
@@ -410,7 +409,6 @@ public:
     std::memcpy(m_program_table[BTH_AMP_MOD    ], g_preset_table_BTH_AMP_MOD    , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[AFT_T_LFO_AMT  ], g_preset_table_AFT_T_LFO_AMT  , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[PORTA_MODE     ], g_preset_table_PORTA_MODE     , sizeof(m_program_table[0]));
-
 
     std::memcpy(m_program_table[CHORUS_MIX     ], g_preset_table_CHORUS_MIX     , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[FX_ROUTING     ], g_preset_table_FX_ROUTING     , sizeof(m_program_table[0]));
