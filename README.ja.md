@@ -81,7 +81,7 @@
     - その他の Web ブラウザー (例えば Safari) については、[PRA32-U2 Web](./PRA32-U2-Web/README.md) の "Web browsers" (英語) を参照してください
     - Safari (Mac、iPhone、iPad) と iPhone・iPad のすべての Web ブラウザーは Web MIDI API に対応していないため、
       PRA32-U2 Editor は PRA32-U2 Web (Built-in) でだけ使えます (PRA32-U2 や他の MIDI 機器とはつながりません)
-- "MIDI Out" のリストで "PRA32-U2" を選んでください
+- "MIDI Out" のリストで "PRA32-U2" (PRA32-U2/M の場合は "PRA32-U2/M" など) を選んでください
     - PRA32-U2 なしで [PRA32-U2 Web](./PRA32-U2-Web/README.md) を使うには、"PRA32-U2 Web (Built-in)" を選んでください
 - PRA32-U2 Editor を経由すると、プログラム・チェンジの扱いが変わります
     - "MIDI In" から (Editor の MIDI Ch で) 届いたプログラム・チェンジは PRA32-U2 に送らず、Editor がプリセットを読み込んで、そのパラメーターをコントロール・チェンジで送ります
@@ -121,7 +121,7 @@
 - "RP2350" ドライブが出てこない
     - データ通信に対応した USB ケーブルを使ってください (充電専用のケーブルでは認識されません)
     - BOOTSEL ボタンを押したまま USB ケーブルをつなぎ、つないでからボタンを離してください
-- PRA32-U2 Editor の "MIDI Out" のリストに "PRA32-U2" が出てこない
+- PRA32-U2 Editor の "MIDI Out" のリストに "PRA32-U2" (または "PRA32-U2/M" など) が出てこない
     - Google Chrome か Microsoft Edge を使い、MIDI デバイスへのアクセスを許可してください
     - PRA32-U2 Editor は、開いたときに MIDI ポートの一覧を作ります。Editor を開いた後に PRA32-U2 をつないだ場合は、ページを再読み込みしてください
 - 音が出ない
