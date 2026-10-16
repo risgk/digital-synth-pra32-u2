@@ -359,6 +359,11 @@
         - Opn can also be used for drones: the voices keep sounding at the last notes (in the Polyphonic Mode, the last chord of up to 4 notes), and the Filter EG and LFO still work
         - LO and QO are intended for the Monophonic or Legato Voice Mode, as the note-off voices keep sounding in the Polyphonic Mode
 - After Touch LFO Amt
+- Portamento Mode [Sw|Aut]: What turns on and off the Portamento
+    - 0 (0-63): Switch (Sw), The Portamento is on only while Portamento Switch (Control Change #65) is On (64-127)
+    - 127 (64-127): Auto (Aut), The Portamento is always on
+    - NOTE: In Legato Portamento (Voice Mode: LP), the Portamento is effective only for the legato notes, also while it is on
+    - NOTE: Portamento Switch is Off (0) at startup and by Reset All Controllers, and is not stored in the programs
 - Chorus Level: Chorus Send Level
 - FX Routing [Cho|Dly|Byp]: Where the output is input to the FX (the FX are connected in series: Chorus -> Delay)
     - 0 (0-31): Chorus (through the Chorus and the Delay)

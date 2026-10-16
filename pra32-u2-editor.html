@@ -588,6 +588,7 @@ const MODULATION      = 1;
 const BTH_CONTROLLER  = 2;
 const EXPRESSION      = 11;
 const SUSTAIN_PEDAL   = 64;
+const PORTAMENTO_SW   = 65;
 
 
 const OSC_1_WAVE      = 102;
@@ -653,6 +654,7 @@ const FINE_TUNE       = 70;
 const BTH_FILTER_AMT  = 60;
 const BTH_AMP_MOD     = 61;
 const AFT_T_LFO_AMT   = 37;
+const PORTA_MODE      = 34;
 
 
 const CHORUS_MIX      = 93;
@@ -755,6 +757,7 @@ var controlNumberToStringMap = new Map([
   [ BTH_FILTER_AMT , "BTH_FILTER_AMT " ],
   [ BTH_AMP_MOD    , "BTH_AMP_MOD    " ],
   [ AFT_T_LFO_AMT  , "AFT_T_LFO_AMT  " ],
+  [ PORTA_MODE     , "PORTA_MODE     " ],
 
 
   [ CHORUS_MIX     , "CHORUS_MIX     " ],
@@ -833,6 +836,7 @@ var controllersInLocalStorage = [
   BTH_FILTER_AMT ,
   BTH_AMP_MOD    ,
   AFT_T_LFO_AMT  ,
+  PORTA_MODE     ,
 
 
   CHORUS_MIX     ,
@@ -913,6 +917,7 @@ presetControllers[FINE_TUNE      ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   
 presetControllers[BTH_FILTER_AMT ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 presetControllers[BTH_AMP_MOD    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 presetControllers[AFT_T_LFO_AMT  ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+presetControllers[PORTA_MODE     ] = [127, 127, 127, 127, 127, 127, 127, 127,   127, 127, 127, 127, 127, 127, 127, 127];
 
 
 presetControllers[CHORUS_MIX     ] = [127, 127, 127, 127, 127, 127, 127, 0  ,   127, 127, 127, 127, 127, 127, 127, 0  ];
@@ -1490,6 +1495,13 @@ function updateDisplayOfControl(number, value) {
       dispValue = ary[index];
     }
     break;
+  case PORTA_MODE      :
+    {
+      var ary = ["Sw","Aut"];
+      var index = Math.floor(((value * 2) + 128) >> 8);
+      dispValue = ary[index];
+    }
+    break;
   case BTH_AMP_MOD     :
     {
       var ary = ["Off","Q","L","LO","QO","Opn"];
@@ -1591,6 +1603,7 @@ function setRandom() {
         (i != BTH_FILTER_AMT ) &&
         (i != BTH_AMP_MOD    ) &&
         (i != AFT_T_LFO_AMT  ) &&
+        (i != PORTA_MODE     ) &&
         (i != AMP_ATTACK     ) &&
         (i != AMP_DECAY      ) &&
         (i != AMP_SUSTAIN    ) &&
@@ -2191,6 +2204,7 @@ const PERFORMANCE_CONTROLS = new Map([
   [BTH_CONTROLLER, ["BTH_CONTROLLER", 0  ]],
   [EXPRESSION    , ["EXPRESSION"    , 127]],
   [SUSTAIN_PEDAL , ["SUSTAIN_PEDAL" , 0  ]],
+  [PORTAMENTO_SW , ["PORTAMENTO_SW" , 0  ]],
   [CH_PRESSURE   , ["CH_PRESSURE"   , 0  ]],  // not a Control Change, but Channel Pressure (After Touch)
 ]);
 
@@ -2214,7 +2228,7 @@ function updateDisplayOfPerformanceControl(number, value) {
   value = parseInt(value);
   document.getElementById("inputPerf" + key).value = value;
   document.getElementById("spanPerf" + key).textContent = String(value);
-  if (number == SUSTAIN_PEDAL) {
+  if ((number == SUSTAIN_PEDAL) || (number == PORTAMENTO_SW)) {
     document.getElementById("span2Perf" + key).textContent = (value >= 64) ? "[On]" : "[Off]";
   }
 }
@@ -2512,6 +2526,7 @@ function fileExport() {
   str += fileExportOneLine(BTH_FILTER_AMT );
   str += fileExportOneLine(BTH_AMP_MOD    );
   str += fileExportOneLine(AFT_T_LFO_AMT  );
+  str += fileExportOneLine(PORTA_MODE     );
   str += "\n";
   str += "\n";
   str += fileExportOneLine(CHORUS_MIX     );
@@ -2815,6 +2830,10 @@ Off <input type="number" id="inputNoteOffVelocity" min="1" max="127" step="1"></
   <div class="param-ctrl"><input id="inputPerfSUSTAIN_PEDAL" type="range" list="2 markers" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(SUSTAIN_PEDAL, value)"><span id="spanPerfSUSTAIN_PEDAL">0</span><span id="span2PerfSUSTAIN_PEDAL">[Off]</span></div>
 </div>
 <div class="param">
+  <div class="param-name">Portamento Switch [Off|On] <span class="cc">CC#65</span></div>
+  <div class="param-ctrl"><input id="inputPerfPORTAMENTO_SW" type="range" list="2 markers" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(PORTAMENTO_SW, value)"><span id="spanPerfPORTAMENTO_SW">0</span><span id="span2PerfPORTAMENTO_SW">[Off]</span></div>
+</div>
+<div class="param">
   <div class="param-name">Channel Pressure</div>
   <div class="param-ctrl"><input id="inputPerfCH_PRESSURE" type="range" list="0 markers" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(CH_PRESSURE, value)"><span id="spanPerfCH_PRESSURE">0</span><span id="span2PerfCH_PRESSURE"></span></div>
 </div>
@@ -3033,6 +3052,10 @@ Off <input type="number" id="inputNoteOffVelocity" min="1" max="127" step="1"></
 <div class="param">
   <div class="param-name"><b>After Touch</b> LFO Amt <span class="cc">CC#37</span></div>
   <div class="param-ctrl"><input  id="inputAFT_T_LFO_AMT  "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(AFT_T_LFO_AMT  , value)"><span    id="spanAFT_T_LFO_AMT  " >-</span><span   id="span2AFT_T_LFO_AMT  " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name">Portamento Mode [Sw|Aut] <span class="cc">CC#34</span></div>
+  <div class="param-ctrl"><input  id="inputPORTA_MODE     "  type="range" list="2 markers" min="0" max="127" step="1" oninput="onChangeControlChange(PORTA_MODE     , value)"><span    id="spanPORTA_MODE     " >-</span><span   id="span2PORTA_MODE     " >-</span></div>
 </div>
 </div>
 <div class="param-group">

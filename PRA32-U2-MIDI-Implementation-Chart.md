@@ -26,7 +26,7 @@
 | Change                      2 | x             | o             | Breath Controller                    |
 |                            11 | x             | o             | Expression                           |
 |                            64 | x             | o             | Sustain Pedal [Off|On]               |
-|                               |               |               |                                      |
+|                            65 | x             | o             | Portamento Switch [Off|On]           |
 |                               |               |               |                                      |
 |                           102 | x             | o             | Osc 1 Wave [Saw|Sqr|Tri|Sin|WT|Pls]  |
 |                            23 | x             | o             | Mixer Noise/Sub Osc [N|S]            |
@@ -91,7 +91,7 @@
 |                            60 | x             | o             | Breath Filter Amt [-|+]              |
 |                            61 | x             | o             | Breath Amp Mode [Off|Q|L|LO|QO|Opn]  |
 |                            37 | x             | o             | After Touch LFO Amt                  |
-|                               |               |               |                                      |
+|                            34 | x             | o             | Portamento Mode [Sw|Aut]             |
 |                               |               |               |                                      |
 |                            93 | x             | o             | Chorus Level                         |
 |                            95 | x             | o             | FX Routing [Cho|Dly|Byp]             |

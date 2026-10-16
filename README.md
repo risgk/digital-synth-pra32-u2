@@ -326,7 +326,7 @@ flowchart LR
     - Software Keyboard: the PC keyboard can also be played while it is shown (A - K for C - C, W - U for the black keys, and Z / X for the octave);
       some PC keyboards cannot take many keys at the same time (e.g. a chord of 4 notes)
     - Software Keyboard: the velocities of Note On and Note Off can be entered (1-127, 100 and 64 by default)
-    - Software Keyboard: Pitch Bend (springs back to the center), Modulation, Breath Controller, Expression, Sustain Pedal,
+    - Software Keyboard: Pitch Bend (springs back to the center), Modulation, Breath Controller, Expression, Sustain Pedal, Portamento Switch,
       and Channel Pressure can be sent from the sliders below the keyboard
 - When not using PRA32-U2 Editor (e.g. with a DAW or a MIDI keyboard)
     - PRA32-U2 can also be controlled by MIDI without using PRA32-U2 Editor

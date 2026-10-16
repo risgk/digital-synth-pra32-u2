@@ -835,6 +835,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case EG_AMP_MOD      :
   case REL_EQ_DECAY    :
   case SUSTAIN_PEDAL   :
+  case PORTAMENTO_SW   :
   case SEQ_TRX_ST_SP   :
     {
       char ary[2][5] = {"Off"," On"};
@@ -846,6 +847,14 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case OSC_SAW_W_MODE  :
     {
       char ary[2][5] = {"Str","Cur"};
+      uint32_t index = ((controller_value * 2) + 128) >> 8;
+      std::strcpy(value_display_text, ary[index]);
+      result = true;
+    }
+    break;
+  case PORTA_MODE      :
+    {
+      char ary[2][5] = {" Sw","Aut"};
       uint32_t index = ((controller_value * 2) + 128) >> 8;
       std::strcpy(value_display_text, ary[index]);
       result = true;
