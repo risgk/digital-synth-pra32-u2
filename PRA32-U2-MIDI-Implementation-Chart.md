@@ -51,7 +51,7 @@
 |                            89 | x             | o             | EG Mod Amt [-|+]                     |
 |                             8 | x             | o             | EG Mod Dst [P|P|2P|2P|F|1S]          |
 |                            18 | x             | o             | Voice Mode [Pol|Pol|Mon|Mon|LP|Lgt]  |
-|                             5 | x             | o             | Portamento                           |
+|                             5 | x             | o             | Portamento Time                      |
 |                               |               |               |                                      |
 |                            33 | x             | o             | LFO Wave [Tri|Sin|Nos|Saw|S&H|Sqr]   |
 |                            56 | x             | o             | LFO Fade Time                        |
