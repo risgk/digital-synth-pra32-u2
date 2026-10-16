@@ -230,10 +230,10 @@
     - 102 (90-115): Legato Portamento (Monophonic, EG & LFO Single Trigger, Auto Portamento)
     - 127 (116-127): Legato (Monophonic, EG & LFO Single Trigger)
 - Portamento Time
-    - 0: Portamento Time 0 ms
-    - 1: Portamento Time 1.1 ms
-    - 64: Portamento Time 100 ms
-    - 127: Portamento Time 9.3 s
+    - 0: 0 ms
+    - 1: 1.1 ms
+    - 64: 100 ms
+    - 127: 9.3 s
 - LFO Wave [Tri|Sin|Nos|Saw|S&H|Sqr]
     - 0 (0-12): Triangle Wave (Key Trigger Off, -0.5 to +0.5)
     - 26 (13-38): Sine Wave (Key Trigger Off, -0.5 to +0.5)
