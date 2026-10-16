@@ -71,6 +71,7 @@
     - 動作確認したバージョンは英語版の [Preparation for Modification](./README.md#preparation-for-modification) を参照してください
 - Arduino **MIDI Library** (Francois Best 氏、lathoub 氏による) をインストールしてください
 - Arduino IDE の "ツール" メニューで USB Stack: "Adafruit TinyUSB" を選んでください (USB MIDI 用)
+- MIDI チャンネルを変えるには、"Digital-Synth-PRA32-U2.ino" の `PRA32_U2_MIDI_CH` を変更してください (0 始まりで、0 が MIDI チャンネル 1 です)
 
 
 ## PRA32-U2 Editor
@@ -92,6 +93,7 @@
     - ファクトリー・プリセット (#16-31) とユーザー・プリセット (#0-15) の読み込み
     - ユーザー・プリセットはブラウザーに保存され、Store で 10 文字までの名前 (ASCII の英数字と記号) を付けられます
     - JSON ファイルへのエクスポートと、JSON ファイルからのインポート
+    - Randomize Synth と Randomize FX: シンセや FX のパラメーターをランダムに設定します
     - Undo: 直前のプリセット、Randomize、Import の前のパラメーターに戻します (もう一度押すと Redo)
     - Software Keyboard: マウス、タッチ、PC のキーボード (A - K が C - C、W - U が黒鍵、Z / X がオクターブ) で弾けます
         - ノートオンとノートオフのベロシティを入力できます (1-127、初期値は 100 と 64)
@@ -105,6 +107,7 @@
            (フラッシュにも書き込まれるので、電源を切っても残ります)。書き込みの前に、Editor に表示されているパラメーターを送り直します
         2. Editor を経由せずに、PRA32-U2 にプログラム・チェンジ #0-15 を直接送ると、そのプログラムを呼び出せます
     - 電源を入れたときのプログラムは #0 です
+    - Randomize Synth は PRA32-U2 自身でも実行できます (プログラム・チェンジ #127、またはコントロール・チェンジ #111 を Off (63 以下) から On (64 以上) に)
     - 対応している機能は [MIDI Implementation Chart](./PRA32-U2-MIDI-Implementation-Chart.md) (英語) を参照してください
 
 
@@ -129,7 +132,7 @@
     - PRA32-U2 Editor の "MIDI Ch" が、PRA32-U2 の MIDI チャンネル (初期値 1) と合っているか確認してください
 - ノイズが気になる
     - USB 通信のノイズの影響を受けることがあります。英語版の [UART MIDI](./README.md#uart-midi) を試してください
-    - RC フィルタなしの PWM Audio では、レベルを下げてください (英語版の [PWM Audio](./README.md#pwm-audio-optional) を参照)
+    - RC フィルターなしの PWM Audio では、レベルを下げてください (英語版の [PWM Audio](./README.md#pwm-audio-optional) を参照)
 - ポルタメントが掛からない
     - Portamento Time が 0 になっていないか確認してください
     - Portamento Mode が Aut か、Sw の場合は Portamento Switch (コントロール・チェンジ #65) が On か確認してください
