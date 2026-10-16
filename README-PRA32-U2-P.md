@@ -184,7 +184,7 @@
 | B-02 Panel c   | Panel Scale          | Panel Pitch Ofst     |
 | B-03 Panel d   | Panel Transpose      |                      |
 | B-04 Seq a     | Seq Step Note        | Seq Clock Src        |
-| B-05 Seq b     | Seq Transpose        | Seq T/Rx St/Sp       |
+| B-05 Seq b     | Seq Pitch Ofst       | Seq T/Rx St/Sp       |
 | B-06 Seq c     | Seq Tempo            | Seq Gate Time        |
 | B-07 Seq d     | Seq Mode             | Seq Num Steps        |
 | B-08 Seq e     | Seq On Steps         | Seq Act Steps        |
