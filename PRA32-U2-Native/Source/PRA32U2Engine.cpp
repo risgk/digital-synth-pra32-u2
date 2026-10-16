@@ -53,15 +53,15 @@ const PRA32U2Engine::ParameterInfo s_parameter_names[] = {
   { LFO_FILTER_AMT , "LFO Filter Amt [-|+]"                   },
   { AMP_GAIN       , "Amp Gain"                               },
 
-  { AMP_ATTACK     , "Amp Attack"                             },
-  { AMP_DECAY      , "Amp Decay"                              },
-  { AMP_SUSTAIN    , "Amp Sustain"                            },
-  { AMP_RELEASE    , "Amp Release"                            },
-
   { FILTER_MODE    , "Filter Mode [LP|BP|HP]"                 },
   { P_BEND_RANGE   , "Pitch Bend Range"                       },
   { EG_AMP_MOD     , "EG Amp Mod [Off|On]"                    },
   { REL_EQ_DECAY   , "EG/Amp Rel = Dec [Off|On]"              },
+
+  { AMP_ATTACK     , "Amp Attack"                             },
+  { AMP_DECAY      , "Amp Decay"                              },
+  { AMP_SUSTAIN    , "Amp Sustain"                            },
+  { AMP_RELEASE    , "Amp Release"                            },
 
   { A_D_VEL_SENS   , "EG Att/Dec Velo Sens [-|+]"             },
   { REL_VEL_SENS   , "EG Rel Velo Sens [-|+]"                 },

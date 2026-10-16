@@ -63,15 +63,15 @@
 |                            25 | x             | o             | LFO Filter Amt [-|+]                 |
 |                            15 | x             | o             | Amp Gain                             |
 |                               |               |               |                                      |
-|                            52 | x             | o             | Amp Attack                           |
-|                            53 | x             | o             | Amp Decay                            |
-|                            54 | x             | o             | Amp Sustain                          |
-|                            55 | x             | o             | Amp Release                          |
-|                               |               |               |                                      |
 |                            39 | x             | o             | Filter Mode [LP|BP|HP]               |
 |                            57 | x             | o             | Pitch Bend Range                     |
 |                            36 | x             | o             | EG Amp Mod [Off|On]                  |
 |                           105 | x             | o             | EG/Amp Rel = Dec [Off|On]            |
+|                               |               |               |                                      |
+|                            52 | x             | o             | Amp Attack                           |
+|                            53 | x             | o             | Amp Decay                            |
+|                            54 | x             | o             | Amp Sustain                          |
+|                            55 | x             | o             | Amp Release                          |
 |                               |               |               |                                      |
 |                            51 | x             | o             | EG Att/Dec Velo Sens [-|+]           |
 |                            81 | x             | o             | EG Rel Velo Sens [-|+]               |
