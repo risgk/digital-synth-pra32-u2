@@ -5,7 +5,7 @@
 | Function...                   | Transmitted   | Recognized    | Remarks                              |
 +-------------------------------+---------------+---------------+--------------------------------------+
 | Basic        Default          | x             | 1             |                                      |
-| Channel      Changed          | x             | x             | $5                                   |
+| Channel      Changed          | x             | x             | $3                                   |
 +-------------------------------+---------------+---------------+--------------------------------------+
 | Mode         Default          | x             | Mode 3        |                                      |
 |              Messages         | x             | x             |                                      |
@@ -26,12 +26,12 @@
 | Change                      2 | x             | o             | Breath Controller                    |
 |                            11 | x             | o             | Expression                           |
 |                            64 | x             | o             | Sustain Pedal [Off|On]               |
-|                            65 | x             | o             | Portamento Switch [Off|On]           |
+|                            65 | x             | o             | Portamento Switch [Off|On] $7        |
 |                               |               |               |                                      |
 |                           102 | x             | o             | Osc 1 Wave [Saw|Sqr|Tri|Sin|WT|Pls]  |
 |                            23 | x             | o             | Mixer Noise/Sub Osc [N|S]            |
-|                            19 | x             | o             | Osc 1 Shape $2                       |
-|                            20 | x             | o             | Osc 1 Morph $2                       |
+|                            19 | x             | o             | Osc 1 Shape $1                       |
+|                            20 | x             | o             | Osc 1 Morph $1                       |
 |                               |               |               |                                      |
 |                           104 | x             | o             | Osc 2 Wave [Saw|Sqr|Tri|Sin|O1|Nos]  |
 |                            21 | x             | o             | Mixer Osc Mix [1|2]                  |
@@ -105,8 +105,8 @@
 |                            92 | x             | o             | Delay Feedback                       |
 |                               |               |               |                                      |
 |                               |               |               |                                      |
-|                            87 | x             | o             | Program Number to Write to $4        |
-|                           106 | x             | o             | Write Parameters to Program $4       |
+|                            87 | x             | o             | Program Number to Write to $2        |
+|                           106 | x             | o             | Write Parameters to Program $2       |
 |                           112 | x             | o             | Program Change #0 by CC              |
 |                           113 | x             | o             | Program Change #1 by CC              |
 |                           114 | x             | o             | Program Change #2 by CC              |
@@ -115,10 +115,10 @@
 |                           117 | x             | o             | Program Change #5 by CC              |
 |                           118 | x             | o             | Program Change #6 by CC              |
 |                           119 | x             | o             | Program Change #7 by CC              |
-|                           111 | x             | o             | Random Synth Params $8               |
+|                           111 | x             | o             | Randomize Synth $6                   |
 +-------------------------------+---------------+---------------+--------------------------------------+
 | Program                       | x             | o             |                                      |
-| Change       : True #         | ************* | 0-31, 127     | Default 0, #127: Random Synth Params |
+| Change       : True #         | ************* | 0-31, 127     | Default 0, #127: Randomize Synth     |
 +-------------------------------+---------------+---------------+--------------------------------------+
 | System Exclusive              | x             | x             |                                      |
 +-------------------------------+---------------+---------------+--------------------------------------+
@@ -126,8 +126,8 @@
 | Common       : Song Sel       | x             | x             |                                      |
 |              : Tune           | x             | x             |                                      |
 +-------------------------------+---------------+---------------+--------------------------------------+
-| System       : Clock          | x $6          | x $7          |                                      |
-| Real Time    : Commands       | x $6          | x $7          | Compatible only with Start/Stop      |
+| System       : Clock          | x $4          | x $5          |                                      |
+| Real Time    : Commands       | x $4          | x $5          | Compatible only with Start/Stop      |
 +-------------------------------+---------------+---------------+--------------------------------------+
 | Aux          : All Sound OFF  | x             | o 120         |                                      |
 | Messages     : Reset All      | x             | o 121         |                                      |
@@ -137,16 +137,17 @@
 |              : Active Sense   | x             | x             |                                      |
 |              : Reset          | x             | x             |                                      |
 +-------------------------------+---------------+---------------+--------------------------------------+
-| Notes                         | $2 : Disabled if Osc 1 Wave is Tri (Triangle Wave)                   |
-|                               | $4 : To write the current parameters to Program #0-15 and the        |
+| Notes                         | $1 : Disabled if Osc 1 Wave is Tri (Triangle Wave)                   |
+|                               | $2 : To write the current parameters to Program #0-15 and the        |
 |                               |   flash, set "Program Number to Write to" (# is the value mod 32;    |
 |                               |   #16-31 are not written), and then change "Write Parameters to      |
 |                               |   Program" from 0-31 to 96-127                                       |
-|                               | $5 : Basic Channel can be changed in PRA32-U2/P                      |
-|                               | $6 : o in PRA32-U2/P (No transmission via USB MIDI)                  |
-|                               | $7 : o in PRA32-U2/P if Seq Clock Src is External                    |
-|                               | $8 : Randomize the synth parameters (as "Randomize Synth" in         |
+|                               | $3 : Basic Channel can be changed in PRA32-U2/P                      |
+|                               | $4 : o in PRA32-U2/P (No transmission via USB MIDI)                  |
+|                               | $5 : o in PRA32-U2/P if Seq Clock Src is External                    |
+|                               | $6 : Randomize the synth parameters (as "Randomize Synth" in         |
 |                               |   PRA32-U2 Editor) when changed from 0-63 to 64-127                  |
+|                               | $7 : Effective only if Portamento Mode is Sw                         |
 +-------------------------------+----------------------------------------------------------------------+
   Mode 1: Omni On,  Poly          Mode 2: Omni On,  Mono          o: Yes                                
   Mode 3: Omni Off, Poly          Mode 4: Omni Off, Mono          x: No                                 

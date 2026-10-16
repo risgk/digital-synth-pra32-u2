@@ -6,7 +6,7 @@
 ## Control Change Parameters
 
 - Notes
-    - $2 : Disabled if Osc 1 Wave is Tri (Triangle Wave)
+    - $1 : Disabled if Osc 1 Wave is Tri (Triangle Wave)
 - Osc 1 Wave [Saw|Sqr|Tri|Sin|WT|Pls]
     - 0 (0-12): Saw Wave
     - 26 (13-38): Square Wave
@@ -24,7 +24,7 @@
     - +60 (123-124): Sub Osc 93.8%
     - +62 (125-126): Sub Osc 96.9%
     - +63 (127): Sub Osc 100% (max)
-- Osc 1 Shape $2
+- Osc 1 Shape $1
     - Saw Wave: Multi Saw Detune
     - Square Wave: Sync Square Pitch
     - Sine Wave (Frequency Modulation or Phase Modulation): Modulation Depth
@@ -36,7 +36,7 @@
         - 96: Pulse Width 12.5%, or 2nd Saw Phase 87.5%
         - 126: Pulse Width 0.8%, or 2nd Saw Phase 99.2%
         - 127: Pulse Width 0%, or 2nd Saw Phase 100%
-- Osc 1 Morph $2
+- Osc 1 Morph $1
     - Saw Wave:
         - 0: Normal Saw 100% (min)
         - 64 (63-64): Normal Saw 50% + Multi Saw 50%
