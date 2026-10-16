@@ -6,6 +6,7 @@
         - Sw (Switch): The Portamento is on only while Portamento Switch is On
     - Support Portamento Switch (Control Change #65, Portamento On/Off): Off at startup and by Reset All Controllers, and not stored in the programs
     - Rename "Portamento" (Control Change #5) to "Portamento Time", and "Modulation" (Control Change #1) to "Modulation Wheel" (only the names shown)
+    - Fix Pan: the center (64) was -0.1 dB, and is now 0 dB, as GM2 (1 and 0: the left end, 127: the right end, in 126 steps)
     - PRA32-U2/P: Change the pages for the Portamento
         - A-02 Pitch a: Portamento Time, Portamento Mode
         - A-03 Pitch b: Pitch Bend Range, Stretch Tune
