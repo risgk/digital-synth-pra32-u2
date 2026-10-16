@@ -54,7 +54,6 @@ graph LR
     V1A --> VM[Voice Mixer]
     V2[Voice 2] & V3[Voice 3] & V4[Voice 4] --> VM
     VM --> P[Panner] --> C[Chorus FX] --> D[Delay/Reverb FX] --> OL["Output Limiter<br/>(x 0.75)"] --> AO[Audio Out]
-    P --> C --> D --> OL --> AO
     N[Noise Gen]  --> V1O2 & V1OM & V2 & V3 & V4
     N -.-> L[LFO w/ S/H]
     L -.-> V1O1 & V1O2 & V1F & V2 & V3 & V4
@@ -322,12 +321,13 @@ flowchart LR
     - Current parameter values and user presets (#0-15) can be imported/exported from/to JSON files
     - User presets: a name of up to 10 ASCII letters, digits, and symbols can be given by Store (shown on the User Preset buttons)
     - Undo: back to the parameters before the last preset, Randomize, or Import (Undo again: Redo)
-    - Software Keyboard: while Hold is on, the keys released keep their notes on (turning Hold off turns them off)
-    - Software Keyboard: the PC keyboard can also be played while it is shown (A - K for C - C, W - U for the black keys, and Z / X for the octave);
-      some PC keyboards cannot take many keys at the same time (e.g. a chord of 4 notes)
-    - Software Keyboard: the velocities of Note On and Note Off can be entered (1-127, 100 and 64 by default)
-    - Software Keyboard: Pitch Bend (springs back to the center), Modulation Wheel, Breath Controller, Expression, Sustain Pedal, Portamento Switch,
-      and Channel Pressure can be sent from the sliders below the keyboard
+    - Software Keyboard
+        - While Hold is on, the keys released keep their notes on (turning Hold off turns them off)
+        - The PC keyboard can also be played while it is shown (A - K for C - C, W - U for the black keys, and Z / X for the octave);
+          some PC keyboards cannot take many keys at the same time (e.g. a chord of 4 notes)
+        - The velocities of Note On and Note Off can be entered (1-127, 100 and 64 by default)
+        - Pitch Bend (springs back to the center), Modulation Wheel, Breath Controller, Expression, Sustain Pedal, Portamento Switch,
+          and Channel Pressure can be sent from the sliders below the keyboard
 - When not using PRA32-U2 Editor (e.g. with a DAW or a MIDI keyboard)
     - PRA32-U2 can also be controlled by MIDI without using PRA32-U2 Editor
     - Sounds made with PRA32-U2 Editor can be written to PRA32-U2, and recalled later without PRA32-U2 Editor
@@ -427,6 +427,11 @@ flowchart LR
 - Noise
     - The output may be affected by USB communication noise; try [UART MIDI](#uart-midi)
     - With PWM Audio without the RC filters, reduce the level: see [PWM Audio (Optional)](#pwm-audio-optional)
+- No portamento
+    - Check that Portamento Time is not 0
+    - Check that Portamento Mode is Aut, or that Portamento Switch (Control Change #65) is On if Portamento Mode is Sw
+    - In Legato Portamento (Voice Mode: LP), the Portamento is effective only for the legato notes
+    - In the Polyphonic Mode, the Portamento is effective only when Voice Assign Mode is 2 or 4
 
 
 ## License

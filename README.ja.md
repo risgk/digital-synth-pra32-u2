@@ -130,6 +130,11 @@
 - ノイズが気になる
     - USB 通信のノイズの影響を受けることがあります。英語版の [UART MIDI](./README.md#uart-midi) を試してください
     - RC フィルタなしの PWM Audio では、レベルを下げてください (英語版の [PWM Audio](./README.md#pwm-audio-optional) を参照)
+- ポルタメントが掛からない
+    - Portamento Time が 0 になっていないか確認してください
+    - Portamento Mode が Aut か、Sw の場合は Portamento Switch (コントロール・チェンジ #65) が On か確認してください
+    - Legato Portamento (Voice Mode: LP) では、レガートで弾いたときだけポルタメントが掛かります
+    - Polyphonic のときは、Voice Assign Mode が 2 か 4 のときだけポルタメントが掛かります
 
 
 ## ライセンス
