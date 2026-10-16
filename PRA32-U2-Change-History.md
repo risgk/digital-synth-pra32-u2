@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v3.15.0 (2026-??-??):
+- v3.15.0 (2026-10-16):
     - Add the "Portamento Mode [Sw|Aut]" parameter (Control Change #34)
         - Aut (Auto, default): The Portamento is always on, as before
         - Sw (Switch): The Portamento is on only while Portamento Switch is On
