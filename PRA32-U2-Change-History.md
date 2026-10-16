@@ -14,7 +14,11 @@
         - B-21 Control d: Channel Pressure
         - B-22 Control e: Panic, Randomize Synth (from B-21)
     - PRA32-U2 Editor: Add Portamento Mode, and add Portamento Switch to the sliders below the Software Keyboard (shown in light gray if Portamento Mode is Aut)
+    - PRA32-U2 Editor: Show "Voice" and "Portamento" of the parameter names in bold, as the other groups (e.g. "EG" and "LFO")
     - PRA32-U2 Native: Add Portamento Mode
+    - Add "Performance Controllers" to the Parameter Guide, add the values of Pan and After Touch LFO Amt, and fix the description of EG Att/Dec Velo Sens (Attack/Decay, not Attack/Release)
+    - Rename "Random Synth Params" to "Randomize Synth" in the MIDI Implementation Chart, add the note of Portamento Switch, and renumber the notes ($1-7)
+    - Add "No portamento" to Troubleshooting (README), and add AU and PRA32-U2/M (not supported) to the README of PRA32-U2 Native
     - Tested with Arduino-Pico version 6.2.0
 - v3.14.0 (2026-10-15):
     - PRA32-U2 Editor: Add Hold to the Software Keyboard: while it is on, the keys released keep their notes on, until it is turned off
