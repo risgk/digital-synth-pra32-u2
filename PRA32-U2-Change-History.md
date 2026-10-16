@@ -7,7 +7,7 @@
     - Support Portamento Switch (Control Change #65, Portamento On/Off): Off at startup and by Reset All Controllers, and not stored in the programs
     - Rename "Portamento" (Control Change #5) to "Portamento Time", and "Modulation" (Control Change #1) to "Modulation Wheel" (only the names shown)
     - Fix Pan: the center (64) was -0.1 dB, and is now 0 dB, as GM2 (1 and 0: the left end, 127: the right end, in 126 steps)
-    - Fix Delay Time 112 and 113: they were 336.7 ms and 340 ms, and are now 333.3 ms and 336.7 ms, as shown (114-127: 340 ms)
+    - Fix Delay Time 112 and 113: they were 336.7 ms and 340 ms, and are now 333.3 ms and 336.7 ms, as the panel and PRA32-U2 Editor show (114-127: 340 ms)
     - PRA32-U2/P: Change the pages for the Portamento
         - A-02 Pitch a: Portamento Time, Portamento Mode
         - A-03 Pitch b: Pitch Bend Range, Stretch Tune
@@ -17,9 +17,16 @@
     - PRA32-U2 Editor: Add Portamento Mode, and add Portamento Switch to the sliders below the Software Keyboard (shown in light gray if Portamento Mode is Aut)
     - PRA32-U2 Editor: Show "Voice" and "Portamento" of the parameter names in bold, as the other groups (e.g. "EG" and "LFO")
     - PRA32-U2 Native: Add Portamento Mode
-    - Add "Performance Controllers" to the Parameter Guide, add the values of Pan and After Touch LFO Amt, fix the description of EG Att/Dec Velo Sens (Attack/Decay, not Attack/Release), and fix the values of Stretch Tune (bipolar), the self-oscillation level of Filter Resonance (0.5 since v3.8.0), LFO Depth, LFO Fade Time, and others, with the approximate values rounded to 3 significant figures
-    - Rename "Random Synth Params" to "Randomize Synth" in the MIDI Implementation Chart, add the notes of Portamento Switch and Program Change #0-7 by CC, and renumber the notes ($1-8)
-    - Add "No portamento" to Troubleshooting (README), add the MIDI device names of PRA32-U2/M, /P, and /M/P to the READMEs, add `PRA32_U2_MIDI_CH` and Randomize Synth to README.ja.md, fix the latency in the README (3.7-5.0 ms, not 3.8-5.1 ms), fix B-05 (Seq Pitch Ofst, not Seq Transpose) and the number of SWs (2 to 6, not 1 to 4) in the README of PRA32-U2/P, and add AU and PRA32-U2/M (not supported) to the README of PRA32-U2 Native
+    - Parameter Guide
+        - Add "Performance Controllers", and the values of Pan and After Touch LFO Amt
+        - Fix the values of Stretch Tune (bipolar), the self-oscillation of Filter Resonance (peak level 0.5 since v3.8.0), LFO Depth, LFO Fade Time, and others
+        - Fix the description of EG Att/Dec Velo Sens (Attack/Decay, not Attack/Release)
+        - Round the approximate values (e.g. times and frequencies) to 3 significant figures
+    - MIDI Implementation Chart: Rename "Random Synth Params" to "Randomize Synth", add the notes of Portamento Switch and Program Change #0-7 by CC, and renumber the notes ($1-8)
+    - README: Add "No portamento" to Troubleshooting, add the MIDI device names of PRA32-U2/M, /P, and /M/P, and fix the latency (3.7-5.0 ms, not 3.8-5.1 ms)
+    - README.ja.md: Add `PRA32_U2_MIDI_CH` and Randomize Synth
+    - README of PRA32-U2/P: Fix B-05 (Seq Pitch Ofst, not Seq Transpose) and the number of SWs (2 to 6, not 1 to 4), and add the pins of the OLED Display
+    - README of PRA32-U2 Native: Add AU, and that PRA32-U2/M is not supported
     - Tested with Arduino-Pico version 6.2.0
 - v3.14.0 (2026-10-15):
     - PRA32-U2 Editor: Add Hold to the Software Keyboard: while it is on, the keys released keep their notes on, until it is turned off
