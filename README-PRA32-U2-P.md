@@ -91,10 +91,11 @@
     - Seq Rand Velo (Randomize Velo 0-7): Change the value from 0-31 [Rdy] to 96-127 [Exe]
 - Control Parameters
     - Pitch Bend: the MSB only (64 is the center, and 127 is the max, +8191)
-    - Modulation
+    - Modulation Wheel
     - Breath Controller
     - Expression
     - Sustain Pedal
+    - Portamento Switch
     - Channel Pressure
 - Control Operations
     - Panic: Change the value from 0-31 [Rdy] to 96-127 [Exe]
@@ -196,7 +197,7 @@
 | B-15 Seq 5     | Seq Pitch 5          | Seq Velo 5           |
 | B-16 Seq 6     | Seq Pitch 6          | Seq Velo 6           |
 | B-17 Seq 7     | Seq Pitch 7          | Seq Velo 7           |
-| B-18 Control a | Pitch Bend           | Modulation           |
+| B-18 Control a | Pitch Bend           | Modulation Wheel     |
 | B-19 Control b | Breath Controller    | Expression           |
 | B-20 Control c | Sustain Pedal        | Portamento Switch    |
 | B-21 Control d | Channel Pressure     |                      |
