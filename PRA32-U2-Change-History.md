@@ -1,6 +1,8 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v3.15.1 (2026-??-??):
+    - Swap the order of Amp Attack/Decay/Sustain/Release and Filter Mode/Pitch Bend Range/EG Amp Mod/EG/Amp Rel = Dec (PRA32-U2 Editor, PRA32-U2 Native, the MIDI Implementation Chart, and the programs (internal))
+    - PRA32-U2 Editor: Move the lines between the parameter groups (above Amp Attack, and below Osc/Filter Drift instead of below EG/Amp Rel = Dec)
     - Tested with Arduino-Pico version 6.2.0
 - v3.15.0 (2026-10-16):
     - Add the "Portamento Mode [Sw|Aut]" parameter (Control Change #34)
