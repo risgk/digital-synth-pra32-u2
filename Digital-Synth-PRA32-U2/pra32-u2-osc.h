@@ -285,6 +285,10 @@ public:
 
     if (m_waveform_index[1] == 4) { // Same as Osc 1 Wave
       m_waveform[1] = waveform_tables[2][m_waveform_index[0]];
+
+      if ((m_waveform_index[0] == 0) && m_saw_wave_mode_curved) { // Saw Wave
+        m_waveform[1] = WAVEFORM_SAW2;
+      }
     }
   }
 

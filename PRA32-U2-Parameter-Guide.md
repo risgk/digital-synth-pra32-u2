@@ -51,7 +51,7 @@
         - 8 (6-9): Ratio 1.5
         - 12 (10-13): Ratio 2.0
         - 20 (18-21): Ratio 3.0
-        - 28 (26-29): Ratio 3.5
+        - 28 (26-29): Ratio 4.0
         - 108 (106-109): Ratio 14.0
         - 124 (122-125): Ratio 16.0
         - 127 (126-127): Ratio 16.5 (max)
@@ -280,7 +280,7 @@
     - 127 (96-127): High Pass
 - Pitch Bend Range
     - 0: 0 semitone (min)
-    - 60: 60 semitone (max)
+    - 64 (64-127): 64 semitone (max)
 - EG Amp Mod [Off|On]
     - 0 (0-63): Off
     - 127 (64-127): On
