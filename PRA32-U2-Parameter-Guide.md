@@ -229,7 +229,7 @@
     - 77 (64-89): Monophonic (EG & LFO Multi Trigger)
     - 102 (90-115): Legato Portamento (Monophonic, EG & LFO Single Trigger, Auto Portamento)
     - 127 (116-127): Legato (Monophonic, EG & LFO Single Trigger)
-- Portamento
+- Portamento Time
     - 0: Portamento Time 0 ms
     - 1: Portamento Time 1.1 ms
     - 64: Portamento Time 100 ms

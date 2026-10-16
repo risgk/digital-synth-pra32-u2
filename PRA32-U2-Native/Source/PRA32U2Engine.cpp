@@ -41,7 +41,7 @@ const PRA32U2Engine::ParameterInfo s_parameter_names[] = {
   { EG_OSC_AMT     , "EG Mod Amt [-|+]"                       },
   { EG_OSC_DST     , "EG Mod Dst [P|P|2P|2P|F|1S]"            },
   { VOICE_MODE     , "Voice Mode [Pol|Pol|Mon|Mon|LP|Lgt]"    },
-  { PORTAMENTO     , "Portamento"                             },
+  { PORTAMENTO     , "Portamento Time"                        },
 
   { LFO_WAVE       , "LFO Wave [Tri|Sin|Nos|Saw|S&H|Sqr]"     },
   { LFO_FADE_TIME  , "LFO Fade Time"                          },

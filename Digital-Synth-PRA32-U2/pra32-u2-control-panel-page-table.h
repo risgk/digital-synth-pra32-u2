@@ -27,7 +27,7 @@ static const PRA32_U2_ControlPanelPage g_control_panel_page_table_a[] = {
   { "Page=A-00 ", "Info      ",   "PRA32-U2/P", "          ", 0xFF           ,   PRA32_U2_VERSION, "          ", 0xFF       ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
 #endif  // (PRA32_U2_NUMBER_OF_SYNTHS > 1)
   { "Page=A-01 ", "Voice     ",   "Voice     ", "Mode      ", VOICE_MODE     ,   "Voice     ", "Asgn Mode ", VOICE_ASGN_MODE,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=A-02 ", "Pitch a   ",   "Portamento", "          ", PORTAMENTO     ,   "Portamento", "Mode      ", PORTA_MODE     ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=A-02 ", "Pitch a   ",   "Portamento", "Time      ", PORTAMENTO     ,   "Portamento", "Mode      ", PORTA_MODE     ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=A-03 ", "Pitch b   ",   "Pitch     ", "Bend Range", P_BEND_RANGE   ,   "Stretch   ", "Tune      ", STRETCH_TUNE   ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=A-04 ", "Pitch c   ",   "Coarse    ", "Tune      ", COARSE_TUNE    ,   "Fine      ", "Tune      ", FINE_TUNE      ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=A-05 ", "Osc a     ",   "Osc 1     ", "Wave      ", OSC_1_WAVE     ,   "Mixer     ", "Noise/Sub ", MIXER_SUB_OSC  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
