@@ -22,14 +22,14 @@
     - SW2: Play Key (Normal Mode: press to play, Sequencer Mode: push to start/stop) (Removable)
         - Not to use this key, comment out `#define PRA32_U2_KEY_INPUT_PLAY_KEY_PIN          (20)` in "Digital-Synth-PRA32-U2.ino"
     - SW3: Prog - Key (Long press to change to the previous user program) (optional)
-        - To use this key, uncomment out `//#define PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN    (17)` in "Digital-Synth-PRA32-U2.ino"
+        - To use this key, uncomment `//#define PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN    (17)` in "Digital-Synth-PRA32-U2.ino"
     - SW4: Prog + Key (Long press to change to the next user program) (optional)
-        - To use this key, uncomment out `//#define PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN     (19)` in "Digital-Synth-PRA32-U2.ino"
+        - To use this key, uncomment `//#define PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN     (19)` in "Digital-Synth-PRA32-U2.ino"
     - SW5: Shift Key (optional)
         - Shift + Prev/Next Key: Go to the previous/next group without long-pressing
         - Shift + Prog -/+ Key: Change to the previous/next user program without long-pressing
         - Shift + VR0/1/2: Prevent values from changing across 64
-        - To use this key, uncomment out `//#define PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN         (21)` in "Digital-Synth-PRA32-U2.ino"
+        - To use this key, uncomment `//#define PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN         (21)` in "Digital-Synth-PRA32-U2.ino"
     - VR0 (ADC0): Parameter A
     - VR1 (ADC1): Parameter B
     - VR2 (ADC2): Parameter C for Play (Removable)
@@ -89,7 +89,7 @@
 - Step Sequencer Operations
     - Seq Rand Pitch (Randomize Pitch 0-7): Change the value from 0-31 [Rdy] to 96-127 [Exe]
     - Seq Rand Velo (Randomize Velo 0-7): Change the value from 0-31 [Rdy] to 96-127 [Exe]
-- Control Parameters
+- Control Parameters (see [Performance Controllers](./PRA32-U2-Parameter-Guide.md#performance-controllers) in the Parameter Guide)
     - Pitch Bend: the MSB only (64 is the center, and 127 is the max, +8191)
     - Modulation Wheel
     - Breath Controller
@@ -127,16 +127,16 @@
 
 ### An Example of Construction Using a Universal PCB
 
-- Using a universal PCB, GY-PCM5102 (PCM5102A I2S DAC Module), 6 SWs, 3 VRs, a OLED Display, and a M5Stack MIDI Unit (optional)
-    - An connection between Raspberry Pico 2's Mute Off Pin and GY-PCM5102's XSMT is omitted
+- Using a universal PCB, GY-PCM5102 (PCM5102A I2S DAC Module), 6 SWs, 3 VRs, an OLED Display, and an M5Stack MIDI Unit (optional)
+    - A connection between Raspberry Pi Pico 2's Mute Off Pin and GY-PCM5102's XSMT is omitted
 
 ![PRA32-U2/P (Universal PCB)](./pra32-u2-with-panel-universal-pcb.jpg)
 
 
 ### An Example of Construction Using a Breadboard
 
-- Using a breadboard, GY-PCM5102 (PCM5102A I2S DAC Module), 3 SWs, 3 VRs, and a OLED Display
-    - An connection between Raspberry Pico 2's Mute Off Pin and GY-PCM5102's XSMT is omitted
+- Using a breadboard, GY-PCM5102 (PCM5102A I2S DAC Module), 3 SWs, 3 VRs, and an OLED Display
+    - A connection between Raspberry Pi Pico 2's Mute Off Pin and GY-PCM5102's XSMT is omitted
 
 ![PRA32-U2/P (Bread Board)](./pra32-u2-with-panel-breadboard.jpg)
 
