@@ -13,7 +13,9 @@
     - Playing by panel operation
     - Built-in monophonic 8-step sequencer
     - Panel and Step Sequencer Parameters
-- This option requires 1 to 4 SWs (tactile switches), 2 to 3 VRs (ADCs), and a monochrome 128x64 OLED Display based on SSD1306 series drivers
+- This option requires 2 to 6 SWs (tactile switches), 2 to 3 VRs (ADCs), and a monochrome 128x64 OLED Display based on SSD1306 series drivers
+    - SWs: Prev and Next, and optionally Play, Prog -, Prog +, and Shift (see Inputs)
+    - OLED Display: I2C1, SDA: GP6, SCL: GP7, Address: 0x3C (by default)
     - Tested with Pimoroni Pico Audio Pack, M5Stack MIDI Unit (optional), Long Leg 2x20 Pin Socket * 2, Seeed Studio's Grove Shield for Pi Pico, Dual Button * 3, Rotary Angle Sensor * 3, and an OLED Display 0.96 inch
 - Uncomment `//#define PRA32_U2_USE_CONTROL_PANEL` in "Digital-Synth-PRA32-U2.ino" and modify the constants
 - Inputs
@@ -78,7 +80,7 @@
     - Seq Clock Src [Int|Ext]: Internal, External (Rx MIDI Clock)
     - Seq Pitch Ofst (Offset) [-|+]: Offset Seq Pitch 0-7 (min -60 to max +60)
     - Seq T/Rx St/Sp (Transmit/Receive Start/Stop): Off, On
-    - Seq Tempo: 30-240 BPM
+    - Seq Tempo: 30-240 BPM (in steps of 2 BPM)
     - Seq Gate Time [1/6|2/6|3/6|4/6|5/6|6/6]
     - Seq Mode [Fwd|Rvs|Bnc]: Forward, Reverse, Bounce
     - Seq Num Steps (Number of Steps): 1-32 (current step mod 8 is used as the index for Seq Pitch and Seq Velo)
