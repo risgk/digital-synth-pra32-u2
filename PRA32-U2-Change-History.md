@@ -13,7 +13,7 @@
         - B-20 Control c: Sustain Pedal, Portamento Switch
         - B-21 Control d: Channel Pressure
         - B-22 Control e: Panic, Randomize Synth (from B-21)
-    - PRA32-U2 Editor: Add Portamento Mode, and add Portamento Switch to the sliders below the Software Keyboard
+    - PRA32-U2 Editor: Add Portamento Mode, and add Portamento Switch to the sliders below the Software Keyboard (shown in light gray if Portamento Mode is Aut)
     - PRA32-U2 Native: Add Portamento Mode
     - Tested with Arduino-Pico version 6.2.0
 - v3.14.0 (2026-10-15):
