@@ -87,8 +87,8 @@
     - 64 (63-64): Osc 1 50% + Osc 2 50%
     - 127: Osc 2 100% (max)
 - Osc 2 Coarse [-|+]
-    - -60 (4): -60 semitone (min)
-    - +60 (124): +60 semitone (max)
+    - -60 (0-4): -60 semitone (min)
+    - +60 (124-127): +60 semitone (max)
 - Osc 2 Pitch [-|+]
     - -55 (9): -12 semitone (min)
     - -41 (23): -5 semitone
@@ -105,7 +105,7 @@
     - 0: f = 13.0 Hz (min)
     - 1: f = 13.8 Hz
     - 4: f = 16.4 Hz
-    - 7: f = 19.5 Hz
+    - 7: f = 19.4 Hz
     - 52: f = 261.6 Hz
     - 61: f = 440.0 Hz
     - 64: f = 523.3 Hz
@@ -114,7 +114,7 @@
     - 124: f = 16744.0 Hz
     - 127: f = 19912.1 Hz (max)
 - Filter Resonance
-    - 0: Q = 0.71 (min)
+    - 0: Q = 0.707 (min)
     - 16: Q = 1.00
     - 32: Q = 1.41
     - 48: Q = 2.00
@@ -128,15 +128,15 @@
     - 116: Q = 59.7
     - 120: Q = 152
     - 122: Q = 256
-    - 123: Self-oscillation (level 0.18)
-    - 125: Self-oscillation (level 0.31)
-    - 127: Self-oscillation (level 0.4) (max)
+    - 123: Self-oscillation (level 0.22)
+    - 125: Self-oscillation (level 0.39)
+    - 127: Self-oscillation (level 0.50) (max)
     - The self-oscillation fades out as the cutoff (including the modulation) rises from the Cutoff 111 (f = 7.9 kHz) to 116 (f = 10.5 kHz), and above that the Resonance 123-127 acts as 122
     - A loud input near the cutoff (e.g. the Square or the Multi Saw) weakens or stops the self-oscillation, and an input harmonic near it pulls it to the pitch of that harmonic
     - NOTE: With a high Resonance (about 112 or above), chords get louder, and the Output Limiter lowers the level; if it is too much, lower the "Amp Gain"
 - Filter EG Amt [-|+], LFO Filter Amt [-|+]
-    - -60 (4): -120 (min)
-    - +60 (124): +120 (max)
+    - -60 (0-4): -120 (min)
+    - +60 (124-127): +120 (max)
 - Filter Key Track [-|+]
     - 0 (0-3): -1.000 (min)
     - 8 (4-11): -0.875
@@ -213,8 +213,8 @@
         - +62 (126): Shape +248
         - +63 (127): Shape +256 (max)
     - Cutoff
-        - -60 (4): -120 (min)
-        - +60 (124): +120 (max)
+        - -60 (0-4): -120 (min)
+        - +60 (124-127): +120 (max)
 - EG Mod Dst [P|P|2P|2P|F|1S], LFO Mod Dst [P|P|2P|2P|F|1S]
     - 0 (0-12): Osc 1 & 2 Pitch
     - 26 (13-38): Osc 1 & 2 Pitch
@@ -231,9 +231,9 @@
     - 127 (116-127): Legato (Monophonic, EG & LFO Single Trigger)
 - Portamento Time
     - 0: 0 ms
-    - 1: 1.1 ms
+    - 1: 1.07 ms
     - 64: 100 ms
-    - 127: 9.3 s
+    - 127: 9.31 s
     - NOTE: The Portamento is turned on and off by "Portamento Mode" (and "Portamento Switch")
 - LFO Wave [Tri|Sin|Nos|Saw|S&H|Sqr]
     - 0 (0-12): Triangle Wave (Key Trigger Off, -0.5 to +0.5)
@@ -243,26 +243,26 @@
     - 102 (90-115): Sample & Hold (Key Trigger On, -0.5 to +0.5)
     - 127 (116-127): Square Wave (Key Trigger On, 0.0 to 1.0)
 - LFO Fade Time
-    - 0: 0.00 ms (min)
-    - 32: 316 ms
-    - 64: 1.00 s
+    - 0: 0 ms (min)
+    - 32: 309 ms
+    - 64: 992 ms
     - 96: 3.16 s
-    - 127: 9.65 s (max)
+    - 127: 9.64 s (max)
 - LFO Rate
-    - 0: 0.0 Hz (min)
-    - 1: 0.072 Hz
-    - 64: 2.7 Hz
-    - 80: 6.9 Hz
-    - 127: 103.8 Hz (max)
+    - 0: 0 Hz (min)
+    - 1: 0.0715 Hz
+    - 64: 2.73 Hz
+    - 80: 6.87 Hz
+    - 127: 104 Hz (max)
 - LFO Rate (Red Noise: sets the low-pass cutoff of the noise, the level stays the same)
-    - 0: 0.0 Hz (min)
-    - 1: 0.015 Hz
-    - 32: 1.5 Hz
+    - 0: 0 Hz (min)
+    - 1: 0.0146 Hz
+    - 32: 1.54 Hz
     - 64: 189 Hz
-    - 80: 2.4 kHz
-    - 83: 5.1 kHz
+    - 80: 2.35 kHz
+    - 83: 5.12 kHz
     - 84: Almost No Low-Pass Filtering
-    - 100: No Low-Pass Filtering (max)
+    - 100 (100-127): No Low-Pass Filtering (max)
 - LFO Depth
     - 0: 0% (min)
     - 1: 0.8%
@@ -322,10 +322,12 @@
     - +32 (96): L -5.5 dB, R +2.3 dB
     - +63 (127): Right (L Off, R +3.0 dB) (max)
 - Stretch Tune [-|+]
-    - 0: +0 cent at note number 108 (-0 cent at note number 12)
-    - 32: +9.4 cent at note number 108 (-9.4 cent at note number 12)
-    - 64: +18.8 cent at note number 108 (-18.8 cent at note number 12)
-    - 127: +37.2 cent at note number 108 (-37.2 cent at note number 12)
+    - -64 (0): -37.5 cent at note number 108 (+37.5 cent at note number 12) (min)
+    - -32 (32): -18.8 cent at note number 108 (+18.8 cent at note number 12)
+    - +0 (64): +0 cent
+    - +16 (80): +9.4 cent at note number 108 (-9.4 cent at note number 12)
+    - +32 (96): +18.8 cent at note number 108 (-18.8 cent at note number 12)
+    - +63 (127): +36.9 cent at note number 108 (-36.9 cent at note number 12) (max)
 - Osc/Filter Drift: Randomly drifts the pitch of each oscillator, and the Filter Cutoff of each voice by the same amount (100 cent = 1 Cutoff value)
     - 0: Off
     - 32: About 0.7 cent (RMS)
@@ -347,9 +349,9 @@
     - +1 (65): +1.5625 cent
     - +63 (127): +98.4375 cent
 - Breath Filter Amt [-|+]: 2x the other Amt parameters (e.g. Filter EG Amt), so that a weak breath also opens the Filter
-    - -60 (4): -240 (min)
+    - -60 (0-4): -240 (min)
     - +30 (94): +120, the Cutoff +120 with the max breath
-    - +60 (124): +240 (max), the Cutoff +120 with the half breath
+    - +60 (124-127): +240 (max), the Cutoff +120 with the half breath
 - Breath Amp Mode [Off|Q|L|LO|QO|Opn]
     - 0 (0-12): Off, The Amp follows the EG (the Breath Controller does not modulate the Amp)
     - 26 (13-38): Quadratic Curve (Q), The Amp follows the EG, x the Breath Controller (Quadratic Curve)
@@ -379,14 +381,14 @@
     - 127 (96-127): Bypass (through neither)
     - In PRA32-U2/M, each synth has its own FX Routing, while the other FX parameters of the Main Synth apply to all synths
 - Chorus Rate
-    - 0: LFO Frequency 0.012 Hz (min)
-    - 64: LFO Frequency 0.48 Hz
+    - 0: LFO Frequency 0.0114 Hz (min)
+    - 64: LFO Frequency 0.482 Hz
     - 127: LFO Frequency 18.4 Hz (max)
 - Chorus Depth
     - 0: Delay Time +/- 0 ms (min)
-    - 32: Delay Time +/- 1.3 ms
-    - 64: Delay Time +/- 2.7 ms
-    - 126 (126-127): Delay Time +/- 5.3 ms (max)
+    - 32: Delay Time +/- 1.33 ms
+    - 64: Delay Time +/- 2.67 ms
+    - 126 (126-127): Delay Time +/- 5.25 ms (max)
 - Delay Level: Delay Send Level
 - Delay Mode [Ste|PP|Rev]
     - 0 (0-31): Stereo Delay
