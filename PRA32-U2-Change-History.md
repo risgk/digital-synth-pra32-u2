@@ -8,6 +8,7 @@
     - Rename "Portamento" (Control Change #5) to "Portamento Time", and "Modulation" (Control Change #1) to "Modulation Wheel" (only the names shown)
     - Fix Pan: the center (64) was -0.1 dB, and is now 0 dB, as GM2 (1 and 0: the left end, 127: the right end, in 126 steps)
     - Fix Delay Time 112 and 113: they were 336.7 ms and 340 ms, and are now 333.3 ms and 336.7 ms, as the panel and PRA32-U2 Editor show (114-127: 340 ms)
+    - Fix Osc 2 Wave O1 (Same as Osc 1 Wave) with the Osc 1 Saw Wave being the Straight Saw Wave, even if Osc Saw Wave Mode is Cur (Curved), after Osc 1 Wave or Osc 2 Wave was changed
     - PRA32-U2/P: Change the pages for the Portamento
         - A-02 Pitch a: Portamento Time, Portamento Mode
         - A-03 Pitch b: Pitch Bend Range, Stretch Tune
@@ -19,7 +20,7 @@
     - PRA32-U2 Native: Add Portamento Mode
     - Parameter Guide
         - Add "Performance Controllers", and the values of Pan and After Touch LFO Amt
-        - Fix the values of Stretch Tune (bipolar), the self-oscillation of Filter Resonance (peak level 0.5 since v3.8.0), LFO Depth, LFO Fade Time, and others
+        - Fix the values of Stretch Tune (bipolar), the self-oscillation of Filter Resonance (peak level 0.5 since v3.8.0), LFO Depth, LFO Fade Time, Pitch Bend Range (max 64), the Frequency Ratio of Osc 1 Morph (28: 4.0), and others
         - Fix the description of EG Att/Dec Velo Sens (Attack/Decay, not Attack/Release)
         - Round the approximate values (e.g. times and frequencies) to 3 significant figures
     - MIDI Implementation Chart: Rename "Random Synth Params" to "Randomize Synth", add the notes of Portamento Switch and Program Change #0-7 by CC, and renumber the notes ($1-8)
