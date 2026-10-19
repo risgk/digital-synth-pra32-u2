@@ -53,7 +53,7 @@ const PRA32U2Engine::ParameterInfo s_parameter_names[] = {
   { LFO_FILTER_AMT , "LFO Filter Amt [-|+]"                   },
   { AMP_GAIN       , "Amp Gain"                               },
 
-  { FILTER_MODE    , "Filter Mode [LP|BP|HP]"                 },
+  { FILTER_MODE    , "Filter Mode [LP|LP|BP|BP|BR|HP]"        },
   { P_BEND_RANGE   , "Pitch Bend Range"                       },
   { EG_AMP_MOD     , "EG Amp Mod [Off|On]"                    },
   { REL_EQ_DECAY   , "EG/Amp Rel = Dec [Off|On]"              },
@@ -224,7 +224,7 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value) {
   static const char* const MOD_DSTS[6]     = { "P", "P", "2P", "2P", "F", "1S" };
   static const char* const VOICE_MODES[6]  = { "Pol", "Pol", "Mon", "Mon", "LP", "Lgt" };
   static const char* const LFO_WAVES[6]    = { "Tri", "Sin", "Nos", "Saw", "S&H", "Sqr" };
-  static const char* const FILTER_MODES[3] = { "LP", "BP", "HP" };
+  static const char* const FILTER_MODES[6] = { "LP", "LP", "BP", "BP", "BR", "HP" };
   static const char* const OFF_ON[2]       = { "Off", "On" };
   static const char* const SAW_W_MODES[2]  = { "Str", "Cur" };
   static const char* const PORTA_MODES[2]  = { "Sw", "Aut" };
@@ -256,7 +256,7 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value) {
   case LFO_OSC_DST     : dispValue = select6(v, MOD_DSTS);           break;
   case VOICE_MODE      : dispValue = select6(v, VOICE_MODES);        break;
   case LFO_WAVE        : dispValue = select6(v, LFO_WAVES);          break;
-  case FILTER_MODE     : dispValue = select3(v, FILTER_MODES);       break;
+  case FILTER_MODE     : dispValue = select6(v, FILTER_MODES);       break;
   case EG_AMP_MOD      :
   case REL_EQ_DECAY    : dispValue = select2(v, OFF_ON);             break;
   case OSC_SAW_W_MODE  : dispValue = select2(v, SAW_W_MODES);        break;

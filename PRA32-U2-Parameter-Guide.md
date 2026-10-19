@@ -274,10 +274,13 @@
     - NOTE: The actual LFO depth is the "LFO Depth" value plus the "Modulation Wheel" value and the after touch effect (up to 100%)
 - Amp Gain
     - NOTE: The Output Limiter (after the FX) limits the peaks above 1.0 (full scale) at its input, and lowers the output by 2.5 dB (x 0.75) (with the Presets, the Output Limiter rarely works)
-- Filter Mode [LP|BP|HP]
-    - 0 (0-31): Low Pass
-    - 64 (32-95): Band Pass
-    - 127 (96-127): High Pass
+- Filter Mode [LP|LP|BP|BP|BR|HP]
+    - 0 (0-12): Low Pass
+    - 26 (13-38): Low Pass
+    - 51 (39-63): Band Pass
+    - 77 (64-89): Band Pass
+    - 102 (90-115): Band Reject (Notch)
+    - 127 (116-127): High Pass
 - Pitch Bend Range
     - 0: 0 semitone (min)
     - 64 (64-127): 64 semitone (max)
