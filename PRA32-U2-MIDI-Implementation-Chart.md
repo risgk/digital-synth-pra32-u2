@@ -63,7 +63,7 @@
 |                            25 | x             | o             | LFO Filter Amt [-|+]                 |
 |                            15 | x             | o             | Amp Gain                             |
 |                               |               |               |                                      |
-|                            39 | x             | o             | Filter Mode [LP|BP|HP]               |
+|                            39 | x             | o             | Filter Mode [LP|LP|BP|BP|BR|HP]      |
 |                            57 | x             | o             | Pitch Bend Range                     |
 |                            36 | x             | o             | EG Amp Mod [Off|On]                  |
 |                           105 | x             | o             | EG/Amp Rel = Dec [Off|On]            |

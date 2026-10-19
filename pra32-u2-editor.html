@@ -1448,8 +1448,8 @@ function updateDisplayOfControl(number, value) {
     break;
   case FILTER_MODE     :
     {
-      var ary = ["LP","BP","HP"];
-      var index = Math.floor(((value * 4) + 128) >> 8);
+      var ary = ["LP","LP","BP","BP","BR","HP"];
+      var index = Math.floor(((value * 10) + 128) >> 8);
       dispValue = ary[index];
     }
     break;
@@ -2930,8 +2930,8 @@ Off <input type="number" id="inputNoteOffVelocity" min="1" max="127" step="1"></
   <div class="param-ctrl"><input  id="inputAMP_GAIN       "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(AMP_GAIN       , value)"><span    id="spanAMP_GAIN       " >-</span><span   id="span2AMP_GAIN       " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>Filter</b> Mode [LP|BP|HP] <span class="cc">CC#39</span></div>
-  <div class="param-ctrl"><input  id="inputFILTER_MODE    "  type="range" list="3 markers" min="0" max="127" step="1" oninput="onChangeControlChange(FILTER_MODE    , value)"><span    id="spanFILTER_MODE    " >-</span><span   id="span2FILTER_MODE    " >-</span></div>
+  <div class="param-name"><b>Filter</b> Mode [LP|LP|BP|BP|BR|HP] <span class="cc">CC#39</span></div>
+  <div class="param-ctrl"><input  id="inputFILTER_MODE    "  type="range" list="6 markers" min="0" max="127" step="1" oninput="onChangeControlChange(FILTER_MODE    , value)"><span    id="spanFILTER_MODE    " >-</span><span   id="span2FILTER_MODE    " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name">Pitch Bend Range <span class="cc">CC#57</span></div>
