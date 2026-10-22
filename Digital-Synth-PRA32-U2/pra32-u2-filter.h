@@ -285,7 +285,7 @@ public:
 
   // [LP|LP|BP|BP|BR|HP], so that 0, 64, and 127 stay LP, BP, and HP
   INLINE void set_filter_mode(uint8_t controller_value) {
-    static const uint8_t filter_mode_table[6] = { 0, 0, 1, 1, 3, 2 };
+    static const uint8_t filter_mode_table[6] PRA32_U2_TABLE_IN_RAM(filter_mode_table) = { 0, 0, 1, 1, 3, 2 };
     m_filter_mode = filter_mode_table[((controller_value * 10) + 128) >> 8];
   }
 
