@@ -10,7 +10,11 @@
 #include "pra32-u2-eg.h"
 #include "pra32-u2-chorus-fx.h"
 #include "pra32-u2-delay-fx.h"
+#if defined(PRA32_U2_USE_LEGACY_OUTPUT_LIMITER)
 #include "pra32-u2-output-limiter.h"
+#else  // defined(PRA32_U2_USE_LEGACY_OUTPUT_LIMITER)
+#include "pra32-u2-output-compressor.h"
+#endif  // defined(PRA32_U2_USE_LEGACY_OUTPUT_LIMITER)
 #include "pra32-u2-program-table.h"
 
 #if defined(ARDUINO_ARCH_RP2040)
@@ -67,15 +71,15 @@ static uint8_t s_program_table_parameters[] = {
   LFO_FILTER_AMT ,
   AMP_GAIN       ,
 
-  AMP_ATTACK     ,
-  AMP_DECAY      ,
-  AMP_SUSTAIN    ,
-  AMP_RELEASE    ,
-
   FILTER_MODE    ,
   P_BEND_RANGE   ,
   EG_AMP_MOD     ,
   REL_EQ_DECAY   ,
+
+  AMP_ATTACK     ,
+  AMP_DECAY      ,
+  AMP_SUSTAIN    ,
+  AMP_RELEASE    ,
 
   A_D_VEL_SENS   ,
   REL_VEL_SENS   ,
@@ -219,10 +223,14 @@ class PRA32_U2_Synth {
 
   using ChorusFx = std::conditional_t<NO_FX, std::monostate, PRA32_U2_ChorusFx>;
   using DelayFx  = std::conditional_t<NO_FX, std::monostate, PRA32_U2_DelayFx>;
-  using OutputLimiter = std::conditional_t<NO_FX, std::monostate, PRA32_U2_OutputLimiter>;
+#if defined(PRA32_U2_USE_LEGACY_OUTPUT_LIMITER)
+  using OutputDynamics = std::conditional_t<NO_FX, std::monostate, PRA32_U2_OutputLimiter>;
+#else  // defined(PRA32_U2_USE_LEGACY_OUTPUT_LIMITER)
+  using OutputDynamics = std::conditional_t<NO_FX, std::monostate, PRA32_U2_OutputCompressor>;
+#endif  // defined(PRA32_U2_USE_LEGACY_OUTPUT_LIMITER)
   ChorusFx          m_chorus_fx;
   DelayFx           m_delay_fx;
-  OutputLimiter     m_output_limiter;
+  OutputDynamics    m_output_dynamics;
 
   uint32_t          m_count;
 
@@ -276,7 +284,7 @@ public:
   , m_eg()
   , m_chorus_fx()
   , m_delay_fx()
-  , m_output_limiter()
+  , m_output_dynamics()
 
   , m_count(0xFFFFFFFFu + SYNTH_ID)
 
@@ -380,15 +388,15 @@ public:
     std::memcpy(m_program_table[LFO_FILTER_AMT ], g_preset_table_LFO_FILTER_AMT , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[AMP_GAIN       ], g_preset_table_AMP_GAIN       , sizeof(m_program_table[0]));
 
-    std::memcpy(m_program_table[AMP_ATTACK     ], g_preset_table_AMP_ATTACK     , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[AMP_DECAY      ], g_preset_table_AMP_DECAY      , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[AMP_SUSTAIN    ], g_preset_table_AMP_SUSTAIN    , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[AMP_RELEASE    ], g_preset_table_AMP_RELEASE    , sizeof(m_program_table[0]));
-
     std::memcpy(m_program_table[FILTER_MODE    ], g_preset_table_FILTER_MODE    , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[P_BEND_RANGE   ], g_preset_table_P_BEND_RANGE   , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[EG_AMP_MOD     ], g_preset_table_EG_AMP_MOD     , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[REL_EQ_DECAY   ], g_preset_table_REL_EQ_DECAY   , sizeof(m_program_table[0]));
+
+    std::memcpy(m_program_table[AMP_ATTACK     ], g_preset_table_AMP_ATTACK     , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[AMP_DECAY      ], g_preset_table_AMP_DECAY      , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[AMP_SUSTAIN    ], g_preset_table_AMP_SUSTAIN    , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[AMP_RELEASE    ], g_preset_table_AMP_RELEASE    , sizeof(m_program_table[0]));
 
     std::memcpy(m_program_table[A_D_VEL_SENS   ], g_preset_table_A_D_VEL_SENS   , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[REL_VEL_SENS   ], g_preset_table_REL_VEL_SENS   , sizeof(m_program_table[0]));
@@ -1133,8 +1141,12 @@ if constexpr (NO_FX == false) {
       break;
     case FX_ROUTING     :
       // Every synth has its own FX Routing, as the FX input that its output is added to
-      // (PRA32-U2/M); 0-31: Chorus, 32-95: Delay, 96-127: Bypass
-      m_fx_routing = ((controller_value * 4) + 128) >> 8;
+      // (PRA32-U2/M); [Cho|Cho|Dly|Dly|Cmp|Dry] (Cmp was Byp until v3.15.0)
+      {
+        static const uint8_t fx_routing_table[6] PRA32_U2_TABLE_IN_RAM(fx_routing_table) =
+          { FX_BUS_CHORUS, FX_BUS_CHORUS, FX_BUS_DELAY, FX_BUS_DELAY, FX_BUS_COMP, FX_BUS_DRY };
+        m_fx_routing = fx_routing_table[((controller_value * 10) + 128) >> 8];
+      }
       break;
 
 #if 0
@@ -1785,7 +1797,7 @@ if constexpr ((NO_FX == false) && (BYPASS_FX == false)) {
     delay_fx_output = mixed_output;
 }
 
-    // The output of process_fx() is limited and clipped, and can be output to a DAC.
+    // The output of process_fx() is compressed (or limited) and clipped, and can be output to a DAC.
     // Without the FX, the output is not clipped, to be mixed with other synths
     return delay_fx_output;
   }
@@ -1797,8 +1809,9 @@ if constexpr ((NO_FX == false) && (BYPASS_FX == false)) {
     fx_bus.input[m_fx_routing].right += synth_output.right;
   }
 
-  // Processes the FX in series: the Chorus input goes through the Chorus and the Delay,
-  // the Delay input through the Delay only, and the Bypass input through neither
+  // Processes the FX in series: the Chorus input goes through the Chorus, the Delay, and the
+  // Output Compressor, the Delay input through the Delay and the Output Compressor, the Comp
+  // input through the Output Compressor only, and the Dry input through none of them
   // noclone: see process()
   __attribute__((noclone)) PRA32_U2_StereoSample __not_in_flash_func(process_fx)(const PRA32_U2_FxBusSample& fx_bus) {
     PRA32_U2_StereoSample chorus_fx_output = m_chorus_fx.process(fx_bus.input[FX_BUS_CHORUS]);
@@ -1808,12 +1821,13 @@ if constexpr ((NO_FX == false) && (BYPASS_FX == false)) {
     delay_fx_input.right = chorus_fx_output.right + fx_bus.input[FX_BUS_DELAY].right;
 
     PRA32_U2_StereoSample delay_fx_output = m_delay_fx.process(delay_fx_input);
-    delay_fx_output.left  += fx_bus.input[FX_BUS_BYPASS].left;
-    delay_fx_output.right += fx_bus.input[FX_BUS_BYPASS].right;
+    delay_fx_output.left  += fx_bus.input[FX_BUS_COMP].left;
+    delay_fx_output.right += fx_bus.input[FX_BUS_COMP].right;
 
-    // The synth that processes the FX also limits and clips the output, after
-    // mixing in the other synths through the FX bus (PRA32-U2/M)
-    return m_output_limiter.process(delay_fx_output);
+    // The synth that processes the FX also compresses (or limits) and clips the output,
+    // after mixing in the other synths through the FX bus (PRA32-U2/M); the Dry input
+    // is only delayed (as the look-ahead), lowered (x 0.75), and clipped with it
+    return m_output_dynamics.process(delay_fx_output, fx_bus.input[FX_BUS_DRY]);
   }
 
   template <boolean RESTRICT_SAW = false, boolean RESTRICT_SQR_WT = false>
@@ -1857,12 +1871,14 @@ if (m_voice_mode == VOICE_POLYPHONIC) {
     return (m_voice_mode == VOICE_POLYPHONIC);
   }
 
+#if defined(PRA32_U2_USE_LEGACY_OUTPUT_LIMITER)
   // Not assigned to a Control Change; 0: Off, 127: full limiting (default)
   INLINE void set_output_limiter_depth(uint8_t controller_value) {
 if constexpr (NO_FX == false) {
-    m_output_limiter.set_depth(controller_value);
+    m_output_dynamics.set_depth(controller_value);
 }
   }
+#endif  // defined(PRA32_U2_USE_LEGACY_OUTPUT_LIMITER)
 
 private:
 

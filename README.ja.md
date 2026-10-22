@@ -1,4 +1,4 @@
-# Digital Synth PRA32-U2 v3.15.0
+# Digital Synth PRA32-U2 v3.16.0
 
 - 2026-10-16 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
@@ -9,7 +9,7 @@
 ## 概要
 
 - **PRA32-U2** は、Raspberry Pi Pico 2/RP2350 用の 4 ボイス・ポリフォニック・シンセサイザーです
-    - Chorus FX と Delay/Reverb FX を内蔵し、その後に Output Limiter があります
+    - Chorus FX と Delay/Reverb FX を内蔵し、その後に Output Compressor (リミッターを兼ねる) があります
     - MIDI で制御します -- PRA32-U2 は MIDI 音源モジュールです
     - パラメーターをユーザー・プログラムとフラッシュに書き込む機能があります
     - PRA32-U2 は PRA32-U (Raspberry Pi Pico/RP2040 用) の後継として始まりましたが、今では別のシンセサイザーです
@@ -133,6 +133,9 @@
 - ノイズが気になる
     - USB 通信のノイズの影響を受けることがあります。英語版の [UART MIDI](./README.md#uart-midi) を試してください
     - RC フィルターなしの PWM Audio では、レベルを下げてください (英語版の [PWM Audio](./README.md#pwm-audio-optional) を参照)
+- 音が歪む
+    - Amp Gain を下げてください (Filter Resonance や Osc 1 Shape/Morph が高いと、音が大きくなります)
+    - FX Routing が Dry の場合は Output Compressor を通らないため、大きな音はソフトクリップで歪みます。Cmp などを選んでください
 - ポルタメントが掛からない
     - Portamento Time が 0 になっていないか確認してください
     - Portamento Mode が Aut か、Sw の場合は Portamento Switch (コントロール・チェンジ #65) が On か確認してください

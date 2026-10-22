@@ -101,15 +101,15 @@ const uint8_t   LFO_OSC_DST     = 103;
 const uint8_t   LFO_FILTER_AMT  = 25;
 const uint8_t   AMP_GAIN        = 15;
 
-const uint8_t   AMP_ATTACK      = 52;
-const uint8_t   AMP_DECAY       = 53;
-const uint8_t   AMP_SUSTAIN     = 54;
-const uint8_t   AMP_RELEASE     = 55;
-
 const uint8_t   FILTER_MODE     = 39;
 const uint8_t   P_BEND_RANGE    = 57;
 const uint8_t   EG_AMP_MOD      = 36;
 const uint8_t   REL_EQ_DECAY    = 105;
+
+const uint8_t   AMP_ATTACK      = 52;
+const uint8_t   AMP_DECAY       = 53;
+const uint8_t   AMP_SUSTAIN     = 54;
+const uint8_t   AMP_RELEASE     = 55;
 
 const uint8_t   A_D_VEL_SENS    = 51;
 const uint8_t   REL_VEL_SENS    = 81;

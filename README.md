@@ -1,4 +1,4 @@
-# Digital Synth PRA32-U2 v3.15.0
+# Digital Synth PRA32-U2 v3.16.0
 
 - 2026-10-16 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
@@ -8,7 +8,7 @@
 ## Overview
 
 - **PRA32-U2** is a 4-Voice Polyphonic Synthesizer for Raspberry Pi Pico 2/RP2350
-    - Built-in Chorus and Delay/Reverb FX, followed by the Output Limiter
+    - Built-in Chorus and Delay/Reverb FX, followed by the Output Compressor (which also works as the limiter)
     - Controlled by MIDI -- PRA32-U2 is a MIDI sound module
     - Can write the parameters to the user programs and the flash
     - PRA32-U2 started as the successor to PRA32-U (for Raspberry Pi Pico/RP2040), and has since become a different synthesizer
@@ -53,7 +53,11 @@ graph LR
     end
     V1A --> VM[Voice Mixer]
     V2[Voice 2] & V3[Voice 3] & V4[Voice 4] --> VM
-    VM --> P[Panner] --> C[Chorus FX] --> D[Delay/Reverb FX] --> OL["Output Limiter<br/>(x 0.75)"] --> AO[Audio Out]
+    VM --> P[Panner] --> FR{FX Routing}
+    FR -->|Cho| C[Chorus FX] --> D[Delay/Reverb FX] --> OC[Output Compressor] --> OG["x 0.75<br/>Soft Clip"] --> AO[Audio Out]
+    FR -->|Dly| D
+    FR -->|Cmp| OC
+    FR -->|Dry| OG
     N[Noise Gen]  --> V1O2 & V1OM & V2 & V3 & V4
     N -.-> L[LFO w/ S/H]
     L -.-> V1O1 & V1O2 & V1F & V2 & V3 & V4
@@ -80,7 +84,7 @@ flowchart LR
     IN([Input]) --> SUM((Σ))
     SUM -->|HP| I1["Integrator 1<br/>BP, state s1"]
     I1 -->|BP| I2["Integrator 2<br/>LP, state s2"]
-    SUM -->|HP| MS["Filter Mode<br/>LP / BP / HP"]
+    SUM -->|HP| MS["Filter Mode<br/>LP / BP / BR / HP"]
     I1 -->|BP| MS
     I2 -->|LP| MS
     MS --> DC["DC blocker<br/>7.5 Hz"]
@@ -104,7 +108,7 @@ flowchart LR
     A1 -->|HP| A2["Integrator ∫<br/>C1"]
     D["Diode pair<br/>asymmetric"] -.-|across C1| A2
     A2 -->|BP| A3["Integrator ∫<br/>C2, linear"]
-    A1 -->|HP| MS["Filter Mode<br/>LP / BP / HP"]
+    A1 -->|HP| MS["Filter Mode<br/>LP / BP / BR / HP"]
     A2 -->|BP| MS
     A3 -->|LP| MS
     MS --> CC["Coupling capacitor"]
@@ -129,7 +133,7 @@ flowchart LR
     - Info: <https://www.arduino.cc/en/software>
 - Please install Arduino-Pico = **Raspberry Pi Pico/RP2040/RP2350** (by Earle F. Philhower, III) core
     - Additional Board Manager URL: <https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json>
-    - This sketch is tested with version **6.2.0**: <https://github.com/earlephilhower/arduino-pico/releases/tag/6.2.0>
+    - This sketch is tested with version **6.3.0**: <https://github.com/earlephilhower/arduino-pico/releases/tag/6.3.0>
     - Info: <https://github.com/earlephilhower/arduino-pico>
 - Please install Arduino **MIDI Library** (by Francois Best, lathoub)
     - This sketch is tested with version **5.0.2**: <https://github.com/FortySevenEffects/arduino_midi_library/releases/tag/5.0.2>
@@ -252,7 +256,7 @@ flowchart LR
 - The latency from receiving a MIDI message to the audio output is about 3.7-5.0 ms (4.3 ms on average) by default (2.7 ms + 0-1.3 ms + 1 ms, below)
     - The output buffer is almost always full, so the frames processed in a loop are output about 2.7 ms after the loop starts
     - The MIDI messages are read once at the start of each loop (every 64 frames, 1.3 ms)
-    - The Output Limiter delays the output by 1 ms (look-ahead), even when it is off
+    - The Output Compressor delays the output by 1 ms (look-ahead)
     - The transmission time of the MIDI messages (about 1 ms for 3 bytes with UART MIDI) and the latency of the DAC are not included
 
 
@@ -427,6 +431,9 @@ flowchart LR
 - Noise
     - The output may be affected by USB communication noise; try [UART MIDI](#uart-midi)
     - With PWM Audio without the RC filters, reduce the level: see [PWM Audio (Optional)](#pwm-audio-optional)
+- Distortion
+    - Lower "Amp Gain" (a high Filter Resonance or a high Osc 1 Shape/Morph makes the sound louder)
+    - With FX Routing Dry, the output does not go through the Output Compressor, and loud sounds are distorted by the soft clipping; choose another FX Routing (e.g. Cmp)
 - No portamento
     - Check that Portamento Time is not 0
     - Check that Portamento Mode is Aut, or that Portamento Switch (Control Change #65) is On if Portamento Mode is Sw
@@ -438,11 +445,11 @@ flowchart LR
 
 ![CC0](http://i.creativecommons.org/p/zero/1.0/88x31.png)
 
-**Digital Synth PRA32-U2 v3.15.0 by ISGK Instruments (Ryo Ishigaki)**
+**Digital Synth PRA32-U2 v3.16.0 by ISGK Instruments (Ryo Ishigaki)**
 
 To the extent possible under law, ISGK Instruments (Ryo Ishigaki)
 has waived all copyright and related or neighboring rights
-to Digital Synth PRA32-U2 v3.15.0.
+to Digital Synth PRA32-U2 v3.16.0.
 
 You should have received a copy of the CC0 legalcode along with this
 work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.

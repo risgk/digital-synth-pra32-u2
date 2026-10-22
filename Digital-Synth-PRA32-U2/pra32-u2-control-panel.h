@@ -77,7 +77,52 @@ static char s_display_buffer[8][21 + 1] = {
   "                     ",
 };
 
-static char s_hex_chars[] = "0123456789ABCDEF";
+static char s_hex_chars[] PRA32_U2_TABLE_IN_RAM(s_hex_chars) = "0123456789ABCDEF";
+
+// The text formatting on the secondary core (between the samples) is done inline,
+// in the RAM, instead of by std::sprintf() and std::strcpy() in the flash, which
+// would delay the audio processing by XIP cache misses; the text tables are also
+// in the RAM (PRA32_U2_TABLE_IN_RAM)
+
+// Same as std::sprintf(text, "%3d", value), or "%+3d" with plus_sign
+static INLINE void PRA32_U2_ControlPanel_format_decimal(char* text, int32_t value, bool plus_sign = false) {
+  char     buff[12];
+  uint32_t pos       = sizeof(buff) - 1;
+  uint32_t abs_value = (value < 0) ? (0U - static_cast<uint32_t>(value)) : static_cast<uint32_t>(value);
+  buff[pos] = '\0';
+  do {
+    buff[--pos] = '0' + (abs_value % 10);
+    abs_value /= 10;
+  } while (abs_value != 0);
+  if (value < 0) {
+    buff[--pos] = '-';
+  } else if (plus_sign) {
+    buff[--pos] = '+';
+  }
+  while (pos > sizeof(buff) - 1 - 3) {
+    buff[--pos] = ' ';
+  }
+  while ((*text++ = buff[pos++]) != '\0') {
+    ;
+  }
+}
+
+// Same as std::sprintf(text, "x%02X", value)
+static INLINE void PRA32_U2_ControlPanel_format_hex(char* text, uint8_t value) {
+  text[0] = 'x';
+  text[1] = s_hex_chars[value >> 4];
+  text[2] = s_hex_chars[value & 0x0F];
+  text[3] = '\0';
+}
+
+// Same as std::strcpy(text, src) for a text of 3 characters or less, padded with '\0' to 4 characters
+static INLINE void PRA32_U2_ControlPanel_copy_text(char* text, const char src[5]) {
+  text[0] = src[0];
+  text[1] = src[1];
+  text[2] = src[2];
+  text[3] = src[3];
+}
+
 
 
 extern void handleNoteOn(byte channel, byte pitch, byte velocity);
@@ -127,37 +172,37 @@ static INLINE uint8_t PRA32_U2_ControlPanel_calc_scaled_pitch(uint32_t index_sca
   uint32_t index_octave = new_pitch / 24;
 
   if        (index_scale == 0) {
-    const uint8_t ary_major[25] =
+    static const uint8_t ary_major[25] PRA32_U2_TABLE_IN_RAM(panel_scale) =
       { 60, 60, 62, 62, 62, 62, 64, 64, 64, 65, 65, 65,
         67, 67, 67, 67, 69, 69, 69, 69, 71, 71, 71, 72, 72 };
     new_pitch  = ary_major[index_pitch];
     new_pitch += index_octave * 12 - 24;
   } else if (index_scale == 1) {
-    const uint8_t ary_natural_minor[25] =
+    static const uint8_t ary_natural_minor[25] PRA32_U2_TABLE_IN_RAM(panel_scale) =
       { 60, 60, 62, 62, 62, 63, 63, 63, 65, 65, 65, 65,
         67, 67, 67, 68, 68, 68, 70, 70, 70, 70, 72, 72, 72 };
     new_pitch  = ary_natural_minor[index_pitch];
     new_pitch += index_octave * 12 - 24;
   } else if (index_scale == 2) {
-    const uint8_t ary_melodic_minor[25] =
+    static const uint8_t ary_melodic_minor[25] PRA32_U2_TABLE_IN_RAM(panel_scale) =
       { 60, 60, 62, 62, 62, 63, 63, 63, 65, 65, 65, 65,
         67, 67, 67, 67, 69, 69, 69, 69, 71, 71, 71, 72, 72 };
     new_pitch  = ary_melodic_minor[index_pitch];
     new_pitch += index_octave * 12 - 24;
   } else if (index_scale == 3) {
-    const uint8_t ary_major_pentatonic[25] =
+    static const uint8_t ary_major_pentatonic[25] PRA32_U2_TABLE_IN_RAM(panel_scale) =
       { 60, 60, 62, 62, 62, 62, 64, 64, 64, 64, 64, 67,
         67, 67, 67, 67, 69, 69, 69, 69, 69, 72, 72, 72, 72 };
     new_pitch  = ary_major_pentatonic[index_pitch];
     new_pitch += index_octave * 12 - 24;
   } else if (index_scale == 4) {
-    const uint8_t ary_minor_pentatonic[25] =
+    static const uint8_t ary_minor_pentatonic[25] PRA32_U2_TABLE_IN_RAM(panel_scale) =
       { 60, 60, 60, 63, 63, 63, 63, 63, 65, 65, 65, 65,
         67, 67, 67, 67, 67, 70, 70, 70, 70, 70, 72, 72, 72 };
     new_pitch  = ary_minor_pentatonic[index_pitch];
     new_pitch += index_octave * 12 - 24;
   } else if (index_scale == 5) {
-    const uint8_t ary_chromatic[25] =
+    static const uint8_t ary_chromatic[25] PRA32_U2_TABLE_IN_RAM(panel_scale) =
       { 60, 61, 61, 62, 62, 63, 63, 64, 64, 65, 65, 66,
         66, 67, 67, 68, 68, 69, 69, 70, 70, 71, 71, 72, 72 };
     new_pitch  = ary_chromatic[index_pitch];
@@ -198,7 +243,7 @@ static INLINE void PRA32_U2_ControlPanel_calc_value_display_pitch(uint8_t pitch,
   new_pitch = PRA32_U2_ControlPanel_calc_transposed_pitch(
     new_pitch, g_synth.current_controller_value(PANEL_TRANSPOSE ) - 64);
 
-  char ary[12][5] = { " C", "C#", " D", "D#", " E", " F", "F#", " G", "G#", " A", "A#", " B" };
+  static const char ary[12][5] PRA32_U2_TABLE_IN_RAM(panel_text) = { " C", "C#", " D", "D#", " E", " F", "F#", " G", "G#", " A", "A#", " B" };
 
   uint32_t quotient  = new_pitch / 12;
   uint32_t remainder = new_pitch % 12;
@@ -748,7 +793,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case PANEL_TRANSPOSE :
   case PITCH_BEND_MSB  :
     {
-      std::sprintf(value_display_text, "%+3d", static_cast<int>(controller_value) - 64);
+      PRA32_U2_ControlPanel_format_decimal(value_display_text, static_cast<int>(controller_value) - 64, true);
       result = true;
     }
     break;
@@ -762,13 +807,13 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
         pit_ofst = +60;
       }
 
-      std::sprintf(value_display_text, "%+3d", pit_ofst);
+      PRA32_U2_ControlPanel_format_decimal(value_display_text, pit_ofst, true);
       result = true;
     }
     break;
   case MIXER_SUB_OSC   :
     {
-      std::sprintf(value_display_text, "%+3d", static_cast<int>(controller_value) - 64);
+      PRA32_U2_ControlPanel_format_decimal(value_display_text, static_cast<int>(controller_value) - 64, true);
 
       if        (controller_value < 55) {
         value_display_text[0] = 'N';
@@ -785,50 +830,50 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
     break;
   case OSC_1_WAVE      :
     {
-      char ary[6][5] = {"Saw","Sqr","Tri","Sin"," WT","Pls"};
+      static const char ary[6][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"Saw","Sqr","Tri","Sin"," WT","Pls"};
       uint32_t index = ((controller_value * 10) + 128) >> 8;
-      std::strcpy(value_display_text, ary[index]);
+      PRA32_U2_ControlPanel_copy_text(value_display_text, ary[index]);
       result = true;
     }
     break;
   case OSC_2_WAVE      :
     {
-      char ary[6][5] = {"Saw","Sqr","Tri","Sin"," O1","Nos"};
+      static const char ary[6][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"Saw","Sqr","Tri","Sin"," O1","Nos"};
       uint32_t index = ((controller_value * 10) + 128) >> 8;
-      std::strcpy(value_display_text, ary[index]);
+      PRA32_U2_ControlPanel_copy_text(value_display_text, ary[index]);
       result = true;
     }
     break;
   case EG_OSC_DST      :
   case LFO_OSC_DST     :
     {
-      char ary[6][5] = {"  P","  P"," 2P"," 2P","  F"," 1S"};
+      static const char ary[6][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"  P","  P"," 2P"," 2P","  F"," 1S"};
       uint32_t index = ((controller_value * 10) + 128) >> 8;
-      std::strcpy(value_display_text, ary[index]);
+      PRA32_U2_ControlPanel_copy_text(value_display_text, ary[index]);
       result = true;
     }
     break;
   case VOICE_MODE      :
     {
-      char ary[6][5] = {"Pol","Pol","Mon","Mon"," LP","Lgt"};
+      static const char ary[6][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"Pol","Pol","Mon","Mon"," LP","Lgt"};
       uint32_t index = ((controller_value * 10) + 128) >> 8;
-      std::strcpy(value_display_text, ary[index]);
+      PRA32_U2_ControlPanel_copy_text(value_display_text, ary[index]);
       result = true;
     }
     break;
   case LFO_WAVE        :
     {
-      char ary[6][5] = {"Tri","Sin","Nos","Saw","S&H","Sqr"};
+      static const char ary[6][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"Tri","Sin","Nos","Saw","S&H","Sqr"};
       uint32_t index = ((controller_value * 10) + 128) >> 8;
-      std::strcpy(value_display_text, ary[index]);
+      PRA32_U2_ControlPanel_copy_text(value_display_text, ary[index]);
       result = true;
     }
     break;
   case FILTER_MODE     :
     {
-      char ary[3][5] = {" LP"," BP"," HP"};
-      uint32_t index = ((controller_value * 4) + 128) >> 8;
-      std::strcpy(value_display_text, ary[index]);
+      static const char ary[6][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {" LP"," LP"," BP"," BP"," BR"," HP"};
+      uint32_t index = ((controller_value * 10) + 128) >> 8;
+      PRA32_U2_ControlPanel_copy_text(value_display_text, ary[index]);
       result = true;
     }
     break;
@@ -838,57 +883,57 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case PORTAMENTO_SW   :
   case SEQ_TRX_ST_SP   :
     {
-      char ary[2][5] = {"Off"," On"};
+      static const char ary[2][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"Off"," On"};
       uint32_t index = ((controller_value * 2) + 128) >> 8;
-      std::strcpy(value_display_text, ary[index]);
+      PRA32_U2_ControlPanel_copy_text(value_display_text, ary[index]);
       result = true;
     }
     break;
   case OSC_SAW_W_MODE  :
     {
-      char ary[2][5] = {"Str","Cur"};
+      static const char ary[2][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"Str","Cur"};
       uint32_t index = ((controller_value * 2) + 128) >> 8;
-      std::strcpy(value_display_text, ary[index]);
+      PRA32_U2_ControlPanel_copy_text(value_display_text, ary[index]);
       result = true;
     }
     break;
   case PORTA_MODE      :
     {
-      char ary[2][5] = {" Sw","Aut"};
+      static const char ary[2][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {" Sw","Aut"};
       uint32_t index = ((controller_value * 2) + 128) >> 8;
-      std::strcpy(value_display_text, ary[index]);
+      PRA32_U2_ControlPanel_copy_text(value_display_text, ary[index]);
       result = true;
     }
     break;
   case BTH_AMP_MOD     :
     {
-      char ary[6][5] = {"Off","Q","L","LO","QO","Opn"};
+      static const char ary[6][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"Off","Q","L","LO","QO","Opn"};
       uint32_t index = ((controller_value * 10) + 128) >> 8;
-      std::strcpy(value_display_text, ary[index]);
+      PRA32_U2_ControlPanel_copy_text(value_display_text, ary[index]);
       result = true;
     }
     break;
   case FX_ROUTING      :
     {
-      char ary[3][5] = {"Cho","Dly","Byp"};
-      uint32_t index = ((controller_value * 4) + 128) >> 8;
-      std::strcpy(value_display_text, ary[index]);
+      static const char ary[6][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"Cho","Cho","Dly","Dly","Cmp","Dry"};
+      uint32_t index = ((controller_value * 10) + 128) >> 8;
+      PRA32_U2_ControlPanel_copy_text(value_display_text, ary[index]);
       result = true;
     }
     break;
   case VOICE_ASGN_MODE :
     {
-      char ary[6][5] = {"  1","  1","  3","  3","  4","  2"};
+      static const char ary[6][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"  1","  1","  3","  3","  4","  2"};
       uint32_t index = ((controller_value * 10) + 128) >> 8;
-      std::strcpy(value_display_text, ary[index]);
+      PRA32_U2_ControlPanel_copy_text(value_display_text, ary[index]);
       result = true;
     }
     break;
   case DELAY_MODE      :
     {
-      char ary[3][5] = {"Ste"," PP","Rev"};
+      static const char ary[3][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"Ste"," PP","Rev"};
       uint32_t index = ((controller_value * 4) + 128) >> 8;
-      std::strcpy(value_display_text, ary[index]);
+      PRA32_U2_ControlPanel_copy_text(value_display_text, ary[index]);
       result = true;
     }
     break;
@@ -906,7 +951,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
         display_value = 340;
       }
 
-      std::sprintf(value_display_text, "%3d", display_value);
+      PRA32_U2_ControlPanel_format_decimal(value_display_text, display_value);
       result = true;
     }
     break;
@@ -999,24 +1044,24 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
     break;
   case  PANEL_SCALE   :
     {
-      char ary[6][5] = {"Maj","Min","Mel","MaP","MiP","Chr"};
+      static const char ary[6][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"Maj","Min","Mel","MaP","MiP","Chr"};
       uint32_t index = PRA32_U2_ControlPanel_get_index_scale();
-      std::strcpy(value_display_text, ary[index]);
+      PRA32_U2_ControlPanel_copy_text(value_display_text, ary[index]);
       result = true;
     }
     break;
   case PANEL_PLAY_MODE:
     {
-      char ary[2][5] = {"Nrm","Seq"};
+      static const char ary[2][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"Nrm","Seq"};
       uint32_t index = ((controller_value * 2) + 128) >> 8;
-      std::strcpy(value_display_text, ary[index]);
+      PRA32_U2_ControlPanel_copy_text(value_display_text, ary[index]);
       result = true;
     }
     break;
   case SEQ_TEMPO      :
     {
       uint32_t bpm = PRA32_U2_ControlPanel_calc_bpm(g_synth.current_controller_value(SEQ_TEMPO      ));
-      std::sprintf(value_display_text, "%3lu", bpm);
+      PRA32_U2_ControlPanel_format_decimal(value_display_text, bpm);
       result = true;
     }
     break;
@@ -1039,17 +1084,17 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
     break;
   case SEQ_GATE_TIME  :
     {
-      char ary[6][5] = {"1/6","2/6","3/6","4/6","5/6","6/6"};
+      static const char ary[6][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"1/6","2/6","3/6","4/6","5/6","6/6"};
       uint32_t index = ((controller_value * 10) + 128) >> 8;
-      std::strcpy(value_display_text, ary[index]);
+      PRA32_U2_ControlPanel_copy_text(value_display_text, ary[index]);
       result = true;
     }
     break;
   case SEQ_STEP_NOTE   :
     {
-      char ary[3][5] = {"  4","  8"," 16"};
+      static const char ary[3][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"  4","  8"," 16"};
       uint32_t index = ((controller_value * 4) + 128) >> 8;
-      std::strcpy(value_display_text, ary[index]);
+      PRA32_U2_ControlPanel_copy_text(value_display_text, ary[index]);
       result = true;
     }
     break;
@@ -1058,36 +1103,36 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
       int32_t last_step = g_synth.current_controller_value(SEQ_NUM_STEPS  );
       last_step = (last_step - 2) >> 2;
       if (last_step < 0) { last_step = 0; }
-      std::sprintf(value_display_text, "%3ld", last_step + 1);
+      PRA32_U2_ControlPanel_format_decimal(value_display_text, last_step + 1);
       result = true;
     }
     break;
   case SEQ_MODE       :
     {
-      char ary[3][5] = {"Fwd","Rvs","Bnc"};
+      static const char ary[3][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"Fwd","Rvs","Bnc"};
       uint32_t index = ((controller_value * 4) + 128) >> 8;
-      std::strcpy(value_display_text, ary[index]);
+      PRA32_U2_ControlPanel_copy_text(value_display_text, ary[index]);
       result = true;
     }
     break;
   case SEQ_ON_STEPS   :
     {
       uint8_t on_steps = g_synth.current_controller_value(SEQ_ON_STEPS   );
-      std::sprintf(value_display_text, "x%02X", on_steps);
+      PRA32_U2_ControlPanel_format_hex(value_display_text, on_steps);
       result = true;
     }
     break;
   case SEQ_ACT_STEPS  :
     {
       uint8_t act_steps = g_synth.current_controller_value(SEQ_ACT_STEPS  );
-      std::sprintf(value_display_text, "x%02X", act_steps);
+      PRA32_U2_ControlPanel_format_hex(value_display_text, act_steps);
       result = true;
     }
     break;
   case PANEL_MIDI_CH  :
     {
       uint8_t midi_ch = g_synth.current_controller_value(PANEL_MIDI_CH  ) >> 3;
-      std::sprintf(value_display_text, "%3d", midi_ch + 1);
+      PRA32_U2_ControlPanel_format_decimal(value_display_text, midi_ch + 1);
       result = true;
     }
     break;
@@ -1189,65 +1234,34 @@ INLINE void PRA32_U2_ControlPanel_update_analog_inputs(uint32_t loop_counter) {
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
 
 #if defined(PRA32_U2_USE_CONTROL_PANEL_ANALOG_INPUT)
+  // Each input is converted 16 times, once per sample, without waiting for the
+  // conversion (2 us): the conversion started at a sample is read at the next
+  // sample (20.8 us later), when it has been done. ADC0 at 0x10-0x1F (read at
+  // 0x11-0x20), ADC1 at 0x20-0x2F, and ADC2 at 0x30-0x3F (read at 0x31-0x00)
   static int32_t s_adc_total_value = 0;
-  switch (loop_counter & 0x3F) {
-  case 0x10:
-    adc_select_input(0);
-    s_adc_total_value  = PRA32_U2_ANALOG_INPUT_CORRECTION;
-    s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
-    break;
-  case 0x14:
-    s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
-    break;
-  case 0x18:
-    s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
-    break;
-  case 0x1C:
-    s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
-    if        (s_adc_current_value[0]                                   >= s_adc_total_value + PRA32_U2_ANALOG_INPUT_THRESHOLD) {
-      s_adc_current_value[0] = s_adc_total_value;
-    } else if (s_adc_current_value[0] + PRA32_U2_ANALOG_INPUT_THRESHOLD <= s_adc_total_value                                 ) {
-      s_adc_current_value[0] = s_adc_total_value;
+  const uint32_t phase = loop_counter & 0x3F;
+  const uint32_t step  = phase & 0x0F;
+
+  if ((phase >= 0x11) || (phase == 0x00)) {
+    s_adc_total_value += adc_hw->result;
+  }
+
+  if ((step == 0x00) && (phase != 0x10)) {
+    // The 16th conversion of the input has been read: ADC0 at 0x20, ADC1 at 0x30, and ADC2 at 0x00
+    const uint32_t adc_number = ((phase - 0x20) >> 4) & 0x03;
+    if        (s_adc_current_value[adc_number]                                   >= s_adc_total_value + PRA32_U2_ANALOG_INPUT_THRESHOLD) {
+      s_adc_current_value[adc_number] = s_adc_total_value;
+    } else if (s_adc_current_value[adc_number] + PRA32_U2_ANALOG_INPUT_THRESHOLD <= s_adc_total_value                                 ) {
+      s_adc_current_value[adc_number] = s_adc_total_value;
     }
-    break;
-  case 0x20:
-    adc_select_input(1);
-    s_adc_total_value  = PRA32_U2_ANALOG_INPUT_CORRECTION;
-    s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
-    break;
-  case 0x24:
-    s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
-    break;
-  case 0x28:
-    s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
-    break;
-  case 0x2C:
-    s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
-    if        (s_adc_current_value[1]                                   >= s_adc_total_value + PRA32_U2_ANALOG_INPUT_THRESHOLD) {
-      s_adc_current_value[1] = s_adc_total_value;
-    } else if (s_adc_current_value[1] + PRA32_U2_ANALOG_INPUT_THRESHOLD <= s_adc_total_value                                 ) {
-      s_adc_current_value[1] = s_adc_total_value;
+  }
+
+  if (phase >= 0x10) {
+    if (step == 0x00) {
+      adc_select_input((phase >> 4) - 1);
+      s_adc_total_value = PRA32_U2_ANALOG_INPUT_CORRECTION;
     }
-    break;
-  case 0x30:
-    adc_select_input(2);
-    s_adc_total_value  = PRA32_U2_ANALOG_INPUT_CORRECTION;
-    s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
-    break;
-  case 0x34:
-    s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
-    break;
-  case 0x38:
-    s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
-    break;
-  case 0x3C:
-    s_adc_total_value += adc_read() + adc_read() + adc_read() + adc_read();
-    if        (s_adc_current_value[2]                                   >= s_adc_total_value + PRA32_U2_ANALOG_INPUT_THRESHOLD) {
-      s_adc_current_value[2] = s_adc_total_value;
-    } else if (s_adc_current_value[2] + PRA32_U2_ANALOG_INPUT_THRESHOLD <= s_adc_total_value                                 ) {
-      s_adc_current_value[2] = s_adc_total_value;
-    }
-    break;
+    hw_set_bits(&adc_hw->cs, ADC_CS_START_ONCE_BITS);
   }
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL_ANALOG_INPUT)
 
@@ -1682,7 +1696,7 @@ INLINE void PRA32_U2_ControlPanel_update_display_buffer(uint32_t loop_counter) {
         s_display_buffer[7][ 1] = '=';
       }
 
-      std::sprintf(buff, "%3u", current_controller_value);
+      PRA32_U2_ControlPanel_format_decimal(buff, current_controller_value);
       s_display_buffer[7][ 2] = buff[0];
       s_display_buffer[7][ 3] = buff[1];
       s_display_buffer[7][ 4] = buff[2];
@@ -1721,7 +1735,7 @@ INLINE void PRA32_U2_ControlPanel_update_display_buffer(uint32_t loop_counter) {
         s_display_buffer[7][12] = '=';
       }
 
-      std::sprintf(buff, "%3u", current_controller_value);
+      PRA32_U2_ControlPanel_format_decimal(buff, current_controller_value);
       s_display_buffer[7][13] = buff[0];
       s_display_buffer[7][14] = buff[1];
       s_display_buffer[7][15] = buff[2];
@@ -1760,7 +1774,7 @@ INLINE void PRA32_U2_ControlPanel_update_display_buffer(uint32_t loop_counter) {
         s_display_buffer[3][12] = '=';
       }
 
-      std::sprintf(buff, "%3u", current_controller_value);
+      PRA32_U2_ControlPanel_format_decimal(buff, current_controller_value);
       s_display_buffer[3][13] = buff[0];
       s_display_buffer[3][14] = buff[1];
       s_display_buffer[3][15] = buff[2];

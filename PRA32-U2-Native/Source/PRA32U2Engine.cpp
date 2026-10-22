@@ -53,15 +53,15 @@ const PRA32U2Engine::ParameterInfo s_parameter_names[] = {
   { LFO_FILTER_AMT , "LFO Filter Amt [-|+]"                   },
   { AMP_GAIN       , "Amp Gain"                               },
 
+  { FILTER_MODE    , "Filter Mode [LP|LP|BP|BP|BR|HP]"        },
+  { P_BEND_RANGE   , "Pitch Bend Range"                       },
+  { EG_AMP_MOD     , "EG Amp Mod [Off|On]"                    },
+  { REL_EQ_DECAY   , "EG/Amp Rel = Dec [Off|On]"              },
+
   { AMP_ATTACK     , "Amp Attack"                             },
   { AMP_DECAY      , "Amp Decay"                              },
   { AMP_SUSTAIN    , "Amp Sustain"                            },
   { AMP_RELEASE    , "Amp Release"                            },
-
-  { FILTER_MODE    , "Filter Mode [LP|BP|HP]"                 },
-  { P_BEND_RANGE   , "Pitch Bend Range"                       },
-  { EG_AMP_MOD     , "EG Amp Mod [Off|On]"                    },
-  { REL_EQ_DECAY   , "EG/Amp Rel = Dec [Off|On]"              },
 
   { A_D_VEL_SENS   , "EG Att/Dec Velo Sens [-|+]"             },
   { REL_VEL_SENS   , "EG Rel Velo Sens [-|+]"                 },
@@ -84,7 +84,7 @@ const PRA32U2Engine::ParameterInfo s_parameter_names[] = {
   { PORTA_MODE     , "Portamento Mode [Sw|Aut]"               },
 
   { CHORUS_MIX     , "Chorus Level"                           },
-  { FX_ROUTING     , "FX Routing [Cho|Dly|Byp]"               },
+  { FX_ROUTING     , "FX Routing [Cho|Cho|Dly|Dly|Cmp|Dry]"   },
   { CHORUS_RATE    , "Chorus Rate"                            },
   { CHORUS_DEPTH   , "Chorus Depth"                           },
 
@@ -224,12 +224,12 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value) {
   static const char* const MOD_DSTS[6]     = { "P", "P", "2P", "2P", "F", "1S" };
   static const char* const VOICE_MODES[6]  = { "Pol", "Pol", "Mon", "Mon", "LP", "Lgt" };
   static const char* const LFO_WAVES[6]    = { "Tri", "Sin", "Nos", "Saw", "S&H", "Sqr" };
-  static const char* const FILTER_MODES[3] = { "LP", "BP", "HP" };
+  static const char* const FILTER_MODES[6] = { "LP", "LP", "BP", "BP", "BR", "HP" };
   static const char* const OFF_ON[2]       = { "Off", "On" };
   static const char* const SAW_W_MODES[2]  = { "Str", "Cur" };
   static const char* const PORTA_MODES[2]  = { "Sw", "Aut" };
   static const char* const BTH_AMP_MODS[6] = { "Off", "Q", "L", "LO", "QO", "Opn" };
-  static const char* const FX_ROUTINGS[3]  = { "Cho", "Dly", "Byp" };
+  static const char* const FX_ROUTINGS[6]  = { "Cho", "Cho", "Dly", "Dly", "Cmp", "Dry" };
   static const char* const ASGN_MODES[6]   = { "1", "1", "3", "3", "4", "2" };
   static const char* const DELAY_MODES[3]  = { "Ste", "PP", "Rev" };
 
@@ -256,13 +256,13 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value) {
   case LFO_OSC_DST     : dispValue = select6(v, MOD_DSTS);           break;
   case VOICE_MODE      : dispValue = select6(v, VOICE_MODES);        break;
   case LFO_WAVE        : dispValue = select6(v, LFO_WAVES);          break;
-  case FILTER_MODE     : dispValue = select3(v, FILTER_MODES);       break;
+  case FILTER_MODE     : dispValue = select6(v, FILTER_MODES);       break;
   case EG_AMP_MOD      :
   case REL_EQ_DECAY    : dispValue = select2(v, OFF_ON);             break;
   case OSC_SAW_W_MODE  : dispValue = select2(v, SAW_W_MODES);        break;
   case PORTA_MODE      : dispValue = select2(v, PORTA_MODES);        break;
   case BTH_AMP_MOD     : dispValue = select6(v, BTH_AMP_MODS);       break;
-  case FX_ROUTING      : dispValue = select3(v, FX_ROUTINGS);        break;
+  case FX_ROUTING      : dispValue = select6(v, FX_ROUTINGS);        break;
   case VOICE_ASGN_MODE : dispValue = select6(v, ASGN_MODES);         break;
   case DELAY_MODE      : dispValue = select3(v, DELAY_MODES);        break;
   case DELAY_TIME      :

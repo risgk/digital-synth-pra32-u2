@@ -1,5 +1,23 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v3.16.0 (2026-10-22):
+    - Add Band Reject (Notch) to Filter Mode, as [LP|LP|BP|BP|BR|HP]: BR is 102 (90-115), and 0, 64, and 127 stay LP, BP, and HP (32-38 change from BP to LP, 90-95 from BP to BR, and 96-115 from HP to BR)
+    - Swap the order of Amp Attack/Decay/Sustain/Release and Filter Mode/Pitch Bend Range/EG Amp Mod/EG/Amp Rel = Dec (PRA32-U2 Editor, PRA32-U2 Native, the MIDI Implementation Chart, and the programs (internal))
+    - PRA32-U2 Editor: Move the lines between the parameter groups (above Amp Attack, and below Osc/Filter Drift instead of below EG/Amp Rel = Dec)
+    - Replace the Output Limiter with the **Output Compressor**, which also works as the limiter (always on, except for FX Routing Dry)
+        - Feed-forward peak compressor: 2:1 above -6 dB at its input, with a soft knee (-9 dB to -3 dB), and the peaks limited to 1.0 (full scale) at its input, as the Output Limiter (look-ahead 1 ms, attack 1 ms, release 100 ms, and x 0.75 (-2.5 dB))
+        - The sound changes a little: the louder peaks of the Presets are lowered by about 1 dB (the levels below -9 dB at its input do not change)
+        - The gain curve is a table (pra32-u2-generate-output-compressor-table.rb), and the processing time is the same for every sample (no division, and no branch by the level)
+        - To use the Output Limiter instead, uncomment `//#define PRA32_U2_USE_LEGACY_OUTPUT_LIMITER` (its division is now always done, so that its processing time does not depend on the level either)
+    - Add Dry to FX Routing, as [Cho|Cho|Dly|Dly|Cmp|Dry]: 0 and 64 stay Cho and Dly (32-38 change from Dly to Cho, 90-95 from Dly to Cmp, 96-115 from Byp to Cmp, and 116-127 from Byp to Dry) (the control panel, PRA32-U2 Editor, and PRA32-U2 Native)
+        - Cmp (90-115): Through the Output Compressor only (the same as Byp until v3.15.0)
+        - Dry (116-127): Through none of the Chorus, the Delay, and the Output Compressor (still delayed by 1 ms, x 0.75, and soft clipped, as the others)
+    - Reduce the variation of the processing time
+        - Place the tables read in the audio processing in the RAM: the Square Wave shape table (moved into the flash by GCC as it is never written), the Reverb tables, and the Filter Mode and Breath Amp Mode tables
+        - The secondary core does not go back to `main1()` of Arduino-Pico (in the flash) between the samples: `loop1()` never returns, and calls `loop1_once()` (also in the Customization Examples)
+        - PRA32-U2/P: Process the control panel on the secondary core in the RAM (without `std::sprintf()`, `std::strcpy()`, and `adc_read()` in the flash), and read the ADC without waiting for the conversions (once per sample)
+    - Customization Examples: Add `//#define PRA32_U2_USE_LEGACY_OUTPUT_LIMITER`
+    - Tested with Arduino-Pico version 6.3.0
 - v3.15.0 (2026-10-16):
     - Add the "Portamento Mode [Sw|Aut]" parameter (Control Change #34)
         - Aut (Auto, default): The Portamento is always on, as before

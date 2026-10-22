@@ -162,7 +162,7 @@ class PRA32_U2_Filter {
   int32_t m_cutoff_lfo_amt_stage_1[2];
   int32_t m_cutoff_lfo_amt_current[2];  // Q16
   int16_t m_cutoff_pitch_amt;
-  uint8_t m_filter_mode;               // 0: Low Pass, 1: Band Pass, 2: High Pass
+  uint8_t m_filter_mode;               // 0: Low Pass, 1: Band Pass, 2: High Pass, 3: Band Reject (Notch)
   int16_t m_cutoff_breath_amt;
   int16_t m_breath_controller;
   int16_t m_breath_controller_current;
@@ -283,8 +283,10 @@ public:
     m_cutoff_pitch_amt = ((controller_value - 64) + 4) >> 3;
   }
 
+  // [LP|LP|BP|BP|BR|HP], so that 0, 64, and 127 stay LP, BP, and HP
   INLINE void set_filter_mode(uint8_t controller_value) {
-    m_filter_mode = ((controller_value * 4) + 128) >> 8;
+    static const uint8_t filter_mode_table[6] PRA32_U2_TABLE_IN_RAM(filter_mode_table) = { 0, 0, 1, 1, 3, 2 };
+    m_filter_mode = filter_mode_table[((controller_value * 10) + 128) >> 8];
   }
 
   INLINE void set_cutoff_breath_amt(uint8_t controller_value) {
@@ -420,11 +422,16 @@ public:
     int32_t y_0 = low_pass;
     if (m_filter_mode == 1) {
       y_0 = band_pass;
-    } else if (m_filter_mode == 2) {
+    } else if (m_filter_mode >= 2) {
       // The high pass of the linear solution: the exact one,
       // x_0 - s_2 - (g + k) * band_pass, differs by (g + k) times the chord
       // step's correction, which is small at the levels the High Pass passes
       y_0 = high_pass_lin;
+      if (m_filter_mode == 3) {
+        // The band reject (notch), the low pass plus the high pass: x_0 - k * band_pass,
+        // less the same difference, so the notch is slightly shallower at a high level
+        y_0 += low_pass;
+      }
     }
 
     // Remove the DC from the biased leak of the band pass

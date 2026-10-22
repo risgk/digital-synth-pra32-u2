@@ -411,7 +411,7 @@ private:
   // (Feedback / 256) ^ (loop length / (1.5 x Delay Time))
   INLINE void update_reverb_gain(uint32_t i) {
     // log2(Feedback / 256) in Q11; log2(0) is taken as -16
-    static const int16_t REVERB_LOG2_FEEDBACK[128] = {
+    static const int16_t REVERB_LOG2_FEEDBACK[128] PRA32_U2_TABLE_IN_RAM(REVERB_LOG2_FEEDBACK) = {
       -32768, -16384, -14336, -13138, -12288, -11629, -11090, -10635,
       -10240,  -9892,  -9581,  -9299,  -9042,  -8805,  -8587,  -8383,
        -8192,  -8013,  -7844,  -7684,  -7533,  -7389,  -7251,  -7120,
@@ -431,9 +431,9 @@ private:
     };
 
 #if defined(PRA32_U2_REVERB_LOOP_APF)
-    static const uint16_t LOOP_EXTRA[4] = { LOOP_APF_LEN[0], LOOP_APF_LEN[1], LOOP_APF_LEN[2], LOOP_APF_LEN[3] };
+    static const uint16_t LOOP_EXTRA[4] PRA32_U2_TABLE_IN_RAM(LOOP_EXTRA) = { LOOP_APF_LEN[0], LOOP_APF_LEN[1], LOOP_APF_LEN[2], LOOP_APF_LEN[3] };
 #else
-    static const uint16_t LOOP_EXTRA[4] = { 0, 0, 0, 0 };
+    static const uint16_t LOOP_EXTRA[4] PRA32_U2_TABLE_IN_RAM(LOOP_EXTRA) = { 0, 0, 0, 0 };
 #endif
 
 #if defined(PRA32_U2_REVERB_INTERPOLATION)
