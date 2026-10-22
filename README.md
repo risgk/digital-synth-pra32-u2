@@ -431,6 +431,9 @@ flowchart LR
 - Noise
     - The output may be affected by USB communication noise; try [UART MIDI](#uart-midi)
     - With PWM Audio without the RC filters, reduce the level: see [PWM Audio (Optional)](#pwm-audio-optional)
+- Distortion
+    - Lower "Amp Gain" (a high Filter Resonance or a high Osc 1 Shape/Morph makes the sound louder)
+    - With FX Routing Dry, the output does not go through the Output Compressor, and loud sounds are distorted by the soft clipping; choose another FX Routing (e.g. Cmp)
 - No portamento
     - Check that Portamento Time is not 0
     - Check that Portamento Mode is Aut, or that Portamento Switch (Control Change #65) is On if Portamento Mode is Sw
