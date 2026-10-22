@@ -125,7 +125,7 @@ cmake --build build
 - The source files
     - "Source/PRA32U2Engine.cpp": the only file that includes the PRA32-U2 core
     - "Source/PRA32U2NativeCompat.h": the compatibility definitions for PCs
-      (e.g. `__attribute__((...))` is removed for MSVC)
+      (e.g. `__attribute__((...))` is removed, and `__builtin_clz()` is defined, for MSVC)
     - "Source/PRA32U2Resampler.*": the resampler from 48 kHz
     - "Source/PRA32U2Renderer.*": the engine at 48 kHz + the resampler + the MIDI event scheduling
     - "Source/PluginProcessor.*": the JUCE plugin (VST3 / AU / Standalone)
