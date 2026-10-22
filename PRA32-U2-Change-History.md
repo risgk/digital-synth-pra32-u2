@@ -16,7 +16,6 @@
         - Place the tables read in the audio processing in the RAM: the Square Wave shape table (moved into the flash by GCC as it is never written), the Reverb tables, and the Filter Mode and Breath Amp Mode tables
         - The secondary core does not go back to `main1()` of Arduino-Pico (in the flash) between the samples: `loop1()` never returns, and calls `loop1_once()` (also in the Customization Examples)
         - PRA32-U2/P: Process the control panel on the secondary core in the RAM (without `std::sprintf()`, `std::strcpy()`, and `adc_read()` in the flash), and read the ADC without waiting for the conversions (once per sample)
-        - For example, PRA32-U2/M/P (with the debug print, Osc 1 Sqr, and Delay Mode Rev): the processing time of 64 frames is 1223-1233 us (1220-1237 us in v3.15.0)
     - Customization Examples: Add `//#define PRA32_U2_USE_LEGACY_OUTPUT_LIMITER`
     - Tested with Arduino-Pico version 6.3.0
 - v3.15.0 (2026-10-16):
