@@ -4,6 +4,11 @@
     - Add Band Reject (Notch) to Filter Mode, as [LP|LP|BP|BP|BR|HP]: BR is 102 (90-115), and 0, 64, and 127 stay LP, BP, and HP (32-38 change from BP to LP, 90-95 from BP to BR, and 96-115 from HP to BR)
     - Swap the order of Amp Attack/Decay/Sustain/Release and Filter Mode/Pitch Bend Range/EG Amp Mod/EG/Amp Rel = Dec (PRA32-U2 Editor, PRA32-U2 Native, the MIDI Implementation Chart, and the programs (internal))
     - PRA32-U2 Editor: Move the lines between the parameter groups (above Amp Attack, and below Osc/Filter Drift instead of below EG/Amp Rel = Dec)
+    - Replace the Output Limiter with the **Output Compressor**, which also works as the limiter (always on)
+        - Feed-forward peak compressor: 2:1 above -6 dB at its input, with a soft knee (-9 dB to -3 dB), and the peaks limited to 1.0 (full scale) at its input, as the Output Limiter (look-ahead 1 ms, attack 1 ms, release 100 ms, and x 0.75 (-2.5 dB))
+        - The gain curve is a table (pra32-u2-generate-output-compressor-table.rb), and the processing time is the same for every sample (no division, and no branch by the level)
+        - To use the Output Limiter instead, uncomment `#define PRA32_U2_USE_LEGACY_OUTPUT_LIMITER` (its division is now always done, so that its processing time does not depend on the level either)
+    - Customization Examples: Add `//#define PRA32_U2_USE_LEGACY_OUTPUT_LIMITER`
     - Tested with Arduino-Pico version 6.2.0
 - v3.15.0 (2026-10-16):
     - Add the "Portamento Mode [Sw|Aut]" parameter (Control Change #34)

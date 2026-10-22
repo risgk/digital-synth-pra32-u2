@@ -30,6 +30,7 @@ class PRA32_U2_OutputLimiter {
   // the input over INPUT_THRESHOLD comes out over THRESHOLD and is limited
   static const int32_t  OUTPUT_GAIN           = 49152;    // 0.75
   static const int32_t  INPUT_THRESHOLD       = 8388608;  // THRESHOLD / OUTPUT_GAIN (1.0)
+  static const int32_t  ENVELOPE_MAX          = INPUT_THRESHOLD << 4;  // 16.0 (+24 dB)
 
   // 1 - e^(-1 / n) in Q24, where n is the time constant in control intervals
   // (12 kHz): attack 1 ms, release 100 ms
@@ -111,13 +112,15 @@ private:
     m_envelope += multiply_shift_right(peak_hold - m_envelope, rate, 24);
 
     // INPUT_THRESHOLD / envelope in Q16, from a 32-bit division (INPUT_THRESHOLD << 8
-    // fits in 32 bits unsigned); the envelope is above the threshold, so its upper bits
-    // keep enough precision
-    int32_t gain_next = GAIN_ONE;
-    if (m_envelope > INPUT_THRESHOLD) {
-      gain_next = static_cast<int32_t>((static_cast<uint32_t>(INPUT_THRESHOLD) << 8) /
-                                       static_cast<uint32_t>(m_envelope >> 8));
-    }
+    // fits in 32 bits unsigned); the envelope is clamped to the threshold or above
+    // (GAIN_ONE at the threshold), so its upper bits keep enough precision.
+    // The division is always done (no branch), so that the processing time does not
+    // depend on the level; the envelope is also clamped to ENVELOPE_MAX, so that the
+    // quotient stays in a narrow range (2^12 .. 2^16), and the cycles of the division
+    // (UDIV, 2-11 cycles on the Cortex-M33, by the size of the quotient) vary little
+    const int32_t envelope = clamp(m_envelope, INPUT_THRESHOLD, ENVELOPE_MAX);
+    int32_t gain_next = static_cast<int32_t>((static_cast<uint32_t>(INPUT_THRESHOLD) << 8) /
+                                             static_cast<uint32_t>(envelope >> 8));
     // The Depth scales the gain reduction, not the gain
     gain_next = GAIN_ONE - (((GAIN_ONE - gain_next) * m_depth) >> 7);
     m_gain_next = multiply_shift_right(gain_next, OUTPUT_GAIN, 16);

@@ -8,7 +8,7 @@
 ## Overview
 
 - **PRA32-U2** is a 4-Voice Polyphonic Synthesizer for Raspberry Pi Pico 2/RP2350
-    - Built-in Chorus and Delay/Reverb FX, followed by the Output Limiter
+    - Built-in Chorus and Delay/Reverb FX, followed by the Output Compressor (which also works as the limiter)
     - Controlled by MIDI -- PRA32-U2 is a MIDI sound module
     - Can write the parameters to the user programs and the flash
     - PRA32-U2 started as the successor to PRA32-U (for Raspberry Pi Pico/RP2040), and has since become a different synthesizer
@@ -53,7 +53,7 @@ graph LR
     end
     V1A --> VM[Voice Mixer]
     V2[Voice 2] & V3[Voice 3] & V4[Voice 4] --> VM
-    VM --> P[Panner] --> C[Chorus FX] --> D[Delay/Reverb FX] --> OL["Output Limiter<br/>(x 0.75)"] --> AO[Audio Out]
+    VM --> P[Panner] --> C[Chorus FX] --> D[Delay/Reverb FX] --> OC["Output Compressor<br/>(x 0.75)"] --> AO[Audio Out]
     N[Noise Gen]  --> V1O2 & V1OM & V2 & V3 & V4
     N -.-> L[LFO w/ S/H]
     L -.-> V1O1 & V1O2 & V1F & V2 & V3 & V4
@@ -252,7 +252,7 @@ flowchart LR
 - The latency from receiving a MIDI message to the audio output is about 3.7-5.0 ms (4.3 ms on average) by default (2.7 ms + 0-1.3 ms + 1 ms, below)
     - The output buffer is almost always full, so the frames processed in a loop are output about 2.7 ms after the loop starts
     - The MIDI messages are read once at the start of each loop (every 64 frames, 1.3 ms)
-    - The Output Limiter delays the output by 1 ms (look-ahead), even when it is off
+    - The Output Compressor delays the output by 1 ms (look-ahead)
     - The transmission time of the MIDI messages (about 1 ms for 3 bytes with UART MIDI) and the latency of the DAC are not included
 
 
