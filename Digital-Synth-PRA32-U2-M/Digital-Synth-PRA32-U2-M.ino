@@ -2,7 +2,7 @@
  * Digital Synth PRA32-U2/M
  */
 
-#define PRA32_U2_VERSION                       "v3.15.0   "
+#define PRA32_U2_VERSION                       "v3.16.0   "
 
 //#define PRA32_U2_USE_DEBUG_PRINT
 
@@ -51,6 +51,8 @@
 #define PRA32_U2_USE_EMULATED_EEPROM
 
 //#define PRA32_U2_LIMIT_DELAY_TIME_TO_SAVE_MEM
+
+//#define PRA32_U2_USE_LEGACY_OUTPUT_LIMITER     // Use the Output Limiter (until v3.15.0) instead of the Output Compressor
 
 #define PRA32_U2_ENABLE_LAYERING
 
@@ -214,7 +216,7 @@ void __not_in_flash_func(setup1)() {
 #endif  // defined(PRA32_U2_USE_DEBUG_PRINT) && !defined(PRA32_U2_DEBUG_PRINT_USE_USB_SERIAL)
 }
 
-void __not_in_flash_func(loop1)() {
+static void __not_in_flash_func(loop1_once)() {
   boolean processed = false;
 
   if (s_secondary_core_processing_request == 1) {
@@ -283,6 +285,15 @@ void __not_in_flash_func(loop1)() {
       }
     }
 #endif  // defined(PRA32_U2_USE_DEBUG_PRINT)
+  }
+}
+
+// Never returns, so that the secondary core does not go back to main1() of the core
+// (in the flash, through a veneer in the flash) between the samples: an XIP cache miss
+// there would delay the secondary core, and the primary core waits for it
+void __not_in_flash_func(loop1)() {
+  for (;;) {
+    loop1_once();
   }
 }
 

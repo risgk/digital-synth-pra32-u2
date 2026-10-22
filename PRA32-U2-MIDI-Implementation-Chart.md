@@ -1,6 +1,6 @@
 ```
-  [Polyphonic Synthesizer]                                        Date: 2026-10-16                      
-  Model: Digital Synth PRA32-U2   MIDI Implementation Chart       Version: 3.15.0                       
+  [Polyphonic Synthesizer]                                        Date: 2026-10-22                      
+  Model: Digital Synth PRA32-U2   MIDI Implementation Chart       Version: 3.16.0                       
 +-------------------------------+---------------+---------------+--------------------------------------+
 | Function...                   | Transmitted   | Recognized    | Remarks                              |
 +-------------------------------+---------------+---------------+--------------------------------------+
@@ -63,15 +63,15 @@
 |                            25 | x             | o             | LFO Filter Amt [-|+]                 |
 |                            15 | x             | o             | Amp Gain                             |
 |                               |               |               |                                      |
+|                            39 | x             | o             | Filter Mode [LP|LP|BP|BP|BR|HP]      |
+|                            57 | x             | o             | Pitch Bend Range                     |
+|                            36 | x             | o             | EG Amp Mod [Off|On]                  |
+|                           105 | x             | o             | EG/Amp Rel = Dec [Off|On]            |
+|                               |               |               |                                      |
 |                            52 | x             | o             | Amp Attack                           |
 |                            53 | x             | o             | Amp Decay                            |
 |                            54 | x             | o             | Amp Sustain                          |
 |                            55 | x             | o             | Amp Release                          |
-|                               |               |               |                                      |
-|                            39 | x             | o             | Filter Mode [LP|BP|HP]               |
-|                            57 | x             | o             | Pitch Bend Range                     |
-|                            36 | x             | o             | EG Amp Mod [Off|On]                  |
-|                           105 | x             | o             | EG/Amp Rel = Dec [Off|On]            |
 |                               |               |               |                                      |
 |                            51 | x             | o             | EG Att/Dec Velo Sens [-|+]           |
 |                            81 | x             | o             | EG Rel Velo Sens [-|+]               |
@@ -94,7 +94,7 @@
 |                            34 | x             | o             | Portamento Mode [Sw|Aut]             |
 |                               |               |               |                                      |
 |                            93 | x             | o             | Chorus Level                         |
-|                            95 | x             | o             | FX Routing [Cho|Dly|Byp]             |
+|                            95 | x             | o             | FX Routing [Cho|Cho|Dly|Dly|Cmp|Dry] |
 |                               |               |               |                                      |
 |                            58 | x             | o             | Chorus Rate                          |
 |                            59 | x             | o             | Chorus Depth                         |

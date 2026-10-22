@@ -4,7 +4,7 @@
  * - Synth 0 to 3: Osc 1 Shape and Morph are disabled in Saw, Sqr, and WT
  */
 
-#define PRA32_U2_VERSION                       "v3.15.0   "
+#define PRA32_U2_VERSION                       "v3.16.0   "
 
 #define PRA32_U2_MIDI_CH                       (0)  // 0-based
 
@@ -30,6 +30,8 @@
 //#define PRA32_U2_USE_EMULATED_EEPROM
 
 //#define PRA32_U2_LIMIT_DELAY_TIME_TO_SAVE_MEM
+
+//#define PRA32_U2_USE_LEGACY_OUTPUT_LIMITER     // Use the Output Limiter (until v3.15.0) instead of the Output Compressor
 
 #define PRA32_U2_NUMBER_OF_SYNTHS              (2)
 
@@ -66,7 +68,16 @@ PRA32_U2_OutputFader g_output_fader(g_i2s_output);
 void __not_in_flash_func(setup1)() {
 }
 
+static void __not_in_flash_func(loop1_once)() {
+}
+
+// Never returns, so that the secondary core does not go back to main1() of the core
+// (in the flash, through a veneer in the flash) between the calls: it would keep reading
+// the flash through the XIP cache shared with the primary core
 void __not_in_flash_func(loop1)() {
+  for (;;) {
+    loop1_once();
+  }
 }
 
 void __not_in_flash_func(setup)() {

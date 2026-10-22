@@ -1,7 +1,7 @@
 #pragma once
 
 // see "pra32-u2-data.ods"
-static uint16_t g_osc_sqr_shape_table[OSC_WAVE_SHAPE_TABLE_LEN_X][OSC_WAVE_SHAPE_TABLE_LEN_Y] = {
+static uint16_t g_osc_sqr_shape_table[OSC_WAVE_SHAPE_TABLE_LEN_X][OSC_WAVE_SHAPE_TABLE_LEN_Y] PRA32_U2_TABLE_IN_RAM(g_osc_sqr_shape_table) = {
   { 0,      32768,  32768,  32768,  32768,  32768,  32768,  32768,  32768,  32768,  32768,  32768,  32768,  32768,  32768,  32768, },
   { 0,      32066,  32768,  32768,  32768,  32768,  32768,  32768,  32768,  32768,  32768,  32768,  32768,  32768,  32768,  32768, },
   { 0,      31379,  32768,  32768,  32768,  32768,  32768,  32768,  32768,  32768,  32768,  32768,  32768,  32768,  32768,  32768, },
