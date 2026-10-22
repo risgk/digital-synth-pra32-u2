@@ -1,5 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v3.16.1 (2026-??-??):
+    - Tested with Arduino-Pico version 6.3.0
 - v3.16.0 (2026-10-22):
     - Add Band Reject (Notch) to Filter Mode, as [LP|LP|BP|BP|BR|HP]: BR is 102 (90-115), and 0, 64, and 127 stay LP, BP, and HP (32-38 change from BP to LP, 90-95 from BP to BR, and 96-115 from HP to BR)
     - Swap the order of Amp Attack/Decay/Sustain/Release and Filter Mode/Pitch Bend Range/EG Amp Mod/EG/Amp Rel = Dec (PRA32-U2 Editor, PRA32-U2 Native, the MIDI Implementation Chart, and the programs (internal))
