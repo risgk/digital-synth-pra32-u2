@@ -13,7 +13,7 @@
         - The secondary core does not go back to the core (in the flash) between the samples (`loop1()` never returns, and calls `loop1_once()`)
         - PRA32-U2/P: Process the control panel on the secondary core in the RAM (without `std::sprintf()`, `std::strcpy()`, and `adc_read()` in the flash), and read the ADC without waiting for the conversions (once per sample)
     - Customization Examples: Apply the above
-    - Tested with Arduino-Pico version 6.2.0
+    - Tested with Arduino-Pico version 6.3.0
 - v3.15.0 (2026-10-16):
     - Add the "Portamento Mode [Sw|Aut]" parameter (Control Change #34)
         - Aut (Auto, default): The Portamento is always on, as before
