@@ -56,6 +56,8 @@
 - [Change History](./PRA32-U2-Change-History.md) (変更履歴)
 - [Parameter Guide](./PRA32-U2-Parameter-Guide.md) (パラメーター・ガイド)
     - パラメーター名は、PRA32-U2 Editor とパネルの表示に合わせて英語のままです
+    - まず冒頭の [Main Parameters](./PRA32-U2-Parameter-Guide.md#main-parameters) をご覧ください: 主なパラメーター (Editor の最初の 32 個と、FX のレベル 2 個) の一覧です
+    - 音作りは、"#23 Initial" よりも、FX が有効な "#19 Plain Poly" から始めるのがお勧めです
 - [MIDI Implementation Chart](./PRA32-U2-MIDI-Implementation-Chart.md) (MIDI インプリメンテーション・チャート)
 - [Block Diagrams](./PRA32-U2-Block-Diagrams.md) (ブロック図)
     - Osc、Filter、Chorus FX、Delay FX、Reverb、Output Compressor、PRA32-U2/M のブロック図と、Wave Table のグラフです
@@ -96,6 +98,7 @@
     - ユーザー・プリセットはブラウザーに保存され、Store で 10 文字までの名前 (ASCII の英数字と記号) を付けられます
     - JSON ファイルへのエクスポートと、JSON ファイルからのインポート
     - Randomize Synth と Randomize FX: シンセや FX のパラメーターをランダムに設定します
+        - Randomize Synth が変えるのは、Editor の最初の 32 個のうち、Voice Mode と Amp Gain を除くパラメーターです
     - Undo: 直前のプリセット、Randomize、Import の前のパラメーターに戻します (もう一度押すと Redo)
     - Software Keyboard: マウス、タッチ、PC のキーボード (A - K が C - C、W - U が黒鍵、Z / X がオクターブ) で弾けます
         - ノートオンとノートオフのベロシティを入力できます (1-127、初期値は 100 と 64)
