@@ -35,6 +35,8 @@
 
 ## [Parameter Guide](./PRA32-U2-Parameter-Guide.md)
 
+- See [Main Parameters](./PRA32-U2-Parameter-Guide.md#main-parameters) first: the main parameters, and the Preset to start from
+
 
 ## [MIDI Implementation Chart](./PRA32-U2-MIDI-Implementation-Chart.md)
 

@@ -10,6 +10,7 @@
     - "Randomize Synth" (Program Change #127) changes the first 32, except Voice Mode and Amp Gain
 - To make a sound, we recommend starting from the Preset "#19 Plain Poly", rather than "#23 Initial"
     - "#19 Plain Poly" is a plain Saw Wave sound (Osc 1 Wave: Pulse Wave, with Osc 1 Morph: Saw 100%) in Poly, with the FX on (Chorus, and Reverb), while "#23 Initial" is in Mono, with the FX off
+    - In "#19 Plain Poly", Osc 1 Morph changes the wave from the Saw: lower to a Pulse, higher to 2 Saws, with the pulse width (or the phase of the 2nd Saw) set by Osc 1 Shape (Osc 1 Shape has no effect while Osc 1 Morph is 64)
     - In both, EG Amp Mod is On: the EG also works as the Amp EG, so the Amp Attack/Decay/Sustain/Release are not used
 - Voice and Pitch: Voice Mode, Portamento Time, Pitch Bend Range
 - Osc: Osc 1 Wave, Mixer Noise/Sub Osc, Osc 1 Shape, Osc 1 Morph, Osc 2 Wave, Mixer Osc Mix, Osc 2 Coarse, Osc 2 Pitch
