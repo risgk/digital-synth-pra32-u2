@@ -64,14 +64,9 @@ graph LR
 ```
 
 
-## [Filter and FX Block Diagrams](./PRA32-U2-Block-Diagrams.md)
+## [Filter and FX Block Diagrams, and Wave Table Graphs](./PRA32-U2-Block-Diagrams.md)
 
-- The diagrams of the Filter, the Chorus FX, the Delay FX, the Reverb, and the Output Compressor
-
-
-## Wave Table Graphs
-
-![Wave Table Graphs](./pra32-u2-wave-table-graphs.png)
+- The diagrams of the Filter, the Chorus FX, the Delay FX, the Reverb, and the Output Compressor, and the graphs of the Wave Tables
 
 
 ## Preparation for Modification

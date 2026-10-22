@@ -57,9 +57,9 @@
 - [Parameter Guide](./PRA32-U2-Parameter-Guide.md) (パラメーター・ガイド)
     - パラメーター名は、PRA32-U2 Editor とパネルの表示に合わせて英語のままです
 - [MIDI Implementation Chart](./PRA32-U2-MIDI-Implementation-Chart.md) (MIDI インプリメンテーション・チャート)
-- [Block Diagrams](./PRA32-U2-Block-Diagrams.md) (フィルターとエフェクトのブロック図)
+- [Block Diagrams](./PRA32-U2-Block-Diagrams.md) (フィルターとエフェクトのブロック図、ウェーブテーブルのグラフ)
 - README の次の節は英語版のみです
-    - [Synthesizer Block Diagram](./README.md#synthesizer-block-diagram)、[Wave Table Graphs](./README.md#wave-table-graphs)
+    - [Synthesizer Block Diagram](./README.md#synthesizer-block-diagram)
     - [Features](./README.md#features) (USB MIDI、UART MIDI、I2S、オーディオ・バッファー、PWM Audio の設定)
     - [Files](./README.md#files)、[Simple Circuit for PWM Audio](./README.md#simple-circuit-for-pwm-audio-optional)、[Customization Examples](./README.md#customization-examples)
 
