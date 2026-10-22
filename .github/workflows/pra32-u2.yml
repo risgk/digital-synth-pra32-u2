@@ -19,7 +19,7 @@ permissions:
 
 env:
   ARDUINO_CLI_VERSION: '1.5.1'
-  ARDUINO_PICO_VERSION: '6.2.0'  # The same as "Tested with Arduino-Pico version ..." in PRA32-U2-Change-History.md
+  ARDUINO_PICO_VERSION: '6.3.0'  # The same as "Tested with Arduino-Pico version ..." in PRA32-U2-Change-History.md
   MIDI_LIBRARY_VERSION: '5.0.2'
   ARDUINO_PICO_INDEX_URL: 'https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json'
   EMSDK_VERSION: '6.0.12'  # Emscripten, for PRA32-U2 Web
