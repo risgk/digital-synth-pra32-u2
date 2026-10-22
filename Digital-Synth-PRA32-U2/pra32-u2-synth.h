@@ -1141,8 +1141,12 @@ if constexpr (NO_FX == false) {
       break;
     case FX_ROUTING     :
       // Every synth has its own FX Routing, as the FX input that its output is added to
-      // (PRA32-U2/M); 0-31: Chorus, 32-95: Delay, 96-127: Bypass
-      m_fx_routing = ((controller_value * 4) + 128) >> 8;
+      // (PRA32-U2/M); [Cho|Cho|Dly|Dly|Cmp|Dry] (Cmp was Byp until v3.15.0)
+      {
+        static const uint8_t fx_routing_table[6] PRA32_U2_TABLE_IN_RAM(fx_routing_table) =
+          { FX_BUS_CHORUS, FX_BUS_CHORUS, FX_BUS_DELAY, FX_BUS_DELAY, FX_BUS_COMP, FX_BUS_DRY };
+        m_fx_routing = fx_routing_table[((controller_value * 10) + 128) >> 8];
+      }
       break;
 
 #if 0
@@ -1805,8 +1809,9 @@ if constexpr ((NO_FX == false) && (BYPASS_FX == false)) {
     fx_bus.input[m_fx_routing].right += synth_output.right;
   }
 
-  // Processes the FX in series: the Chorus input goes through the Chorus and the Delay,
-  // the Delay input through the Delay only, and the Bypass input through neither
+  // Processes the FX in series: the Chorus input goes through the Chorus, the Delay, and the
+  // Output Compressor, the Delay input through the Delay and the Output Compressor, the Comp
+  // input through the Output Compressor only, and the Dry input through none of them
   // noclone: see process()
   __attribute__((noclone)) PRA32_U2_StereoSample __not_in_flash_func(process_fx)(const PRA32_U2_FxBusSample& fx_bus) {
     PRA32_U2_StereoSample chorus_fx_output = m_chorus_fx.process(fx_bus.input[FX_BUS_CHORUS]);
@@ -1816,12 +1821,13 @@ if constexpr ((NO_FX == false) && (BYPASS_FX == false)) {
     delay_fx_input.right = chorus_fx_output.right + fx_bus.input[FX_BUS_DELAY].right;
 
     PRA32_U2_StereoSample delay_fx_output = m_delay_fx.process(delay_fx_input);
-    delay_fx_output.left  += fx_bus.input[FX_BUS_BYPASS].left;
-    delay_fx_output.right += fx_bus.input[FX_BUS_BYPASS].right;
+    delay_fx_output.left  += fx_bus.input[FX_BUS_COMP].left;
+    delay_fx_output.right += fx_bus.input[FX_BUS_COMP].right;
 
     // The synth that processes the FX also compresses (or limits) and clips the output,
-    // after mixing in the other synths through the FX bus (PRA32-U2/M)
-    return m_output_dynamics.process(delay_fx_output);
+    // after mixing in the other synths through the FX bus (PRA32-U2/M); the Dry input
+    // is only delayed (as the look-ahead), lowered (x 0.75), and clipped with it
+    return m_output_dynamics.process(delay_fx_output, fx_bus.input[FX_BUS_DRY]);
   }
 
   template <boolean RESTRICT_SAW = false, boolean RESTRICT_SQR_WT = false>

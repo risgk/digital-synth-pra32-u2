@@ -40,6 +40,7 @@ class PRA32_U2_OutputLimiter {
   static const int32_t  GAIN_ONE              = 1 << 16;
 
   int32_t  m_delay_buff[2][DELAY_BUFF_SIZE];
+  int32_t  m_dry_delay_buff[2][DELAY_BUFF_SIZE];
   uint32_t m_delay_wp;
   uint32_t m_count;
   int32_t  m_block_peak;
@@ -54,6 +55,7 @@ class PRA32_U2_OutputLimiter {
 public:
   PRA32_U2_OutputLimiter()
   : m_delay_buff()
+  , m_dry_delay_buff()
   , m_delay_wp()
   , m_count()
   , m_block_peak()
@@ -73,7 +75,9 @@ public:
     m_depth = ((controller_value + 1) >> 1) << 1;
   }
 
-  INLINE PRA32_U2_StereoSample process(PRA32_U2_StereoSample input_int24) {
+  // dry_input_int24 (FX Routing: Dry) is not compressed (or limited), but is delayed,
+  // lowered by the output gain, and clipped with the output
+  INLINE PRA32_U2_StereoSample process(PRA32_U2_StereoSample input_int24, PRA32_U2_StereoSample dry_input_int24) {
     const int32_t left_input_int24  = input_int24.left;
     const int32_t right_input_int24 = input_int24.right;
 
@@ -83,6 +87,8 @@ public:
 
     m_delay_buff[0][m_delay_wp] = left_input_int24;
     m_delay_buff[1][m_delay_wp] = right_input_int24;
+    m_dry_delay_buff[0][m_delay_wp] = dry_input_int24.left;
+    m_dry_delay_buff[1][m_delay_wp] = dry_input_int24.right;
     const uint32_t delay_rp = (m_delay_wp - LOOK_AHEAD) & (DELAY_BUFF_SIZE - 1);
     m_delay_wp = (m_delay_wp + 1) & (DELAY_BUFF_SIZE - 1);
 
@@ -93,8 +99,10 @@ public:
 
     m_gain_current = approach(m_gain_current, m_gain_next, m_gain_step);
 
-    return { soft_clip_output(multiply_shift_right(m_delay_buff[0][delay_rp], m_gain_current, 16)),
-             soft_clip_output(multiply_shift_right(m_delay_buff[1][delay_rp], m_gain_current, 16)) };
+    return { soft_clip_output(multiply_shift_right(m_delay_buff[0][delay_rp], m_gain_current, 16) +
+                              multiply_shift_right(m_dry_delay_buff[0][delay_rp], OUTPUT_GAIN, 16)),
+             soft_clip_output(multiply_shift_right(m_delay_buff[1][delay_rp], m_gain_current, 16) +
+                              multiply_shift_right(m_dry_delay_buff[1][delay_rp], OUTPUT_GAIN, 16)) };
   }
 
 private:

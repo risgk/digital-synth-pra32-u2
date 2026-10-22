@@ -1484,8 +1484,8 @@ function updateDisplayOfControl(number, value) {
     break;
   case FX_ROUTING      :
     {
-      var ary = ["Cho","Dly","Byp"];
-      var index = Math.floor(((value * 4) + 128) >> 8);
+      var ary = ["Cho","Cho","Dly","Dly","Cmp","Dry"];
+      var index = Math.floor(((value * 10) + 128) >> 8);
       dispValue = ary[index];
     }
     break;
@@ -3036,8 +3036,8 @@ Off <input type="number" id="inputNoteOffVelocity" min="1" max="127" step="1"></
   <div class="param-ctrl"><input  id="inputCHORUS_MIX     "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(CHORUS_MIX     , value)"><span    id="spanCHORUS_MIX     " >-</span><span   id="span2CHORUS_MIX     " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name">FX Routing [Cho|Dly|Byp] <span class="cc">CC#95</span></div>
-  <div class="param-ctrl"><input  id="inputFX_ROUTING     "  type="range" list="3 markers" min="0" max="127" step="1" oninput="onChangeControlChange(FX_ROUTING     , value)"><span    id="spanFX_ROUTING     " >-</span><span   id="span2FX_ROUTING     " >-</span></div>
+  <div class="param-name">FX Routing [Cho|Cho|Dly|Dly|Cmp|Dry] <span class="cc">CC#95</span></div>
+  <div class="param-ctrl"><input  id="inputFX_ROUTING     "  type="range" list="6 markers" min="0" max="127" step="1" oninput="onChangeControlChange(FX_ROUTING     , value)"><span    id="spanFX_ROUTING     " >-</span><span   id="span2FX_ROUTING     " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>Chorus</b> Rate <span class="cc">CC#58</span></div>
