@@ -3,6 +3,21 @@
 - 2026-10-16 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
+## Main Parameters
+
+- PRA32-U2 has many parameters, but a sound can be made mostly with the main parameters below: the first 32 in PRA32-U2 Editor (from Osc 1 Wave to EG/Amp Rel = Dec), and the 2 FX levels
+    - The other parameters can mostly be left as they are
+    - "Randomize Synth" (Program Change #127) changes the first 32, except Voice Mode and Amp Gain
+- To make a sound, we recommend starting from the Preset "#19 Plain Poly", rather than "#23 Initial"
+    - "#19 Plain Poly" is a plain Saw Wave sound (Osc 1 Wave: Pulse Wave, with Osc 1 Morph: Saw 100%) in Poly, with the FX on (Chorus, and Reverb), while "#23 Initial" is in Mono, with the FX off
+    - In both, EG Amp Mod is On: the EG also works as the Amp EG, so the Amp Attack/Decay/Sustain/Release are not used
+- Osc: Osc 1 Wave, Mixer Noise/Sub Osc, Osc 1 Shape, Osc 1 Morph, Osc 2 Wave, Mixer Osc Mix, Osc 2 Coarse, Osc 2 Pitch
+- Filter: Filter Cutoff, Filter Resonance, Filter EG Amt, Filter Key Track, Filter Mode
+- EG: EG Attack, EG Decay, EG Sustain, EG Release, EG Mod Amt, EG Mod Dst, EG Amp Mod, EG/Amp Rel = Dec
+- LFO: LFO Wave, LFO Fade Time, LFO Rate, LFO Depth, LFO Mod Amt, LFO Mod Dst, LFO Filter Amt
+- Voice and Amp: Voice Mode, Portamento Time, Pitch Bend Range, Amp Gain
+- FX: Chorus Level, Delay Level
+
 ## Control Change Parameters
 
 - Notes
