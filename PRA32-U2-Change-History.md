@@ -8,7 +8,11 @@
         - Feed-forward peak compressor: 2:1 above -6 dB at its input, with a soft knee (-9 dB to -3 dB), and the peaks limited to 1.0 (full scale) at its input, as the Output Limiter (look-ahead 1 ms, attack 1 ms, release 100 ms, and x 0.75 (-2.5 dB))
         - The gain curve is a table (pra32-u2-generate-output-compressor-table.rb), and the processing time is the same for every sample (no division, and no branch by the level)
         - To use the Output Limiter instead, uncomment `#define PRA32_U2_USE_LEGACY_OUTPUT_LIMITER` (its division is now always done, so that its processing time does not depend on the level either)
-    - Customization Examples: Add `//#define PRA32_U2_USE_LEGACY_OUTPUT_LIMITER`
+    - Reduce the variation of the processing time
+        - Place the tables read in the audio processing in the RAM: the Square Wave shape table (moved into the flash by GCC as it is never written), the Reverb tables, and the Filter Mode and Breath Amp Mode tables
+        - The secondary core does not go back to the core (in the flash) between the samples (`loop1()` never returns, and calls `loop1_once()`)
+        - PRA32-U2/P: Process the control panel on the secondary core in the RAM (without `std::sprintf()`, `std::strcpy()`, and `adc_read()` in the flash), and read the ADC without waiting for the conversions (once per sample)
+    - Customization Examples: Apply the above
     - Tested with Arduino-Pico version 6.2.0
 - v3.15.0 (2026-10-16):
     - Add the "Portamento Mode [Sw|Aut]" parameter (Control Change #34)

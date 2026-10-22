@@ -52,7 +52,7 @@ PRA32_U2_Amp()
   // - Off/Q/L: The Amp follows the EG, x the Breath Controller (None/Quadratic/Linear)
   // - LO/QO/Opn: The Amp is held open (the EG is not used), x the Breath Controller (Linear/Quadratic/None)
   INLINE void set_breath_amp_mode(uint8_t controller_value) {
-    static const uint8_t breath_curve_table[6] = {0, 1, 2, 2, 1, 0};
+    static const uint8_t breath_curve_table[6] PRA32_U2_TABLE_IN_RAM(breath_curve_table) = {0, 1, 2, 2, 1, 0};
     const uint8_t index = ((controller_value * 10) + 128) >> 8;
     m_breath_curve = breath_curve_table[index];
     m_amp_open     = (index >= 3);

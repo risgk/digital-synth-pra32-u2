@@ -5,6 +5,17 @@
 
 #define INLINE inline __attribute__((always_inline))
 
+// Places a table in the RAM (.data), so that reading it in the audio processing
+// causes no XIP cache misses (on the RP2040/RP2350, the flash is read through the
+// XIP cache). Needed for a static table that is never written: GCC moves it into
+// the flash (.rodata), even if it is not const. One section per table, so that
+// const and non-const tables do not conflict
+#if defined(ARDUINO_ARCH_RP2040)
+#define PRA32_U2_TABLE_IN_RAM(name) __attribute__((section(".data.pra32_u2_" #name)))
+#else  // defined(ARDUINO_ARCH_RP2040)
+#define PRA32_U2_TABLE_IN_RAM(name)
+#endif  // defined(ARDUINO_ARCH_RP2040)
+
 struct PRA32_U2_StereoSample {
   int32_t left;
   int32_t right;
