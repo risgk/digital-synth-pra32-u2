@@ -10,7 +10,11 @@
 #include "pra32-u2-eg.h"
 #include "pra32-u2-chorus-fx.h"
 #include "pra32-u2-delay-fx.h"
+#if defined(PRA32_U2_USE_LEGACY_OUTPUT_LIMITER)
 #include "pra32-u2-output-limiter.h"
+#else  // defined(PRA32_U2_USE_LEGACY_OUTPUT_LIMITER)
+#include "pra32-u2-output-compressor.h"
+#endif  // defined(PRA32_U2_USE_LEGACY_OUTPUT_LIMITER)
 #include "pra32-u2-program-table.h"
 
 #if defined(ARDUINO_ARCH_RP2040)
@@ -219,10 +223,14 @@ class PRA32_U2_Synth {
 
   using ChorusFx = std::conditional_t<NO_FX, std::monostate, PRA32_U2_ChorusFx>;
   using DelayFx  = std::conditional_t<NO_FX, std::monostate, PRA32_U2_DelayFx>;
-  using OutputLimiter = std::conditional_t<NO_FX, std::monostate, PRA32_U2_OutputLimiter>;
+#if defined(PRA32_U2_USE_LEGACY_OUTPUT_LIMITER)
+  using OutputDynamics = std::conditional_t<NO_FX, std::monostate, PRA32_U2_OutputLimiter>;
+#else  // defined(PRA32_U2_USE_LEGACY_OUTPUT_LIMITER)
+  using OutputDynamics = std::conditional_t<NO_FX, std::monostate, PRA32_U2_OutputCompressor>;
+#endif  // defined(PRA32_U2_USE_LEGACY_OUTPUT_LIMITER)
   ChorusFx          m_chorus_fx;
   DelayFx           m_delay_fx;
-  OutputLimiter     m_output_limiter;
+  OutputDynamics    m_output_dynamics;
 
   uint32_t          m_count;
 
@@ -276,7 +284,7 @@ public:
   , m_eg()
   , m_chorus_fx()
   , m_delay_fx()
-  , m_output_limiter()
+  , m_output_dynamics()
 
   , m_count(0xFFFFFFFFu + SYNTH_ID)
 
@@ -1785,7 +1793,7 @@ if constexpr ((NO_FX == false) && (BYPASS_FX == false)) {
     delay_fx_output = mixed_output;
 }
 
-    // The output of process_fx() is limited and clipped, and can be output to a DAC.
+    // The output of process_fx() is compressed (or limited) and clipped, and can be output to a DAC.
     // Without the FX, the output is not clipped, to be mixed with other synths
     return delay_fx_output;
   }
@@ -1811,9 +1819,9 @@ if constexpr ((NO_FX == false) && (BYPASS_FX == false)) {
     delay_fx_output.left  += fx_bus.input[FX_BUS_BYPASS].left;
     delay_fx_output.right += fx_bus.input[FX_BUS_BYPASS].right;
 
-    // The synth that processes the FX also limits and clips the output, after
-    // mixing in the other synths through the FX bus (PRA32-U2/M)
-    return m_output_limiter.process(delay_fx_output);
+    // The synth that processes the FX also compresses (or limits) and clips the output,
+    // after mixing in the other synths through the FX bus (PRA32-U2/M)
+    return m_output_dynamics.process(delay_fx_output);
   }
 
   template <boolean RESTRICT_SAW = false, boolean RESTRICT_SQR_WT = false>
@@ -1857,12 +1865,14 @@ if (m_voice_mode == VOICE_POLYPHONIC) {
     return (m_voice_mode == VOICE_POLYPHONIC);
   }
 
+#if defined(PRA32_U2_USE_LEGACY_OUTPUT_LIMITER)
   // Not assigned to a Control Change; 0: Off, 127: full limiting (default)
   INLINE void set_output_limiter_depth(uint8_t controller_value) {
 if constexpr (NO_FX == false) {
-    m_output_limiter.set_depth(controller_value);
+    m_output_dynamics.set_depth(controller_value);
 }
   }
+#endif  // defined(PRA32_U2_USE_LEGACY_OUTPUT_LIMITER)
 
 private:
 

@@ -9,7 +9,7 @@
 ## 概要
 
 - **PRA32-U2** は、Raspberry Pi Pico 2/RP2350 用の 4 ボイス・ポリフォニック・シンセサイザーです
-    - Chorus FX と Delay/Reverb FX を内蔵し、その後に Output Limiter があります
+    - Chorus FX と Delay/Reverb FX を内蔵し、その後に Output Compressor（リミッターを兼ねる）があります
     - MIDI で制御します -- PRA32-U2 は MIDI 音源モジュールです
     - パラメーターをユーザー・プログラムとフラッシュに書き込む機能があります
     - PRA32-U2 は PRA32-U (Raspberry Pi Pico/RP2040 用) の後継として始まりましたが、今では別のシンセサイザーです

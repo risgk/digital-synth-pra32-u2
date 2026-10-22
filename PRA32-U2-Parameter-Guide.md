@@ -68,7 +68,7 @@
         - 64 (63-64): Saw 100%
         - 96 (95-96): Saw 100% + Saw 50%
         - 127: Saw 100% + Saw 100% (max)
-        - NOTE: With a high "Osc 1 Shape" and a high "Osc 1 Morph", the output gets louder (up to about +6 dB), and the Output Limiter may make chords waver; if so, lower the "Amp Gain"
+        - NOTE: With a high "Osc 1 Shape" and a high "Osc 1 Morph", the output gets louder (up to about +6 dB), and the Output Compressor may make chords waver; if so, lower the "Amp Gain"
 - Osc 2 Wave [Saw|Sqr|Tri|Sin|O1|Nos]
     - 0 (0-12): Saw Wave
     - 26 (13-38): Square Wave
@@ -134,7 +134,7 @@
         - NOTE: The full scale is 1.0 (e.g. the peak level of the Osc 1 Saw Wave is 0.25)
     - The self-oscillation fades out as the cutoff (including the modulation) rises from the Cutoff 111 (f = 7.9 kHz) to 116 (f = 10.5 kHz), and above that the Resonance 123-127 acts as 122
     - A loud input near the cutoff (e.g. the Square or the Multi Saw) weakens or stops the self-oscillation, and an input harmonic near it pulls it to the pitch of that harmonic
-    - NOTE: With a high Resonance (about 112 or above), chords get louder, and the Output Limiter lowers the level; if it is too much, lower the "Amp Gain"
+    - NOTE: With a high Resonance (about 112 or above), chords get louder, and the Output Compressor lowers the level; if it is too much, lower the "Amp Gain"
 - Filter EG Amt [-|+], LFO Filter Amt [-|+]
     - -60 (0-4): -120 (min)
     - +60 (124-127): +120 (max)
@@ -273,7 +273,7 @@
     - 127: 100% (max)
     - NOTE: The actual LFO depth is the "LFO Depth" value plus the "Modulation Wheel" value and the after touch effect (up to 100%)
 - Amp Gain
-    - NOTE: The Output Limiter (after the FX) limits the peaks above 1.0 (full scale) at its input, and lowers the output by 2.5 dB (x 0.75) (with the Presets, the Output Limiter rarely works)
+    - NOTE: The Output Compressor (after the FX) compresses the peaks above -6 dB (0.5 of full scale) at its input by 2:1 (with a soft knee from -9 dB to -3 dB), limits the peaks so that they do not go above 1.0 (full scale) at its input (reached at +6 dB), and lowers the output by 2.5 dB (x 0.75) (with the Presets, the peaks are lowered by about 1 dB)
 - Filter Mode [LP|LP|BP|BP|BR|HP]
     - 0 (0-12): Low Pass
     - 26 (13-38): Low Pass
