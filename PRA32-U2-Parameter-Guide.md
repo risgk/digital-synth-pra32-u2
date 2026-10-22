@@ -11,12 +11,12 @@
 - To make a sound, we recommend starting from the Preset "#19 Plain Poly", rather than "#23 Initial"
     - "#19 Plain Poly" is a plain Saw Wave sound (Osc 1 Wave: Pulse Wave, with Osc 1 Morph: Saw 100%) in Poly, with the FX on (Chorus, and Reverb), while "#23 Initial" is in Mono, with the FX off
     - In both, EG Amp Mod is On: the EG also works as the Amp EG, so the Amp Attack/Decay/Sustain/Release are not used
+- Voice and Pitch: Voice Mode, Portamento Time, Pitch Bend Range
 - Osc: Osc 1 Wave, Mixer Noise/Sub Osc, Osc 1 Shape, Osc 1 Morph, Osc 2 Wave, Mixer Osc Mix, Osc 2 Coarse, Osc 2 Pitch
 - Filter: Filter Cutoff, Filter Resonance, Filter EG Amt, Filter Key Track, Filter Mode
 - Amp: Amp Gain
 - EG: EG Attack, EG Decay, EG Sustain, EG Release, EG Mod Amt, EG Mod Dst, EG Amp Mod, EG/Amp Rel = Dec
 - LFO: LFO Wave, LFO Fade Time, LFO Rate, LFO Depth, LFO Mod Amt, LFO Mod Dst, LFO Filter Amt
-- Voice and Pitch: Voice Mode, Portamento Time, Pitch Bend Range
 - FX: Chorus Level, Delay Level
 
 ## Control Change Parameters
