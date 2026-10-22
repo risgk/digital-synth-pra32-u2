@@ -3,7 +3,7 @@
 - 2026-10-16 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
-The diagrams of the Filter, the FX (Chorus FX, Delay FX, and Reverb), and the Output Compressor.
+The diagrams of the Filter, the FX (Chorus FX, Delay FX, and Reverb), and the Output Compressor, and the graphs of the Wave Tables.
 For the whole synthesizer, see [Synthesizer Block Diagram](./README.md#synthesizer-block-diagram) in README.md.
 Solid arrows carry audio, dashed arrows carry control.
 
@@ -227,3 +227,8 @@ flowchart LR
   ceiling (the peaks are limited to 1.0 at its input, reached at +6 dB), and the output gain
   (x 0.75, -2.5 dB)
 - The gain is recalculated once per 4 samples, and interpolated over the samples in between
+
+
+## Wave Table Graphs
+
+![Wave Table Graphs](./pra32-u2-wave-table-graphs.png)

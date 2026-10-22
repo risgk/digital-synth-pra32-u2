@@ -2,7 +2,7 @@
 
 - v3.16.1 (2026-??-??):
     - PRA32-U2 Editor: Make the supplements in [] (e.g. "[Saw|Sqr|Tri|Sin|WT|Pls]") and the control numbers in the parameter names smaller, so that the names are narrower, and put the control numbers a little apart (also "PC#127" in "Randomize Synth")
-    - Move the Filter Diagrams from README.md to PRA32-U2-Block-Diagrams.md, and add the block diagrams of the Chorus FX, the Delay FX, the Reverb, and the Output Compressor
+    - Move the Filter Diagrams and the Wave Table Graphs from README.md to PRA32-U2-Block-Diagrams.md, and add the block diagrams of the Chorus FX, the Delay FX, the Reverb, and the Output Compressor
     - Tested with Arduino-Pico version 6.3.0
 - v3.16.0 (2026-10-22):
     - Add Band Reject (Notch) to Filter Mode, as [LP|LP|BP|BP|BR|HP]: BR is 102 (90-115), and 0, 64, and 127 stay LP, BP, and HP (32-38 change from BP to LP, 90-95 from BP to BR, and 96-115 from HP to BR)
