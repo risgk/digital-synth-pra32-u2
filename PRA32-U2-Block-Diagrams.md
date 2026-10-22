@@ -3,9 +3,61 @@
 - 2026-10-16 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
-The diagrams of the Filter, the FX (Chorus FX, Delay FX, and Reverb), and the Output Compressor, and the graphs of the Wave Tables.
+The diagrams of the Osc, the Filter, the FX (Chorus FX, Delay FX, and Reverb), the Output Compressor, and PRA32-U2/M,
+and the graphs of the Wave Tables.
 For the whole synthesizer, see [Synthesizer Block Diagram](./README.md#synthesizer-block-diagram) in README.md.
 Solid arrows carry audio, dashed arrows carry control.
+
+
+## Osc
+
+The oscillators of one voice: Osc 1 with the Sub Osc, Osc 2, and the mixer, which feed the Filter.
+The pitch goes from the left to the right, with each block added to it.
+
+```mermaid
+flowchart LR
+    NOTE([Note]) --> PORT["Portamento"]
+    PORT --> PT["Pitch Bend<br/>Coarse Tune, Fine Tune<br/>Stretch Tune"]
+    PT --> P1["EG / LFO Mod<br/>Dst: P"]
+    PT --> P2["EG / LFO Mod<br/>Dst: P, 2P<br/>Osc 2 Coarse, Pitch"]
+    P1 -.-> O1["Osc 1<br/>Saw / Sqr / Tri / Sin / WT / Pls"]
+    P2 -.-> O2["Osc 2<br/>Saw / Sqr / Tri / Sin / Noise"]
+    DR["Osc/Filter Drift<br/>each oscillator"] -.-> O1 & O2
+    SH["Osc 1 Shape<br/>EG / LFO Mod, Dst: 1S"] -.-> O1
+    MO["Osc 1 Morph"] -.-> O1
+    O1 -.->|"phase / 2"| SUB["Sub Osc<br/>Sine, 1 oct down"]
+    O1 --> G1["× Osc 1 level"]
+    O2 --> G2["× Osc 2 level"]
+    MIX["Mixer Osc Mix<br/>equal-power crossfade"] -.-> G1 & G2
+    SUB --> NS["Mixer Noise/Sub Osc<br/>−: Noise, +: Sub Osc"]
+    NG([Noise Gen]) --> NS
+    NG --> O2
+    NG -.-> DR
+    G1 --> SUM((Σ))
+    G2 --> SUM
+    NS --> SUM
+    SUM --> OUT([to the Filter])
+```
+
+- The pitch is followed by the frequency of each oscillator, by the linear interpolation of a
+  table, and the wave tables are band-limited (mipmapped) by the pitch, so that the waves do
+  not alias
+- The Sub Osc is a sine wave read at half the phase of Osc 1, so that it stays locked to Osc 1
+  one octave below; the Mixer Noise/Sub Osc sets the level of the Sub Osc on the plus side, and
+  of the noise on the minus side, apart from the Mixer Osc Mix
+- The Osc/Filter Drift drifts the frequency of each oscillator by a slow random signal, a
+  low-passed noise of its own
+
+How each Osc 1 Wave is made, and what the Osc 1 Shape and the Osc 1 Morph do:
+
+| Osc 1 Wave | Made of | Osc 1 Shape | Osc 1 Morph |
+| ---------- | ------- | ----------- | ----------- |
+| Saw | A Saw, and a Multi Saw (7 Saws, detuned) | The detune of the Multi Saw | The mix of the Saw and the Multi Saw |
+| Sqr | A Square, and a Sync Square (16 Saws, alternately added and subtracted at shifted phases) | The pitch of the Sync Square | The mix of the Square and the Sync Square |
+| Tri | A Triangle | - | - |
+| Sin | A Sine (the carrier), whose phase is modulated by another Sine (the modulator) | The modulation depth | The frequency ratio of the modulator |
+| WT | 16 Saws, alternately added and subtracted at the phases in a wave table | The position in the wave table | The wave table |
+| Pls | A Saw, and a second Saw at a shifted phase, added or subtracted (a subtracted one makes a pulse) | The phase of the second Saw (the pulse width) | The level of the second Saw (−100% to +100%) |
 
 
 ## Filter
@@ -227,6 +279,37 @@ flowchart LR
   ceiling (the peaks are limited to 1.0 at its input, reached at +6 dB), and the output gain
   (x 0.75, -2.5 dB)
 - The gain is recalculated once per 4 samples, and interpolated over the samples in between
+
+
+## PRA32-U2/M
+
+PRA32-U2/M (PRA32-U2 Multi-Timbre Edition) has the Main Synth and 3 Sub Synths. Each synth has its
+own program and its own FX Routing (each synth is the same as PRA32-U2 up to the Panner), and the
+FX are shared by all synths, with the FX parameters of the Main Synth. The MIDI Channels below
+are for the Basic Channel 1 (by default).
+
+```mermaid
+flowchart LR
+    C1([MIDI Ch 1]) -.-> MS["Main Synth<br/>Poly or Mono"]
+    C2([MIDI Ch 2]) -.-> S1["Sub Synth 1<br/>Mono"]
+    C3([MIDI Ch 3]) -.-> S2["Sub Synth 2<br/>Mono"]
+    C4([MIDI Ch 4]) -.-> S3["Sub Synth 3<br/>Mono"]
+    C14([MIDI Ch 14<br/>Layering]) -.-> MS & S1
+    C15([MIDI Ch 15<br/>Layering]) -.-> S2 & S3
+    C16([MIDI Ch 16<br/>Layering]) -.-> MS & S1 & S2 & S3
+    MS & S1 & S2 & S3 --> FR{"FX Routing<br/>of each synth"}
+    FR -->|Cho| C[Chorus FX] --> D[Delay/Reverb FX] --> OC[Output Compressor] --> OG["x 0.75<br/>Soft Clip"] --> AO[Audio Out]
+    FR -->|Dly| D
+    FR -->|Cmp| OC
+    FR -->|Dry| OG
+```
+
+- The Sub Synths are processed only while the Main Synth is in the Mono modes (the Main Synth in
+  the Poly modes uses the processing time of all of them)
+- Layering: a Note On (and the other messages) on MIDI Ch 14, 15, or 16 goes to 2 or 4 synths at
+  once; a Program Change selects the Program # + 0, + 1, + 2, and + 3 for them, in this order
+- The outputs of the synths are added together at the inputs of the FX, by the FX Routing of each
+  synth
 
 
 ## Wave Table Graphs
