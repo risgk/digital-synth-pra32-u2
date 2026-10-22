@@ -216,10 +216,14 @@ span.cc {
   font-size: 10px;
   color: #808080;
 }
-/* The supplements in [] in the parameter names (e.g. "[Saw|Sqr|Tri|Sin|WT|Pls]"), as small as the control numbers,
-   so that the names are not too wide */
-span.sup {
-  font-size: 10px;
+/* In the parameter names: the supplements in [] (e.g. "[Saw|Sqr|Tri|Sin|WT|Pls]") and the control numbers,
+   smaller (as small as each other), so that the names are not too wide; the control numbers a little apart */
+.param-name span.sup,
+.param-name span.cc {
+  font-size: 9px;
+}
+.param-name span.cc {
+  margin-left: 2px;
 }
 
 /* ---- Parameters ----
@@ -358,7 +362,7 @@ span.sup {
 }
 .param-name.tighter span.sup,
 .param-name.tighter span.cc {
-  font-size: 9px;
+  font-size: 8px;
 }
 .param-name.wrap {
   white-space: normal;
