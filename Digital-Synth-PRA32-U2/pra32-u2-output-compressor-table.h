@@ -5,6 +5,9 @@ const uint8_t  OUTPUT_COMPRESSOR_TABLE_MIN_BITS     = 15;
 const uint8_t  OUTPUT_COMPRESSOR_TABLE_OCTAVES      = 10;
 const uint16_t OUTPUT_COMPRESSOR_TABLE_LENGTH       = 161;
 
+// The output gain in Q16, also applied to the Dry input (not compressed)
+const int32_t  OUTPUT_COMPRESSOR_OUTPUT_GAIN        = 49152;
+
 // Gain in Q16 (threshold -6.0 dB, ratio 2.0:1, knee 6.0 dB, ceiling 0.0 dB, makeup 0.0 dB, x 0.75)
 // Not const, so that the table is in the RAM (no XIP cache misses)
 int32_t g_output_compressor_gain_table[OUTPUT_COMPRESSOR_TABLE_LENGTH] = {

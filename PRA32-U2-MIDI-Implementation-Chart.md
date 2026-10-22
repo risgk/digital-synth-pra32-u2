@@ -94,7 +94,7 @@
 |                            34 | x             | o             | Portamento Mode [Sw|Aut]             |
 |                               |               |               |                                      |
 |                            93 | x             | o             | Chorus Level                         |
-|                            95 | x             | o             | FX Routing [Cho|Dly|Byp]             |
+|                            95 | x             | o             | FX Routing [Cho|Cho|Dly|Dly|Cmp|Dry] |
 |                               |               |               |                                      |
 |                            58 | x             | o             | Chorus Rate                          |
 |                            59 | x             | o             | Chorus Depth                         |

@@ -915,8 +915,8 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
     break;
   case FX_ROUTING      :
     {
-      static const char ary[3][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"Cho","Dly","Byp"};
-      uint32_t index = ((controller_value * 4) + 128) >> 8;
+      static const char ary[6][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"Cho","Cho","Dly","Dly","Cmp","Dry"};
+      uint32_t index = ((controller_value * 10) + 128) >> 8;
       PRA32_U2_ControlPanel_copy_text(value_display_text, ary[index]);
       result = true;
     }

@@ -379,10 +379,14 @@
     - 127 (64-127): Auto (Aut), The Portamento is always on
     - NOTE: In Legato Portamento (Voice Mode: LP), the Portamento is effective only for the legato notes, also while it is on
 - Chorus Level: Chorus Send Level
-- FX Routing [Cho|Dly|Byp]: Where the output is input to the FX (the FX are connected in series: Chorus -> Delay)
-    - 0 (0-31): Chorus (through the Chorus and the Delay)
-    - 64 (32-95): Delay (through the Delay only)
-    - 127 (96-127): Bypass (through neither)
+- FX Routing [Cho|Cho|Dly|Dly|Cmp|Dry]: Where the output is input to the FX (connected in series: Chorus -> Delay -> Output Compressor)
+    - 0 (0-12): Chorus (through the Chorus, the Delay, and the Output Compressor)
+    - 26 (13-38): Chorus
+    - 51 (39-63): Delay (through the Delay and the Output Compressor)
+    - 77 (64-89): Delay
+    - 102 (90-115): Comp (through the Output Compressor only)
+    - 127 (116-127): Dry (through none of them)
+        - The output is still delayed by 1 ms and lowered by 2.5 dB (x 0.75) as the others, and is clipped (soft clipping) if it is too loud
     - In PRA32-U2/M, each synth has its own FX Routing, while the other FX parameters of the Main Synth apply to all synths
 - Chorus Rate
     - 0: LFO Frequency 0.0114 Hz (min)

@@ -84,7 +84,7 @@ const PRA32U2Engine::ParameterInfo s_parameter_names[] = {
   { PORTA_MODE     , "Portamento Mode [Sw|Aut]"               },
 
   { CHORUS_MIX     , "Chorus Level"                           },
-  { FX_ROUTING     , "FX Routing [Cho|Dly|Byp]"               },
+  { FX_ROUTING     , "FX Routing [Cho|Cho|Dly|Dly|Cmp|Dry]"   },
   { CHORUS_RATE    , "Chorus Rate"                            },
   { CHORUS_DEPTH   , "Chorus Depth"                           },
 
@@ -229,7 +229,7 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value) {
   static const char* const SAW_W_MODES[2]  = { "Str", "Cur" };
   static const char* const PORTA_MODES[2]  = { "Sw", "Aut" };
   static const char* const BTH_AMP_MODS[6] = { "Off", "Q", "L", "LO", "QO", "Opn" };
-  static const char* const FX_ROUTINGS[3]  = { "Cho", "Dly", "Byp" };
+  static const char* const FX_ROUTINGS[6]  = { "Cho", "Cho", "Dly", "Dly", "Cmp", "Dry" };
   static const char* const ASGN_MODES[6]   = { "1", "1", "3", "3", "4", "2" };
   static const char* const DELAY_MODES[3]  = { "Ste", "PP", "Rev" };
 
@@ -262,7 +262,7 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value) {
   case OSC_SAW_W_MODE  : dispValue = select2(v, SAW_W_MODES);        break;
   case PORTA_MODE      : dispValue = select2(v, PORTA_MODES);        break;
   case BTH_AMP_MOD     : dispValue = select6(v, BTH_AMP_MODS);       break;
-  case FX_ROUTING      : dispValue = select3(v, FX_ROUTINGS);        break;
+  case FX_ROUTING      : dispValue = select6(v, FX_ROUTINGS);        break;
   case VOICE_ASGN_MODE : dispValue = select6(v, ASGN_MODES);         break;
   case DELAY_MODE      : dispValue = select3(v, DELAY_MODES);        break;
   case DELAY_TIME      :

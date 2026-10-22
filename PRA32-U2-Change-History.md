@@ -8,6 +8,9 @@
         - Feed-forward peak compressor: 2:1 above -6 dB at its input, with a soft knee (-9 dB to -3 dB), and the peaks limited to 1.0 (full scale) at its input, as the Output Limiter (look-ahead 1 ms, attack 1 ms, release 100 ms, and x 0.75 (-2.5 dB))
         - The gain curve is a table (pra32-u2-generate-output-compressor-table.rb), and the processing time is the same for every sample (no division, and no branch by the level)
         - To use the Output Limiter instead, uncomment `#define PRA32_U2_USE_LEGACY_OUTPUT_LIMITER` (its division is now always done, so that its processing time does not depend on the level either)
+    - Change FX Routing to [Cho|Cho|Dly|Dly|Cmp|Dry], to add Dry, which bypasses the Output Compressor too: 0 and 64 stay Cho and Dly (32-38 change from Dly to Cho, and 90-95 from Dly to Cmp)
+        - Cmp (90-115): Through the Output Compressor only (Byp until v3.15.0)
+        - Dry (116-127): Through none of the Chorus, the Delay, and the Output Compressor (still delayed by 1 ms, x 0.75, and soft clipped); 127 was Byp, which went through the Output Limiter
     - Reduce the variation of the processing time
         - Place the tables read in the audio processing in the RAM: the Square Wave shape table (moved into the flash by GCC as it is never written), the Reverb tables, and the Filter Mode and Breath Amp Mode tables
         - The secondary core does not go back to the core (in the flash) between the samples (`loop1()` never returns, and calls `loop1_once()`)

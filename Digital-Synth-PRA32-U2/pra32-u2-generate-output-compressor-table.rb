@@ -61,6 +61,9 @@ $file.printf("const uint8_t  OUTPUT_COMPRESSOR_TABLE_MIN_BITS     = %d;\n", OUTP
 $file.printf("const uint8_t  OUTPUT_COMPRESSOR_TABLE_OCTAVES      = %d;\n", OUTPUT_COMPRESSOR_TABLE_OCTAVES)
 $file.printf("const uint16_t OUTPUT_COMPRESSOR_TABLE_LENGTH       = %d;\n\n", OUTPUT_COMPRESSOR_TABLE_LENGTH)
 
+$file.printf("// The output gain in Q16, also applied to the Dry input (not compressed)\n")
+$file.printf("const int32_t  OUTPUT_COMPRESSOR_OUTPUT_GAIN        = %d;\n\n", (OUTPUT_GAIN * (1 << 16)).round)
+
 $file.printf("// Gain in Q16 (threshold %.1f dB, ratio %.1f:1, knee %.1f dB, ceiling %.1f dB, makeup %.1f dB, x %.2f)\n",
              THRESHOLD_DB, RATIO, KNEE_DB, CEILING_DB, MAKEUP_DB, OUTPUT_GAIN)
 $file.printf("// Not const, so that the table is in the RAM (no XIP cache misses)\n")
