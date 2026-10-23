@@ -4,6 +4,8 @@
     - PRA32-U2 Editor: Make the sliders 149 px wide (from 135 px), so that the thumb moves a pixel a value (0-127) and every value can be set by a drag, and the value labels 56 px (from 68 px), so that 4 columns still fit a 960 px window
         - 1 column instead of the compact 2 columns for a narrow screen (e.g. iPhone SE 2, 375 px wide), whose sliders were narrower
     - PRA32-U2 Editor: Make the page no wider than in a 960 px window, so that the Software Keyboard shows the 37 keys (e.g. C3 - C6) and the lines end there even in a wider window
+    - PRA32-U2 Editor: Move the Software Keyboard below the parameters, and keep it at the bottom of the window while they scroll above it, with lower keys (100 px, from 140 px), so that they can be changed while playing (if it takes no more than half of the window, or is hidden)
+    - PRA32-U2 Editor: Show the value of Pitch Bend with "+" for 0 and above (e.g. "+0" and "+8191"), as the parameters of [-|+]
     - Tested with Arduino-Pico version 6.3.0
 - v3.16.1 (2026-10-23):
     - PRA32-U2 Editor: Make the supplements in [] (e.g. "[Saw|Sqr|Tri|Sin|WT|Pls]") and the control numbers in the parameter names smaller, so that the names are narrower, and put the control numbers a little apart (also "PC#127" in "Randomize Synth")
