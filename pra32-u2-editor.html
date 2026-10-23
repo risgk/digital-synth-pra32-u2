@@ -209,7 +209,7 @@ details.section > summary {
 details.section:not([open]) > summary {
   margin-bottom: 0;  /* the space below a hidden one is that between the sections */
 }
-/* A line above Save & Load and the keyboard, to the right end of the window (as the lines of the parameters) */
+/* A line above Save & Load and the keyboard (after the parameters), to the right end of the window (as the lines of the parameters) */
 #saveLoadDetails, #kbdDetails {
   border-top: 1px solid #c0c0c0;
   padding-top: 6px;
@@ -484,6 +484,23 @@ span.cc {
   position: relative;
   height: calc(140px * var(--kbd-scale));
   touch-action: none;  /* a touch plays (and glides over) the keys, and does not scroll */
+}
+/* Floating (set by kbdFitFloating()): the keyboard (with its bar and the controls for playing) stays at the bottom
+   of the window while the parameters scroll above it, so that they can be changed while playing (e.g. in a demo),
+   with lower keys (100px) */
+#kbdDetails.floating {
+  position: sticky;
+  bottom: 0;
+  z-index: 3;  /* above the sliders */
+  background: #fff;
+  margin-bottom: 0;
+  padding-bottom: 8px;
+}
+#kbdDetails.floating .keyboard-frame {
+  --kbd-half-height: calc(50px * var(--kbd-scale));
+}
+#kbdDetails.floating .keyboard {
+  height: calc(100px * var(--kbd-scale));
 }
 /* The upper half: the 12 semitones at equal intervals (the black keys as wide and as long as the upper parts of
    the white keys). The lower half: the white keys only (as in a piano, C - E as wide as 5 semitones / 3 (40px),
@@ -2077,7 +2094,7 @@ function createKeyboard() {
 
   // The text size may change without a resize of the window
   if (window.ResizeObserver) {
-    new ResizeObserver(function() { kbdFitScale(); }).observe(document.getElementById("spanKbdLabel"));
+    new ResizeObserver(function() { kbdFitScale(); kbdFitFloating(); }).observe(document.getElementById("spanKbdLabel"));
   }
 
   // The keyboard is shown by default, and shown or hidden as the last time. It cannot be scrolled while hidden,
@@ -2090,7 +2107,10 @@ function createKeyboard() {
       event.preventDefault();
     }
   });
+  kbdFitFloating();
+  window.addEventListener("resize", kbdFitFloating);
   details.addEventListener("toggle", function() {
+    kbdFitFloating();
     localStorage.setItem("keyKbdOpen", details.open ? "1" : "0");
     if (details.open) {
       kbdFitScale();
@@ -2101,6 +2121,17 @@ function createKeyboard() {
       kbdUpdateScrollbar();
     }
   });
+}
+
+// The keyboard floats at the bottom of the window (see #kbdDetails.floating) if it takes no more than half of the
+// window (e.g. not with the controls for playing in 1 column on a phone, or in a phone on its side), or if hidden
+// (only its bar)
+function kbdFitFloating() {
+  var details = document.getElementById("kbdDetails");
+  details.classList.add("floating");
+  if (details.open && details.getBoundingClientRect().height > window.innerHeight / 2) {
+    details.classList.remove("floating");
+  }
 }
 
 // The keyboard as large as the text: the scale of the text is measured as the width of a text in the page
@@ -2197,7 +2228,8 @@ function updateDisplayOfPerformanceControl(number, value) {
   var key = PERFORMANCE_CONTROLS.get(number)[0];
   value = parseInt(value);
   document.getElementById("inputPerf" + key).value = value;
-  document.getElementById("spanPerf" + key).textContent = String(value);
+  // Pitch Bend signed, with "+" for 0 and above (as the parameters of [-|+], e.g. "+0" and "+8191")
+  document.getElementById("spanPerf" + key).textContent = ((number == PITCH_BEND) && (value >= 0) ? "+" : "") + String(value);
   if ((number == SUSTAIN_PEDAL) || (number == PORTAMENTO_SW)) {
     document.getElementById("span2Perf" + key).textContent = (value >= 64) ? "[On]" : "[Off]";
   }
@@ -2760,56 +2792,6 @@ function getStoredCCValueString(index, number) {
 </div>
 </details>
 
-<details class="section" id="kbdDetails" open>
-<summary class="kbd-bar"><span id="spanKbdLabel">Software Keyboard</span>
-<button type="button" onclick="kbdShiftOctave(-1)" title="Octave Down">&#9664;</button>
-<button type="button" onclick="kbdShiftOctave(1)" title="Octave Up">&#9654;</button>
-<span class="kbd-hint">PC Keys: A - K, Z / X</span>
-<span class="kbd-vel">Velocity On <input type="number" id="inputNoteOnVelocity" min="1" max="127" step="1">
-Off <input type="number" id="inputNoteOffVelocity" min="1" max="127" step="1"></span>
-<button type="button" class="kbd-panic" onclick="panic()">Panic</button>
-<button type="button" class="kbd-hold" id="buttonKbdHold" aria-pressed="false" onclick="kbdSetHold(!kbdHold)" title="Hold: the keys released keep their notes on, until Hold is turned off">Hold</button>
-</summary>
-<div class="keyboard-frame">
-<div class="keyboard-scroll" id="kbdScroll">
-<div class="keyboard" id="keyboard"></div>
-</div>
-<div class="kbd-scrollbar" id="kbdScrollbar"><div class="kbd-scrollbar-thumb" id="kbdScrollbarThumb"></div></div>
-</div>
-<div class="params perf">
-<div class="param-group">
-<div class="param">
-  <div class="param-name">Pitch Bend</div>
-  <div class="param-ctrl soft-marker-c"><input id="inputPerfPITCH_BEND" type="range" list="0 markers" min="-8192" max="8191" step="1" value="0" oninput="onChangePerformanceControl(PITCH_BEND, value)"><span id="spanPerfPITCH_BEND">0</span><span id="span2PerfPITCH_BEND"></span></div>
-</div>
-<div class="param">
-  <div class="param-name">Modulation Wheel <span class="cc">CC#1</span></div>
-  <div class="param-ctrl"><input id="inputPerfMODULATION" type="range" list="0 markers" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(MODULATION, value)"><span id="spanPerfMODULATION">0</span><span id="span2PerfMODULATION"></span></div>
-</div>
-<div class="param">
-  <div class="param-name">Breath Controller <span class="cc">CC#2</span></div>
-  <div class="param-ctrl"><input id="inputPerfBTH_CONTROLLER" type="range" list="0 markers" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(BTH_CONTROLLER, value)"><span id="spanPerfBTH_CONTROLLER">0</span><span id="span2PerfBTH_CONTROLLER"></span></div>
-</div>
-<div class="param">
-  <div class="param-name">Expression <span class="cc">CC#11</span></div>
-  <div class="param-ctrl"><input id="inputPerfEXPRESSION" type="range" list="0 markers" min="0" max="127" step="1" value="127" oninput="onChangePerformanceControl(EXPRESSION, value)"><span id="spanPerfEXPRESSION">127</span><span id="span2PerfEXPRESSION"></span></div>
-</div>
-<div class="param">
-  <div class="param-name">Sustain Pedal <span class="sup">[Off|On]</span> <span class="cc">CC#64</span></div>
-  <div class="param-ctrl"><input id="inputPerfSUSTAIN_PEDAL" type="range" list="2 markers" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(SUSTAIN_PEDAL, value)"><span id="spanPerfSUSTAIN_PEDAL">0</span><span id="span2PerfSUSTAIN_PEDAL">[Off]</span></div>
-</div>
-<div class="param">
-  <div class="param-name">Portamento Switch <span class="sup">[Off|On]</span> <span class="cc">CC#65</span></div>
-  <div class="param-ctrl"><input id="inputPerfPORTAMENTO_SW" type="range" list="2 markers" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(PORTAMENTO_SW, value)"><span id="spanPerfPORTAMENTO_SW">0</span><span id="span2PerfPORTAMENTO_SW">[Off]</span></div>
-</div>
-<div class="param">
-  <div class="param-name">Channel Pressure</div>
-  <div class="param-ctrl"><input id="inputPerfCH_PRESSURE" type="range" list="0 markers" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(CH_PRESSURE, value)"><span id="spanPerfCH_PRESSURE">0</span><span id="span2PerfCH_PRESSURE"></span></div>
-</div>
-</div>
-</div>
-</details>
-
 <div class="params">
 <div class="param-group">
 <div class="param">
@@ -3062,6 +3044,56 @@ Off <input type="number" id="inputNoteOffVelocity" min="1" max="127" step="1"></
 </div>
 </div>
 </div>
+
+<details class="section" id="kbdDetails" open>
+<summary class="kbd-bar"><span id="spanKbdLabel">Software Keyboard</span>
+<button type="button" onclick="kbdShiftOctave(-1)" title="Octave Down">&#9664;</button>
+<button type="button" onclick="kbdShiftOctave(1)" title="Octave Up">&#9654;</button>
+<span class="kbd-hint">PC Keys: A - K, Z / X</span>
+<span class="kbd-vel">Velocity On <input type="number" id="inputNoteOnVelocity" min="1" max="127" step="1">
+Off <input type="number" id="inputNoteOffVelocity" min="1" max="127" step="1"></span>
+<button type="button" class="kbd-panic" onclick="panic()">Panic</button>
+<button type="button" class="kbd-hold" id="buttonKbdHold" aria-pressed="false" onclick="kbdSetHold(!kbdHold)" title="Hold: the keys released keep their notes on, until Hold is turned off">Hold</button>
+</summary>
+<div class="keyboard-frame">
+<div class="keyboard-scroll" id="kbdScroll">
+<div class="keyboard" id="keyboard"></div>
+</div>
+<div class="kbd-scrollbar" id="kbdScrollbar"><div class="kbd-scrollbar-thumb" id="kbdScrollbarThumb"></div></div>
+</div>
+<div class="params perf">
+<div class="param-group">
+<div class="param">
+  <div class="param-name">Pitch Bend</div>
+  <div class="param-ctrl soft-marker-c"><input id="inputPerfPITCH_BEND" type="range" list="0 markers" min="-8192" max="8191" step="1" value="0" oninput="onChangePerformanceControl(PITCH_BEND, value)"><span id="spanPerfPITCH_BEND">+0</span><span id="span2PerfPITCH_BEND"></span></div>
+</div>
+<div class="param">
+  <div class="param-name">Modulation Wheel <span class="cc">CC#1</span></div>
+  <div class="param-ctrl"><input id="inputPerfMODULATION" type="range" list="0 markers" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(MODULATION, value)"><span id="spanPerfMODULATION">0</span><span id="span2PerfMODULATION"></span></div>
+</div>
+<div class="param">
+  <div class="param-name">Breath Controller <span class="cc">CC#2</span></div>
+  <div class="param-ctrl"><input id="inputPerfBTH_CONTROLLER" type="range" list="0 markers" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(BTH_CONTROLLER, value)"><span id="spanPerfBTH_CONTROLLER">0</span><span id="span2PerfBTH_CONTROLLER"></span></div>
+</div>
+<div class="param">
+  <div class="param-name">Expression <span class="cc">CC#11</span></div>
+  <div class="param-ctrl"><input id="inputPerfEXPRESSION" type="range" list="0 markers" min="0" max="127" step="1" value="127" oninput="onChangePerformanceControl(EXPRESSION, value)"><span id="spanPerfEXPRESSION">127</span><span id="span2PerfEXPRESSION"></span></div>
+</div>
+<div class="param">
+  <div class="param-name">Sustain Pedal <span class="sup">[Off|On]</span> <span class="cc">CC#64</span></div>
+  <div class="param-ctrl"><input id="inputPerfSUSTAIN_PEDAL" type="range" list="2 markers" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(SUSTAIN_PEDAL, value)"><span id="spanPerfSUSTAIN_PEDAL">0</span><span id="span2PerfSUSTAIN_PEDAL">[Off]</span></div>
+</div>
+<div class="param">
+  <div class="param-name">Portamento Switch <span class="sup">[Off|On]</span> <span class="cc">CC#65</span></div>
+  <div class="param-ctrl"><input id="inputPerfPORTAMENTO_SW" type="range" list="2 markers" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(PORTAMENTO_SW, value)"><span id="spanPerfPORTAMENTO_SW">0</span><span id="span2PerfPORTAMENTO_SW">[Off]</span></div>
+</div>
+<div class="param">
+  <div class="param-name">Channel Pressure</div>
+  <div class="param-ctrl"><input id="inputPerfCH_PRESSURE" type="range" list="0 markers" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(CH_PRESSURE, value)"><span id="spanPerfCH_PRESSURE">0</span><span id="span2PerfCH_PRESSURE"></span></div>
+</div>
+</div>
+</div>
+</details>
 
 </div>
 
