@@ -400,8 +400,8 @@ span.cc {
   display: inline-block;
   margin-right: 4px;
 }
-/* Hidden, the bar keeps Hold and Panic (a note held or left on still needs them) */
-#kbdDetails:not([open]) .kbd-bar button:not(.kbd-hold):not(.kbd-panic), #kbdDetails:not([open]) .kbd-hint, #kbdDetails:not([open]) .kbd-vel {
+/* Hidden, the bar keeps Panic (a note left on still needs it); Hold is turned off by hiding (as in SPMS-1 Editor) */
+#kbdDetails:not([open]) .kbd-bar button:not(.kbd-panic), #kbdDetails:not([open]) .kbd-hint, #kbdDetails:not([open]) .kbd-vel {
   display: none;
 }
 .kbd-vel {
@@ -2122,6 +2122,12 @@ function createKeyboard() {
   });
   details.addEventListener("toggle", function() {
     localStorage.setItem("keyKbdOpen", details.open ? "1" : "0");
+    // Hiding lets go of the keys held and turns Hold off, so that no note is left on with nothing in sight to turn it off
+    // but Panic
+    if (!details.open) {
+      Array.from(kbdPointers.keys()).forEach(kbdRelease);
+      kbdSetHold(false);
+    }
     if (details.open) {
       kbdFitScale();
       var center = parseFloat(localStorage.getItem("keyKbdCenter128"));
