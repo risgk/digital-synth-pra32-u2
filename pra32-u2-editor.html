@@ -24,19 +24,23 @@ html {
   --kbd-frame-color: #555;  /* the frame of the soft keyboard, lighter than the black keys (#111) */
   --pra32-color: rgb(255,85,0);
   --pra32-color-dark: rgb(204,68,0);
-  /* A parameter: the slider, the value, and the value label (228px; 178px in the compact 2 columns) */
-  --slider-width: 135px;
+  /* A parameter: the slider, the value, and the value label (230px). The slider cell of 149px moves the thumb
+     127px (the input of 143px, less the thumb of 16px), a pixel a value from 0 to 127 */
+  --slider-width: 149px;
   --value-width: 25px;
-  --value-label-width: 68px;
+  --value-label-width: 56px;
   --param-width: calc(var(--slider-width) + var(--value-width) + var(--value-label-width));
 }
 body {
   margin: 8px;
 }
 /* The layout follows the width of this container (not of the window, which includes the scroll bar):
-   4 columns (as before) if 4 parameters fit (912px, e.g. in a 960px window),
-   2 columns if 2 fit, and 1 column (a list, as in PRA32-U2 Native) otherwise */
+   4 columns (as before) if 4 parameters fit (920px, e.g. in a 960px window with a scroll bar),
+   2 columns if 2 fit, and 1 column (a list, as in PRA32-U2 Native) otherwise.
+   No wider than a 960px window, so that the soft keyboard (37 keys, C3 - C6) and the lines are as there
+   even in a wider one */
 .app {
+  max-width: 944px;
   container-type: inline-size;
 }
 /* The spaces between the sections short (only to show that they are separate),
@@ -226,10 +230,8 @@ span.cc {
 /* ---- Parameters ----
    A parameter is the name (above) and the slider, the value, and the value label (below).
    The names of a row share their height (subgrid), so the sliders of a row line up even if a name wraps */
-/* The lines to the right end of the window (the columns of the mode: 4: 912px, 2: 456px, 1: 228px) */
+/* The lines to the right end of the container (the columns of the mode: 4: 920px, 2: 460px, 1: 230px) */
 .params {
-  /* Computed here (not only in :root), so that the widths of the compact 2 columns are used */
-  --param-width: calc(var(--slider-width) + var(--value-width) + var(--value-label-width));
   border-top: 1px solid #c0c0c0;
 }
 .param-group {
@@ -247,7 +249,7 @@ span.cc {
 .narrow-only {
   display: none;
 }
-@container (max-width: 911px) {
+@container (max-width: 919px) {
   .param-group {
     grid-template-columns: repeat(2, var(--param-width));
   }
@@ -279,21 +281,9 @@ span.cc {
     margin-top: 8px;
   }
 }
-/* Compact 2 columns (e.g. iPhone SE 2, 375px wide): narrower sliders and value labels (178px a parameter) */
-@container (max-width: 455px) {
-  .params {
-    --slider-width: 100px;
-    --value-width: 24px;
-    --value-label-width: 54px;
-  }
-}
-/* 1 column (a list, as in PRA32-U2 Native) if 2 compact parameters do not fit */
-@container (max-width: 355px) {
-  .params {
-    --slider-width: 135px;
-    --value-width: 25px;
-    --value-label-width: 68px;
-  }
+/* 1 column (a list, as in PRA32-U2 Native) if 2 parameters do not fit (e.g. iPhone SE 2, 375px wide):
+   no narrower sliders, which would not move a pixel a value */
+@container (max-width: 459px) {
   .param-group {
     grid-template-columns: var(--param-width);
   }
@@ -316,7 +306,7 @@ span.cc {
   .banks.split-1 > .bank:first-child {
     margin-top: 8px;  /* the space by a margin, not row-gap, which the empty line of the break would double */
   }
-  /* The compact 2 columns: the program buttons with names still in 4 columns, a little smaller */
+  /* A narrow window: the program buttons with names still in 4 columns, a little smaller */
   .bank.named button {
     font-size: 11px;
     padding: 1px 3px;
@@ -345,7 +335,7 @@ span.cc {
 }
 /* A name is on 1 line. A name too long for its width (e.g. "Voice Mode [Pol|Pol|Mon|Mon|LP|Lgt] CC#18")
    gets the letters closer together ("tight"), and smaller if still too long ("tighter"), by fitParamNames().
-   If it is still too long (in the compact 2 columns), it wraps ("wrap"); the names of a row share their height */
+   If it is still too long, it wraps ("wrap"); the names of a row share their height */
 .param-name {
   white-space: nowrap;
 }
@@ -381,8 +371,8 @@ span.cc {
 }
 /* Markers that do not pull the slider (unlike the markers of a datalist): drawn as the background of the slider cell,
    at the same positions as the datalist markers of Chrome (the input is at 3px, and a marker of the value v is
-   at 7px + (the width of the input - 16px) * v / 127 in the input, 1px wide and 4px high at the bottom; e.g. 67px for 64
-   in a 135px slider cell). The center (64) for [-|+] and [N|S],
+   at 7px + (the width of the input - 16px) * v / 127 in the input, 1px wide and 4px high at the bottom; e.g. 74px for 64
+   in a 149px slider cell). The center (64) for [-|+] and [N|S],
    and the 6 markers (as in "6 markers") and the center for Osc 1 Morph, which can be used as a 6-way switch */
 .soft-marker-c {
   background: linear-gradient(#101010, #101010) calc(10px + (var(--slider-width) - 22px) * 64/127) 21px / 1px 4px no-repeat;
@@ -1776,7 +1766,7 @@ function fitButtonsWidth(selector, property) {
 }
 
 // The names of the parameters on 1 line: a name too long for its width gets the letters closer together,
-// and smaller if still too long, and wraps if still too long (in the compact 2 columns) (the widths of the fonts differ among the OSes, so measured here)
+// and smaller if still too long, and wraps if still too long (the widths of the fonts differ among the OSes, so measured here)
 function fitParamNames() {
   document.querySelectorAll(".param-name").forEach(function(name) {
     name.classList.remove("tight", "tighter", "wrap");
