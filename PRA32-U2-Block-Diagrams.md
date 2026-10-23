@@ -277,7 +277,8 @@ flowchart LR
 - The gain is looked up in a table, by the envelope in a pseudo-logarithmic scale; it holds the
   soft-knee compression (2:1 above -6 dB at its input, with a soft knee from -9 dB to -3 dB), the
   ceiling (the peaks are limited to 1.0 at its input, reached at +6 dB), and the output gain
-  (x 0.75, -2.5 dB)
+  (x 0.75, -2.5 dB); the table covers the envelope up to +24 dB, about the largest peak the Voices,
+  the Chorus, and the Delay can reach, and above it, the gain stays at the last entry
 - The gain is recalculated once per 4 samples, and interpolated over the samples in between
 
 

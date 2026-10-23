@@ -2,8 +2,8 @@
 
 const uint8_t  OUTPUT_COMPRESSOR_TABLE_SEGMENT_BITS = 4;
 const uint8_t  OUTPUT_COMPRESSOR_TABLE_MIN_BITS     = 15;
-const uint8_t  OUTPUT_COMPRESSOR_TABLE_OCTAVES      = 10;
-const uint16_t OUTPUT_COMPRESSOR_TABLE_LENGTH       = 161;
+const uint8_t  OUTPUT_COMPRESSOR_TABLE_OCTAVES      = 12;
+const uint16_t OUTPUT_COMPRESSOR_TABLE_LENGTH       = 193;
 
 // The output gain in Q16, also applied to the Dry input (not compressed)
 const int32_t  OUTPUT_COMPRESSOR_OUTPUT_GAIN        = 49152;
@@ -21,5 +21,7 @@ int32_t g_output_compressor_gain_table[OUTPUT_COMPRESSOR_TABLE_LENGTH] = {
    +47103,  +46338,  +45516,  +44656,  +43768,  +42865,  +41954,  +41044,  +40180,  +39368,  +38604,  +37882,  +37200,  +36553,  +35938,  +35354,
    +34797,  +33758,  +32807,  +31932,  +31123,  +30373,  +29675,  +29023,  +28412,  +27838,  +27297,  +26787,  +26304,  +25847,  +25412,  +24999,
    +24576,  +23130,  +21845,  +20696,  +19661,  +18725,  +17873,  +17096,  +16384,  +15729,  +15124,  +14564,  +14043,  +13559,  +13107,  +12684,
-   +12288,
+   +12288,  +11565,  +10923,  +10348,   +9830,   +9362,   +8937,   +8548,   +8192,   +7864,   +7562,   +7282,   +7022,   +6780,   +6554,   +6342,
+    +6144,   +5783,   +5461,   +5174,   +4915,   +4681,   +4468,   +4274,   +4096,   +3932,   +3781,   +3641,   +3511,   +3390,   +3277,   +3171,
+    +3072,
 };
