@@ -8,15 +8,18 @@ $file.printf("#pragma once\n\n")
 #
 # The table is indexed by the envelope (1.0 = 1 << 23) in a pseudo-logarithmic
 # scale: OUTPUT_COMPRESSOR_TABLE_SEGMENT_BITS bits below the leading 1 of the
-# envelope, for each octave from 2^15 (-48 dB) to 2^25 (+12 dB); the compressor
+# envelope, for each octave from 2^15 (-48 dB) to 2^27 (+24 dB); the compressor
 # interpolates between the entries at run time. The table ends with a guard
-# entry for 2^25, so that the interpolation needs no run-time check at the end
+# entry for 2^27, so that the interpolation needs no run-time check at the end.
+# The top is +24 dB, about the largest peak the Voices, the Chorus, and the
+# Delay can reach (4 Voices x 2 x about 2, with the Pan at the center), so that
+# the ceiling holds up to it; above the top, the gain stays at the last entry
 #
 # Each entry is the whole gain in Q16: the compression with a soft knee, the
 # ceiling (infinity:1 above the input 1.0, as the Output Limiter), and the
 # output gain (x 0.75, -2.5 dB), so that no extra multiplication is needed
 OUTPUT_COMPRESSOR_TABLE_SEGMENT_BITS = 4
-OUTPUT_COMPRESSOR_TABLE_OCTAVES      = 10
+OUTPUT_COMPRESSOR_TABLE_OCTAVES      = 12
 OUTPUT_COMPRESSOR_TABLE_MIN_BITS     = 15
 OUTPUT_COMPRESSOR_TABLE_LENGTH       = (OUTPUT_COMPRESSOR_TABLE_OCTAVES << OUTPUT_COMPRESSOR_TABLE_SEGMENT_BITS) + 1
 
