@@ -277,7 +277,8 @@ graph LR
           some PC keyboards cannot take many keys at the same time (e.g. a chord of 4 notes)
         - The velocities of Note On and Note Off can be entered (1-127, 100 and 64 by default)
         - Pitch Bend (springs back to the center), Modulation Wheel, Breath Controller, Expression, Sustain Pedal, Portamento Switch,
-          and Channel Pressure can be sent from the sliders below the keyboard
+          and Channel Pressure can be sent from the sliders below the keyboard (Performance Controls, which can be hidden apart from the keyboard,
+          e.g. on a phone)
 - When not using PRA32-U2 Editor (e.g. with a DAW or a MIDI keyboard)
     - PRA32-U2 can also be controlled by MIDI without using PRA32-U2 Editor
     - Sounds made with PRA32-U2 Editor can be written to PRA32-U2, and recalled later without PRA32-U2 Editor

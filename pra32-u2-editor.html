@@ -437,10 +437,15 @@ span.cc {
   display: block;
   clear: both;
 }
-/* The controls for playing below the keyboard (as Control a/b of PRA32-U2/P), as a row of the parameters without the lines */
+/* The controls for playing below the keyboard (as Control a/b of PRA32-U2/P), as a row of the parameters without the lines.
+   They can be hidden apart from the keyboard (e.g. on a phone, where they would take most of the window in 1 column) */
+#perfDetails > summary {
+  margin-top: 6px;
+  cursor: pointer;
+}
 .params.perf {
   border-top: none;
-  margin: 8px 0 0 0;
+  margin: 2px 0 0 0;
 }
 .params.perf .param-group {
   border-bottom: none;
@@ -993,6 +998,12 @@ window.onload = function() {
   saveLoadDetails.open = (localStorage.getItem("keySaveLoadOpen") == "1");
   saveLoadDetails.addEventListener("toggle", function() {
     localStorage.setItem("keySaveLoadOpen", saveLoadDetails.open ? "1" : "0");
+  });
+  // The Performance Controls are shown by default, and shown or hidden as the last time
+  var perfDetails = document.getElementById("perfDetails");
+  perfDetails.open = (localStorage.getItem("keyPerfOpen") != "0");
+  perfDetails.addEventListener("toggle", function() {
+    localStorage.setItem("keyPerfOpen", perfDetails.open ? "1" : "0");
   });
   document.querySelectorAll("details").forEach(function(details) {
     details.addEventListener("toggle", fitLayout);
@@ -3049,6 +3060,8 @@ Off <input type="number" id="inputNoteOffVelocity" min="1" max="127" step="1"></
 </div>
 <div class="kbd-scrollbar" id="kbdScrollbar"><div class="kbd-scrollbar-thumb" id="kbdScrollbarThumb"></div></div>
 </div>
+<details id="perfDetails" open>
+<summary>Performance Controls</summary>
 <div class="params perf">
 <div class="param-group">
 <div class="param">
@@ -3081,6 +3094,7 @@ Off <input type="number" id="inputNoteOffVelocity" min="1" max="127" step="1"></
 </div>
 </div>
 </div>
+</details>
 </details>
 
 </div>
