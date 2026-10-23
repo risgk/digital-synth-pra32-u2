@@ -485,10 +485,10 @@ span.cc {
   height: calc(140px * var(--kbd-scale));
   touch-action: none;  /* a touch plays (and glides over) the keys, and does not scroll */
 }
-/* Floating (set by kbdFitFloating()): the keyboard (with its bar and the controls for playing) stays at the bottom
-   of the window while the parameters scroll above it, so that they can be changed while playing (e.g. in a demo),
-   with lower keys (100px) */
-#kbdDetails.floating {
+/* The keyboard (with its bar and the controls for playing) stays at the bottom of the window while the parameters
+   scroll above it, so that they can be changed while playing (e.g. in a demo), with lower keys (100px).
+   Hidden, only its bar stays there */
+#kbdDetails {
   position: sticky;
   bottom: 0;
   z-index: 3;  /* above the sliders */
@@ -496,10 +496,10 @@ span.cc {
   margin-bottom: 0;
   padding-bottom: 8px;
 }
-#kbdDetails.floating .keyboard-frame {
+#kbdDetails .keyboard-frame {
   --kbd-half-height: calc(50px * var(--kbd-scale));
 }
-#kbdDetails.floating .keyboard {
+#kbdDetails .keyboard {
   height: calc(100px * var(--kbd-scale));
 }
 /* The upper half: the 12 semitones at equal intervals (the black keys as wide and as long as the upper parts of
@@ -2094,7 +2094,7 @@ function createKeyboard() {
 
   // The text size may change without a resize of the window
   if (window.ResizeObserver) {
-    new ResizeObserver(function() { kbdFitScale(); kbdFitFloating(); }).observe(document.getElementById("spanKbdLabel"));
+    new ResizeObserver(function() { kbdFitScale(); }).observe(document.getElementById("spanKbdLabel"));
   }
 
   // The keyboard is shown by default, and shown or hidden as the last time. It cannot be scrolled while hidden,
@@ -2107,10 +2107,7 @@ function createKeyboard() {
       event.preventDefault();
     }
   });
-  kbdFitFloating();
-  window.addEventListener("resize", kbdFitFloating);
   details.addEventListener("toggle", function() {
-    kbdFitFloating();
     localStorage.setItem("keyKbdOpen", details.open ? "1" : "0");
     if (details.open) {
       kbdFitScale();
@@ -2121,17 +2118,6 @@ function createKeyboard() {
       kbdUpdateScrollbar();
     }
   });
-}
-
-// The keyboard floats at the bottom of the window (see #kbdDetails.floating) if it takes no more than half of the
-// window (e.g. not with the controls for playing in 1 column on a phone, or in a phone on its side), or if hidden
-// (only its bar)
-function kbdFitFloating() {
-  var details = document.getElementById("kbdDetails");
-  details.classList.add("floating");
-  if (details.open && details.getBoundingClientRect().height > window.innerHeight / 2) {
-    details.classList.remove("floating");
-  }
 }
 
 // The keyboard as large as the text: the scale of the text is measured as the width of a text in the page
