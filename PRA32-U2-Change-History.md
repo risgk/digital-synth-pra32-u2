@@ -6,6 +6,7 @@
     - PRA32-U2 Editor: Make the page no wider than in a 960 px window, so that the Software Keyboard shows the 37 keys (e.g. C3 - C6) and the lines end there even in a wider window
     - PRA32-U2 Editor: Move the Software Keyboard below the parameters, and keep it at the bottom of the window while they scroll above it, with lower keys (100 px, from 140 px), so that they can be changed while playing
     - PRA32-U2 Editor: Show the value of Pitch Bend with "+" for 0 and above (e.g. "+0" and "+8191"), as the parameters of [-|+]
+    - PRA32-U2 Editor: Show Hold and Panic of the Software Keyboard even while it is hidden, and turn Hold off by Panic
     - Tested with Arduino-Pico version 6.3.0
 - v3.16.1 (2026-10-23):
     - PRA32-U2 Editor: Make the supplements in [] (e.g. "[Saw|Sqr|Tri|Sin|WT|Pls]") and the control numbers in the parameter names smaller, so that the names are narrower, and put the control numbers a little apart (also "PC#127" in "Randomize Synth")

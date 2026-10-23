@@ -400,7 +400,8 @@ span.cc {
   display: inline-block;
   margin-right: 4px;
 }
-#kbdDetails:not([open]) .kbd-bar button, #kbdDetails:not([open]) .kbd-hint, #kbdDetails:not([open]) .kbd-vel {
+/* Hidden, the bar keeps Hold and Panic (a note held or left on still needs them) */
+#kbdDetails:not([open]) .kbd-bar button:not(.kbd-hold):not(.kbd-panic), #kbdDetails:not([open]) .kbd-hint, #kbdDetails:not([open]) .kbd-vel {
   display: none;
 }
 .kbd-vel {
@@ -1071,6 +1072,7 @@ function updateUndoButton() {
 
 function panic() {
   kbdReset();
+  kbdSetHold(false);  // after kbdReset(), which has let go of the held notes
   resetPerformanceControls();  // as Reset All Controllers below
   if (midiOutput) {
     midiOutput.send([(CONTROL_CHANGE | midi_ch), ALL_NOTES_OFF, 0]);
