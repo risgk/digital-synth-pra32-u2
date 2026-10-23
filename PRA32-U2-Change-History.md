@@ -1,5 +1,11 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v3.16.1 (2026-10-23):
+    - PRA32-U2 Editor: Make the supplements in [] (e.g. "[Saw|Sqr|Tri|Sin|WT|Pls]") and the control numbers in the parameter names smaller, so that the names are narrower, and put the control numbers a little apart (also "PC#127" in "Randomize Synth")
+    - Move the Filter Diagrams and the Wave Table Graphs from README.md to PRA32-U2-Block-Diagrams.md, and add the block diagrams of the Osc, the Chorus FX, the Delay FX, the Reverb, the Output Compressor, and PRA32-U2/M
+    - PRA32-U2-Parameter-Guide.md: Add "Main Parameters", the list of the main parameters (the first 32 in PRA32-U2 Editor, and the 2 FX levels), and the recommendation to start from the Preset "#19 Plain Poly" (also referred to in README.md and README.ja.md)
+    - Extend the gain table of the Output Compressor to +24 dB (from +12 dB) at its input, so that the ceiling holds the peaks up to +24 dB (above +12 dB, the soft clip held them before); the sound does not change up to +12 dB
+    - Tested with Arduino-Pico version 6.3.0
 - v3.16.0 (2026-10-22):
     - Add Band Reject (Notch) to Filter Mode, as [LP|LP|BP|BP|BR|HP]: BR is 102 (90-115), and 0, 64, and 127 stay LP, BP, and HP (32-38 change from BP to LP, 90-95 from BP to BR, and 96-115 from HP to BR)
     - Swap the order of Amp Attack/Decay/Sustain/Release and Filter Mode/Pitch Bend Range/EG Amp Mod/EG/Amp Rel = Dec (PRA32-U2 Editor, PRA32-U2 Native, the MIDI Implementation Chart, and the programs (internal))

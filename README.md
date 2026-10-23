@@ -1,4 +1,4 @@
-# Digital Synth PRA32-U2 v3.16.0
+# Digital Synth PRA32-U2 v3.16.1
 
 - 2026-10-16 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
@@ -35,6 +35,8 @@
 
 ## [Parameter Guide](./PRA32-U2-Parameter-Guide.md)
 
+- See [Main Parameters](./PRA32-U2-Parameter-Guide.md#main-parameters) first: the main parameters, and the Preset to start from
+
 
 ## [MIDI Implementation Chart](./PRA32-U2-MIDI-Implementation-Chart.md)
 
@@ -64,66 +66,9 @@ graph LR
 ```
 
 
-## Filter Diagrams
+## [Block Diagrams and Wave Table Graphs](./PRA32-U2-Block-Diagrams.md)
 
-A zero-delay feedback state variable filter. The band pass integrator leaks, more and more as
-the band pass bends into a soft clip curve (ceiling 4.0), and that is what holds the resonance
-down; at small levels the leak is next to nothing, so the pass band passes nearly clean. The
-loop equation, leak included, is solved every sample by the one-step simplified Newton method
-(the chord method, with the slope held at the linear part) from the linear solution,
-which needs no division and lands close to the root. The leak's rate is fixed in time, so the sound
-does not change with the sampling rate. The low pass state stays linear, with a clamp at 16 as
-a guard that ordinary use never reaches. The curve is biased by 1/8, so that the leak adds even
-harmonics as the band pass is driven (at a high Resonance or near the cutoff), with its
-small-signal gain made up for, so that the resonance is kept; a DC blocker on the output
-removes the DC that comes with it. The output clip comes last. Above the Filter
-Resonance 122, k turns negative and the loop oscillates.
-
-```mermaid
-flowchart LR
-    IN([Input]) --> SUM((Σ))
-    SUM -->|HP| I1["Integrator 1<br/>BP, state s1"]
-    I1 -->|BP| I2["Integrator 2<br/>LP, state s2"]
-    SUM -->|HP| MS["Filter Mode<br/>LP / BP / BR / HP"]
-    I1 -->|BP| MS
-    I2 -->|LP| MS
-    MS --> DC["DC blocker<br/>7.5 Hz"]
-    DC --> OC["Output clip<br/>linear up to 0.75"]
-    OC --> OUT([Output])
-    SC["Nonlinear leak<br/>biased 1/8, ceiling 4.0, one-step simplified Newton"] -.- I1
-    L2["s2 is linear<br/>guard clamp at 16"] -.- I2
-    I1 -->|"−k·BP"| SUM
-    I2 -->|"−LP"| SUM
-    classDef nl fill:#FAECE7,stroke:#D85A30,color:#712B13
-    class SC,OC nl
-```
-
-The same structure redrawn as an op-amp integrator filter. The asymmetric diode pair stands for
-the biased nonlinear leak, the coupling capacitor for the DC blocker, and the output clipper for the
-output clip. It is an interpretation, not a reproduction of an actual circuit.
-
-```mermaid
-flowchart LR
-    IN([Input]) --> A1["Summing amp Σ"]
-    A1 -->|HP| A2["Integrator ∫<br/>C1"]
-    D["Diode pair<br/>asymmetric"] -.-|across C1| A2
-    A2 -->|BP| A3["Integrator ∫<br/>C2, linear"]
-    A1 -->|HP| MS["Filter Mode<br/>LP / BP / BR / HP"]
-    A2 -->|BP| MS
-    A3 -->|LP| MS
-    MS --> CC["Coupling capacitor"]
-    CC --> LIM["Output clipper"]
-    LIM --> OUT([Output])
-    A2 -->|"R/k (resonance)"| A1
-    A3 -->|R| A1
-    classDef nl fill:#FAECE7,stroke:#D85A30,color:#712B13
-    class D,LIM nl
-```
-
-
-## Wave Table Graphs
-
-![Wave Table Graphs](./pra32-u2-wave-table-graphs.png)
+- The diagrams of the Osc, the Filter, the Chorus FX, the Delay FX, the Reverb, the Output Compressor, and PRA32-U2/M, and the graphs of the Wave Tables
 
 
 ## Preparation for Modification
@@ -445,11 +390,11 @@ flowchart LR
 
 ![CC0](http://i.creativecommons.org/p/zero/1.0/88x31.png)
 
-**Digital Synth PRA32-U2 v3.16.0 by ISGK Instruments (Ryo Ishigaki)**
+**Digital Synth PRA32-U2 v3.16.1 by ISGK Instruments (Ryo Ishigaki)**
 
 To the extent possible under law, ISGK Instruments (Ryo Ishigaki)
 has waived all copyright and related or neighboring rights
-to Digital Synth PRA32-U2 v3.16.0.
+to Digital Synth PRA32-U2 v3.16.1.
 
 You should have received a copy of the CC0 legalcode along with this
 work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
