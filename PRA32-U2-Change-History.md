@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v3.16.1 (2026-??-??):
+- v3.16.1 (2026-10-23):
     - PRA32-U2 Editor: Make the supplements in [] (e.g. "[Saw|Sqr|Tri|Sin|WT|Pls]") and the control numbers in the parameter names smaller, so that the names are narrower, and put the control numbers a little apart (also "PC#127" in "Randomize Synth")
     - Move the Filter Diagrams and the Wave Table Graphs from README.md to PRA32-U2-Block-Diagrams.md, and add the block diagrams of the Osc, the Chorus FX, the Delay FX, the Reverb, the Output Compressor, and PRA32-U2/M
     - PRA32-U2-Parameter-Guide.md: Add "Main Parameters", the list of the main parameters (the first 32 in PRA32-U2 Editor, and the 2 FX levels), and the recommendation to start from the Preset "#19 Plain Poly" (also referred to in README.md and README.ja.md)
