@@ -26,6 +26,7 @@
     - PRA32-U2 Editor: Show a note in the MIDI settings if Web MIDI is not available or not allowed (only in the console before)
     - PRA32-U2 Editor: Make the values of the parameters not used (e.g. Amp Attack while EG Amp Mod is On) a little darker gray (#a0a0a0, from #d3d3d3), as an empty preset
     - PRA32-U2 Editor: Wrap the bar of the Software Keyboard by the group in a narrow window, with a space between the lines, so that the buttons do not touch (Hold and Panic at the right end)
+    - PRA32-U2 Editor: Keep the page from scrolling under a finger on the Software Keyboard on an iPhone (Safari and the other browsers there), which let the key go, and hide "PC Keys" on a phone or a tablet (as in SPMS-1 Editor)
     - Tested with Arduino-Pico version 6.3.0
 - v3.16.1 (2026-10-23):
     - PRA32-U2 Editor: Make the supplements in [] (e.g. "[Saw|Sqr|Tri|Sin|WT|Pls]") and the control numbers in the parameter names smaller, so that the names are narrower, and put the control numbers a little apart (also "PC#127" in "Randomize Synth")

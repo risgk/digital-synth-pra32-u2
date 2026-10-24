@@ -613,6 +613,12 @@ span.cc {
   font-size: 10px;
   color: #808080;
 }
+/* Where nothing hovers (e.g. a phone or a tablet), there is most likely no PC keyboard either */
+@media (hover: none) {
+  .kbd-hint {
+    display: none;
+  }
+}
 /* The controls for playing below the keyboard (as Control a/b of PRA32-U2/P), as a row of the parameters without the lines.
    They can be hidden apart from the keyboard (e.g. on a phone, where they would take most of the window in 1 column) */
 #perfDetails > summary {
@@ -2306,6 +2312,13 @@ function createKeyboard() {
   kb.style.width = "calc(" + (lastLeftWidth[0] + lastLeftWidth[1] - kbdLowerLeftWidth(KBD_NOTE_MIN)[0]) + " * var(--kbd-key-width))";
 
   kb.addEventListener("contextmenu", function(event) { event.preventDefault(); });
+  // Safari on iOS (and the other browsers there) scrolls the page under a finger on the keys whatever touch-action says
+  // (the keys are in a scroll container), and the key is let go; the touch is held here, and the pointer events below
+  // come as they are (the same for the scroll bar below the keys)
+  [kb, document.getElementById("kbdScrollbar")].forEach(function(element) {
+    element.addEventListener("touchstart", function(event) { event.preventDefault(); }, { passive: false });
+    element.addEventListener("touchmove", function(event) { event.preventDefault(); }, { passive: false });
+  });
   kb.addEventListener("pointerdown", function(event) {
     if (event.button != 0) {
       return;
