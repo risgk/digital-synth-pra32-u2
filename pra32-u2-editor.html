@@ -988,6 +988,8 @@ window.onload = function() {
   createKeyboard();
   createVelocityInputs();
   setupPitchBendSpring();
+  setupSliderUndo();
+  setupAccessibleNames();
   fitLayout();
   if (document.fonts) {
     document.fonts.ready.then(fitLayout);
@@ -1036,11 +1038,15 @@ function sendCurrentParameters() {
   }
 }
 
-// Undo: the parameters before the last change of them all (Factory Preset, User Preset, Randomize Synth/FX, Import,
-// and Program Change from MIDI In) are kept, so that a sound being made is not lost by a wrong button.
-// Undo again goes back to the parameters before Undo (as Redo)
-var undoParameters = null;
+// Undo: the parameters before each change are kept (up to UNDO_MAX), so that a sound being made is not lost by a wrong
+// button or a wrong move: a change of them all (Factory Preset, User Preset, Randomize Synth/FX, Import, and Program
+// Change from MIDI In), and a move of a slider (one by a drag, or by a key). Redo goes forward again, until
+// another change
+const UNDO_MAX = 200;
+var undoStack = [];
+var redoStack = [];
 var undoSuspended = false;
+var undoSliderBefore = null;  // the parameters before a drag of a slider (or a key on it), kept until it moves
 
 function getCurrentParameters() {
   return controllersInLocalStorage.map(function(i) {
@@ -1050,9 +1056,39 @@ function getCurrentParameters() {
 
 function saveUndo() {
   if (!undoSuspended) {
-    undoParameters = getCurrentParameters();
-    updateUndoButton();
+    pushUndo(getCurrentParameters());
   }
+}
+
+function pushUndo(parameters) {
+  undoStack.push(parameters);
+  if (undoStack.length > UNDO_MAX) {
+    undoStack.shift();
+  }
+  redoStack = [];
+  updateUndoButton();
+}
+
+// A slider of the parameters (not of the Performance Controls), pressed or given a key: the parameters before it,
+// kept as the step of Undo only if it moves
+function isParamSlider(element) {
+  return element.matches && element.matches(".params:not(.perf) input[type=range]");
+}
+
+function setupSliderUndo() {
+  ["pointerdown", "keydown"].forEach(function(type) {
+    document.addEventListener(type, function(event) {
+      if (isParamSlider(event.target) && !event.repeat) {  // a key held down: one step
+        undoSliderBefore = getCurrentParameters();
+      }
+    }, true);
+  });
+  document.addEventListener("input", function(event) {
+    if (isParamSlider(event.target) && undoSliderBefore) {
+      pushUndo(undoSliderBefore);
+      undoSliderBefore = null;
+    }
+  }, true);
 }
 
 function withoutUndo(func) {
@@ -1066,19 +1102,32 @@ function withoutUndo(func) {
 }
 
 function undo() {
-  if (!undoParameters) {
+  if (!undoStack.length) {
     return;
   }
-  var parameters = undoParameters;
-  undoParameters = getCurrentParameters();
-  controllersInLocalStorage.forEach(function(i, index) {
-    onChangeControlChange(i, parameters[index]);
-  });
+  redoStack.push(getCurrentParameters());
+  setParameters(undoStack.pop());
   updateUndoButton();
 }
 
+function redo() {
+  if (!redoStack.length) {
+    return;
+  }
+  undoStack.push(getCurrentParameters());
+  setParameters(redoStack.pop());
+  updateUndoButton();
+}
+
+function setParameters(parameters) {
+  controllersInLocalStorage.forEach(function(i, index) {
+    onChangeControlChange(i, parameters[index]);
+  });
+}
+
 function updateUndoButton() {
-  document.getElementById("buttonUndo").disabled = !undoParameters;
+  document.getElementById("buttonUndo").disabled = !undoStack.length;
+  document.getElementById("buttonRedo").disabled = !redoStack.length;
 }
 
 function panic() {
@@ -1269,34 +1318,39 @@ function onMIDISuccess(midiAccess) {
 
   var selectInputPort1 = document.getElementById("selectInputPort1");
   for (var i = 0; i < midiInputs.length; i++) {
-    selectInputPort1.appendChild(new Option(midiInputs[i].name))
+    selectInputPort1.appendChild(new Option(portOptionName(midiInputs, i)))
   }
   restorePortSelection("selectInputPort1", midiInputs);
   onChangeInputPort1();
   var selectInputPort2 = document.getElementById("selectInputPort2");
   for (var i = 0; i < midiInputs.length; i++) {
-    selectInputPort2.appendChild(new Option(midiInputs[i].name))
+    selectInputPort2.appendChild(new Option(portOptionName(midiInputs, i)))
   }
   restorePortSelection("selectInputPort2", midiInputs);
   onChangeInputPort2();
   var selectInputPort3 = document.getElementById("selectInputPort3");
   for (var i = 0; i < midiInputs.length; i++) {
-    selectInputPort3.appendChild(new Option(midiInputs[i].name))
+    selectInputPort3.appendChild(new Option(portOptionName(midiInputs, i)))
   }
   restorePortSelection("selectInputPort3", midiInputs);
   onChangeInputPort3();
   var selectInputPort4 = document.getElementById("selectInputPort4");
   for (var i = 0; i < midiInputs.length; i++) {
-    selectInputPort4.appendChild(new Option(midiInputs[i].name))
+    selectInputPort4.appendChild(new Option(portOptionName(midiInputs, i)))
   }
   restorePortSelection("selectInputPort4", midiInputs);
   onChangeInputPort4();
   var selectOutputPort = document.getElementById("selectOutputPort");
   for (var i = 0; i < midiOutputs.length; i++) {
-    selectOutputPort.appendChild(new Option(midiOutputs[i].name))
+    selectOutputPort.appendChild(new Option(portOptionName(midiOutputs, i)))
   }
   restorePortSelection("selectOutputPort", midiOutputs);
   onChangeOutputPort();
+}
+
+// The first item (no port) shown as "(None)", not as an empty box
+function portOptionName(ports, i) {
+  return (i == 0) ? "(None)" : ports[i].name;
 }
 
 function restorePortSelection(selectId, ports) {
@@ -1793,6 +1847,28 @@ function fitButtonsWidth(selector, property) {
   if (width > 0) {
     root.style.setProperty(property, Math.ceil(width) + "px");
   }
+}
+
+// The names of the controls for a screen reader: a slider takes the name of its parameter (without the supplement
+// in [], e.g. "Osc 1 Wave CC#102"), a select of the MIDI settings its label, and a velocity what it is
+function setupAccessibleNames() {
+  document.querySelectorAll(".param").forEach(function(param) {
+    var name = param.querySelector(".param-name").cloneNode(true);
+    name.querySelectorAll(".sup").forEach(function(sup) { sup.remove(); });
+    var input = param.querySelector("input[type=range]");
+    if (input) {
+      input.setAttribute("aria-label", name.textContent.replace(/\s+/g, " ").trim());
+    }
+  });
+  document.querySelectorAll(".midi-item").forEach(function(item) {
+    var label = item.querySelector(".lbl-midi");
+    var select = item.querySelector("select");
+    if (label && select) {
+      select.setAttribute("aria-label", label.textContent);
+    }
+  });
+  document.getElementById("inputNoteOnVelocity").setAttribute("aria-label", "Note On Velocity");
+  document.getElementById("inputNoteOffVelocity").setAttribute("aria-label", "Note Off Velocity");
 }
 
 // The names of the parameters on 1 line: a name too long for its width gets the letters closer together,
@@ -2623,14 +2699,14 @@ function getStoredCCValueString(index, number) {
   <option value="15">16</option>
 </select></div>
 <div class="midi-break"></div>
-<div class="midi-item"><span class="lbl-midi">MIDI In 1</span><select id="selectInputPort1" size="1" onchange="onChangeInputPort1(); savePortSelection('selectInputPort1', midiInputs)"></select></div>
-<div class="midi-item"><span class="lbl-midi">MIDI In 2</span><select id="selectInputPort2" size="1" onchange="onChangeInputPort2(); savePortSelection('selectInputPort2', midiInputs)"></select></div>
+<div class="midi-item"><span class="lbl-midi">MIDI In 1</span><select id="selectInputPort1" size="1" onchange="onChangeInputPort1(); savePortSelection('selectInputPort1', midiInputs)"><option>(None)</option></select></div>
+<div class="midi-item"><span class="lbl-midi">MIDI In 2</span><select id="selectInputPort2" size="1" onchange="onChangeInputPort2(); savePortSelection('selectInputPort2', midiInputs)"><option>(None)</option></select></div>
 <div class="midi-break narrow-only"></div>
-<div class="midi-item"><span class="lbl-midi">MIDI In 3</span><select id="selectInputPort3" size="1" onchange="onChangeInputPort3(); savePortSelection('selectInputPort3', midiInputs)"></select></div>
-<div class="midi-item"><span class="lbl-midi">MIDI In 4</span><select id="selectInputPort4" size="1" onchange="onChangeInputPort4(); savePortSelection('selectInputPort4', midiInputs)"></select></div>
+<div class="midi-item"><span class="lbl-midi">MIDI In 3</span><select id="selectInputPort3" size="1" onchange="onChangeInputPort3(); savePortSelection('selectInputPort3', midiInputs)"><option>(None)</option></select></div>
+<div class="midi-item"><span class="lbl-midi">MIDI In 4</span><select id="selectInputPort4" size="1" onchange="onChangeInputPort4(); savePortSelection('selectInputPort4', midiInputs)"><option>(None)</option></select></div>
 <div class="midi-break"></div>
 <div class="midi-item"><span class="lbl-midi">MIDI Out</span>
-<select id="selectOutputPort" size="1" onchange="onChangeOutputPort(); savePortSelection('selectOutputPort', midiOutputs)"></select></div>
+<select id="selectOutputPort" size="1" onchange="onChangeOutputPort(); savePortSelection('selectOutputPort', midiOutputs)"><option>(None)</option></select></div>
 </div>
 
 <div class="section misc">
@@ -2639,7 +2715,8 @@ function getStoredCCValueString(index, number) {
 <button type="button" onclick="panic()">Panic</button>
 <button type="button" onclick="setRandom()">Randomize Synth <span class="cc">PC#127</span></button>
 <button type="button" onclick="setRandomChorus()">Randomize FX</button>
-<button type="button" id="buttonUndo" onclick="undo()" title="Back to the parameters before the last preset, Randomize, or Import (again: Redo)">Undo</button></div></div>
+<button type="button" id="buttonUndo" onclick="undo()" title="Back to the parameters before the last change (a preset, Randomize, Import, or a move of a slider)">Undo</button>
+<button type="button" id="buttonRedo" onclick="redo()" title="Forward again to the parameters before Undo">Redo</button></div></div>
 </div>
 
 <div class="section prog-row">
