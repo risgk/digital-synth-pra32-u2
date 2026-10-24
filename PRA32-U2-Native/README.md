@@ -1,4 +1,4 @@
-# PRA32-U2 Native v3.16.1
+# PRA32-U2 Native v3.17.0
 
 - 2026-10-16 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
