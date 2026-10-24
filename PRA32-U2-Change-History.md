@@ -15,6 +15,10 @@
     - PRA32-U2 Editor: Make the thumbs of the sliders larger (24 px, from 16 px) on a touch screen, with the sliders longer (157 px) so that the thumb still moves a pixel a value, and the value labels narrower (48 px)
     - PRA32-U2 Editor: Put MIDI, Actions, Factory Preset, User Preset, and Save & Load (as its sub heading) under "MIDI, Actions & Presets", which can be hidden at once (shown by default, and shown or hidden as the last time)
     - PRA32-U2 Editor: Color the sliders orange (the color of PRA32-U2), and the buttons under the pointer and while pressed, and show the title larger in orange over an orange line, with the version and the link smaller (as in SPMS-1 Editor)
+    - PRA32-U2 Editor: Make the buttons taller (30 px, from 21 px) on a touch screen
+    - PRA32-U2 Editor: Show the ring of the keyboard focus in orange
+    - PRA32-U2 Editor: Add the keys for Undo (Ctrl+Z) and Redo (Ctrl+Y or Ctrl+Shift+Z), Command instead of Ctrl on a Mac
+    - PRA32-U2 Editor: Give the sliders their values with the meanings (e.g. "0 Saw") for a screen reader
     - Tested with Arduino-Pico version 6.3.0
 - v3.16.1 (2026-10-23):
     - PRA32-U2 Editor: Make the supplements in [] (e.g. "[Saw|Sqr|Tri|Sin|WT|Pls]") and the control numbers in the parameter names smaller, so that the names are narrower, and put the control numbers a little apart (also "PC#127" in "Randomize Synth")
