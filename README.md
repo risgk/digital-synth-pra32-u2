@@ -1,4 +1,4 @@
-# Digital Synth PRA32-U2 v3.16.1
+# Digital Synth PRA32-U2 v3.17.0
 
 - 2026-10-16 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
@@ -269,14 +269,18 @@ graph LR
     - PRA32-U2 Editor stores the current control values and the user presets (#0-15) in a Web browser (localStorage)
     - Current parameter values and user presets (#0-15) can be imported/exported from/to JSON files
     - User presets: a name of up to 10 ASCII letters, digits, and symbols can be given by Store (shown on the User Preset buttons)
-    - Undo: back to the parameters before the last preset, Randomize, or Import (Undo again: Redo)
+    - Undo: back to the parameters before the last change (a preset, Randomize, Import, or a move of a slider), up to 200 steps; Redo: forward again (also by Ctrl+Z and Ctrl+Y or Ctrl+Shift+Z, or Command on a Mac)
+    - "MIDI" and "Actions & Presets" (with "Save & Load" under it) can each be hidden, to give the parameters more of the window
+    - The controls look the same in every Web browser and OS (as in Chrome); on a touch screen, the thumbs of the sliders are larger, and the buttons taller
     - Software Keyboard
-        - While Hold is on, the keys released keep their notes on (turning Hold off turns them off)
+        - Below the parameters, it stays at the bottom of the window while they scroll above it, so that they can be changed while playing; it can be hidden (Panic stays shown; hiding turns Hold off)
+        - While Hold is on, the keys released keep their notes on (turning Hold off, or Panic, turns them off)
         - The PC keyboard can also be played while it is shown (A - K for C - C, W - U for the black keys, and Z / X for the octave);
           some PC keyboards cannot take many keys at the same time (e.g. a chord of 4 notes)
         - The velocities of Note On and Note Off can be entered (1-127, 100 and 64 by default)
         - Pitch Bend (springs back to the center), Modulation Wheel, Breath Controller, Expression, Sustain Pedal, Portamento Switch,
-          and Channel Pressure can be sent from the sliders below the keyboard
+          and Channel Pressure can be sent from the sliders below the keyboard (Performance Controls, which can be hidden apart from the keyboard,
+          e.g. on a phone)
 - When not using PRA32-U2 Editor (e.g. with a DAW or a MIDI keyboard)
     - PRA32-U2 can also be controlled by MIDI without using PRA32-U2 Editor
     - Sounds made with PRA32-U2 Editor can be written to PRA32-U2, and recalled later without PRA32-U2 Editor
@@ -390,11 +394,11 @@ graph LR
 
 ![CC0](http://i.creativecommons.org/p/zero/1.0/88x31.png)
 
-**Digital Synth PRA32-U2 v3.16.1 by ISGK Instruments (Ryo Ishigaki)**
+**Digital Synth PRA32-U2 v3.17.0 by ISGK Instruments (Ryo Ishigaki)**
 
 To the extent possible under law, ISGK Instruments (Ryo Ishigaki)
 has waived all copyright and related or neighboring rights
-to Digital Synth PRA32-U2 v3.16.1.
+to Digital Synth PRA32-U2 v3.17.0.
 
 You should have received a copy of the CC0 legalcode along with this
 work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.

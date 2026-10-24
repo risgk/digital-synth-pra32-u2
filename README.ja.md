@@ -1,4 +1,4 @@
-# Digital Synth PRA32-U2 v3.16.1
+# Digital Synth PRA32-U2 v3.17.0
 
 - 2026-10-16 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
@@ -99,11 +99,14 @@
     - JSON ファイルへのエクスポートと、JSON ファイルからのインポート
     - Randomize Synth と Randomize FX: シンセや FX のパラメーターをランダムに設定します
         - Randomize Synth が変えるのは、Editor の最初の 32 個のうち、Voice Mode と Amp Gain を除くパラメーターです
-    - Undo: 直前のプリセット、Randomize、Import の前のパラメーターに戻します (もう一度押すと Redo)
+    - Undo: 直前の変更 (プリセット、Randomize、Import、スライダーの操作) の前のパラメーターに戻します (200 段階まで)。Redo で進めます (Ctrl+Z と、Ctrl+Y または Ctrl+Shift+Z でも。Mac では Command)
+    - "MIDI" と "Actions & Presets" ("Save & Load" を含む) はそれぞれ隠せるので、パラメーターに画面を広く使えます
+    - ボタンやスライダーなどは、どのブラウザーや OS でも同じ見た目 (Chrome 相当) です。タッチ画面では、スライダーのつまみが大きく、ボタンが高くなります
     - Software Keyboard: マウス、タッチ、PC のキーボード (A - K が C - C、W - U が黒鍵、Z / X がオクターブ) で弾けます
+        - パラメーターの下にあり、パラメーターをスクロールしても画面の下に残るので、弾きながらパラメーターを変えられます。隠すこともできます (Panic は表示されたまま。隠すと Hold はオフになります)
         - ノートオンとノートオフのベロシティを入力できます (1-127、初期値は 100 と 64)
-        - Hold がオンの間は、離した鍵盤のノートが鳴り続けます (Hold をオフにすると止まります)
-        - 鍵盤の下のスライダーで、Pitch Bend (離すと中央に戻ります)、Modulation Wheel、Breath Controller、Expression、Sustain Pedal、Portamento Switch、Channel Pressure を送れます
+        - Hold がオンの間は、離した鍵盤のノートが鳴り続けます (Hold をオフにするか、Panic で止まります)
+        - 鍵盤の下のスライダーで、Pitch Bend (離すと中央に戻ります)、Modulation Wheel、Breath Controller、Expression、Sustain Pedal、Portamento Switch、Channel Pressure を送れます (Performance Controls。スマホなどでは、鍵盤とは別に隠せます)
     - Write: 現在のパラメーターを PRA32-U2 (プログラム #0-15 とフラッシュ) に書き込みます (下記)
 - PRA32-U2 Editor を使わない場合 (例えば DAW や MIDI キーボードから)
     - PRA32-U2 は、PRA32-U2 Editor を使わずに MIDI で制御することもできます
