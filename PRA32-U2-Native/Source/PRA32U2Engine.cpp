@@ -154,13 +154,13 @@ int PRA32U2Engine::getMarkers(uint8_t controlNumber, const uint8_t** markerValue
   case LFO_OSC_DST     :
   case VOICE_ASGN_MODE :
   case BTH_AMP_MOD     :
+  case FILTER_MODE     :
+  case FX_ROUTING      :
     *markerValues = MARKERS_6;
     return 6;
   case OSC_1_MORPH     :  // Can be used as a 6-way switch (the markers of the sliders do not pull the values)
     *markerValues = MARKERS_6_C;
     return 7;
-  case FILTER_MODE     :
-  case FX_ROUTING      :
   case DELAY_MODE      :
     *markerValues = MARKERS_3;
     return 3;
