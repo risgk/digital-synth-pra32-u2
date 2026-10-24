@@ -2157,7 +2157,15 @@ function fitParamNames() {
 const KBD_NOTE_MIN    = 0;    // C-1
 const KBD_NOTE_MAX    = 127;  // G9
 const KBD_KEY_WIDTH   = 24;  // a semitone (37 keys, C3 - C6: 36 semitones and a C, 904px, in a 960px window), times kbdScale
+const KBD_KEY_WIDTH_NARROW = 12;  // the narrowest, times kbdScale (the 37 keys still fit a 640px window)
+// Below their full width, the keys narrow so as to show this many semitones: the 37 keys (as a 960px window shows at
+// full width), or on a phone an octave of 13 keys (C - C), so that the keys are wide enough for a finger (as in
+// SPMS-1 Editor)
+const KBD_SEMITONES       = 904 / 24;
+const KBD_SEMITONES_PHONE = 14;
+const KBD_PHONE = window.matchMedia("(max-width: 480px)");
 var kbdScale = 1;            // the scale of the text (e.g. the text size of the Web browser), set by kbdFitScale()
+var kbdKeyPx = KBD_KEY_WIDTH;  // the width of a semitone in px, set by kbdFitKeys()
 const KBD_CENTER_OFFSET = (36 + 5 / 3) / 2 - 12;  // the center of 37 keys from C(n) (e.g. C3 - C6), in semitones from the left end of C(n+1)
 const KBD_CENTER_NOTE = 60;   // C4: by default, the center of the keyboard is that of C3 - C6 (about the middle of F#4), plus the transpose
 
@@ -2403,8 +2411,9 @@ function createKeyboard() {
       localStorage.setItem("keyKbdCenter128", kbdGetCenter().toFixed(2));
     }, 200);
   });
-  // The center is kept when the width of the window changes
+  // The center is kept when the width of the window changes (and the keys are fitted to it)
   window.addEventListener("resize", function() {
+    kbdFitKeys();
     var center = parseFloat(localStorage.getItem("keyKbdCenter128"));
     if (!isNaN(center)) {
       kbdSetCenter(center);
@@ -2493,16 +2502,35 @@ function kbdFitScale() {
   }
   var scale = Math.round(label.getBoundingClientRect().width / base * 20) / 20;  // in steps of 5%
   scale = Math.max(0.5, Math.min(3, scale));
-  if (scale == kbdScale) {
+  if (scale != kbdScale) {
+    var center = kbdKeys.length ? kbdGetCenter() : NaN;
+    kbdScale = scale;
+    frame.style.setProperty("--kbd-scale", scale);
+    if (!isNaN(center)) {
+      kbdSetCenter(center);
+    }
+  }
+  kbdFitKeys();
+  kbdUpdateScrollbar();
+}
+
+// The width of a semitone: between KBD_KEY_WIDTH_NARROW and KBD_KEY_WIDTH times the scale, as wide as shows
+// KBD_SEMITONES (KBD_SEMITONES_PHONE on a phone) in the width of the keyboard. The center of the keyboard is kept.
+// Hidden, the keyboard has no width, and keeps what it had
+function kbdFitKeys() {
+  var scroll = document.getElementById("kbdScroll");
+  var frame = document.querySelector(".keyboard-frame");
+  if (!scroll || !frame || !(scroll.clientWidth > 0)) {
     return;
   }
+  var fit = scroll.clientWidth / (KBD_PHONE.matches ? KBD_SEMITONES_PHONE : KBD_SEMITONES);
+  var px = Math.max(KBD_KEY_WIDTH_NARROW * kbdScale, Math.min(KBD_KEY_WIDTH * kbdScale, fit));
   var center = kbdKeys.length ? kbdGetCenter() : NaN;
-  kbdScale = scale;
-  frame.style.setProperty("--kbd-scale", scale);
+  kbdKeyPx = px;
+  frame.style.setProperty("--kbd-key-width", px + "px");
   if (!isNaN(center)) {
     kbdSetCenter(center);
   }
-  kbdUpdateScrollbar();
 }
 
 function kbdUpdateScrollbar() {
@@ -2669,12 +2697,12 @@ function kbdPcKeyEnabled(event) {
 // The center of the visible area of the keyboard, in semitones (of the upper half) from the left end (C-1)
 function kbdGetCenter() {
   var scroll = document.getElementById("kbdScroll");
-  return (scroll.scrollLeft + (scroll.clientWidth / 2)) / (KBD_KEY_WIDTH * kbdScale);
+  return (scroll.scrollLeft + (scroll.clientWidth / 2)) / kbdKeyPx;
 }
 
 function kbdSetCenter(center) {
   var scroll = document.getElementById("kbdScroll");
-  scroll.scrollLeft = (center * KBD_KEY_WIDTH * kbdScale) - (scroll.clientWidth / 2);
+  scroll.scrollLeft = (center * kbdKeyPx) - (scroll.clientWidth / 2);
 }
 
 // The center of 37 keys from C(3 + transpose / 12) (C3 - C6 by default)
