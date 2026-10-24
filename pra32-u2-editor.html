@@ -59,13 +59,15 @@ button {
   border-radius: 2px;
   padding: 1px 6px;
 }
-button:hover {
-  background: #e5e5e5;
-  border-color: #4f4f4f;
+/* Gray as in Chrome, and orange (the color of PRA32-U2) under the pointer and while pressed, lighter than Hold while on
+   (#ffd9c4 and bold) */
+button:hover:not(:disabled) {
+  background: #fff0e8;
+  border-color: var(--pra32-color);
 }
-button:active {
-  background: #f5f5f5;
-  border-color: #8d8d8d;
+button:active:not(:disabled) {
+  background: #ffd9c4;
+  border-color: var(--pra32-color-dark);
 }
 button:disabled {
   color: rgba(16, 16, 16, 0.3);
