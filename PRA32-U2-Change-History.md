@@ -19,6 +19,7 @@
     - PRA32-U2 Editor: Show the ring of the keyboard focus in orange
     - PRA32-U2 Editor: Add the keys for Undo (Ctrl+Z) and Redo (Ctrl+Y or Ctrl+Shift+Z), Command instead of Ctrl on a Mac
     - PRA32-U2 Editor: Give the sliders their values with the meanings (e.g. "0 Saw") for a screen reader
+    - PRA32-U2 Editor: Add the icon ("U2" in white on orange), embedded in the page
     - Tested with Arduino-Pico version 6.3.0
 - v3.16.1 (2026-10-23):
     - PRA32-U2 Editor: Make the supplements in [] (e.g. "[Saw|Sqr|Tri|Sin|WT|Pls]") and the control numbers in the parameter names smaller, so that the names are narrower, and put the control numbers a little apart (also "PC#127" in "Randomize Synth")
