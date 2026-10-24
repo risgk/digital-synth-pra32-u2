@@ -563,23 +563,35 @@ span.cc {
 
 /* ---- Soft keyboard (after SPMS-1 Editor): C-1 - G9 (37 keys, C3 - C6, in a 960px window), scrolled by the octave buttons or the scroll bar ---- */
 
-/* The bar of the keyboard is the summary (a list item, not a flex box, for the marker), with the buttons on the line
-   of the label. The buttons are hidden while the keyboard is hidden */
+/* The bar of the keyboard is the summary (a list item, not a flex box, for the marker), with the label and the groups
+   of the controls in a flex box after the marker, which wraps them by the group in a narrow window with a space
+   between the lines; Hold and Panic at the right end. The controls are hidden while the keyboard is hidden */
+.kbd-bar-items {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  width: calc(100% - 1.25em);  /* less the marker, which is on the line of the label (the baseline of the flex box) */
+}
+.kbd-octave, .kbd-play {
+  display: inline-flex;
+  gap: 4px;
+}
+.kbd-play {
+  margin-left: auto;
+}
 .kbd-bar button {
   min-width: 32px;
-  margin-left: 4px;
 }
 /* An inline-block, as a ResizeObserver sees no size of an inline box (kbdFitScale() would not be called) */
 .kbd-bar #spanKbdLabel {
   display: inline-block;
-  margin-right: 4px;
 }
 /* Hidden, the bar keeps Panic (a note left on still needs it); Hold is turned off by hiding (as in SPMS-1 Editor) */
-#kbdDetails:not([open]) .kbd-bar button:not(.kbd-panic), #kbdDetails:not([open]) .kbd-hint, #kbdDetails:not([open]) .kbd-vel {
+#kbdDetails:not([open]) .kbd-octave, #kbdDetails:not([open]) .kbd-hold, #kbdDetails:not([open]) .kbd-hint, #kbdDetails:not([open]) .kbd-vel {
   display: none;
 }
 .kbd-vel {
-  margin-left: 8px;
   white-space: nowrap;
 }
 .kbd-vel input {
@@ -598,18 +610,8 @@ span.cc {
 }
 /* The keys of the PC keyboard, small and gray (as the control numbers) */
 .kbd-hint {
-  margin-left: 8px;
   font-size: 10px;
   color: #808080;
-}
-/* Panic at the upper right of the keyboard (as in PRA32-U2 Editor), and Hold to its left (after it in the HTML, as they float) */
-.kbd-bar .kbd-panic, .kbd-bar .kbd-hold {
-  float: right;
-}
-.kbd-bar::after {
-  content: "";
-  display: block;
-  clear: both;
 }
 /* The controls for playing below the keyboard (as Control a/b of PRA32-U2/P), as a row of the parameters without the lines.
    They can be hidden apart from the keyboard (e.g. on a phone, where they would take most of the window in 1 column) */
@@ -3384,14 +3386,14 @@ function getStoredCCValueString(index, number) {
 </div>
 
 <details class="section" id="kbdDetails" open>
-<summary class="kbd-bar"><span id="spanKbdLabel">Software Keyboard</span>
-<button type="button" onclick="kbdShiftOctave(-1)" title="Octave Down">&#9664;</button>
-<button type="button" onclick="kbdShiftOctave(1)" title="Octave Up">&#9654;</button>
+<summary class="kbd-bar"><span class="kbd-bar-items"><span id="spanKbdLabel">Software Keyboard</span>
+<span class="kbd-octave"><button type="button" onclick="kbdShiftOctave(-1)" title="Octave Down">&#9664;</button>
+<button type="button" onclick="kbdShiftOctave(1)" title="Octave Up">&#9654;</button></span>
 <span class="kbd-hint">PC Keys: A - K, Z / X</span>
 <span class="kbd-vel">Velocity On <input type="number" id="inputNoteOnVelocity" min="1" max="127" step="1">
 Off <input type="number" id="inputNoteOffVelocity" min="1" max="127" step="1"></span>
-<button type="button" class="kbd-panic" onclick="panic()">Panic</button>
-<button type="button" class="kbd-hold" id="buttonKbdHold" aria-pressed="false" onclick="kbdSetHold(!kbdHold)" title="Hold: the keys released keep their notes on, until Hold is turned off">Hold</button>
+<span class="kbd-play"><button type="button" class="kbd-hold" id="buttonKbdHold" aria-pressed="false" onclick="kbdSetHold(!kbdHold)" title="Hold: the keys released keep their notes on, until Hold is turned off">Hold</button>
+<button type="button" class="kbd-panic" onclick="panic()">Panic</button></span></span>
 </summary>
 <div class="keyboard-frame">
 <div class="keyboard-scroll" id="kbdScroll">
