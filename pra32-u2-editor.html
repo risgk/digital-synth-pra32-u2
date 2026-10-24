@@ -1202,9 +1202,11 @@ window.onload = function() {
       localStorage.setItem(item[1], details.open ? "1" : "0");
     });
   });
-  // The Performance Controls are shown by default, and shown or hidden as the last time
+  // The Performance Controls are shown or hidden as the last time; the first time, shown, but hidden in a window up to
+  // 700 px high (e.g. a phone), where they would take most of it with the keyboard at the bottom
   var perfDetails = document.getElementById("perfDetails");
-  perfDetails.open = (localStorage.getItem("keyPerfOpen") != "0");
+  var perfOpen = localStorage.getItem("keyPerfOpen");
+  perfDetails.open = (perfOpen != null) ? (perfOpen != "0") : (window.innerHeight > 700);
   perfDetails.addEventListener("toggle", function() {
     localStorage.setItem("keyPerfOpen", perfDetails.open ? "1" : "0");
   });
