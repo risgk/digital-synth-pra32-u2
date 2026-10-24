@@ -1,6 +1,8 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v3.16.2 (2026-??-??):
+    - Hold the peak of the Output Compressor over the last 25-50 ms (instead of 1 ms), so that the gain does not waver at the pitch of a held note (e.g. a low note with a high Filter Resonance), as in a typical look-ahead limiter
+        - A loud sound is compressed a little more (e.g. the sample MIDI stream, about 0.3-0.5 dB quieter), since the envelope no longer falls between the crests
     - PRA32-U2 Editor: Make the sliders 149 px wide (from 135 px), so that the thumb moves a pixel a value (0-127) and every value can be set by a drag, and the value labels 56 px (from 68 px), so that 4 columns still fit a 960 px window
         - 1 column instead of the compact 2 columns for a narrow screen (e.g. iPhone SE 2, 375 px wide), whose sliders were narrower
     - PRA32-U2 Editor: Make the page no wider than in a 960 px window, so that the Software Keyboard shows the 37 keys (e.g. C3 - C6) and the lines end there even in a wider window

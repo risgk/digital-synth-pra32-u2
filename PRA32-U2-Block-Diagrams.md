@@ -264,7 +264,7 @@ flowchart LR
     OG --> SUM
     SUM --> SC["Soft clip<br/>linear up to 0.75, ceiling 1.0"]
     SC --> OUT([Audio Out L / R])
-    IN --> PK["Peak<br/>max of |L| and |R|,<br/>held over 1 ms"]
+    IN --> PK["Peak<br/>max of |L| and |R|,<br/>held over 25-50 ms"]
     PK -.-> ENV["Envelope<br/>attack 1 ms, release 100 ms"]
     ENV -.-> GT["Gain table<br/>2:1 above -6 dB (soft knee -9 to -3 dB),<br/>ceiling at 1.0, × 0.75"]
     GT -.-> VCA
@@ -272,8 +272,11 @@ flowchart LR
     class SC nl
 ```
 
-- The peak of both sides is held over the look-ahead time, so that the gain is lowered before the
-  peak comes out, and the left and the right are lowered together (the stereo image is kept)
+- The peak of both sides is held over the last 25-50 ms (in 2 blocks of 25 ms), which covers the
+  look-ahead time, so that the gain is lowered before the peak comes out, and the left and the right
+  are lowered together (the stereo image is kept); it is longer than a cycle of a note down to
+  20 Hz, so that the envelope does not fall between the crests of a held note, and the gain does
+  not waver at its pitch
 - The gain is looked up in a table, by the envelope in a pseudo-logarithmic scale; it holds the
   soft-knee compression (2:1 above -6 dB at its input, with a soft knee from -9 dB to -3 dB), the
   ceiling (the peaks are limited to 1.0 at its input, reached at +6 dB), and the output gain
