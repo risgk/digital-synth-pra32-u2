@@ -90,7 +90,8 @@ input[type="number"] {
   border-radius: 2px;
   padding: 1px 2px;
 }
-/* A slider: the track filled up to the thumb (--fill, the position from 0 to 1, set by updateSliderFill()) */
+/* A slider: the track filled up to the thumb (--fill, the position from 0 to 1, set by updateSliderFill()),
+   in the color of PRA32-U2 (orange) instead of the blue of Chrome */
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
@@ -102,7 +103,7 @@ input[type="range"] {
 input[type="range"]::-webkit-slider-runnable-track {
   height: 6px;
   border-radius: 3px;
-  background: linear-gradient(to right, #0075ff var(--fill-at), #efefef var(--fill-at));
+  background: linear-gradient(to right, var(--pra32-color) var(--fill-at), #efefef var(--fill-at));
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.3);
 }
 input[type="range"]::-moz-range-track {
@@ -114,7 +115,7 @@ input[type="range"]::-moz-range-track {
 input[type="range"]::-moz-range-progress {
   height: 6px;
   border-radius: 3px;
-  background: #0075ff;
+  background: var(--pra32-color);
 }
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
@@ -124,20 +125,20 @@ input[type="range"]::-webkit-slider-thumb {
   margin-top: calc((6px - var(--thumb-size)) / 2);
   border: none;
   border-radius: 50%;
-  background: #0075ff;
+  background: var(--pra32-color);
 }
 input[type="range"]::-moz-range-thumb {
   width: var(--thumb-size);
   height: var(--thumb-size);
   border: none;
   border-radius: 50%;
-  background: #0075ff;
+  background: var(--pra32-color);
 }
 input[type="range"]:hover::-webkit-slider-thumb {
-  background: #005cc8;
+  background: var(--pra32-color-dark);
 }
 input[type="range"]:hover::-moz-range-thumb {
-  background: #005cc8;
+  background: var(--pra32-color-dark);
 }
 
 /* On a touch screen the thumbs are larger (24px), the sliders longer (157px) so that the thumb still moves 127px,
@@ -150,15 +151,32 @@ input[type="range"]:hover::-moz-range-thumb {
   }
 }
 
-/* ---- Header ---- */
+/* ---- Header ----
+   The name large, in the color of PRA32-U2, with the version and the link smaller and gray, over a line of the color
+   (as in SPMS-1 Editor) */
 .header {
   display: flex;
   flex-wrap: wrap;
+  align-items: baseline;
   column-gap: 8px;
   row-gap: 2px;
+  padding-bottom: 4px;
+  border-bottom: 3px solid var(--pra32-color);
+  color: #808080;
 }
 #spanAppNameVersion {
   white-space: nowrap;
+}
+#spanAppNameVersion .app-name {
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--pra32-color);
+}
+#spanAppNameVersion .app-version {
+  margin-left: 6px;
+}
+.header a {
+  color: var(--pra32-color-dark);
 }
 
 /* ---- MIDI ---- */
@@ -307,20 +325,16 @@ button {
 details.section > summary {
   margin-bottom: 8px;
 }
-/* MIDI, Actions & Presets: the last section in it without the space below, which is that of the details.
-   Save & Load in it, as its sub heading, a little to the right */
+/* MIDI, Actions & Presets: the last section in it (Save & Load, its sub heading) without the space below, which is that of the details */
 #topDetails > .section:last-child {
   margin-bottom: 0;
-}
-#saveLoadDetails > summary {
-  margin-left: 12px;
 }
 details.section:not([open]) > summary {
   margin-bottom: 0;  /* the space below a hidden one is that between the sections */
 }
-/* A line above Save & Load (under MIDI, Actions & Presets) and the keyboard (after the parameters), to the right end of the window
-   (as the lines of the parameters) */
-#saveLoadDetails, #kbdDetails {
+/* A line above the keyboard (after the parameters), to the right end of the window (as the lines of the parameters);
+   none above Save & Load, a sub heading of MIDI, Actions & Presets */
+#kbdDetails {
   border-top: 1px solid #c0c0c0;
   padding-top: 6px;
 }
@@ -1088,7 +1102,15 @@ var fileReaderImportAll = new FileReader();
 var fileReaderImportCurrent = new FileReader();
 
 window.onload = function() {
-  document.getElementById("spanAppNameVersion").innerHTML = "<strong>" + APP_NAME_VERSION + "</strong>";
+  // "PRA32-U2 Editor" and "v3.16.1" apart, styled apart
+  var nameEnd = APP_NAME_VERSION.lastIndexOf(" v");
+  var appName = document.createElement("span");
+  appName.className = "app-name";
+  appName.textContent = APP_NAME_VERSION.slice(0, nameEnd);
+  var appVersion = document.createElement("span");
+  appVersion.className = "app-version";
+  appVersion.textContent = APP_NAME_VERSION.slice(nameEnd + 1);
+  document.getElementById("spanAppNameVersion").replaceChildren(appName, appVersion);
   var valueMIDICh = localStorage.getItem("keyMIDICh");
   if (valueMIDICh) {
     midi_ch = parseInt(valueMIDICh);
