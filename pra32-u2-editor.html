@@ -2159,11 +2159,13 @@ const KBD_NOTE_MAX    = 127;  // G9
 const KBD_KEY_WIDTH   = 24;  // a semitone (37 keys, C3 - C6: 36 semitones and a C, 904px, in a 960px window), times kbdScale
 const KBD_KEY_WIDTH_NARROW = 12;  // the narrowest, times kbdScale (the 37 keys still fit a 640px window)
 // Below their full width, the keys narrow so as to show this many semitones: the 37 keys (as a 960px window shows at
-// full width), or on a phone an octave of 13 keys (C - C), so that the keys are wide enough for a finger (as in
-// SPMS-1 Editor)
+// full width), or on a phone an octave of 13 keys (C - C), and on another touch screen (e.g. a phone on its side or
+// a tablet) two octaves of 25 keys, so that the keys are wide enough for a finger (as in SPMS-1 Editor)
 const KBD_SEMITONES       = 904 / 24;
 const KBD_SEMITONES_PHONE = 14;
+const KBD_SEMITONES_TOUCH = 26;
 const KBD_PHONE = window.matchMedia("(max-width: 480px)");
+const KBD_TOUCH = window.matchMedia("(pointer: coarse)");
 var kbdScale = 1;            // the scale of the text (e.g. the text size of the Web browser), set by kbdFitScale()
 var kbdKeyPx = KBD_KEY_WIDTH;  // the width of a semitone in px, set by kbdFitKeys()
 const KBD_CENTER_OFFSET = (36 + 5 / 3) / 2 - 12;  // the center of 37 keys from C(n) (e.g. C3 - C6), in semitones from the left end of C(n+1)
@@ -2515,15 +2517,15 @@ function kbdFitScale() {
 }
 
 // The width of a semitone: between KBD_KEY_WIDTH_NARROW and KBD_KEY_WIDTH times the scale, as wide as shows
-// KBD_SEMITONES (KBD_SEMITONES_PHONE on a phone) in the width of the keyboard. The center of the keyboard is kept.
-// Hidden, the keyboard has no width, and keeps what it had
+// KBD_SEMITONES (KBD_SEMITONES_PHONE on a phone, KBD_SEMITONES_TOUCH on another touch screen) in the width of
+// the keyboard. The center of the keyboard is kept. Hidden, the keyboard has no width, and keeps what it had
 function kbdFitKeys() {
   var scroll = document.getElementById("kbdScroll");
   var frame = document.querySelector(".keyboard-frame");
   if (!scroll || !frame || !(scroll.clientWidth > 0)) {
     return;
   }
-  var fit = scroll.clientWidth / (KBD_PHONE.matches ? KBD_SEMITONES_PHONE : KBD_SEMITONES);
+  var fit = scroll.clientWidth / (KBD_PHONE.matches ? KBD_SEMITONES_PHONE : (KBD_TOUCH.matches ? KBD_SEMITONES_TOUCH : KBD_SEMITONES));
   var px = Math.max(KBD_KEY_WIDTH_NARROW * kbdScale, Math.min(KBD_KEY_WIDTH * kbdScale, fit));
   var center = kbdKeys.length ? kbdGetCenter() : NaN;
   kbdKeyPx = px;
