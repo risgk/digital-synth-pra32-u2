@@ -2,6 +2,7 @@
 
 - v3.17.1 (2026-10-24):
     - PRA32-U2 Native: Fix the markers of the sliders of Filter Mode and FX Routing to be 6 (instead of 3), the same as PRA32-U2 Editor
+    - Tested with Arduino-Pico version 6.3.0
 
 - v3.17.0 (2026-10-24):
     - Hold the peak of the Output Compressor over the last 25-50 ms (instead of 1 ms), so that the gain does not waver at the pitch of a held note (e.g. a low note with a high Filter Resonance), as in a typical look-ahead limiter
