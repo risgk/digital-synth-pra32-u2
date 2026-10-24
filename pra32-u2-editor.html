@@ -22,6 +22,7 @@ html {
 }
 :root {
   --thumb-size: 16px;  /* the thumb of a slider */
+  --button-height: 21px;  /* a button of Actions and of the program buttons */
   --kbd-frame-color: #555;  /* the frame of the soft keyboard, lighter than the black keys (#111) */
   --pra32-color: rgb(255,85,0);
   --pra32-color-dark: rgb(204,68,0);
@@ -92,6 +93,11 @@ input[type="number"] {
   border-radius: 2px;
   padding: 1px 2px;
 }
+/* The ring of the keyboard focus in orange, as the sliders */
+button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-visible {
+  outline: 2px solid var(--pra32-color);
+  outline-offset: 1px;
+}
 /* A slider: the track filled up to the thumb (--fill, the position from 0 to 1, set by updateSliderFill()),
    in the color of PRA32-U2 (orange) instead of the blue of Chrome */
 input[type="range"] {
@@ -144,12 +150,16 @@ input[type="range"]:hover::-moz-range-thumb {
 }
 
 /* On a touch screen the thumbs are larger (24px), the sliders longer (157px) so that the thumb still moves 127px,
-   and the value labels narrower (48px), so that a parameter is as wide as before (230px) */
+   and the value labels narrower (48px), so that a parameter is as wide as before (230px); the buttons taller (30px) */
 @media (pointer: coarse) {
   :root {
     --thumb-size: 24px;
     --slider-width: 157px;
     --value-label-width: 48px;
+    --button-height: 30px;  /* the buttons taller too, for a finger */
+  }
+  .kbd-bar button {
+    min-height: 30px;
   }
 }
 
@@ -250,7 +260,7 @@ input[type="range"]:hover::-moz-range-thumb {
   flex-direction: column;
   justify-content: space-around;
   min-width: 100px;
-  height: 46px;  /* the 2 rows of the buttons */
+  height: calc(var(--button-height) * 2 + 4px);  /* the 2 rows of the buttons */
   white-space: nowrap;
 }
 .banks {
@@ -295,7 +305,7 @@ button {
   white-space: nowrap;
 }
 .prog-row button, .misc button {
-  height: 21px;
+  height: var(--button-height);
   padding: 1px 5px;
 }
 .misc {
@@ -310,7 +320,7 @@ button {
   gap: 4px;
 }
 .misc-group > span:first-child {
-  line-height: 21px;  /* the height of a button: the label at the first line of the buttons */
+  line-height: var(--button-height);  /* the height of a button: the label at the first line of the buttons */
 }
 /* The labels of Actions and File as wide as those of the program buttons, so that the buttons start at the same column */
 .misc-group > span:first-child {
@@ -1144,6 +1154,7 @@ window.onload = function() {
   createVelocityInputs();
   setupPitchBendSpring();
   setupSliderUndo();
+  setupUndoKeys();
   setupSliderFill();
   setupAccessibleNames();
   fitLayout();
@@ -1235,6 +1246,25 @@ function pushUndo(parameters) {
 // kept as the step of Undo only if it moves
 function isParamSlider(element) {
   return element.matches && element.matches(".params:not(.perf) input[type=range]");
+}
+
+// Ctrl+Z (Command+Z on a Mac): Undo; Ctrl+Y or Ctrl+Shift+Z: Redo. Not in a box for text or a number, which has
+// its own Undo (Z alone is the octave of the soft keyboard)
+function setupUndoKeys() {
+  document.addEventListener("keydown", function(event) {
+    var target = event.target;
+    if (!(event.ctrlKey || event.metaKey) || event.altKey || (target.tagName == "TEXTAREA") || target.isContentEditable ||
+        ((target.tagName == "INPUT") && (target.type != "range") && (target.type != "button"))) {
+      return;
+    }
+    if ((event.code == "KeyZ") && !event.shiftKey) {
+      event.preventDefault();
+      undo();
+    } else if ((event.code == "KeyY") || ((event.code == "KeyZ") && event.shiftKey)) {
+      event.preventDefault();
+      redo();
+    }
+  });
 }
 
 function setupSliderUndo() {
@@ -1769,6 +1799,8 @@ function updateDisplayOfControl(number, value) {
   } else {
     document.getElementById("span2" + controlNumberToStringMap.get(number)).innerHTML = "";
   }
+  // For a screen reader, the value with its meaning (e.g. "0 Saw"), as shown
+  input.setAttribute("aria-valuetext", (String(value) != dispValue) ? value + " " + dispValue : String(value));
 
   localStorage.setItem("key" + controlNumberToStringMap.get(number), value);
 }
@@ -2044,6 +2076,10 @@ function setupAccessibleNames() {
     if (label && select) {
       select.setAttribute("aria-label", label.textContent);
     }
+  });
+  // The values of the Performance Controls as shown, for their aria-valuetext
+  PERFORMANCE_CONTROLS.forEach(function(item, number) {
+    updateDisplayOfPerformanceControl(number, document.getElementById("inputPerf" + item[0]).value);
   });
   document.getElementById("inputNoteOnVelocity").setAttribute("aria-label", "Note On Velocity");
   document.getElementById("inputNoteOffVelocity").setAttribute("aria-label", "Note Off Velocity");
@@ -2490,9 +2526,12 @@ function updateDisplayOfPerformanceControl(number, value) {
   updateSliderFill(document.getElementById("inputPerf" + key));
   // Pitch Bend signed, with "+" for 0 and above (as the parameters of [-|+], e.g. "+0" and "+8191")
   document.getElementById("spanPerf" + key).textContent = ((number == PITCH_BEND) && (value >= 0) ? "+" : "") + String(value);
+  var valueText = document.getElementById("spanPerf" + key).textContent;
   if ((number == SUSTAIN_PEDAL) || (number == PORTAMENTO_SW)) {
     document.getElementById("span2Perf" + key).textContent = (value >= 64) ? "[On]" : "[Off]";
+    valueText += (value >= 64) ? " On" : " Off";
   }
+  document.getElementById("inputPerf" + key).setAttribute("aria-valuetext", valueText);  // for a screen reader, as shown
 }
 
 // Pitch Bend springs back to the center when the slider is released (as a pitch bend wheel)
@@ -2896,8 +2935,8 @@ function getStoredCCValueString(index, number) {
 <button type="button" onclick="panic()">Panic</button>
 <button type="button" onclick="setRandom()">Randomize Synth <span class="cc">PC#127</span></button>
 <button type="button" onclick="setRandomChorus()">Randomize FX</button>
-<button type="button" id="buttonUndo" onclick="undo()" title="Back to the parameters before the last change (a preset, Randomize, Import, or a move of a slider)">Undo</button>
-<button type="button" id="buttonRedo" onclick="redo()" title="Forward again to the parameters before Undo">Redo</button></div></div>
+<button type="button" id="buttonUndo" onclick="undo()" title="Back to the parameters before the last change (a preset, Randomize, Import, or a move of a slider) (Ctrl+Z)">Undo</button>
+<button type="button" id="buttonRedo" onclick="redo()" title="Forward again to the parameters before Undo (Ctrl+Y or Ctrl+Shift+Z)">Redo</button></div></div>
 </div>
 
 <div class="section prog-row">
