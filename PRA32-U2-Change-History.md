@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v3.17.1 (2026-??-??):
+- v3.17.1 (2026-10-24):
     - PRA32-U2 Native: Fix the markers of the sliders of Filter Mode and FX Routing to be 6 (instead of 3), the same as PRA32-U2 Editor
 
 - v3.17.0 (2026-10-24):
