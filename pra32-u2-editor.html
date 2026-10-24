@@ -216,6 +216,14 @@ input[type="range"]:hover::-moz-range-thumb {
   max-width: 100%;
   text-overflow: ellipsis;
 }
+/* Why no MIDI device is listed, if Web MIDI is not available (see showMIDINote()) */
+.midi-note {
+  margin: 2px 0;
+  color: var(--pra32-color-dark);
+}
+.midi-note[hidden] {
+  display: none;
+}
 /* A line break in a flex container (MIDI Ch / MIDI In / MIDI Out, and Program Change / Write in 2 or 1 column) */
 .midi-break, .line-break, .bank-break {
   flex-basis: 100%;
@@ -1139,6 +1147,7 @@ window.onload = function() {
     navigator.requestMIDIAccess({sysex: false}).then(onMIDISuccess, onMIDIFailure);
   } else {
     console.log("No MIDI support present in your browser.");
+    showMIDINote("Web MIDI is not available in this Web browser: no MIDI device can be used");
   }
 
   withoutUndo(function() {
@@ -1386,7 +1395,7 @@ const DIMMING_CONTROLS = [OSC_1_WAVE, EG_AMP_MOD, REL_EQ_DECAY, PORTA_MODE];
 
 function setDimmed(ids, dimmed) {
   ids.forEach(function(id) {
-    document.getElementById(id).style.color = dimmed ? 'lightgray' : 'black';
+    document.getElementById(id).style.color = dimmed ? '#a0a0a0' : 'black';  // as an empty preset, 2.6:1 on white
   });
 }
 
@@ -1572,6 +1581,15 @@ function savePortSelection(selectId, ports) {
 
 function onMIDIFailure(msg) {
   console.log("Failed to get MIDI access - " + msg);
+  showMIDINote("MIDI access is not allowed (or failed): no MIDI device can be used");
+}
+
+// A note in the MIDI settings, so that the user knows why no MIDI device is listed (not only in the console),
+// and that PRA32-U2 Web can still be used if it is there
+function showMIDINote(text) {
+  var note = document.getElementById("divMIDINote");
+  note.textContent = text + (window.PRA32U2WebSynth ? ", but PRA32-U2 Web (Built-in) in MIDI Out can be." : ".");
+  note.hidden = false;
 }
 
 function onChangeInputPort1(){
@@ -2930,6 +2948,8 @@ function getStoredCCValueString(index, number) {
 <div class="midi-break"></div>
 <div class="midi-item"><span class="lbl-midi">MIDI Out</span>
 <select id="selectOutputPort" size="1" onchange="onChangeOutputPort(); savePortSelection('selectOutputPort', midiOutputs)"><option>(None)</option></select></div>
+<div class="midi-break"></div>
+<div class="midi-note" id="divMIDINote" hidden></div>
 </div>
 
 <div class="section misc">
