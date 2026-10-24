@@ -1,5 +1,8 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v3.17.1 (2026-??-??):
+    - PRA32-U2 Native: Fix the markers of the sliders of Filter Mode and FX Routing to be 6 (instead of 3), the same as PRA32-U2 Editor
+
 - v3.17.0 (2026-10-24):
     - Hold the peak of the Output Compressor over the last 25-50 ms (instead of 1 ms), so that the gain does not waver at the pitch of a held note (e.g. a low note with a high Filter Resonance), as in a typical look-ahead limiter
         - A loud sound is compressed a little more (e.g. the sample MIDI stream, about 0.3-0.5 dB quieter), since the envelope no longer falls between the crests
