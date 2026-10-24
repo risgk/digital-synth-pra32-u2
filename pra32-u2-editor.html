@@ -4,8 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PRA32-U2 Editor</title>
-<!-- The icon: "U2" in white on the orange of PRA32-U2, embedded, so that it needs no file beside the page -->
-<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='5'%20fill='rgb(255,85,0)'/%3E%3Ctext%20x='16'%20y='24'%20font-family='Segoe%20UI,%20Roboto,%20Helvetica,%20Arial,%20sans-serif'%20font-weight='bold'%20font-size='21'%20fill='white'%20text-anchor='middle'%3EU2%3C/text%3E%3C/svg%3E">
+<!-- The icon: "U2" in white on the orange of PRA32-U2, as shapes (the letters of Inter Bold, under the SIL Open Font License),
+     not as text, so that it is the same in every OS; embedded, so that it needs no file beside the page -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='5'%20fill='rgb(255,85,0)'/%3E%3Cpath%20d='M9.39%2024.22C13.16%2024.22%2015.7%2021.98%2015.7%2018.64V8.72H12.56V18.38C12.56%2020.17%2011.31%2021.45%209.39%2021.45C7.47%2021.45%206.21%2020.17%206.21%2018.38V8.72H3.09V18.64C3.09%2021.98%205.59%2024.22%209.39%2024.22ZM18.34%2024H29.15V21.43H22.69V21.31L25%2019.04C28.13%2016.16%2028.95%2014.74%2028.95%2013.03C28.95%2010.38%2026.79%208.52%2023.56%208.52C20.39%208.52%2018.2%2010.43%2018.2%2013.41H21.19C21.19%2011.92%2022.12%2011.02%2023.54%2011.02C24.91%2011.02%2025.91%2011.86%2025.91%2013.22C25.91%2014.45%2025.14%2015.31%2023.76%2016.67L18.34%2021.74Z'%20fill='white'/%3E%3C/svg%3E">
 <!-- PRA32-U2 Web (optional): adds "PRA32-U2 Web (Built-in)" to MIDI Out -->
 <script src="pra32-u2-web-synth.js"></script>
 <style>
@@ -176,7 +177,7 @@ input[type="range"]:hover::-moz-range-thumb {
   row-gap: 2px;
   padding-bottom: 4px;
   border-bottom: 3px solid var(--pra32-color);
-  color: #808080;
+  color: #6b6b6b;  /* gray, 5.3:1 on white (as in SPMS-1 Editor) */
 }
 #spanAppNameVersion {
   white-space: nowrap;
