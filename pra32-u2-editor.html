@@ -21,6 +21,7 @@ html {
   -webkit-touch-callout: none;
 }
 :root {
+  --thumb-size: 16px;  /* the thumb of a slider */
   --kbd-frame-color: #555;  /* the frame of the soft keyboard, lighter than the black keys (#111) */
   --pra32-color: rgb(255,85,0);
   --pra32-color-dark: rgb(204,68,0);
@@ -47,6 +48,106 @@ body {
    as those between the groups and the banks of the program buttons (8px) */
 .section {
   margin-bottom: 8px;
+}
+
+/* ---- Controls: drawn here as Chrome draws them (light), so that they look the same in every Web browser and OS ---- */
+button {
+  font: inherit;
+  color: #000;
+  background: #efefef;
+  border: 1px solid #767676;
+  border-radius: 2px;
+  padding: 1px 6px;
+}
+button:hover {
+  background: #e5e5e5;
+  border-color: #4f4f4f;
+}
+button:active {
+  background: #f5f5f5;
+  border-color: #8d8d8d;
+}
+button:disabled {
+  color: rgba(16, 16, 16, 0.3);
+  background: rgba(239, 239, 239, 0.3);
+  border-color: rgba(118, 118, 118, 0.3);
+}
+select {
+  -webkit-appearance: none;
+  appearance: none;
+  font: inherit;
+  color: #000;
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23000' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat right 4px center / 10px 6px;
+  border: 1px solid #767676;
+  border-radius: 2px;
+  padding: 1px 20px 1px 4px;
+}
+input[type="number"] {
+  font: inherit;
+  color: #000;
+  background: #fff;
+  border: 1px solid #767676;
+  border-radius: 2px;
+  padding: 1px 2px;
+}
+/* A slider: the track filled up to the thumb (--fill, the position from 0 to 1, set by updateSliderFill()) */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: var(--thumb-size);
+  background: transparent;
+  --fill: 0;
+  --fill-at: calc(var(--thumb-size) / 2 + (100% - var(--thumb-size)) * var(--fill));
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(to right, #0075ff var(--fill-at), #efefef var(--fill-at));
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.3);
+}
+input[type="range"]::-moz-range-track {
+  height: 6px;
+  border-radius: 3px;
+  background: #efefef;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.3);
+}
+input[type="range"]::-moz-range-progress {
+  height: 6px;
+  border-radius: 3px;
+  background: #0075ff;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: var(--thumb-size);
+  height: var(--thumb-size);
+  margin-top: calc((6px - var(--thumb-size)) / 2);
+  border: none;
+  border-radius: 50%;
+  background: #0075ff;
+}
+input[type="range"]::-moz-range-thumb {
+  width: var(--thumb-size);
+  height: var(--thumb-size);
+  border: none;
+  border-radius: 50%;
+  background: #0075ff;
+}
+input[type="range"]:hover::-webkit-slider-thumb {
+  background: #005cc8;
+}
+input[type="range"]:hover::-moz-range-thumb {
+  background: #005cc8;
+}
+
+/* On a touch screen the thumbs are larger (24px), the sliders longer (157px) so that the thumb still moves 127px,
+   and the value labels narrower (48px), so that a parameter is as wide as before (230px) */
+@media (pointer: coarse) {
+  :root {
+    --thumb-size: 24px;
+    --slider-width: 157px;
+    --value-label-width: 48px;
+  }
 }
 
 /* ---- Header ---- */
@@ -206,10 +307,19 @@ button {
 details.section > summary {
   margin-bottom: 8px;
 }
+/* MIDI, Actions & Presets: the last section in it without the space below, which is that of the details.
+   Save & Load in it, as its sub heading, a little to the right */
+#topDetails > .section:last-child {
+  margin-bottom: 0;
+}
+#saveLoadDetails > summary {
+  margin-left: 12px;
+}
 details.section:not([open]) > summary {
   margin-bottom: 0;  /* the space below a hidden one is that between the sections */
 }
-/* A line above Save & Load and the keyboard (after the parameters), to the right end of the window (as the lines of the parameters) */
+/* A line above Save & Load (under MIDI, Actions & Presets) and the keyboard (after the parameters), to the right end of the window
+   (as the lines of the parameters) */
 #saveLoadDetails, #kbdDetails {
   border-top: 1px solid #c0c0c0;
   padding-top: 6px;
@@ -357,7 +467,7 @@ span.cc {
 .param-ctrl {
   display: grid;
   grid-template-columns: var(--slider-width) var(--value-width) var(--value-label-width);
-  height: 29px;
+  height: calc(13px + var(--thumb-size));  /* 29px: the slider and the markers below it */
   padding: 1px;
   align-items: start;
 }
@@ -367,24 +477,45 @@ span.cc {
 }
 .param-ctrl > input[type="range"] {
   width: calc(var(--slider-width) - 6px);
-  margin: 2px;
+  margin: 5px 2px 5px 2px;  /* the track at the middle of the value, as the slider of Chrome with markers */
 }
-/* Markers that do not pull the slider (unlike the markers of a datalist): drawn as the background of the slider cell,
-   at the same positions as the datalist markers of Chrome (the input is at 3px, and a marker of the value v is
-   at 7px + (the width of the input - 16px) * v / 127 in the input, 1px wide and 4px high at the bottom; e.g. 74px for 64
-   in a 149px slider cell). The center (64) for [-|+] and [N|S],
-   and the 6 markers (as in "6 markers") and the center for Osc 1 Morph, which can be used as a 6-way switch */
+/* Markers below a slider: drawn as the background of the slider cell (the input is at 3px, and a marker of the value v
+   is at the center of the thumb for v, 1px wide and 4px high, just below the thumb; e.g. 74px for 64 in a 149px slider cell).
+   The center (64) for [-|+] and [N|S]; the 2 ends for [Off|On]; the 2 ends and the center; the 6 values of a 6-way
+   switch; and the 6 values and the center for Osc 1 Morph, which can be used as a 6-way switch */
+.param-ctrl {
+  --marker-0: calc(2px + var(--thumb-size) / 2);                     /* the left of the marker for 0 */
+  --marker-span: calc(var(--slider-width) - 6px - var(--thumb-size));  /* the travel of the thumb */
+  --marker-y: calc(5px + var(--thumb-size));                          /* just below the thumb */
+}
 .soft-marker-c {
-  background: linear-gradient(#101010, #101010) calc(10px + (var(--slider-width) - 22px) * 64/127) 21px / 1px 4px no-repeat;
+  background: linear-gradient(#101010, #101010) calc(var(--marker-0) + var(--marker-span) * 64/127) var(--marker-y) / 1px 4px no-repeat;
+}
+.soft-markers-2 {
+  background: linear-gradient(#101010, #101010) calc(var(--marker-0) + var(--marker-span) * 0/127) var(--marker-y) / 1px 4px no-repeat,
+              linear-gradient(#101010, #101010) calc(var(--marker-0) + var(--marker-span) * 127/127) var(--marker-y) / 1px 4px no-repeat;
+}
+.soft-markers-3 {
+  background: linear-gradient(#101010, #101010) calc(var(--marker-0) + var(--marker-span) * 0/127) var(--marker-y) / 1px 4px no-repeat,
+              linear-gradient(#101010, #101010) calc(var(--marker-0) + var(--marker-span) * 64/127) var(--marker-y) / 1px 4px no-repeat,
+              linear-gradient(#101010, #101010) calc(var(--marker-0) + var(--marker-span) * 127/127) var(--marker-y) / 1px 4px no-repeat;
+}
+.soft-markers-6 {
+  background: linear-gradient(#101010, #101010) calc(var(--marker-0) + var(--marker-span) * 0/127) var(--marker-y) / 1px 4px no-repeat,
+              linear-gradient(#101010, #101010) calc(var(--marker-0) + var(--marker-span) * 26/127) var(--marker-y) / 1px 4px no-repeat,
+              linear-gradient(#101010, #101010) calc(var(--marker-0) + var(--marker-span) * 51/127) var(--marker-y) / 1px 4px no-repeat,
+              linear-gradient(#101010, #101010) calc(var(--marker-0) + var(--marker-span) * 77/127) var(--marker-y) / 1px 4px no-repeat,
+              linear-gradient(#101010, #101010) calc(var(--marker-0) + var(--marker-span) * 102/127) var(--marker-y) / 1px 4px no-repeat,
+              linear-gradient(#101010, #101010) calc(var(--marker-0) + var(--marker-span) * 127/127) var(--marker-y) / 1px 4px no-repeat;
 }
 .soft-markers-6-c {
-  background: linear-gradient(#101010, #101010) calc(10px + (var(--slider-width) - 22px) * 0/127) 21px / 1px 4px no-repeat,
-              linear-gradient(#101010, #101010) calc(10px + (var(--slider-width) - 22px) * 26/127) 21px / 1px 4px no-repeat,
-              linear-gradient(#101010, #101010) calc(10px + (var(--slider-width) - 22px) * 51/127) 21px / 1px 4px no-repeat,
-              linear-gradient(#101010, #101010) calc(10px + (var(--slider-width) - 22px) * 64/127) 21px / 1px 4px no-repeat,
-              linear-gradient(#101010, #101010) calc(10px + (var(--slider-width) - 22px) * 77/127) 21px / 1px 4px no-repeat,
-              linear-gradient(#101010, #101010) calc(10px + (var(--slider-width) - 22px) * 102/127) 21px / 1px 4px no-repeat,
-              linear-gradient(#101010, #101010) calc(10px + (var(--slider-width) - 22px) * 127/127) 21px / 1px 4px no-repeat;
+  background: linear-gradient(#101010, #101010) calc(var(--marker-0) + var(--marker-span) * 0/127) var(--marker-y) / 1px 4px no-repeat,
+              linear-gradient(#101010, #101010) calc(var(--marker-0) + var(--marker-span) * 26/127) var(--marker-y) / 1px 4px no-repeat,
+              linear-gradient(#101010, #101010) calc(var(--marker-0) + var(--marker-span) * 51/127) var(--marker-y) / 1px 4px no-repeat,
+              linear-gradient(#101010, #101010) calc(var(--marker-0) + var(--marker-span) * 64/127) var(--marker-y) / 1px 4px no-repeat,
+              linear-gradient(#101010, #101010) calc(var(--marker-0) + var(--marker-span) * 77/127) var(--marker-y) / 1px 4px no-repeat,
+              linear-gradient(#101010, #101010) calc(var(--marker-0) + var(--marker-span) * 102/127) var(--marker-y) / 1px 4px no-repeat,
+              linear-gradient(#101010, #101010) calc(var(--marker-0) + var(--marker-span) * 127/127) var(--marker-y) / 1px 4px no-repeat;
 }
 
 /* ---- Soft keyboard (after SPMS-1 Editor): C-1 - G9 (37 keys, C3 - C6, in a 960px window), scrolled by the octave buttons or the scroll bar ---- */
@@ -989,6 +1120,7 @@ window.onload = function() {
   createVelocityInputs();
   setupPitchBendSpring();
   setupSliderUndo();
+  setupSliderFill();
   setupAccessibleNames();
   fitLayout();
   if (document.fonts) {
@@ -1000,6 +1132,12 @@ window.onload = function() {
   saveLoadDetails.open = (localStorage.getItem("keySaveLoadOpen") == "1");
   saveLoadDetails.addEventListener("toggle", function() {
     localStorage.setItem("keySaveLoadOpen", saveLoadDetails.open ? "1" : "0");
+  });
+  // MIDI, Actions & Presets are shown by default, and shown or hidden as the last time
+  var topDetails = document.getElementById("topDetails");
+  topDetails.open = (localStorage.getItem("keyTopOpen") != "0");
+  topDetails.addEventListener("toggle", function() {
+    localStorage.setItem("keyTopOpen", topDetails.open ? "1" : "0");
   });
   // The Performance Controls are shown by default, and shown or hidden as the last time
   var perfDetails = document.getElementById("perfDetails");
@@ -1458,7 +1596,9 @@ function onChangeMIDICh() {
 }
 
 function updateDisplayOfControl(number, value) {
-  document.getElementById("input" + controlNumberToStringMap.get(number)).value = parseInt(value);
+  var input = document.getElementById("input" + controlNumberToStringMap.get(number));
+  input.value = parseInt(value);
+  updateSliderFill(input);
 
   dispValue = String(value);
 
@@ -1851,6 +1991,20 @@ function fitButtonsWidth(selector, property) {
 
 // The names of the controls for a screen reader: a slider takes the name of its parameter (without the supplement
 // in [], e.g. "Osc 1 Wave CC#102"), a select of the MIDI settings its label, and a velocity what it is
+// The track of a slider filled up to its thumb (see input[type="range"])
+function updateSliderFill(input) {
+  input.style.setProperty("--fill", (input.value - input.min) / (input.max - input.min));
+}
+
+function setupSliderFill() {
+  document.querySelectorAll("input[type=range]").forEach(updateSliderFill);
+  document.addEventListener("input", function(event) {
+    if (event.target.matches && event.target.matches("input[type=range]")) {
+      updateSliderFill(event.target);
+    }
+  }, true);
+}
+
 function setupAccessibleNames() {
   document.querySelectorAll(".param").forEach(function(param) {
     var name = param.querySelector(".param-name").cloneNode(true);
@@ -2309,6 +2463,7 @@ function updateDisplayOfPerformanceControl(number, value) {
   var key = PERFORMANCE_CONTROLS.get(number)[0];
   value = parseInt(value);
   document.getElementById("inputPerf" + key).value = value;
+  updateSliderFill(document.getElementById("inputPerf" + key));
   // Pitch Bend signed, with "+" for 0 and above (as the parameters of [-|+], e.g. "+0" and "+8191")
   document.getElementById("spanPerf" + key).textContent = ((number == PITCH_BEND) && (value >= 0) ? "+" : "") + String(value);
   if ((number == SUSTAIN_PEDAL) || (number == PORTAMENTO_SW)) {
@@ -2678,6 +2833,8 @@ function getStoredCCValueString(index, number) {
 <span>(<a href="https://github.com/risgk/digital-synth-pra32-u2">View on GitHub</a>)</span>
 </div>
 
+<details class="section" id="topDetails" open>
+<summary>MIDI, Actions &amp; Presets</summary>
 <div class="section midi">
 <div class="midi-item"><span class="lbl-midi">MIDI Ch</span>
 <select id="selectMIDICh" size="1" onchange="onChangeMIDICh()">
@@ -2873,256 +3030,257 @@ function getStoredCCValueString(index, number) {
 </div>
 </div>
 </details>
+</details>
 
 <div class="params">
 <div class="param-group">
 <div class="param">
   <div class="param-name"><b>Osc 1</b> Wave <span class="sup">[Saw|Sqr|Tri|Sin|WT|Pls]</span> <span class="cc">CC#102</span></div>
-  <div class="param-ctrl"><input  id="inputOSC_1_WAVE     "  type="range" list="6 markers" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_1_WAVE     , value)"><span    id="spanOSC_1_WAVE     " >-</span><span   id="span2OSC_1_WAVE     " >-</span></div>
+  <div class="param-ctrl soft-markers-6"><input  id="inputOSC_1_WAVE     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_1_WAVE     , value)"><span    id="spanOSC_1_WAVE     " >-</span><span   id="span2OSC_1_WAVE     " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>Mixer</b> Noise/Sub Osc <span class="sup">[N|S]</span> <span class="cc">CC#23</span></div>
-  <div class="param-ctrl soft-marker-c"><input  id="inputMIXER_SUB_OSC  "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(MIXER_SUB_OSC  , value)"><span    id="spanMIXER_SUB_OSC  " >-</span><span   id="span2MIXER_SUB_OSC  " >-</span></div>
+  <div class="param-ctrl soft-marker-c"><input  id="inputMIXER_SUB_OSC  "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(MIXER_SUB_OSC  , value)"><span    id="spanMIXER_SUB_OSC  " >-</span><span   id="span2MIXER_SUB_OSC  " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>Osc 1</b> Shape <span class="cc">CC#19</span></div>
-  <div class="param-ctrl"><input  id="inputOSC_1_SHAPE    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_1_SHAPE    , value)"><span    id="spanOSC_1_SHAPE    " >-</span><span   id="span2OSC_1_SHAPE    " >-</span></div>
+  <div class="param-ctrl"><input  id="inputOSC_1_SHAPE    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_1_SHAPE    , value)"><span    id="spanOSC_1_SHAPE    " >-</span><span   id="span2OSC_1_SHAPE    " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>Osc 1</b> Morph <span class="cc">CC#20</span></div>
-  <div class="param-ctrl soft-markers-6-c"><input  id="inputOSC_1_MORPH    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_1_MORPH    , value)"><span    id="spanOSC_1_MORPH    " >-</span><span   id="span2OSC_1_MORPH    " >-</span></div>
+  <div class="param-ctrl soft-markers-6-c"><input  id="inputOSC_1_MORPH    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_1_MORPH    , value)"><span    id="spanOSC_1_MORPH    " >-</span><span   id="span2OSC_1_MORPH    " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>Osc 2</b> Wave <span class="sup">[Saw|Sqr|Tri|Sin|O1|Nos]</span> <span class="cc">CC#104</span></div>
-  <div class="param-ctrl"><input  id="inputOSC_2_WAVE     "  type="range" list="6 markers" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_2_WAVE     , value)"><span    id="spanOSC_2_WAVE     " >-</span><span   id="span2OSC_2_WAVE     " >-</span></div>
+  <div class="param-ctrl soft-markers-6"><input  id="inputOSC_2_WAVE     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_2_WAVE     , value)"><span    id="spanOSC_2_WAVE     " >-</span><span   id="span2OSC_2_WAVE     " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>Mixer</b> Osc Mix <span class="sup">[1|2]</span> <span class="cc">CC#21</span></div>
-  <div class="param-ctrl"><input  id="inputMIXER_OSC_MIX  "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(MIXER_OSC_MIX  , value)"><span    id="spanMIXER_OSC_MIX  " >-</span><span   id="span2MIXER_OSC_MIX  " >-</span></div>
+  <div class="param-ctrl"><input  id="inputMIXER_OSC_MIX  "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(MIXER_OSC_MIX  , value)"><span    id="spanMIXER_OSC_MIX  " >-</span><span   id="span2MIXER_OSC_MIX  " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>Osc 2</b> Coarse <span class="sup">[-|+]</span> <span class="cc">CC#85</span></div>
-  <div class="param-ctrl soft-marker-c"><input  id="inputOSC_2_COARSE   "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_2_COARSE   , value)"><span    id="spanOSC_2_COARSE   " >-</span><span   id="span2OSC_2_COARSE   " >-</span></div>
+  <div class="param-ctrl soft-marker-c"><input  id="inputOSC_2_COARSE   "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_2_COARSE   , value)"><span    id="spanOSC_2_COARSE   " >-</span><span   id="span2OSC_2_COARSE   " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>Osc 2</b> Pitch <span class="sup">[-|+]</span> <span class="cc">CC#76</span></div>
-  <div class="param-ctrl soft-marker-c"><input  id="inputOSC_2_PITCH    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_2_PITCH    , value)"><span    id="spanOSC_2_PITCH    " >-</span><span   id="span2OSC_2_PITCH    " >-</span></div>
+  <div class="param-ctrl soft-marker-c"><input  id="inputOSC_2_PITCH    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_2_PITCH    , value)"><span    id="spanOSC_2_PITCH    " >-</span><span   id="span2OSC_2_PITCH    " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>Filter</b> Cutoff <span class="cc">CC#74</span></div>
-  <div class="param-ctrl"><input  id="inputFILTER_CUTOFF  "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(FILTER_CUTOFF  , value)"><span    id="spanFILTER_CUTOFF  " >-</span><span   id="span2FILTER_CUTOFF  " >-</span></div>
+  <div class="param-ctrl"><input  id="inputFILTER_CUTOFF  "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(FILTER_CUTOFF  , value)"><span    id="spanFILTER_CUTOFF  " >-</span><span   id="span2FILTER_CUTOFF  " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>Filter</b> Resonance <span class="cc">CC#71</span></div>
-  <div class="param-ctrl"><input  id="inputFILTER_RESO    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(FILTER_RESO    , value)"><span    id="spanFILTER_RESO    " >-</span><span   id="span2FILTER_RESO    " >-</span></div>
+  <div class="param-ctrl"><input  id="inputFILTER_RESO    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(FILTER_RESO    , value)"><span    id="spanFILTER_RESO    " >-</span><span   id="span2FILTER_RESO    " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>Filter</b> EG Amt <span class="sup">[-|+]</span> <span class="cc">CC#24</span></div>
-  <div class="param-ctrl soft-marker-c"><input  id="inputFILTER_EG_AMT  "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(FILTER_EG_AMT  , value)"><span    id="spanFILTER_EG_AMT  " >-</span><span   id="span2FILTER_EG_AMT  " >-</span></div>
+  <div class="param-ctrl soft-marker-c"><input  id="inputFILTER_EG_AMT  "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(FILTER_EG_AMT  , value)"><span    id="spanFILTER_EG_AMT  " >-</span><span   id="span2FILTER_EG_AMT  " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>Filter</b> Key Track <span class="sup">[-|+]</span> <span class="cc">CC#9</span></div>
-  <div class="param-ctrl soft-marker-c"><input  id="inputFILTER_KEY_TRK "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(FILTER_KEY_TRK , value)"><span    id="spanFILTER_KEY_TRK " >-</span><span   id="span2FILTER_KEY_TRK " >-</span></div>
+  <div class="param-ctrl soft-marker-c"><input  id="inputFILTER_KEY_TRK "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(FILTER_KEY_TRK , value)"><span    id="spanFILTER_KEY_TRK " >-</span><span   id="span2FILTER_KEY_TRK " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>EG</b> Attack <span class="cc">CC#73</span></div>
-  <div class="param-ctrl"><input  id="inputEG_ATTACK      "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(EG_ATTACK      , value)"><span    id="spanEG_ATTACK      " >-</span><span   id="span2EG_ATTACK      " >-</span></div>
+  <div class="param-ctrl"><input  id="inputEG_ATTACK      "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(EG_ATTACK      , value)"><span    id="spanEG_ATTACK      " >-</span><span   id="span2EG_ATTACK      " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>EG</b> Decay <span class="cc">CC#75</span></div>
-  <div class="param-ctrl"><input  id="inputEG_DECAY       "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(EG_DECAY       , value)"><span    id="spanEG_DECAY       " >-</span><span   id="span2EG_DECAY       " >-</span></div>
+  <div class="param-ctrl"><input  id="inputEG_DECAY       "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(EG_DECAY       , value)"><span    id="spanEG_DECAY       " >-</span><span   id="span2EG_DECAY       " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>EG</b> Sustain <span class="cc">CC#30</span></div>
-  <div class="param-ctrl"><input  id="inputEG_SUSTAIN     "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(EG_SUSTAIN     , value)"><span    id="spanEG_SUSTAIN     " >-</span><span   id="span2EG_SUSTAIN     " >-</span></div>
+  <div class="param-ctrl"><input  id="inputEG_SUSTAIN     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(EG_SUSTAIN     , value)"><span    id="spanEG_SUSTAIN     " >-</span><span   id="span2EG_SUSTAIN     " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>EG</b> Release <span class="cc">CC#72</span></div>
-  <div class="param-ctrl"><input  id="inputEG_RELEASE     "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(EG_RELEASE     , value)"><span    id="spanEG_RELEASE     " >-</span><span   id="span2EG_RELEASE     " >-</span></div>
+  <div class="param-ctrl"><input  id="inputEG_RELEASE     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(EG_RELEASE     , value)"><span    id="spanEG_RELEASE     " >-</span><span   id="span2EG_RELEASE     " >-</span></div>
 </div>
 </div>
 <div class="param-group">
 <div class="param">
   <div class="param-name"><b>EG</b> Mod Amt <span class="sup">[-|+]</span> <span class="cc">CC#89</span></div>
-  <div class="param-ctrl soft-marker-c"><input  id="inputEG_OSC_AMT     "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(EG_OSC_AMT     , value)"><span    id="spanEG_OSC_AMT     " >-</span><span   id="span2EG_OSC_AMT     " >-</span></div>
+  <div class="param-ctrl soft-marker-c"><input  id="inputEG_OSC_AMT     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(EG_OSC_AMT     , value)"><span    id="spanEG_OSC_AMT     " >-</span><span   id="span2EG_OSC_AMT     " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>EG</b> Mod Dst <span class="sup">[P|P|2P|2P|F|1S]</span> <span class="cc">CC#8</span></div>
-  <div class="param-ctrl"><input  id="inputEG_OSC_DST     "  type="range" list="6 markers" min="0" max="127" step="1" oninput="onChangeControlChange(EG_OSC_DST     , value)"><span    id="spanEG_OSC_DST     " >-</span><span   id="span2EG_OSC_DST     " >-</span></div>
+  <div class="param-ctrl soft-markers-6"><input  id="inputEG_OSC_DST     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(EG_OSC_DST     , value)"><span    id="spanEG_OSC_DST     " >-</span><span   id="span2EG_OSC_DST     " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>Voice</b> Mode <span class="sup">[Pol|Pol|Mon|Mon|LP|Lgt]</span> <span class="cc">CC#18</span></div>
-  <div class="param-ctrl"><input  id="inputVOICE_MODE     "  type="range" list="6 markers" min="0" max="127" step="1" oninput="onChangeControlChange(VOICE_MODE     , value)"><span    id="spanVOICE_MODE     " >-</span><span   id="span2VOICE_MODE     " >-</span></div>
+  <div class="param-ctrl soft-markers-6"><input  id="inputVOICE_MODE     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(VOICE_MODE     , value)"><span    id="spanVOICE_MODE     " >-</span><span   id="span2VOICE_MODE     " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>Portamento</b> Time <span class="cc">CC#5</span></div>
-  <div class="param-ctrl"><input  id="inputPORTAMENTO     "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(PORTAMENTO     , value)"><span    id="spanPORTAMENTO     " >-</span><span   id="span2PORTAMENTO     " >-</span></div>
+  <div class="param-ctrl"><input  id="inputPORTAMENTO     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(PORTAMENTO     , value)"><span    id="spanPORTAMENTO     " >-</span><span   id="span2PORTAMENTO     " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>LFO</b> Wave <span class="sup">[Tri|Sin|Nos|Saw|S&H|Sqr]</span> <span class="cc">CC#33</span></div>
-  <div class="param-ctrl"><input  id="inputLFO_WAVE       "  type="range" list="6 markers" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_WAVE       , value)"><span    id="spanLFO_WAVE       " >-</span><span   id="span2LFO_WAVE       " >-</span></div>
+  <div class="param-ctrl soft-markers-6"><input  id="inputLFO_WAVE       "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_WAVE       , value)"><span    id="spanLFO_WAVE       " >-</span><span   id="span2LFO_WAVE       " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>LFO</b> Fade Time <span class="cc">CC#56</span></div>
-  <div class="param-ctrl"><input  id="inputLFO_FADE_TIME  "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_FADE_TIME  , value)"><span    id="spanLFO_FADE_TIME  " >-</span><span   id="span2LFO_FADE_TIME  " >-</span></div>
+  <div class="param-ctrl"><input  id="inputLFO_FADE_TIME  "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_FADE_TIME  , value)"><span    id="spanLFO_FADE_TIME  " >-</span><span   id="span2LFO_FADE_TIME  " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>LFO</b> Rate <span class="cc">CC#3</span></div>
-  <div class="param-ctrl"><input  id="inputLFO_RATE       "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_RATE       , value)"><span    id="spanLFO_RATE       " >-</span><span   id="span2LFO_RATE       " >-</span></div>
+  <div class="param-ctrl"><input  id="inputLFO_RATE       "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_RATE       , value)"><span    id="spanLFO_RATE       " >-</span><span   id="span2LFO_RATE       " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>LFO</b> Depth <span class="cc">CC#17</span></div>
-  <div class="param-ctrl"><input  id="inputLFO_DEPTH      "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_DEPTH      , value)"><span    id="spanLFO_DEPTH      " >-</span><span   id="span2LFO_DEPTH      " >-</span></div>
+  <div class="param-ctrl"><input  id="inputLFO_DEPTH      "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_DEPTH      , value)"><span    id="spanLFO_DEPTH      " >-</span><span   id="span2LFO_DEPTH      " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>LFO</b> Mod Amt <span class="sup">[-|+]</span> <span class="cc">CC#13</span></div>
-  <div class="param-ctrl soft-marker-c"><input  id="inputLFO_OSC_AMT    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_OSC_AMT    , value)"><span    id="spanLFO_OSC_AMT    " >-</span><span   id="span2LFO_OSC_AMT    " >-</span></div>
+  <div class="param-ctrl soft-marker-c"><input  id="inputLFO_OSC_AMT    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_OSC_AMT    , value)"><span    id="spanLFO_OSC_AMT    " >-</span><span   id="span2LFO_OSC_AMT    " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>LFO</b> Mod Dst <span class="sup">[P|P|2P|2P|F|1S]</span> <span class="cc">CC#103</span></div>
-  <div class="param-ctrl"><input  id="inputLFO_OSC_DST    "  type="range" list="6 markers" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_OSC_DST    , value)"><span    id="spanLFO_OSC_DST    " >-</span><span   id="span2LFO_OSC_DST    " >-</span></div>
+  <div class="param-ctrl soft-markers-6"><input  id="inputLFO_OSC_DST    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_OSC_DST    , value)"><span    id="spanLFO_OSC_DST    " >-</span><span   id="span2LFO_OSC_DST    " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>LFO</b> Filter Amt <span class="sup">[-|+]</span> <span class="cc">CC#25</span></div>
-  <div class="param-ctrl soft-marker-c"><input  id="inputLFO_FILTER_AMT "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_FILTER_AMT , value)"><span    id="spanLFO_FILTER_AMT " >-</span><span   id="span2LFO_FILTER_AMT " >-</span></div>
+  <div class="param-ctrl soft-marker-c"><input  id="inputLFO_FILTER_AMT "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_FILTER_AMT , value)"><span    id="spanLFO_FILTER_AMT " >-</span><span   id="span2LFO_FILTER_AMT " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>Amp</b> Gain <span class="cc">CC#15</span></div>
-  <div class="param-ctrl"><input  id="inputAMP_GAIN       "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(AMP_GAIN       , value)"><span    id="spanAMP_GAIN       " >-</span><span   id="span2AMP_GAIN       " >-</span></div>
+  <div class="param-ctrl"><input  id="inputAMP_GAIN       "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(AMP_GAIN       , value)"><span    id="spanAMP_GAIN       " >-</span><span   id="span2AMP_GAIN       " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>Filter</b> Mode <span class="sup">[LP|LP|BP|BP|BR|HP]</span> <span class="cc">CC#39</span></div>
-  <div class="param-ctrl"><input  id="inputFILTER_MODE    "  type="range" list="6 markers" min="0" max="127" step="1" oninput="onChangeControlChange(FILTER_MODE    , value)"><span    id="spanFILTER_MODE    " >-</span><span   id="span2FILTER_MODE    " >-</span></div>
+  <div class="param-ctrl soft-markers-6"><input  id="inputFILTER_MODE    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(FILTER_MODE    , value)"><span    id="spanFILTER_MODE    " >-</span><span   id="span2FILTER_MODE    " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name">Pitch Bend Range <span class="cc">CC#57</span></div>
-  <div class="param-ctrl"><input  id="inputP_BEND_RANGE   "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(P_BEND_RANGE   , value)"><span    id="spanP_BEND_RANGE   " >-</span><span   id="span2P_BEND_RANGE   " >-</span></div>
+  <div class="param-ctrl"><input  id="inputP_BEND_RANGE   "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(P_BEND_RANGE   , value)"><span    id="spanP_BEND_RANGE   " >-</span><span   id="span2P_BEND_RANGE   " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>EG</b> Amp Mod <span class="sup">[Off|On]</span> <span class="cc">CC#36</span></div>
-  <div class="param-ctrl"><input  id="inputEG_AMP_MOD     "  type="range" list="2 markers" min="0" max="127" step="1" oninput="onChangeControlChange(EG_AMP_MOD     , value)"><span    id="spanEG_AMP_MOD     " >-</span><span   id="span2EG_AMP_MOD     " >-</span></div>
+  <div class="param-ctrl soft-markers-2"><input  id="inputEG_AMP_MOD     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(EG_AMP_MOD     , value)"><span    id="spanEG_AMP_MOD     " >-</span><span   id="span2EG_AMP_MOD     " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>EG</b>/<b>Amp</b> Rel = Dec <span class="sup">[Off|On]</span> <span class="cc">CC#105</span></div>
-  <div class="param-ctrl"><input  id="inputREL_EQ_DECAY   "  type="range" list="2 markers" min="0" max="127" step="1" oninput="onChangeControlChange(REL_EQ_DECAY   , value)"><span    id="spanREL_EQ_DECAY   " >-</span><span   id="span2REL_EQ_DECAY   " >-</span></div>
+  <div class="param-ctrl soft-markers-2"><input  id="inputREL_EQ_DECAY   "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(REL_EQ_DECAY   , value)"><span    id="spanREL_EQ_DECAY   " >-</span><span   id="span2REL_EQ_DECAY   " >-</span></div>
 </div>
 </div>
 <div class="param-group">
 <div class="param">
   <div class="param-name"><b>Amp</b> Attack <span class="cc">CC#52</span></div>
-  <div class="param-ctrl"><input  id="inputAMP_ATTACK     "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(AMP_ATTACK     , value)"><span    id="spanAMP_ATTACK     " >-</span><span   id="span2AMP_ATTACK     " >-</span></div>
+  <div class="param-ctrl"><input  id="inputAMP_ATTACK     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(AMP_ATTACK     , value)"><span    id="spanAMP_ATTACK     " >-</span><span   id="span2AMP_ATTACK     " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>Amp</b> Decay <span class="cc">CC#53</span></div>
-  <div class="param-ctrl"><input  id="inputAMP_DECAY      "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(AMP_DECAY      , value)"><span    id="spanAMP_DECAY      " >-</span><span   id="span2AMP_DECAY      " >-</span></div>
+  <div class="param-ctrl"><input  id="inputAMP_DECAY      "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(AMP_DECAY      , value)"><span    id="spanAMP_DECAY      " >-</span><span   id="span2AMP_DECAY      " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>Amp</b> Sustain <span class="cc">CC#54</span></div>
-  <div class="param-ctrl"><input  id="inputAMP_SUSTAIN    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(AMP_SUSTAIN    , value)"><span    id="spanAMP_SUSTAIN    " >-</span><span   id="span2AMP_SUSTAIN    " >-</span></div>
+  <div class="param-ctrl"><input  id="inputAMP_SUSTAIN    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(AMP_SUSTAIN    , value)"><span    id="spanAMP_SUSTAIN    " >-</span><span   id="span2AMP_SUSTAIN    " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>Amp</b> Release <span class="cc">CC#55</span></div>
-  <div class="param-ctrl"><input  id="inputAMP_RELEASE    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(AMP_RELEASE    , value)"><span    id="spanAMP_RELEASE    " >-</span><span   id="span2AMP_RELEASE    " >-</span></div>
+  <div class="param-ctrl"><input  id="inputAMP_RELEASE    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(AMP_RELEASE    , value)"><span    id="spanAMP_RELEASE    " >-</span><span   id="span2AMP_RELEASE    " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>EG</b> Att/Dec Velo Sens <span class="sup">[-|+]</span> <span class="cc">CC#51</span></div>
-  <div class="param-ctrl soft-marker-c"><input  id="inputA_D_VEL_SENS   "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(A_D_VEL_SENS   , value)"><span    id="spanA_D_VEL_SENS   " >-</span><span   id="span2A_D_VEL_SENS   " >-</span></div>
+  <div class="param-ctrl soft-marker-c"><input  id="inputA_D_VEL_SENS   "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(A_D_VEL_SENS   , value)"><span    id="spanA_D_VEL_SENS   " >-</span><span   id="span2A_D_VEL_SENS   " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>EG</b> Rel Velo Sens <span class="sup">[-|+]</span> <span class="cc">CC#81</span></div>
-  <div class="param-ctrl soft-marker-c"><input  id="inputREL_VEL_SENS   "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(REL_VEL_SENS   , value)"><span    id="spanREL_VEL_SENS   " >-</span><span   id="span2REL_VEL_SENS   " >-</span></div>
+  <div class="param-ctrl soft-marker-c"><input  id="inputREL_VEL_SENS   "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(REL_VEL_SENS   , value)"><span    id="spanREL_VEL_SENS   " >-</span><span   id="span2REL_VEL_SENS   " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>EG</b> Level Velo Sens <span class="cc">CC#62</span></div>
-  <div class="param-ctrl"><input  id="inputEG_VEL_SENS    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(EG_VEL_SENS    , value)"><span    id="spanEG_VEL_SENS    " >-</span><span   id="span2EG_VEL_SENS    " >-</span></div>
+  <div class="param-ctrl"><input  id="inputEG_VEL_SENS    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(EG_VEL_SENS    , value)"><span    id="spanEG_VEL_SENS    " >-</span><span   id="span2EG_VEL_SENS    " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>Amp</b> Level Velo Sens <span class="cc">CC#63</span></div>
-  <div class="param-ctrl"><input  id="inputAMP_VEL_SENS   "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(AMP_VEL_SENS   , value)"><span    id="spanAMP_VEL_SENS   " >-</span><span   id="span2AMP_VEL_SENS   " >-</span></div>
+  <div class="param-ctrl"><input  id="inputAMP_VEL_SENS   "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(AMP_VEL_SENS   , value)"><span    id="spanAMP_VEL_SENS   " >-</span><span   id="span2AMP_VEL_SENS   " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>EG</b> Att/Dec Key Track <span class="sup">[-|+]</span> <span class="cc">CC#16</span></div>
-  <div class="param-ctrl soft-marker-c"><input  id="inputA_D_KEY_TRK    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(A_D_KEY_TRK    , value)"><span    id="spanA_D_KEY_TRK    " >-</span><span   id="span2A_D_KEY_TRK    " >-</span></div>
+  <div class="param-ctrl soft-marker-c"><input  id="inputA_D_KEY_TRK    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(A_D_KEY_TRK    , value)"><span    id="spanA_D_KEY_TRK    " >-</span><span   id="span2A_D_KEY_TRK    " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>Voice</b> Assign Mode <span class="sup">[1|1|3|3|4|2]</span> <span class="cc">CC#110</span></div>
-  <div class="param-ctrl"><input  id="inputVOICE_ASGN_MODE"  type="range" list="6 markers" min="0" max="127" step="1" oninput="onChangeControlChange(VOICE_ASGN_MODE, value)"><span    id="spanVOICE_ASGN_MODE" >-</span><span   id="span2VOICE_ASGN_MODE" >-</span></div>
+  <div class="param-ctrl soft-markers-6"><input  id="inputVOICE_ASGN_MODE"  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(VOICE_ASGN_MODE, value)"><span    id="spanVOICE_ASGN_MODE" >-</span><span   id="span2VOICE_ASGN_MODE" >-</span></div>
 </div>
 <div class="param">
   <div class="param-name">Pan <span class="cc">CC#10</span></div>
-  <div class="param-ctrl"><input  id="inputPAN            "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(PAN            , value)"><span    id="spanPAN            " >-</span><span   id="span2PAN            " >-</span></div>
+  <div class="param-ctrl"><input  id="inputPAN            "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(PAN            , value)"><span    id="spanPAN            " >-</span><span   id="span2PAN            " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name">Stretch Tune <span class="sup">[-|+]</span> <span class="cc">CC#22</span></div>
-  <div class="param-ctrl soft-marker-c"><input  id="inputSTRETCH_TUNE   "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(STRETCH_TUNE   , value)"><span    id="spanSTRETCH_TUNE   " >-</span><span   id="span2STRETCH_TUNE   " >-</span></div>
+  <div class="param-ctrl soft-marker-c"><input  id="inputSTRETCH_TUNE   "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(STRETCH_TUNE   , value)"><span    id="spanSTRETCH_TUNE   " >-</span><span   id="span2STRETCH_TUNE   " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>Osc</b>/<b>Filter</b> Drift <span class="cc">CC#82</span></div>
-  <div class="param-ctrl"><input  id="inputOSC_DRIFT      "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_DRIFT      , value)"><span    id="spanOSC_DRIFT      " >-</span><span   id="span2OSC_DRIFT      " >-</span></div>
+  <div class="param-ctrl"><input  id="inputOSC_DRIFT      "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_DRIFT      , value)"><span    id="spanOSC_DRIFT      " >-</span><span   id="span2OSC_DRIFT      " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>Osc</b> Saw Wave Mode <span class="sup">[Str|Cur]</span> <span class="cc">CC#83</span></div>
-  <div class="param-ctrl"><input  id="inputOSC_SAW_W_MODE "  type="range" list="2 markers" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_SAW_W_MODE , value)"><span    id="spanOSC_SAW_W_MODE " >-</span><span   id="span2OSC_SAW_W_MODE " >-</span></div>
+  <div class="param-ctrl soft-markers-2"><input  id="inputOSC_SAW_W_MODE "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_SAW_W_MODE , value)"><span    id="spanOSC_SAW_W_MODE " >-</span><span   id="span2OSC_SAW_W_MODE " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name">Coarse Tune <span class="sup">[-|+]</span> <span class="cc">CC#86</span></div>
-  <div class="param-ctrl soft-marker-c"><input  id="inputCOARSE_TUNE    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(COARSE_TUNE    , value)"><span    id="spanCOARSE_TUNE    " >-</span><span   id="span2COARSE_TUNE    " >-</span></div>
+  <div class="param-ctrl soft-marker-c"><input  id="inputCOARSE_TUNE    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(COARSE_TUNE    , value)"><span    id="spanCOARSE_TUNE    " >-</span><span   id="span2COARSE_TUNE    " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name">Fine Tune <span class="sup">[-|+]</span> <span class="cc">CC#70</span></div>
-  <div class="param-ctrl soft-marker-c"><input  id="inputFINE_TUNE      "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(FINE_TUNE      , value)"><span    id="spanFINE_TUNE      " >-</span><span   id="span2FINE_TUNE      " >-</span></div>
+  <div class="param-ctrl soft-marker-c"><input  id="inputFINE_TUNE      "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(FINE_TUNE      , value)"><span    id="spanFINE_TUNE      " >-</span><span   id="span2FINE_TUNE      " >-</span></div>
 </div>
 </div>
 <div class="param-group">
 <div class="param">
   <div class="param-name"><b>Breath</b> Filter Amt <span class="sup">[-|+]</span> <span class="cc">CC#60</span></div>
-  <div class="param-ctrl soft-marker-c"><input  id="inputBTH_FILTER_AMT "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(BTH_FILTER_AMT , value)"><span    id="spanBTH_FILTER_AMT " >-</span><span   id="span2BTH_FILTER_AMT " >-</span></div>
+  <div class="param-ctrl soft-marker-c"><input  id="inputBTH_FILTER_AMT "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(BTH_FILTER_AMT , value)"><span    id="spanBTH_FILTER_AMT " >-</span><span   id="span2BTH_FILTER_AMT " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>Breath</b> Amp Mode <span class="sup">[Off|Q|L|LO|QO|Opn]</span> <span class="cc">CC#61</span></div>
-  <div class="param-ctrl"><input  id="inputBTH_AMP_MOD    "  type="range" list="6 markers" min="0" max="127" step="1" oninput="onChangeControlChange(BTH_AMP_MOD    , value)"><span    id="spanBTH_AMP_MOD    " >-</span><span   id="span2BTH_AMP_MOD    " >-</span></div>
+  <div class="param-ctrl soft-markers-6"><input  id="inputBTH_AMP_MOD    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(BTH_AMP_MOD    , value)"><span    id="spanBTH_AMP_MOD    " >-</span><span   id="span2BTH_AMP_MOD    " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>After Touch</b> LFO Amt <span class="cc">CC#37</span></div>
-  <div class="param-ctrl"><input  id="inputAFT_T_LFO_AMT  "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(AFT_T_LFO_AMT  , value)"><span    id="spanAFT_T_LFO_AMT  " >-</span><span   id="span2AFT_T_LFO_AMT  " >-</span></div>
+  <div class="param-ctrl"><input  id="inputAFT_T_LFO_AMT  "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(AFT_T_LFO_AMT  , value)"><span    id="spanAFT_T_LFO_AMT  " >-</span><span   id="span2AFT_T_LFO_AMT  " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>Portamento</b> Mode <span class="sup">[Sw|Aut]</span> <span class="cc">CC#34</span></div>
-  <div class="param-ctrl"><input  id="inputPORTA_MODE     "  type="range" list="2 markers" min="0" max="127" step="1" oninput="onChangeControlChange(PORTA_MODE     , value)"><span    id="spanPORTA_MODE     " >-</span><span   id="span2PORTA_MODE     " >-</span></div>
+  <div class="param-ctrl soft-markers-2"><input  id="inputPORTA_MODE     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(PORTA_MODE     , value)"><span    id="spanPORTA_MODE     " >-</span><span   id="span2PORTA_MODE     " >-</span></div>
 </div>
 </div>
 <div class="param-group">
 <div class="param">
   <div class="param-name"><b>Chorus</b> Level <span class="cc">CC#93</span></div>
-  <div class="param-ctrl"><input  id="inputCHORUS_MIX     "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(CHORUS_MIX     , value)"><span    id="spanCHORUS_MIX     " >-</span><span   id="span2CHORUS_MIX     " >-</span></div>
+  <div class="param-ctrl"><input  id="inputCHORUS_MIX     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(CHORUS_MIX     , value)"><span    id="spanCHORUS_MIX     " >-</span><span   id="span2CHORUS_MIX     " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name">FX Routing <span class="sup">[Cho|Cho|Dly|Dly|Cmp|Dry]</span> <span class="cc">CC#95</span></div>
-  <div class="param-ctrl"><input  id="inputFX_ROUTING     "  type="range" list="6 markers" min="0" max="127" step="1" oninput="onChangeControlChange(FX_ROUTING     , value)"><span    id="spanFX_ROUTING     " >-</span><span   id="span2FX_ROUTING     " >-</span></div>
+  <div class="param-ctrl soft-markers-6"><input  id="inputFX_ROUTING     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(FX_ROUTING     , value)"><span    id="spanFX_ROUTING     " >-</span><span   id="span2FX_ROUTING     " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>Chorus</b> Rate <span class="cc">CC#58</span></div>
-  <div class="param-ctrl"><input  id="inputCHORUS_RATE    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(CHORUS_RATE    , value)"><span    id="spanCHORUS_RATE    " >-</span><span   id="span2CHORUS_RATE    " >-</span></div>
+  <div class="param-ctrl"><input  id="inputCHORUS_RATE    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(CHORUS_RATE    , value)"><span    id="spanCHORUS_RATE    " >-</span><span   id="span2CHORUS_RATE    " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>Chorus</b> Depth <span class="cc">CC#59</span></div>
-  <div class="param-ctrl"><input  id="inputCHORUS_DEPTH   "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(CHORUS_DEPTH   , value)"><span    id="spanCHORUS_DEPTH   " >-</span><span   id="span2CHORUS_DEPTH   " >-</span></div>
+  <div class="param-ctrl"><input  id="inputCHORUS_DEPTH   "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(CHORUS_DEPTH   , value)"><span    id="spanCHORUS_DEPTH   " >-</span><span   id="span2CHORUS_DEPTH   " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>Delay</b> Level <span class="cc">CC#94</span></div>
-  <div class="param-ctrl"><input  id="inputDELAY_LEVEL    "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(DELAY_LEVEL    , value)"><span    id="spanDELAY_LEVEL    " >-</span><span   id="span2DELAY_LEVEL    " >-</span></div>
+  <div class="param-ctrl"><input  id="inputDELAY_LEVEL    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(DELAY_LEVEL    , value)"><span    id="spanDELAY_LEVEL    " >-</span><span   id="span2DELAY_LEVEL    " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>Delay</b> Mode <span class="sup">[Ste|PP|Rev]</span> <span class="cc">CC#35</span></div>
-  <div class="param-ctrl"><input  id="inputDELAY_MODE     "  type="range" list="3 markers" min="0" max="127" step="1" oninput="onChangeControlChange(DELAY_MODE     , value)"><span    id="spanDELAY_MODE     " >-</span><span   id="span2DELAY_MODE     " >-</span></div>
+  <div class="param-ctrl soft-markers-3"><input  id="inputDELAY_MODE     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(DELAY_MODE     , value)"><span    id="spanDELAY_MODE     " >-</span><span   id="span2DELAY_MODE     " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>Delay</b> Time <span class="cc">CC#90</span></div>
-  <div class="param-ctrl"><input  id="inputDELAY_TIME     "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(DELAY_TIME     , value)"><span    id="spanDELAY_TIME     " >-</span><span   id="span2DELAY_TIME     " >-</span></div>
+  <div class="param-ctrl"><input  id="inputDELAY_TIME     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(DELAY_TIME     , value)"><span    id="spanDELAY_TIME     " >-</span><span   id="span2DELAY_TIME     " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>Delay</b> Feedback <span class="cc">CC#92</span></div>
-  <div class="param-ctrl"><input  id="inputDELAY_FEEDBACK "  type="range" list="0 markers" min="0" max="127" step="1" oninput="onChangeControlChange(DELAY_FEEDBACK , value)"><span    id="spanDELAY_FEEDBACK " >-</span><span   id="span2DELAY_FEEDBACK " >-</span></div>
+  <div class="param-ctrl"><input  id="inputDELAY_FEEDBACK "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(DELAY_FEEDBACK , value)"><span    id="spanDELAY_FEEDBACK " >-</span><span   id="span2DELAY_FEEDBACK " >-</span></div>
 </div>
 </div>
 </div>
@@ -3149,31 +3307,31 @@ Off <input type="number" id="inputNoteOffVelocity" min="1" max="127" step="1"></
 <div class="param-group">
 <div class="param">
   <div class="param-name">Pitch Bend</div>
-  <div class="param-ctrl soft-marker-c"><input id="inputPerfPITCH_BEND" type="range" list="0 markers" min="-8192" max="8191" step="1" value="0" oninput="onChangePerformanceControl(PITCH_BEND, value)"><span id="spanPerfPITCH_BEND">+0</span><span id="span2PerfPITCH_BEND"></span></div>
+  <div class="param-ctrl soft-marker-c"><input id="inputPerfPITCH_BEND" type="range" min="-8192" max="8191" step="1" value="0" oninput="onChangePerformanceControl(PITCH_BEND, value)"><span id="spanPerfPITCH_BEND">+0</span><span id="span2PerfPITCH_BEND"></span></div>
 </div>
 <div class="param">
   <div class="param-name">Modulation Wheel <span class="cc">CC#1</span></div>
-  <div class="param-ctrl"><input id="inputPerfMODULATION" type="range" list="0 markers" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(MODULATION, value)"><span id="spanPerfMODULATION">0</span><span id="span2PerfMODULATION"></span></div>
+  <div class="param-ctrl"><input id="inputPerfMODULATION" type="range" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(MODULATION, value)"><span id="spanPerfMODULATION">0</span><span id="span2PerfMODULATION"></span></div>
 </div>
 <div class="param">
   <div class="param-name">Breath Controller <span class="cc">CC#2</span></div>
-  <div class="param-ctrl"><input id="inputPerfBTH_CONTROLLER" type="range" list="0 markers" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(BTH_CONTROLLER, value)"><span id="spanPerfBTH_CONTROLLER">0</span><span id="span2PerfBTH_CONTROLLER"></span></div>
+  <div class="param-ctrl"><input id="inputPerfBTH_CONTROLLER" type="range" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(BTH_CONTROLLER, value)"><span id="spanPerfBTH_CONTROLLER">0</span><span id="span2PerfBTH_CONTROLLER"></span></div>
 </div>
 <div class="param">
   <div class="param-name">Expression <span class="cc">CC#11</span></div>
-  <div class="param-ctrl"><input id="inputPerfEXPRESSION" type="range" list="0 markers" min="0" max="127" step="1" value="127" oninput="onChangePerformanceControl(EXPRESSION, value)"><span id="spanPerfEXPRESSION">127</span><span id="span2PerfEXPRESSION"></span></div>
+  <div class="param-ctrl"><input id="inputPerfEXPRESSION" type="range" min="0" max="127" step="1" value="127" oninput="onChangePerformanceControl(EXPRESSION, value)"><span id="spanPerfEXPRESSION">127</span><span id="span2PerfEXPRESSION"></span></div>
 </div>
 <div class="param">
   <div class="param-name">Sustain Pedal <span class="sup">[Off|On]</span> <span class="cc">CC#64</span></div>
-  <div class="param-ctrl"><input id="inputPerfSUSTAIN_PEDAL" type="range" list="2 markers" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(SUSTAIN_PEDAL, value)"><span id="spanPerfSUSTAIN_PEDAL">0</span><span id="span2PerfSUSTAIN_PEDAL">[Off]</span></div>
+  <div class="param-ctrl soft-markers-2"><input id="inputPerfSUSTAIN_PEDAL" type="range" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(SUSTAIN_PEDAL, value)"><span id="spanPerfSUSTAIN_PEDAL">0</span><span id="span2PerfSUSTAIN_PEDAL">[Off]</span></div>
 </div>
 <div class="param">
   <div class="param-name">Portamento Switch <span class="sup">[Off|On]</span> <span class="cc">CC#65</span></div>
-  <div class="param-ctrl"><input id="inputPerfPORTAMENTO_SW" type="range" list="2 markers" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(PORTAMENTO_SW, value)"><span id="spanPerfPORTAMENTO_SW">0</span><span id="span2PerfPORTAMENTO_SW">[Off]</span></div>
+  <div class="param-ctrl soft-markers-2"><input id="inputPerfPORTAMENTO_SW" type="range" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(PORTAMENTO_SW, value)"><span id="spanPerfPORTAMENTO_SW">0</span><span id="span2PerfPORTAMENTO_SW">[Off]</span></div>
 </div>
 <div class="param">
   <div class="param-name">Channel Pressure</div>
-  <div class="param-ctrl"><input id="inputPerfCH_PRESSURE" type="range" list="0 markers" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(CH_PRESSURE, value)"><span id="spanPerfCH_PRESSURE">0</span><span id="span2PerfCH_PRESSURE"></span></div>
+  <div class="param-ctrl"><input id="inputPerfCH_PRESSURE" type="range" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(CH_PRESSURE, value)"><span id="spanPerfCH_PRESSURE">0</span><span id="span2PerfCH_PRESSURE"></span></div>
 </div>
 </div>
 </div>
@@ -3181,29 +3339,6 @@ Off <input type="number" id="inputNoteOffVelocity" min="1" max="127" step="1"></
 </details>
 
 </div>
-
-<datalist id="0 markers">
-</datalist>
-
-<datalist id="2 markers">
-  <option value="0"></option>
-  <option value="127"></option>
-</datalist>
-
-<datalist id="3 markers">
-  <option value="0"></option>
-  <option value="64"></option>
-  <option value="127"></option>
-</datalist>
-
-<datalist id="6 markers">
-  <option value="0"></option>
-  <option value="26"></option>
-  <option value="51"></option>
-  <option value="77"></option>
-  <option value="102"></option>
-  <option value="127"></option>
-</datalist>
 
 </body>
 </html>
