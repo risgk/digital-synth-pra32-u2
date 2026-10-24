@@ -8,6 +8,9 @@
     - PRA32-U2 Editor: Show the value of Pitch Bend with "+" for 0 and above (e.g. "+0" and "+8191"), as the parameters of [-|+]
     - PRA32-U2 Editor: Show Panic of the Software Keyboard even while it is hidden, and turn Hold off by Panic and by hiding the keyboard (as in SPMS-1 Editor)
     - PRA32-U2 Editor: Make the sliders below the Software Keyboard (Performance Controls) hidable apart from the keyboard, so that the keyboard at the bottom of the window takes less of it (e.g. on a phone)
+    - PRA32-U2 Editor: Change Undo to go back up to 200 steps, also over the moves of the sliders, and add Redo (instead of Undo again)
+    - PRA32-U2 Editor: Show "(None)" for no port in MIDI In 1-4 and MIDI Out, instead of an empty box
+    - PRA32-U2 Editor: Give the sliders, the MIDI settings, and the velocities their names for a screen reader
     - Tested with Arduino-Pico version 6.3.0
 - v3.16.1 (2026-10-23):
     - PRA32-U2 Editor: Make the supplements in [] (e.g. "[Saw|Sqr|Tri|Sin|WT|Pls]") and the control numbers in the parameter names smaller, so that the names are narrower, and put the control numbers a little apart (also "PC#127" in "Randomize Synth")
