@@ -13,7 +13,8 @@
     - PRA32-U2 Editor: Give the sliders, the MIDI settings, and the velocities their names for a screen reader
     - PRA32-U2 Editor: Draw the buttons, the selects, the number inputs, and the sliders as Chrome draws them, so that they look the same in every Web browser and OS (the markers below the sliders drawn too, instead of datalists)
     - PRA32-U2 Editor: Make the thumbs of the sliders larger (24 px, from 16 px) on a touch screen, with the sliders longer (157 px) so that the thumb still moves a pixel a value, and the value labels narrower (48 px)
-    - PRA32-U2 Editor: Put MIDI, Actions, Factory Preset, User Preset, and Save & Load (as its sub heading) under "MIDI, Actions & Presets", which can be hidden at once (shown by default, and shown or hidden as the last time)
+    - PRA32-U2 Editor: Put the MIDI settings under "MIDI", and Actions, Factory Preset, User Preset, and Save & Load (as its sub heading) under "Actions & Presets", each of which can be hidden (shown by default, and shown or hidden as the last time)
+    - PRA32-U2 Editor: Keep the program buttons with names in 4 columns in a 360 px window too (a little smaller and closer together)
     - PRA32-U2 Editor: Color the sliders orange (the color of PRA32-U2), and the buttons under the pointer and while pressed, and show the title larger in orange over an orange line, with the version and the link smaller in gray (#6b6b6b) (as in SPMS-1 Editor)
     - PRA32-U2 Editor: Make the buttons taller (30 px, from 21 px) on a touch screen
     - PRA32-U2 Editor: Show the ring of the keyboard focus in orange

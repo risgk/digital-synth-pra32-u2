@@ -348,8 +348,9 @@ button {
 details.section > summary {
   margin-bottom: 8px;
 }
-/* MIDI, Actions & Presets: the last section in it (Save & Load, its sub heading) without the space below, which is that of the details */
-#topDetails > .section:last-child {
+/* MIDI, and Actions & Presets: the last section in each (Save & Load, the sub heading of Actions & Presets) without the
+   space below, which is that of the details */
+#midiDetails > .section:last-child, #presetsDetails > .section:last-child {
   margin-bottom: 0;
 }
 details.section:not([open]) > summary {
@@ -453,10 +454,15 @@ span.cc {
   .banks.split-1 > .bank:first-child {
     margin-top: 8px;  /* the space by a margin, not row-gap, which the empty line of the break would double */
   }
-  /* A narrow window: the program buttons with names still in 4 columns, a little smaller */
+  /* A narrow window: the program buttons with names still in 4 columns, a little smaller and closer together,
+     so that they fit in a 360px window (e.g. 82px for "#27 Elec Organ") */
+  .bank.named {
+    column-gap: 3px;
+  }
   .bank.named button {
     font-size: 11px;
-    padding: 1px 3px;
+    padding: 1px 2px;
+    letter-spacing: -0.4px;
   }
   .misc-group > span:first-child {
     flex-basis: 100%;  /* above the buttons, as the labels of the program buttons */
@@ -1180,11 +1186,13 @@ window.onload = function() {
   saveLoadDetails.addEventListener("toggle", function() {
     localStorage.setItem("keySaveLoadOpen", saveLoadDetails.open ? "1" : "0");
   });
-  // MIDI, Actions & Presets are shown by default, and shown or hidden as the last time
-  var topDetails = document.getElementById("topDetails");
-  topDetails.open = (localStorage.getItem("keyTopOpen") != "0");
-  topDetails.addEventListener("toggle", function() {
-    localStorage.setItem("keyTopOpen", topDetails.open ? "1" : "0");
+  // MIDI, and Actions & Presets are shown by default, and each shown or hidden as the last time
+  [["midiDetails", "keyMIDIOpen"], ["presetsDetails", "keyPresetsOpen"]].forEach(function(item) {
+    var details = document.getElementById(item[0]);
+    details.open = (localStorage.getItem(item[1]) != "0");
+    details.addEventListener("toggle", function() {
+      localStorage.setItem(item[1], details.open ? "1" : "0");
+    });
   });
   // The Performance Controls are shown by default, and shown or hidden as the last time
   var perfDetails = document.getElementById("perfDetails");
@@ -2917,8 +2925,8 @@ function getStoredCCValueString(index, number) {
 <span>(<a href="https://github.com/risgk/digital-synth-pra32-u2">View on GitHub</a>)</span>
 </div>
 
-<details class="section" id="topDetails" open>
-<summary>MIDI, Actions &amp; Presets</summary>
+<details class="section" id="midiDetails" open>
+<summary>MIDI</summary>
 <div class="section midi">
 <div class="midi-item"><span class="lbl-midi">MIDI Ch</span>
 <select id="selectMIDICh" size="1" onchange="onChangeMIDICh()">
@@ -2951,6 +2959,10 @@ function getStoredCCValueString(index, number) {
 <div class="midi-break"></div>
 <div class="midi-note" id="divMIDINote" hidden></div>
 </div>
+</details>
+
+<details class="section" id="presetsDetails" open>
+<summary>Actions &amp; Presets</summary>
 
 <div class="section misc">
 <div class="misc-group"><span>Actions</span><div class="misc-buttons">

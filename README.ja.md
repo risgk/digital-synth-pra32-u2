@@ -100,7 +100,7 @@
     - Randomize Synth と Randomize FX: シンセや FX のパラメーターをランダムに設定します
         - Randomize Synth が変えるのは、Editor の最初の 32 個のうち、Voice Mode と Amp Gain を除くパラメーターです
     - Undo: 直前の変更 (プリセット、Randomize、Import、スライダーの操作) の前のパラメーターに戻します (200 段階まで)。Redo で進めます (Ctrl+Z と、Ctrl+Y または Ctrl+Shift+Z でも。Mac では Command)
-    - "MIDI, Actions & Presets" ("Save & Load" を含む) はまとめて隠せるので、パラメーターに画面を広く使えます
+    - "MIDI" と "Actions & Presets" ("Save & Load" を含む) はそれぞれ隠せるので、パラメーターに画面を広く使えます
     - ボタンやスライダーなどは、どのブラウザーや OS でも同じ見た目 (Chrome 相当) です。タッチ画面では、スライダーのつまみが大きく、ボタンが高くなります
     - Software Keyboard: マウス、タッチ、PC のキーボード (A - K が C - C、W - U が黒鍵、Z / X がオクターブ) で弾けます
         - パラメーターの下にあり、パラメーターをスクロールしても画面の下に残るので、弾きながらパラメーターを変えられます。隠すこともできます (Panic は表示されたまま。隠すと Hold はオフになります)
