@@ -273,6 +273,29 @@ static void __not_in_flash_func(programChange)(uint32_t synth, uint8_t program_n
   programChangeOf(synth, program_number);
 }
 
+// Program Change by CC (#112-119: the programs #0-7) and Special Random Control (#111: #127) are
+// kept as the Program Changes too, when the value goes up from 63 or below to 64 or above, so that a
+// stream of them does not overload a loop either; the synths do not get them
+static uint8_t s_special_cc_values[4][PC_BY_CC_7 - SP_RAND_CTRL + 1];
+
+static void __not_in_flash_func(controlChange)(uint32_t synth, uint8_t number, uint8_t value) {
+  if ((number >= SP_RAND_CTRL) && (number <= PC_BY_CC_7)) {
+    uint8_t old_value = s_special_cc_values[synth][number - SP_RAND_CTRL];
+    s_special_cc_values[synth][number - SP_RAND_CTRL] = value;
+    if ((old_value <= 63) && (value >= 64)) {
+      programChange(synth, (number == SP_RAND_CTRL) ? 127 : (number - PC_BY_CC_0));
+    }
+    return;
+  }
+  processPendingProgramChanges();
+  switch (synth) {
+  case 0: g_synth      .control_change(number, value); break;
+  case 1: g_sub_1_synth.control_change(number, value); break;
+  case 2: g_sub_2_synth.control_change(number, value); break;
+  case 3: g_sub_3_synth.control_change(number, value); break;
+  }
+}
+
 #if defined(PRA32_U2_ENABLE_LAYERING)
 // The program for the synth #k of the Layering: the program + k, wrapping around in the user
 // programs (#0-15) and in the presets (#16-31) each; #127 Random Control is for all the synths too
@@ -639,28 +662,26 @@ void __not_in_flash_func(handleNoteOff)(byte channel, byte pitch, byte velocity)
 
 void __not_in_flash_func(handleControlChange)(byte channel, byte number, byte value)
 {
-  processPendingProgramChanges();
-
   if ((channel - 1) == g_midi_ch) {
-    g_synth.control_change(number, value);
+    controlChange(0, number, value);
   } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
-    g_sub_1_synth.control_change(number, value);
+    controlChange(1, number, value);
   } else if ((channel - 1) == ((g_midi_ch + 2) & 0x0F)) {
-    g_sub_2_synth.control_change(number, value);
+    controlChange(2, number, value);
   } else if ((channel - 1) == ((g_midi_ch + 3) & 0x0F)) {
-    g_sub_3_synth.control_change(number, value);
+    controlChange(3, number, value);
 #if defined(PRA32_U2_ENABLE_LAYERING)
   } else if ((channel - 1) == ((g_midi_ch - 3) & 0x0F)) {
-    g_synth.control_change(number, value);
-    g_sub_1_synth.control_change(number, value);
+    controlChange(0, number, value);
+    controlChange(1, number, value);
   } else if ((channel - 1) == ((g_midi_ch - 2) & 0x0F)) {
-    g_sub_2_synth.control_change(number, value);
-    g_sub_3_synth.control_change(number, value);
+    controlChange(2, number, value);
+    controlChange(3, number, value);
   } else if ((channel - 1) == ((g_midi_ch - 1) & 0x0F)) {
-    g_synth.control_change(number, value);
-    g_sub_1_synth.control_change(number, value);
-    g_sub_2_synth.control_change(number, value);
-    g_sub_3_synth.control_change(number, value);
+    controlChange(0, number, value);
+    controlChange(1, number, value);
+    controlChange(2, number, value);
+    controlChange(3, number, value);
 #endif  // defined(PRA32_U2_ENABLE_LAYERING)
   }
 }
