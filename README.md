@@ -80,7 +80,7 @@ graph LR
 
 ## [Development](./PRA32-U2-Development.md)
 
-- Notes for changing the code: Debug Print, how it runs on the two cores, writing to the flash, and the tools
+- Notes for changing the code: Debug Print, how it runs on the two cores, keeping the processing time the same (e.g. branchless), the Load Estimate, writing to the flash, and the tools
 
 
 ## Files

@@ -25,6 +25,18 @@
 - The code that runs while playing is put in RAM (`__not_in_flash_func`), so that an XIP cache miss (e.g. after a burst of MIDI or USB) does not delay it
 
 
+## Processing Time
+
+- A loop must end within 1333 us whatever the parameters, the notes, and the MIDI messages: what matters is the slowest loop, not the average
+- So the processing is kept about the same every sample, as far as possible:
+    - Branchless: a select rather than a branch (e.g. `branchless_conditional()`), and an index rather than a switch (e.g. the FX Routing into the FX bus)
+    - Always calculated: e.g. the gain of the Output Fader, the division of the Output Limiter, and the Reverb lengths even while the Delay Time does not move;
+      the Output Compressor has no division, and no branch that skips or adds work
+    - Spread: the control processing (12 kHz, once per 4 samples) is shared out among the 4 samples by `m_count`,
+      and the smoothing at 6 kHz takes the amounts and the balances by turns
+- Some settings still take more than others (e.g. Osc 1 Wave Sqr and WT, Delay Mode Rev, and PRA32-U2/M with 4 Synths in Mono): check the heaviest with the Load Estimate below
+
+
 ## Load Estimate
 
 - [PRA32-U2 Load Estimate](./PRA32-U2-Load-Estimate/README.md) estimates the load of each core without the hardware, from the UF2 build,
