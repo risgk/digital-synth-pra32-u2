@@ -60,3 +60,20 @@
   for checking a change of the sound ("pra32-u2-make-sample-wav-file-cc.bat" on Windows)
 - GitHub Actions "PRA32-U2 Build" (".github/workflows/pra32-u2.yml", manual runs): builds the UF2 files, PRA32-U2 Native, and PRA32-U2 Web,
   and commits them to the selected branch with `commit_package`
+
+
+## Release
+
+Basically, a release goes as follows:
+
+1. Check it on the device (PRA32-U2, /M, /P, and /M/P)
+2. In PRA32-U2-Change-History.md, set the date of the version (instead of "2026-??-??"), and "Tested with Arduino-Pico version"
+3. Change the version: `PRA32_U2_VERSION` in "Digital-Synth-PRA32-U2.ino", "Digital-Synth-PRA32-U2-M.ino", and the 4 files in "customization-examples";
+   `APP_NAME_VERSION` in "pra32-u2-editor.html"; `_version` in the 2 preset JSON files; and the headings (and the dates) of the documents
+   (README.md, README.ja.md, README-PRA32-U2-P.md with its Info page, the guides, PRA32-U2-Native, and PRA32-U2-Web), and the License of README.md
+4. Estimate the load (`sh PRA32-U2-Load-Estimate/pra32-u2-load-estimate.sh`), and add the table of the version to [PRA32-U2 Load Estimate](./PRA32-U2-Load-Estimate/README.md)
+5. Commit as "vX.Y.Z"
+6. Run "PRA32-U2 Build" on develop with `commit_package`, for the UF2 files, PRA32-U2 Native, and PRA32-U2 Web
+7. Merge develop into main by a pull request
+8. Make the GitHub Release: the tag "vX.Y.Z" on main, and the notes "# Digital Synth PRA32-U2 vX.Y.Z", the line of what it is, and "## Change History" with the versions of this release
+9. Add the next version to PRA32-U2-Change-History.md ("vX.Y.Z (2026-??-??)")
