@@ -166,6 +166,7 @@ graph LR
             - Results of Program Change: Program # + 0 for Basic Channel + 2 and Program # + 1 for Basic Channel + 3
         - Basic Channel - 1 (Default 16): Control Basic Channel + 0, + 1, + 2, and + 3 simultaneously
             - Results of Program Change: Program # + 0 for Basic Channel + 0, Program # + 1 for Basic Channel + 1, Program # + 2 for Basic Channel + 2, and Program # + 3 for Basic Channel + 3
+        - Program # + 1 to + 3 wrap around in the user programs (#0-15) and in the presets (#16-31) each (e.g. #15: #15, #0, #1, and #2; #31: #31, #16, #17, and #18), and Program Change #127 (Random Control) is for all the synths
         - Not to use this feature, comment out `#define PRA32_U2_ENABLE_LAYERING` in "Digital-Synth-PRA32-U2-M.ino"
 - How to modify
     - Copy all files in the "Digital-Synth-PRA32-U2" folder, except for "Digital-Synth-PRA32-U2.ino", to the "Digital-Synth-PRA32-U2-M" folder
