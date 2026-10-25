@@ -22,7 +22,10 @@ for v in $VARIANTS; do
   mkdir -p $src
   cp ../Digital-Synth-PRA32-U2/* $src/
   case $v in m|mp) cp ../Digital-Synth-PRA32-U2-M/Digital-Synth-PRA32-U2-M.ino $src/Digital-Synth-PRA32-U2.ino ;; esac
-  case $v in p|mp)  # Without "sed -i", which differs between GNU and BSD (macOS); with all of the keys (SW1-6)
+  # With Debug Print (USB Serial), as measured on the device; without "sed -i", which differs between GNU and BSD (macOS)
+  sed 's|^//#define PRA32_U2_USE_DEBUG_PRINT$|#define PRA32_U2_USE_DEBUG_PRINT|' $src/Digital-Synth-PRA32-U2.ino > $src/ino.tmp
+  mv $src/ino.tmp $src/Digital-Synth-PRA32-U2.ino
+  case $v in p|mp)  # With all of the keys (SW1-6)
     sed -e 's|^//#define PRA32_U2_USE_CONTROL_PANEL |#define PRA32_U2_USE_CONTROL_PANEL |' \
         -e 's|^//#define PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN |#define PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN |' \
         -e 's|^//#define PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN |#define PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN |' \

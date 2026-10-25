@@ -14,8 +14,8 @@
     - `min(loop)` and `max(loop)`: from the start of the loop (MIDI and the panel) to the end of that processing
 - It is printed by the secondary core (core 1), a line at a time, and skipped while the host is not reading
 - To measure PRA32-U2/M, /P, or /M/P, build it as "pra32-u2-load-estimate.sh" in "PRA32-U2-Load-Estimate" does with arduino-cli
-  (a copy of the "Digital-Synth-PRA32-U2" folder, with "Digital-Synth-PRA32-U2-M.ino" as its .ino for /M, and `PRA32_U2_USE_CONTROL_PANEL` uncommented for /P),
-  with `PRA32_U2_USE_DEBUG_PRINT` uncommented too
+  (a copy of the "Digital-Synth-PRA32-U2" folder, with "Digital-Synth-PRA32-U2-M.ino" as its .ino for /M, and `PRA32_U2_USE_CONTROL_PANEL` uncommented for /P,
+  with `PRA32_U2_USE_DEBUG_PRINT` uncommented), or use the UF2 files that it builds into "PRA32-U2-Load-Estimate/build"
 
 
 ## Runtime
