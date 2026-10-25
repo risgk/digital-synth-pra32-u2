@@ -66,8 +66,10 @@ row '#10 WT Pad, 4 notes' "$ESTIMATED" --program 10
 row '#0 Synth Pad with Osc 1 Wave Sqr and Delay Mode Rev, 4 notes' "$ESTIMATED" --program 0 --cc 102=26,35=127
 row '#10 WT Pad, 4 notes, with Note On and Off of another note by UART MIDI and USB MIDI' "$ESTIMATED" --program 10 \
   --uart-midi 904864804840 --usb-midi 904864804840
-row '#10 WT Pad, 4 notes, with Program Change #10 every 2 bytes by UART MIDI and USB MIDI (extreme)' "$ESTIMATED" --program 10 \
-  --uart-midi C00A --usb-midi C00A
+# A Program Change and 28 Active Sensings: about every 10 ms by UART MIDI, and every 6 loops by USB MIDI
+PC_EVERY_30_BYTES="C00A$(printf 'FE%.0s' $(seq 28))"
+row '#10 WT Pad, 4 notes, with Program Change #10 every 30 bytes by UART MIDI and USB MIDI' "$ESTIMATED" --program 10 \
+  --uart-midi $PC_EVERY_30_BYTES --usb-midi $PC_EVERY_30_BYTES
 row '4 Synths: #4 Saw Lead with Osc 1 Wave Sqr (and Delay Mode Rev), a note each' 'mp' \
   --program 1:4,2:4,3:4,4:4 --cc 1:35=127,1:102=26,2:102=26,3:102=26,4:102=26 --notes 1:60,2:64,3:67,4:71
 echo
