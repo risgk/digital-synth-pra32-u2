@@ -37,7 +37,9 @@
     - "4 Synths" is for PRA32-U2/M/P only: the Main Synth and the 3 Sub Synths in Mono, a note each
     - "by UART MIDI and USB MIDI": the bytes arrive over and over while the loops run, by UART MIDI at 31250 bps (about 4.2 bytes a loop),
       and by USB MIDI as fast as PRA32-U2 reads them (5 bytes a loop); Note On and Off of note 72 (90 48 64 80 48 40) are what a player sends,
-      and a Program Change every 2 bytes (C0 0A), which sets all the parameters, is the heaviest MIDI input
+      and a Program Change (C0 0A), which sets all the parameters, is the heaviest message: one every 30 bytes, with 28 Active Sensings (FE) between them,
+      is about every 10 ms by UART MIDI (and every 6 loops by USB MIDI), as when the programs are changed one after another
+      (back to back, every 2 bytes, PRA32-U2/M/P comes to about 101% in v3.17.1)
 
 
 ## Estimates
@@ -53,7 +55,7 @@ The maximum of core 0 / core 1, of 1333 us. A maximum over 100% is marked with "
 | #10 WT Pad, 4 notes | 81% / 35% | 85% / 37% |
 | #0 Synth Pad with Osc 1 Wave Sqr and Delay Mode Rev, 4 notes | 90% / 37% | 91% / 39% |
 | #10 WT Pad, 4 notes, with Note On and Off of another note by UART MIDI and USB MIDI | 82% / 35% | 86% / 37% |
-| #10 WT Pad, 4 notes, with Program Change #10 every 2 bytes by UART MIDI and USB MIDI (extreme) | 92% / 35% | 101% ⚠ / 37% |
+| #10 WT Pad, 4 notes, with Program Change #10 every 30 bytes by UART MIDI and USB MIDI | 84% / 35% | 92% / 37% |
 | 4 Synths: #4 Saw Lead with Osc 1 Wave Sqr (and Delay Mode Rev), a note each | - | 94% / 61% |
 
 ⚠: over 100% (1333 us), △: over 95%
