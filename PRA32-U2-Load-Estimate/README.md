@@ -19,6 +19,7 @@
         ```
 
     - And Python 3 with `pip install unicorn capstone pyelftools` (Unicorn 2)
+    - Or run the GitHub Actions workflow "PRA32-U2 Build" with `load_estimate` (about 15 min): the table is in the summary of the run
     - "pra32-u2-load-estimate.py" estimates a case of its own, e.g. `python3 PRA32-U2-Load-Estimate/pra32-u2-load-estimate.py PRA32-U2-Load-Estimate/build/u2/Digital-Synth-PRA32-U2.ino.elf --program 0 --cc 102=26,35=127 --profile`
 - How it works
     - The sketch runs on two instances of Unicorn (an instruction emulator: Cortex-M33, Thumb-2, and the FPU), as core 0 and core 1, which share the flash and the SRAM;
