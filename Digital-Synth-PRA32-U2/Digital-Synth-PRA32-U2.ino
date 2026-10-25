@@ -2,7 +2,7 @@
  * Digital Synth PRA32-U2
  */
 
-#define PRA32_U2_VERSION                       "v3.17.2   "
+#define PRA32_U2_VERSION                       "v3.17.3   "
 
 //#define PRA32_U2_USE_DEBUG_PRINT
 
@@ -182,11 +182,15 @@ void handleStart();
 void handleStop();
 void writeProgramsToFlashAndEndSketch();
 
-// A Program Change of a program is kept here, and processed after the MIDI messages of the loop
-// are read (or before the next message for the synth, so that the order is kept): it sets all the
-// parameters of a program, so only the last of those that arrive in a loop with nothing else for
-// the synth between them (e.g. by UART MIDI and USB MIDI) is processed
+// The Program Changes that arrive one after another are kept here, and processed after the MIDI
+// messages of the loop are read (or before the next message for the synth, so that the order is
+// kept), as one at most of each:
+// - A program (#0-31) sets all the parameters of a program, so only the last of them is kept, and
+//   a Random Control kept before it is dropped
+// - #127 Random Control sets some of them (at random) after the program kept, so many of them in a
+//   row are kept as one
 static int16_t s_pending_program_change = -1;
+static boolean s_pending_random_control = false;
 
 static void __not_in_flash_func(processPendingProgramChange)() {
   if (s_pending_program_change >= 0) {
@@ -194,14 +198,20 @@ static void __not_in_flash_func(processPendingProgramChange)() {
     s_pending_program_change = -1;
     g_synth.program_change(program_number);
   }
+  if (s_pending_random_control) {
+    s_pending_random_control = false;
+    g_synth.program_change(127);
+  }
 }
 
-// Only a program (#0-31), which sets all the parameters of a program, is kept; the other numbers
-// (#127 Random Control, #128-129 the panel parameters, which set some of them) are processed at
-// once, after the one kept, so that each takes effect as it did
+// The other numbers (#128-129 the panel parameters, which only the panel sends) are processed at
+// once, after those kept, so that each takes effect as it did
 static void __not_in_flash_func(programChange)(uint8_t program_number) {
   if (program_number <= PROGRAM_NUMBER_MAX) {
     s_pending_program_change = program_number;
+    s_pending_random_control = false;
+  } else if (program_number == 127) {
+    s_pending_random_control = true;
   } else {
     processPendingProgramChange();
     g_synth.program_change(program_number);
