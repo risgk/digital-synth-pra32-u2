@@ -79,6 +79,8 @@ row '4 Synths, with Note On and Off of another note by MIDI Channel 16 by UART M
   --uart-midi 9F48648F4840 --usb-midi 9F48648F4840
 row '4 Synths, with Program Change #0 (4 Synths itself) by MIDI Channel 16 every 30 bytes by UART MIDI and USB MIDI' 'mp' $SYNTHS \
   --uart-midi CF00$EVERY_30_BYTES --usb-midi CF00$EVERY_30_BYTES
+row '4 Synths, with Program Change #0 (4 Synths itself) by MIDI Channel 16 back to back by UART MIDI and USB MIDI' 'mp' $SYNTHS \
+  --uart-midi CF00 --usb-midi CF00
 echo
 echo "⚠: over 100% (1333 us), △: over 95%"
 echo

@@ -1,6 +1,8 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v3.17.2 (2026-??-??):
+    - Process only the last of the Program Changes of a program (#0-31) that arrive one after another (e.g. by UART MIDI and USB MIDI), after the MIDI messages of the loop are read, or before the next message for the synth (so that the order is kept), so that a stream of Program Changes does not overload the loop
+        - PRA32-U2/M: The Program Changes of the 4 Synths at once (e.g. by the Layering) are processed one synth a loop, spread over 4 loops
     - Read 5 bytes of USB MIDI per loop (64 frames), from 3, so that USB MIDI is at least as fast as UART MIDI (31250 bps, about 4.2 bytes per loop)
     - Move "Preparation for Modification", "Features" (the MIDI and Audio Output settings), and "Simple Circuit for PWM Audio" from README.md to PRA32-U2-Modification-Guide.md
     - Add PRA32-U2 Load Estimate ("PRA32-U2-Load-Estimate" folder), which estimates the load of each core of PRA32-U2, /M, /P, and /M/P without the hardware, and keeps the estimates of each version
