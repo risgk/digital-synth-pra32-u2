@@ -158,6 +158,10 @@ for a, size, n in funcs:
         continue
     if (any(p in n for p in STUBBED) and 'PRA32_U2' not in n) or 'wait_for_writable' in n:
         stubs[a] = lambda uc: ret(uc, 0)
+# The keys of the panel (PRA32-U2/P) are released: high, with the pull-ups
+for n in ('digitalRead', '__digitalRead'):
+    if n in func_names:
+        stubs[func_names[n][0]] = lambda uc: ret(uc, 1)
 
 # The double-precision helpers of the pico SDK, which run on the RP2350's DCP (not in Unicorn),
 # computed here instead; the synth uses them only while it sets up.
