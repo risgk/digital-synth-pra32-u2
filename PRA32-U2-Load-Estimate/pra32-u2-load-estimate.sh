@@ -61,17 +61,24 @@ echo "#### $version"
 echo
 echo "| Case (core 0 / core 1, max) | PRA32-U2 | PRA32-U2/M/P |"
 echo "| :-- | --: | --: |"
+# The heaviest: #5 Sync Lead (Osc 1 Wave Sqr) with Delay Mode Rev, in Poly (PRA32-U2), and as the
+# 4 Synths in Mono by MIDI Channel 16 (Layering, PRA32-U2/M/P); for the Program Changes, written to
+# the user programs #0 (and #1-3 for the Sub Synths) for the time of the estimate
+POLY='--program 5 --cc 18=0,35=127 --write 0'
+SYNTHS='--program 1:5,2:5,3:5,4:5 --cc 1:35=127 --write 1:0,2:1,3:2,4:3 --notes 16:60,16:64,16:67,16:71'
+NOTE_ON_OFF='904864804840'  # Note On and Off of the note 72
+EVERY_30_BYTES="$(printf 'FE%.0s' $(seq 28))"  # 28 Active Sensings: about 10 ms by UART MIDI, 6 loops by USB MIDI
 row '#0 Synth Pad, 4 notes' "$ESTIMATED" --program 0
-row '#10 WT Pad, 4 notes' "$ESTIMATED" --program 10
-row '#5 Sync Lead (Osc 1 Wave Sqr) in Poly with Delay Mode Rev, 4 notes' "$ESTIMATED" --program 5 --cc 18=0,35=127
-row '#10 WT Pad, 4 notes, with Note On and Off of another note by UART MIDI and USB MIDI' "$ESTIMATED" --program 10 \
-  --uart-midi 904864804840 --usb-midi 904864804840
-# A Program Change and 28 Active Sensings: about every 10 ms by UART MIDI, and every 6 loops by USB MIDI
-PC_EVERY_30_BYTES="C00A$(printf 'FE%.0s' $(seq 28))"
-row '#10 WT Pad, 4 notes, with Program Change #10 every 30 bytes by UART MIDI and USB MIDI' "$ESTIMATED" --program 10 \
-  --uart-midi $PC_EVERY_30_BYTES --usb-midi $PC_EVERY_30_BYTES
-row '4 Synths by MIDI Channel 16 (Layering): #5 Sync Lead (Mono, and Delay Mode Rev), 4 notes' 'mp' \
-  --program 1:5,2:5,3:5,4:5 --cc 1:35=127 --notes 16:60,16:64,16:67,16:71
+row 'Poly: #5 Sync Lead (Osc 1 Wave Sqr) in Poly with Delay Mode Rev, 4 notes' "$ESTIMATED" $POLY
+row 'Poly, with Note On and Off of another note by UART MIDI and USB MIDI' "$ESTIMATED" $POLY \
+  --uart-midi $NOTE_ON_OFF --usb-midi $NOTE_ON_OFF
+row 'Poly, with Program Change #0 (Poly itself) every 30 bytes by UART MIDI and USB MIDI' "$ESTIMATED" $POLY \
+  --uart-midi C000$EVERY_30_BYTES --usb-midi C000$EVERY_30_BYTES
+row '4 Synths: #5 Sync Lead (Mono, and Delay Mode Rev) by MIDI Channel 16 (Layering), 4 notes' 'mp' $SYNTHS
+row '4 Synths, with Note On and Off of another note by MIDI Channel 16 by UART MIDI and USB MIDI' 'mp' $SYNTHS \
+  --uart-midi 9F48648F4840 --usb-midi 9F48648F4840
+row '4 Synths, with Program Change #0 (4 Synths itself) by MIDI Channel 16 every 30 bytes by UART MIDI and USB MIDI' 'mp' $SYNTHS \
+  --uart-midi CF00$EVERY_30_BYTES --usb-midi CF00$EVERY_30_BYTES
 echo
 echo "⚠: over 100% (1333 us), △: over 95%"
 echo
