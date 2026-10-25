@@ -20,13 +20,11 @@
 - ビルド済みの UF2 ファイル ("bin" フォルダー内): 改造せずに使うだけなら、Arduino IDE は不要です
     - BOOTSEL ボタンを押しながら Raspberry Pi Pico 2 を PC につなぎ、UF2 ファイルを "RP2350" ドライブにコピーしてください
     - PRA32-U2/M (推奨): "Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2" は Raspberry Pi Pico 2 と Pimoroni Pico Audio Pack 用です
-        - PRA32-U2 の上位互換です: Main Synth (Basic Channel + 0) は PRA32-U2 と同じように動き、Sub Synth と Layering が加わります
+        - PRA32-U2 の上位互換です: Main Synth は PRA32-U2 と同じように動き、Sub Synth と Layering が加わります ([PRA32-U2/M](#pra32-u2m-pra32-u2-multi-timbre-edition) を参照)
         - 注意: MIDI チャンネル 2-4 と 14-16 にも反応します (初期設定)。これらのチャンネルを他の機器に使う場合は、PRA32-U2 を使ってください
     - PRA32-U2: "Digital-Synth-PRA32-U2-Pimoroni-Pico-Audio-Pack.uf2" は Raspberry Pi Pico 2 と Pimoroni Pico Audio Pack 用です
 - Arduino IDE と Arduino-Pico (Earle F. Philhower, III 氏による) で改造できます: [改造の準備](#改造の準備) を参照してください (例えば他の I2S DAC、PWM Audio、パネルを使う場合)
-- オプション
-    - **PRA32-U2/M** (PRA32-U2 Multi-Timbre Edition) も構成できます (下記)
-    - 部品を追加することで、**[PRA32-U2/P](./README-PRA32-U2-P.md)** (PRA32-U2 with Panel、英語) と **PRA32-U2/M/P** も構成できます
+- オプション: 部品を追加することで、**[PRA32-U2/P](./README-PRA32-U2-P.md)** (PRA32-U2 with Panel、英語) と **PRA32-U2/M/P** も構成できます
 - **[PRA32-U2 Native](./PRA32-U2-Native/README.md)** (英語): PC 用のソフトウェア・シンセサイザー版 PRA32-U2 (VST3 プラグインとスタンドアロン・アプリケーション)
 - **[PRA32-U2 Web](./PRA32-U2-Web/README.md)** (英語): Web ブラウザーで動くソフトウェア・シンセサイザー版 PRA32-U2 (PRA32-U2 Editor に内蔵)
 
@@ -75,7 +73,7 @@
     - コードを変更する人向けです。デバッグプリント、2 つのコアでの動き、処理時間を一定に保つ方針 (ブランチレスなど)、負荷の推定、フラッシュへの書き込み、ツールの説明です
 - README の次の節は英語版のみです
     - [Synthesizer Block Diagram](./README.md#synthesizer-block-diagram)
-    - [Files](./README.md#files)、[Customization Examples](./README.md#customization-examples)
+    - [Files](./README.md#files)
 
 
 ## 改造の準備
@@ -83,7 +81,7 @@
 - **Arduino IDE** をインストールしてください
     - 注意: Update Method: "Default (UF2)" 以外を使うと、スケッチの書き込み中に大きなノイズが出ます
 - Arduino-Pico = **Raspberry Pi Pico/RP2040/RP2350** (Earle F. Philhower, III 氏による) コアをインストールしてください
-    - 動作確認したバージョンは英語版の [Preparation for Modification](./README.md#preparation-for-modification) を参照してください
+    - 動作確認したバージョンは英語版の [Preparation for Modification](./PRA32-U2-Modification-Guide.md#preparation-for-modification) を参照してください
 - Arduino **MIDI Library** (Francois Best 氏、lathoub 氏による) をインストールしてください
 - Arduino IDE の "ツール" メニューで USB Stack: "Adafruit TinyUSB" を選んでください (USB MIDI 用)
 - MIDI チャンネルを変えるには、"Digital-Synth-PRA32-U2.ino" の `PRA32_U2_MIDI_CH` を変更してください (0 始まりで、0 が MIDI チャンネル 1 です)
@@ -130,12 +128,22 @@
     - 対応している機能は [MIDI Implementation Chart](./PRA32-U2-MIDI-Implementation-Chart.md) (英語) を参照してください
 
 
-## PRA32-U2/M (PRA32-U2 Multi-Timbre Edition) (オプション)
+## PRA32-U2/M (PRA32-U2 Multi-Timbre Edition)
 
+- Basic Channel は PRA32-U2 の MIDI チャンネル (初期値 1、`PRA32_U2_MIDI_CH`) で、各シンセのチャンネルはそれを基準に決まります
 - Basic Channel + 0 (初期値 1) が Main Synth、+ 1 から + 3 (初期値 2-4) が Sub Synth 1-3 (Mono) です
     - Sub Synth は、Main Synth が Mono 系のモードのときだけ処理されます
 - Layering: Basic Channel - 3 から - 1 (初期値 14-16) で、複数のシンセを同時に制御します
-- 詳しくは英語版の [PRA32-U2/M](./README.md#pra32-u2m-pra32-u2-multi-timbre-edition-optional) を参照してください
+- 詳しくは英語版の [PRA32-U2/M](./README.md#pra32-u2m-pra32-u2-multi-timbre-edition) を参照してください
+
+
+## 改造サンプル
+
+- "customization-examples" フォルダーのファイルです。それぞれがスケッチで、"Digital-Synth-PRA32-U2.ino" (PRA32-U2/M では "Digital-Synth-PRA32-U2-M.ino") の代わりに使います
+- **Digital Synth PRA32-U2 (Lite)** と **Digital Synth PRA32-U2/M (Lite)**: Saw、Sqr、WT で Osc 1 Shape と Morph が効かない代わりに、シンセを 1 つのコア (コア 0) で処理します
+    - "...Lite-Core-0-Only.txt": 通常のスケッチと同じく、MIDI (USB MIDI と UART MIDI)、パネル、デバッグプリントがあります。コア 1 はパネルの更新とデバッグプリントだけを行います
+    - "...Lite-Core-1-Only.txt": シンセと音声出力だけで、MIDI、パネル、デバッグプリントはありません (このままでは音が出ません)。`loop()` の `// TODO` に自分のコードを書いて、シンセを鳴らすための雛形です
+- 詳しくは英語版の [Customization Examples](./README.md#customization-examples) を参照してください
 
 
 ## うまく動かない場合
