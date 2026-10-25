@@ -24,6 +24,9 @@
     - And Python 3 with `pip install unicorn capstone pyelftools` (Unicorn 2)
     - Or run the GitHub Actions workflow "PRA32-U2 Build" with `load_estimate` (about 15 min): the table is in the summary of the run
     - "pra32-u2-load-estimate.py" estimates a case of its own, e.g. `python3 PRA32-U2-Load-Estimate/pra32-u2-load-estimate.py PRA32-U2-Load-Estimate/build/u2/Digital-Synth-PRA32-U2.ino.elf --program 0 --cc 102=26,35=127 --profile`
+        - For PRA32-U2/P (and /M/P), `--adc 8` turns the knobs all the way and back every 8 loops, and `--keys 19 --keys-held 21` presses Prog + (SW4)
+          as fast as the panel takes it (16 loops of each 48) while holding Shift (SW5), with `--loops 64` (see `--help`);
+          on PRA32-U2/M/P with the 4 Synths, they add only about 0.2% to the maximum (v3.17.4), so they are not in the cases below
 - How it works
     - The sketch runs on two instances of Unicorn (an instruction emulator: Cortex-M33, Thumb-2, and the FPU), as core 0 and core 1, which share the flash and the SRAM;
       the cores run by turns, a few hundred cycles at a time, so that one waits for the other as on the device

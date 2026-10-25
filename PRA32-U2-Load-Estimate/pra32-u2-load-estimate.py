@@ -36,6 +36,9 @@ ap.add_argument('--write', default='', help='Write Program after them, of the pa
 ap.add_argument('--notes', default='60,64,67,71', help='Note Ons (velocity 100) after them: [CH:]NOTE,...')
 ap.add_argument('--uart-midi', default='', help='bytes (hex) that arrive by UART MIDI over and over, at 31250 bps, e.g. "C0 00 C0 0A"')
 ap.add_argument('--usb-midi', default='', help='bytes (hex) that arrive by USB MIDI over and over, as fast as they are read')
+ap.add_argument('--adc', type=float, default=0, help='loops in which the knobs (ADC0-2) of the panel (PRA32-U2/P) are turned all the way and back, over and over (0: not turned)')
+ap.add_argument('--keys', default='', help='pins of the keys of the panel (PRA32-U2/P) pressed for 16 loops and released for 32, over and over (as fast as the panel takes them), e.g. 19 (SW4: Prog +)')
+ap.add_argument('--keys-held', default='', help='pins of the keys of the panel held all the time, e.g. 21 (SW5: Shift)')
 ap.add_argument('--loops', type=int, default=24, help='loops to run in all')
 ap.add_argument('--skip', type=int, default=8, help='loops left out of the statistics (warm-up)')
 ap.add_argument('--mhz', type=float, default=153.6, help='system clock, the sketch\'s 153.6 MHz by default')
@@ -109,6 +112,16 @@ def interp_read(uc, access, address, size, value, _):
 for uc in cores:
     uc.hook_add(UC_HOOK_MEM_READ, interp_read, begin=0xd0000080, end=0xd00000bf)
 
+# The ADC (RESULT, 12 bits) of the panel's knobs: turned all the way and back in --adc loops, over
+# and over (as a triangle wave of the time); the panel reads it once per sample
+ADC_RESULT = 0x400a0004
+def adc_read(uc, access, address, size, value, _):
+    if args.adc and measuring_['on']:
+        t = (max(clock) / (args.mhz * 1e6 * 64 / 48000) / args.adc) % 1
+        uc.mem_write(ADC_RESULT, struct.pack('<I', int(4095 * (1 - abs(2 * t - 1)))))
+for uc in cores:
+    uc.hook_add(UC_HOOK_MEM_READ, adc_read, begin=ADC_RESULT, end=ADC_RESULT + 3)
+
 # Cortex-M33 cost model, cycles per instruction, first-order (as in SPMS-1's sim_load): 1 for most,
 # 2 for a single load, 1 more per register for a multiple load or store, 6 for an integer divide,
 # 14 for a floating-point divide or square root, and 2 more after a taken branch.
@@ -158,10 +171,18 @@ for a, size, n in funcs:
         continue
     if (any(p in n for p in STUBBED) and 'PRA32_U2' not in n) or 'wait_for_writable' in n:
         stubs[a] = lambda uc: ret(uc, 0)
-# The keys of the panel (PRA32-U2/P) are released: high, with the pull-ups
+# The keys of the panel (PRA32-U2/P) are released (high, with the pull-ups), but those of --keys
+# while they are pressed (low): for 16 loops of each 48, as the panel takes a key pressed for 15 loops
+# and released for 30; and those of --keys-held all the time
+KEY_PINS = {int(k) for k in filter(None, args.keys.split(','))}
+HELD_KEY_PINS = {int(k) for k in filter(None, args.keys_held.split(','))}
+def digital_read(uc):
+    pin = regs(uc)[0]
+    pressed = measuring_['on'] and ((pin in KEY_PINS and len(loops) % 48 < 16) or pin in HELD_KEY_PINS)
+    ret(uc, 0 if pressed else 1)
 for n in ('digitalRead', '__digitalRead'):
     if n in func_names:
-        stubs[func_names[n][0]] = lambda uc: ret(uc, 1)
+        stubs[func_names[n][0]] = digital_read
 
 # The double-precision helpers of the pico SDK, which run on the RP2350's DCP (not in Unicorn),
 # computed here instead; the synth uses them only while it sets up.
@@ -359,6 +380,10 @@ if args.write:
     cores[0].mem_write(names['_ZL25g_eeprom_commit_requested'], b'\0')
 for ch, n in items(args.notes):
     call(0, func('handleNoteOn'), ch, int(n), 100)
+# The panel takes the knobs and the keys after 75 loops from the start: skipped here, for them
+INITIALIZE_COUNTER = '_ZZ36PRA32_U2_ControlPanel_update_controlvE20s_initialize_counter'
+if (args.adc or args.keys or args.keys_held) and INITIALIZE_COUNTER in names:
+    cores[0].mem_write(names[INITIALIZE_COUNTER], struct.pack('<I', 75))
 
 # Both cores together: core 0 runs loop() over and over, and core 1 loop1(), which never returns;
 # the core whose clock is behind runs next.
