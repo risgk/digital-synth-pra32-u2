@@ -74,7 +74,7 @@
 
 Basically, a release goes as follows:
 
-1. Check it on the device (PRA32-U2, /M, /P, and /M/P)
+1. Check it on the device: PRA32-U2 and PRA32-U2/M, whose UF2 files are released (/P and /M/P are built by the users)
 2. In PRA32-U2-Change-History.md, set the date of the version (instead of "2026-??-??"), and "Tested with Arduino-Pico version"
 3. Change the version: `PRA32_U2_VERSION` in "Digital-Synth-PRA32-U2.ino", "Digital-Synth-PRA32-U2-M.ino", and the 4 files in "customization-examples";
    `APP_NAME_VERSION` in "pra32-u2-editor.html"; `_version` in the 2 preset JSON files; the headings of the documents
