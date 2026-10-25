@@ -1,4 +1,4 @@
-# Digital Synth PRA32-U2 Development v3.17.3
+# Digital Synth PRA32-U2 Development v3.17.4
 
 - 2026-10-25 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
