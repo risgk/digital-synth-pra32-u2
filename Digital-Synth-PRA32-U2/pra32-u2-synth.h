@@ -1704,6 +1704,7 @@ if (m_voice_mode == VOICE_POLYPHONIC) {
 #if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)
 if constexpr (RESTRICT_POLY_AND_CORES == false) {
     m_secondary_core_processing_argument = noise_int23;
+    PRA32_U2_COMPILER_MEMORY_BARRIER();  // What the Voices 2 and 3 read is written before the request
     m_secondary_core_processing_request = 1;
 }
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)
@@ -1741,6 +1742,7 @@ if constexpr (RESTRICT_POLY_AND_CORES == false) {
     while (m_secondary_core_processing_request) {
       ;
     }
+    PRA32_U2_COMPILER_MEMORY_BARRIER();  // What the secondary core wrote is read after it is done
 } else {
     m_secondary_core_processing_result = 0;
 }
@@ -1847,6 +1849,7 @@ if constexpr ((NO_FX == false) && (BYPASS_FX == false)) {
     boolean processed = false;
 
     if (m_secondary_core_processing_request == 1) {
+      PRA32_U2_COMPILER_MEMORY_BARRIER();  // What the primary core wrote is read after the request
       int32_t noise_int23 = m_secondary_core_processing_argument;
 
       int32_t osc_output   [4];
@@ -1868,6 +1871,7 @@ if (m_voice_mode == VOICE_POLYPHONIC) {
 
       m_secondary_core_processing_result = amp_output[2] + amp_output[3];
 
+      PRA32_U2_COMPILER_MEMORY_BARRIER();  // What the Voices 2 and 3 wrote is written before it is done
       m_secondary_core_processing_request = 0;
       processed = true;
     }
