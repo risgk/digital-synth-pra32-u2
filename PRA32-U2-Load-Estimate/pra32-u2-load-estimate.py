@@ -44,6 +44,7 @@ ap.add_argument('--skip', type=int, default=8, help='loops left out of the stati
 ap.add_argument('--mhz', type=float, default=153.6, help='system clock, the sketch\'s 153.6 MHz by default')
 ap.add_argument('--slice', type=int, default=200, help='cycles a core runs at a time')
 ap.add_argument('--profile', action='store_true', help='print the functions that take the most cycles')
+ap.add_argument('--modules', action='store_true', help='print the load of each module (class) of the synth on each core, from the debug info')
 ap.add_argument('--brief', action='store_true', help='print a line: core 0 avg%%, max%%, core 1 avg%%, max%%')
 args = ap.parse_args()
 
@@ -310,9 +311,9 @@ def make_hook(c):
         clock[c] += cycles
         if c == 1:
             busy_1['pending'] += cycles
-        if args.profile and measuring:
+        if (args.profile or args.modules) and measuring:
             p = pending_profile if c == 1 else profile[0]
-            k = sym_of(addr)
+            k = addr if args.modules else sym_of(addr)
             p[k] = p.get(k, 0) + cycles
         if it_left[c]:
             it_left[c] -= 1
@@ -438,3 +439,72 @@ if args.profile:
         print('core %d:' % c)
         for k, v in sorted(profile[c].items(), key=lambda kv: -kv[1])[:12]:
             print('  %5.1f%%  %s' % (100 * v / total, k))
+
+# --modules: the cycles of each core by the module (class) of the synth that its code is of, from the
+# debug info: the outermost function of a module inlined there (or the function itself, if not
+# inlined), else the synth itself (its voices, parameters, and mixing) or the sketch (MIDI, the panel)
+if args.modules:
+    MODULES = ['Osc', 'Filter', 'Amp', 'EG', 'LFO', 'NoiseGen', 'ChorusFx', 'DelayFx', 'Panner',
+               'OutputCompressor', 'OutputLimiter', 'OutputFader']
+    def class_of(name):
+        for m in MODULES:
+            if ('%dPRA32_U2_%s' % (len('PRA32_U2_' + m), m)) in name:
+                return m
+        return None
+    def die_class(die):
+        for _ in range(6):
+            for attr in ('DW_AT_linkage_name', 'DW_AT_MIPS_linkage_name'):
+                if attr in die.attributes:
+                    return class_of(die.attributes[attr].value.decode())
+            parent = die.get_parent()
+            if parent is not None and parent.tag in ('DW_TAG_class_type', 'DW_TAG_structure_type') and 'DW_AT_name' in parent.attributes:
+                n = parent.attributes['DW_AT_name'].value.decode()
+                return n[len('PRA32_U2_'):] if n[len('PRA32_U2_'):] in MODULES else None
+            o = die.attributes.get('DW_AT_abstract_origin') or die.attributes.get('DW_AT_specification')
+            if not o:
+                return None
+            die = die.get_DIE_from_attribute(o.name)
+        return None
+    executed = sorted(set(profile[0]) | set(profile[1]))
+    owner = {}
+    dw = elf.get_dwarf_info()
+    rl = dw.range_lists()
+    def die_ranges(die, cu):
+        a = die.attributes
+        if 'DW_AT_low_pc' in a and 'DW_AT_high_pc' in a:
+            lo = a['DW_AT_low_pc'].value
+            hi = a['DW_AT_high_pc'].value
+            return [(lo, hi if a['DW_AT_high_pc'].form == 'DW_FORM_addr' else lo + hi)]
+        out = []
+        if 'DW_AT_ranges' in a:
+            base = cu.get_top_DIE().attributes.get('DW_AT_low_pc')
+            base = base.value if base else 0
+            for e in rl.get_range_list_at_offset(a['DW_AT_ranges'].value, cu=cu):
+                if hasattr(e, 'base_address'):
+                    base = e.base_address
+                elif hasattr(e, 'begin_offset'):
+                    out.append((e.begin_offset + base, e.end_offset + base))
+        return out
+    for cu in dw.iter_CUs():
+        def walk(die):  # the outermost function of a module claims its addresses first
+            for ch in die.iter_children():
+                if ch.tag in ('DW_TAG_subprogram', 'DW_TAG_inlined_subroutine'):
+                    cls = die_class(ch)
+                    if cls:
+                        for lo, hi in die_ranges(ch, cu):
+                            for i in range(bisect.bisect_left(executed, lo & ~1), bisect.bisect_left(executed, hi)):
+                                owner.setdefault(executed[i], cls)
+                        continue
+                walk(ch)
+        walk(cu.get_top_DIE())
+    print('modules, of %.0f us (avg per loop): core 0 / core 1' % budget_us)
+    rows = {}
+    for c in (0, 1):
+        for a, v in profile[c].items():
+            k = owner.get(a)
+            if k is None:
+                n = sym_of(a)
+                k = 'Synth' if 'PRA32_U2_Synth' in n else 'sketch' if n in ('loop', 'loop1') else 'other'
+            rows.setdefault(k, [0, 0])[c] += v
+    for k, (v0, v1) in sorted(rows.items(), key=lambda kv: -sum(kv[1])):
+        print('  %-16s %5.1f%% / %5.1f%%' % (k, percent(v0 / args.loops), percent(v1 / args.loops)))
