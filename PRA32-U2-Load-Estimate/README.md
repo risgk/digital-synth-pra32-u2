@@ -1,10 +1,11 @@
 # PRA32-U2 Load Estimate
 
 - Estimates the load of PRA32-U2 on Raspberry Pi Pico 2 (RP2350) without the hardware, from the UF2 build of the sketch,
-  and keeps the estimates of each version below, so that a change that makes PRA32-U2 heavier is seen
+  and keeps the estimate of the latest version below, so that a change that makes PRA32-U2 heavier is seen
+  (replaced at each release; the earlier ones are in the history of this file)
 - "pra32-u2-load-estimate.sh" builds PRA32-U2, PRA32-U2/M, PRA32-U2/P, and PRA32-U2/M/P with arduino-cli (as the GitHub Actions workflow builds the UF2 files),
   estimates the load of PRA32-U2 (the lightest) and PRA32-U2/M/P (which has all of the editions) with "pra32-u2-load-estimate.py", and prints the tables below with the RAM of all 4;
-  PRA32-U2/M and PRA32-U2/P differ from these little (v3.17.1, below)
+  PRA32-U2/M and PRA32-U2/P differ from these little (as estimated at v3.17.1)
     - All 4 are built with Debug Print (USB Serial), as measured on the device, so their RAM is a little more than that of the UF2 files (the buffer of Debug Print);
       PRA32-U2/P and PRA32-U2/M/P with all of the keys of the panel (SW1-6, with SW3-5 that the sketch leaves out by default), released
 
@@ -57,9 +58,9 @@
 
 The maximum of core 0 / core 1, of 1333 us. A maximum over 100% is marked with "⚠", and one over 95% with "△"
 (and shown as a warning in the workflow): check such a case on the device with Debug Print.
-
-Up to v3.17.3, the cases and the builds differ a little: UART MIDI is without Running Status, a Program Change "every 30 bytes" has 28 Active Sensings between them
-(about every 10 ms by UART MIDI, and every 6 loops by USB MIDI), the RAM is without Debug Print, and PRA32-U2/P and PRA32-U2/M/P have the keys SW1, SW2, and SW6 only.
+The load of each module is the average of core 0 / core 1 (`--modules`), in "Poly" for PRA32-U2 and in "4 Synths" for PRA32-U2/M/P:
+"Synth" is the rest of the synth (the voices, the parameters, and the mixing), "Sketch" is `loop()` and `loop1()` (MIDI and the panel),
+and "Other" is the rest (e.g. Debug Print).
 
 #### v3.17.4
 
@@ -79,60 +80,4 @@ Up to v3.17.3, the cases and the builds differ a little: UART MIDI is without Ru
 | :-- | --: | --: | --: | --: |
 | | 381332 (72%) | 480852 (91%) | 402140 (76%) | 502748 (95%) |
 
-#### v3.17.3
-
-| Case (core 0 / core 1, max) | PRA32-U2 | PRA32-U2/M/P |
-| :-- | --: | --: |
-| #0 Synth Pad, 4 notes | 67% / 25% | 69% / 27% |
-| Poly: #5 Sync Lead (Osc 1 Wave Sqr) in Poly with Delay Mode Rev, 4 notes | 89% / 37% | 91% / 39% |
-| Poly, with Note On and Off of another note by UART MIDI and USB MIDI | 90% / 37% | 92% / 39% |
-| Poly, with Program Change #0 (Poly itself) every 30 bytes by UART MIDI and USB MIDI | 92% / 37% | 95% / 39% |
-| 4 Synths: #5 Sync Lead (Mono, and Delay Mode Rev) by MIDI Channel 16 (Layering), 4 notes | - | 94% / 61% |
-| 4 Synths, with Note On and Off of another note by MIDI Channel 16 by UART MIDI and USB MIDI | - | 97% △ / 62% |
-| 4 Synths, with Program Change #0 (4 Synths itself) by MIDI Channel 16 every 30 bytes by UART MIDI and USB MIDI | - | 98% △ / 61% |
-| 4 Synths, with Program Change #0 (4 Synths itself) by MIDI Channel 16 back to back by UART MIDI and USB MIDI | - | 98% △ / 61% |
-
-⚠: over 100% (1333 us), △: over 95%
-
-| RAM (global variables) | PRA32-U2 | PRA32-U2/M | PRA32-U2/P | PRA32-U2/M/P |
-| :-- | --: | --: | --: | --: |
-| | 380456 (72%) | 479936 (91%) | 399096 (76%) | 500616 (95%) |
-
-#### v3.17.2
-
-| Case (core 0 / core 1, max) | PRA32-U2 | PRA32-U2/M/P |
-| :-- | --: | --: |
-| #0 Synth Pad, 4 notes | 67% / 25% | 69% / 27% |
-| Poly: #5 Sync Lead (Osc 1 Wave Sqr) in Poly with Delay Mode Rev, 4 notes | 89% / 37% | 91% / 39% |
-| Poly, with Note On and Off of another note by UART MIDI and USB MIDI | 91% / 37% | 92% / 39% |
-| Poly, with Program Change #0 (Poly itself) every 30 bytes by UART MIDI and USB MIDI | 92% / 37% | 94% / 39% |
-| 4 Synths: #5 Sync Lead (Mono, and Delay Mode Rev) by MIDI Channel 16 (Layering), 4 notes | - | 94% / 61% |
-| 4 Synths, with Note On and Off of another note by MIDI Channel 16 by UART MIDI and USB MIDI | - | 97% △ / 62% |
-| 4 Synths, with Program Change #0 (4 Synths itself) by MIDI Channel 16 every 30 bytes by UART MIDI and USB MIDI | - | 98% △ / 61% |
-| 4 Synths, with Program Change #0 (4 Synths itself) by MIDI Channel 16 back to back by UART MIDI and USB MIDI | - | 98% △ / 61% |
-
-⚠: over 100% (1333 us), △: over 95%
-
-| RAM (global variables) | PRA32-U2 | PRA32-U2/M | PRA32-U2/P | PRA32-U2/M/P |
-| :-- | --: | --: | --: | --: |
-| | 380416 (72%) | 480020 (91%) | 399056 (76%) | 500700 (95%) |
-
-On the device (PRA32-U2/M/P, Debug Print `max(loop)`): 4 Synths 1258 us, with Note On and Off 1272 us, and with Program Changes by hand 1303 us (98%)
-
-#### v3.17.1
-
-| Case (core 0 / core 1, max) | PRA32-U2 | PRA32-U2/M/P |
-| :-- | --: | --: |
-| #0 Synth Pad, 4 notes | 67% / 25% | 69% / 27% |
-| Poly: #5 Sync Lead (Osc 1 Wave Sqr) in Poly with Delay Mode Rev, 4 notes | 89% / 37% | 91% / 39% |
-| Poly, with Note On and Off of another note by UART MIDI and USB MIDI | 90% / 37% | 92% / 39% |
-| Poly, with Program Change #0 (Poly itself) every 30 bytes by UART MIDI and USB MIDI | 92% / 37% | 94% / 39% |
-| 4 Synths: #5 Sync Lead (Mono, and Delay Mode Rev) by MIDI Channel 16 (Layering), 4 notes | - | 94% / 61% |
-| 4 Synths, with Note On and Off of another note by MIDI Channel 16 by UART MIDI and USB MIDI | - | 97% △ / 62% |
-| 4 Synths, with Program Change #0 (4 Synths itself) by MIDI Channel 16 every 30 bytes by UART MIDI and USB MIDI | - | 107% ⚠ / 61% |
-
-⚠: over 100% (1333 us), △: over 95%
-
-| RAM (global variables) | PRA32-U2 | PRA32-U2/M | PRA32-U2/P | PRA32-U2/M/P |
-| :-- | --: | --: | --: | --: |
-| | 380288 (72%) | 479576 (91%) | 398920 (76%) | 500256 (95%) |
+On the device (v3.17.2, PRA32-U2/M/P, Debug Print `max(loop)`): 4 Synths 1258 us, with Note On and Off 1272 us, and with Program Changes by hand 1303 us (98%)
