@@ -1,0 +1,782 @@
+/*
+ * Digital Synth PRA32-U2/M (Lite)
+ *
+ * - Basic Channel + 0 to + 3: Osc 1 Shape and Morph are disabled in Saw, Sqr, and WT
+ * - Basic Channel - 3: Control Basic Channel + 0 and + 1 simultaneously
+ * - Basic Channel - 2: Control Basic Channel + 2 and + 3 simultaneously
+ * - Basic Channel - 1: Control Basic Channel + 0, + 1, + 2, and + 3 simultaneously
+ */
+
+#define PRA32_U2_VERSION                       "v3.17.2   "
+
+//#define PRA32_U2_USE_DEBUG_PRINT
+
+#define PRA32_U2_USE_USB_MIDI                  // Select USB Stack: "Adafruit TinyUSB" in the Arduino IDE "Tools" menu
+
+#define PRA32_U2_USE_UART_MIDI
+
+#define PRA32_U2_DEBUG_PRINT_USE_USB_SERIAL     // Use USB Serial (CDC) instead of UART for debug print
+
+#if defined(PRA32_U2_DEBUG_PRINT_USE_USB_SERIAL)
+#define PRA32_U2_DEBUG_PRINT_SERIAL            g_debug_print_buffer  // Transferred to USB Serial on the primary core
+#else  // defined(PRA32_U2_DEBUG_PRINT_USE_USB_SERIAL)
+#define PRA32_U2_DEBUG_PRINT_SERIAL            Serial1
+#define PRA32_U2_DEBUG_PRINT_TX_PIN            (0)
+#define PRA32_U2_DEBUG_PRINT_RX_PIN            (1)
+#endif  // defined(PRA32_U2_DEBUG_PRINT_USE_USB_SERIAL)
+
+#define PRA32_U2_UART_MIDI_SPEED               (31250)
+//#define PRA32_U2_UART_MIDI_SPEED               (38400)
+
+#define PRA32_U2_UART_MIDI_SERIAL              Serial2
+#define PRA32_U2_UART_MIDI_TX_PIN              (4)
+#define PRA32_U2_UART_MIDI_RX_PIN              (5)
+
+#define PRA32_U2_MIDI_CH                       (0)  // 0-based
+
+// for Pimoroni Pico Audio Pack (PIM544)
+#define PRA32_U2_I2S_DAC_MUTE_OFF_PIN          (22)
+#define PRA32_U2_I2S_DATA_PIN                  (9)
+#define PRA32_U2_I2S_BCLK_PIN                  (10)  // LRCLK Pin is PRA32_U2_I2S_BCLK_PIN + 1
+#define PRA32_U2_I2S_SWAP_BCLK_AND_LRCLK_PINS  (false)
+#define PRA32_U2_I2S_SWAP_LEFT_AND_RIGHT       (false)
+
+#define PRA32_U2_I2S_BUFFERS                   (2)   // Output buffer (maximum latency): 2 * 64 = 128 frames (2.7 ms)
+#define PRA32_U2_I2S_BUFFER_WORDS              (64)  // Frames per buffer (= frames processed in each loop)
+
+//#define PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S
+
+// for Pimoroni Pico VGA Demo Base (PIM553)
+#define PRA32_U2_PWM_AUDIO_L_PIN               (28)
+#define PRA32_U2_PWM_AUDIO_R_PIN               (27)
+
+//#define PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING
+//#define PRA32_U2_ENABLE_POLY_ON_1_CORE
+
+#define PRA32_U2_USE_EMULATED_EEPROM
+
+//#define PRA32_U2_LIMIT_DELAY_TIME_TO_SAVE_MEM
+
+//#define PRA32_U2_USE_LEGACY_OUTPUT_LIMITER     // Use the Output Limiter (until v3.15.0) instead of the Output Compressor
+
+#define PRA32_U2_ENABLE_LAYERING
+
+#if defined(PRA32_U2_ENABLE_LAYERING)
+#define PRA32_U2_NUMBER_OF_SYNTHS              (4 + 3)
+#else
+#define PRA32_U2_NUMBER_OF_SYNTHS              (4)
+#endif
+
+////////////////////////////////////////////////////////////////
+
+//#define PRA32_U2_USE_CONTROL_PANEL               // PRA32-U2/P (PRA32-U2 with Panel)
+
+#define PRA32_U2_USE_CONTROL_PANEL_KEY_INPUT     // Use tactile switches
+#define PRA32_U2_KEY_INPUT_ACTIVE_LEVEL          (LOW)
+#define PRA32_U2_KEY_INPUT_PIN_MODE              (INPUT_PULLUP)
+#define PRA32_U2_KEY_INPUT_PREV_KEY_PIN          (16)
+#define PRA32_U2_KEY_INPUT_NEXT_KEY_PIN          (18)
+#define PRA32_U2_KEY_INPUT_PLAY_KEY_PIN          (20)
+//#define PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN    (17)
+//#define PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN     (19)
+//#define PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN         (21)
+#define PRA32_U2_KEY_PRESS_STABLE_WAIT           (15)
+#define PRA32_U2_KEY_RELEASE_STABLE_WAIT         (30)
+#define PRA32_U2_KEY_LONG_PRESS_WAIT             (375)
+
+#define PRA32_U2_USE_CONTROL_PANEL_ANALOG_INPUT  // Use ADC0, ADC1, and ADC2
+#define PRA32_U2_ANALOG_INPUT_REVERSED           (true)
+#define PRA32_U2_ANALOG_INPUT_CORRECTION         (-2040)
+#define PRA32_U2_ANALOG_INPUT_DENOMINATOR        (480)
+#define PRA32_U2_ANALOG_INPUT_THRESHOLD          (PRA32_U2_ANALOG_INPUT_DENOMINATOR)
+
+#define PRA32_U2_USE_CONTROL_PANEL_OLED_DISPLAY  // Use SSD1306 monochrome 128x64 OLED
+#define PRA32_U2_OLED_DISPLAY_I2C                (i2c1)
+#define PRA32_U2_OLED_DISPLAY_I2C_SDA_PIN        (6)
+#define PRA32_U2_OLED_DISPLAY_I2C_SCL_PIN        (7)
+#define PRA32_U2_OLED_DISPLAY_I2C_ADDRESS        (0x3C)
+#define PRA32_U2_OLED_DISPLAY_CONTRAST           (0xFF)
+#define PRA32_U2_OLED_DISPLAY_ROTATION           (true)
+
+#define PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION
+
+////////////////////////////////////////////////////////////////
+
+uint8_t g_midi_ch = PRA32_U2_MIDI_CH;
+
+#include "hardware/adc.h"
+
+#include "pra32-u2-common.h"
+#include "pra32-u2-synth.h"
+
+boolean g_synth_is_in_polyphonic_mode = true;
+PRA32_U2_Synth<false, false, true, 0, false, false> g_synth;
+PRA32_U2_Synth<true,  false, true, 1, false, true>  g_sub_1_synth;
+PRA32_U2_Synth<true,  false, true, 2, false, true>  g_sub_2_synth;
+PRA32_U2_Synth<true,  false, true, 3, false, true>  g_sub_3_synth;
+
+#include <MIDI.h>
+struct MySettings : public midi::DefaultSettings {
+  static const long BaudRate = PRA32_U2_UART_MIDI_SPEED;
+  static const bool HandleNullVelocityNoteOnAsNoteOff = false;
+};
+#if defined(PRA32_U2_USE_USB_MIDI)
+#include <Adafruit_TinyUSB.h>
+#include "pico/mutex.h"
+Adafruit_USBD_MIDI usbd_midi;
+// NOTE: __usb_mutex is an internal (not public API) variable of the Adafruit TinyUSB Library
+// (defined in src/arduino/ports/rp2040/Adafruit_TinyUSB_rp2040.cpp, since v1.0.0).
+// The library runs tud_task() in an IRQ on core 0 only when mutex_try_enter(&__usb_mutex) succeeds,
+// but Adafruit_USBD_MIDI calls TinyUSB without this mutex. If the IRQ interrupts USB_MIDI.read()
+// or USB_MIDI.sendRealTime() while it holds a TinyUSB internal mutex, tud_task() waits for it
+// forever (freeze). So hold __usb_mutex while calling USB_MIDI in loop() to let the IRQ skip.
+// If a future version of the library renames this variable, the build fails with a link error
+extern mutex_t __usb_mutex;
+MIDI_CREATE_CUSTOM_INSTANCE(Adafruit_USBD_MIDI, usbd_midi, USB_MIDI, MySettings);
+#endif  // defined(PRA32_U2_USE_USB_MIDI)
+
+#if defined(PRA32_U2_USE_UART_MIDI)
+MIDI_CREATE_CUSTOM_INSTANCE(HardwareSerial, PRA32_U2_UART_MIDI_SERIAL, UART_MIDI, MySettings);
+#endif
+
+#if defined(PRA32_U2_USE_DEBUG_PRINT) && defined(PRA32_U2_DEBUG_PRINT_USE_USB_SERIAL)
+#include "pra32-u2-debug-print-buffer.h"
+PRA32_U2_DebugPrintBuffer g_debug_print_buffer;
+#endif  // defined(PRA32_U2_USE_DEBUG_PRINT) && defined(PRA32_U2_DEBUG_PRINT_USE_USB_SERIAL)
+
+#include "pra32-u2-control-panel.h"
+
+#if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
+#include "pra32-u2-pwm-audio.h"
+PRA32_U2_PWMAudioOutput g_pwm_output(PRA32_U2_PWM_AUDIO_L_PIN, PRA32_U2_PWM_AUDIO_R_PIN);
+#endif  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
+
+#include "pra32-u2-i2s.h"
+PRA32_U2_I2SOutput g_i2s_output;
+
+#include "pra32-u2-output-fader.h"
+#if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
+PRA32_U2_OutputFader g_output_fader(g_pwm_output);
+#else  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
+PRA32_U2_OutputFader g_output_fader(g_i2s_output);
+#endif  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
+
+static volatile uint32_t s_debug_measurement_min0_us     = UINT32_MAX;
+static volatile uint32_t s_debug_measurement_max0_us     = 0;
+static volatile uint32_t s_debug_measurement_min1_us     = UINT32_MAX;
+static volatile uint32_t s_debug_measurement_max1_us     = 0;
+static volatile uint32_t s_debug_measurement_counted     = 0;
+
+static volatile uint32_t s_secondary_core_processing_request = 0;
+
+#if defined(PRA32_U2_USE_DEBUG_PRINT)
+static boolean debug_print_begin(uint32_t loop_counter) {
+  // Printing is only done when loop_counter is a multiple of 400
+  if ((loop_counter % 400) != 0) {
+    return false;
+  }
+
+#if defined(PRA32_U2_DEBUG_PRINT_USE_USB_SERIAL)
+  // Skip printing if the buffer is almost full (e.g. the host is not reading) not to print a partial line
+  if (PRA32_U2_DEBUG_PRINT_SERIAL.availableForWrite() < 64) {
+    return false;
+  }
+#endif  // defined(PRA32_U2_DEBUG_PRINT_USE_USB_SERIAL)
+
+  return true;
+}
+#endif  // defined(PRA32_U2_USE_DEBUG_PRINT)
+
+void handleNoteOn(byte channel, byte pitch, byte velocity);
+void handleNoteOff(byte channel, byte pitch, byte velocity);
+void handleControlChange(byte channel, byte number, byte value);
+void handleProgramChange(byte channel, byte number);
+void handlePitchBend(byte channel, int bend);
+void handleAfterTouchPoly(byte channel, byte note, byte pressure);
+void handleAfterTouchChannel(byte channel, byte pressure);
+void handleClock();
+void handleStart();
+void handleStop();
+void writeProgramsToFlashAndEndSketch();
+
+void __not_in_flash_func(setup1)() {
+#if defined(PRA32_U2_USE_CONTROL_PANEL)
+  PRA32_U2_ControlPanel_setup();
+#else  // defined(PRA32_U2_USE_CONTROL_PANEL)
+  delay(100);
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
+
+#if defined(PRA32_U2_USE_DEBUG_PRINT) && !defined(PRA32_U2_DEBUG_PRINT_USE_USB_SERIAL)
+  pinMode(PRA32_U2_DEBUG_PRINT_RX_PIN, INPUT_PULLUP);
+  PRA32_U2_DEBUG_PRINT_SERIAL.setTX(PRA32_U2_DEBUG_PRINT_TX_PIN);
+  PRA32_U2_DEBUG_PRINT_SERIAL.setRX(PRA32_U2_DEBUG_PRINT_RX_PIN);
+  PRA32_U2_DEBUG_PRINT_SERIAL.begin(115200);
+#endif  // defined(PRA32_U2_USE_DEBUG_PRINT) && !defined(PRA32_U2_DEBUG_PRINT_USE_USB_SERIAL)
+}
+
+static void __not_in_flash_func(loop1_once)() {
+  boolean processed = false;
+
+#if defined(PRA32_U2_USE_CONTROL_PANEL) || defined(PRA32_U2_USE_DEBUG_PRINT)
+  if (s_secondary_core_processing_request == 1) {
+    s_secondary_core_processing_request = 0;
+    processed = true;
+  }
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL) || defined(PRA32_U2_USE_DEBUG_PRINT)
+
+  if (processed) {
+    static uint32_t s_loop_counter = 0;
+    s_loop_counter++;
+    if (s_loop_counter >= 16 * 400) {
+      s_loop_counter = 0;
+    }
+
+    PRA32_U2_ControlPanel_update_analog_inputs(s_loop_counter);
+    PRA32_U2_ControlPanel_update_display_buffer(s_loop_counter);
+    PRA32_U2_ControlPanel_update_display(s_loop_counter);
+
+#if defined(PRA32_U2_USE_DEBUG_PRINT)
+    if (debug_print_begin(s_loop_counter)) {
+      switch (s_loop_counter) {
+      case  1 * 400:
+        PRA32_U2_DEBUG_PRINT_SERIAL.print("\e[1;1H\e[K");
+        PRA32_U2_DEBUG_PRINT_SERIAL.print("min(audio) ");
+        PRA32_U2_DEBUG_PRINT_SERIAL.print(s_debug_measurement_min1_us);
+        break;
+      case  2 * 400:
+        PRA32_U2_DEBUG_PRINT_SERIAL.print("\e[2;1H\e[K");
+        PRA32_U2_DEBUG_PRINT_SERIAL.print("max(audio) ");
+        PRA32_U2_DEBUG_PRINT_SERIAL.print(s_debug_measurement_max1_us);
+        break;
+      case  3 * 400:
+        PRA32_U2_DEBUG_PRINT_SERIAL.print("\e[4;1H\e[K");
+        PRA32_U2_DEBUG_PRINT_SERIAL.print("min(loop)  ");
+        PRA32_U2_DEBUG_PRINT_SERIAL.print(s_debug_measurement_min0_us);
+        break;
+      case  4 * 400:
+        PRA32_U2_DEBUG_PRINT_SERIAL.print("\e[5;1H\e[K");
+        PRA32_U2_DEBUG_PRINT_SERIAL.print("max(loop)  ");
+        PRA32_U2_DEBUG_PRINT_SERIAL.print(s_debug_measurement_max0_us);
+        s_debug_measurement_min0_us = UINT32_MAX;
+        s_debug_measurement_max0_us = 0;
+        s_debug_measurement_min1_us = UINT32_MAX;
+        s_debug_measurement_max1_us = 0;
+        break;
+      default:
+        PRA32_U2_ControlPanel_debug_print(s_loop_counter);
+        break;
+      }
+    }
+#endif  // defined(PRA32_U2_USE_DEBUG_PRINT)
+  }
+}
+
+// Never returns, so that the secondary core does not go back to main1() of the core
+// (in the flash, through a veneer in the flash) between the samples: an XIP cache miss
+// there would delay the secondary core, and the primary core waits for it
+void __not_in_flash_func(loop1)() {
+  for (;;) {
+    loop1_once();
+  }
+}
+
+void __not_in_flash_func(setup)() {
+#if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
+  g_pwm_output.setSysClk(SAMPLING_RATE);
+  pinMode(PRA32_U2_PWM_AUDIO_L_PIN, OUTPUT_12MA);
+  pinMode(PRA32_U2_PWM_AUDIO_R_PIN, OUTPUT_12MA);
+  g_pwm_output.setBufferFrames(PRA32_U2_I2S_BUFFERS * PRA32_U2_I2S_BUFFER_WORDS);
+  g_pwm_output.begin(SAMPLING_RATE);
+#else  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
+  g_i2s_output.setSysClk(SAMPLING_RATE);
+  g_i2s_output.setFrequency(SAMPLING_RATE);
+  g_i2s_output.setDATA(PRA32_U2_I2S_DATA_PIN);
+  g_i2s_output.setBCLK(PRA32_U2_I2S_BCLK_PIN);
+  if (PRA32_U2_I2S_SWAP_BCLK_AND_LRCLK_PINS) {
+    g_i2s_output.swapClocks();
+  }
+  g_i2s_output.setBufferFrames(PRA32_U2_I2S_BUFFERS * PRA32_U2_I2S_BUFFER_WORDS);
+  g_i2s_output.begin();
+#endif  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
+
+#if defined(PRA32_U2_USE_USB_MIDI)
+  TinyUSB_Device_Init(0);
+#if defined(PRA32_U2_USE_DEBUG_PRINT) && defined(PRA32_U2_DEBUG_PRINT_USE_USB_SERIAL)
+  TinyUSBDevice.addInterface(Serial);  // TinyUSB_Device_Init() clears the configuration including Serial
+#endif  // defined(PRA32_U2_USE_DEBUG_PRINT) && defined(PRA32_U2_DEBUG_PRINT_USE_USB_SERIAL)
+  USBDevice.setManufacturerDescriptor("ISGK Instruments");
+#if defined(PRA32_U2_USE_CONTROL_PANEL)
+  USBDevice.setProductDescriptor("PRA32-U2/M/P");
+#else  // defined(PRA32_U2_USE_CONTROL_PANEL)
+  USBDevice.setProductDescriptor("PRA32-U2/M");
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
+  USB_MIDI.setHandleNoteOn(handleNoteOn);
+  USB_MIDI.setHandleNoteOff(handleNoteOff);
+  USB_MIDI.setHandleControlChange(handleControlChange);
+  USB_MIDI.setHandleProgramChange(handleProgramChange);
+  USB_MIDI.setHandlePitchBend(handlePitchBend);
+  USB_MIDI.setHandleAfterTouchPoly(handleAfterTouchPoly);
+  USB_MIDI.setHandleAfterTouchChannel(handleAfterTouchChannel);
+  USB_MIDI.setHandleClock(handleClock);
+  USB_MIDI.setHandleStart(handleStart);
+  USB_MIDI.setHandleStop(handleStop);
+  USB_MIDI.begin(MIDI_CHANNEL_OMNI);
+  USB_MIDI.turnThruOff();
+#endif  // defined(PRA32_U2_USE_USB_MIDI)
+
+#if defined(PRA32_U2_USE_UART_MIDI)
+  pinMode(PRA32_U2_UART_MIDI_RX_PIN, INPUT_PULLUP);
+  PRA32_U2_UART_MIDI_SERIAL.setTX(PRA32_U2_UART_MIDI_TX_PIN);
+  PRA32_U2_UART_MIDI_SERIAL.setRX(PRA32_U2_UART_MIDI_RX_PIN);
+  PRA32_U2_UART_MIDI_SERIAL.setFIFOSize(256);  // To absorb bursts (default: 32 bytes)
+  UART_MIDI.setHandleNoteOn(handleNoteOn);
+  UART_MIDI.setHandleNoteOff(handleNoteOff);
+  UART_MIDI.setHandleControlChange(handleControlChange);
+  UART_MIDI.setHandleProgramChange(handleProgramChange);
+  UART_MIDI.setHandlePitchBend(handlePitchBend);
+  UART_MIDI.setHandleAfterTouchPoly(handleAfterTouchPoly);
+  UART_MIDI.setHandleAfterTouchChannel(handleAfterTouchChannel);
+  UART_MIDI.setHandleClock(handleClock);
+  UART_MIDI.setHandleStart(handleStart);
+  UART_MIDI.setHandleStop(handleStop);
+  UART_MIDI.begin(MIDI_CHANNEL_OMNI);
+  UART_MIDI.turnThruOff();
+#endif  // defined(PRA32_U2_USE_UART_MIDI)
+
+#if defined(ARDUINO_RASPBERRY_PI_PICO) || defined(ARDUINO_RASPBERRY_PI_PICO_2)
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, HIGH);
+
+  pinMode(23, OUTPUT);  // RT6150 (PMIC) Power Save Pin
+  digitalWrite(23, HIGH);
+#endif  // defined(ARDUINO_RASPBERRY_PI_PICO) || defined(ARDUINO_RASPBERRY_PI_PICO_2)
+
+#if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
+#else  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
+#if defined(PRA32_U2_I2S_DAC_MUTE_OFF_PIN)
+  pinMode(PRA32_U2_I2S_DAC_MUTE_OFF_PIN, OUTPUT);
+  digitalWrite(PRA32_U2_I2S_DAC_MUTE_OFF_PIN, HIGH);
+#endif  // defined(PRA32_U2_I2S_DAC_MUTE_OFF_PIN)
+#endif  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
+
+  g_synth.initialize();
+  g_sub_1_synth.initialize();
+  g_sub_2_synth.initialize();
+  g_sub_3_synth.initialize();
+
+  PRA32_U2_ControlPanel_initialize_parameters();
+
+  delay(100);
+}
+
+void __not_in_flash_func(loop)() {
+
+#if defined(PRA32_U2_USE_DEBUG_PRINT)
+  uint32_t debug_measurement_start0_us = micros();
+#endif  // defined(PRA32_U2_USE_DEBUG_PRINT)
+
+#if defined(PRA32_U2_USE_USB_MIDI)
+  mutex_enter_blocking(&__usb_mutex);
+#endif  // defined(PRA32_U2_USE_USB_MIDI)
+
+#if defined(PRA32_U2_USE_USB_MIDI)
+  for (uint32_t i = 0; i < ((PRA32_U2_I2S_BUFFER_WORDS + 31) / 32) + 1; i++) {
+    USB_MIDI.read();
+  }
+#endif  // defined(PRA32_U2_USE_USB_MIDI)
+
+#if defined(PRA32_U2_USE_UART_MIDI)
+  // The MIDI Library parses 1 byte per read(), and up to about 4.2 bytes arrive per 64 frames
+  // at 31250 bps, so read 8 bytes per 64 frames not to overflow the receive FIFO
+  for (uint32_t i = 0; i < (PRA32_U2_I2S_BUFFER_WORDS + 7) / 8; i++) {
+    UART_MIDI.read();
+  }
+#endif  // defined(PRA32_U2_USE_UART_MIDI)
+
+  PRA32_U2_ControlPanel_update_control();
+
+#if defined(PRA32_U2_USE_USB_MIDI)
+  mutex_exit(&__usb_mutex);
+#endif  // defined(PRA32_U2_USE_USB_MIDI)
+
+  g_output_fader.begin_block();
+
+  boolean mode = g_synth.is_in_polyphonic_mode();
+  if (g_synth_is_in_polyphonic_mode != mode) {
+    g_synth_is_in_polyphonic_mode = mode;
+    g_sub_1_synth.all_notes_off(true);
+    g_sub_2_synth.all_notes_off(true);
+    g_sub_3_synth.all_notes_off(true);
+  }
+
+#if defined(PRA32_U2_USE_DEBUG_PRINT)
+  uint32_t debug_measurement_start1_us = micros();
+#endif  // defined(PRA32_U2_USE_DEBUG_PRINT)
+
+  int32_t left_buffer[PRA32_U2_I2S_BUFFER_WORDS];
+  int32_t right_buffer[PRA32_U2_I2S_BUFFER_WORDS];
+  for (uint32_t i = 0; i < PRA32_U2_I2S_BUFFER_WORDS; i++) {
+#if defined(PRA32_U2_USE_CONTROL_PANEL) || defined(PRA32_U2_USE_DEBUG_PRINT)
+    s_secondary_core_processing_request = 1;
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL) || defined(PRA32_U2_USE_DEBUG_PRINT)
+
+    // Each synth adds its output to the FX input selected by its FX Routing
+    PRA32_U2_FxBusSample fx_bus;
+    clear_fx_bus(fx_bus);
+    if (g_synth_is_in_polyphonic_mode == false) {
+      g_sub_3_synth.add_to_fx_bus(g_sub_3_synth.process<false, false, true, true>(0, 0), fx_bus);
+      g_sub_2_synth.add_to_fx_bus(g_sub_2_synth.process<false, false, true, true>(0, 0), fx_bus);
+      g_sub_1_synth.add_to_fx_bus(g_sub_1_synth.process<false, false, true, true>(0, 0), fx_bus);
+    }
+
+    g_synth.add_to_fx_bus(g_synth.process<false, true, true, true>(0, 0), fx_bus);
+
+    PRA32_U2_StereoSample synth_output = g_synth.process_fx(fx_bus);
+    int32_t gain = g_output_fader.next_gain_q8();
+    left_buffer[i] = synth_output.left * gain;
+    right_buffer[i] = synth_output.right * gain;
+
+#if defined(PRA32_U2_USE_CONTROL_PANEL) || defined(PRA32_U2_USE_DEBUG_PRINT)
+    while (s_secondary_core_processing_request) {
+      ;
+    }
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL) || defined(PRA32_U2_USE_DEBUG_PRINT)
+  }
+
+#if defined(PRA32_U2_USE_DEBUG_PRINT)
+  uint32_t debug_measurement_end_us = micros();
+#endif  // defined(PRA32_U2_USE_DEBUG_PRINT)
+
+#if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
+  for (uint32_t i = 0; i < PRA32_U2_I2S_BUFFER_WORDS; i++) {
+    g_pwm_output.write24(left_buffer[i], right_buffer[i]);
+  }
+#else  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
+  for (uint32_t i = 0; i < PRA32_U2_I2S_BUFFER_WORDS; i++) {
+    if (PRA32_U2_I2S_SWAP_LEFT_AND_RIGHT) {
+      g_i2s_output.write24(right_buffer[i], left_buffer[i]);
+    } else {
+      g_i2s_output.write24(left_buffer[i], right_buffer[i]);
+    }
+  }
+#endif  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
+
+#if defined(PRA32_U2_USE_DEBUG_PRINT)
+#if defined(PRA32_U2_DEBUG_PRINT_USE_USB_SERIAL)
+#if defined(PRA32_U2_USE_USB_MIDI)
+  mutex_enter_blocking(&__usb_mutex);  // Serial also calls TinyUSB (see the NOTE on __usb_mutex)
+#endif  // defined(PRA32_U2_USE_USB_MIDI)
+  g_debug_print_buffer.transfer_to(Serial);  // Non-blocking
+#if defined(PRA32_U2_USE_USB_MIDI)
+  mutex_exit(&__usb_mutex);
+#endif  // defined(PRA32_U2_USE_USB_MIDI)
+#endif  // defined(PRA32_U2_DEBUG_PRINT_USE_USB_SERIAL)
+
+  uint32_t debug_measurement_elapsed0_us = debug_measurement_end_us - debug_measurement_start0_us;
+  s_debug_measurement_min0_us -= s_debug_measurement_counted *
+                                 (debug_measurement_elapsed0_us < s_debug_measurement_min0_us) *
+                                 (s_debug_measurement_min0_us - debug_measurement_elapsed0_us);
+  s_debug_measurement_max0_us += s_debug_measurement_counted *
+                                 (debug_measurement_elapsed0_us > s_debug_measurement_max0_us) *
+                                 (debug_measurement_elapsed0_us - s_debug_measurement_max0_us);
+
+  uint32_t debug_measurement_elapsed1_us = debug_measurement_end_us - debug_measurement_start1_us;
+  s_debug_measurement_min1_us -= s_debug_measurement_counted *
+                                 (debug_measurement_elapsed1_us < s_debug_measurement_min1_us) *
+                                 (s_debug_measurement_min1_us - debug_measurement_elapsed1_us);
+  s_debug_measurement_max1_us += s_debug_measurement_counted *
+                                 (debug_measurement_elapsed1_us > s_debug_measurement_max1_us) *
+                                 (debug_measurement_elapsed1_us - s_debug_measurement_max1_us);
+
+  s_debug_measurement_counted = 1;
+#endif  // defined(PRA32_U2_USE_DEBUG_PRINT)
+}
+
+void __not_in_flash_func(handleNoteOn)(byte channel, byte pitch, byte velocity)
+{
+  if ((channel - 1) == g_midi_ch) {
+    g_synth.note_on(pitch, velocity);
+  } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
+    g_sub_1_synth.note_on(pitch, velocity);
+  } else if ((channel - 1) == ((g_midi_ch + 2) & 0x0F)) {
+    g_sub_2_synth.note_on(pitch, velocity);
+  } else if ((channel - 1) == ((g_midi_ch + 3) & 0x0F)) {
+    g_sub_3_synth.note_on(pitch, velocity);
+#if defined(PRA32_U2_ENABLE_LAYERING)
+  } else if ((channel - 1) == ((g_midi_ch - 3) & 0x0F)) {
+    g_synth.note_on(pitch, velocity);
+    g_sub_1_synth.note_on(pitch, velocity);
+  } else if ((channel - 1) == ((g_midi_ch - 2) & 0x0F)) {
+    g_sub_2_synth.note_on(pitch, velocity);
+    g_sub_3_synth.note_on(pitch, velocity);
+  } else if ((channel - 1) == ((g_midi_ch - 1) & 0x0F)) {
+    g_synth.note_on(pitch, velocity);
+    g_sub_1_synth.note_on(pitch, velocity);
+    g_sub_2_synth.note_on(pitch, velocity);
+    g_sub_3_synth.note_on(pitch, velocity);
+#endif  // defined(PRA32_U2_ENABLE_LAYERING)
+  }
+}
+
+void __not_in_flash_func(handleNoteOff)(byte channel, byte pitch, byte velocity)
+{
+  if ((channel - 1) == g_midi_ch) {
+    g_synth.note_off(pitch, velocity);
+  } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
+    g_sub_1_synth.note_off(pitch, velocity);
+  } else if ((channel - 1) == ((g_midi_ch + 2) & 0x0F)) {
+    g_sub_2_synth.note_off(pitch, velocity);
+  } else if ((channel - 1) == ((g_midi_ch + 3) & 0x0F)) {
+    g_sub_3_synth.note_off(pitch, velocity);
+#if defined(PRA32_U2_ENABLE_LAYERING)
+  } else if ((channel - 1) == ((g_midi_ch - 3) & 0x0F)) {
+    g_synth.note_off(pitch, velocity);
+    g_sub_1_synth.note_off(pitch, velocity);
+  } else if ((channel - 1) == ((g_midi_ch - 2) & 0x0F)) {
+    g_sub_2_synth.note_off(pitch, velocity);
+    g_sub_3_synth.note_off(pitch, velocity);
+  } else if ((channel - 1) == ((g_midi_ch - 1) & 0x0F)) {
+    g_synth.note_off(pitch, velocity);
+    g_sub_1_synth.note_off(pitch, velocity);
+    g_sub_2_synth.note_off(pitch, velocity);
+    g_sub_3_synth.note_off(pitch, velocity);
+#endif  // defined(PRA32_U2_ENABLE_LAYERING)
+  }
+}
+
+void __not_in_flash_func(handleControlChange)(byte channel, byte number, byte value)
+{
+  if ((channel - 1) == g_midi_ch) {
+    g_synth.control_change(number, value);
+  } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
+    g_sub_1_synth.control_change(number, value);
+  } else if ((channel - 1) == ((g_midi_ch + 2) & 0x0F)) {
+    g_sub_2_synth.control_change(number, value);
+  } else if ((channel - 1) == ((g_midi_ch + 3) & 0x0F)) {
+    g_sub_3_synth.control_change(number, value);
+#if defined(PRA32_U2_ENABLE_LAYERING)
+  } else if ((channel - 1) == ((g_midi_ch - 3) & 0x0F)) {
+    g_synth.control_change(number, value);
+    g_sub_1_synth.control_change(number, value);
+  } else if ((channel - 1) == ((g_midi_ch - 2) & 0x0F)) {
+    g_sub_2_synth.control_change(number, value);
+    g_sub_3_synth.control_change(number, value);
+  } else if ((channel - 1) == ((g_midi_ch - 1) & 0x0F)) {
+    g_synth.control_change(number, value);
+    g_sub_1_synth.control_change(number, value);
+    g_sub_2_synth.control_change(number, value);
+    g_sub_3_synth.control_change(number, value);
+#endif  // defined(PRA32_U2_ENABLE_LAYERING)
+  }
+}
+
+void __not_in_flash_func(handleProgramChange)(byte channel, byte number)
+{
+  if ((channel - 1) == g_midi_ch) {
+    g_synth.program_change(number);
+  } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
+    g_sub_1_synth.program_change(number);
+  } else if ((channel - 1) == ((g_midi_ch + 2) & 0x0F)) {
+    g_sub_2_synth.program_change(number);
+  } else if ((channel - 1) == ((g_midi_ch + 3) & 0x0F)) {
+    g_sub_3_synth.program_change(number);
+#if defined(PRA32_U2_ENABLE_LAYERING)
+  } else if ((channel - 1) == ((g_midi_ch - 3) & 0x0F)) {
+    g_synth.program_change(number);
+    g_sub_1_synth.program_change((number + 1) & 0x3F);
+  } else if ((channel - 1) == ((g_midi_ch - 2) & 0x0F)) {
+    g_sub_2_synth.program_change(number);
+    g_sub_3_synth.program_change((number + 1) & 0x3F);
+  } else if ((channel - 1) == ((g_midi_ch - 1) & 0x0F)) {
+    g_synth.program_change(number);
+    g_sub_1_synth.program_change((number + 1) & 0x3F);
+    g_sub_2_synth.program_change((number + 2) & 0x3F);
+    g_sub_3_synth.program_change((number + 3) & 0x3F);
+#endif  // defined(PRA32_U2_ENABLE_LAYERING)
+  }
+}
+
+void __not_in_flash_func(handlePitchBend)(byte channel, int bend)
+{
+  if ((channel - 1) == g_midi_ch) {
+    g_synth.pitch_bend((bend + 8192) & 0x7F, (bend + 8192) >> 7);
+  } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
+    g_sub_1_synth.pitch_bend((bend + 8192) & 0x7F, (bend + 8192) >> 7);
+  } else if ((channel - 1) == ((g_midi_ch + 2) & 0x0F)) {
+    g_sub_2_synth.pitch_bend((bend + 8192) & 0x7F, (bend + 8192) >> 7);
+  } else if ((channel - 1) == ((g_midi_ch + 3) & 0x0F)) {
+    g_sub_3_synth.pitch_bend((bend + 8192) & 0x7F, (bend + 8192) >> 7);
+#if defined(PRA32_U2_ENABLE_LAYERING)
+  } else if ((channel - 1) == ((g_midi_ch - 3) & 0x0F)) {
+    g_synth.pitch_bend((bend + 8192) & 0x7F, (bend + 8192) >> 7);
+    g_sub_1_synth.pitch_bend((bend + 8192) & 0x7F, (bend + 8192) >> 7);
+  } else if ((channel - 1) == ((g_midi_ch - 2) & 0x0F)) {
+    g_sub_2_synth.pitch_bend((bend + 8192) & 0x7F, (bend + 8192) >> 7);
+    g_sub_3_synth.pitch_bend((bend + 8192) & 0x7F, (bend + 8192) >> 7);
+  } else if ((channel - 1) == ((g_midi_ch - 1) & 0x0F)) {
+    g_synth.pitch_bend((bend + 8192) & 0x7F, (bend + 8192) >> 7);
+    g_sub_1_synth.pitch_bend((bend + 8192) & 0x7F, (bend + 8192) >> 7);
+    g_sub_2_synth.pitch_bend((bend + 8192) & 0x7F, (bend + 8192) >> 7);
+    g_sub_3_synth.pitch_bend((bend + 8192) & 0x7F, (bend + 8192) >> 7);
+#endif  // defined(PRA32_U2_ENABLE_LAYERING)
+  }
+}
+
+void __not_in_flash_func(handleAfterTouchPoly)(byte channel, byte note, byte pressure)
+{
+  if ((channel - 1) == g_midi_ch) {
+    g_synth.after_touch_poly(note, pressure);
+  } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
+    g_sub_1_synth.after_touch_poly(note, pressure);
+  } else if ((channel - 1) == ((g_midi_ch + 2) & 0x0F)) {
+    g_sub_2_synth.after_touch_poly(note, pressure);
+  } else if ((channel - 1) == ((g_midi_ch + 3) & 0x0F)) {
+    g_sub_3_synth.after_touch_poly(note, pressure);
+#if defined(PRA32_U2_ENABLE_LAYERING)
+  } else if ((channel - 1) == ((g_midi_ch - 3) & 0x0F)) {
+    g_synth.after_touch_poly(note, pressure);
+    g_sub_1_synth.after_touch_poly(note, pressure);
+  } else if ((channel - 1) == ((g_midi_ch - 2) & 0x0F)) {
+    g_sub_2_synth.after_touch_poly(note, pressure);
+    g_sub_3_synth.after_touch_poly(note, pressure);
+  } else if ((channel - 1) == ((g_midi_ch - 1) & 0x0F)) {
+    g_synth.after_touch_poly(note, pressure);
+    g_sub_1_synth.after_touch_poly(note, pressure);
+    g_sub_2_synth.after_touch_poly(note, pressure);
+    g_sub_3_synth.after_touch_poly(note, pressure);
+#endif  // defined(PRA32_U2_ENABLE_LAYERING)
+  }
+}
+
+void __not_in_flash_func(handleAfterTouchChannel)(byte channel, byte pressure)
+{
+  if ((channel - 1) == g_midi_ch) {
+    g_synth.after_touch_channel(pressure);
+  } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
+    g_sub_1_synth.after_touch_channel(pressure);
+  } else if ((channel - 1) == ((g_midi_ch + 2) & 0x0F)) {
+    g_sub_2_synth.after_touch_channel(pressure);
+  } else if ((channel - 1) == ((g_midi_ch + 3) & 0x0F)) {
+    g_sub_3_synth.after_touch_channel(pressure);
+#if defined(PRA32_U2_ENABLE_LAYERING)
+  } else if ((channel - 1) == ((g_midi_ch - 3) & 0x0F)) {
+    g_synth.after_touch_channel(pressure);
+    g_sub_1_synth.after_touch_channel(pressure);
+  } else if ((channel - 1) == ((g_midi_ch - 2) & 0x0F)) {
+    g_sub_2_synth.after_touch_channel(pressure);
+    g_sub_3_synth.after_touch_channel(pressure);
+  } else if ((channel - 1) == ((g_midi_ch - 1) & 0x0F)) {
+    g_synth.after_touch_channel(pressure);
+    g_sub_1_synth.after_touch_channel(pressure);
+    g_sub_2_synth.after_touch_channel(pressure);
+    g_sub_3_synth.after_touch_channel(pressure);
+#endif  // defined(PRA32_U2_ENABLE_LAYERING)
+  }
+}
+
+void __not_in_flash_func(handleClock)()
+{
+#if defined(PRA32_U2_USE_CONTROL_PANEL)
+  PRA32_U2_ControlPanel_on_clock();
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
+}
+
+void __not_in_flash_func(handleStart)()
+{
+#if defined(PRA32_U2_USE_CONTROL_PANEL)
+  if (g_synth.current_controller_value(SEQ_TRX_ST_SP  ) >= 64) {
+    PRA32_U2_ControlPanel_on_start();
+  }
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
+}
+
+void __not_in_flash_func(handleStop)()
+{
+#if defined(PRA32_U2_USE_CONTROL_PANEL)
+  if (g_synth.current_controller_value(SEQ_TRX_ST_SP  ) >= 64) {
+    PRA32_U2_ControlPanel_on_stop();
+  }
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
+}
+
+
+#if defined(PRA32_U2_USE_CONTROL_PANEL)
+
+uint8_t __not_in_flash_func(getCurrentControllerValue)(byte channel, byte number)
+{
+  if ((channel - 1) == g_midi_ch) {
+    return g_synth.current_controller_value(number);
+  } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
+    return g_sub_1_synth.current_controller_value(number);
+  } else if ((channel - 1) == ((g_midi_ch + 2) & 0x0F)) {
+    return g_sub_2_synth.current_controller_value(number);
+  } else if ((channel - 1) == ((g_midi_ch + 3) & 0x0F)) {
+    return g_sub_3_synth.current_controller_value(number);
+#if defined(PRA32_U2_ENABLE_LAYERING)
+  } else if ((channel - 1) == ((g_midi_ch - 3) & 0x0F)) {
+    return g_synth.current_controller_value(number);
+  } else if ((channel - 1) == ((g_midi_ch - 2) & 0x0F)) {
+    return g_sub_2_synth.current_controller_value(number);
+  } else if ((channel - 1) == ((g_midi_ch - 1) & 0x0F)) {
+    return g_synth.current_controller_value(number);
+#endif  // defined(PRA32_U2_ENABLE_LAYERING)
+  }
+
+  return 0;
+}
+
+void __not_in_flash_func(getRandUint8Rrray)(byte channel, uint8_t array[8])
+{
+  if ((channel - 1) == g_midi_ch) {
+    g_synth.get_rand_uint8_array(array);
+  } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
+    g_sub_1_synth.get_rand_uint8_array(array);
+  } else if ((channel - 1) == ((g_midi_ch + 2) & 0x0F)) {
+    g_sub_2_synth.get_rand_uint8_array(array);
+  } else if ((channel - 1) == ((g_midi_ch + 3) & 0x0F)) {
+    g_sub_3_synth.get_rand_uint8_array(array);
+#if defined(PRA32_U2_ENABLE_LAYERING)
+  } else if ((channel - 1) == ((g_midi_ch - 3) & 0x0F)) {
+    g_synth.get_rand_uint8_array(array);
+  } else if ((channel - 1) == ((g_midi_ch - 2) & 0x0F)) {
+    g_sub_2_synth.get_rand_uint8_array(array);
+  } else if ((channel - 1) == ((g_midi_ch - 1) & 0x0F)) {
+    g_synth.get_rand_uint8_array(array);
+#endif  // defined(PRA32_U2_ENABLE_LAYERING)
+  }
+}
+
+void __not_in_flash_func(writeParametersToProgram)(byte channel, byte number)
+{
+  if ((channel - 1) == g_midi_ch) {
+    g_synth.write_parameters_to_program(number);
+  } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
+    g_sub_1_synth.write_parameters_to_program(number);
+  } else if ((channel - 1) == ((g_midi_ch + 2) & 0x0F)) {
+    g_sub_2_synth.write_parameters_to_program(number);
+  } else if ((channel - 1) == ((g_midi_ch + 3) & 0x0F)) {
+    g_sub_3_synth.write_parameters_to_program(number);
+#if defined(PRA32_U2_ENABLE_LAYERING)
+  } else if ((channel - 1) == ((g_midi_ch - 3) & 0x0F)) {
+    g_synth.write_parameters_to_program(number);
+  } else if ((channel - 1) == ((g_midi_ch - 2) & 0x0F)) {
+    g_sub_2_synth.write_parameters_to_program(number);
+  } else if ((channel - 1) == ((g_midi_ch - 1) & 0x0F)) {
+    g_synth.write_parameters_to_program(number);
+#endif  // defined(PRA32_U2_ENABLE_LAYERING)
+  }
+}
+
+byte __not_in_flash_func(getTargetMIDICh)(byte synth)
+{
+#if defined(PRA32_U2_ENABLE_LAYERING)
+  if (synth >= 4) {
+    return (((g_midi_ch + synth + 9) & 0x0F) + 1);
+  }
+  return (((g_midi_ch + synth) & 0x0F) + 1);
+#else
+  return (((g_midi_ch + synth) & 0x0F) + 1);
+#endif
+}
+
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
