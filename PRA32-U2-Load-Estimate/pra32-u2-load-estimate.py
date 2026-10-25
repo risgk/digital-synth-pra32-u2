@@ -5,12 +5,15 @@
 # first-order Cortex-M33 cost model (see cost() below).
 #
 #   python3 pra32-u2-load-estimate.py ELF [--program [CH:]N,...] [--cc [CH:]NUMBER=VALUE,...]
-#                                         [--notes [CH:]NOTE,...] [--loops N] [--skip N] [--profile]
+#                                         [--notes [CH:]NOTE,...] [--uart-midi HEX] [--usb-midi HEX]
+#                                         [--loops N] [--skip N] [--profile]
 #
 # - The two cores run by turns, a slice of cycles at a time, so that their clocks stay together:
 #   core 0 waits for core 1 (and core 1 for core 0) as on the device
 # - loop() is measured from its start to its return; the output never blocks (the ring buffer is
-#   always writable), and no MIDI arrives but the messages sent before the loops
+#   always writable); the messages before the loops are given to the handlers, and while the loops
+#   run, the bytes of --uart-midi arrive at 31250 bps and those of --usb-midi as fast as they are
+#   read, through stand-ins for available() and read() of SerialUART and Adafruit_USBD_MIDI
 # - Core 1 is busy but while it spins: the cycles since its last store (but to its stack) count if
 #   they are few, and are a wait if they are many (see SPIN_CYCLES)
 # - Left out: the waits of the flash (XIP), the contention of the cores on the bus, the interrupts
@@ -30,6 +33,8 @@ ap.add_argument('elf', help='the sketch ELF, e.g. build/u2/Digital-Synth-PRA32-U
 ap.add_argument('--program', default='', help='Program Changes before the loops: [CH:]N,...')
 ap.add_argument('--cc', default='', help='Control Changes after them: [CH:]NUMBER=VALUE,...')
 ap.add_argument('--notes', default='60,64,67,71', help='Note Ons (velocity 100) after them: [CH:]NOTE,...')
+ap.add_argument('--uart-midi', default='', help='bytes (hex) that arrive by UART MIDI over and over, at 31250 bps, e.g. "C0 00 C0 0A"')
+ap.add_argument('--usb-midi', default='', help='bytes (hex) that arrive by USB MIDI over and over, as fast as they are read')
 ap.add_argument('--loops', type=int, default=24, help='loops to run in all')
 ap.add_argument('--skip', type=int, default=8, help='loops left out of the statistics (warm-up)')
 ap.add_argument('--mhz', type=float, default=153.6, help='system clock, the sketch\'s 153.6 MHz by default')
@@ -139,7 +144,8 @@ def ret(uc, value=None):
 
 # The hardware is stood in for by functions that return 0 at once: the clocks, the I2S/PWM output,
 # USB and UART, the GPIOs, the ADCs, I2C, the timers, the locks, and the output's wait; never the
-# synth's own functions, the constructors, nor the static initializers.
+# synth's own functions, the MIDI Library's (on top of the stand-ins for the MIDI input below), the
+# constructors, nor the static initializers.
 STUBBED = ['TinyUSB', 'USBD', 'USBDevice', 'tud_', 'SerialUART', 'SerialPIO', 'SerialUSB', 'Adafruit',
            'pinMode', 'digitalWrite', 'delay', 'gpio_', 'set_sys_clock', 'clock_', 'pio_', 'dma_', 'irq_',
            'I2SOutput', 'PWMAudioOutput', 'mutex', 'micros', 'millis', 'Wire', 'analogRead', 'adc_',
@@ -147,7 +153,7 @@ STUBBED = ['TinyUSB', 'USBD', 'USBDevice', 'tud_', 'SerialUART', 'SerialPIO', 'S
            'xosc', 'pll_', 'watchdog', 'timer_', 'time_us']
 stubs = {}
 for a, size, n in funcs:
-    if re.search(r'[0-9A-Za-z_]C[12]E', n) or n.startswith('_GLOBAL__sub_I'):
+    if re.search(r'[0-9A-Za-z_]C[12]E', n) or n.startswith('_GLOBAL__sub_I') or 'MidiInterface' in n or 'serialMIDI' in n:
         continue
     if (any(p in n for p in STUBBED) and 'PRA32_U2' not in n) or 'wait_for_writable' in n:
         stubs[a] = lambda uc: ret(uc, 0)
@@ -219,6 +225,46 @@ for n, fn in helpers.items():
                 helpers_in_loops.add(n)
             fn(uc)
         stubs[func_names[n][0]] = run
+
+# The MIDI input while the loops run: available() and read() of the UART (Serial2) and of USB MIDI,
+# each counted at MIDI_CALL_CYCLES, a rough figure for the real ones (a FIFO and a lock)
+MIDI_CALL_CYCLES = 20
+UART_BYTE_CYCLES = args.mhz * 1e6 * 10 / 31250  # 10 bits a byte
+UART_FIFO = 256
+midi_in = {
+    'uart': {'bytes': bytes.fromhex(args.uart_midi), 'read': 0},
+    'usb': {'bytes': bytes.fromhex(args.usb_midi), 'read': 0},
+}
+measuring_ = {'on': False}
+def midi_waiting(port):
+    m = midi_in[port]
+    if not m['bytes'] or not measuring_['on']:
+        return 0
+    if port == 'usb':
+        return 64
+    arrived = int(clock[0] / UART_BYTE_CYCLES)
+    m['read'] = max(m['read'], arrived - UART_FIFO)  # an overrun drops the oldest
+    return arrived - m['read']
+def midi_available(port):
+    def fn(uc):
+        clock[0] += MIDI_CALL_CYCLES
+        ret(uc, midi_waiting(port))
+    return fn
+def midi_read(port):
+    def fn(uc):
+        clock[0] += MIDI_CALL_CYCLES
+        if midi_waiting(port) == 0:
+            ret(uc, -1)
+            return
+        m = midi_in[port]
+        b = m['bytes'][m['read'] % len(m['bytes'])]
+        m['read'] += 1
+        ret(uc, b)
+    return fn
+for n, fn in [('_ZN10SerialUART9availableEv', midi_available('uart')), ('_ZN10SerialUART4readEv', midi_read('uart')),
+              ('_ZN18Adafruit_USBD_MIDI9availableEv', midi_available('usb')), ('_ZN18Adafruit_USBD_MIDI4readEv', midi_read('usb'))]:
+    if n in func_names:
+        stubs[func_names[n][0]] = fn
 
 SPIN_CYCLES = 400
 clock = [0, 0]
@@ -311,6 +357,7 @@ for c, uc in enumerate(cores):
     uc.reg_write(UC_ARM_REG_LR, RETURN[c] | 1)
 clock = [0, 0]
 measuring = True
+measuring_['on'] = True
 loops = []
 loop_start, busy_start = 0, 0
 while len(loops) < args.loops:
@@ -343,6 +390,9 @@ else:
     print('loops measured: %d (after %d warm-up), of %.0f us (64 frames at 48 kHz) at %.1f MHz' % (len(loops), args.skip, budget_us, args.mhz))
     print('core 0, loop(): avg %.0f, max %d cycles (%.1f%% / %.1f%%)' % (c0_avg, max(c0), percent(c0_avg), percent(max(c0))))
     print('core 1, busy:   avg %.0f, max %d cycles (%.1f%% / %.1f%%)' % (c1_avg, max(c1), percent(c1_avg), percent(max(c1))))
+    for port in ('uart', 'usb'):
+        if midi_in[port]['bytes']:
+            print('%s MIDI: %d bytes read' % (port.upper(), midi_in[port]['read']))
 if helpers_in_loops:
     print('double-precision helpers called in the loops: %s' % ', '.join(sorted(helpers_in_loops)), file=sys.stderr)
 if args.profile:
