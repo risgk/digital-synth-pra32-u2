@@ -101,6 +101,22 @@ row '4 Synths, with Program Change by CC #112 (#0) by MIDI Channel 16 back to ba
 echo
 echo "⚠: over 100% (1333 us), △: over 95%"
 echo
+# The load of each module (class), the average of core 0 / core 1, in the heaviest of each
+modules() {  # variant, options: prints "module core0% core1%"
+  v=$1
+  shift
+  python3 pra32-u2-load-estimate.py build/$v/Digital-Synth-PRA32-U2.ino.elf --modules "$@" |
+    awk '/^modules,/ { m = 1; next } m { print $1, $2, $4 }'
+}
+modules u2 $POLY > build/modules-u2.txt
+modules mp $SYNTHS > build/modules-mp.txt
+echo "| Module (core 0 / core 1, avg) | PRA32-U2, Poly | PRA32-U2/M/P, 4 Synths |"
+echo "| :-- | --: | --: |"
+awk 'NR == FNR { a[$1] = $2 " / " $3; order[++n] = $1; next }
+     { b[$1] = $2 " / " $3; if (!($1 in a)) order[++n] = $1 }
+     END { for (i = 1; i <= n; i++) { k = order[i]; printf "| %s | %s | %s |\n", k, (k in a) ? a[k] : "-", (k in b) ? b[k] : "-" } }' \
+  build/modules-u2.txt build/modules-mp.txt
+echo
 echo "| RAM (global variables) | PRA32-U2 | PRA32-U2/M | PRA32-U2/P | PRA32-U2/M/P |"
 echo "| :-- | --: | --: | --: | --: |"
 line='| |'

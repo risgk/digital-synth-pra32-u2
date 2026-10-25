@@ -6,6 +6,7 @@
     - PRA32-U2 Load Estimate: The Program Changes back to back for Poly too (instead of every 30 bytes, for Poly and the 4 Synths), UART MIDI with Running Status, all 4 built with Debug Print as measured on the device,
       PRA32-U2/P and PRA32-U2/M/P with all of the keys (SW1-6), and the keys read as released
         - Add `--adc` (the knobs turned), `--keys`, and `--keys-held` (the keys pressed) to "pra32-u2-load-estimate.py", for PRA32-U2/P
+        - Add `--modules` (the load of each module on each core, from the debug info), and the table of the modules; keep the estimate of the latest version only
     - Tested with Arduino-Pico version 6.3.0
 - v3.17.4 (2026-10-25):
     - PRA32-U2/M: Layering: Wrap the programs of the Sub Synths (Program # + 1 to + 3) around in the user programs (#0-15) and in the presets (#16-31) each, instead of in #0-63 (#32-63 did nothing), and make Program Change #127 (Random Control) for all the synths (instead of #0-2 for the Sub Synths)

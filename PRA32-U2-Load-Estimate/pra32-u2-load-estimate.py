@@ -504,7 +504,7 @@ if args.modules:
             k = owner.get(a)
             if k is None:
                 n = sym_of(a)
-                k = 'Synth' if 'PRA32_U2_Synth' in n else 'sketch' if n in ('loop', 'loop1') else 'other'
+                k = 'Synth' if 'PRA32_U2_Synth' in n else 'Sketch' if n in ('loop', 'loop1') else 'Other'
             rows.setdefault(k, [0, 0])[c] += v
     for k, (v0, v1) in sorted(rows.items(), key=lambda kv: -sum(kv[1])):
         print('  %-16s %5.1f%% / %5.1f%%' % (k, percent(v0 / args.loops), percent(v1 / args.loops)))
