@@ -25,6 +25,12 @@
 - The code that runs while playing is put in RAM (`__not_in_flash_func`), so that an XIP cache miss (e.g. after a burst of MIDI or USB) does not delay it
 
 
+## Load Estimate
+
+- [PRA32-U2 Load Estimate](./PRA32-U2-Load-Estimate/README.md) estimates the load of each core without the hardware, from the UF2 build,
+  in a few cases (e.g. the heaviest Osc 1 Wave and Delay Mode), and keeps the estimates of each version
+
+
 ## Writing to the Flash
 
 - Writing the user programs (Write Program) does `EEPROM.write()` at once, and defers `EEPROM.commit()` (about 50-100 ms, which stops both cores)

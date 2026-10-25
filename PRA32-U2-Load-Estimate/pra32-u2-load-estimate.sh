@@ -1,0 +1,55 @@
+#!/bin/sh
+# PRA32-U2 Load Estimate: builds PRA32-U2, PRA32-U2/M, PRA32-U2/P, and PRA32-U2/M/P with arduino-cli,
+# as the GitHub Actions workflow builds the UF2 files, into "build" here, and estimates the load of
+# each in the cases below with pra32-u2-load-estimate.py; prints the table of README.md
+#
+#   sh PRA32-U2-Load-Estimate/pra32-u2-load-estimate.sh
+#
+# Needs arduino-cli with the Arduino-Pico core and the MIDI Library (see PRA32-U2-Modification-Guide.md),
+# python3, and: pip install unicorn capstone pyelftools
+set -e
+cd "$(dirname "$0")"
+FQBN='rp2040:rp2040:rpipico2:flash=4194304_0,freq=150,arch=arm,opt=Small,os=none,profile=Disabled,rtti=Disabled,stackprotect=Disabled,exceptions=Disabled,dbgport=Disabled,dbglvl=None,usbstack=tinyusb,ipbtstack=ipv4only,uploadmethod=default'
+
+VARIANTS='u2 m p mp'
+for v in $VARIANTS; do
+  src=build/src-$v/Digital-Synth-PRA32-U2
+  rm -rf build/src-$v
+  mkdir -p $src
+  cp ../Digital-Synth-PRA32-U2/* $src/
+  case $v in m|mp) cp ../Digital-Synth-PRA32-U2-M/Digital-Synth-PRA32-U2-M.ino $src/Digital-Synth-PRA32-U2.ino ;; esac
+  case $v in p|mp) sed -i 's|^//#define PRA32_U2_USE_CONTROL_PANEL |#define PRA32_U2_USE_CONTROL_PANEL |' $src/Digital-Synth-PRA32-U2.ino ;; esac
+  arduino-cli compile --fqbn "$FQBN" --build-path build/$v $src > build/$v.log
+done
+
+version=$(sed -n 's/^#define PRA32_U2_VERSION *"\(v[0-9.]*\).*/\1/p' ../Digital-Synth-PRA32-U2/Digital-Synth-PRA32-U2.ino)
+estimate() {  # variant, options: prints "core 0 max% / core 1 max%"
+  v=$1
+  shift
+  python3 pra32-u2-load-estimate.py build/$v/Digital-Synth-PRA32-U2.ino.elf --brief "$@" | awk '{ printf "%.0f%% / %.0f%%", $2, $4 }'
+}
+row() {  # case, variants, options
+  name=$1
+  vs=$2
+  shift 2
+  line="| $name |"
+  for v in $VARIANTS; do
+    case " $vs " in *" $v "*) line="$line $(estimate $v "$@") |" ;; *) line="$line - |" ;; esac
+  done
+  echo "$line"
+}
+
+echo "#### $version"
+echo
+echo "| Case (core 0 / core 1, max) | PRA32-U2 | PRA32-U2/M | PRA32-U2/P | PRA32-U2/M/P |"
+echo "| :-- | --: | --: | --: | --: |"
+row '#0 Synth Pad, 4 notes' "$VARIANTS" --program 0
+row '#10 WT Pad, 4 notes' "$VARIANTS" --program 10
+row '#0 Synth Pad with Osc 1 Wave Sqr and Delay Mode Rev, 4 notes' "$VARIANTS" --program 0 --cc 102=26,35=127
+row '4 Synths: #4 Saw Lead with Osc 1 Wave Sqr (and Delay Mode Rev), a note each' 'm mp' \
+  --program 1:4,2:4,3:4,4:4 --cc 1:35=127,1:102=26,2:102=26,3:102=26,4:102=26 --notes 1:60,2:64,3:67,4:71
+line='| RAM (global variables) |'
+for v in $VARIANTS; do
+  line="$line $(sed -n 's/^Global variables use \([0-9]*\) bytes (\([0-9]*%\)).*/\1 (\2)/p' build/$v.log) |"
+done
+echo "$line"
