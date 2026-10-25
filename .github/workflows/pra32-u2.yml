@@ -269,6 +269,8 @@ jobs:
         run: |
           sh PRA32-U2-Load-Estimate/pra32-u2-load-estimate.sh | tee load-estimate.md
           cat load-estimate.md >> "$GITHUB_STEP_SUMMARY"
+          # A maximum over 95% of 1333 us as a warning of the run (marked in the table too)
+          while read -r line; do echo "::warning title=PRA32-U2 Load Estimate::$line"; done < PRA32-U2-Load-Estimate/build/warnings.txt
 
   commit:
     if: inputs.commit_package
