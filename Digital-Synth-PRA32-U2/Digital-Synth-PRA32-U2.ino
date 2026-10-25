@@ -354,7 +354,9 @@ void __not_in_flash_func(loop)() {
 #endif  // defined(PRA32_U2_USE_USB_MIDI)
 
 #if defined(PRA32_U2_USE_USB_MIDI)
-  for (uint32_t i = 0; i < ((PRA32_U2_I2S_BUFFER_WORDS + 31) / 32) + 1; i++) {
+  // The MIDI Library parses 1 byte per read(), so read 5 bytes per 64 frames, more than about 4.2
+  // bytes that arrive per 64 frames at 31250 bps, to be at least as fast as UART MIDI
+  for (uint32_t i = 0; i < ((PRA32_U2_I2S_BUFFER_WORDS + 15) / 16) + 1; i++) {
     USB_MIDI.read();
   }
 #endif  // defined(PRA32_U2_USE_USB_MIDI)
