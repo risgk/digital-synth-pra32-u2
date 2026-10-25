@@ -9,8 +9,16 @@
     sh PRA32-U2-Load-Estimate/pra32-u2-load-estimate.sh
     ```
 
-    - Needs arduino-cli with the Arduino-Pico core and the MIDI Library (see [Modification Guide](../PRA32-U2-Modification-Guide.md)), Python 3,
-      and `pip install unicorn capstone pyelftools`
+    - Tested on Linux (as on the GitHub Actions runners); macOS should work too, and Windows with WSL (the script is for `sh`)
+    - Needs [arduino-cli](https://arduino.github.io/arduino-cli/) with the versions of [Modification Guide](../PRA32-U2-Modification-Guide.md), as the workflow installs them:
+
+        ```
+        arduino-cli core update-index --additional-urls https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json
+        arduino-cli core install rp2040:rp2040@6.3.0 --additional-urls https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json
+        arduino-cli lib install "MIDI Library@5.0.2"
+        ```
+
+    - And Python 3 with `pip install unicorn capstone pyelftools` (Unicorn 2)
     - "pra32-u2-load-estimate.py" estimates a case of its own, e.g. `python3 PRA32-U2-Load-Estimate/pra32-u2-load-estimate.py PRA32-U2-Load-Estimate/build/u2/Digital-Synth-PRA32-U2.ino.elf --program 0 --cc 102=26,35=127 --profile`
 - How it works
     - The sketch runs on two instances of Unicorn (an instruction emulator: Cortex-M33, Thumb-2, and the FPU), as core 0 and core 1, which share the flash and the SRAM;
