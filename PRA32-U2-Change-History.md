@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v3.17.2 (2026-??-??):
+    - Read 5 bytes of USB MIDI per loop (64 frames), from 3, so that USB MIDI is at least as fast as UART MIDI (31250 bps, about 4.2 bytes per loop)
     - Move "Preparation for Modification", "Features" (the MIDI and Audio Output settings), and "Simple Circuit for PWM Audio" from README.md to PRA32-U2-Modification-Guide.md
     - Add PRA32-U2 Load Estimate ("PRA32-U2-Load-Estimate" folder), which estimates the load of each core of PRA32-U2, /M, /P, and /M/P without the hardware, and keeps the estimates of each version
     - Add PRA32-U2-Development.md, the notes for changing the code (Debug Print, Runtime, Processing Time, Load Estimate, Writing to the Flash, and Files and Tools)
