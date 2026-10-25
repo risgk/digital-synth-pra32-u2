@@ -2,7 +2,7 @@
  * Digital Synth PRA32-U2/M
  */
 
-#define PRA32_U2_VERSION                       "v3.17.3   "
+#define PRA32_U2_VERSION                       "v3.17.4   "
 
 //#define PRA32_U2_USE_DEBUG_PRINT
 
@@ -254,9 +254,8 @@ static void __not_in_flash_func(processOnePendingProgramChange)() {
   }
 }
 
-// The other numbers (#128-129 the panel parameters, which only the panel sends, and #32-63 of the
-// Layering, which do nothing) are processed at once, after those kept, so that each takes effect
-// as it did
+// The other numbers (#128-129 the panel parameters, which only the panel sends, and #32-126, which
+// do nothing) are processed at once, after those kept, so that each takes effect as it did
 static void __not_in_flash_func(programChange)(uint32_t synth, uint8_t program_number) {
   if (program_number <= PROGRAM_NUMBER_MAX) {
     s_pending_program_change[synth] = program_number;
@@ -270,6 +269,17 @@ static void __not_in_flash_func(programChange)(uint32_t synth, uint8_t program_n
   processPendingProgramChanges();
   programChangeOf(synth, program_number);
 }
+
+#if defined(PRA32_U2_ENABLE_LAYERING)
+// The program for the synth #k of the Layering: the program + k, wrapping around in the user
+// programs (#0-15) and in the presets (#16-31) each; #127 Random Control is for all the synths too
+static uint8_t __not_in_flash_func(layeringProgramNumber)(uint8_t number, uint32_t k) {
+  if (number > PROGRAM_NUMBER_MAX) {
+    return number;
+  }
+  return static_cast<uint8_t>((number & ~USER_PROGRAM_NUMBER_MAX) | ((number + k) & USER_PROGRAM_NUMBER_MAX));
+}
+#endif  // defined(PRA32_U2_ENABLE_LAYERING)
 
 void __not_in_flash_func(setup1)() {
   g_synth.initialize_secondary_core();
@@ -688,15 +698,15 @@ void __not_in_flash_func(handleProgramChange)(byte channel, byte number)
 #if defined(PRA32_U2_ENABLE_LAYERING)
   } else if ((channel - 1) == ((g_midi_ch - 3) & 0x0F)) {
     programChange(0, number);
-    programChange(1, (number + 1) & 0x3F);
+    programChange(1, layeringProgramNumber(number, 1));
   } else if ((channel - 1) == ((g_midi_ch - 2) & 0x0F)) {
     programChange(2, number);
-    programChange(3, (number + 1) & 0x3F);
+    programChange(3, layeringProgramNumber(number, 1));
   } else if ((channel - 1) == ((g_midi_ch - 1) & 0x0F)) {
     programChange(0, number);
-    programChange(1, (number + 1) & 0x3F);
-    programChange(2, (number + 2) & 0x3F);
-    programChange(3, (number + 3) & 0x3F);
+    programChange(1, layeringProgramNumber(number, 1));
+    programChange(2, layeringProgramNumber(number, 2));
+    programChange(3, layeringProgramNumber(number, 3));
 #endif  // defined(PRA32_U2_ENABLE_LAYERING)
   }
 }

@@ -1,5 +1,9 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v3.17.4 (2026-10-25):
+    - PRA32-U2/M: Layering: Wrap the programs of the Sub Synths (Program # + 1 to + 3) around in the user programs (#0-15) and in the presets (#16-31) each, instead of in #0-63 (#32-63 did nothing), and make Program Change #127 (Random Control) for all the synths (instead of #0-2 for the Sub Synths)
+        - Customization Examples (Core 0 Only): The same
+    - Tested with Arduino-Pico version 6.3.0
 - v3.17.3 (2026-10-25):
     - Process Program Change #127 (Random Control) that arrive one after another as one too, after the program kept (a program after them drops them), so that a stream of them does not overload a loop either
     - Customization Examples (Core 0 Only): Process the Program Changes as v3.17.2 and v3.17.3, and read 5 bytes of USB MIDI per loop as v3.17.2
