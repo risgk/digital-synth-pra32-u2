@@ -16,7 +16,7 @@
 - **I2S DAC** ハードウェア (例えば Pimoroni Pico Audio Pack) が必要です
     - Pico Audio Pack 用のケース (3D プリンター用データ): [Pico Audio Pack Case by YuuichiAkagawa](https://www.thingiverse.com/thing:6404203) (Thingiverse)
     - Adafruit PCM510x I2S DAC や GY-PCM5102 も使えます ([I2S DAC ボードの接続](#i2s-dac-ボードの接続) を参照)
-    - I2S の代わりに PWM Audio も使えます (英語版の [PWM Audio](./README.md#pwm-audio-optional) を参照)
+    - I2S の代わりに PWM Audio も使えます (英語版の [PWM Audio](./PRA32-U2-Modification-Guide.md#pwm-audio-optional) を参照)
 - ビルド済みの UF2 ファイル ("bin" フォルダー内): 改造せずに使うだけなら、Arduino IDE は不要です
     - BOOTSEL ボタンを押しながら Raspberry Pi Pico 2 を PC につなぎ、UF2 ファイルを "RP2350" ドライブにコピーしてください
     - PRA32-U2/M (推奨): "Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2" は Raspberry Pi Pico 2 と Pimoroni Pico Audio Pack 用です
@@ -48,7 +48,7 @@
     | GND                                       | GND                      | GND、SCK   |
 
 - GY-PCM5102 の裏面のはんだジャンパーの推奨設定 (はんだ付けされていない場合): H1L: L、H2L: L、H3L: H、H4L: L
-- 他の I2S DAC を使う場合は、英語版の [I2S (Default)](./README.md#i2s-default) を参照してください
+- 他の I2S DAC を使う場合は、英語版の [I2S (Default)](./PRA32-U2-Modification-Guide.md#i2s-default) を参照してください
 
 
 ## ドキュメント (英語)
@@ -61,10 +61,11 @@
 - [MIDI Implementation Chart](./PRA32-U2-MIDI-Implementation-Chart.md) (MIDI インプリメンテーション・チャート)
 - [Block Diagrams](./PRA32-U2-Block-Diagrams.md) (ブロック図)
     - Osc、Filter、Chorus FX、Delay FX、Reverb、Output Compressor、PRA32-U2/M のブロック図と、Wave Table のグラフです
+- [Modification Guide](./PRA32-U2-Modification-Guide.md) (改造ガイド)
+    - USB MIDI、UART MIDI、I2S、オーディオ・バッファー、PWM Audio の設定と、PWM Audio の簡易回路です
 - README の次の節は英語版のみです
     - [Synthesizer Block Diagram](./README.md#synthesizer-block-diagram)
-    - [Features](./README.md#features) (USB MIDI、UART MIDI、I2S、オーディオ・バッファー、PWM Audio の設定)
-    - [Files](./README.md#files)、[Simple Circuit for PWM Audio](./README.md#simple-circuit-for-pwm-audio-optional)、[Customization Examples](./README.md#customization-examples)
+    - [Files](./README.md#files)、[Customization Examples](./README.md#customization-examples)
 
 
 ## 改造の準備
@@ -139,8 +140,8 @@
     - I2S DAC の配線を確認してください (GY-PCM5102 の場合は、SCK を GND につないでいるかと、裏面のはんだジャンパーも確認してください)
     - PRA32-U2 Editor の "MIDI Ch" が、PRA32-U2 の MIDI チャンネル (初期値 1) と合っているか確認してください
 - ノイズが気になる
-    - USB 通信のノイズの影響を受けることがあります。英語版の [UART MIDI](./README.md#uart-midi) を試してください
-    - RC フィルターなしの PWM Audio では、レベルを下げてください (英語版の [PWM Audio](./README.md#pwm-audio-optional) を参照)
+    - USB 通信のノイズの影響を受けることがあります。英語版の [UART MIDI](./PRA32-U2-Modification-Guide.md#uart-midi) を試してください
+    - RC フィルターなしの PWM Audio では、レベルを下げてください (英語版の [PWM Audio](./PRA32-U2-Modification-Guide.md#pwm-audio-optional) を参照)
 - 音が歪む
     - Amp Gain を下げてください (Filter Resonance や Osc 1 Shape/Morph が高いと、音が大きくなります)
     - FX Routing が Dry の場合は Output Compressor を通らないため、大きな音はソフトクリップで歪みます。Cmp などを選んでください
