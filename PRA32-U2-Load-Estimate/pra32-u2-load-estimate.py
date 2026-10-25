@@ -15,7 +15,9 @@
 #   run, the bytes of --uart-midi arrive at 31250 bps and those of --usb-midi as fast as they are
 #   read, through stand-ins for available() and read() of SerialUART and Adafruit_USBD_MIDI
 # - Core 1 is busy but while it spins: the cycles since its last store (but to its stack) count if
-#   they are few, and are a wait if they are many (see SPIN_CYCLES)
+#   they are few, and are a wait if they are many (see SPIN_CYCLES); the stores are told by the
+#   instructions (not by a hook on the writes of Unicorn, which breaks the conditional stores of
+#   an IT block, and then runs a loop over again)
 # - Left out: the waits of the flash (XIP), the contention of the cores on the bus, the interrupts
 #   (e.g. USB), and the I2C transfers of the panel's display; so the estimate is a little low on
 #   these, and may be a little high on the loads (2 cycles each)
@@ -77,7 +79,6 @@ def func(sub):
 # and the interpolators) and PPB, one each.
 FLASH, SRAM = 0x10000000, 0x20000000
 STACK = [0x20082000, 0x20081000]  # core 0 in SCRATCH_Y, core 1 in SCRATCH_X
-STACK_1 = (0x20080000, 0x20081000)
 shared = [(FLASH, 0x01000000), (SRAM, 0x00083000), (0x40000000, 0x00200000), (0x50000000, 0x00200000)]
 buffers = [ctypes.create_string_buffer(size) for _, size in shared]
 cores = []
@@ -142,13 +143,27 @@ def cost(insn):
         return 2
     return 1
 decoded = {}
+def store_not_to_stack(insn):
+    """A store but to the stack (by SP), for the spins of core 1"""
+    if insn is None:
+        return False
+    m = insn.mnemonic.split('.')[0]
+    if m in ('push', 'vpush'):
+        return False
+    if re.match(r'(str|stm|vstr|vstm|stl|strex)', m):
+        for op in insn.operands:
+            if op.type == ARM_OP_MEM:
+                return op.mem.base != ARM_REG_SP
+        return insn.operands[0].type != ARM_OP_REG or insn.operands[0].reg != ARM_REG_SP  # stm: the base first
+    return False
+
 def decode(uc, addr, size):
     d = decoded.get(addr)
     if d is None:
         insn = next(md.disasm(bytes(uc.mem_read(addr, size)), addr), None)
         # An IT block is not broken by the end of a slice, as a resumed run would lose its state
         it = len(insn.mnemonic) - 1 if insn and re.fullmatch(r'it[te]{0,3}', insn.mnemonic) else 0
-        d = (cost(insn) if insn else 1, it)
+        d = (cost(insn) if insn else 1, it, store_not_to_stack(insn))
         decoded[addr] = d
     return d
 
@@ -307,7 +322,7 @@ def make_hook(c):
         if fn:
             fn(uc)
             return
-        cycles, it = decode(uc, addr, size)
+        cycles, it, store = decode(uc, addr, size)
         clock[c] += cycles
         if c == 1:
             busy_1['pending'] += cycles
@@ -319,12 +334,12 @@ def make_hook(c):
             it_left[c] -= 1
         if it:
             it_left[c] = it
+        if c == 1 and store:
+            store_1()
         if clock[c] >= target[c] and it_left[c] == 0:
             uc.emu_stop()
     return hook
-def store_1(uc, access, address, size, value, _):
-    if STACK_1[0] <= address < STACK_1[1]:
-        return
+def store_1():
     if busy_1['pending'] <= SPIN_CYCLES:
         busy_1['total'] += busy_1['pending']
         for k, v in pending_profile.items():
@@ -338,7 +353,6 @@ def unmapped(uc, access, address, size, value, _):
 for c, uc in enumerate(cores):
     uc.hook_add(UC_HOOK_CODE, make_hook(c))
     uc.hook_add(UC_HOOK_MEM_UNMAPPED, unmapped)
-cores[1].hook_add(UC_HOOK_MEM_WRITE, store_1)
 
 def call(c, addr, *a):
     """Runs a function on a core alone, to its return."""
