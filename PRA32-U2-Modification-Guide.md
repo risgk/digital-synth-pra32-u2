@@ -1,6 +1,6 @@
 # Digital Synth PRA32-U2 Modification Guide v3.17.1
 
-- 2026-10-16 ISGK Instruments
+- 2026-10-24 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 - For modifying PRA32-U2 with Arduino IDE: the MIDI and audio output settings, and the circuit for PWM Audio; see also [README](./README.md)
 
