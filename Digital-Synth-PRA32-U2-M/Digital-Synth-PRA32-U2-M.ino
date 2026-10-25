@@ -196,10 +196,11 @@ void handleStart();
 void handleStop();
 void writeProgramsToFlashAndEndSketch();
 
-// A Program Change is kept here for each synth (the Main Synth and the Sub Synths 1-3), and
-// processed after the MIDI messages of the loop are read (or before the next message for any of
-// the synths, so that the order is kept): it sets all the parameters, so only the last of those
-// that arrive in a loop for a synth (e.g. by UART MIDI and USB MIDI) is processed
+// A Program Change of a program is kept here for each synth (the Main Synth and the Sub Synths
+// 1-3), and processed after the MIDI messages of the loop are read (or before the next message
+// for any of the synths, so that the order is kept): it sets all the parameters of a program, so
+// only the last of those that arrive in a loop for a synth with nothing else between them (e.g.
+// by UART MIDI and USB MIDI) is processed
 static int16_t s_pending_program_change[4] = { -1, -1, -1, -1 };
 
 static void __not_in_flash_func(processPendingProgramChanges)() {
@@ -216,6 +217,24 @@ static void __not_in_flash_func(processPendingProgramChanges)() {
   if (pending[1] >= 0) { g_sub_1_synth.program_change(static_cast<uint8_t>(pending[1])); }
   if (pending[2] >= 0) { g_sub_2_synth.program_change(static_cast<uint8_t>(pending[2])); }
   if (pending[3] >= 0) { g_sub_3_synth.program_change(static_cast<uint8_t>(pending[3])); }
+}
+
+// Only a program (#0-31), which sets all the parameters of a program, is kept for a synth; the
+// other numbers (#127 Random Control, #128-129 the panel parameters, which set some of them, and
+// #32-63 of the Layering, which do nothing) are processed at once, after those kept, so that each
+// takes effect as it did
+static void __not_in_flash_func(programChange)(uint32_t synth, uint8_t program_number) {
+  if (program_number <= PROGRAM_NUMBER_MAX) {
+    s_pending_program_change[synth] = program_number;
+    return;
+  }
+  processPendingProgramChanges();
+  switch (synth) {
+  case 0: g_synth      .program_change(program_number); break;
+  case 1: g_sub_1_synth.program_change(program_number); break;
+  case 2: g_sub_2_synth.program_change(program_number); break;
+  case 3: g_sub_3_synth.program_change(program_number); break;
+  }
 }
 
 void __not_in_flash_func(setup1)() {
@@ -624,27 +643,27 @@ void __not_in_flash_func(handleControlChange)(byte channel, byte number, byte va
 
 void __not_in_flash_func(handleProgramChange)(byte channel, byte number)
 {
-  // Processed later (see processPendingProgramChanges())
+  // A program is processed later (see processPendingProgramChanges())
   if ((channel - 1) == g_midi_ch) {
-    s_pending_program_change[0] = number;
+    programChange(0, number);
   } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
-    s_pending_program_change[1] = number;
+    programChange(1, number);
   } else if ((channel - 1) == ((g_midi_ch + 2) & 0x0F)) {
-    s_pending_program_change[2] = number;
+    programChange(2, number);
   } else if ((channel - 1) == ((g_midi_ch + 3) & 0x0F)) {
-    s_pending_program_change[3] = number;
+    programChange(3, number);
 #if defined(PRA32_U2_ENABLE_LAYERING)
   } else if ((channel - 1) == ((g_midi_ch - 3) & 0x0F)) {
-    s_pending_program_change[0] = number;
-    s_pending_program_change[1] = (number + 1) & 0x3F;
+    programChange(0, number);
+    programChange(1, (number + 1) & 0x3F);
   } else if ((channel - 1) == ((g_midi_ch - 2) & 0x0F)) {
-    s_pending_program_change[2] = number;
-    s_pending_program_change[3] = (number + 1) & 0x3F;
+    programChange(2, number);
+    programChange(3, (number + 1) & 0x3F);
   } else if ((channel - 1) == ((g_midi_ch - 1) & 0x0F)) {
-    s_pending_program_change[0] = number;
-    s_pending_program_change[1] = (number + 1) & 0x3F;
-    s_pending_program_change[2] = (number + 2) & 0x3F;
-    s_pending_program_change[3] = (number + 3) & 0x3F;
+    programChange(0, number);
+    programChange(1, (number + 1) & 0x3F);
+    programChange(2, (number + 2) & 0x3F);
+    programChange(3, (number + 3) & 0x3F);
 #endif  // defined(PRA32_U2_ENABLE_LAYERING)
   }
 }

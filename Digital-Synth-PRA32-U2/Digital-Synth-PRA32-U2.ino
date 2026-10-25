@@ -182,15 +182,28 @@ void handleStart();
 void handleStop();
 void writeProgramsToFlashAndEndSketch();
 
-// A Program Change is kept here, and processed after the MIDI messages of the loop are read (or
-// before the next message for the synth, so that the order is kept): it sets all the parameters,
-// so only the last of those that arrive in a loop (e.g. by UART MIDI and USB MIDI) is processed
+// A Program Change of a program is kept here, and processed after the MIDI messages of the loop
+// are read (or before the next message for the synth, so that the order is kept): it sets all the
+// parameters of a program, so only the last of those that arrive in a loop with nothing else for
+// the synth between them (e.g. by UART MIDI and USB MIDI) is processed
 static int16_t s_pending_program_change = -1;
 
 static void __not_in_flash_func(processPendingProgramChange)() {
   if (s_pending_program_change >= 0) {
     uint8_t program_number = static_cast<uint8_t>(s_pending_program_change);
     s_pending_program_change = -1;
+    g_synth.program_change(program_number);
+  }
+}
+
+// Only a program (#0-31), which sets all the parameters of a program, is kept; the other numbers
+// (#127 Random Control, #128-129 the panel parameters, which set some of them) are processed at
+// once, after the one kept, so that each takes effect as it did
+static void __not_in_flash_func(programChange)(uint8_t program_number) {
+  if (program_number <= PROGRAM_NUMBER_MAX) {
+    s_pending_program_change = program_number;
+  } else {
+    processPendingProgramChange();
     g_synth.program_change(program_number);
   }
 }
@@ -482,7 +495,7 @@ void __not_in_flash_func(handleControlChange)(byte channel, byte number, byte va
 void __not_in_flash_func(handleProgramChange)(byte channel, byte number)
 {
   if ((channel - 1) == g_midi_ch) {
-    s_pending_program_change = number;  // Processed later (see processPendingProgramChange())
+    programChange(number);  // A program is processed later (see processPendingProgramChange())
   }
 }
 
