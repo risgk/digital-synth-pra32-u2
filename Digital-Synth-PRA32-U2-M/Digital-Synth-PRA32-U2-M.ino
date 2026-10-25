@@ -104,7 +104,8 @@ uint8_t g_midi_ch = PRA32_U2_MIDI_CH;
 #include "pra32-u2-common.h"
 #include "pra32-u2-synth.h"
 
-boolean g_synth_is_in_polyphonic_mode = true;
+// Written by the primary core at the start of a loop, and read by the secondary core every frame
+volatile boolean g_synth_is_in_polyphonic_mode = true;
 PRA32_U2_Synth<false, false, true, 0, false, false> g_synth;
 PRA32_U2_Synth<true,  false, true, 1, false, true>  g_sub_1_synth;
 PRA32_U2_Synth<true,  false, true, 2, false, true>  g_sub_2_synth;
