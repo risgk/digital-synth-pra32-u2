@@ -110,42 +110,53 @@ graph LR
       so PRA32-U2 Editor can be used only with PRA32-U2 Web (Built-in), not with PRA32-U2 or other MIDI devices
 - Select "PRA32-U2" (or "PRA32-U2/M", etc.) in the list "MIDI Out"
     - Select "PRA32-U2 Web (Built-in)" to use [PRA32-U2 Web](./PRA32-U2-Web/README.md), without PRA32-U2
-- Functions
-    - Program Changes via PRA32-U2 Editor (from "MIDI In" on the MIDI Ch of the Editor) are not passed to PRA32-U2:
-      PRA32-U2 Editor recalls the preset instead, and sends its parameters as Control Changes
-        - #0-15: the user presets of PRA32-U2 Editor (stored in the Web browser), not the programs #0-15 of PRA32-U2 (written by Write)
-        - #16-31: the factory presets (the same as the programs #16-31 of PRA32-U2)
-        - To select the programs of PRA32-U2 itself, send Program Changes to PRA32-U2 directly (without PRA32-U2 Editor),
-          or use the Program Change buttons (in "Save & Load")
-    - When Program Change #127 is entered or Control Change #111 is changed from Off (63 or lower) to On (64 or higher), "Randomize Synth" is processed
-    - PRA32-U2 Editor stores the current control values and the user presets (#0-15) in a Web browser (localStorage)
-    - Current parameter values and user presets (#0-15) can be imported/exported from/to JSON files
-    - User presets: a name of up to 10 ASCII letters, digits, and symbols can be given by Store (shown on the User Preset buttons)
-    - Undo: back to the parameters before the last change (a preset, Randomize, Import, or a move of a slider), up to 200 steps; Redo: forward again (also by Ctrl+Z and Ctrl+Y or Ctrl+Shift+Z, or Command on a Mac)
-    - "MIDI" and "Actions & Presets" (with "Save & Load" under it) can each be hidden, to give the parameters more of the window
-    - The controls look the same in every Web browser and OS (as in Chrome); on a touch screen, the thumbs of the sliders are larger, and the buttons taller
-    - Software Keyboard
-        - Below the parameters, it stays at the bottom of the window while they scroll above it, so that they can be changed while playing; it can be hidden (Panic stays shown; hiding turns Hold off)
-        - While Hold is on, the keys released keep their notes on (turning Hold off, or Panic, turns them off)
-        - The PC keyboard can also be played while it is shown (A - K for C - C, W - U for the black keys, and Z / X for the octave);
-          some PC keyboards cannot take many keys at the same time (e.g. a chord of 4 notes)
-        - The velocities of Note On and Note Off can be entered (1-127, 100 and 64 by default)
-        - Pitch Bend (springs back to the center), Modulation Wheel, Breath Controller, Expression, Sustain Pedal, Portamento Switch,
-          and Channel Pressure can be sent from the sliders below the keyboard (Performance Controls, which can be hidden apart from the keyboard,
-          e.g. on a phone)
-- When not using PRA32-U2 Editor (e.g. with a DAW or a MIDI keyboard)
-    - PRA32-U2 can also be controlled by MIDI without using PRA32-U2 Editor
-    - Sounds made with PRA32-U2 Editor can be written to PRA32-U2, and recalled later without PRA32-U2 Editor
-        1. Write: press a Write button (#0-15, in "Save & Load") of PRA32-U2 Editor, to write the current parameters
-           to the program of PRA32-U2 (also to the flash, so that they are kept after the power is turned off);
-           the parameters shown in PRA32-U2 Editor are sent again before writing
-        2. Send Program Change #0-15 to PRA32-U2 directly (not via PRA32-U2 Editor) to recall the program
-    - The Program Change buttons (in "Save & Load") of PRA32-U2 Editor also send Program Changes to PRA32-U2 directly
-      (NOTE: The parameters shown in PRA32-U2 Editor are not updated)
-    - The default program (when the power is turned on) is #0
-    - "Randomize Synth" is also processed by PRA32-U2 itself (Program Change #127 or Control Change #111 from Off to On)
-    - Refer to [PRA32-U2-MIDI-Implementation-Chart.md](./PRA32-U2-MIDI-Implementation-Chart.md) for the supported functions
-    - Programs #0-31 can be modified by editing "pra32-u2-program-table.h"
+
+
+### Programs and Presets
+
+- PRA32-U2 Editor sends the parameters to PRA32-U2 as Control Changes; its presets are its own, and PRA32-U2 keeps its own programs (#0-31)
+- Program Changes via PRA32-U2 Editor (from "MIDI In" on the MIDI Ch of the Editor) are not passed to PRA32-U2:
+  PRA32-U2 Editor recalls the preset instead, and sends its parameters as Control Changes
+    - #0-15: the user presets of PRA32-U2 Editor (stored in the Web browser), not the programs #0-15 of PRA32-U2 (written by Write)
+    - #16-31: the factory presets (the same as the programs #16-31 of PRA32-U2)
+    - To select the programs of PRA32-U2 itself, send Program Changes to PRA32-U2 directly (without PRA32-U2 Editor),
+      or use the Program Change buttons (in "Save & Load")
+- Sounds made with PRA32-U2 Editor can be written to PRA32-U2, and recalled later without PRA32-U2 Editor
+    1. Write: press a Write button (#0-15, in "Save & Load") of PRA32-U2 Editor, to write the current parameters
+       to the program of PRA32-U2 (also to the flash, so that they are kept after the power is turned off);
+       the parameters shown in PRA32-U2 Editor are sent again before writing
+    2. Send Program Change #0-15 to PRA32-U2 directly (not via PRA32-U2 Editor) to recall the program
+- The Program Change buttons (in "Save & Load") of PRA32-U2 Editor also send Program Changes to PRA32-U2 directly
+  (NOTE: The parameters shown in PRA32-U2 Editor are not updated)
+- "Randomize Synth": processed when Program Change #127 is entered or Control Change #111 is changed from Off (63 or lower) to On (64 or higher);
+  also by PRA32-U2 itself, when they are sent to it directly
+
+
+### Without PRA32-U2 Editor
+
+- PRA32-U2 can also be controlled by MIDI without using PRA32-U2 Editor (e.g. with a DAW or a MIDI keyboard)
+- The default program (when the power is turned on) is #0; the programs written by Write are recalled by Program Change #0-15 (see above)
+- Refer to [PRA32-U2-MIDI-Implementation-Chart.md](./PRA32-U2-MIDI-Implementation-Chart.md) for the supported functions
+- Programs #0-31 can be modified by editing "pra32-u2-program-table.h"
+
+
+### Functions
+
+- PRA32-U2 Editor stores the current control values and the user presets (#0-15) in a Web browser (localStorage)
+- Current parameter values and user presets (#0-15) can be imported/exported from/to JSON files
+- User presets: a name of up to 10 ASCII letters, digits, and symbols can be given by Store (shown on the User Preset buttons)
+- Undo: back to the parameters before the last change (a preset, Randomize, Import, or a move of a slider), up to 200 steps; Redo: forward again (also by Ctrl+Z and Ctrl+Y or Ctrl+Shift+Z, or Command on a Mac)
+- "MIDI" and "Actions & Presets" (with "Save & Load" under it) can each be hidden, to give the parameters more of the window
+- The controls look the same in every Web browser and OS (as in Chrome); on a touch screen, the thumbs of the sliders are larger, and the buttons taller
+- Software Keyboard
+    - Below the parameters, it stays at the bottom of the window while they scroll above it, so that they can be changed while playing; it can be hidden (Panic stays shown; hiding turns Hold off)
+    - While Hold is on, the keys released keep their notes on (turning Hold off, or Panic, turns them off)
+    - The PC keyboard can also be played while it is shown (A - K for C - C, W - U for the black keys, and Z / X for the octave);
+      some PC keyboards cannot take many keys at the same time (e.g. a chord of 4 notes)
+    - The velocities of Note On and Note Off can be entered (1-127, 100 and 64 by default)
+    - Pitch Bend (springs back to the center), Modulation Wheel, Breath Controller, Expression, Sustain Pedal, Portamento Switch,
+      and Channel Pressure can be sent from the sliders below the keyboard (Performance Controls, which can be hidden apart from the keyboard,
+      e.g. on a phone)
 
 
 ## PRA32-U2/M (PRA32-U2 Multi-Timbre Edition)
