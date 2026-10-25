@@ -52,6 +52,9 @@
 The maximum of core 0 / core 1, of 1333 us. A maximum over 100% is marked with "⚠", and one over 95% with "△"
 (and shown as a warning in the workflow): check such a case on the device with Debug Print.
 
+Up to v3.17.3, the cases and the builds differ a little: a Program Change "every 30 bytes" has 28 Active Sensings between them
+(about every 10 ms by UART MIDI, and every 6 loops by USB MIDI), the RAM is without Debug Print, and PRA32-U2/P and PRA32-U2/M/P have the keys SW1, SW2, and SW6 only.
+
 #### v3.17.3
 
 | Case (core 0 / core 1, max) | PRA32-U2 | PRA32-U2/M/P |
