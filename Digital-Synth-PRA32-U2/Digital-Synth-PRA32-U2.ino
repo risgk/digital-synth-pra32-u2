@@ -218,6 +218,24 @@ static void __not_in_flash_func(programChange)(uint8_t program_number) {
   }
 }
 
+// Program Change by CC (#112-119: the programs #0-7) and Special Random Control (#111: #127) are
+// kept as the Program Changes too, when the value goes up from 63 or below to 64 or above, so that a
+// stream of them does not overload a loop either; the synth does not get them
+static uint8_t s_special_cc_values[PC_BY_CC_7 - SP_RAND_CTRL + 1];
+
+static void __not_in_flash_func(controlChange)(uint8_t number, uint8_t value) {
+  if ((number >= SP_RAND_CTRL) && (number <= PC_BY_CC_7)) {
+    uint8_t old_value = s_special_cc_values[number - SP_RAND_CTRL];
+    s_special_cc_values[number - SP_RAND_CTRL] = value;
+    if ((old_value <= 63) && (value >= 64)) {
+      programChange((number == SP_RAND_CTRL) ? 127 : (number - PC_BY_CC_0));
+    }
+    return;
+  }
+  processPendingProgramChange();
+  g_synth.control_change(number, value);
+}
+
 void __not_in_flash_func(setup1)() {
   g_synth.initialize_secondary_core();
 
@@ -497,8 +515,7 @@ void __not_in_flash_func(handleNoteOff)(byte channel, byte pitch, byte velocity)
 void __not_in_flash_func(handleControlChange)(byte channel, byte number, byte value)
 {
   if ((channel - 1) == g_midi_ch) {
-    processPendingProgramChange();
-    g_synth.control_change(number, value);
+    controlChange(number, value);
   }
 }
 

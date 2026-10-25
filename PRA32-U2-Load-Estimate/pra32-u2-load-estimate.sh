@@ -81,17 +81,23 @@ PROGRAM_CHANGES_RS="C0$(printf '00%.0s' $(seq 255))"
 NOTE_ON_OFF_16='9F48648F4840'
 NOTE_ON_OFF_16_RS="9F$(printf '48644800%.0s' $(seq 64))"
 PROGRAM_CHANGES_16_RS="CF$(printf '00%.0s' $(seq 255))"
+PC_BY_CC_RS="B0$(printf '707F7000%.0s' $(seq 64))"  # Program Change by CC #112 (#0), the value 127 and 0 by turns
+PC_BY_CC_16_RS="BF$(printf '707F7000%.0s' $(seq 64))"
 row '#0 Synth Pad, 4 notes' "$ESTIMATED" --program 0
 row 'Poly: #5 Sync Lead (Osc 1 Wave Sqr) in Poly with Delay Mode Rev, 4 notes' "$ESTIMATED" $POLY
 row 'Poly, with Note On and Off of another note by UART MIDI (Running Status) and USB MIDI' "$ESTIMATED" $POLY \
   --uart-midi $NOTE_ON_OFF_RS --usb-midi $NOTE_ON_OFF
 row 'Poly, with Program Change #0 (Poly itself) back to back by UART MIDI (Running Status) and USB MIDI' "$ESTIMATED" $POLY \
   --uart-midi $PROGRAM_CHANGES_RS --usb-midi C000
+row 'Poly, with Program Change by CC #112 (#0) back to back by UART MIDI (Running Status) and USB MIDI' "$ESTIMATED" $POLY \
+  --uart-midi $PC_BY_CC_RS --usb-midi B0707FB07000
 row '4 Synths: #5 Sync Lead (Mono, and Delay Mode Rev) by MIDI Channel 16 (Layering), 4 notes' 'mp' $SYNTHS
 row '4 Synths, with Note On and Off of another note by MIDI Channel 16 by UART MIDI (Running Status) and USB MIDI' 'mp' $SYNTHS \
   --uart-midi $NOTE_ON_OFF_16_RS --usb-midi $NOTE_ON_OFF_16
 row '4 Synths, with Program Change #0 (4 Synths itself) by MIDI Channel 16 back to back by UART MIDI (Running Status) and USB MIDI' 'mp' $SYNTHS \
   --uart-midi $PROGRAM_CHANGES_16_RS --usb-midi CF00
+row '4 Synths, with Program Change by CC #112 (#0) by MIDI Channel 16 back to back by UART MIDI (Running Status) and USB MIDI' 'mp' $SYNTHS \
+  --uart-midi $PC_BY_CC_16_RS --usb-midi BF707FBF7000
 echo
 echo "⚠: over 100% (1333 us), △: over 95%"
 echo

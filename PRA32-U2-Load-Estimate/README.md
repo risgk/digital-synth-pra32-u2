@@ -45,6 +45,8 @@
         - Note On and Off of the note 72 are what a player sends
         - A Program Change, which sets all the parameters (of the 4 Synths, by MIDI Channel 16), is the heaviest message: back to back, the heaviest case,
           PRA32-U2 processes the last of them that arrive one after another, a loop (one synth a loop for PRA32-U2/M/P)
+        - Program Change by CC (#112-119, as the programs #0-7, when the value goes up to 64 or above), whose value goes 127 and 0 by turns,
+          sets all the parameters too: PRA32-U2 processes it as a Program Change (since v3.17.5)
         - So that the sound stays the heaviest, "Poly" (or "4 Synths") is written to the user program #0 (and #1-3 for the Sub Synths) by Write Program first,
           for the time of the estimate only (`--write`, not into the flash)
 

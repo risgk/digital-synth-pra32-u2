@@ -1,6 +1,8 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v3.17.5 (2026-??-??):
+    - Process Program Change by CC (#112-119) and Special Random Control (#111) as the Program Changes (#0-7 and #127), which are processed as one when they arrive one after another (v3.17.2 and v3.17.3), so that a stream of them does not overload a loop either
+        - Customization Examples (Core 0 Only): The same
     - PRA32-U2 Load Estimate: The Program Changes back to back for Poly too (instead of every 30 bytes, for Poly and the 4 Synths), UART MIDI with Running Status, all 4 built with Debug Print as measured on the device,
       PRA32-U2/P and PRA32-U2/M/P with all of the keys (SW1-6), and the keys read as released
     - Tested with Arduino-Pico version 6.3.0
