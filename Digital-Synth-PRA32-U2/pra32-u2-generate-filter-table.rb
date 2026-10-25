@@ -1,8 +1,4 @@
-require_relative 'pra32-u2-constants'
-
-$file = File.open("pra32-u2-filter-table.h", "wb")
-
-$file.printf("#pragma once\n\n")
+require_relative 'pra32-u2-generate-common'
 
 # Coefficients of the ZDF/TPT State Variable Filter
 #
@@ -18,10 +14,14 @@ def cutoff_freq(controller_value)
   (A4_FREQ / 32.0) * (2.0 ** ((controller_value - 1.0) / 12.0))
 end
 
+# The cutoff frequency, kept below f_s / 2
+def cutoff_f_0(controller_value)
+  [cutoff_freq(controller_value), SAMPLING_RATE * 0.49].min
+end
+
 # g = tan(pi * f_0 / f_s), the TPT integrator gain (prewarped cutoff)
 def cutoff_g(controller_value)
-  f_0 = [cutoff_freq(controller_value), SAMPLING_RATE * 0.49].min
-  Math.tan(Math::PI * f_0 / SAMPLING_RATE)
+  Math.tan(Math::PI * cutoff_f_0(controller_value) / SAMPLING_RATE)
 end
 
 # Filter Resonance controller value -> Q (0.707 .. 5.66 at 96, doubling every
@@ -104,57 +104,47 @@ SELF_OSC_FADE_START_FREQ = SAMPLING_RATE / 6.0
 SELF_OSC_FADE_END_FREQ   = SAMPLING_RATE / 4.8
 
 def self_osc_weight(controller_value)
-  f_0 = [cutoff_freq(controller_value), SAMPLING_RATE * 0.49].min
+  f_0 = cutoff_f_0(controller_value)
   w = Math.log2(SELF_OSC_FADE_END_FREQ / f_0) / Math.log2(SELF_OSC_FADE_END_FREQ / SELF_OSC_FADE_START_FREQ)
   w.clamp(0.0, 1.0)
 end
 
-def generate_table(name, comment, fraction_bits)
-  $file.printf("// %s\n", comment)
-  # Not const, so that the small tables are placed in the SRAM, not in the flash
-  $file.printf("int32_t %s[FILTER_TABLE_LENGTH] = {\n  ", name)
-  (0..(FILTER_TABLE_LENGTH - 1)).each do |index|
-    controller_value = [index, FILTER_TABLE_LENGTH - 2].min  # The guard entry repeats the last one
+def write_filter_table(file, name, comment, fraction_bits)
+  entries = controller_values_with_guard(FILTER_TABLE_LENGTH).each_with_index.map do |controller_value, index|
     value = yield(controller_value)
     raise "#{name}[#{index}] out of range" if value.abs >= (2 ** (31 - fraction_bits))
-    $file.printf("%+11d,", (value * (1 << fraction_bits)).round)
-    if index == (FILTER_TABLE_LENGTH - 1)
-      $file.printf("\n")
-    elsif index % 8 == (8 - 1)
-      $file.printf("\n  ")
-    else
-      $file.printf(" ")
-    end
+    (value * (1 << fraction_bits)).round
   end
-  $file.printf("};\n\n")
+  file.print("// #{comment}\n")
+  # Not const, so that the small tables are placed in the SRAM, not in the flash
+  write_array(file, "int32_t #{name}[FILTER_TABLE_LENGTH]", entries, per_line: 8, format: "%+11d")
 end
 
-generate_table("g_filter_g_table", "g = tan(pi * f_0 / f_s)", FILTER_G_FRACTION_BITS) do |controller_value|
-  g = cutoff_g(controller_value)
-  printf("cutoff: %3d, f_0: %9.3f, g: %9.6f\n", controller_value, [cutoff_freq(controller_value), SAMPLING_RATE * 0.49].min, g)
-  g
-end
+write_header("pra32-u2-filter-table.h") do |file|
+  write_filter_table(file, "g_filter_g_table", "g = tan(pi * f_0 / f_s)", FILTER_G_FRACTION_BITS) do |controller_value|
+    g = cutoff_g(controller_value)
+    printf("cutoff: %3d, f_0: %9.3f, g: %9.6f\n", controller_value, cutoff_f_0(controller_value), g)
+    g
+  end
 
-# The filter multiplies this by t * 5, so that t needs no division
-generate_table("g_filter_self_osc_table", "kappa / g / 5", FILTER_TABLE_FRACTION_BITS) do |controller_value|
-  g = cutoff_g(controller_value)
-  h = SELF_OSC_KAPPA / g / 5.0
-  printf("cutoff: %3d, kappa / g / 5: %9.6f\n", controller_value, h)
-  h
-end
+  # The filter multiplies this by t * 5, so that t needs no division
+  write_filter_table(file, "g_filter_self_osc_table", "kappa / g / 5", FILTER_TABLE_FRACTION_BITS) do |controller_value|
+    h = SELF_OSC_KAPPA / cutoff_g(controller_value) / 5.0
+    printf("cutoff: %3d, kappa / g / 5: %9.6f\n", controller_value, h)
+    h
+  end
 
-# The filter scales the Resonance above 122 by this
-generate_table("g_filter_self_osc_weight_table", "Weight of the self-oscillation (1 .. 0)", FILTER_TABLE_FRACTION_BITS) do |controller_value|
-  w = self_osc_weight(controller_value)
-  printf("cutoff: %3d, self-oscillation weight: %9.6f\n", controller_value, w)
-  w
-end
+  # The filter scales the Resonance above 122 by this
+  write_filter_table(file, "g_filter_self_osc_weight_table", "Weight of the self-oscillation (1 .. 0)", FILTER_TABLE_FRACTION_BITS) do |controller_value|
+    w = self_osc_weight(controller_value)
+    printf("cutoff: %3d, self-oscillation weight: %9.6f\n", controller_value, w)
+    w
+  end
 
-# k = 1 / Q, the damping of the ZDF/TPT State Variable Filter
-generate_table("g_filter_k_table", "k = 1 / Q", FILTER_TABLE_FRACTION_BITS) do |controller_value|
-  k = resonance_k(controller_value)
-  printf("reso  : %3d, q  : %9.3f, k: %9.6f\n", controller_value, (k > 0.0) ? 1.0 / k : Float::INFINITY, k)
-  k
+  # k = 1 / Q, the damping of the ZDF/TPT State Variable Filter
+  write_filter_table(file, "g_filter_k_table", "k = 1 / Q", FILTER_TABLE_FRACTION_BITS) do |controller_value|
+    k = resonance_k(controller_value)
+    printf("reso  : %3d, q  : %9.3f, k: %9.6f\n", controller_value, (k > 0.0) ? 1.0 / k : Float::INFINITY, k)
+    k
+  end
 end
-
-$file.close
