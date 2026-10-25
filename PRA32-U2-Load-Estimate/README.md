@@ -5,8 +5,8 @@
 - "pra32-u2-load-estimate.sh" builds PRA32-U2, PRA32-U2/M, PRA32-U2/P, and PRA32-U2/M/P with arduino-cli (as the GitHub Actions workflow builds the UF2 files),
   estimates the load of PRA32-U2 (the lightest) and PRA32-U2/M/P (which has all of the editions) with "pra32-u2-load-estimate.py", and prints the tables below with the RAM of all 4;
   PRA32-U2/M and PRA32-U2/P differ from these little (v3.17.1, below)
-    - PRA32-U2/P and PRA32-U2/M/P are built with all of the keys of the panel (SW1-6, with SW3-5 that the sketch leaves out by default), released;
-      all 4 without Debug Print
+    - All 4 are built with Debug Print (USB Serial), as measured on the device, so their RAM is a little more than that of the UF2 files (the buffer of Debug Print);
+      PRA32-U2/P and PRA32-U2/M/P with all of the keys of the panel (SW1-6, with SW3-5 that the sketch leaves out by default), released
 
     ```
     sh PRA32-U2-Load-Estimate/pra32-u2-load-estimate.sh
