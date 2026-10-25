@@ -39,7 +39,8 @@
 
 ## Estimates
 
-The maximum of core 0 / core 1, of 1333 us.
+The maximum of core 0 / core 1, of 1333 us. A maximum over 100% is marked with "⚠", and one over 95% with "△"
+(and shown as a warning in the workflow): check such a case on the device with Debug Print.
 
 #### v3.17.1
 

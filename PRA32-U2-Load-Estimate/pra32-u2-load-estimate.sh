@@ -30,10 +30,21 @@ for v in $VARIANTS; do
 done
 
 version=$(sed -n 's/^#define PRA32_U2_VERSION *"\(v[0-9.]*\).*/\1/p' ../Digital-Synth-PRA32-U2/Digital-Synth-PRA32-U2.ino)
-estimate() {  # variant, options: prints "core 0 max% / core 1 max%"
+# A maximum over 100% (1333 us) is marked with "⚠", and one over 95% with "△"; each is also written to
+# build/warnings.txt, which the workflow shows as a warning
+: > build/warnings.txt
+estimate() {  # variant, case, options: prints "core 0 max% / core 1 max%"
   v=$1
-  shift
-  python3 pra32-u2-load-estimate.py build/$v/Digital-Synth-PRA32-U2.ino.elf --brief "$@" | awk '{ printf "%.0f%% / %.0f%%", $2, $4 }'
+  name=$2
+  shift 2
+  python3 pra32-u2-load-estimate.py build/$v/Digital-Synth-PRA32-U2.ino.elf --brief "$@" |
+    awk -v v="$v" -v name="$name" -v warnings=build/warnings.txt '
+      function mark(p, core) {
+        if (p > 100) { printf "%s, %s: core %d %.1f%%, over 1333 us\n", v, name, core, p >> warnings; return " ⚠" }
+        if (p > 95) { printf "%s, %s: core %d %.1f%%, little margin\n", v, name, core, p >> warnings; return " △" }
+        return ""
+      }
+      { printf "%.0f%%%s / %.0f%%%s", $2, mark($2, 0), $4, mark($4, 1) }'
 }
 row() {  # case, variants, options
   name=$1
@@ -41,7 +52,7 @@ row() {  # case, variants, options
   shift 2
   line="| $name |"
   for v in $ESTIMATED; do
-    case " $vs " in *" $v "*) line="$line $(estimate $v "$@") |" ;; *) line="$line - |" ;; esac
+    case " $vs " in *" $v "*) line="$line $(estimate $v "$name" "$@") |" ;; *) line="$line - |" ;; esac
   done
   echo "$line"
 }
@@ -55,6 +66,8 @@ row '#10 WT Pad, 4 notes' "$ESTIMATED" --program 10
 row '#0 Synth Pad with Osc 1 Wave Sqr and Delay Mode Rev, 4 notes' "$ESTIMATED" --program 0 --cc 102=26,35=127
 row '4 Synths: #4 Saw Lead with Osc 1 Wave Sqr (and Delay Mode Rev), a note each' 'mp' \
   --program 1:4,2:4,3:4,4:4 --cc 1:35=127,1:102=26,2:102=26,3:102=26,4:102=26 --notes 1:60,2:64,3:67,4:71
+echo
+echo "⚠: over 100% (1333 us), △: over 95%"
 echo
 echo "| RAM (global variables) | PRA32-U2 | PRA32-U2/M | PRA32-U2/P | PRA32-U2/M/P |"
 echo "| :-- | --: | --: | --: | --: |"
