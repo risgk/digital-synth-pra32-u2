@@ -1815,13 +1815,15 @@ if constexpr ((NO_FX == false) && (BYPASS_FX == false)) {
 
   // noclone: see process()
   __attribute__((noclone)) PRA32_U2_StereoSample __not_in_flash_func(process_fx)(const PRA32_U2_FxBusSample& fx_bus, uint32_t count, boolean low_rate = true) {
-    switch (count & (0x04 - 1) & (0 - static_cast<uint32_t>(low_rate))) {
-    case 0x02:
-      m_chorus_fx.process_at_low_rate(count >> 2);
-      break;
-    case 0x03:
-      m_delay_fx.process_at_low_rate(count >> 2);
-      break;
+    if (low_rate) {
+      switch (count & (0x04 - 1)) {
+      case 0x02:
+        m_chorus_fx.process_at_low_rate(count >> 2);
+        break;
+      case 0x03:
+        m_delay_fx.process_at_low_rate(count >> 2);
+        break;
+      }
     }
 
     PRA32_U2_StereoSample chorus_fx_output = m_chorus_fx.process(fx_bus.input[FX_BUS_CHORUS]);
