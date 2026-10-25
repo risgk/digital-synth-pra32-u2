@@ -35,6 +35,9 @@
     - The notes are 60, 64, 67, and 71 (velocity 100), held; the loops are measured after 8 of warm-up
     - Osc 1 Wave Sqr (CC #102 = 26) and Delay Mode Rev (CC #35 = 127) are the heaviest of the waves and the Delay Modes
     - "4 Synths" is for PRA32-U2/M/P only: the Main Synth and the 3 Sub Synths in Mono, a note each
+    - "by UART MIDI and USB MIDI": the bytes arrive over and over while the loops run, by UART MIDI at 31250 bps (about 4.2 bytes a loop),
+      and by USB MIDI as fast as PRA32-U2 reads them (5 bytes a loop); Note On and Off of note 72 (90 48 64 80 48 40) are what a player sends,
+      and a Program Change every 2 bytes (C0 0A), which sets all the parameters, is the heaviest MIDI input
 
 
 ## Estimates
@@ -44,10 +47,17 @@ The maximum of core 0 / core 1, of 1333 us. A maximum over 100% is marked with "
 
 #### v3.17.1
 
-| Case (core 0 / core 1, max) | PRA32-U2 | PRA32-U2/M | PRA32-U2/P | PRA32-U2/M/P |
+| Case (core 0 / core 1, max) | PRA32-U2 | PRA32-U2/M/P |
+| :-- | --: | --: |
+| #0 Synth Pad, 4 notes | 67% / 25% | 69% / 27% |
+| #10 WT Pad, 4 notes | 81% / 35% | 85% / 37% |
+| #0 Synth Pad with Osc 1 Wave Sqr and Delay Mode Rev, 4 notes | 90% / 37% | 91% / 39% |
+| #10 WT Pad, 4 notes, with Note On and Off of another note by UART MIDI and USB MIDI | 82% / 35% | 86% / 37% |
+| #10 WT Pad, 4 notes, with Program Change #10 every 2 bytes by UART MIDI and USB MIDI (extreme) | 92% / 35% | 101% ⚠ / 37% |
+| 4 Synths: #4 Saw Lead with Osc 1 Wave Sqr (and Delay Mode Rev), a note each | - | 94% / 61% |
+
+⚠: over 100% (1333 us), △: over 95%
+
+| RAM (global variables) | PRA32-U2 | PRA32-U2/M | PRA32-U2/P | PRA32-U2/M/P |
 | :-- | --: | --: | --: | --: |
-| #0 Synth Pad, 4 notes | 67% / 25% | 68% / 26% | 67% / 26% | 69% / 27% |
-| #10 WT Pad, 4 notes | 81% / 35% | 84% / 36% | 81% / 36% | 85% / 37% |
-| #0 Synth Pad with Osc 1 Wave Sqr and Delay Mode Rev, 4 notes | 90% / 37% | 90% / 38% | 90% / 38% | 90% / 39% |
-| 4 Synths: #4 Saw Lead with Osc 1 Wave Sqr (and Delay Mode Rev), a note each | - | 93% / 60% | - | 94% / 61% |
-| RAM (global variables) | 380288 (72%) | 479576 (91%) | 398920 (76%) | 500256 (95%) |
+| | 380288 (72%) | 479576 (91%) | 398920 (76%) | 500256 (95%) |
