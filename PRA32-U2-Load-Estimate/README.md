@@ -33,14 +33,17 @@
       (see [Development](../PRA32-U2-Development.md)) when it matters
 - The cases (MIDI Channel 1 is the Basic Channel)
     - The notes are 60, 64, 67, and 71 (velocity 100), held; the loops are measured after 8 of warm-up
-    - Osc 1 Wave Sqr (#5 Sync Lead has it) and Delay Mode Rev (CC #35 = 127) are the heaviest of the waves and the Delay Modes; Voice Mode Poly is CC #18 = 0
-    - "4 Synths" is for PRA32-U2/M/P only: MIDI Channel 16 plays the Main Synth and the 3 Sub Synths (Channels 1-4, each in Mono) together
+    - Osc 1 Wave Sqr and Delay Mode Rev are the heaviest of the waves and the Delay Modes, as in #5 Sync Lead (Osc 1 Wave Sqr) with Delay Mode Rev (CC #35 = 127)
+    - "Poly": #5 Sync Lead in Poly (Voice Mode, CC #18 = 0), the heaviest for PRA32-U2
+    - "4 Synths" (PRA32-U2/M/P only): the Main Synth and the 3 Sub Synths (Channels 1-4) with #5 Sync Lead in Mono, played together by MIDI Channel 16 (Layering),
+      the heaviest for PRA32-U2/M/P
     - "by UART MIDI and USB MIDI": the bytes arrive over and over while the loops run, by UART MIDI at 31250 bps (about 4.2 bytes a loop),
-      and by USB MIDI as fast as PRA32-U2 reads them (5 bytes a loop); Note On and Off of note 72 (90 48 64 80 48 40) are what a player sends,
-      and a Program Change (C0 0A), which sets all the parameters, is the heaviest message: one every 30 bytes, with 28 Active Sensings (FE) between them,
-      is about every 10 ms by UART MIDI (and every 6 loops by USB MIDI), as when the programs are changed one after another
-      (back to back, every 2 bytes, PRA32-U2/M/P comes to about 101% in v3.17.1)
-
+      and by USB MIDI as fast as PRA32-U2 reads them (5 bytes a loop)
+        - Note On and Off of the note 72 are what a player sends
+        - A Program Change, which sets all the parameters (of the 4 Synths, by MIDI Channel 16), is the heaviest message: one every 30 bytes,
+          with 28 Active Sensings between them, is about every 10 ms by UART MIDI (and every 6 loops by USB MIDI), as when the programs are changed one after another
+        - So that the sound stays the heaviest, "Poly" (or "4 Synths") is written to the user program #0 (and #1-3 for the Sub Synths) by Write Program first,
+          for the time of the estimate only (`--write`, not into the flash)
 
 ## Estimates
 

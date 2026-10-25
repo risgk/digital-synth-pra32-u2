@@ -5,7 +5,7 @@
 # first-order Cortex-M33 cost model (see cost() below).
 #
 #   python3 pra32-u2-load-estimate.py ELF [--program [CH:]N,...] [--cc [CH:]NUMBER=VALUE,...]
-#                                         [--notes [CH:]NOTE,...] [--uart-midi HEX] [--usb-midi HEX]
+#                                         [--write [CH:]N,...] [--notes [CH:]NOTE,...] [--uart-midi HEX] [--usb-midi HEX]
 #                                         [--loops N] [--skip N] [--profile]
 #
 # - The two cores run by turns, a slice of cycles at a time, so that their clocks stay together:
@@ -32,6 +32,7 @@ ap = argparse.ArgumentParser(description='Estimate the load of the PRA32-U2 sket
 ap.add_argument('elf', help='the sketch ELF, e.g. build/u2/Digital-Synth-PRA32-U2.ino.elf')
 ap.add_argument('--program', default='', help='Program Changes before the loops: [CH:]N,...')
 ap.add_argument('--cc', default='', help='Control Changes after them: [CH:]NUMBER=VALUE,...')
+ap.add_argument('--write', default='', help='Write Program after them, of the parameters to the user program: [CH:]N,... (not into the flash)')
 ap.add_argument('--notes', default='60,64,67,71', help='Note Ons (velocity 100) after them: [CH:]NOTE,...')
 ap.add_argument('--uart-midi', default='', help='bytes (hex) that arrive by UART MIDI over and over, at 31250 bps, e.g. "C0 00 C0 0A"')
 ap.add_argument('--usb-midi', default='', help='bytes (hex) that arrive by USB MIDI over and over, as fast as they are read')
@@ -345,6 +346,13 @@ for ch, n in items(args.program):
 for ch, kv in items(args.cc):
     k, v = kv.split('=')
     call(0, func('handleControlChange'), ch, int(k), int(v))
+# Write Program (CC #87 the program number, and CC #106 from Off to On), as PRA32-U2 Editor writes:
+# the user program changes in the RAM, and the commit into the flash that it asks for is dropped
+for ch, n in items(args.write):
+    for k, v in ((87, int(n)), (106, 0), (106, 127)):
+        call(0, func('handleControlChange'), ch, k, v)
+if args.write:
+    cores[0].mem_write(names['_ZL25g_eeprom_commit_requested'], b'\0')
 for ch, n in items(args.notes):
     call(0, func('handleNoteOn'), ch, int(n), 100)
 
