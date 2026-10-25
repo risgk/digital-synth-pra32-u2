@@ -70,14 +70,33 @@ and "Other" is the rest (e.g. Debug Print).
 | Poly: #5 Sync Lead (Osc 1 Wave Sqr) in Poly with Delay Mode Rev, 4 notes | 89% / 38% | 91% / 40% |
 | Poly, with Note On and Off of another note by UART MIDI (Running Status) and USB MIDI | 90% / 38% | 92% / 40% |
 | Poly, with Program Change #0 (Poly itself) back to back by UART MIDI (Running Status) and USB MIDI | 92% / 38% | 95% / 40% |
+| Poly, with Program Change by CC #112 (#0) back to back by UART MIDI (Running Status) and USB MIDI | 92% / 38% | 94% / 40% |
 | 4 Synths: #5 Sync Lead (Mono, and Delay Mode Rev) by MIDI Channel 16 (Layering), 4 notes | - | 94% / 62% |
 | 4 Synths, with Note On and Off of another note by MIDI Channel 16 by UART MIDI (Running Status) and USB MIDI | - | 97% △ / 63% |
 | 4 Synths, with Program Change #0 (4 Synths itself) by MIDI Channel 16 back to back by UART MIDI (Running Status) and USB MIDI | - | 98% △ / 62% |
+| 4 Synths, with Program Change by CC #112 (#0) by MIDI Channel 16 back to back by UART MIDI (Running Status) and USB MIDI | - | 82% / 44% |
 
 ⚠: over 100% (1333 us), △: over 95%
 
+| Module (core 0 / core 1, avg) | PRA32-U2, Poly | PRA32-U2/M/P, 4 Synths |
+| :-- | --: | --: |
+| Osc | 44.6% / 28.5% | 37.9% / 37.6% |
+| Filter | 12.7% / 6.7% | 10.7% / 10.7% |
+| Synth | 8.2% / 0.6% | 17.4% / 4.2% |
+| DelayFx | 8.6% / 0.0% | 8.5% / 0.0% |
+| OutputCompressor | 4.2% / 0.0% | 4.2% / 0.0% |
+| ChorusFx | 3.8% / 0.0% | 3.8% / 0.0% |
+| Amp | 2.1% / 1.2% | 2.1% / 2.0% |
+| Sketch | 0.9% / 0.5% | 4.3% / 0.0% |
+| EG | 1.4% / 0.0% | 0.7% / 0.6% |
+| LFO | 1.2% / 0.0% | 1.9% / 1.7% |
+| Panner | 0.5% / 0.0% | 1.2% / 1.0% |
+| OutputFader | 0.3% / 0.0% | 0.3% / 0.0% |
+| NoiseGen | 0.3% / 0.0% | 0.6% / 0.5% |
+| Other | 0.1% / 0.1% | 0.1% / 2.7% |
+
 | RAM (global variables) | PRA32-U2 | PRA32-U2/M | PRA32-U2/P | PRA32-U2/M/P |
 | :-- | --: | --: | --: | --: |
-| | 381332 (72%) | 480852 (91%) | 402140 (76%) | 502748 (95%) |
+| | 381404 (72%) | 480976 (91%) | 402208 (76%) | 502872 (95%) |
 
 On the device (v3.17.2, PRA32-U2/M/P, Debug Print `max(loop)`): 4 Synths 1258 us, with Note On and Off 1272 us, and with Program Changes by hand 1303 us (98%)
