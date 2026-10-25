@@ -197,10 +197,10 @@ void handleStop();
 void writeProgramsToFlashAndEndSketch();
 
 // A Program Change of a program is kept here for each synth (the Main Synth and the Sub Synths
-// 1-3), and processed after the MIDI messages of the loop are read (or before the next message
-// for any of the synths, so that the order is kept): it sets all the parameters of a program, so
-// only the last of those that arrive in a loop for a synth with nothing else between them (e.g.
-// by UART MIDI and USB MIDI) is processed
+// 1-3), and processed after the MIDI messages of the loop are read, one synth a loop (or all of
+// them before the next message for any of the synths, so that the order is kept): it sets all the
+// parameters of a program, so only the last of those that arrive for a synth with nothing else
+// between them (e.g. by UART MIDI and USB MIDI) is processed
 static int16_t s_pending_program_change[4] = { -1, -1, -1, -1 };
 
 static void __not_in_flash_func(processPendingProgramChanges)() {
@@ -217,6 +217,28 @@ static void __not_in_flash_func(processPendingProgramChanges)() {
   if (pending[1] >= 0) { g_sub_1_synth.program_change(static_cast<uint8_t>(pending[1])); }
   if (pending[2] >= 0) { g_sub_2_synth.program_change(static_cast<uint8_t>(pending[2])); }
   if (pending[3] >= 0) { g_sub_3_synth.program_change(static_cast<uint8_t>(pending[3])); }
+}
+
+// In a loop, the Program Change kept of only one of the synths (the next of them by turns) is
+// processed, so that a Program Change of the 4 synths at once (e.g. by the Layering) is spread
+// over 4 loops, each with the load of one synth
+static void __not_in_flash_func(processOnePendingProgramChange)() {
+  static uint32_t s_next_synth = 0;
+  for (uint32_t k = 0; k < 4; ++k) {
+    uint32_t i = (s_next_synth + k) & 0x03;
+    int16_t pending = s_pending_program_change[i];
+    if (pending >= 0) {
+      s_pending_program_change[i] = -1;
+      s_next_synth = (i + 1) & 0x03;
+      switch (i) {
+      case 0: g_synth      .program_change(static_cast<uint8_t>(pending)); break;
+      case 1: g_sub_1_synth.program_change(static_cast<uint8_t>(pending)); break;
+      case 2: g_sub_2_synth.program_change(static_cast<uint8_t>(pending)); break;
+      case 3: g_sub_3_synth.program_change(static_cast<uint8_t>(pending)); break;
+      }
+      return;
+    }
+  }
 }
 
 // Only a program (#0-31), which sets all the parameters of a program, is kept for a synth; the
@@ -453,10 +475,9 @@ void __not_in_flash_func(loop)() {
   }
 #endif  // defined(PRA32_U2_USE_UART_MIDI)
 
-  processPendingProgramChanges();
+  processOnePendingProgramChange();  // Those of the panel (PRA32-U2/P) in the next loops
 
   PRA32_U2_ControlPanel_update_control();
-  processPendingProgramChanges();  // Those of the panel (PRA32-U2/P) too
 
 #if defined(PRA32_U2_USE_USB_MIDI)
   mutex_exit(&__usb_mutex);
