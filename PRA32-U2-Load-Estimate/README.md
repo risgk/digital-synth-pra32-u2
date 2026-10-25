@@ -39,8 +39,9 @@
     - "Poly": #5 Sync Lead in Poly (Voice Mode, CC #18 = 0), the heaviest for PRA32-U2
     - "4 Synths" (PRA32-U2/M/P only): the Main Synth and the 3 Sub Synths (Channels 1-4) with #5 Sync Lead in Mono, played together by MIDI Channel 16 (Layering),
       the heaviest for PRA32-U2/M/P
-    - "by UART MIDI and USB MIDI": the bytes arrive over and over while the loops run, by UART MIDI at 31250 bps (about 4.2 bytes a loop),
-      and by USB MIDI as fast as PRA32-U2 reads them (5 bytes a loop)
+    - "by UART MIDI (Running Status) and USB MIDI": the bytes arrive over and over, with no gap, while the loops run, by UART MIDI at 31250 bps (about 4.2 bytes a loop)
+      with Running Status (the status byte once, and a Note Off as a Note On of velocity 0), the most messages a loop, and by USB MIDI
+      as fast as PRA32-U2 reads them (5 bytes a loop), whose packets have the status byte each
         - Note On and Off of the note 72 are what a player sends
         - A Program Change, which sets all the parameters (of the 4 Synths, by MIDI Channel 16), is the heaviest message: back to back, the heaviest case,
           PRA32-U2 processes the last of them that arrive one after another, a loop (one synth a loop for PRA32-U2/M/P)
@@ -52,26 +53,8 @@
 The maximum of core 0 / core 1, of 1333 us. A maximum over 100% is marked with "⚠", and one over 95% with "△"
 (and shown as a warning in the workflow): check such a case on the device with Debug Print.
 
-Up to v3.17.3, the cases and the builds differ a little: a Program Change "every 30 bytes" has 28 Active Sensings between them
+Up to v3.17.3, the cases and the builds differ a little: UART MIDI is without Running Status, a Program Change "every 30 bytes" has 28 Active Sensings between them
 (about every 10 ms by UART MIDI, and every 6 loops by USB MIDI), the RAM is without Debug Print, and PRA32-U2/P and PRA32-U2/M/P have the keys SW1, SW2, and SW6 only.
-
-#### v3.17.4
-
-| Case (core 0 / core 1, max) | PRA32-U2 | PRA32-U2/M/P |
-| :-- | --: | --: |
-| #0 Synth Pad, 4 notes | 67% / 25% | 69% / 27% |
-| Poly: #5 Sync Lead (Osc 1 Wave Sqr) in Poly with Delay Mode Rev, 4 notes | 89% / 38% | 91% / 40% |
-| Poly, with Note On and Off of another note by UART MIDI and USB MIDI | 90% / 38% | 92% / 40% |
-| Poly, with Program Change #0 (Poly itself) back to back by UART MIDI and USB MIDI | 92% / 38% | 95% / 40% |
-| 4 Synths: #5 Sync Lead (Mono, and Delay Mode Rev) by MIDI Channel 16 (Layering), 4 notes | - | 94% / 62% |
-| 4 Synths, with Note On and Off of another note by MIDI Channel 16 by UART MIDI and USB MIDI | - | 96% △ / 62% |
-| 4 Synths, with Program Change #0 (4 Synths itself) by MIDI Channel 16 back to back by UART MIDI and USB MIDI | - | 98% △ / 62% |
-
-⚠: over 100% (1333 us), △: over 95%
-
-| RAM (global variables) | PRA32-U2 | PRA32-U2/M | PRA32-U2/P | PRA32-U2/M/P |
-| :-- | --: | --: | --: | --: |
-| | 381332 (72%) | 480852 (91%) | 402140 (76%) | 502748 (95%) |
 
 #### v3.17.3
 

@@ -1,7 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v3.17.5 (2026-??-??):
-    - PRA32-U2 Load Estimate: The Program Changes back to back for Poly too (instead of every 30 bytes, for Poly and the 4 Synths), all 4 built with Debug Print as measured on the device,
+    - PRA32-U2 Load Estimate: The Program Changes back to back for Poly too (instead of every 30 bytes, for Poly and the 4 Synths), UART MIDI with Running Status, all 4 built with Debug Print as measured on the device,
       PRA32-U2/P and PRA32-U2/M/P with all of the keys (SW1-6), and the keys read as released
     - Tested with Arduino-Pico version 6.3.0
 - v3.17.4 (2026-10-25):
