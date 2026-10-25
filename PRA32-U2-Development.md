@@ -13,6 +13,9 @@
     - `min(audio)` and `max(audio)`: the processing of the 64 frames by the synth
     - `min(loop)` and `max(loop)`: from the start of the loop (MIDI and the panel) to the end of that processing
 - It is printed by the secondary core (core 1), a line at a time, and skipped while the host is not reading
+- To measure PRA32-U2/M, /P, or /M/P, build it as "pra32-u2-load-estimate.sh" in "PRA32-U2-Load-Estimate" does with arduino-cli
+  (a copy of the "Digital-Synth-PRA32-U2" folder, with "Digital-Synth-PRA32-U2-M.ino" as its .ino for /M, and `PRA32_U2_USE_CONTROL_PANEL` uncommented for /P),
+  with `PRA32_U2_USE_DEBUG_PRINT` uncommented too
 
 
 ## Runtime
@@ -53,7 +56,10 @@
   to the Output Fader ("pra32-u2-output-fader.h"):
     - Fades out the output (>= 3 ms), writes the silence to the whole ring buffer (the DMA keeps playing it), and mutes the I2S DAC (`PRA32_U2_I2S_DAC_MUTE_OFF_PIN`)
     - Commits, and then unmutes the I2S DAC and fades in the output
-- The user programs are kept in the emulated EEPROM (`PRA32_U2_USE_EMULATED_EEPROM`), at the end of the flash
+- The user programs are kept in the emulated EEPROM (`PRA32_U2_USE_EMULATED_EEPROM`), at the end of the flash;
+  copying a UF2 file (e.g. a new version) keeps them, as the UF2 file does not write that part of the flash
+- A program read at power-on is checked only by its first 2 bytes ('U' and its number) and by each value being below 128:
+  there is no version or checksum, so a version that changed the meaning of a parameter would read the old programs in the new meaning
 
 
 ## Files and Tools
