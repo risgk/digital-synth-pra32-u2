@@ -72,7 +72,7 @@ Basically, a release goes as follows:
    `APP_NAME_VERSION` in "pra32-u2-editor.html"; `_version` in the 2 preset JSON files; the headings of the documents
    (README.md, README.ja.md, README-PRA32-U2-P.md with its Info page, the guides, PRA32-U2-Native, and PRA32-U2-Web), and the License of README.md;
    and the dates under the headings ("YYYY-MM-DD ISGK Instruments"), all of them at every release
-4. Estimate the load (`sh PRA32-U2-Load-Estimate/pra32-u2-load-estimate.sh`), and add the table of the version to [PRA32-U2 Load Estimate](./PRA32-U2-Load-Estimate/README.md)
+4. Estimate the load (`sh PRA32-U2-Load-Estimate/pra32-u2-load-estimate.sh`, or the workflow with `load_estimate`), and add the table of the version to [PRA32-U2 Load Estimate](./PRA32-U2-Load-Estimate/README.md)
 5. Commit as "vX.Y.Z"
 6. Run "PRA32-U2 Build" on develop with `commit_package`, for the UF2 files, PRA32-U2 Native, and PRA32-U2 Web
 7. Merge develop into main by a pull request
