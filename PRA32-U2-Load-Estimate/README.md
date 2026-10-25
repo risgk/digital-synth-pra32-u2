@@ -40,8 +40,8 @@
     - "by UART MIDI and USB MIDI": the bytes arrive over and over while the loops run, by UART MIDI at 31250 bps (about 4.2 bytes a loop),
       and by USB MIDI as fast as PRA32-U2 reads them (5 bytes a loop)
         - Note On and Off of the note 72 are what a player sends
-        - A Program Change, which sets all the parameters (of the 4 Synths, by MIDI Channel 16), is the heaviest message: one every 30 bytes,
-          with 28 Active Sensings between them, is about every 10 ms by UART MIDI (and every 6 loops by USB MIDI), as when the programs are changed one after another
+        - A Program Change, which sets all the parameters (of the 4 Synths, by MIDI Channel 16), is the heaviest message: back to back, the heaviest case,
+          PRA32-U2 processes the last of them that arrive one after another, a loop (one synth a loop for PRA32-U2/M/P)
         - So that the sound stays the heaviest, "Poly" (or "4 Synths") is written to the user program #0 (and #1-3 for the Sub Synths) by Write Program first,
           for the time of the estimate only (`--write`, not into the flash)
 
