@@ -2,7 +2,7 @@
  * Digital Synth PRA32-U2/M
  */
 
-#define PRA32_U2_VERSION                       "v3.17.2   "
+#define PRA32_U2_VERSION                       "v3.17.3   "
 
 //#define PRA32_U2_USE_DEBUG_PRINT
 
@@ -196,67 +196,79 @@ void handleStart();
 void handleStop();
 void writeProgramsToFlashAndEndSketch();
 
-// A Program Change of a program is kept here for each synth (the Main Synth and the Sub Synths
-// 1-3), and processed after the MIDI messages of the loop are read, one synth a loop (or all of
-// them before the next message for any of the synths, so that the order is kept): it sets all the
-// parameters of a program, so only the last of those that arrive for a synth with nothing else
-// between them (e.g. by UART MIDI and USB MIDI) is processed
+// The Program Changes that arrive one after another are kept here for each synth (the Main Synth
+// and the Sub Synths 1-3), and processed after the MIDI messages of the loop are read, one synth a
+// loop (or all of them before the next message for any of the synths, so that the order is kept),
+// as one at most of each:
+// - A program (#0-31) sets all the parameters of a program, so only the last of them is kept, and
+//   a Random Control kept before it is dropped
+// - #127 Random Control sets some of them (at random) after the program kept, so many of them in a
+//   row are kept as one
 static int16_t s_pending_program_change[4] = { -1, -1, -1, -1 };
+static boolean s_pending_random_control[4] = { false, false, false, false };
 
-static void __not_in_flash_func(processPendingProgramChanges)() {
-  if ((s_pending_program_change[0] & s_pending_program_change[1] &
-       s_pending_program_change[2] & s_pending_program_change[3]) == -1) {
-    return;  // None is pending (each is -1, or 0-127)
-  }
-  int16_t pending[4];
-  for (uint32_t i = 0; i < 4; ++i) {
-    pending[i] = s_pending_program_change[i];
-    s_pending_program_change[i] = -1;
-  }
-  if (pending[0] >= 0) { g_synth      .program_change(static_cast<uint8_t>(pending[0])); }
-  if (pending[1] >= 0) { g_sub_1_synth.program_change(static_cast<uint8_t>(pending[1])); }
-  if (pending[2] >= 0) { g_sub_2_synth.program_change(static_cast<uint8_t>(pending[2])); }
-  if (pending[3] >= 0) { g_sub_3_synth.program_change(static_cast<uint8_t>(pending[3])); }
-}
-
-// In a loop, the Program Change kept of only one of the synths (the next of them by turns) is
-// processed, so that a Program Change of the 4 synths at once (e.g. by the Layering) is spread
-// over 4 loops, each with the load of one synth
-static void __not_in_flash_func(processOnePendingProgramChange)() {
-  static uint32_t s_next_synth = 0;
-  for (uint32_t k = 0; k < 4; ++k) {
-    uint32_t i = (s_next_synth + k) & 0x03;
-    int16_t pending = s_pending_program_change[i];
-    if (pending >= 0) {
-      s_pending_program_change[i] = -1;
-      s_next_synth = (i + 1) & 0x03;
-      switch (i) {
-      case 0: g_synth      .program_change(static_cast<uint8_t>(pending)); break;
-      case 1: g_sub_1_synth.program_change(static_cast<uint8_t>(pending)); break;
-      case 2: g_sub_2_synth.program_change(static_cast<uint8_t>(pending)); break;
-      case 3: g_sub_3_synth.program_change(static_cast<uint8_t>(pending)); break;
-      }
-      return;
-    }
-  }
-}
-
-// Only a program (#0-31), which sets all the parameters of a program, is kept for a synth; the
-// other numbers (#127 Random Control, #128-129 the panel parameters, which set some of them, and
-// #32-63 of the Layering, which do nothing) are processed at once, after those kept, so that each
-// takes effect as it did
-static void __not_in_flash_func(programChange)(uint32_t synth, uint8_t program_number) {
-  if (program_number <= PROGRAM_NUMBER_MAX) {
-    s_pending_program_change[synth] = program_number;
-    return;
-  }
-  processPendingProgramChanges();
+static void __not_in_flash_func(programChangeOf)(uint32_t synth, uint8_t program_number) {
   switch (synth) {
   case 0: g_synth      .program_change(program_number); break;
   case 1: g_sub_1_synth.program_change(program_number); break;
   case 2: g_sub_2_synth.program_change(program_number); break;
   case 3: g_sub_3_synth.program_change(program_number); break;
   }
+}
+
+// The ones kept for a synth, if any; true if processed
+static boolean __not_in_flash_func(processPendingProgramChangeOf)(uint32_t synth) {
+  int16_t program_number = s_pending_program_change[synth];
+  boolean random_control = s_pending_random_control[synth];
+  if ((program_number < 0) && !random_control) {
+    return false;
+  }
+  s_pending_program_change[synth] = -1;
+  s_pending_random_control[synth] = false;
+  if (program_number >= 0) {
+    programChangeOf(synth, static_cast<uint8_t>(program_number));
+  }
+  if (random_control) {
+    programChangeOf(synth, 127);
+  }
+  return true;
+}
+
+static void __not_in_flash_func(processPendingProgramChanges)() {
+  for (uint32_t i = 0; i < 4; ++i) {
+    processPendingProgramChangeOf(i);
+  }
+}
+
+// In a loop, the ones kept of only one of the synths (the next of them by turns) are processed, so
+// that a Program Change of the 4 synths at once (e.g. by the Layering) is spread over 4 loops, each
+// with the load of one synth
+static void __not_in_flash_func(processOnePendingProgramChange)() {
+  static uint32_t s_next_synth = 0;
+  for (uint32_t k = 0; k < 4; ++k) {
+    uint32_t i = (s_next_synth + k) & 0x03;
+    if (processPendingProgramChangeOf(i)) {
+      s_next_synth = (i + 1) & 0x03;
+      return;
+    }
+  }
+}
+
+// The other numbers (#128-129 the panel parameters, which only the panel sends, and #32-63 of the
+// Layering, which do nothing) are processed at once, after those kept, so that each takes effect
+// as it did
+static void __not_in_flash_func(programChange)(uint32_t synth, uint8_t program_number) {
+  if (program_number <= PROGRAM_NUMBER_MAX) {
+    s_pending_program_change[synth] = program_number;
+    s_pending_random_control[synth] = false;
+    return;
+  }
+  if (program_number == 127) {
+    s_pending_random_control[synth] = true;
+    return;
+  }
+  processPendingProgramChanges();
+  programChangeOf(synth, program_number);
 }
 
 void __not_in_flash_func(setup1)() {
