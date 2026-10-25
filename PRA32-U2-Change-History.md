@@ -2,6 +2,7 @@
 
 - v3.17.2 (2026-??-??):
     - Move "Preparation for Modification", "Features" (the MIDI and Audio Output settings), and "Simple Circuit for PWM Audio" from README.md to PRA32-U2-Modification-Guide.md
+    - Add PRA32-U2 Load Estimate ("PRA32-U2-Load-Estimate" folder), which estimates the load of each core of PRA32-U2, /M, /P, and /M/P without the hardware, and keeps the estimates of each version
     - Add PRA32-U2-Development.md, the notes for changing the code (Debug Print, Runtime, Writing to the Flash, and Files and Tools)
     - Tested with Arduino-Pico version 6.3.0
 - v3.17.1 (2026-10-24):
