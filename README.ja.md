@@ -63,6 +63,8 @@
     - Osc、Filter、Chorus FX、Delay FX、Reverb、Output Compressor、PRA32-U2/M のブロック図と、Wave Table のグラフです
 - [Modification Guide](./PRA32-U2-Modification-Guide.md) (改造ガイド)
     - USB MIDI、UART MIDI、I2S、オーディオ・バッファー、PWM Audio の設定と、PWM Audio の簡易回路です
+- [Development](./PRA32-U2-Development.md) (開発ノート)
+    - コードを変更する人向けです。デバッグプリント、2 つのコアでの動き、フラッシュへの書き込み、ツールの説明です
 - README の次の節は英語版のみです
     - [Synthesizer Block Diagram](./README.md#synthesizer-block-diagram)
     - [Files](./README.md#files)、[Customization Examples](./README.md#customization-examples)

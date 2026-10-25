@@ -78,6 +78,11 @@ graph LR
 - Simple Circuit for PWM Audio
 
 
+## [Development](./PRA32-U2-Development.md)
+
+- Notes for changing the code: Debug Print, how it runs on the two cores, writing to the flash, and the tools
+
+
 ## Files
 
 - "Digital-Synth-PRA32-U2.ino" is an Arduino sketch for Raspberry Pi Pico/RP2040/RP2350 core
