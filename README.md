@@ -30,6 +30,14 @@
 ![PRA32-U2 (Pico Audio Pack)](./pra32-u2-pico-audio-pack.jpg)
 
 
+## Getting Started
+
+1. Plug Raspberry Pi Pico 2 H into Pico Audio Pack, and connect the line output of Pico Audio Pack to an amplifier or an active speaker
+2. Copy a UF2 file to Raspberry Pi Pico 2 (see the prebuilt UF2 files above)
+3. Connect it to a PC by USB: it appears as a USB MIDI device "PRA32-U2" ("PRA32-U2/M" for PRA32-U2/M)
+4. Open [PRA32-U2 Editor](#pra32-u2-editor) in Google Chrome or Microsoft Edge, select "PRA32-U2" in "MIDI Out", and play the Software Keyboard (MIDI Channel 1)
+
+
 ## [Change History](./PRA32-U2-Change-History.md)
 
 

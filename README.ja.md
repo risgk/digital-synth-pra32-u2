@@ -33,6 +33,14 @@
 ![PRA32-U2 (Pico Audio Pack)](./pra32-u2-pico-audio-pack.jpg)
 
 
+## はじめかた
+
+1. Raspberry Pi Pico 2 H を Pico Audio Pack に差し込み、Pico Audio Pack のライン出力をアンプかアクティブ・スピーカーにつなぎます
+2. UF2 ファイルを Raspberry Pi Pico 2 にコピーします (上記のビルド済みの UF2 ファイルを参照)
+3. USB で PC につなぐと、USB MIDI デバイス "PRA32-U2" (PRA32-U2/M では "PRA32-U2/M") として見えます
+4. Google Chrome か Microsoft Edge で [PRA32-U2 Editor](#pra32-u2-editor) を開き、"MIDI Out" で "PRA32-U2" を選んで、ソフトウェア・キーボードを弾きます (MIDI チャンネル 1)
+
+
 ## I2S DAC ボードの接続
 
 - Pimoroni Pico Audio Pack は、Raspberry Pi Pico 2 H を差し込むだけなので、配線は不要です
