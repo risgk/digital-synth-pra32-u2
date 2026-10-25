@@ -1,12 +1,14 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v3.17.2 (2026-??-??):
-    - Process only the last of the Program Changes of a program (#0-31) that arrive one after another (e.g. by UART MIDI and USB MIDI), after the MIDI messages of the loop are read, or before the next message for the synth (so that the order is kept), so that a stream of Program Changes does not overload the loop
-        - PRA32-U2/M: The Program Changes of the 4 Synths at once (e.g. by the Layering) are processed one synth a loop, spread over 4 loops
-    - Read 5 bytes of USB MIDI per loop (64 frames), from 3, so that USB MIDI is at least as fast as UART MIDI (31250 bps, about 4.2 bytes per loop)
-    - Move "Preparation for Modification", "Features" (the MIDI and Audio Output settings), and "Simple Circuit for PWM Audio" from README.md to PRA32-U2-Modification-Guide.md
-    - Add PRA32-U2 Load Estimate ("PRA32-U2-Load-Estimate" folder), which estimates the load of each core of PRA32-U2, /M, /P, and /M/P without the hardware, and keeps the estimates of each version
-    - Add PRA32-U2-Development.md, the notes for changing the code (Debug Print, Runtime, Processing Time, Load Estimate, Writing to the Flash, and Files and Tools)
+- v3.17.2 (2026-10-25):
+    - Process only the last of the Program Changes of a program (#0-31) that arrive one after another, so that a stream of them (e.g. by UART MIDI and USB MIDI at the same time) does not overload a loop; the order with the other messages is kept
+        - PRA32-U2/M: The Program Changes of the 4 Synths at once (e.g. by the Layering) are spread over 4 loops, one synth a loop
+    - USB MIDI: Read 5 bytes per loop (64 frames), from 3, so that USB MIDI is at least as fast as UART MIDI (31250 bps, about 4.2 bytes per loop)
+    - README.md and README.ja.md: Add Getting Started (USB MIDI and PRA32-U2 Editor)
+    - Add PRA32-U2-Modification-Guide.md, with "Preparation for Modification", "Features" (the MIDI and Audio Output settings), and "Simple Circuit for PWM Audio" moved from README.md
+    - Add PRA32-U2-Development.md, the notes for changing the code (Debug Print, Runtime, Processing Time, Load Estimate, Writing to the Flash, Files and Tools, and Release)
+    - Add PRA32-U2 Load Estimate ("PRA32-U2-Load-Estimate" folder), which estimates the load of each core of PRA32-U2 and PRA32-U2/M/P without the hardware (also with the MIDI input), and keeps the estimates of each version; also by the GitHub Actions workflow (`load_estimate`)
+    - Refactor the Ruby scripts (pra32-u2-generate-*.rb, with pra32-u2-generate-common.rb added): the files they generate are the same
     - Tested with Arduino-Pico version 6.3.0
 - v3.17.1 (2026-10-24):
     - PRA32-U2 Native: Fix the markers of the sliders of Filter Mode and FX Routing to be 6 (instead of 3), the same as PRA32-U2 Editor
