@@ -50,6 +50,25 @@
 The maximum of core 0 / core 1, of 1333 us. A maximum over 100% is marked with "⚠", and one over 95% with "△"
 (and shown as a warning in the workflow): check such a case on the device with Debug Print.
 
+#### v3.17.3
+
+| Case (core 0 / core 1, max) | PRA32-U2 | PRA32-U2/M/P |
+| :-- | --: | --: |
+| #0 Synth Pad, 4 notes | 67% / 25% | 69% / 27% |
+| Poly: #5 Sync Lead (Osc 1 Wave Sqr) in Poly with Delay Mode Rev, 4 notes | 89% / 37% | 91% / 39% |
+| Poly, with Note On and Off of another note by UART MIDI and USB MIDI | 90% / 37% | 92% / 39% |
+| Poly, with Program Change #0 (Poly itself) every 30 bytes by UART MIDI and USB MIDI | 92% / 37% | 95% / 39% |
+| 4 Synths: #5 Sync Lead (Mono, and Delay Mode Rev) by MIDI Channel 16 (Layering), 4 notes | - | 94% / 61% |
+| 4 Synths, with Note On and Off of another note by MIDI Channel 16 by UART MIDI and USB MIDI | - | 97% △ / 62% |
+| 4 Synths, with Program Change #0 (4 Synths itself) by MIDI Channel 16 every 30 bytes by UART MIDI and USB MIDI | - | 98% △ / 61% |
+| 4 Synths, with Program Change #0 (4 Synths itself) by MIDI Channel 16 back to back by UART MIDI and USB MIDI | - | 98% △ / 61% |
+
+⚠: over 100% (1333 us), △: over 95%
+
+| RAM (global variables) | PRA32-U2 | PRA32-U2/M | PRA32-U2/P | PRA32-U2/M/P |
+| :-- | --: | --: | --: | --: |
+| | 380456 (72%) | 479936 (91%) | 399096 (76%) | 500616 (95%) |
+
 #### v3.17.2
 
 | Case (core 0 / core 1, max) | PRA32-U2 | PRA32-U2/M/P |
