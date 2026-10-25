@@ -3,6 +3,11 @@
 - v3.17.5 (2026-??-??):
     - Process Program Change by CC (#112-119) and Special Random Control (#111) as the Program Changes (#0-7 and #127), which are processed as one when they arrive one after another (v3.17.2 and v3.17.3), so that a stream of them does not overload a loop either
         - Customization Examples (Core 0 Only): The same
+    - Process the FX (Chorus, Delay, and the Output Compressor) on the secondary core (core 1), a frame after the synths, in the same loop (the same output, with no more latency), so that the primary core (core 0) has more time to spare
+        - About 17% less of a loop on core 0 in Poly (estimated), and about 4% less with the 4 Synths of PRA32-U2/M/P on the device (1205 us from 1258 us), where core 1 is then about as busy
+        - The FX update their controls at the low rate in `process_fx()` (with the count of the synth for the frame), not in `process()`; the Customization Examples are the same, a little slower (less than 1%)
+        - PRA32-U2/M/P: The RAM is about 3 KB more (95% to 96%)
+    - PRA32-U2 Load Estimate: Tell the stores of core 1 by the instructions, not by a hook on the writes of Unicorn, which breaks the conditional stores of an IT block (a loop of the Delay ran over again on core 1)
     - PRA32-U2 Load Estimate: The Program Changes back to back for Poly too (instead of every 30 bytes, for Poly and the 4 Synths), UART MIDI with Running Status, all 4 built with Debug Print as measured on the device,
       PRA32-U2/P and PRA32-U2/M/P with all of the keys (SW1-6), and the keys read as released
         - Add `--adc` (the knobs turned), `--keys`, and `--keys-held` (the keys pressed) to "pra32-u2-load-estimate.py", for PRA32-U2/P
