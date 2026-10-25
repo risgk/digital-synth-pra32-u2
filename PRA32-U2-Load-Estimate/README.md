@@ -55,11 +55,12 @@ The maximum of core 0 / core 1, of 1333 us. A maximum over 100% is marked with "
 | Case (core 0 / core 1, max) | PRA32-U2 | PRA32-U2/M/P |
 | :-- | --: | --: |
 | #0 Synth Pad, 4 notes | 67% / 25% | 69% / 27% |
-| #10 WT Pad, 4 notes | 81% / 35% | 85% / 37% |
-| #5 Sync Lead (Osc 1 Wave Sqr) in Poly with Delay Mode Rev, 4 notes | 89% / 37% | 91% / 39% |
-| #10 WT Pad, 4 notes, with Note On and Off of another note by UART MIDI and USB MIDI | 82% / 35% | 86% / 37% |
-| #10 WT Pad, 4 notes, with Program Change #10 every 30 bytes by UART MIDI and USB MIDI | 84% / 35% | 92% / 37% |
-| 4 Synths by MIDI Channel 16 (Layering): #5 Sync Lead (Mono, and Delay Mode Rev), 4 notes | - | 94% / 61% |
+| Poly: #5 Sync Lead (Osc 1 Wave Sqr) in Poly with Delay Mode Rev, 4 notes | 89% / 37% | 91% / 39% |
+| Poly, with Note On and Off of another note by UART MIDI and USB MIDI | 90% / 37% | 92% / 39% |
+| Poly, with Program Change #0 (Poly itself) every 30 bytes by UART MIDI and USB MIDI | 92% / 37% | 94% / 39% |
+| 4 Synths: #5 Sync Lead (Mono, and Delay Mode Rev) by MIDI Channel 16 (Layering), 4 notes | - | 94% / 61% |
+| 4 Synths, with Note On and Off of another note by MIDI Channel 16 by UART MIDI and USB MIDI | - | 97% △ / 62% |
+| 4 Synths, with Program Change #0 (4 Synths itself) by MIDI Channel 16 every 30 bytes by UART MIDI and USB MIDI | - | 107% ⚠ / 61% |
 
 ⚠: over 100% (1333 us), △: over 95%
 
