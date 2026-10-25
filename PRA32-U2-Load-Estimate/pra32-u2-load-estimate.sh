@@ -67,18 +67,15 @@ echo "| :-- | --: | --: |"
 POLY='--program 5 --cc 18=0,35=127 --write 0'
 SYNTHS='--program 1:5,2:5,3:5,4:5 --cc 1:35=127 --write 1:0,2:1,3:2,4:3 --notes 16:60,16:64,16:67,16:71'
 NOTE_ON_OFF='904864804840'  # Note On and Off of the note 72
-EVERY_30_BYTES="$(printf 'FE%.0s' $(seq 28))"  # 28 Active Sensings: about 10 ms by UART MIDI, 6 loops by USB MIDI
 row '#0 Synth Pad, 4 notes' "$ESTIMATED" --program 0
 row 'Poly: #5 Sync Lead (Osc 1 Wave Sqr) in Poly with Delay Mode Rev, 4 notes' "$ESTIMATED" $POLY
 row 'Poly, with Note On and Off of another note by UART MIDI and USB MIDI' "$ESTIMATED" $POLY \
   --uart-midi $NOTE_ON_OFF --usb-midi $NOTE_ON_OFF
-row 'Poly, with Program Change #0 (Poly itself) every 30 bytes by UART MIDI and USB MIDI' "$ESTIMATED" $POLY \
-  --uart-midi C000$EVERY_30_BYTES --usb-midi C000$EVERY_30_BYTES
+row 'Poly, with Program Change #0 (Poly itself) back to back by UART MIDI and USB MIDI' "$ESTIMATED" $POLY \
+  --uart-midi C000 --usb-midi C000
 row '4 Synths: #5 Sync Lead (Mono, and Delay Mode Rev) by MIDI Channel 16 (Layering), 4 notes' 'mp' $SYNTHS
 row '4 Synths, with Note On and Off of another note by MIDI Channel 16 by UART MIDI and USB MIDI' 'mp' $SYNTHS \
   --uart-midi 9F48648F4840 --usb-midi 9F48648F4840
-row '4 Synths, with Program Change #0 (4 Synths itself) by MIDI Channel 16 every 30 bytes by UART MIDI and USB MIDI' 'mp' $SYNTHS \
-  --uart-midi CF00$EVERY_30_BYTES --usb-midi CF00$EVERY_30_BYTES
 row '4 Synths, with Program Change #0 (4 Synths itself) by MIDI Channel 16 back to back by UART MIDI and USB MIDI' 'mp' $SYNTHS \
   --uart-midi CF00 --usb-midi CF00
 echo
