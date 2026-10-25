@@ -17,13 +17,11 @@
 - Prebuilt UF2 files (in the "bin" folder): Arduino IDE is not required to use PRA32-U2 without modification
     - Connect Raspberry Pi Pico 2 to a PC while pressing the BOOTSEL button, and copy a UF2 file to the "RP2350" drive
     - PRA32-U2/M (Recommended): "Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico 2 and Pimoroni Pico Audio Pack
-        - A superset of PRA32-U2: the Main Synth (Basic Channel + 0) works the same as PRA32-U2, and the Sub Synths and Layering are added
+        - A superset of PRA32-U2: the Main Synth works the same as PRA32-U2, and the Sub Synths and Layering are added (see [PRA32-U2/M](#pra32-u2m-pra32-u2-multi-timbre-edition))
         - NOTE: It also responds to MIDI Channels 2-4 and 14-16 (by default); use PRA32-U2 if these channels are used for other devices
     - PRA32-U2: "Digital-Synth-PRA32-U2-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico 2 and Pimoroni Pico Audio Pack
 - Modifiable with Arduino IDE and Arduino-Pico (by Earle F. Philhower, III): see [Modification Guide](./PRA32-U2-Modification-Guide.md) (e.g. for other I2S DACs, PWM Audio, or the panel)
-- Optional
-    - **[PRA32-U2/M](#pra32-u2m-pra32-u2-multi-timbre-edition-optional)** (PRA32-U2 Multi-Timbre Edition) can also be configured
-    - **[PRA32-U2/P](./README-PRA32-U2-P.md)** (PRA32-U2 with Panel) and **PRA32-U2/M/P** (PRA32-U2 Multi-Timbre Edition with Panel) can also be configured by adding certain parts
+- Optional: **[PRA32-U2/P](./README-PRA32-U2-P.md)** (PRA32-U2 with Panel) and **PRA32-U2/M/P** (PRA32-U2 Multi-Timbre Edition with Panel) can also be configured by adding certain parts
 - **[PRA32-U2 Native](./PRA32-U2-Native/README.md)**: a software synthesizer (VST3 plugin and standalone application) version of PRA32-U2 for PCs
 - **[PRA32-U2 Web](./PRA32-U2-Web/README.md)**: a software synthesizer version of PRA32-U2 that runs in a Web browser, built into PRA32-U2 Editor
 
@@ -150,9 +148,10 @@ graph LR
     - Programs #0-31 can be modified by editing "pra32-u2-program-table.h"
 
 
-## PRA32-U2/M (PRA32-U2 Multi-Timbre Edition) (Optional)
+## PRA32-U2/M (PRA32-U2 Multi-Timbre Edition)
 
 - Features
+    - The Basic Channel is the MIDI Channel of PRA32-U2 (1 by default, `PRA32_U2_MIDI_CH`), and the channels of the synths are relative to it
     - Synths
         - Basic Channel + 0 (Default 1): Main Synth, Poly or Mono; The default program is #0; The FX parameters (except FX Routing) apply to all channels
         - Basic Channel + 1 (Default 2): Sub Synth 1, Mono; The default program is #1; The FX parameters (except FX Routing) are disabled
@@ -166,9 +165,9 @@ graph LR
             - Results of Program Change: Program # + 0 for Basic Channel + 2 and Program # + 1 for Basic Channel + 3
         - Basic Channel - 1 (Default 16): Control Basic Channel + 0, + 1, + 2, and + 3 simultaneously
             - Results of Program Change: Program # + 0 for Basic Channel + 0, Program # + 1 for Basic Channel + 1, Program # + 2 for Basic Channel + 2, and Program # + 3 for Basic Channel + 3
-        - Program # + 1 to + 3 wrap around in the user programs (#0-15) and in the presets (#16-31) each (e.g. #15: #15, #0, #1, and #2; #31: #31, #16, #17, and #18), and Program Change #127 (Random Control) is for all the synths
+        - Program # + 1 to + 3 wrap around in the user programs (#0-15) and in the presets (#16-31) each (e.g. #15: #15, #0, #1, and #2; #31: #31, #16, #17, and #18), and Program Change #127 (Randomize Synth) is for all the synths
         - Not to use this feature, comment out `#define PRA32_U2_ENABLE_LAYERING` in "Digital-Synth-PRA32-U2-M.ino"
-- How to modify
+- How to modify (with Arduino IDE)
     - Copy all files in the "Digital-Synth-PRA32-U2" folder, except for "Digital-Synth-PRA32-U2.ino", to the "Digital-Synth-PRA32-U2-M" folder
     - "Digital-Synth-PRA32-U2-M.ino" is an Arduino sketch
 
@@ -184,17 +183,12 @@ graph LR
 
 ## Customization Examples
 
-- Files in the "customization-examples" folder
-- **Digital Synth PRA32-U2 (Lite)**
-    - Osc 1 Shape and Morph are disabled in Saw, Sqr, and WT
-    - Runs on a single core
-    - "Digital-Synth-PRA32-U2.ino.Lite-Core-0-Only.txt"
-    - "Digital-Synth-PRA32-U2.ino.Lite-Core-1-Only.txt"
-- **Digital Synth PRA32-U2/M (Lite)**
-    - Osc 1 Shape and Morph are disabled in Saw, Sqr, and WT
-    - Runs on a single core
-    - "Digital-Synth-PRA32-U2-M.ino.Lite-Core-0-Only.txt"
-    - "Digital-Synth-PRA32-U2-M.ino.Lite-Core-1-Only.txt"
+- Files in the "customization-examples" folder: each is a sketch, to be used in place of "Digital-Synth-PRA32-U2.ino" (or "Digital-Synth-PRA32-U2-M.ino" for PRA32-U2/M)
+- **Digital Synth PRA32-U2 (Lite)** and **Digital Synth PRA32-U2/M (Lite)**: Osc 1 Shape and Morph are disabled in Saw, Sqr, and WT, and the synth is processed on a single core (core 0)
+    - "Digital-Synth-PRA32-U2.ino.Lite-Core-0-Only.txt" and "Digital-Synth-PRA32-U2-M.ino.Lite-Core-0-Only.txt":
+      with MIDI (USB MIDI and UART MIDI), the panel, and Debug Print, as the sketch; core 1 only updates the panel and prints the debug print
+    - "Digital-Synth-PRA32-U2.ino.Lite-Core-1-Only.txt" and "Digital-Synth-PRA32-U2-M.ino.Lite-Core-1-Only.txt":
+      only the synth and the audio output, without MIDI, the panel, and Debug Print (no sound as it is): a base to play the synth from code of your own, at `// TODO` in `loop()`
 
 
 ## Troubleshooting
