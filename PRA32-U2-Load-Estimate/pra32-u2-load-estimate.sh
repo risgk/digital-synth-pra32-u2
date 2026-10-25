@@ -1,7 +1,8 @@
 #!/bin/sh
 # PRA32-U2 Load Estimate: builds PRA32-U2, PRA32-U2/M, PRA32-U2/P, and PRA32-U2/M/P with arduino-cli,
 # as the GitHub Actions workflow builds the UF2 files, into "build" here, and estimates the load of
-# each in the cases below with pra32-u2-load-estimate.py; prints the table of README.md
+# PRA32-U2 and PRA32-U2/M/P in the cases below with pra32-u2-load-estimate.py, and prints the tables
+# of README.md, with the RAM of all 4
 #
 #   sh PRA32-U2-Load-Estimate/pra32-u2-load-estimate.sh
 #
@@ -11,7 +12,10 @@ set -e
 cd "$(dirname "$0")"
 FQBN='rp2040:rp2040:rpipico2:flash=4194304_0,freq=150,arch=arm,opt=Small,os=none,profile=Disabled,rtti=Disabled,stackprotect=Disabled,exceptions=Disabled,dbgport=Disabled,dbglvl=None,usbstack=tinyusb,ipbtstack=ipv4only,uploadmethod=default'
 
+# All 4 are built, for their RAM; the load is estimated for PRA32-U2, the lightest, and PRA32-U2/M/P,
+# which has all of them (PRA32-U2/M and /P differ from these little: the panel's I2C is left out)
 VARIANTS='u2 m p mp'
+ESTIMATED='u2 mp'
 for v in $VARIANTS; do
   src=build/src-$v/Digital-Synth-PRA32-U2
   rm -rf build/src-$v
@@ -36,7 +40,7 @@ row() {  # case, variants, options
   vs=$2
   shift 2
   line="| $name |"
-  for v in $VARIANTS; do
+  for v in $ESTIMATED; do
     case " $vs " in *" $v "*) line="$line $(estimate $v "$@") |" ;; *) line="$line - |" ;; esac
   done
   echo "$line"
@@ -44,14 +48,17 @@ row() {  # case, variants, options
 
 echo "#### $version"
 echo
-echo "| Case (core 0 / core 1, max) | PRA32-U2 | PRA32-U2/M | PRA32-U2/P | PRA32-U2/M/P |"
-echo "| :-- | --: | --: | --: | --: |"
-row '#0 Synth Pad, 4 notes' "$VARIANTS" --program 0
-row '#10 WT Pad, 4 notes' "$VARIANTS" --program 10
-row '#0 Synth Pad with Osc 1 Wave Sqr and Delay Mode Rev, 4 notes' "$VARIANTS" --program 0 --cc 102=26,35=127
-row '4 Synths: #4 Saw Lead with Osc 1 Wave Sqr (and Delay Mode Rev), a note each' 'm mp' \
+echo "| Case (core 0 / core 1, max) | PRA32-U2 | PRA32-U2/M/P |"
+echo "| :-- | --: | --: |"
+row '#0 Synth Pad, 4 notes' "$ESTIMATED" --program 0
+row '#10 WT Pad, 4 notes' "$ESTIMATED" --program 10
+row '#0 Synth Pad with Osc 1 Wave Sqr and Delay Mode Rev, 4 notes' "$ESTIMATED" --program 0 --cc 102=26,35=127
+row '4 Synths: #4 Saw Lead with Osc 1 Wave Sqr (and Delay Mode Rev), a note each' 'mp' \
   --program 1:4,2:4,3:4,4:4 --cc 1:35=127,1:102=26,2:102=26,3:102=26,4:102=26 --notes 1:60,2:64,3:67,4:71
-line='| RAM (global variables) |'
+echo
+echo "| RAM (global variables) | PRA32-U2 | PRA32-U2/M | PRA32-U2/P | PRA32-U2/M/P |"
+echo "| :-- | --: | --: | --: | --: |"
+line='| |'
 for v in $VARIANTS; do
   line="$line $(sed -n 's/^Global variables use \([0-9]*\) bytes (\([0-9]*%\)).*/\1 (\2)/p' build/$v.log) |"
 done

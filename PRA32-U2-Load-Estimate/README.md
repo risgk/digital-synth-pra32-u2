@@ -3,7 +3,8 @@
 - Estimates the load of PRA32-U2 on Raspberry Pi Pico 2 (RP2350) without the hardware, from the UF2 build of the sketch,
   and keeps the estimates of each version below, so that a change that makes PRA32-U2 heavier is seen
 - "pra32-u2-load-estimate.sh" builds PRA32-U2, PRA32-U2/M, PRA32-U2/P, and PRA32-U2/M/P with arduino-cli (as the GitHub Actions workflow builds the UF2 files),
-  and prints the table below with "pra32-u2-load-estimate.py"
+  estimates the load of PRA32-U2 (the lightest) and PRA32-U2/M/P (which has all of the editions) with "pra32-u2-load-estimate.py", and prints the tables below with the RAM of all 4;
+  PRA32-U2/M and PRA32-U2/P differ from these little (v3.17.1, below)
 
     ```
     sh PRA32-U2-Load-Estimate/pra32-u2-load-estimate.sh
@@ -33,7 +34,7 @@
 - The cases (MIDI Channel 1 is the Basic Channel)
     - The notes are 60, 64, 67, and 71 (velocity 100), held; the loops are measured after 8 of warm-up
     - Osc 1 Wave Sqr (CC #102 = 26) and Delay Mode Rev (CC #35 = 127) are the heaviest of the waves and the Delay Modes
-    - "4 Synths" is for PRA32-U2/M only: the Main Synth and the 3 Sub Synths in Mono, a note each
+    - "4 Synths" is for PRA32-U2/M/P only: the Main Synth and the 3 Sub Synths in Mono, a note each
 
 
 ## Estimates
