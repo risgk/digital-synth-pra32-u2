@@ -27,7 +27,9 @@
 
 ## Processing Time
 
-- A loop must end within 1333 us whatever the parameters, the notes, and the MIDI messages: what matters is the slowest loop, not the average
+- A loop should end within 1333 us on average, and later only now and then, whatever the parameters, the notes, and the MIDI messages:
+  the output buffer (2 * 64 frames) takes up the delay of a slow loop, but not for long.
+  As the processing takes about the same time every loop (below), the maximum is what to watch
 - So the processing is kept about the same every sample, as far as possible:
     - Branchless: a select rather than a branch (e.g. `branchless_conditional()`), and an index rather than a switch (e.g. the FX Routing into the FX bus)
     - Always calculated: e.g. the gain of the Output Fader, the division of the Output Limiter, and the Reverb lengths even while the Delay Time does not move;
