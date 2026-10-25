@@ -33,8 +33,8 @@
       (see [Development](../PRA32-U2-Development.md)) when it matters
 - The cases (MIDI Channel 1 is the Basic Channel)
     - The notes are 60, 64, 67, and 71 (velocity 100), held; the loops are measured after 8 of warm-up
-    - Osc 1 Wave Sqr (CC #102 = 26) and Delay Mode Rev (CC #35 = 127) are the heaviest of the waves and the Delay Modes
-    - "4 Synths" is for PRA32-U2/M/P only: the Main Synth and the 3 Sub Synths in Mono, a note each
+    - Osc 1 Wave Sqr (#5 Sync Lead has it) and Delay Mode Rev (CC #35 = 127) are the heaviest of the waves and the Delay Modes; Voice Mode Poly is CC #18 = 0
+    - "4 Synths" is for PRA32-U2/M/P only: MIDI Channel 16 plays the Main Synth and the 3 Sub Synths (Channels 1-4, each in Mono) together
     - "by UART MIDI and USB MIDI": the bytes arrive over and over while the loops run, by UART MIDI at 31250 bps (about 4.2 bytes a loop),
       and by USB MIDI as fast as PRA32-U2 reads them (5 bytes a loop); Note On and Off of note 72 (90 48 64 80 48 40) are what a player sends,
       and a Program Change (C0 0A), which sets all the parameters, is the heaviest message: one every 30 bytes, with 28 Active Sensings (FE) between them,
@@ -53,10 +53,10 @@ The maximum of core 0 / core 1, of 1333 us. A maximum over 100% is marked with "
 | :-- | --: | --: |
 | #0 Synth Pad, 4 notes | 67% / 25% | 69% / 27% |
 | #10 WT Pad, 4 notes | 81% / 35% | 85% / 37% |
-| #0 Synth Pad with Osc 1 Wave Sqr and Delay Mode Rev, 4 notes | 90% / 37% | 91% / 39% |
+| #5 Sync Lead (Osc 1 Wave Sqr) in Poly with Delay Mode Rev, 4 notes | 89% / 37% | 91% / 39% |
 | #10 WT Pad, 4 notes, with Note On and Off of another note by UART MIDI and USB MIDI | 82% / 35% | 86% / 37% |
 | #10 WT Pad, 4 notes, with Program Change #10 every 30 bytes by UART MIDI and USB MIDI | 84% / 35% | 92% / 37% |
-| 4 Synths: #4 Saw Lead with Osc 1 Wave Sqr (and Delay Mode Rev), a note each | - | 94% / 61% |
+| 4 Synths by MIDI Channel 16 (Layering): #5 Sync Lead (Mono, and Delay Mode Rev), 4 notes | - | 94% / 61% |
 
 ⚠: over 100% (1333 us), △: over 95%
 
