@@ -22,8 +22,11 @@
 
 - `loop()` on the primary core (core 0) reads MIDI, and then processes 64 frames (`PRA32_U2_I2S_BUFFER_WORDS`)
   and writes them to the output, which blocks while the output buffer is full: the loop is paced by the audio output
-- With `PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING`, core 1 (`loop1()`) takes a part of the processing of each frame on request from core 0, which waits for it;
-  core 1 also updates the panel and prints the debug print
+- With `PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING`, core 1 (`loop1()`) takes a part of the processing of each frame on request from core 0, which waits for it
+  (the Voices 2 and 3 of the Main Synth, and the Sub Synths 1 and 3 of PRA32-U2/M); core 1 also updates the panel and prints the debug print
+    - The FX (Chorus, Delay, and the Output Compressor) are processed by core 1 too, a frame after the synths and between them: core 0 puts the FX input of each frame
+      with the count of the synth for it (`process_fx(fx_bus, count)`), and at the end of the loop waits until all are done, so the output is the same, with no more latency
+    - In PRA32-U2/M with the 4 Synths, core 1 is then about as busy as core 0, which waits for it (on the device, 1205 us from 1258 us a loop with the 4 Synths)
 - MIDI is read at the start of each loop: 5 bytes of USB MIDI and 8 bytes of UART MIDI, more than the about 4.2 bytes that 31250 bps brings in a loop;
   the messages are processed there, so a burst of MIDI (e.g. from USB MIDI and UART MIDI at the same time) makes that loop a little longer
 - The output buffer is a ring buffer read by DMA without interrupts ("pra32-u2-audio-ring-buffer.h"): 2 * 64 frames (2.7 ms) by default
