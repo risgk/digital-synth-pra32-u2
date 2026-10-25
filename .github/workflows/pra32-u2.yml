@@ -4,6 +4,8 @@
 # - PRA32-U2 Native: built with Visual Studio 2022 (Windows), Xcode (macOS), and GCC (Linux),
 #   and validated with pluginval (and auval for AU) (see PRA32-U2-Native/README.md)
 # - PRA32-U2 Web: built with Emscripten (Ubuntu), and tested with Node.js (see PRA32-U2-Web/README.md)
+# - PRA32-U2 Load Estimate (with "load_estimate" only): the table of PRA32-U2-Load-Estimate/README.md,
+#   in the summary of the run (about 15 min)
 name: PRA32-U2 Build (UF2, Native, and Web)
 
 on:
@@ -11,6 +13,10 @@ on:
     inputs:
       commit_package:
         description: 'Commit the UF2 files (bin/), the packages (zip, PRA32-U2-Native/bin/), and pra32-u2-web-synth.js on the selected branch'
+        type: boolean
+        default: false
+      load_estimate:
+        description: 'Estimate the load of PRA32-U2, /M, /P, and /M/P (PRA32-U2 Load Estimate, about 15 min), into the summary of the run'
         type: boolean
         default: false
 
@@ -237,6 +243,34 @@ jobs:
         with:
           name: ${{ steps.build.outputs.name }}
           path: pra32-u2-web-synth.js
+
+  # PRA32-U2 Load Estimate ("PRA32-U2-Load-Estimate"): the table for its README.md, in the summary
+  load-estimate:
+    if: inputs.load_estimate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+
+      - name: Install arduino-cli, the core, the library, and the Python packages
+        run: |
+          curl -fsSL "https://downloads.arduino.cc/arduino-cli/arduino-cli_${ARDUINO_CLI_VERSION}_Linux_64bit.tar.gz" | tar -xz -C "$RUNNER_TEMP" arduino-cli
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+          "$RUNNER_TEMP/arduino-cli" core update-index --additional-urls "$ARDUINO_PICO_INDEX_URL"
+          "$RUNNER_TEMP/arduino-cli" core install "rp2040:rp2040@$ARDUINO_PICO_VERSION" --additional-urls "$ARDUINO_PICO_INDEX_URL"
+          "$RUNNER_TEMP/arduino-cli" lib install "MIDI Library@$MIDI_LIBRARY_VERSION"
+          pip install unicorn==2.1.4 capstone==5.0.7 pyelftools==0.33
+
+      - name: Estimate
+        shell: bash  # With pipefail, so that a failed estimate fails the job
+        run: |
+          sh PRA32-U2-Load-Estimate/pra32-u2-load-estimate.sh | tee load-estimate.md
+          cat load-estimate.md >> "$GITHUB_STEP_SUMMARY"
+          # A maximum over 95% of 1333 us as a warning of the run (marked in the table too)
+          while read -r line; do echo "::warning title=PRA32-U2 Load Estimate::$line"; done < PRA32-U2-Load-Estimate/build/warnings.txt
 
   commit:
     if: inputs.commit_package

@@ -2,7 +2,7 @@
  * Digital Synth PRA32-U2/M
  */
 
-#define PRA32_U2_VERSION                       "v3.17.1   "
+#define PRA32_U2_VERSION                       "v3.17.2   "
 
 //#define PRA32_U2_USE_DEBUG_PRINT
 
@@ -195,6 +195,69 @@ void handleClock();
 void handleStart();
 void handleStop();
 void writeProgramsToFlashAndEndSketch();
+
+// A Program Change of a program is kept here for each synth (the Main Synth and the Sub Synths
+// 1-3), and processed after the MIDI messages of the loop are read, one synth a loop (or all of
+// them before the next message for any of the synths, so that the order is kept): it sets all the
+// parameters of a program, so only the last of those that arrive for a synth with nothing else
+// between them (e.g. by UART MIDI and USB MIDI) is processed
+static int16_t s_pending_program_change[4] = { -1, -1, -1, -1 };
+
+static void __not_in_flash_func(processPendingProgramChanges)() {
+  if ((s_pending_program_change[0] & s_pending_program_change[1] &
+       s_pending_program_change[2] & s_pending_program_change[3]) == -1) {
+    return;  // None is pending (each is -1, or 0-127)
+  }
+  int16_t pending[4];
+  for (uint32_t i = 0; i < 4; ++i) {
+    pending[i] = s_pending_program_change[i];
+    s_pending_program_change[i] = -1;
+  }
+  if (pending[0] >= 0) { g_synth      .program_change(static_cast<uint8_t>(pending[0])); }
+  if (pending[1] >= 0) { g_sub_1_synth.program_change(static_cast<uint8_t>(pending[1])); }
+  if (pending[2] >= 0) { g_sub_2_synth.program_change(static_cast<uint8_t>(pending[2])); }
+  if (pending[3] >= 0) { g_sub_3_synth.program_change(static_cast<uint8_t>(pending[3])); }
+}
+
+// In a loop, the Program Change kept of only one of the synths (the next of them by turns) is
+// processed, so that a Program Change of the 4 synths at once (e.g. by the Layering) is spread
+// over 4 loops, each with the load of one synth
+static void __not_in_flash_func(processOnePendingProgramChange)() {
+  static uint32_t s_next_synth = 0;
+  for (uint32_t k = 0; k < 4; ++k) {
+    uint32_t i = (s_next_synth + k) & 0x03;
+    int16_t pending = s_pending_program_change[i];
+    if (pending >= 0) {
+      s_pending_program_change[i] = -1;
+      s_next_synth = (i + 1) & 0x03;
+      switch (i) {
+      case 0: g_synth      .program_change(static_cast<uint8_t>(pending)); break;
+      case 1: g_sub_1_synth.program_change(static_cast<uint8_t>(pending)); break;
+      case 2: g_sub_2_synth.program_change(static_cast<uint8_t>(pending)); break;
+      case 3: g_sub_3_synth.program_change(static_cast<uint8_t>(pending)); break;
+      }
+      return;
+    }
+  }
+}
+
+// Only a program (#0-31), which sets all the parameters of a program, is kept for a synth; the
+// other numbers (#127 Random Control, #128-129 the panel parameters, which set some of them, and
+// #32-63 of the Layering, which do nothing) are processed at once, after those kept, so that each
+// takes effect as it did
+static void __not_in_flash_func(programChange)(uint32_t synth, uint8_t program_number) {
+  if (program_number <= PROGRAM_NUMBER_MAX) {
+    s_pending_program_change[synth] = program_number;
+    return;
+  }
+  processPendingProgramChanges();
+  switch (synth) {
+  case 0: g_synth      .program_change(program_number); break;
+  case 1: g_sub_1_synth.program_change(program_number); break;
+  case 2: g_sub_2_synth.program_change(program_number); break;
+  case 3: g_sub_3_synth.program_change(program_number); break;
+  }
+}
 
 void __not_in_flash_func(setup1)() {
   g_synth.initialize_secondary_core();
@@ -397,7 +460,9 @@ void __not_in_flash_func(loop)() {
 #endif  // defined(PRA32_U2_USE_USB_MIDI)
 
 #if defined(PRA32_U2_USE_USB_MIDI)
-  for (uint32_t i = 0; i < ((PRA32_U2_I2S_BUFFER_WORDS + 31) / 32) + 1; i++) {
+  // The MIDI Library parses 1 byte per read(), so read 5 bytes per 64 frames, more than about 4.2
+  // bytes that arrive per 64 frames at 31250 bps, to be at least as fast as UART MIDI
+  for (uint32_t i = 0; i < ((PRA32_U2_I2S_BUFFER_WORDS + 15) / 16) + 1; i++) {
     USB_MIDI.read();
   }
 #endif  // defined(PRA32_U2_USE_USB_MIDI)
@@ -409,6 +474,8 @@ void __not_in_flash_func(loop)() {
     UART_MIDI.read();
   }
 #endif  // defined(PRA32_U2_USE_UART_MIDI)
+
+  processOnePendingProgramChange();  // Those of the panel (PRA32-U2/P) in the next loops
 
   PRA32_U2_ControlPanel_update_control();
 
@@ -513,6 +580,8 @@ void __not_in_flash_func(loop)() {
 
 void __not_in_flash_func(handleNoteOn)(byte channel, byte pitch, byte velocity)
 {
+  processPendingProgramChanges();
+
   if ((channel - 1) == g_midi_ch) {
     g_synth.note_on(pitch, velocity);
   } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
@@ -539,6 +608,8 @@ void __not_in_flash_func(handleNoteOn)(byte channel, byte pitch, byte velocity)
 
 void __not_in_flash_func(handleNoteOff)(byte channel, byte pitch, byte velocity)
 {
+  processPendingProgramChanges();
+
   if ((channel - 1) == g_midi_ch) {
     g_synth.note_off(pitch, velocity);
   } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
@@ -565,6 +636,8 @@ void __not_in_flash_func(handleNoteOff)(byte channel, byte pitch, byte velocity)
 
 void __not_in_flash_func(handleControlChange)(byte channel, byte number, byte value)
 {
+  processPendingProgramChanges();
+
   if ((channel - 1) == g_midi_ch) {
     g_synth.control_change(number, value);
   } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
@@ -591,32 +664,35 @@ void __not_in_flash_func(handleControlChange)(byte channel, byte number, byte va
 
 void __not_in_flash_func(handleProgramChange)(byte channel, byte number)
 {
+  // A program is processed later (see processPendingProgramChanges())
   if ((channel - 1) == g_midi_ch) {
-    g_synth.program_change(number);
+    programChange(0, number);
   } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
-    g_sub_1_synth.program_change(number);
+    programChange(1, number);
   } else if ((channel - 1) == ((g_midi_ch + 2) & 0x0F)) {
-    g_sub_2_synth.program_change(number);
+    programChange(2, number);
   } else if ((channel - 1) == ((g_midi_ch + 3) & 0x0F)) {
-    g_sub_3_synth.program_change(number);
+    programChange(3, number);
 #if defined(PRA32_U2_ENABLE_LAYERING)
   } else if ((channel - 1) == ((g_midi_ch - 3) & 0x0F)) {
-    g_synth.program_change(number);
-    g_sub_1_synth.program_change((number + 1) & 0x3F);
+    programChange(0, number);
+    programChange(1, (number + 1) & 0x3F);
   } else if ((channel - 1) == ((g_midi_ch - 2) & 0x0F)) {
-    g_sub_2_synth.program_change(number);
-    g_sub_3_synth.program_change((number + 1) & 0x3F);
+    programChange(2, number);
+    programChange(3, (number + 1) & 0x3F);
   } else if ((channel - 1) == ((g_midi_ch - 1) & 0x0F)) {
-    g_synth.program_change(number);
-    g_sub_1_synth.program_change((number + 1) & 0x3F);
-    g_sub_2_synth.program_change((number + 2) & 0x3F);
-    g_sub_3_synth.program_change((number + 3) & 0x3F);
+    programChange(0, number);
+    programChange(1, (number + 1) & 0x3F);
+    programChange(2, (number + 2) & 0x3F);
+    programChange(3, (number + 3) & 0x3F);
 #endif  // defined(PRA32_U2_ENABLE_LAYERING)
   }
 }
 
 void __not_in_flash_func(handlePitchBend)(byte channel, int bend)
 {
+  processPendingProgramChanges();
+
   if ((channel - 1) == g_midi_ch) {
     g_synth.pitch_bend((bend + 8192) & 0x7F, (bend + 8192) >> 7);
   } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
@@ -643,6 +719,8 @@ void __not_in_flash_func(handlePitchBend)(byte channel, int bend)
 
 void __not_in_flash_func(handleAfterTouchPoly)(byte channel, byte note, byte pressure)
 {
+  processPendingProgramChanges();
+
   if ((channel - 1) == g_midi_ch) {
     g_synth.after_touch_poly(note, pressure);
   } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
@@ -669,6 +747,8 @@ void __not_in_flash_func(handleAfterTouchPoly)(byte channel, byte note, byte pre
 
 void __not_in_flash_func(handleAfterTouchChannel)(byte channel, byte pressure)
 {
+  processPendingProgramChanges();
+
   if ((channel - 1) == g_midi_ch) {
     g_synth.after_touch_channel(pressure);
   } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
@@ -767,6 +847,8 @@ void __not_in_flash_func(getRandUint8Rrray)(byte channel, uint8_t array[8])
 
 void __not_in_flash_func(writeParametersToProgram)(byte channel, byte number)
 {
+  processPendingProgramChanges();
+
   if ((channel - 1) == g_midi_ch) {
     g_synth.write_parameters_to_program(number);
   } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {

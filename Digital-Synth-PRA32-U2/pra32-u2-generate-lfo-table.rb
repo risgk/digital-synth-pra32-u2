@@ -1,25 +1,14 @@
-require_relative 'pra32-u2-constants'
+require_relative 'pra32-u2-generate-common'
 
-$file = File.open("pra32-u2-lfo-table.h", "wb")
+CONTROLLER_VALUES = (0..DATA_BYTE_MAX)
 
-$file.printf("#pragma once\n\n")
+# LFO Rate controller value -> the phase step per control period (SAMPLING_RATE / 4); 0 stops it
+def lfo_rate(controller_value)
+  return 0 if controller_value == 0
 
-$file.printf("uint32_t g_lfo_rate_table[] = {\n  ")
-(0..127).each do |i|
-  lfo_rate = ((2.0 ** ((i - 64) / 12.0)) *
-              (A4_FREQ * (2.0 ** ((-19 - 69) / 12.0))) * (1 << 24) / (SAMPLING_RATE / 4.0)).floor
-  lfo_rate = 0 if i == 0
-
-  $file.printf("%6d,", lfo_rate)
-  if i == DATA_BYTE_MAX
-    $file.printf("\n")
-  elsif i % 16 == (16 - 1)
-    $file.printf("\n  ")
-  else
-    $file.printf(" ")
-  end
+  ((2.0 ** ((controller_value - 64) / 12.0)) *
+   (A4_FREQ * (2.0 ** ((-19 - 69) / 12.0))) * (1 << 24) / (SAMPLING_RATE / 4.0)).floor
 end
-$file.printf("};\n\n")
 
 # LFO Red Noise: 1st-order IIR low-pass on the white noise, run at SAMPLING_RATE / 4.
 # The coefficient is a of "acc += (input - acc) * a" in Q31. CC value 1 matches the oscillator
@@ -52,62 +41,23 @@ def lfo_red_noise_gain(i)
   ((LFO_RED_NOISE_OUT_RMS / Math.sqrt(a / (2.0 - a))) / LFO_RED_NOISE_IN_RMS * 4.0).round
 end
 
-$file.printf("int32_t g_lfo_red_noise_coef_table[] = {\n  ")
-(0..127).each do |i|
-  $file.printf("0x%08X,", lfo_red_noise_coef(i))
-  if i == DATA_BYTE_MAX
-    $file.printf("\n")
-  elsif i % 8 == (8 - 1)
-    $file.printf("\n  ")
-  else
-    $file.printf(" ")
-  end
+# LFO Fade Time controller value -> the step of the fade per control period
+def lfo_fade_coef(controller_value)
+  return 1 if controller_value == 0
+
+  (10.0 * (10.0 ** ((controller_value - 128.0) / 64.0)) * (SAMPLING_RATE / 4.0) / 128.0).floor
 end
-$file.printf("};\n\n")
 
-$file.printf("uint16_t g_lfo_red_noise_gain_table[] = {\n  ")
-(0..127).each do |i|
-  $file.printf("%6d,", lfo_red_noise_gain(i))
-  if i == DATA_BYTE_MAX
-    $file.printf("\n")
-  elsif i % 16 == (16 - 1)
-    $file.printf("\n  ")
-  else
-    $file.printf(" ")
-  end
+# Chorus Rate controller value -> the phase step per control period
+def chorus_rate(controller_value)
+  ((2.0 ** ((controller_value - 64) / 12.0)) *
+   (A4_FREQ * (2.0 ** ((-49 - 69) / 12.0))) * (1 << 24) / (SAMPLING_RATE / 4.0)).floor
 end
-$file.printf("};\n\n")
 
-$file.printf("uint16_t g_lfo_fade_coef_table[] = {\n  ")
-(0..127).each do |i|
-  fade_coef = (10.0 * (10.0 ** ((i - 128.0) / 64.0)) * (SAMPLING_RATE / 4.0) / 128.0).floor
-  fade_coef = 1 if i == 0
-
-  $file.printf("%6d,", fade_coef)
-  if i == DATA_BYTE_MAX
-    $file.printf("\n")
-  elsif i % 16 == (16 - 1)
-    $file.printf("\n  ")
-  else
-    $file.printf(" ")
-  end
+write_header("pra32-u2-lfo-table.h") do |file|
+  write_array(file, "uint32_t g_lfo_rate_table[]", CONTROLLER_VALUES.map { |i| lfo_rate(i) }, per_line: 16, format: "%6d")
+  write_array(file, "int32_t g_lfo_red_noise_coef_table[]", CONTROLLER_VALUES.map { |i| lfo_red_noise_coef(i) }, per_line: 8, format: "0x%08X")
+  write_array(file, "uint16_t g_lfo_red_noise_gain_table[]", CONTROLLER_VALUES.map { |i| lfo_red_noise_gain(i) }, per_line: 16, format: "%6d")
+  write_array(file, "uint16_t g_lfo_fade_coef_table[]", CONTROLLER_VALUES.map { |i| lfo_fade_coef(i) }, per_line: 16, format: "%6d")
+  write_array(file, "uint32_t g_chorus_rate_table[]", CONTROLLER_VALUES.map { |i| chorus_rate(i) }, per_line: 16, format: "%6d")
 end
-$file.printf("};\n\n")
-
-$file.printf("uint32_t g_chorus_rate_table[] = {\n  ")
-(0..127).each do |i|
-  lfo_rate = ((2.0 ** ((i - 64) / 12.0)) *
-              (A4_FREQ * (2.0 ** ((-49 - 69) / 12.0))) * (1 << 24) / (SAMPLING_RATE / 4.0)).floor
-
-  $file.printf("%6d,", lfo_rate)
-  if i == DATA_BYTE_MAX
-    $file.printf("\n")
-  elsif i % 16 == (16 - 1)
-    $file.printf("\n  ")
-  else
-    $file.printf(" ")
-  end
-end
-$file.printf("};\n\n")
-
-$file.close
