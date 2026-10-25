@@ -5,8 +5,8 @@
 #
 #   sh PRA32-U2-Load-Estimate/pra32-u2-load-estimate.sh
 #
-# Needs arduino-cli with the Arduino-Pico core and the MIDI Library (see PRA32-U2-Modification-Guide.md),
-# python3, and: pip install unicorn capstone pyelftools
+# Needs arduino-cli with the Arduino-Pico core and the MIDI Library (see README.md here), python3, and:
+# pip install unicorn capstone pyelftools. Tested on Linux
 set -e
 cd "$(dirname "$0")"
 FQBN='rp2040:rp2040:rpipico2:flash=4194304_0,freq=150,arch=arm,opt=Small,os=none,profile=Disabled,rtti=Disabled,stackprotect=Disabled,exceptions=Disabled,dbgport=Disabled,dbglvl=None,usbstack=tinyusb,ipbtstack=ipv4only,uploadmethod=default'
@@ -18,7 +18,10 @@ for v in $VARIANTS; do
   mkdir -p $src
   cp ../Digital-Synth-PRA32-U2/* $src/
   case $v in m|mp) cp ../Digital-Synth-PRA32-U2-M/Digital-Synth-PRA32-U2-M.ino $src/Digital-Synth-PRA32-U2.ino ;; esac
-  case $v in p|mp) sed -i 's|^//#define PRA32_U2_USE_CONTROL_PANEL |#define PRA32_U2_USE_CONTROL_PANEL |' $src/Digital-Synth-PRA32-U2.ino ;; esac
+  case $v in p|mp)  # Without "sed -i", which differs between GNU and BSD (macOS)
+    sed 's|^//#define PRA32_U2_USE_CONTROL_PANEL |#define PRA32_U2_USE_CONTROL_PANEL |' $src/Digital-Synth-PRA32-U2.ino > $src/ino.tmp
+    mv $src/ino.tmp $src/Digital-Synth-PRA32-U2.ino ;;
+  esac
   arduino-cli compile --fqbn "$FQBN" --build-path build/$v $src > build/$v.log
 done
 
