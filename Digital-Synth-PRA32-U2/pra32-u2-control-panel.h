@@ -313,6 +313,8 @@ static INLINE void PRA32_U2_ControlPanel_update_page() {
   s_display_buffer[0][17] = s_hex_chars[s_current_program[s_current_synth]];
 #endif  // defined(PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN) || defined(PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN)
 
+  // The secondary core draws the display from the start again, after the characters above are written
+  PRA32_U2_COMPILER_MEMORY_BARRIER();
   s_display_draw_counter = -1;
 }
 
