@@ -337,10 +337,17 @@ static PRA32_U2_StereoSample s_fx_outputs[PRA32_U2_I2S_BUFFER_WORDS];
 static volatile uint32_t     s_fx_frames_put  = 0;
 static volatile uint32_t     s_fx_frames_done = 0;
 
+// The FX of the frame i can be processed once the next frame is put (after the synths of it,
+// which the primary core has waited for), or all the frames are
+static INLINE boolean isFxOfFrameReady(uint32_t i, uint32_t frames_put) {
+  boolean next_frame_put = (i + 1 < frames_put);
+  boolean all_frames_put = (frames_put == PRA32_U2_I2S_BUFFER_WORDS) && (i < frames_put);
+  return next_frame_put || all_frames_put;
+}
+
 static void __not_in_flash_func(processFxOfNextFrame)() {
   uint32_t i = s_fx_frames_done;
-  uint32_t frames_put = s_fx_frames_put;
-  if ((i + 1 < frames_put) || ((i < frames_put) && (frames_put == PRA32_U2_I2S_BUFFER_WORDS))) {
+  if (isFxOfFrameReady(i, s_fx_frames_put)) {
     __compiler_memory_barrier();
     s_fx_outputs[i] = g_synth.process_fx(s_fx_inputs[i], s_fx_counts[i]);
     __compiler_memory_barrier();
