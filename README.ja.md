@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 v3.17.4
+# Digital Synth PRA32-U2 v3.17.5
 
-- 2026-10-25 ISGK Instruments
+- 2026-10-26 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 - [English README](./README.md) の抄訳です (英語版が正です)。詳しい仕様は英語版を参照してください
     - 英語のドキュメントは、必要に応じて Web ブラウザーなどの自動翻訳を使ってお読みください
