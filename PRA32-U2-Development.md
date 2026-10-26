@@ -93,10 +93,15 @@ Basically, a release goes as follows:
    `APP_NAME_VERSION` in "pra32-u2-editor.html"; `_version` in the 2 preset JSON files; the headings of the documents
    (README.md, README.ja.md, README-PRA32-U2-P.md with its Info page, the guides, PRA32-U2-Native, and PRA32-U2-Web), and the License of README.md;
    and the dates under the headings ("YYYY-MM-DD ISGK Instruments"), all of them at every release
-4. Commit as "vX.Y.Z"
-5. Run "PRA32-U2 Build" on develop with `commit_package` and `load_estimate`, for the UF2 files, PRA32-U2 Native, PRA32-U2 Web, and the load estimate
-6. Replace the tables in [PRA32-U2 Load Estimate](./PRA32-U2-Load-Estimate/README.md) with those of the version from the summary of the run, and commit them
-   (or estimate the load before step 4 with `sh PRA32-U2-Load-Estimate/pra32-u2-load-estimate.sh`, and replace them with the version)
+4. Estimate the load with `sh PRA32-U2-Load-Estimate/pra32-u2-load-estimate.sh` (it takes the version from "Digital-Synth-PRA32-U2.ino"),
+   and replace the tables in [PRA32-U2 Load Estimate](./PRA32-U2-Load-Estimate/README.md) with those printed
+5. Commit them all as "vX.Y.Z"
+6. Run "PRA32-U2 Build" on develop with `commit_package` only, for the UF2 files, PRA32-U2 Native, and PRA32-U2 Web
+   (`load_estimate` is for an estimate without arduino-cli at hand: the tables are in the summary of the run, and they are committed by hand)
 7. Merge develop into main by a pull request
-8. Make the GitHub Release: the tag "vX.Y.Z" on main, and the notes "# Digital Synth PRA32-U2 vX.Y.Z", the line of what it is, and "## Change History" with the versions of this release
-9. Add the next version to PRA32-U2-Change-History.md ("vX.Y.Z (2026-??-??)")
+8. Make the GitHub Release: the tag "vX.Y.Z" on main, and the notes "# Digital Synth PRA32-U2 vX.Y.Z", the line of what it is,
+   and "## Change History" with the version of this release only; write "#N" (a program, a CC, ...) as "#&#8203;N" (with a zero-width space),
+   so that GitHub does not link it to an issue or a pull request
+9. Add the next version to PRA32-U2-Change-History.md ("vX.Y.Z (2026-??-??)", with "Tested with Arduino-Pico version")
+
+- In the commit messages too, "#N" is linked to an issue or a pull request: write the name of a program instead (e.g. "Sync Lead"), or "CC 112"
