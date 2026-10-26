@@ -16,7 +16,7 @@
     - Add PRA32-U2/M Demo: a demo song of PRA32-U2/M in 4 parts ("Ode to Joy", as a Standard MIDI File and an MP3 file, with its sounds as the user programs for PRA32-U2 Editor),
       and "pra32-u2-m-make-wav-file-from-smf.cc", which renders a Standard MIDI File with PRA32-U2/M to a WAV file on PC
     - Replace "pra32-u2-sample-midi-stream.bin" (and "pra32-u2-generate-sample-midi-stream.rb") with "pra32-u2-sample.mid" (and "pra32-u2-generate-sample-smf.rb"), the same notes as a Standard MIDI File,
-      rendered by "pra32-u2-m-make-wav-file-from-smf.cc" of PRA32-U2/M Demo; remove "pra32-u2-make-sample-wav-file.cc", "pra32-u2-make-sample-wav-file-cc.bat", and "pra32-u2-midi-in.h"
+      rendered by "pra32-u2-m-make-wav-file-from-smf.cc" of PRA32-U2/M Demo (also by "pra32-u2-make-sample-wav-file-cc.bat"); remove "pra32-u2-make-sample-wav-file.cc" and "pra32-u2-midi-in.h"
     - "pra32-u2-wav-file-out.h": Record up to the seconds given (it stopped at the half of them), and write the size of the data in the header right (it was 8 bytes more)
     - Tested with Arduino-Pico version 6.3.0
 - v3.17.4 (2026-10-25):
