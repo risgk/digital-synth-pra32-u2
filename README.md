@@ -93,9 +93,9 @@ graph LR
 
 - "Digital-Synth-PRA32-U2.ino" is an Arduino sketch for Raspberry Pi Pico/RP2040/RP2350 core
     - Modify `PRA32_U2_MIDI_CH` to change the MIDI Channel (0-based: 0 is MIDI Channel 1)
-- "pra32-u2-make-sample-wav-file.cc" is for debugging on PC
+- "PRA32-U2-M-Demo/pra32-u2-m-make-wav-file-from-smf.cc" renders a Standard MIDI File to a WAV file on PC, for debugging
+  (e.g. "pra32-u2-sample.mid", which "pra32-u2-generate-sample-smf.rb" makes; see [PRA32-U2/M Demo](./PRA32-U2-M-Demo/README.md))
     - GCC (g++) for PC is required
-    - "pra32-u2-make-sample-wav-file-cc.bat" makes a sample WAV file (working on Windows)
 - "pra32-u2-generate-*.rb" generates source or header files
     - A Ruby execution environment is required
 
