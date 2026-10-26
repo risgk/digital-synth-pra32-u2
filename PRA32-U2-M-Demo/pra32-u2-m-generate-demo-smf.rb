@@ -6,8 +6,9 @@ require_relative '../Digital-Synth-PRA32-U2/pra32-u2-constants'
 #   Channel 3 (Sub Synth 2): Arpeggio, Channel 4 (Sub Synth 3): Rhythm
 # - D major, 120 BPM, 4/4: an intro of 2 bars, the theme (8 bars), the middle and the theme (8 bars),
 #   them again with the arpeggio and the rhythm busier (8 bars), and the ending
-# - The melody is played by #20 Saw Lead up to the theme, and by #21 Sync Lead from the middle on
-#   (a Program Change of the Main Synth), with a little of the Modulation Wheel from the middle of each long note
+# - The melody is played by #20 Saw Lead up to the theme, by #21 Sync Lead in the middle and the theme,
+#   and by #28 Fifth Lead in them again (Program Changes of the Main Synth), with the Modulation Wheel
+#   up to 64 from the middle of each long note
 
 SMF_FILE = 'pra32-u2-m-demo-ode-to-joy.mid'
 
@@ -55,12 +56,15 @@ SETUP = [
    [AMP_GAIN, 127]],
 ]
 
-# The melody from the middle on: #21 Sync Lead (whose FX are the same as those of #20 Saw Lead)
-SETUP_2ND_HALF = [[PC, 21], [AMP_GAIN, 63]]
-SECOND_HALF_BAR = 10  # The first bar of the middle
+# The melody from the bars: #21 Sync Lead from the middle, and #28 Fifth Lead from them again
+# (whose FX are the same as those of #20 Saw Lead)
+LEAD_CHANGES = {
+  10 => [[PC, 21], [AMP_GAIN, 63]],  # #21 Sync Lead
+  18 => [[PC, 28], [AMP_GAIN, 64]],  # #28 Fifth Lead
+}
 
-# The Modulation Wheel at the most in a long note (a half note or longer), for #20 Saw Lead and #21 Sync Lead
-MODULATION_MAX = [32, 16]
+# The Modulation Wheel at the most in a long note (a half note or longer)
+MODULATION_MAX = 64
 
 KICK  = 36
 SNARE = 55
@@ -120,7 +124,7 @@ def note(channel, tick, note_number, length, velocity, gate)
   event(channel, tick + [(length * gate).to_i, 1].max, [NOTE_OFF | channel, note_number, 64])
 end
 
-# A little of the Modulation Wheel in a long note: up from a third of the note, over a third of it, and back to 0 at its end
+# The Modulation Wheel in a long note: up from a third of the note, over a third of it, and back to 0 at its end
 def modulation(tick, length, max)
   8.times { |k| event(0, tick + (length / 3) + (length / 3) * k / 8, [CONTROL_CHANGE | 0, MODULATION, max * (k + 1) / 8]) }
   event(0, tick + length, [CONTROL_CHANGE | 0, MODULATION, 0])
@@ -142,12 +146,12 @@ BARS.each_with_index do |(melody, chords, busier), b|
   t0 = LEAD_IN + (b * BAR)
 
   # Melody
-  setup(0, t0, SETUP_2ND_HALF) if b == SECOND_HALF_BAR
+  setup(0, t0, LEAD_CHANGES[b]) if LEAD_CHANGES[b]
   if melody
     t = t0
     melody.each do |note_number, length|
       note(0, t, note_number, length, (t == t0) ? 100 : 88, 0.95)
-      modulation(t, length, MODULATION_MAX[(b < SECOND_HALF_BAR) ? 0 : 1]) if length >= 2 * Q
+      modulation(t, length, MODULATION_MAX) if length >= 2 * Q
       t += length
     end
   end
@@ -186,7 +190,7 @@ end
 # The ending: the tonic, held
 t0 = LEAD_IN + (BARS.size * BAR)
 note(0, t0, D5, 3 * Q, 100, 1.0)
-modulation(t0, 3 * Q, MODULATION_MAX[1])
+modulation(t0, 3 * Q, MODULATION_MAX)
 note(1, t0, 38, 2 * Q, 110, 0.9)
 [62, 66, 69, 74, 78, 81].each_with_index { |n, k| note(2, t0 + (k * S), n, S, 70, 0.8) }
 note(3, t0, KICK, S, 124, 0.5)
