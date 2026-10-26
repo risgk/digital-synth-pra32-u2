@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 v3.17.4
+# Digital Synth PRA32-U2 v3.17.5
 
-- 2026-10-25 ISGK Instruments
+- 2026-10-26 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 - [English README](./README.md) の抄訳です (英語版が正です)。詳しい仕様は英語版を参照してください
     - 英語のドキュメントは、必要に応じて Web ブラウザーなどの自動翻訳を使ってお読みください
@@ -20,13 +20,11 @@
 - ビルド済みの UF2 ファイル ("bin" フォルダー内): 改造せずに使うだけなら、Arduino IDE は不要です
     - BOOTSEL ボタンを押しながら Raspberry Pi Pico 2 を PC につなぎ、UF2 ファイルを "RP2350" ドライブにコピーしてください
     - PRA32-U2/M (推奨): "Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2" は Raspberry Pi Pico 2 と Pimoroni Pico Audio Pack 用です
-        - PRA32-U2 の上位互換です: Main Synth (Basic Channel + 0) は PRA32-U2 と同じように動き、Sub Synth と Layering が加わります
+        - PRA32-U2 の上位互換です: Main Synth は PRA32-U2 と同じように動き、Sub Synth と Layering が加わります ([PRA32-U2/M](#pra32-u2m-pra32-u2-multi-timbre-edition) を参照)
         - 注意: MIDI チャンネル 2-4 と 14-16 にも反応します (初期設定)。これらのチャンネルを他の機器に使う場合は、PRA32-U2 を使ってください
     - PRA32-U2: "Digital-Synth-PRA32-U2-Pimoroni-Pico-Audio-Pack.uf2" は Raspberry Pi Pico 2 と Pimoroni Pico Audio Pack 用です
 - Arduino IDE と Arduino-Pico (Earle F. Philhower, III 氏による) で改造できます: [改造の準備](#改造の準備) を参照してください (例えば他の I2S DAC、PWM Audio、パネルを使う場合)
-- オプション
-    - **PRA32-U2/M** (PRA32-U2 Multi-Timbre Edition) も構成できます (下記)
-    - 部品を追加することで、**[PRA32-U2/P](./README-PRA32-U2-P.md)** (PRA32-U2 with Panel、英語) と **PRA32-U2/M/P** も構成できます
+- オプション: 部品を追加することで、**[PRA32-U2/P](./README-PRA32-U2-P.md)** (PRA32-U2 with Panel、英語) と **PRA32-U2/M/P** も構成できます
 - **[PRA32-U2 Native](./PRA32-U2-Native/README.md)** (英語): PC 用のソフトウェア・シンセサイザー版 PRA32-U2 (VST3 プラグインとスタンドアロン・アプリケーション)
 - **[PRA32-U2 Web](./PRA32-U2-Web/README.md)** (英語): Web ブラウザーで動くソフトウェア・シンセサイザー版 PRA32-U2 (PRA32-U2 Editor に内蔵)
 
@@ -75,7 +73,7 @@
     - コードを変更する人向けです。デバッグプリント、2 つのコアでの動き、処理時間を一定に保つ方針 (ブランチレスなど)、負荷の推定、フラッシュへの書き込み、ツールの説明です
 - README の次の節は英語版のみです
     - [Synthesizer Block Diagram](./README.md#synthesizer-block-diagram)
-    - [Files](./README.md#files)、[Customization Examples](./README.md#customization-examples)
+    - [Files](./README.md#files)
 
 
 ## 改造の準備
@@ -83,7 +81,7 @@
 - **Arduino IDE** をインストールしてください
     - 注意: Update Method: "Default (UF2)" 以外を使うと、スケッチの書き込み中に大きなノイズが出ます
 - Arduino-Pico = **Raspberry Pi Pico/RP2040/RP2350** (Earle F. Philhower, III 氏による) コアをインストールしてください
-    - 動作確認したバージョンは英語版の [Preparation for Modification](./README.md#preparation-for-modification) を参照してください
+    - 動作確認したバージョンは英語版の [Preparation for Modification](./PRA32-U2-Modification-Guide.md#preparation-for-modification) を参照してください
 - Arduino **MIDI Library** (Francois Best 氏、lathoub 氏による) をインストールしてください
 - Arduino IDE の "ツール" メニューで USB Stack: "Adafruit TinyUSB" を選んでください (USB MIDI 用)
 - MIDI チャンネルを変えるには、"Digital-Synth-PRA32-U2.ino" の `PRA32_U2_MIDI_CH` を変更してください (0 始まりで、0 が MIDI チャンネル 1 です)
@@ -99,43 +97,64 @@
       PRA32-U2 Editor は PRA32-U2 Web (Built-in) でだけ使えます (PRA32-U2 や他の MIDI 機器とはつながりません)
 - "MIDI Out" のリストで "PRA32-U2" (PRA32-U2/M の場合は "PRA32-U2/M" など) を選んでください
     - PRA32-U2 なしで [PRA32-U2 Web](./PRA32-U2-Web/README.md) を使うには、"PRA32-U2 Web (Built-in)" を選んでください
+
+
+### プログラムとプリセット
+
+- PRA32-U2 Editor は、パラメーターをコントロール・チェンジで PRA32-U2 に送ります。Editor のプリセットは Editor のもので、PRA32-U2 は自身のプログラム (#0-31) を持っています
 - PRA32-U2 Editor を経由すると、プログラム・チェンジの扱いが変わります
     - "MIDI In" から (Editor の MIDI Ch で) 届いたプログラム・チェンジは PRA32-U2 に送らず、Editor がプリセットを読み込んで、そのパラメーターをコントロール・チェンジで送ります
     - #0-15 は Editor のユーザー・プリセット (ブラウザーに保存) で、PRA32-U2 のプログラム #0-15 (Write で書き込んだもの) ではありません
     - #16-31 はファクトリー・プリセットです (PRA32-U2 のプログラム #16-31 と同じ)
     - PRA32-U2 自身のプログラムを選ぶには、Editor を経由せずにプログラム・チェンジを送るか、"Save & Load" の Program Change ボタンを使ってください
-- 主な機能
-    - ファクトリー・プリセット (#16-31) とユーザー・プリセット (#0-15) の読み込み
-    - ユーザー・プリセットはブラウザーに保存され、Store で 10 文字までの名前 (ASCII の英数字と記号) を付けられます
-    - JSON ファイルへのエクスポートと、JSON ファイルからのインポート
-    - Randomize Synth と Randomize FX: シンセや FX のパラメーターをランダムに設定します
-        - Randomize Synth が変えるのは、Editor の最初の 32 個のうち、Voice Mode と Amp Gain を除くパラメーターです
-    - Undo: 直前の変更 (プリセット、Randomize、Import、スライダーの操作) の前のパラメーターに戻します (200 段階まで)。Redo で進めます (Ctrl+Z と、Ctrl+Y または Ctrl+Shift+Z でも。Mac では Command)
-    - "MIDI" と "Actions & Presets" ("Save & Load" を含む) はそれぞれ隠せるので、パラメーターに画面を広く使えます
-    - ボタンやスライダーなどは、どのブラウザーや OS でも同じ見た目 (Chrome 相当) です。タッチ画面では、スライダーのつまみが大きく、ボタンが高くなります
-    - Software Keyboard: マウス、タッチ、PC のキーボード (A - K が C - C、W - U が黒鍵、Z / X がオクターブ) で弾けます
-        - パラメーターの下にあり、パラメーターをスクロールしても画面の下に残るので、弾きながらパラメーターを変えられます。隠すこともできます (Panic は表示されたまま。隠すと Hold はオフになります)
-        - ノートオンとノートオフのベロシティを入力できます (1-127、初期値は 100 と 64)
-        - Hold がオンの間は、離した鍵盤のノートが鳴り続けます (Hold をオフにするか、Panic で止まります)
-        - 鍵盤の下のスライダーで、Pitch Bend (離すと中央に戻ります)、Modulation Wheel、Breath Controller、Expression、Sustain Pedal、Portamento Switch、Channel Pressure を送れます (Performance Controls。スマホなどでは、鍵盤とは別に隠せます)
-    - Write: 現在のパラメーターを PRA32-U2 (プログラム #0-15 とフラッシュ) に書き込みます (下記)
-- PRA32-U2 Editor を使わない場合 (例えば DAW や MIDI キーボードから)
-    - PRA32-U2 は、PRA32-U2 Editor を使わずに MIDI で制御することもできます
-    - Editor で作った音を PRA32-U2 に書き込んでおけば、後で Editor なしで呼び出せます
-        1. Write: Editor の "Save & Load" にある Write ボタン (#0-15) で、現在のパラメーターを PRA32-U2 のプログラムに書き込みます
-           (フラッシュにも書き込まれるので、電源を切っても残ります)。書き込みの前に、Editor に表示されているパラメーターを送り直します
-        2. Editor を経由せずに、PRA32-U2 にプログラム・チェンジ #0-15 を直接送ると、そのプログラムを呼び出せます
-    - 電源を入れたときのプログラムは #0 です
-    - Randomize Synth は PRA32-U2 自身でも実行できます (プログラム・チェンジ #127、またはコントロール・チェンジ #111 を Off (63 以下) から On (64 以上) に)
-    - 対応している機能は [MIDI Implementation Chart](./PRA32-U2-MIDI-Implementation-Chart.md) (英語) を参照してください
+- Editor で作った音を PRA32-U2 に書き込んでおけば、後で Editor なしで呼び出せます
+    1. Write: Editor の "Save & Load" にある Write ボタン (#0-15) で、現在のパラメーターを PRA32-U2 のプログラムに書き込みます
+       (フラッシュにも書き込まれるので、電源を切っても残ります)。書き込みの前に、Editor に表示されているパラメーターを送り直します
+    2. Editor を経由せずに、PRA32-U2 にプログラム・チェンジ #0-15 を直接送ると、そのプログラムを呼び出せます
+- Randomize Synth: シンセのパラメーターをランダムに設定します (プログラム・チェンジ #127、またはコントロール・チェンジ #111 を Off (63 以下) から On (64 以上) に)
+    - 変えるのは、Editor の最初の 32 個のうち、Voice Mode と Amp Gain を除くパラメーターです
+    - PRA32-U2 に直接送れば、PRA32-U2 自身でも実行できます
 
 
-## PRA32-U2/M (PRA32-U2 Multi-Timbre Edition) (オプション)
+### Editor を使わない場合
 
+- PRA32-U2 は、PRA32-U2 Editor を使わずに MIDI で制御することもできます (例えば DAW や MIDI キーボードから)
+- 電源を入れたときのプログラムは #0 です。Write で書き込んだプログラムは、プログラム・チェンジ #0-15 で呼び出せます (上記)
+- 対応している機能は [MIDI Implementation Chart](./PRA32-U2-MIDI-Implementation-Chart.md) (英語) を参照してください
+
+
+### 主な機能
+
+- ファクトリー・プリセット (#16-31) とユーザー・プリセット (#0-15) の読み込み
+- ユーザー・プリセットはブラウザーに保存され、Store で 10 文字までの名前 (ASCII の英数字と記号) を付けられます
+- JSON ファイルへのエクスポートと、JSON ファイルからのインポート
+- Randomize Synth と Randomize FX: シンセや FX のパラメーターをランダムに設定します
+- Undo: 直前の変更 (プリセット、Randomize、Import、スライダーの操作) の前のパラメーターに戻します (200 段階まで)。Redo で進めます (Ctrl+Z と、Ctrl+Y または Ctrl+Shift+Z でも。Mac では Command)
+- "MIDI" と "Actions & Presets" ("Save & Load" を含む) はそれぞれ隠せるので、パラメーターに画面を広く使えます
+- ボタンやスライダーなどは、どのブラウザーや OS でも同じ見た目 (Chrome 相当) です。タッチ画面では、スライダーのつまみが大きく、ボタンが高くなります
+- Software Keyboard: マウス、タッチ、PC のキーボード (A - K が C - C、W - U が黒鍵、Z / X がオクターブ) で弾けます
+    - パラメーターの下にあり、パラメーターをスクロールしても画面の下に残るので、弾きながらパラメーターを変えられます。隠すこともできます (Panic は表示されたまま。隠すと Hold はオフになります)
+    - ノートオンとノートオフのベロシティを入力できます (1-127、初期値は 100 と 64)
+    - Hold がオンの間は、離した鍵盤のノートが鳴り続けます (Hold をオフにするか、Panic で止まります)
+    - 鍵盤の下のスライダーで、Pitch Bend (離すと中央に戻ります)、Modulation Wheel、Breath Controller、Expression、Sustain Pedal、Portamento Switch、Channel Pressure を送れます (Performance Controls。スマホなどでは、鍵盤とは別に隠せます)
+
+
+## PRA32-U2/M (PRA32-U2 Multi-Timbre Edition)
+
+- Basic Channel は PRA32-U2 の MIDI チャンネル (初期値 1、`PRA32_U2_MIDI_CH`) で、各シンセのチャンネルはそれを基準に決まります
 - Basic Channel + 0 (初期値 1) が Main Synth、+ 1 から + 3 (初期値 2-4) が Sub Synth 1-3 (Mono) です
     - Sub Synth は、Main Synth が Mono 系のモードのときだけ処理されます
 - Layering: Basic Channel - 3 から - 1 (初期値 14-16) で、複数のシンセを同時に制御します
-- 詳しくは英語版の [PRA32-U2/M](./README.md#pra32-u2m-pra32-u2-multi-timbre-edition-optional) を参照してください
+- 詳しくは英語版の [PRA32-U2/M](./README.md#pra32-u2m-pra32-u2-multi-timbre-edition) を参照してください
+
+
+## 改造サンプル
+
+- "customization-examples" フォルダーのファイルです。それぞれがスケッチで、"Digital-Synth-PRA32-U2.ino" (PRA32-U2/M では "Digital-Synth-PRA32-U2-M.ino") の代わりに使います
+- **Digital Synth PRA32-U2 (Lite)** と **Digital Synth PRA32-U2/M (Lite)**: Saw、Sqr、WT で Osc 1 Shape と Morph が効かない代わりに、シンセを 1 つのコア (コア 0) で処理します
+    - "...Lite-Core-0-Only.txt": 通常のスケッチと同じく、MIDI (USB MIDI と UART MIDI)、パネル、デバッグプリントがあります。コア 1 はパネルの更新とデバッグプリントだけを行います
+    - "...Lite-Core-1-Only.txt": シンセと音声出力だけで、MIDI、パネル、デバッグプリントはありません (このままでは音が出ません)。`loop()` の `// TODO` に自分のコードを書いて、シンセを鳴らすための雛形です
+- 詳しくは英語版の [Customization Examples](./README.md#customization-examples) を参照してください
 
 
 ## うまく動かない場合

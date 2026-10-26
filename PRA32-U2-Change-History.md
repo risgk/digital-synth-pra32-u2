@@ -1,5 +1,29 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v3.17.5 (2026-10-26):
+    - Presets: #22 Synth Bass: Filter Cutoff 52 to 40 and Filter Resonance 96 to 64 (darker); #24 Synth Brs: Filter Cutoff 88 to 94 (brighter);
+      #21 Sync Lead and #26 WT Pad: LFO Mod Amt 72 to 64 and LFO Filter Amt 64 to 76 (the Modulation Wheel moves the Filter Cutoff, as on #24 Synth Brs, instead of Osc 1 Shape);
+      #24 Synth Brs: LFO Mod Dst 0 to 76 (Osc 2 Pitch, for LFO Mod Amt); and the user programs #5, #6, #8, and #10 at first, the same as the presets (also the Factory Presets of PRA32-U2 Editor)
+    - Process Program Change by CC (#112-119) and Special Random Control (#111) as the Program Changes (#0-7 and #127), which are processed as one when they arrive one after another (v3.17.2 and v3.17.3), so that a stream of them does not overload a loop either
+        - Customization Examples (Core 0 Only): The same
+    - Process the FX (Chorus, Delay, and the Output Compressor) on the secondary core (core 1), a frame after the synths, in the same loop (the same output, with no more latency), so that the primary core (core 0) has more time to spare
+        - About 17% less of a loop on core 0 in Poly (estimated), and about 4% less with the 4 Synths of PRA32-U2/M/P on the device (1205 us from 1258 us), where core 1 is then about as busy
+        - The FX update their controls at the low rate in `process_fx()` (with the count of the synth for the frame), not in `process()`; the Customization Examples are the same, a little slower (less than 1%)
+        - PRA32-U2/M/P: The RAM is about 3 KB more (95% to 96%)
+    - Compiler memory barriers where a core hands the processing over to the other (the Voices 2 and 3, and the display of the panel drawn from the start again), and `g_synth_is_in_polyphonic_mode` of PRA32-U2/M volatile, so that the compiler cannot move what the other core reads (no change seen so far)
+    - README.md and README.ja.md: What each of the Customization Examples has, the Basic Channel, PRA32-U2/M (Multi-Timbre Edition) as an edition (not optional), "Randomize Synth" as in the other documents, and PRA32-U2 Editor in "Programs and Presets", "Without PRA32-U2 Editor", and "Functions"
+        - README.ja.md: Add the Customization Examples, and fix the link to Preparation for Modification
+    - PRA32-U2 Load Estimate: Tell the stores of core 1 by the instructions, not by a hook on the writes of Unicorn, which breaks the conditional stores of an IT block (a loop of the Delay ran over again on core 1)
+    - PRA32-U2 Load Estimate: The Program Changes back to back for Poly too (instead of every 30 bytes, for Poly and the 4 Synths), UART MIDI with Running Status, all 4 built with Debug Print as measured on the device,
+      PRA32-U2/P and PRA32-U2/M/P with all of the keys (SW1-6), and the keys read as released
+        - Add `--adc` (the knobs turned), `--keys`, and `--keys-held` (the keys pressed) to "pra32-u2-load-estimate.py", for PRA32-U2/P
+        - Add `--modules` (the load of each module on each core, from the debug info), and the table of the modules; keep the estimate of the latest version only
+    - Add PRA32-U2/M Demo: a demo song of PRA32-U2/M in 4 parts ("Ode to Joy", as a Standard MIDI File and an MP3 file, with its sounds as the user programs for PRA32-U2 Editor),
+      and "pra32-u2-m-make-wav-file-from-smf.cc", which renders a Standard MIDI File with PRA32-U2/M to a WAV file on PC
+    - Replace "pra32-u2-sample-midi-stream.bin" (and "pra32-u2-generate-sample-midi-stream.rb") with "pra32-u2-sample.mid" (and "pra32-u2-generate-sample-smf.rb"), the same notes as a Standard MIDI File,
+      rendered by "pra32-u2-m-make-wav-file-from-smf.cc" of PRA32-U2/M Demo (also by "pra32-u2-make-sample-wav-file-cc.bat"); remove "pra32-u2-make-sample-wav-file.cc" and "pra32-u2-midi-in.h"
+    - "pra32-u2-wav-file-out.h": Record up to the seconds given (it stopped at the half of them), and write the size of the data in the header right (it was 8 bytes more)
+    - Tested with Arduino-Pico version 6.3.0
 - v3.17.4 (2026-10-25):
     - PRA32-U2/M: Layering: Wrap the programs of the Sub Synths (Program # + 1 to + 3) around in the user programs (#0-15) and in the presets (#16-31) each, instead of in #0-63 (#32-63 did nothing), and make Program Change #127 (Random Control) for all the synths (instead of #0-2 for the Sub Synths)
         - Customization Examples (Core 0 Only): The same

@@ -15,7 +15,9 @@
 #   run, the bytes of --uart-midi arrive at 31250 bps and those of --usb-midi as fast as they are
 #   read, through stand-ins for available() and read() of SerialUART and Adafruit_USBD_MIDI
 # - Core 1 is busy but while it spins: the cycles since its last store (but to its stack) count if
-#   they are few, and are a wait if they are many (see SPIN_CYCLES)
+#   they are few, and are a wait if they are many (see SPIN_CYCLES); the stores are told by the
+#   instructions (not by a hook on the writes of Unicorn, which breaks the conditional stores of
+#   an IT block, and then runs a loop over again)
 # - Left out: the waits of the flash (XIP), the contention of the cores on the bus, the interrupts
 #   (e.g. USB), and the I2C transfers of the panel's display; so the estimate is a little low on
 #   these, and may be a little high on the loads (2 cycles each)
@@ -36,11 +38,15 @@ ap.add_argument('--write', default='', help='Write Program after them, of the pa
 ap.add_argument('--notes', default='60,64,67,71', help='Note Ons (velocity 100) after them: [CH:]NOTE,...')
 ap.add_argument('--uart-midi', default='', help='bytes (hex) that arrive by UART MIDI over and over, at 31250 bps, e.g. "C0 00 C0 0A"')
 ap.add_argument('--usb-midi', default='', help='bytes (hex) that arrive by USB MIDI over and over, as fast as they are read')
+ap.add_argument('--adc', type=float, default=0, help='loops in which the knobs (ADC0-2) of the panel (PRA32-U2/P) are turned all the way and back, over and over (0: not turned)')
+ap.add_argument('--keys', default='', help='pins of the keys of the panel (PRA32-U2/P) pressed for 16 loops and released for 32, over and over (as fast as the panel takes them), e.g. 19 (SW4: Prog +)')
+ap.add_argument('--keys-held', default='', help='pins of the keys of the panel held all the time, e.g. 21 (SW5: Shift)')
 ap.add_argument('--loops', type=int, default=24, help='loops to run in all')
 ap.add_argument('--skip', type=int, default=8, help='loops left out of the statistics (warm-up)')
 ap.add_argument('--mhz', type=float, default=153.6, help='system clock, the sketch\'s 153.6 MHz by default')
 ap.add_argument('--slice', type=int, default=200, help='cycles a core runs at a time')
 ap.add_argument('--profile', action='store_true', help='print the functions that take the most cycles')
+ap.add_argument('--modules', action='store_true', help='print the load of each module (class) of the synth on each core, from the debug info')
 ap.add_argument('--brief', action='store_true', help='print a line: core 0 avg%%, max%%, core 1 avg%%, max%%')
 args = ap.parse_args()
 
@@ -73,7 +79,6 @@ def func(sub):
 # and the interpolators) and PPB, one each.
 FLASH, SRAM = 0x10000000, 0x20000000
 STACK = [0x20082000, 0x20081000]  # core 0 in SCRATCH_Y, core 1 in SCRATCH_X
-STACK_1 = (0x20080000, 0x20081000)
 shared = [(FLASH, 0x01000000), (SRAM, 0x00083000), (0x40000000, 0x00200000), (0x50000000, 0x00200000)]
 buffers = [ctypes.create_string_buffer(size) for _, size in shared]
 cores = []
@@ -109,6 +114,16 @@ def interp_read(uc, access, address, size, value, _):
 for uc in cores:
     uc.hook_add(UC_HOOK_MEM_READ, interp_read, begin=0xd0000080, end=0xd00000bf)
 
+# The ADC (RESULT, 12 bits) of the panel's knobs: turned all the way and back in --adc loops, over
+# and over (as a triangle wave of the time); the panel reads it once per sample
+ADC_RESULT = 0x400a0004
+def adc_read(uc, access, address, size, value, _):
+    if args.adc and measuring_['on']:
+        t = (max(clock) / (args.mhz * 1e6 * 64 / 48000) / args.adc) % 1
+        uc.mem_write(ADC_RESULT, struct.pack('<I', int(4095 * (1 - abs(2 * t - 1)))))
+for uc in cores:
+    uc.hook_add(UC_HOOK_MEM_READ, adc_read, begin=ADC_RESULT, end=ADC_RESULT + 3)
+
 # Cortex-M33 cost model, cycles per instruction, first-order (as in SPMS-1's sim_load): 1 for most,
 # 2 for a single load, 1 more per register for a multiple load or store, 6 for an integer divide,
 # 14 for a floating-point divide or square root, and 2 more after a taken branch.
@@ -128,13 +143,27 @@ def cost(insn):
         return 2
     return 1
 decoded = {}
+def store_not_to_stack(insn):
+    """A store but to the stack (by SP), for the spins of core 1"""
+    if insn is None:
+        return False
+    m = insn.mnemonic.split('.')[0]
+    if m in ('push', 'vpush'):
+        return False
+    if re.match(r'(str|stm|vstr|vstm|stl|strex)', m):
+        for op in insn.operands:
+            if op.type == ARM_OP_MEM:
+                return op.mem.base != ARM_REG_SP
+        return insn.operands[0].type != ARM_OP_REG or insn.operands[0].reg != ARM_REG_SP  # stm: the base first
+    return False
+
 def decode(uc, addr, size):
     d = decoded.get(addr)
     if d is None:
         insn = next(md.disasm(bytes(uc.mem_read(addr, size)), addr), None)
         # An IT block is not broken by the end of a slice, as a resumed run would lose its state
         it = len(insn.mnemonic) - 1 if insn and re.fullmatch(r'it[te]{0,3}', insn.mnemonic) else 0
-        d = (cost(insn) if insn else 1, it)
+        d = (cost(insn) if insn else 1, it, store_not_to_stack(insn))
         decoded[addr] = d
     return d
 
@@ -158,6 +187,18 @@ for a, size, n in funcs:
         continue
     if (any(p in n for p in STUBBED) and 'PRA32_U2' not in n) or 'wait_for_writable' in n:
         stubs[a] = lambda uc: ret(uc, 0)
+# The keys of the panel (PRA32-U2/P) are released (high, with the pull-ups), but those of --keys
+# while they are pressed (low): for 16 loops of each 48, as the panel takes a key pressed for 15 loops
+# and released for 30; and those of --keys-held all the time
+KEY_PINS = {int(k) for k in filter(None, args.keys.split(','))}
+HELD_KEY_PINS = {int(k) for k in filter(None, args.keys_held.split(','))}
+def digital_read(uc):
+    pin = regs(uc)[0]
+    pressed = measuring_['on'] and ((pin in KEY_PINS and len(loops) % 48 < 16) or pin in HELD_KEY_PINS)
+    ret(uc, 0 if pressed else 1)
+for n in ('digitalRead', '__digitalRead'):
+    if n in func_names:
+        stubs[func_names[n][0]] = digital_read
 
 # The double-precision helpers of the pico SDK, which run on the RP2350's DCP (not in Unicorn),
 # computed here instead; the synth uses them only while it sets up.
@@ -281,24 +322,24 @@ def make_hook(c):
         if fn:
             fn(uc)
             return
-        cycles, it = decode(uc, addr, size)
+        cycles, it, store = decode(uc, addr, size)
         clock[c] += cycles
         if c == 1:
             busy_1['pending'] += cycles
-        if args.profile and measuring:
+        if (args.profile or args.modules) and measuring:
             p = pending_profile if c == 1 else profile[0]
-            k = sym_of(addr)
+            k = addr if args.modules else sym_of(addr)
             p[k] = p.get(k, 0) + cycles
         if it_left[c]:
             it_left[c] -= 1
         if it:
             it_left[c] = it
+        if c == 1 and store:
+            store_1()
         if clock[c] >= target[c] and it_left[c] == 0:
             uc.emu_stop()
     return hook
-def store_1(uc, access, address, size, value, _):
-    if STACK_1[0] <= address < STACK_1[1]:
-        return
+def store_1():
     if busy_1['pending'] <= SPIN_CYCLES:
         busy_1['total'] += busy_1['pending']
         for k, v in pending_profile.items():
@@ -312,7 +353,6 @@ def unmapped(uc, access, address, size, value, _):
 for c, uc in enumerate(cores):
     uc.hook_add(UC_HOOK_CODE, make_hook(c))
     uc.hook_add(UC_HOOK_MEM_UNMAPPED, unmapped)
-cores[1].hook_add(UC_HOOK_MEM_WRITE, store_1)
 
 def call(c, addr, *a):
     """Runs a function on a core alone, to its return."""
@@ -355,6 +395,10 @@ if args.write:
     cores[0].mem_write(names['_ZL25g_eeprom_commit_requested'], b'\0')
 for ch, n in items(args.notes):
     call(0, func('handleNoteOn'), ch, int(n), 100)
+# The panel takes the knobs and the keys after 75 loops from the start: skipped here, for them
+INITIALIZE_COUNTER = '_ZZ36PRA32_U2_ControlPanel_update_controlvE20s_initialize_counter'
+if (args.adc or args.keys or args.keys_held) and INITIALIZE_COUNTER in names:
+    cores[0].mem_write(names[INITIALIZE_COUNTER], struct.pack('<I', 75))
 
 # Both cores together: core 0 runs loop() over and over, and core 1 loop1(), which never returns;
 # the core whose clock is behind runs next.
@@ -409,3 +453,72 @@ if args.profile:
         print('core %d:' % c)
         for k, v in sorted(profile[c].items(), key=lambda kv: -kv[1])[:12]:
             print('  %5.1f%%  %s' % (100 * v / total, k))
+
+# --modules: the cycles of each core by the module (class) of the synth that its code is of, from the
+# debug info: the outermost function of a module inlined there (or the function itself, if not
+# inlined), else the synth itself (its voices, parameters, and mixing) or the sketch (MIDI, the panel)
+if args.modules:
+    MODULES = ['Osc', 'Filter', 'Amp', 'EG', 'LFO', 'NoiseGen', 'ChorusFx', 'DelayFx', 'Panner',
+               'OutputCompressor', 'OutputLimiter', 'OutputFader']
+    def class_of(name):
+        for m in MODULES:
+            if ('%dPRA32_U2_%s' % (len('PRA32_U2_' + m), m)) in name:
+                return m
+        return None
+    def die_class(die):
+        for _ in range(6):
+            for attr in ('DW_AT_linkage_name', 'DW_AT_MIPS_linkage_name'):
+                if attr in die.attributes:
+                    return class_of(die.attributes[attr].value.decode())
+            parent = die.get_parent()
+            if parent is not None and parent.tag in ('DW_TAG_class_type', 'DW_TAG_structure_type') and 'DW_AT_name' in parent.attributes:
+                n = parent.attributes['DW_AT_name'].value.decode()
+                return n[len('PRA32_U2_'):] if n[len('PRA32_U2_'):] in MODULES else None
+            o = die.attributes.get('DW_AT_abstract_origin') or die.attributes.get('DW_AT_specification')
+            if not o:
+                return None
+            die = die.get_DIE_from_attribute(o.name)
+        return None
+    executed = sorted(set(profile[0]) | set(profile[1]))
+    owner = {}
+    dw = elf.get_dwarf_info()
+    rl = dw.range_lists()
+    def die_ranges(die, cu):
+        a = die.attributes
+        if 'DW_AT_low_pc' in a and 'DW_AT_high_pc' in a:
+            lo = a['DW_AT_low_pc'].value
+            hi = a['DW_AT_high_pc'].value
+            return [(lo, hi if a['DW_AT_high_pc'].form == 'DW_FORM_addr' else lo + hi)]
+        out = []
+        if 'DW_AT_ranges' in a:
+            base = cu.get_top_DIE().attributes.get('DW_AT_low_pc')
+            base = base.value if base else 0
+            for e in rl.get_range_list_at_offset(a['DW_AT_ranges'].value, cu=cu):
+                if hasattr(e, 'base_address'):
+                    base = e.base_address
+                elif hasattr(e, 'begin_offset'):
+                    out.append((e.begin_offset + base, e.end_offset + base))
+        return out
+    for cu in dw.iter_CUs():
+        def walk(die):  # the outermost function of a module claims its addresses first
+            for ch in die.iter_children():
+                if ch.tag in ('DW_TAG_subprogram', 'DW_TAG_inlined_subroutine'):
+                    cls = die_class(ch)
+                    if cls:
+                        for lo, hi in die_ranges(ch, cu):
+                            for i in range(bisect.bisect_left(executed, lo & ~1), bisect.bisect_left(executed, hi)):
+                                owner.setdefault(executed[i], cls)
+                        continue
+                walk(ch)
+        walk(cu.get_top_DIE())
+    print('modules, of %.0f us (avg per loop): core 0 / core 1' % budget_us)
+    rows = {}
+    for c in (0, 1):
+        for a, v in profile[c].items():
+            k = owner.get(a)
+            if k is None:
+                n = sym_of(a)
+                k = 'Synth' if 'PRA32_U2_Synth' in n else 'Sketch' if n in ('loop', 'loop1') else 'Other'
+            rows.setdefault(k, [0, 0])[c] += v
+    for k, (v0, v1) in sorted(rows.items(), key=lambda kv: -sum(kv[1])):
+        print('  %-16s %5.1f%% / %5.1f%%' % (k, percent(v0 / args.loops), percent(v1 / args.loops)))

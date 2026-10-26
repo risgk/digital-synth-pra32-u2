@@ -16,6 +16,16 @@
 #define PRA32_U2_TABLE_IN_RAM(name)
 #endif  // defined(ARDUINO_ARCH_RP2040)
 
+// Keeps the compiler from moving the memory accesses across it, where a core hands over the
+// processing to the other (the Pico SDK's __compiler_memory_barrier(), also on the other hosts:
+// std::atomic_signal_fence() is the same, a barrier of the compiler only, and MSVC has it too)
+#if defined(ARDUINO_ARCH_RP2040)
+#define PRA32_U2_COMPILER_MEMORY_BARRIER() __compiler_memory_barrier()
+#else  // defined(ARDUINO_ARCH_RP2040)
+#include <atomic>
+#define PRA32_U2_COMPILER_MEMORY_BARRIER() std::atomic_signal_fence(std::memory_order_seq_cst)
+#endif  // defined(ARDUINO_ARCH_RP2040)
+
 struct PRA32_U2_StereoSample {
   int32_t left;
   int32_t right;

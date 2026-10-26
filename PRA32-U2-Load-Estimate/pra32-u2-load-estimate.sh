@@ -22,8 +22,15 @@ for v in $VARIANTS; do
   mkdir -p $src
   cp ../Digital-Synth-PRA32-U2/* $src/
   case $v in m|mp) cp ../Digital-Synth-PRA32-U2-M/Digital-Synth-PRA32-U2-M.ino $src/Digital-Synth-PRA32-U2.ino ;; esac
-  case $v in p|mp)  # Without "sed -i", which differs between GNU and BSD (macOS)
-    sed 's|^//#define PRA32_U2_USE_CONTROL_PANEL |#define PRA32_U2_USE_CONTROL_PANEL |' $src/Digital-Synth-PRA32-U2.ino > $src/ino.tmp
+  # With Debug Print (USB Serial), as measured on the device; without "sed -i", which differs between GNU and BSD (macOS)
+  sed 's|^//#define PRA32_U2_USE_DEBUG_PRINT$|#define PRA32_U2_USE_DEBUG_PRINT|' $src/Digital-Synth-PRA32-U2.ino > $src/ino.tmp
+  mv $src/ino.tmp $src/Digital-Synth-PRA32-U2.ino
+  case $v in p|mp)  # With all of the keys (SW1-6)
+    sed -e 's|^//#define PRA32_U2_USE_CONTROL_PANEL |#define PRA32_U2_USE_CONTROL_PANEL |' \
+        -e 's|^//#define PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN |#define PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN |' \
+        -e 's|^//#define PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN |#define PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN |' \
+        -e 's|^//#define PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN |#define PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN |' \
+        $src/Digital-Synth-PRA32-U2.ino > $src/ino.tmp
     mv $src/ino.tmp $src/Digital-Synth-PRA32-U2.ino ;;
   esac
   arduino-cli compile --fqbn "$FQBN" --build-path build/$v $src > build/$v.log
@@ -66,23 +73,49 @@ echo "| :-- | --: | --: |"
 # the user programs #0 (and #1-3 for the Sub Synths) for the time of the estimate
 POLY='--program 5 --cc 18=0,35=127 --write 0'
 SYNTHS='--program 1:5,2:5,3:5,4:5 --cc 1:35=127 --write 1:0,2:1,3:2,4:3 --notes 16:60,16:64,16:67,16:71'
+# By UART MIDI with Running Status, the fastest (the status byte once, then the data bytes over and over,
+# a Note Off as a Note On of velocity 0); USB MIDI has the status byte in every packet
 NOTE_ON_OFF='904864804840'  # Note On and Off of the note 72
-EVERY_30_BYTES="$(printf 'FE%.0s' $(seq 28))"  # 28 Active Sensings: about 10 ms by UART MIDI, 6 loops by USB MIDI
+NOTE_ON_OFF_RS="90$(printf '48644800%.0s' $(seq 64))"
+PROGRAM_CHANGES_RS="C0$(printf '00%.0s' $(seq 255))"
+NOTE_ON_OFF_16='9F48648F4840'
+NOTE_ON_OFF_16_RS="9F$(printf '48644800%.0s' $(seq 64))"
+PROGRAM_CHANGES_16_RS="CF$(printf '00%.0s' $(seq 255))"
+PC_BY_CC_RS="B0$(printf '707F7000%.0s' $(seq 64))"  # Program Change by CC #112 (#0), the value 127 and 0 by turns
+PC_BY_CC_16_RS="BF$(printf '707F7000%.0s' $(seq 64))"
 row '#0 Synth Pad, 4 notes' "$ESTIMATED" --program 0
 row 'Poly: #5 Sync Lead (Osc 1 Wave Sqr) in Poly with Delay Mode Rev, 4 notes' "$ESTIMATED" $POLY
-row 'Poly, with Note On and Off of another note by UART MIDI and USB MIDI' "$ESTIMATED" $POLY \
-  --uart-midi $NOTE_ON_OFF --usb-midi $NOTE_ON_OFF
-row 'Poly, with Program Change #0 (Poly itself) every 30 bytes by UART MIDI and USB MIDI' "$ESTIMATED" $POLY \
-  --uart-midi C000$EVERY_30_BYTES --usb-midi C000$EVERY_30_BYTES
+row 'Poly, with Note On and Off of another note by UART MIDI (Running Status) and USB MIDI' "$ESTIMATED" $POLY \
+  --uart-midi $NOTE_ON_OFF_RS --usb-midi $NOTE_ON_OFF
+row 'Poly, with Program Change #0 (Poly itself) back to back by UART MIDI (Running Status) and USB MIDI' "$ESTIMATED" $POLY \
+  --uart-midi $PROGRAM_CHANGES_RS --usb-midi C000
+row 'Poly, with Program Change by CC #112 (#0) back to back by UART MIDI (Running Status) and USB MIDI' "$ESTIMATED" $POLY \
+  --uart-midi $PC_BY_CC_RS --usb-midi B0707FB07000
 row '4 Synths: #5 Sync Lead (Mono, and Delay Mode Rev) by MIDI Channel 16 (Layering), 4 notes' 'mp' $SYNTHS
-row '4 Synths, with Note On and Off of another note by MIDI Channel 16 by UART MIDI and USB MIDI' 'mp' $SYNTHS \
-  --uart-midi 9F48648F4840 --usb-midi 9F48648F4840
-row '4 Synths, with Program Change #0 (4 Synths itself) by MIDI Channel 16 every 30 bytes by UART MIDI and USB MIDI' 'mp' $SYNTHS \
-  --uart-midi CF00$EVERY_30_BYTES --usb-midi CF00$EVERY_30_BYTES
-row '4 Synths, with Program Change #0 (4 Synths itself) by MIDI Channel 16 back to back by UART MIDI and USB MIDI' 'mp' $SYNTHS \
-  --uart-midi CF00 --usb-midi CF00
+row '4 Synths, with Note On and Off of another note by MIDI Channel 16 by UART MIDI (Running Status) and USB MIDI' 'mp' $SYNTHS \
+  --uart-midi $NOTE_ON_OFF_16_RS --usb-midi $NOTE_ON_OFF_16
+row '4 Synths, with Program Change #0 (4 Synths itself) by MIDI Channel 16 back to back by UART MIDI (Running Status) and USB MIDI' 'mp' $SYNTHS \
+  --uart-midi $PROGRAM_CHANGES_16_RS --usb-midi CF00
+row '4 Synths, with Program Change by CC #112 (#0) by MIDI Channel 16 back to back by UART MIDI (Running Status) and USB MIDI' 'mp' $SYNTHS \
+  --uart-midi $PC_BY_CC_16_RS --usb-midi BF707FBF7000
 echo
 echo "⚠: over 100% (1333 us), △: over 95%"
+echo
+# The load of each module (class), the average of core 0 / core 1, in the heaviest of each
+modules() {  # variant, options: prints "module core0% core1%"
+  v=$1
+  shift
+  python3 pra32-u2-load-estimate.py build/$v/Digital-Synth-PRA32-U2.ino.elf --modules "$@" |
+    awk '/^modules,/ { m = 1; next } m { print $1, $2, $4 }'
+}
+modules u2 $POLY > build/modules-u2.txt
+modules mp $SYNTHS > build/modules-mp.txt
+echo "| Module (core 0 / core 1, avg) | PRA32-U2, Poly | PRA32-U2/M/P, 4 Synths |"
+echo "| :-- | --: | --: |"
+awk 'NR == FNR { a[$1] = $2 " / " $3; order[++n] = $1; next }
+     { b[$1] = $2 " / " $3; if (!($1 in a)) order[++n] = $1 }
+     END { for (i = 1; i <= n; i++) { k = order[i]; printf "| %s | %s | %s |\n", k, (k in a) ? a[k] : "-", (k in b) ? b[k] : "-" } }' \
+  build/modules-u2.txt build/modules-mp.txt
 echo
 echo "| RAM (global variables) | PRA32-U2 | PRA32-U2/M | PRA32-U2/P | PRA32-U2/M/P |"
 echo "| :-- | --: | --: | --: | --: |"

@@ -2,7 +2,7 @@
  * Digital Synth PRA32-U2/M
  */
 
-#define PRA32_U2_VERSION                       "v3.17.4   "
+#define PRA32_U2_VERSION                       "v3.17.5   "
 
 //#define PRA32_U2_USE_DEBUG_PRINT
 
@@ -104,7 +104,8 @@ uint8_t g_midi_ch = PRA32_U2_MIDI_CH;
 #include "pra32-u2-common.h"
 #include "pra32-u2-synth.h"
 
-boolean g_synth_is_in_polyphonic_mode = true;
+// Written by the primary core at the start of a loop, and read by the secondary core every frame
+volatile boolean g_synth_is_in_polyphonic_mode = true;
 PRA32_U2_Synth<false, false, true, 0, false, false> g_synth;
 PRA32_U2_Synth<true,  false, true, 1, false, true>  g_sub_1_synth;
 PRA32_U2_Synth<true,  false, true, 2, false, true>  g_sub_2_synth;
@@ -270,6 +271,29 @@ static void __not_in_flash_func(programChange)(uint32_t synth, uint8_t program_n
   programChangeOf(synth, program_number);
 }
 
+// Program Change by CC (#112-119: the programs #0-7) and Special Random Control (#111: #127) are
+// kept as the Program Changes too, when the value goes up from 63 or below to 64 or above, so that a
+// stream of them does not overload a loop either; the synths do not get them
+static uint8_t s_special_cc_values[4][PC_BY_CC_7 - SP_RAND_CTRL + 1];
+
+static void __not_in_flash_func(controlChange)(uint32_t synth, uint8_t number, uint8_t value) {
+  if ((number >= SP_RAND_CTRL) && (number <= PC_BY_CC_7)) {
+    uint8_t old_value = s_special_cc_values[synth][number - SP_RAND_CTRL];
+    s_special_cc_values[synth][number - SP_RAND_CTRL] = value;
+    if ((old_value <= 63) && (value >= 64)) {
+      programChange(synth, (number == SP_RAND_CTRL) ? 127 : (number - PC_BY_CC_0));
+    }
+    return;
+  }
+  processPendingProgramChanges();
+  switch (synth) {
+  case 0: g_synth      .control_change(number, value); break;
+  case 1: g_sub_1_synth.control_change(number, value); break;
+  case 2: g_sub_2_synth.control_change(number, value); break;
+  case 3: g_sub_3_synth.control_change(number, value); break;
+  }
+}
+
 #if defined(PRA32_U2_ENABLE_LAYERING)
 // The program for the synth #k of the Layering: the program + k, wrapping around in the user
 // programs (#0-15) and in the presets (#16-31) each; #127 Random Control is for all the synths too
@@ -301,6 +325,38 @@ void __not_in_flash_func(setup1)() {
 #endif  // defined(PRA32_U2_USE_DEBUG_PRINT) && !defined(PRA32_U2_DEBUG_PRINT_USE_USB_SERIAL)
 }
 
+#if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
+// The FX of the frames (the Chorus, the Delay, and the Output Compressor) are processed by the
+// secondary core, between the synths that it processes for the primary core, which has less time
+// to spare: the primary core puts the FX input of each frame (s_fx_bus, of all the synths) here,
+// with the count of the Main Synth for it, and takes the outputs at the end of the loop, when all
+// of them are done. Those of a frame wait for the synths of the next one (but the last), which
+// the primary core waits for, so that they are not delayed by the FX
+static PRA32_U2_FxBusSample  s_fx_inputs [PRA32_U2_I2S_BUFFER_WORDS];
+static uint32_t              s_fx_counts [PRA32_U2_I2S_BUFFER_WORDS];
+static PRA32_U2_StereoSample s_fx_outputs[PRA32_U2_I2S_BUFFER_WORDS];
+static volatile uint32_t     s_fx_frames_put  = 0;
+static volatile uint32_t     s_fx_frames_done = 0;
+
+// The FX of the frame i can be processed once the next frame is put (after the synths of it,
+// which the primary core has waited for), or all the frames are
+static INLINE boolean isFxOfFrameReady(uint32_t i, uint32_t frames_put) {
+  boolean next_frame_put = (i + 1 < frames_put);
+  boolean all_frames_put = (frames_put == PRA32_U2_I2S_BUFFER_WORDS) && (i < frames_put);
+  return next_frame_put || all_frames_put;
+}
+
+static void __not_in_flash_func(processFxOfNextFrame)() {
+  uint32_t i = s_fx_frames_done;
+  if (isFxOfFrameReady(i, s_fx_frames_put)) {
+    __compiler_memory_barrier();
+    s_fx_outputs[i] = g_synth.process_fx(s_fx_inputs[i], s_fx_counts[i]);
+    __compiler_memory_barrier();
+    s_fx_frames_done = i + 1;
+  }
+}
+#endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
+
 static void __not_in_flash_func(loop1_once)() {
   boolean processed = false;
 
@@ -325,6 +381,11 @@ static void __not_in_flash_func(loop1_once)() {
     s_secondary_core_processing_request = 0;
     processed = true;
   }
+#if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
+  else {
+    processFxOfNextFrame();
+  }
+#endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
 
   if (processed) {
     static uint32_t s_loop_counter = 0;
@@ -521,6 +582,13 @@ void __not_in_flash_func(loop)() {
 
   int32_t left_buffer[PRA32_U2_I2S_BUFFER_WORDS];
   int32_t right_buffer[PRA32_U2_I2S_BUFFER_WORDS];
+#if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
+  // The FX of the frames are processed by the secondary core (see processFxOfNextFrame()),
+  // which has done all of those of the last loop
+  s_fx_frames_put = 0;
+  __compiler_memory_barrier();
+  s_fx_frames_done = 0;
+#endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
   for (uint32_t i = 0; i < PRA32_U2_I2S_BUFFER_WORDS; i++) {
     s_secondary_core_processing_request = 1;
 
@@ -545,11 +613,30 @@ void __not_in_flash_func(loop)() {
 
     g_synth.add_to_fx_bus(synth_output, s_fx_bus);
 
+#if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
+    s_fx_inputs[i] = s_fx_bus;
+    s_fx_counts[i] = g_synth.get_count();
+    __compiler_memory_barrier();
+    s_fx_frames_put = i + 1;
+  }
+
+  while (s_fx_frames_done < PRA32_U2_I2S_BUFFER_WORDS) {
+    ;
+  }
+  __compiler_memory_barrier();
+
+  for (uint32_t i = 0; i < PRA32_U2_I2S_BUFFER_WORDS; i++) {
+    int32_t gain = g_output_fader.next_gain_q8();
+    left_buffer[i] = s_fx_outputs[i].left * gain;
+    right_buffer[i] = s_fx_outputs[i].right * gain;
+  }
+#else  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
     PRA32_U2_StereoSample synth_fx_output = g_synth.process_fx(s_fx_bus);
     int32_t gain = g_output_fader.next_gain_q8();
     left_buffer[i] = synth_fx_output.left * gain;
     right_buffer[i] = synth_fx_output.right * gain;
   }
+#endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
 
 #if defined(PRA32_U2_USE_DEBUG_PRINT)
   uint32_t debug_measurement_end_us = micros();
@@ -658,28 +745,26 @@ void __not_in_flash_func(handleNoteOff)(byte channel, byte pitch, byte velocity)
 
 void __not_in_flash_func(handleControlChange)(byte channel, byte number, byte value)
 {
-  processPendingProgramChanges();
-
   if ((channel - 1) == g_midi_ch) {
-    g_synth.control_change(number, value);
+    controlChange(0, number, value);
   } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
-    g_sub_1_synth.control_change(number, value);
+    controlChange(1, number, value);
   } else if ((channel - 1) == ((g_midi_ch + 2) & 0x0F)) {
-    g_sub_2_synth.control_change(number, value);
+    controlChange(2, number, value);
   } else if ((channel - 1) == ((g_midi_ch + 3) & 0x0F)) {
-    g_sub_3_synth.control_change(number, value);
+    controlChange(3, number, value);
 #if defined(PRA32_U2_ENABLE_LAYERING)
   } else if ((channel - 1) == ((g_midi_ch - 3) & 0x0F)) {
-    g_synth.control_change(number, value);
-    g_sub_1_synth.control_change(number, value);
+    controlChange(0, number, value);
+    controlChange(1, number, value);
   } else if ((channel - 1) == ((g_midi_ch - 2) & 0x0F)) {
-    g_sub_2_synth.control_change(number, value);
-    g_sub_3_synth.control_change(number, value);
+    controlChange(2, number, value);
+    controlChange(3, number, value);
   } else if ((channel - 1) == ((g_midi_ch - 1) & 0x0F)) {
-    g_synth.control_change(number, value);
-    g_sub_1_synth.control_change(number, value);
-    g_sub_2_synth.control_change(number, value);
-    g_sub_3_synth.control_change(number, value);
+    controlChange(0, number, value);
+    controlChange(1, number, value);
+    controlChange(2, number, value);
+    controlChange(3, number, value);
 #endif  // defined(PRA32_U2_ENABLE_LAYERING)
   }
 }

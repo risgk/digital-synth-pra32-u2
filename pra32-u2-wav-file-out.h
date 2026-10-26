@@ -32,7 +32,7 @@ public:
     fwrite("\x06\x00\x18\x00", 1, 4, m_file);
     fwrite("data", 1, 4, m_file);
     fwrite("\x00\x00\x00\x00", 1, 4, m_file);
-    m_max_size = (SAMPLING_RATE) * 3 * sec;
+    m_max_size = (SAMPLING_RATE) * 6 * sec;  // 2 channels of 3 bytes a frame
     m_data_size = 0;
     m_closed = false;
   }
@@ -63,7 +63,7 @@ public:
       uint32_t a[1] = {static_cast<uint32_t>(file_size) - 8};
       fwrite(a, 4, 1, m_file);
       fseek(m_file, 40, SEEK_SET);
-      uint32_t a2[1] = {static_cast<uint32_t>(file_size) - 36};
+      uint32_t a2[1] = {static_cast<uint32_t>(file_size) - 44};  // After the header of 44 bytes
       fwrite(a2, 4, 1, m_file);
       fclose(m_file);
       printf("End Of Recording\n");
