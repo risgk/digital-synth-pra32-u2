@@ -13,6 +13,9 @@
       PRA32-U2/P and PRA32-U2/M/P with all of the keys (SW1-6), and the keys read as released
         - Add `--adc` (the knobs turned), `--keys`, and `--keys-held` (the keys pressed) to "pra32-u2-load-estimate.py", for PRA32-U2/P
         - Add `--modules` (the load of each module on each core, from the debug info), and the table of the modules; keep the estimate of the latest version only
+    - Add PRA32-U2/M Demo: a demo song of PRA32-U2/M in 4 parts ("Ode to Joy", as a Standard MIDI File and an MP3 file, with its sounds as the user programs for PRA32-U2 Editor),
+      and "pra32-u2-m-make-wav-file-from-smf.cc", which renders a Standard MIDI File with PRA32-U2/M to a WAV file on PC
+    - "pra32-u2-wav-file-out.h": Record up to the seconds given (it stopped at the half of them), and write the size of the data in the header right (it was 8 bytes more)
     - Tested with Arduino-Pico version 6.3.0
 - v3.17.4 (2026-10-25):
     - PRA32-U2/M: Layering: Wrap the programs of the Sub Synths (Program # + 1 to + 3) around in the user programs (#0-15) and in the presets (#16-31) each, instead of in #0-63 (#32-63 did nothing), and make Program Change #127 (Random Control) for all the synths (instead of #0-2 for the Sub Synths)
