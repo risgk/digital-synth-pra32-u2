@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v3.17.5 (2026-??-??):
+- v3.17.5 (2026-10-26):
     - Presets: #22 Synth Bass: Filter Cutoff 52 to 40 and Filter Resonance 96 to 64 (darker); #24 Synth Brs: Filter Cutoff 88 to 94 (brighter);
       #21 Sync Lead and #26 WT Pad: LFO Mod Amt 72 to 64 and LFO Filter Amt 64 to 76 (the Modulation Wheel moves the Filter Cutoff, as on #24 Synth Brs, instead of Osc 1 Shape);
       #24 Synth Brs: LFO Mod Dst 0 to 76 (Osc 2 Pitch, for LFO Mod Amt); and the user programs #5, #6, #8, and #10 at first, the same as the presets (also the Factory Presets of PRA32-U2 Editor)

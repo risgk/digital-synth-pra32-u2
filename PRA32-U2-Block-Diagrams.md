@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 Block Diagrams v3.17.4
+# Digital Synth PRA32-U2 Block Diagrams v3.17.5
 
-- 2026-10-25 ISGK Instruments
+- 2026-10-26 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 The diagrams of the Osc, the Filter, the FX (Chorus FX, Delay FX, and Reverb), the Output Compressor, and PRA32-U2/M,
