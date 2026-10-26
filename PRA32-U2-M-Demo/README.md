@@ -15,7 +15,13 @@
 - "pra32-u2-m-demo-ode-to-joy.json": the sounds of the song as the user programs #0-7 for PRA32-U2 Editor ("Import All"; #8-15 are Initial)
     - #0-3: Saw Lead, Synth Bass, FM Piano, and Drums (up to the theme); #4-7: Sync Lead, Synth Bass, FM Piano, and Drums (from the middle on)
     - With the Layering of PRA32-U2/M, Program Change #0 (or #4) by MIDI Channel 16 sets the 4 synths to #0-3 (or #4-7) at once
-- "pra32-u2-m-demo-ode-to-joy.mp3": "pra32-u2-m-demo-ode-to-joy.mid" rendered by "pra32-u2-m-make-wav-file-from-smf.cc"
+- "pra32-u2-m-demo-ode-to-joy.mp3": "pra32-u2-m-demo-ode-to-joy.mid" rendered by "pra32-u2-m-make-wav-file-from-smf.cc",
+  and converted by [FFmpeg](https://ffmpeg.org/) (6.1.1), with the silence at the end cut
+
+    ```
+    ffmpeg -i pra32-u2-m-demo-ode-to-joy.wav -t 54.5 -b:a 128k -metadata title="Ode to Joy (PRA32-U2/M Demo)" pra32-u2-m-demo-ode-to-joy.mp3
+    ```
+
 - "pra32-u2-m-generate-demo-smf.rb" (Ruby) makes "pra32-u2-m-demo-ode-to-joy.mid"
 - "pra32-u2-m-make-wav-file-from-smf.cc" (GCC) renders a Standard MIDI File (format 0 or 1) with PRA32-U2/M to a WAV file (48 kHz, 24 bit, stereo)
 
@@ -24,6 +30,8 @@
     ./pra32-u2-m-make-wav-file-from-smf pra32-u2-m-demo-ode-to-joy.mid pra32-u2-m-demo-ode-to-joy.wav
     ```
 
+    - GCC (g++) for PC with C++17 is required (no other library); "pra32-u2-m-make-wav-file-from-smf-cc.bat" makes "pra32-u2-m-demo-ode-to-joy.wav" (on Windows, e.g. with g++ of MinGW-w64)
+    - The WAV file is in whole seconds, with 1 s or more of silence at the end
     - The synths are processed for each frame in the order of "Digital-Synth-PRA32-U2-M.ino" (on one core), and the Sub Synths only while the Main Synth is not in Poly
     - The MIDI messages are read at the start of each loop (64 frames), as on the device; MIDI Channels 1-4 are for the Main Synth and the Sub Synths 1-3, and 14-16 for the Layering
     - Unlike the device, a Program Change (or one by CC #111-119) is processed at once (the device processes it in one of the next loops), and the output fader is not used

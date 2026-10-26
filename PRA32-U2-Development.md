@@ -70,7 +70,7 @@
 - "pra32-u2-generate-sample-midi-stream.rb" (Ruby) makes "pra32-u2-sample-midi-stream.bin", and "pra32-u2-make-sample-wav-file.cc" (GCC) renders it to a WAV file on PC,
   for checking a change of the sound ("pra32-u2-make-sample-wav-file-cc.bat" on Windows)
 - [PRA32-U2/M Demo](./PRA32-U2-M-Demo/README.md): "pra32-u2-m-make-wav-file-from-smf.cc" (GCC) renders a Standard MIDI File with PRA32-U2/M to a WAV file on PC
-  (e.g. the demo song "pra32-u2-m-demo-ode-to-joy.mid"), also for checking a change of the sound of PRA32-U2/M
+  (e.g. the demo song "pra32-u2-m-demo-ode-to-joy.mid"), also for checking a change of the sound of PRA32-U2/M ("pra32-u2-m-make-wav-file-from-smf-cc.bat" on Windows)
 - GitHub Actions "PRA32-U2 Build" (".github/workflows/pra32-u2.yml", manual runs): builds the UF2 files, PRA32-U2 Native, and PRA32-U2 Web,
   and commits them to the selected branch with `commit_package`
 
