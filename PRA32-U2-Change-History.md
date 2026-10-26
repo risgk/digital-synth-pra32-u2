@@ -8,6 +8,8 @@
         - The FX update their controls at the low rate in `process_fx()` (with the count of the synth for the frame), not in `process()`; the Customization Examples are the same, a little slower (less than 1%)
         - PRA32-U2/M/P: The RAM is about 3 KB more (95% to 96%)
     - Compiler memory barriers where a core hands the processing over to the other (the Voices 2 and 3, and the display of the panel drawn from the start again), and `g_synth_is_in_polyphonic_mode` of PRA32-U2/M volatile, so that the compiler cannot move what the other core reads (no change seen so far)
+    - README.md and README.ja.md: What each of the Customization Examples has, the Basic Channel, PRA32-U2/M (Multi-Timbre Edition) as an edition (not optional), "Randomize Synth" as in the other documents, and PRA32-U2 Editor in "Programs and Presets", "Without PRA32-U2 Editor", and "Functions"
+        - README.ja.md: Add the Customization Examples, and fix the link to Preparation for Modification
     - PRA32-U2 Load Estimate: Tell the stores of core 1 by the instructions, not by a hook on the writes of Unicorn, which breaks the conditional stores of an IT block (a loop of the Delay ran over again on core 1)
     - PRA32-U2 Load Estimate: The Program Changes back to back for Poly too (instead of every 30 bytes, for Poly and the 4 Synths), UART MIDI with Running Status, all 4 built with Debug Print as measured on the device,
       PRA32-U2/P and PRA32-U2/M/P with all of the keys (SW1-6), and the keys read as released
