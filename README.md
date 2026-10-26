@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 v3.17.4
+# Digital Synth PRA32-U2 v3.17.5
 
-- 2026-10-25 ISGK Instruments
+- 2026-10-26 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 - [日本語版 README (抄訳)](./README.ja.md)
 
@@ -17,13 +17,11 @@
 - Prebuilt UF2 files (in the "bin" folder): Arduino IDE is not required to use PRA32-U2 without modification
     - Connect Raspberry Pi Pico 2 to a PC while pressing the BOOTSEL button, and copy a UF2 file to the "RP2350" drive
     - PRA32-U2/M (Recommended): "Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico 2 and Pimoroni Pico Audio Pack
-        - A superset of PRA32-U2: the Main Synth (Basic Channel + 0) works the same as PRA32-U2, and the Sub Synths and Layering are added
+        - A superset of PRA32-U2: the Main Synth works the same as PRA32-U2, and the Sub Synths and Layering are added (see [PRA32-U2/M](#pra32-u2m-pra32-u2-multi-timbre-edition))
         - NOTE: It also responds to MIDI Channels 2-4 and 14-16 (by default); use PRA32-U2 if these channels are used for other devices
     - PRA32-U2: "Digital-Synth-PRA32-U2-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico 2 and Pimoroni Pico Audio Pack
 - Modifiable with Arduino IDE and Arduino-Pico (by Earle F. Philhower, III): see [Modification Guide](./PRA32-U2-Modification-Guide.md) (e.g. for other I2S DACs, PWM Audio, or the panel)
-- Optional
-    - **[PRA32-U2/M](#pra32-u2m-pra32-u2-multi-timbre-edition-optional)** (PRA32-U2 Multi-Timbre Edition) can also be configured
-    - **[PRA32-U2/P](./README-PRA32-U2-P.md)** (PRA32-U2 with Panel) and **PRA32-U2/M/P** (PRA32-U2 Multi-Timbre Edition with Panel) can also be configured by adding certain parts
+- Optional: **[PRA32-U2/P](./README-PRA32-U2-P.md)** (PRA32-U2 with Panel) and **PRA32-U2/M/P** (PRA32-U2 Multi-Timbre Edition with Panel) can also be configured by adding certain parts
 - **[PRA32-U2 Native](./PRA32-U2-Native/README.md)**: a software synthesizer (VST3 plugin and standalone application) version of PRA32-U2 for PCs
 - **[PRA32-U2 Web](./PRA32-U2-Web/README.md)**: a software synthesizer version of PRA32-U2 that runs in a Web browser, built into PRA32-U2 Editor
 
@@ -95,9 +93,10 @@ graph LR
 
 - "Digital-Synth-PRA32-U2.ino" is an Arduino sketch for Raspberry Pi Pico/RP2040/RP2350 core
     - Modify `PRA32_U2_MIDI_CH` to change the MIDI Channel (0-based: 0 is MIDI Channel 1)
-- "pra32-u2-make-sample-wav-file.cc" is for debugging on PC
+- "PRA32-U2-M-Demo/pra32-u2-m-make-wav-file-from-smf.cc" renders a Standard MIDI File to a WAV file on PC, for debugging
+  (e.g. "pra32-u2-sample.mid", which "pra32-u2-generate-sample-smf.rb" makes; see [PRA32-U2/M Demo](./PRA32-U2-M-Demo/README.md))
     - GCC (g++) for PC is required
-    - "pra32-u2-make-sample-wav-file-cc.bat" makes a sample WAV file (working on Windows)
+    - "pra32-u2-make-sample-wav-file-cc.bat" makes a sample WAV file from "pra32-u2-sample.mid" (working on Windows)
 - "pra32-u2-generate-*.rb" generates source or header files
     - A Ruby execution environment is required
 
@@ -112,47 +111,59 @@ graph LR
       so PRA32-U2 Editor can be used only with PRA32-U2 Web (Built-in), not with PRA32-U2 or other MIDI devices
 - Select "PRA32-U2" (or "PRA32-U2/M", etc.) in the list "MIDI Out"
     - Select "PRA32-U2 Web (Built-in)" to use [PRA32-U2 Web](./PRA32-U2-Web/README.md), without PRA32-U2
-- Functions
-    - Program Changes via PRA32-U2 Editor (from "MIDI In" on the MIDI Ch of the Editor) are not passed to PRA32-U2:
-      PRA32-U2 Editor recalls the preset instead, and sends its parameters as Control Changes
-        - #0-15: the user presets of PRA32-U2 Editor (stored in the Web browser), not the programs #0-15 of PRA32-U2 (written by Write)
-        - #16-31: the factory presets (the same as the programs #16-31 of PRA32-U2)
-        - To select the programs of PRA32-U2 itself, send Program Changes to PRA32-U2 directly (without PRA32-U2 Editor),
-          or use the Program Change buttons (in "Save & Load")
-    - When Program Change #127 is entered or Control Change #111 is changed from Off (63 or lower) to On (64 or higher), "Randomize Synth" is processed
-    - PRA32-U2 Editor stores the current control values and the user presets (#0-15) in a Web browser (localStorage)
-    - Current parameter values and user presets (#0-15) can be imported/exported from/to JSON files
-    - User presets: a name of up to 10 ASCII letters, digits, and symbols can be given by Store (shown on the User Preset buttons)
-    - Undo: back to the parameters before the last change (a preset, Randomize, Import, or a move of a slider), up to 200 steps; Redo: forward again (also by Ctrl+Z and Ctrl+Y or Ctrl+Shift+Z, or Command on a Mac)
-    - "MIDI" and "Actions & Presets" (with "Save & Load" under it) can each be hidden, to give the parameters more of the window
-    - The controls look the same in every Web browser and OS (as in Chrome); on a touch screen, the thumbs of the sliders are larger, and the buttons taller
-    - Software Keyboard
-        - Below the parameters, it stays at the bottom of the window while they scroll above it, so that they can be changed while playing; it can be hidden (Panic stays shown; hiding turns Hold off)
-        - While Hold is on, the keys released keep their notes on (turning Hold off, or Panic, turns them off)
-        - The PC keyboard can also be played while it is shown (A - K for C - C, W - U for the black keys, and Z / X for the octave);
-          some PC keyboards cannot take many keys at the same time (e.g. a chord of 4 notes)
-        - The velocities of Note On and Note Off can be entered (1-127, 100 and 64 by default)
-        - Pitch Bend (springs back to the center), Modulation Wheel, Breath Controller, Expression, Sustain Pedal, Portamento Switch,
-          and Channel Pressure can be sent from the sliders below the keyboard (Performance Controls, which can be hidden apart from the keyboard,
-          e.g. on a phone)
-- When not using PRA32-U2 Editor (e.g. with a DAW or a MIDI keyboard)
-    - PRA32-U2 can also be controlled by MIDI without using PRA32-U2 Editor
-    - Sounds made with PRA32-U2 Editor can be written to PRA32-U2, and recalled later without PRA32-U2 Editor
-        1. Write: press a Write button (#0-15, in "Save & Load") of PRA32-U2 Editor, to write the current parameters
-           to the program of PRA32-U2 (also to the flash, so that they are kept after the power is turned off);
-           the parameters shown in PRA32-U2 Editor are sent again before writing
-        2. Send Program Change #0-15 to PRA32-U2 directly (not via PRA32-U2 Editor) to recall the program
-    - The Program Change buttons (in "Save & Load") of PRA32-U2 Editor also send Program Changes to PRA32-U2 directly
-      (NOTE: The parameters shown in PRA32-U2 Editor are not updated)
-    - The default program (when the power is turned on) is #0
-    - "Randomize Synth" is also processed by PRA32-U2 itself (Program Change #127 or Control Change #111 from Off to On)
-    - Refer to [PRA32-U2-MIDI-Implementation-Chart.md](./PRA32-U2-MIDI-Implementation-Chart.md) for the supported functions
-    - Programs #0-31 can be modified by editing "pra32-u2-program-table.h"
 
 
-## PRA32-U2/M (PRA32-U2 Multi-Timbre Edition) (Optional)
+### Programs and Presets
+
+- PRA32-U2 Editor sends the parameters to PRA32-U2 as Control Changes; its presets are its own, and PRA32-U2 keeps its own programs (#0-31)
+- Program Changes via PRA32-U2 Editor (from "MIDI In" on the MIDI Ch of the Editor) are not passed to PRA32-U2:
+  PRA32-U2 Editor recalls the preset instead, and sends its parameters as Control Changes
+    - #0-15: the user presets of PRA32-U2 Editor (stored in the Web browser), not the programs #0-15 of PRA32-U2 (written by Write)
+    - #16-31: the factory presets (the same as the programs #16-31 of PRA32-U2)
+    - To select the programs of PRA32-U2 itself, send Program Changes to PRA32-U2 directly (without PRA32-U2 Editor),
+      or use the Program Change buttons (in "Save & Load")
+- Sounds made with PRA32-U2 Editor can be written to PRA32-U2, and recalled later without PRA32-U2 Editor
+    1. Write: press a Write button (#0-15, in "Save & Load") of PRA32-U2 Editor, to write the current parameters
+       to the program of PRA32-U2 (also to the flash, so that they are kept after the power is turned off);
+       the parameters shown in PRA32-U2 Editor are sent again before writing
+    2. Send Program Change #0-15 to PRA32-U2 directly (not via PRA32-U2 Editor) to recall the program
+- The Program Change buttons (in "Save & Load") of PRA32-U2 Editor also send Program Changes to PRA32-U2 directly
+  (NOTE: The parameters shown in PRA32-U2 Editor are not updated)
+- "Randomize Synth": processed when Program Change #127 is entered or Control Change #111 is changed from Off (63 or lower) to On (64 or higher);
+  also by PRA32-U2 itself, when they are sent to it directly
+
+
+### Without PRA32-U2 Editor
+
+- PRA32-U2 can also be controlled by MIDI without using PRA32-U2 Editor (e.g. with a DAW or a MIDI keyboard)
+- The default program (when the power is turned on) is #0; the programs written by Write are recalled by Program Change #0-15 (see above)
+- Refer to [PRA32-U2-MIDI-Implementation-Chart.md](./PRA32-U2-MIDI-Implementation-Chart.md) for the supported functions
+- Programs #0-31 can be modified by editing "pra32-u2-program-table.h"
+
+
+### Functions
+
+- PRA32-U2 Editor stores the current control values and the user presets (#0-15) in a Web browser (localStorage)
+- Current parameter values and user presets (#0-15) can be imported/exported from/to JSON files
+- User presets: a name of up to 10 ASCII letters, digits, and symbols can be given by Store (shown on the User Preset buttons)
+- Undo: back to the parameters before the last change (a preset, Randomize, Import, or a move of a slider), up to 200 steps; Redo: forward again (also by Ctrl+Z and Ctrl+Y or Ctrl+Shift+Z, or Command on a Mac)
+- "MIDI" and "Actions & Presets" (with "Save & Load" under it) can each be hidden, to give the parameters more of the window
+- The controls look the same in every Web browser and OS (as in Chrome); on a touch screen, the thumbs of the sliders are larger, and the buttons taller
+- Software Keyboard
+    - Below the parameters, it stays at the bottom of the window while they scroll above it, so that they can be changed while playing; it can be hidden (Panic stays shown; hiding turns Hold off)
+    - While Hold is on, the keys released keep their notes on (turning Hold off, or Panic, turns them off)
+    - The PC keyboard can also be played while it is shown (A - K for C - C, W - U for the black keys, and Z / X for the octave);
+      some PC keyboards cannot take many keys at the same time (e.g. a chord of 4 notes)
+    - The velocities of Note On and Note Off can be entered (1-127, 100 and 64 by default)
+    - Pitch Bend (springs back to the center), Modulation Wheel, Breath Controller, Expression, Sustain Pedal, Portamento Switch,
+      and Channel Pressure can be sent from the sliders below the keyboard (Performance Controls, which can be hidden apart from the keyboard,
+      e.g. on a phone)
+
+
+## PRA32-U2/M (PRA32-U2 Multi-Timbre Edition)
 
 - Features
+    - The Basic Channel is the MIDI Channel of PRA32-U2 (1 by default, `PRA32_U2_MIDI_CH`), and the channels of the synths are relative to it
     - Synths
         - Basic Channel + 0 (Default 1): Main Synth, Poly or Mono; The default program is #0; The FX parameters (except FX Routing) apply to all channels
         - Basic Channel + 1 (Default 2): Sub Synth 1, Mono; The default program is #1; The FX parameters (except FX Routing) are disabled
@@ -166,9 +177,9 @@ graph LR
             - Results of Program Change: Program # + 0 for Basic Channel + 2 and Program # + 1 for Basic Channel + 3
         - Basic Channel - 1 (Default 16): Control Basic Channel + 0, + 1, + 2, and + 3 simultaneously
             - Results of Program Change: Program # + 0 for Basic Channel + 0, Program # + 1 for Basic Channel + 1, Program # + 2 for Basic Channel + 2, and Program # + 3 for Basic Channel + 3
-        - Program # + 1 to + 3 wrap around in the user programs (#0-15) and in the presets (#16-31) each (e.g. #15: #15, #0, #1, and #2; #31: #31, #16, #17, and #18), and Program Change #127 (Random Control) is for all the synths
+        - Program # + 1 to + 3 wrap around in the user programs (#0-15) and in the presets (#16-31) each (e.g. #15: #15, #0, #1, and #2; #31: #31, #16, #17, and #18), and Program Change #127 (Randomize Synth) is for all the synths
         - Not to use this feature, comment out `#define PRA32_U2_ENABLE_LAYERING` in "Digital-Synth-PRA32-U2-M.ino"
-- How to modify
+- How to modify (with Arduino IDE)
     - Copy all files in the "Digital-Synth-PRA32-U2" folder, except for "Digital-Synth-PRA32-U2.ino", to the "Digital-Synth-PRA32-U2-M" folder
     - "Digital-Synth-PRA32-U2-M.ino" is an Arduino sketch
 
@@ -184,17 +195,12 @@ graph LR
 
 ## Customization Examples
 
-- Files in the "customization-examples" folder
-- **Digital Synth PRA32-U2 (Lite)**
-    - Osc 1 Shape and Morph are disabled in Saw, Sqr, and WT
-    - Runs on a single core
-    - "Digital-Synth-PRA32-U2.ino.Lite-Core-0-Only.txt"
-    - "Digital-Synth-PRA32-U2.ino.Lite-Core-1-Only.txt"
-- **Digital Synth PRA32-U2/M (Lite)**
-    - Osc 1 Shape and Morph are disabled in Saw, Sqr, and WT
-    - Runs on a single core
-    - "Digital-Synth-PRA32-U2-M.ino.Lite-Core-0-Only.txt"
-    - "Digital-Synth-PRA32-U2-M.ino.Lite-Core-1-Only.txt"
+- Files in the "customization-examples" folder: each is a sketch, to be used in place of "Digital-Synth-PRA32-U2.ino" (or "Digital-Synth-PRA32-U2-M.ino" for PRA32-U2/M)
+- **Digital Synth PRA32-U2 (Lite)** and **Digital Synth PRA32-U2/M (Lite)**: Osc 1 Shape and Morph are disabled in Saw, Sqr, and WT, and the synth is processed on a single core (core 0)
+    - "Digital-Synth-PRA32-U2.ino.Lite-Core-0-Only.txt" and "Digital-Synth-PRA32-U2-M.ino.Lite-Core-0-Only.txt":
+      with MIDI (USB MIDI and UART MIDI), the panel, and Debug Print, as the sketch; core 1 only updates the panel and prints the debug print
+    - "Digital-Synth-PRA32-U2.ino.Lite-Core-1-Only.txt" and "Digital-Synth-PRA32-U2-M.ino.Lite-Core-1-Only.txt":
+      only the synth and the audio output, without MIDI, the panel, and Debug Print (no sound as it is): a base to play the synth from code of your own, at `// TODO` in `loop()`
 
 
 ## Troubleshooting
@@ -225,11 +231,11 @@ graph LR
 
 ![CC0](http://i.creativecommons.org/p/zero/1.0/88x31.png)
 
-**Digital Synth PRA32-U2 v3.17.4 by ISGK Instruments (Ryo Ishigaki)**
+**Digital Synth PRA32-U2 v3.17.5 by ISGK Instruments (Ryo Ishigaki)**
 
 To the extent possible under law, ISGK Instruments (Ryo Ishigaki)
 has waived all copyright and related or neighboring rights
-to Digital Synth PRA32-U2 v3.17.4.
+to Digital Synth PRA32-U2 v3.17.5.
 
 You should have received a copy of the CC0 legalcode along with this
 work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.

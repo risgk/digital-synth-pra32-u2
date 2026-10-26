@@ -1676,9 +1676,6 @@ if (m_voice_mode == VOICE_POLYPHONIC) {
 }
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)
 
-if constexpr (NO_FX == false) {
-        m_chorus_fx.process_at_low_rate(m_count >> 2);
-}
       }
       break;
     case 0x03:
@@ -1696,9 +1693,6 @@ if (m_voice_mode == VOICE_POLYPHONIC) {
 }
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)
 
-if constexpr (NO_FX == false) {
-        m_delay_fx.process_at_low_rate(m_count >> 2);
-}
       }
       break;
     }
@@ -1710,6 +1704,7 @@ if constexpr (NO_FX == false) {
 #if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)
 if constexpr (RESTRICT_POLY_AND_CORES == false) {
     m_secondary_core_processing_argument = noise_int23;
+    PRA32_U2_COMPILER_MEMORY_BARRIER();  // What the Voices 2 and 3 read is written before the request
     m_secondary_core_processing_request = 1;
 }
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)
@@ -1747,6 +1742,7 @@ if constexpr (RESTRICT_POLY_AND_CORES == false) {
     while (m_secondary_core_processing_request) {
       ;
     }
+    PRA32_U2_COMPILER_MEMORY_BARRIER();  // What the secondary core wrote is read after it is done
 } else {
     m_secondary_core_processing_result = 0;
 }
@@ -1792,7 +1788,7 @@ if constexpr ((NO_FX == false) && (BYPASS_FX == false)) {
     PRA32_U2_FxBusSample fx_bus;
     clear_fx_bus(fx_bus);
     add_to_fx_bus(mixed_output, fx_bus);
-    delay_fx_output = process_fx(fx_bus);
+    delay_fx_output = process_fx(fx_bus, m_count, BYPASS_SYNTH == false);
 } else {
     delay_fx_output = mixed_output;
 }
@@ -1811,9 +1807,27 @@ if constexpr ((NO_FX == false) && (BYPASS_FX == false)) {
 
   // Processes the FX in series: the Chorus input goes through the Chorus, the Delay, and the
   // Output Compressor, the Delay input through the Delay and the Output Compressor, the Comp
-  // input through the Output Compressor only, and the Dry input through none of them
+  // input through the Output Compressor only, and the Dry input through none of them.
+  // The count is that of process() for the sample (get_count() after it), so that the FX
+  // update their controls at the low rate in step with it, also when the FX of a sample are
+  // processed later or on the other core
+  INLINE PRA32_U2_StereoSample process_fx(const PRA32_U2_FxBusSample& fx_bus) {
+    return process_fx(fx_bus, m_count);
+  }
+
   // noclone: see process()
-  __attribute__((noclone)) PRA32_U2_StereoSample __not_in_flash_func(process_fx)(const PRA32_U2_FxBusSample& fx_bus) {
+  __attribute__((noclone)) PRA32_U2_StereoSample __not_in_flash_func(process_fx)(const PRA32_U2_FxBusSample& fx_bus, uint32_t count, boolean low_rate = true) {
+    if (low_rate) {
+      switch (count & (0x04 - 1)) {
+      case 0x02:
+        m_chorus_fx.process_at_low_rate(count >> 2);
+        break;
+      case 0x03:
+        m_delay_fx.process_at_low_rate(count >> 2);
+        break;
+      }
+    }
+
     PRA32_U2_StereoSample chorus_fx_output = m_chorus_fx.process(fx_bus.input[FX_BUS_CHORUS]);
 
     PRA32_U2_StereoSample delay_fx_input;
@@ -1835,6 +1849,7 @@ if constexpr ((NO_FX == false) && (BYPASS_FX == false)) {
     boolean processed = false;
 
     if (m_secondary_core_processing_request == 1) {
+      PRA32_U2_COMPILER_MEMORY_BARRIER();  // What the primary core wrote is read after the request
       int32_t noise_int23 = m_secondary_core_processing_argument;
 
       int32_t osc_output   [4];
@@ -1856,6 +1871,7 @@ if (m_voice_mode == VOICE_POLYPHONIC) {
 
       m_secondary_core_processing_result = amp_output[2] + amp_output[3];
 
+      PRA32_U2_COMPILER_MEMORY_BARRIER();  // What the Voices 2 and 3 wrote is written before it is done
       m_secondary_core_processing_request = 0;
       processed = true;
     }
@@ -1865,6 +1881,11 @@ if (m_voice_mode == VOICE_POLYPHONIC) {
 
   INLINE void get_rand_uint8_array(uint8_t array[8]) {
     m_noise_gen.get_rand_uint8_array(array);
+  }
+
+  // The count of the last process(), for process_fx()
+  INLINE uint32_t get_count() {
+    return m_count;
   }
 
   INLINE boolean is_in_polyphonic_mode() {

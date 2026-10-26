@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 Development v3.17.4
+# Digital Synth PRA32-U2 Development v3.17.5
 
-- 2026-10-25 ISGK Instruments
+- 2026-10-26 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 - Notes for changing the code of PRA32-U2: how it runs and how to measure it; for the settings, see [Modification Guide](./PRA32-U2-Modification-Guide.md)
 
@@ -14,16 +14,19 @@
     - `min(loop)` and `max(loop)`: from the start of the loop (MIDI and the panel) to the end of that processing
 - It is printed by the secondary core (core 1), a line at a time, and skipped while the host is not reading
 - To measure PRA32-U2/M, /P, or /M/P, build it as "pra32-u2-load-estimate.sh" in "PRA32-U2-Load-Estimate" does with arduino-cli
-  (a copy of the "Digital-Synth-PRA32-U2" folder, with "Digital-Synth-PRA32-U2-M.ino" as its .ino for /M, and `PRA32_U2_USE_CONTROL_PANEL` uncommented for /P),
-  with `PRA32_U2_USE_DEBUG_PRINT` uncommented too
+  (a copy of the "Digital-Synth-PRA32-U2" folder, with "Digital-Synth-PRA32-U2-M.ino" as its .ino for /M, and `PRA32_U2_USE_CONTROL_PANEL` uncommented for /P,
+  with `PRA32_U2_USE_DEBUG_PRINT` uncommented), or use the UF2 files that it builds into "PRA32-U2-Load-Estimate/build"
 
 
 ## Runtime
 
 - `loop()` on the primary core (core 0) reads MIDI, and then processes 64 frames (`PRA32_U2_I2S_BUFFER_WORDS`)
   and writes them to the output, which blocks while the output buffer is full: the loop is paced by the audio output
-- With `PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING`, core 1 (`loop1()`) takes a part of the processing of each frame on request from core 0, which waits for it;
-  core 1 also updates the panel and prints the debug print
+- With `PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING`, core 1 (`loop1()`) takes a part of the processing of each frame on request from core 0, which waits for it
+  (the Voices 2 and 3 of the Main Synth, and the Sub Synths 1 and 3 of PRA32-U2/M); core 1 also updates the panel and prints the debug print
+    - The FX (Chorus, Delay, and the Output Compressor) are processed by core 1 too, a frame after the synths and between them: core 0 puts the FX input of each frame
+      with the count of the synth for it (`process_fx(fx_bus, count)`), and at the end of the loop waits until all are done, so the output is the same, with no more latency
+    - In PRA32-U2/M with the 4 Synths, core 1 is then about as busy as core 0, which waits for it (on the device, 1205 us from 1258 us a loop with the 4 Synths)
 - MIDI is read at the start of each loop: 5 bytes of USB MIDI and 8 bytes of UART MIDI, more than the about 4.2 bytes that 31250 bps brings in a loop;
   the messages are processed there, so a burst of MIDI (e.g. from USB MIDI and UART MIDI at the same time) makes that loop a little longer
 - The output buffer is a ring buffer read by DMA without interrupts ("pra32-u2-audio-ring-buffer.h"): 2 * 64 frames (2.7 ms) by default
@@ -64,8 +67,18 @@
 
 ## Files and Tools
 
-- "pra32-u2-generate-sample-midi-stream.rb" (Ruby) makes "pra32-u2-sample-midi-stream.bin", and "pra32-u2-make-sample-wav-file.cc" (GCC) renders it to a WAV file on PC,
-  for checking a change of the sound ("pra32-u2-make-sample-wav-file-cc.bat" on Windows)
+- [PRA32-U2/M Demo](./PRA32-U2-M-Demo/README.md): "pra32-u2-m-make-wav-file-from-smf.cc" (GCC) renders a Standard MIDI File with PRA32-U2/M to a WAV file on PC
+  ("pra32-u2-m-make-wav-file-from-smf-cc.bat" on Windows), for checking a change of the sound:
+    - "pra32-u2-sample.mid", which "pra32-u2-generate-sample-smf.rb" (Ruby) makes: the sample of PRA32-U2 (MIDI Channel 1 only, which the Main Synth plays as PRA32-U2 does);
+      "pra32-u2-make-sample-wav-file-cc.bat" renders it on Windows
+    - The demo song "pra32-u2-m-demo-ode-to-joy.mid": PRA32-U2/M (the 4 synths)
+
+    ```
+    cd PRA32-U2-M-Demo
+    g++ -O2 -std=gnu++17 pra32-u2-m-make-wav-file-from-smf.cc -o pra32-u2-m-make-wav-file-from-smf
+    ./pra32-u2-m-make-wav-file-from-smf ../pra32-u2-sample.mid pra32-u2-sample.wav
+    ```
+
 - GitHub Actions "PRA32-U2 Build" (".github/workflows/pra32-u2.yml", manual runs): builds the UF2 files, PRA32-U2 Native, and PRA32-U2 Web,
   and commits them to the selected branch with `commit_package`
 
@@ -82,8 +95,8 @@ Basically, a release goes as follows:
    and the dates under the headings ("YYYY-MM-DD ISGK Instruments"), all of them at every release
 4. Commit as "vX.Y.Z"
 5. Run "PRA32-U2 Build" on develop with `commit_package` and `load_estimate`, for the UF2 files, PRA32-U2 Native, PRA32-U2 Web, and the load estimate
-6. Add the tables of the version from the summary of the run to [PRA32-U2 Load Estimate](./PRA32-U2-Load-Estimate/README.md), and commit them
-   (or estimate the load before step 4 with `sh PRA32-U2-Load-Estimate/pra32-u2-load-estimate.sh`, and add them with the version)
+6. Replace the tables in [PRA32-U2 Load Estimate](./PRA32-U2-Load-Estimate/README.md) with those of the version from the summary of the run, and commit them
+   (or estimate the load before step 4 with `sh PRA32-U2-Load-Estimate/pra32-u2-load-estimate.sh`, and replace them with the version)
 7. Merge develop into main by a pull request
 8. Make the GitHub Release: the tag "vX.Y.Z" on main, and the notes "# Digital Synth PRA32-U2 vX.Y.Z", the line of what it is, and "## Change History" with the versions of this release
 9. Add the next version to PRA32-U2-Change-History.md ("vX.Y.Z (2026-??-??)")
