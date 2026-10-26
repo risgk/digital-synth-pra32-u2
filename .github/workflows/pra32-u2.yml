@@ -5,7 +5,7 @@
 #   and validated with pluginval (and auval for AU) (see PRA32-U2-Native/README.md)
 # - PRA32-U2 Web: built with Emscripten (Ubuntu), and tested with Node.js (see PRA32-U2-Web/README.md)
 # - PRA32-U2 Load Estimate (with "load_estimate" only): the table of PRA32-U2-Load-Estimate/README.md,
-#   in the summary of the run (about 15 min)
+#   in the summary of the run (about 12 min)
 name: PRA32-U2 Build (UF2, Native, and Web)
 
 on:
@@ -16,7 +16,7 @@ on:
         type: boolean
         default: false
       load_estimate:
-        description: 'Estimate the load of PRA32-U2, /M, /P, and /M/P (PRA32-U2 Load Estimate, about 15 min), into the summary of the run'
+        description: 'Estimate the load of PRA32-U2, /M, /P, and /M/P (PRA32-U2 Load Estimate, about 12 min), into the summary of the run'
         type: boolean
         default: false
 
