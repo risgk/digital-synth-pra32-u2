@@ -103,5 +103,7 @@ Basically, a release goes as follows:
    and "## Change History" with the version of this release only; write "#N" (a program, a CC, ...) as "#&#8203;N" (with a zero-width space),
    so that GitHub does not link it to an issue or a pull request
 9. Add the next version to PRA32-U2-Change-History.md ("vX.Y.Z (2026-??-??)", with "Tested with Arduino-Pico version")
+10. Update PRA32-U2 Editor and PRA32-U2 Web on [risgk.github.io](https://github.com/risgk/risgk.github.io): "digital-synth-pra32-u2/pra32-u2-editor.html" and "pra32-u2-web-synth.js",
+    copied from main (commit "Update pra32-u2-editor.html and pra32-u2-web-synth.js (PRA32-U2 vX.Y.Z)")
 
 - In the commit messages too, "#N" is linked to an issue or a pull request: write the name of a program instead (e.g. "Sync Lead"), or "CC 112"
