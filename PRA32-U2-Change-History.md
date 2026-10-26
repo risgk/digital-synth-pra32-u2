@@ -1,5 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v3.17.6 (2026-??-??):
+    - Tested with Arduino-Pico version 6.3.0
 - v3.17.5 (2026-10-26):
     - Presets: #22 Synth Bass: Filter Cutoff 52 to 40 and Filter Resonance 96 to 64 (darker); #24 Synth Brs: Filter Cutoff 88 to 94 (brighter);
       #21 Sync Lead and #26 WT Pad: LFO Mod Amt 72 to 64 and LFO Filter Amt 64 to 76 (the Modulation Wheel moves the Filter Cutoff, as on #24 Synth Brs, instead of Osc 1 Shape);
