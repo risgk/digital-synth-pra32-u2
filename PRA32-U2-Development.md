@@ -69,7 +69,8 @@
 
 - [PRA32-U2/M Demo](./PRA32-U2-M-Demo/README.md): "pra32-u2-m-make-wav-file-from-smf.cc" (GCC) renders a Standard MIDI File with PRA32-U2/M to a WAV file on PC
   ("pra32-u2-m-make-wav-file-from-smf-cc.bat" on Windows), for checking a change of the sound:
-    - "pra32-u2-sample.mid", which "pra32-u2-generate-sample-smf.rb" (Ruby) makes: the sample of PRA32-U2 (MIDI Channel 1 only, which the Main Synth plays as PRA32-U2 does)
+    - "pra32-u2-sample.mid", which "pra32-u2-generate-sample-smf.rb" (Ruby) makes: the sample of PRA32-U2 (MIDI Channel 1 only, which the Main Synth plays as PRA32-U2 does);
+      "pra32-u2-make-sample-wav-file-cc.bat" renders it on Windows
     - The demo song "pra32-u2-m-demo-ode-to-joy.mid": PRA32-U2/M (the 4 synths)
 
     ```

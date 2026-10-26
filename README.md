@@ -96,6 +96,7 @@ graph LR
 - "PRA32-U2-M-Demo/pra32-u2-m-make-wav-file-from-smf.cc" renders a Standard MIDI File to a WAV file on PC, for debugging
   (e.g. "pra32-u2-sample.mid", which "pra32-u2-generate-sample-smf.rb" makes; see [PRA32-U2/M Demo](./PRA32-U2-M-Demo/README.md))
     - GCC (g++) for PC is required
+    - "pra32-u2-make-sample-wav-file-cc.bat" makes a sample WAV file from "pra32-u2-sample.mid" (working on Windows)
 - "pra32-u2-generate-*.rb" generates source or header files
     - A Ruby execution environment is required
 
