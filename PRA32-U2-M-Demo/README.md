@@ -1,0 +1,29 @@
+# PRA32-U2/M Demo
+
+- A demo song of PRA32-U2/M (Multi-Timbre Edition) in 4 parts, as a Standard MIDI File, and a tool that renders a Standard MIDI File with PRA32-U2/M to a WAV file on PC
+- "pra32-u2-m-demo-ode-to-joy.mid": "Ode to Joy" (Beethoven, Symphony No. 9; public domain), arranged for PRA32-U2/M (about 55 s)
+    - MIDI Channel 1 (Main Synth): Melody, #20 Saw Lead up to the theme, and #21 Sync Lead from the middle on (a Program Change in the song),
+      with a little of the Modulation Wheel from the middle of each long note
+    - MIDI Channel 2 (Sub Synth 1): Bass, #22 Synth Bass, with FX Routing Comp
+    - MIDI Channel 3 (Sub Synth 2): Arpeggio, #18 FM Piano
+    - MIDI Channel 4 (Sub Synth 3): Rhythm, #23 Initial made a drum by CCs: a sine with a pitch drop and noise, whose sound changes with the note,
+      the higher the brighter (Filter Key Track) and the shorter (EG Att/Dec Key Track): the kick (note 36), the snare (55), and the hats (108)
+    - The presets are used as they are but for the rhythm, with Amp Gain for the balance of the parts;
+      the FX (Chorus, and Delay of an eighth note at 120 BPM) of the Main Synth are for all the synths
+    - Play it to PRA32-U2/M (with the Basic Channel 1) by a MIDI player; it sets the programs and the parameters of the 4 synths at the start
+- "pra32-u2-m-demo-ode-to-joy.json": the sounds of the song as the user programs #0-7 for PRA32-U2 Editor ("Import All"; #8-15 are Initial)
+    - #0-3: Saw Lead, Synth Bass, FM Piano, and Drums (up to the theme); #4-7: Sync Lead, Synth Bass, FM Piano, and Drums (from the middle on)
+    - With the Layering of PRA32-U2/M, Program Change #0 (or #4) by MIDI Channel 16 sets the 4 synths to #0-3 (or #4-7) at once
+- "pra32-u2-m-demo-ode-to-joy.mp3": "pra32-u2-m-demo-ode-to-joy.mid" rendered by "pra32-u2-m-make-wav-file-from-smf.cc"
+- "pra32-u2-m-generate-demo-smf.rb" (Ruby) makes "pra32-u2-m-demo-ode-to-joy.mid"
+- "pra32-u2-m-make-wav-file-from-smf.cc" (GCC) renders a Standard MIDI File (format 0 or 1) with PRA32-U2/M to a WAV file (48 kHz, 24 bit, stereo)
+
+    ```
+    g++ -O2 -std=gnu++17 pra32-u2-m-make-wav-file-from-smf.cc -o pra32-u2-m-make-wav-file-from-smf
+    ./pra32-u2-m-make-wav-file-from-smf pra32-u2-m-demo-ode-to-joy.mid pra32-u2-m-demo-ode-to-joy.wav
+    ```
+
+    - The synths are processed for each frame in the order of "Digital-Synth-PRA32-U2-M.ino" (on one core), and the Sub Synths only while the Main Synth is not in Poly
+    - The MIDI messages are read at the start of each loop (64 frames), as on the device; MIDI Channels 1-4 are for the Main Synth and the Sub Synths 1-3, and 14-16 for the Layering
+    - Unlike the device, a Program Change (or one by CC #111-119) is processed at once (the device processes it in one of the next loops), and the output fader is not used
+    - It takes about 1 s for a song of 1 min; it can also be used to check that a change of PRA32-U2/M keeps the sound (compare the WAV files)
