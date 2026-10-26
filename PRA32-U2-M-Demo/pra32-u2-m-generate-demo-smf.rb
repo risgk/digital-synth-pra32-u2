@@ -22,7 +22,7 @@ S       = PPQ / 4  # Sixteenth note
 PC = :program_change
 
 # The setup of each part: a preset (Program Change), then CCs
-# The presets, with Amp Gain for the balance of the parts (the same as the user programs of "pra32-u2-m-demo-ode-to-joy.json")
+# The presets, with Amp Gain lowered for the balance of the parts (the same as the user programs of "pra32-u2-m-demo-ode-to-joy.json")
 SETUP = [
   [[PC, 20],                     # #20 Saw Lead (Legato: Mono, so that the Sub Synths play),
    [AMP_GAIN, 79]],              # whose FX (Chorus, and Delay of an eighth note at 120 BPM) are for all the synths
