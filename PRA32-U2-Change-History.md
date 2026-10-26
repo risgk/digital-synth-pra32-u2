@@ -1,6 +1,9 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v3.17.5 (2026-??-??):
+    - Presets: #22 Synth Bass: Filter Cutoff 52 to 40 and Filter Resonance 96 to 64 (darker); #24 Synth Brs: Filter Cutoff 88 to 94 (brighter);
+      #21 Sync Lead: LFO Rate 80 to 68 (3.4 Hz from 6.9 Hz: a slower change of the sync by the Modulation Wheel, rather than a vibrato);
+      and the user programs #5, #6, and #8 at first, the same as the presets (also the Factory Presets of PRA32-U2 Editor)
     - Process Program Change by CC (#112-119) and Special Random Control (#111) as the Program Changes (#0-7 and #127), which are processed as one when they arrive one after another (v3.17.2 and v3.17.3), so that a stream of them does not overload a loop either
         - Customization Examples (Core 0 Only): The same
     - Process the FX (Chorus, Delay, and the Output Compressor) on the secondary core (core 1), a frame after the synths, in the same loop (the same output, with no more latency), so that the primary core (core 0) has more time to spare
