@@ -8,6 +8,9 @@
   PRA32-U2/M and PRA32-U2/P differ from these little (as estimated at v3.17.1)
     - All 4 are built with Debug Print (USB Serial), as measured on the device, so their RAM is a little more than that of the UF2 files (the buffer of Debug Print);
       PRA32-U2/P and PRA32-U2/M/P with all of the keys of the panel (SW1-6, with SW3-5 that the sketch leaves out by default), released
+    - The paths of the files of the core in the asserts are built as "/rp2040/..." (`-ffile-prefix-map`), so that the estimate is the same wherever it is built
+      (the length of the path shifts it by about 1%; the estimate of v3.17.5 below is made again with it)
+    - The builds and the estimates run in parallel, as many at a time as the CPUs (about 10 min with 4 CPUs)
 
     ```
     sh PRA32-U2-Load-Estimate/pra32-u2-load-estimate.sh
@@ -23,7 +26,7 @@
         ```
 
     - And Python 3 with `pip install unicorn capstone pyelftools` (Unicorn 2)
-    - Or run the GitHub Actions workflow "PRA32-U2 Build" with `load_estimate` (about 15 min): the table is in the summary of the run
+    - Or run the GitHub Actions workflow "PRA32-U2 Build" with `load_estimate`: the table is in the summary of the run
     - "pra32-u2-load-estimate.py" estimates a case of its own, e.g. `python3 PRA32-U2-Load-Estimate/pra32-u2-load-estimate.py PRA32-U2-Load-Estimate/build/u2/Digital-Synth-PRA32-U2.ino.elf --program 0 --cc 102=26,35=127 --profile`
         - For PRA32-U2/P (and /M/P), `--adc 8` turns the knobs all the way and back every 8 loops, and `--keys 19 --keys-held 21` presses Prog + (SW4)
           as fast as the panel takes it (16 loops of each 48) while holding Shift (SW5), with `--loops 64` (see `--help`);
@@ -67,14 +70,14 @@ and "Other" is the rest (e.g. Debug Print).
 | Case (core 0 / core 1, max) | PRA32-U2 | PRA32-U2/M/P |
 | :-- | --: | --: |
 | #0 Synth Pad, 4 notes | 54% / 51% | 58% / 53% |
-| Poly: #5 Sync Lead (Osc 1 Wave Sqr) in Poly with Delay Mode Rev, 4 notes | 73% / 64% | 75% / 62% |
-| Poly, with Note On and Off of another note by UART MIDI (Running Status) and USB MIDI | 74% / 64% | 76% / 62% |
+| Poly: #5 Sync Lead (Osc 1 Wave Sqr) in Poly with Delay Mode Rev, 4 notes | 73% / 64% | 75% / 63% |
+| Poly, with Note On and Off of another note by UART MIDI (Running Status) and USB MIDI | 74% / 65% | 76% / 62% |
 | Poly, with Program Change #0 (Poly itself) back to back by UART MIDI (Running Status) and USB MIDI | 76% / 64% | 79% / 62% |
 | Poly, with Program Change by CC #112 (#0) back to back by UART MIDI (Running Status) and USB MIDI | 75% / 64% | 79% / 62% |
 | 4 Synths: #5 Sync Lead (Mono, and Delay Mode Rev) by MIDI Channel 16 (Layering), 4 notes | - | 86% / 84% |
 | 4 Synths, with Note On and Off of another note by MIDI Channel 16 by UART MIDI (Running Status) and USB MIDI | - | 90% / 85% |
 | 4 Synths, with Program Change #0 (4 Synths itself) by MIDI Channel 16 back to back by UART MIDI (Running Status) and USB MIDI | - | 90% / 84% |
-| 4 Synths, with Program Change by CC #112 (#0) by MIDI Channel 16 back to back by UART MIDI (Running Status) and USB MIDI | - | 75% / 67% |
+| 4 Synths, with Program Change by CC #112 (#0) by MIDI Channel 16 back to back by UART MIDI (Running Status) and USB MIDI | - | 75% / 68% |
 
 ⚠: over 100% (1333 us), △: over 95%
 
@@ -82,9 +85,9 @@ and "Other" is the rest (e.g. Debug Print).
 | :-- | --: | --: |
 | Osc | 44.6% / 28.9% | 37.9% / 37.6% |
 | Filter | 12.7% / 6.8% | 10.7% / 10.7% |
-| Synth | 6.7% / 7.0% | 22.6% / 6.2% |
+| Synth | 6.7% / 7.0% | 22.7% / 6.2% |
 | DelayFx | 0.0% / 8.5% | 0.0% / 8.5% |
-| Sketch | 2.6% / 3.4% | 7.3% / 0.1% |
+| Sketch | 2.6% / 3.4% | 7.2% / 0.1% |
 | OutputCompressor | 0.0% / 4.2% | 0.0% / 4.2% |
 | ChorusFx | 0.0% / 3.7% | 0.0% / 3.7% |
 | Amp | 2.2% / 1.1% | 2.1% / 2.1% |

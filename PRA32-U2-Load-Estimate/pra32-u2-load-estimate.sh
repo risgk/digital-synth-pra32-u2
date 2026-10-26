@@ -16,6 +16,12 @@ FQBN='rp2040:rp2040:rpipico2:flash=4194304_0,freq=150,arch=arm,opt=Small,os=none
 # which has all of them (PRA32-U2/M and /P differ from these little: the panel's I2C is left out)
 VARIANTS='u2 m p mp'
 ESTIMATED='u2 mp'
+# The builds run in parallel (all 4 at once), and the estimates too (as many at a time as the CPUs)
+JOBS=$(getconf _NPROCESSORS_ONLN 2>/dev/null || echo 2)
+# The paths of the files of the core in the asserts (e.g. "/home/runner/.arduino15/packages/rp2040/hardware/rp2040/6.3.0/...")
+# as "/rp2040/...", so that the build is the same wherever it is built (the length of the path shifts the estimate by about 1%)
+MAP='-ffile-prefix-map={runtime.platform.path}=/rp2040'
+pids=''
 for v in $VARIANTS; do
   src=build/src-$v/Digital-Synth-PRA32-U2
   rm -rf build/src-$v
@@ -33,41 +39,45 @@ for v in $VARIANTS; do
         $src/Digital-Synth-PRA32-U2.ino > $src/ino.tmp
     mv $src/ino.tmp $src/Digital-Synth-PRA32-U2.ino ;;
   esac
-  arduino-cli compile --fqbn "$FQBN" --build-path build/$v $src > build/$v.log
+  arduino-cli compile --fqbn "$FQBN" --build-path build/$v \
+    --build-property "compiler.c.extra_flags=$MAP" --build-property "compiler.cpp.extra_flags=$MAP" $src > build/$v.log &
+  pids="$pids $!"
+done
+for pid in $pids; do
+  wait $pid  # A failed build fails the script (by "set -e")
 done
 
 version=$(sed -n 's/^#define PRA32_U2_VERSION *"\(v[0-9.]*\).*/\1/p' ../Digital-Synth-PRA32-U2/Digital-Synth-PRA32-U2.ino)
-# A maximum over 100% (1333 us) is marked with "⚠", and one over 95% with "△"; each is also written to
-# build/warnings.txt, which the workflow shows as a warning
-: > build/warnings.txt
-estimate() {  # variant, case, options: prints "core 0 max% / core 1 max%"
-  v=$1
-  name=$2
-  shift 2
-  python3 pra32-u2-load-estimate.py build/$v/Digital-Synth-PRA32-U2.ino.elf --brief "$@" |
-    awk -v v="$v" -v name="$name" -v warnings=build/warnings.txt '
-      function mark(p, core) {
-        if (p > 100) { printf "%s, %s: core %d %.1f%%, over 1333 us\n", v, name, core, p >> warnings; return " ⚠" }
-        if (p > 95) { printf "%s, %s: core %d %.1f%%, little margin\n", v, name, core, p >> warnings; return " △" }
-        return ""
-      }
-      { printf "%.0f%%%s / %.0f%%%s", $2, mark($2, 0), $4, mark($4, 1) }'
-}
+# The rows are queued as jobs (build/jobs.txt: the output file, the ELF, and the options of each),
+# run in parallel, and printed in order (build/rows.txt: the case, and the output file for each variant)
+rm -rf build/est
+mkdir -p build/est
+: > build/jobs.txt
+: > build/rows.txt
+n=0
+MODULES_OF=''  # The variant of the row whose modules are printed too (in the same run)
 row() {  # case, variants, options
   name=$1
   vs=$2
   shift 2
-  line="| $name |"
+  cells=''
   for v in $ESTIMATED; do
-    case " $vs " in *" $v "*) line="$line $(estimate $v "$name" "$@") |" ;; *) line="$line - |" ;; esac
+    case " $vs " in
+      *" $v "*)
+        n=$((n + 1))
+        opts="--brief $*"
+        if [ "$v" = "$MODULES_OF" ]; then
+          opts="$opts --modules"
+          echo build/est/$n.txt > build/modules-$v.src
+        fi
+        echo "build/est/$n.txt build/$v/Digital-Synth-PRA32-U2.ino.elf $opts" >> build/jobs.txt
+        cells="$cells	$v:build/est/$n.txt" ;;
+      *) cells="$cells	-" ;;
+    esac
   done
-  echo "$line"
+  printf '%s%s\n' "$name" "$cells" >> build/rows.txt
 }
 
-echo "#### $version"
-echo
-echo "| Case (core 0 / core 1, max) | PRA32-U2 | PRA32-U2/M/P |"
-echo "| :-- | --: | --: |"
 # The heaviest: #5 Sync Lead (Osc 1 Wave Sqr) with Delay Mode Rev, in Poly (PRA32-U2), and as the
 # 4 Synths in Mono by MIDI Channel 16 (Layering, PRA32-U2/M/P); for the Program Changes, written to
 # the user programs #0 (and #1-3 for the Sub Synths) for the time of the estimate
@@ -84,32 +94,62 @@ PROGRAM_CHANGES_16_RS="CF$(printf '00%.0s' $(seq 255))"
 PC_BY_CC_RS="B0$(printf '707F7000%.0s' $(seq 64))"  # Program Change by CC #112 (#0), the value 127 and 0 by turns
 PC_BY_CC_16_RS="BF$(printf '707F7000%.0s' $(seq 64))"
 row '#0 Synth Pad, 4 notes' "$ESTIMATED" --program 0
+MODULES_OF=u2
 row 'Poly: #5 Sync Lead (Osc 1 Wave Sqr) in Poly with Delay Mode Rev, 4 notes' "$ESTIMATED" $POLY
+MODULES_OF=''
 row 'Poly, with Note On and Off of another note by UART MIDI (Running Status) and USB MIDI' "$ESTIMATED" $POLY \
   --uart-midi $NOTE_ON_OFF_RS --usb-midi $NOTE_ON_OFF
 row 'Poly, with Program Change #0 (Poly itself) back to back by UART MIDI (Running Status) and USB MIDI' "$ESTIMATED" $POLY \
   --uart-midi $PROGRAM_CHANGES_RS --usb-midi C000
 row 'Poly, with Program Change by CC #112 (#0) back to back by UART MIDI (Running Status) and USB MIDI' "$ESTIMATED" $POLY \
   --uart-midi $PC_BY_CC_RS --usb-midi B0707FB07000
+MODULES_OF=mp
 row '4 Synths: #5 Sync Lead (Mono, and Delay Mode Rev) by MIDI Channel 16 (Layering), 4 notes' 'mp' $SYNTHS
+MODULES_OF=''
 row '4 Synths, with Note On and Off of another note by MIDI Channel 16 by UART MIDI (Running Status) and USB MIDI' 'mp' $SYNTHS \
   --uart-midi $NOTE_ON_OFF_16_RS --usb-midi $NOTE_ON_OFF_16
 row '4 Synths, with Program Change #0 (4 Synths itself) by MIDI Channel 16 back to back by UART MIDI (Running Status) and USB MIDI' 'mp' $SYNTHS \
   --uart-midi $PROGRAM_CHANGES_16_RS --usb-midi CF00
 row '4 Synths, with Program Change by CC #112 (#0) by MIDI Channel 16 back to back by UART MIDI (Running Status) and USB MIDI' 'mp' $SYNTHS \
   --uart-midi $PC_BY_CC_16_RS --usb-midi BF707FBF7000
+
+# The jobs, the longest first: those of PRA32-U2/M/P (the 4 Synths, queued last, first of them), then the others
+awk '{ a[NR] = $0 } END { for (i = NR; i >= 1; i--) if (a[i] ~ / build\/mp\//) print a[i]
+                          for (i = NR; i >= 1; i--) if (a[i] !~ / build\/mp\//) print a[i] }' build/jobs.txt |
+  xargs -P "$JOBS" -L 1 sh -c 'out=$1; shift; python3 pra32-u2-load-estimate.py "$@" > "$out"' sh
+
+# A maximum over 100% (1333 us) is marked with "⚠", and one over 95% with "△"; each is also written to
+# build/warnings.txt, which the workflow shows as a warning
+: > build/warnings.txt
+echo "#### $version"
+echo
+echo "| Case (core 0 / core 1, max) | PRA32-U2 | PRA32-U2/M/P |"
+echo "| :-- | --: | --: |"
+while IFS='	' read -r name c1 c2; do
+  line="| $name |"
+  for c in "$c1" "$c2"; do
+    case $c in
+      -) line="$line - |" ;;
+      *)  # "core 0 avg%, max%, core 1 avg%, max%" in the first line
+        v=${c%%:*}
+        line="$line $(awk -v v="$v" -v name="$name" -v warnings=build/warnings.txt '
+          function mark(p, core) {
+            if (p > 100) { printf "%s, %s: core %d %.1f%%, over 1333 us\n", v, name, core, p >> warnings; return " ⚠" }
+            if (p > 95) { printf "%s, %s: core %d %.1f%%, little margin\n", v, name, core, p >> warnings; return " △" }
+            return ""
+          }
+          NR == 1 { printf "%.0f%%%s / %.0f%%%s", $2, mark($2, 0), $4, mark($4, 1) }' "${c#*:}") |" ;;
+    esac
+  done
+  echo "$line"
+done < build/rows.txt
 echo
 echo "⚠: over 100% (1333 us), △: over 95%"
 echo
-# The load of each module (class), the average of core 0 / core 1, in the heaviest of each
-modules() {  # variant, options: prints "module core0% core1%"
-  v=$1
-  shift
-  python3 pra32-u2-load-estimate.py build/$v/Digital-Synth-PRA32-U2.ino.elf --modules "$@" |
-    awk '/^modules,/ { m = 1; next } m { print $1, $2, $4 }'
-}
-modules u2 $POLY > build/modules-u2.txt
-modules mp $SYNTHS > build/modules-mp.txt
+# The load of each module (class), the average of core 0 / core 1, in the heaviest of each (above)
+for v in $ESTIMATED; do
+  awk '/^modules,/ { m = 1; next } m { print $1, $2, $4 }' "$(cat build/modules-$v.src)" > build/modules-$v.txt
+done
 echo "| Module (core 0 / core 1, avg) | PRA32-U2, Poly | PRA32-U2/M/P, 4 Synths |"
 echo "| :-- | --: | --: |"
 awk 'NR == FNR { a[$1] = $2 " / " $3; order[++n] = $1; next }
