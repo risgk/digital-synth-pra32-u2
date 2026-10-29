@@ -1,8 +1,8 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v3.17.6 (2026-??-??):
-    - Tested with Arduino-Pico version 6.3.0
     - PWM Audio: Write a sample with fewer instructions (about 70 from about 110, in a row), with the same output: the subperiod levels from the level's quotient and a table by the remainders, the dither's 4 uniform values from one xorshift32 step (in 1/256 of a step), and no clamp, the level scaled to 5 steps less than the period and raised by 3 so that the dither and the fed back error keep it in range (0.16% of level and half a step of offset)
+    - Tested with Arduino-Pico version 6.3.0
 - v3.17.5 (2026-10-26):
     - Presets: #22 Synth Bass: Filter Cutoff 52 to 40 and Filter Resonance 96 to 64 (darker); #24 Synth Brs: Filter Cutoff 88 to 94 (brighter);
       #21 Sync Lead and #26 WT Pad: LFO Mod Amt 72 to 64 and LFO Filter Amt 64 to 76 (the Modulation Wheel moves the Filter Cutoff, as on #24 Synth Brs, instead of Osc 1 Shape);
