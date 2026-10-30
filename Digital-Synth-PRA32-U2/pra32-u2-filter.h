@@ -138,8 +138,8 @@ class PRA32_U2_Filter {
   // high pass at about f_s / (2 * pi * 2^10), i.e. 7.5 Hz at 48 kHz
   static const uint8_t DC_BLOCKER_SHIFT = 10;
 
-  // Filter Drive: the input is multiplied by (1 + v / 128)^2 (1.0 at 0, 2.25 at
-  // 64, 3.97 at 127), which drives the loop and its leak harder, and what
+  // Filter Drive: the input is multiplied by 2^(v / 32) (1.0 at 0, 4.0 at 64,
+  // 15.7 at 127: 6 dB every 32 values), which drives the loop and its leak harder, and what
   // leaves the loop is divided by the same ahead of the output clip, so that
   // the level stays and the Drive changes the tone alone: in effect the leak's
   // ceiling comes down by the Drive, and the output clip stays where it is.
@@ -367,14 +367,14 @@ public:
     }
   }
 
-  // The Drive's gain, (1 + v / 128)^2 in Q16 from the smoothed v in Q7 (so that
-  // (128 + v)^2 in Q14 stays within 31 bits; over 128^2 = 2^14, it is Q16 after
-  // a shift by 12), and its reciprocal: the 32-bit division is a single
+  // The Drive's gain, 2^(v / 32) in Q16 interpolated from its table at the
+  // smoothed v, and its reciprocal: the 32-bit division is a single
   // instruction, taken every time so that the load does not depend on the
-  // value; + 1 lands exactly on 1.0 at a Drive of 0, and is a 1/65536 past it
+  // value; + 1 lands exactly on 1.0 at a Drive of 0, and is a 1/65536 past it.
+  // At the top, an input of 0.6 times 15.7 is 9.4, within the headroom of 32
+  // of the loop
   INLINE void update_drive_gain() {
-    int32_t u_q7 = (128 << 7) + (m_drive_current >> 9);
-    m_drive_gain = (u_q7 * u_q7) >> 12;
+    m_drive_gain = interpolate_filter_table(g_filter_drive_gain_table, m_drive_current);
     uint32_t reciprocal = (0xFFFFFFFFu / static_cast<uint32_t>(m_drive_gain)) + 1;
     m_drive_comp = (reciprocal < static_cast<uint32_t>(DRIVE_UNITY_Q16)) ? static_cast<int32_t>(reciprocal) : DRIVE_UNITY_Q16;
   }

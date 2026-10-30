@@ -74,13 +74,13 @@ harmonics as the band pass is driven (at a high Resonance or near the cutoff), w
 small-signal gain made up for, so that the resonance is kept; a DC blocker on the output
 removes the DC that comes with it. The output clip comes last. Above the Filter
 Resonance 122, k turns negative and the loop oscillates. Filter Drive multiplies the input by
-(1 + value / 128)^2, 1.0 at 0 and 3.97 at 127, which drives the loop and its leak harder, and divides
+2^(value / 32), 1.0 at 0, 4.0 at 64 and 15.7 at 127, which drives the loop and its leak harder, and divides
 what leaves the loop by the same ahead of the output clip, so that the level stays and the Drive
 changes the tone alone; the Presets are at 0 (1.0).
 
 ```mermaid
 flowchart LR
-    IN([Input]) --> DRV["× Drive<br/>(1 + value / 128)², 1.0 at 0"]
+    IN([Input]) --> DRV["× Drive<br/>2^(value / 32), 1.0 at 0"]
     DRV --> SUM((Σ))
     SUM -->|HP| I1["Integrator 1<br/>BP, state s1"]
     I1 -->|BP| I2["Integrator 2<br/>LP, state s2"]
