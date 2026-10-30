@@ -74,13 +74,13 @@ harmonics as the band pass is driven (at a high Resonance or near the cutoff), w
 small-signal gain made up for, so that the resonance is kept; a DC blocker on the output
 removes the DC that comes with it. The output clip comes last. Above the Filter
 Resonance 122, k turns negative and the loop oscillates. Filter Drive multiplies the input by
-(value / 64)^2, 1.0 at 64 and 3.94 at 127, which drives the leak and the output clip harder, and
-above 1.0 divides the output by the same, so that the level stays and the Drive changes the tone
-alone; the Presets are at 76 (1.41).
+(1 + value / 128)^2, 1.0 at 0 and 3.97 at 127, which drives the leak and the output clip harder, and
+divides the output by the same, so that the level stays and the Drive changes the tone alone; the
+Presets are at 24 (1.41).
 
 ```mermaid
 flowchart LR
-    IN([Input]) --> DRV["× Drive<br/>(value / 64)², 1.41 at 76"]
+    IN([Input]) --> DRV["× Drive<br/>(1 + value / 128)², 1.41 at 24"]
     DRV --> SUM((Σ))
     SUM -->|HP| I1["Integrator 1<br/>BP, state s1"]
     I1 -->|BP| I2["Integrator 2<br/>LP, state s2"]
@@ -89,7 +89,7 @@ flowchart LR
     I2 -->|LP| MS
     MS --> DC["DC blocker<br/>7.5 Hz"]
     DC --> OC["Output clip<br/>linear up to 0.75"]
-    OC --> DIV["÷ Drive<br/>above 1.0"]
+    OC --> DIV["÷ Drive"]
     DIV --> OUT([Output])
     SC["Nonlinear leak<br/>biased 1/8, ceiling 4.0, one-step simplified Newton"] -.- I1
     L2["s2 is linear<br/>guard clamp at 16"] -.- I2

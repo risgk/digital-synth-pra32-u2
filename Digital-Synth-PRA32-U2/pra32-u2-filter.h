@@ -138,16 +138,16 @@ class PRA32_U2_Filter {
   // high pass at about f_s / (2 * pi * 2^10), i.e. 7.5 Hz at 48 kHz
   static const uint8_t DC_BLOCKER_SHIFT = 10;
 
-  // Filter Drive: the input is multiplied by (v / 64)^2 (1.0 at 64, 3.94 at
-  // 127, 0 at 0), which drives the loop, the leak and the output clip harder,
-  // and the output is divided by the same above 1.0 (left as it is below), so
-  // that the level stays and the Drive changes the tone alone: in effect the
-  // leak's ceiling and the output clip's knee come down by the Drive. The
-  // self-oscillation, set inside the loop, comes out lower by the Drive too
-  // (SELF_OSC_LEVEL in pra32-u2-generate-filter-table.rb is raised by the
-  // default Drive 76, so that it is 0.5 there). The gain and its reciprocal
-  // are computed from the smoothed value at the low rate by m_filter[0], a
-  // division each time whatever the value, so the load is constant
+  // Filter Drive: the input is multiplied by (1 + v / 128)^2 (1.0 at 0, 1.41 at
+  // 24, 3.97 at 127), which drives the loop, the leak and the output clip
+  // harder, and the output is divided by the same, so that the level stays
+  // and the Drive changes the tone alone: in effect the leak's ceiling and the
+  // output clip's knee come down by the Drive. The self-oscillation, set
+  // inside the loop, comes out lower by the Drive too (SELF_OSC_LEVEL in
+  // pra32-u2-generate-filter-table.rb is raised by the default Drive 24, so
+  // that it is 0.5 there). The gain and its reciprocal are computed from the
+  // smoothed value at the low rate by m_filter[0], a division each time
+  // whatever the value, so the load is constant
   static const int32_t DRIVE_UNITY_Q16 = 1 << 16;
 
   int32_t m_g;                        // g = tan(pi * f_0 / f_s), Q26
@@ -236,7 +236,7 @@ public:
   {
     set_cutoff(127);
     set_resonance(0);
-    set_drive(64);
+    set_drive(0);
     set_cutoff_eg_amt(0, 64);
     set_cutoff_eg_amt(1, 64);
     set_cutoff_lfo_amt(0, 64);
@@ -368,16 +368,15 @@ public:
     }
   }
 
-  // The Drive's gain, (v / 64)^2 in Q16 from the smoothed v in Q8 (v^2 is Q16,
-  // over 64^2 = 2^12), and its reciprocal, held at 1.0 and below: the 32-bit
-  // division is a single instruction, taken every time so that the load does
-  // not depend on the value; + 1 lands exactly on 1.0 at the unity gain, and
-  // is a 1/65536 past it, and the gain is held at 1 LSB so that a Drive of 0
-  // (silence) divides by nothing worse
+  // The Drive's gain, (1 + v / 128)^2 in Q16 from the smoothed v in Q7 (so that
+  // (128 + v)^2 in Q14 stays within 31 bits; over 128^2 = 2^14, it is Q16 after
+  // a shift by 12), and its reciprocal: the 32-bit division is a single
+  // instruction, taken every time so that the load does not depend on the
+  // value; + 1 lands exactly on 1.0 at a Drive of 0, and is a 1/65536 past it
   INLINE void update_drive_gain() {
-    int32_t v_q8 = m_drive_current >> 8;
-    m_drive_gain = (v_q8 * v_q8) >> 12;
-    uint32_t reciprocal = (0xFFFFFFFFu / static_cast<uint32_t>(maximum(m_drive_gain, 1))) + 1;
+    int32_t u_q7 = (128 << 7) + (m_drive_current >> 9);
+    m_drive_gain = (u_q7 * u_q7) >> 12;
+    uint32_t reciprocal = (0xFFFFFFFFu / static_cast<uint32_t>(m_drive_gain)) + 1;
     m_drive_comp = (reciprocal < static_cast<uint32_t>(DRIVE_UNITY_Q16)) ? static_cast<int32_t>(reciprocal) : DRIVE_UNITY_Q16;
   }
 
@@ -485,7 +484,7 @@ public:
     int32_t y_0 = audio_input_int24 << FILTER_CALC_SCALING_BITS;
 #endif
 
-    // The Drive's gain taken back off after the output clip, down to 1.0
+    // The Drive's gain taken back off after the output clip
     return multiply_shift_right(soft_clip_output(y_0 >> FILTER_CALC_SCALING_BITS), m_drive_comp, 16);
   }
 
