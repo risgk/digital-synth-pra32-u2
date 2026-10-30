@@ -395,7 +395,7 @@
     - 0 (0-63): Switch (Sw), The Portamento is on only while Portamento Switch (Control Change #65) is On (64-127)
     - 127 (64-127): Auto (Aut), The Portamento is always on
     - NOTE: In Legato Portamento (Voice Mode: LP), the Portamento is effective only for the legato notes, also while it is on
-- Filter Drive: The gain into the Filter, (1 + value / 128)^2, which drives the loop (the leak, at a high Resonance or near the cutoff) and the output clip harder; the output is lowered by the same, so that the level stays and the Drive changes the tone alone (the self-oscillation comes out lower by it, and a high Drive holds the resonant peak down)
+- Filter Drive: The gain into the Filter, (1 + value / 128)^2, which drives the loop (the leak, at a high Resonance or near the cutoff) harder; what leaves the loop is lowered by the same ahead of the output clip, so that the level stays and the Drive changes the tone alone (the self-oscillation comes out lower by it, and a high Drive holds the resonant peak down; at a low Resonance it does little)
     - 0: x 1.00 (0 dB, min)
     - 24: x 1.41 (+3 dB, the Presets)
     - 64: x 2.25 (+7 dB)

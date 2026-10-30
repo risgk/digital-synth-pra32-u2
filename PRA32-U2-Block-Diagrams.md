@@ -74,9 +74,9 @@ harmonics as the band pass is driven (at a high Resonance or near the cutoff), w
 small-signal gain made up for, so that the resonance is kept; a DC blocker on the output
 removes the DC that comes with it. The output clip comes last. Above the Filter
 Resonance 122, k turns negative and the loop oscillates. Filter Drive multiplies the input by
-(1 + value / 128)^2, 1.0 at 0 and 3.97 at 127, which drives the leak and the output clip harder, and
-divides the output by the same, so that the level stays and the Drive changes the tone alone; the
-Presets are at 24 (1.41).
+(1 + value / 128)^2, 1.0 at 0 and 3.97 at 127, which drives the loop and its leak harder, and divides
+what leaves the loop by the same ahead of the output clip, so that the level stays and the Drive
+changes the tone alone; the Presets are at 24 (1.41).
 
 ```mermaid
 flowchart LR
@@ -88,9 +88,9 @@ flowchart LR
     I1 -->|BP| MS
     I2 -->|LP| MS
     MS --> DC["DC blocker<br/>7.5 Hz"]
-    DC --> OC["Output clip<br/>linear up to 0.75"]
-    OC --> DIV["÷ Drive"]
-    DIV --> OUT([Output])
+    DC --> DIV["÷ Drive"]
+    DIV --> OC["Output clip<br/>linear up to 0.75"]
+    OC --> OUT([Output])
     SC["Nonlinear leak<br/>biased 1/8, ceiling 4.0, one-step simplified Newton"] -.- I1
     L2["s2 is linear<br/>guard clamp at 16"] -.- I2
     I1 -->|"−k·BP"| SUM
@@ -114,9 +114,9 @@ flowchart LR
     A2 -->|BP| MS
     A3 -->|LP| MS
     MS --> CC["Coupling capacitor"]
-    CC --> LIM["Output clipper"]
-    LIM --> OA["Output attenuator<br/>1 / Drive"]
-    OA --> OUT([Output])
+    CC --> OA["Attenuator<br/>1 / Drive"]
+    OA --> LIM["Output clipper"]
+    LIM --> OUT([Output])
     A2 -->|"R/k (resonance)"| A1
     A3 -->|R| A1
     classDef nl fill:#FAECE7,stroke:#D85A30,color:#712B13

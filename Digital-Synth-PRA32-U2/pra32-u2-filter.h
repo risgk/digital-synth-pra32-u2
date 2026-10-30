@@ -139,15 +139,15 @@ class PRA32_U2_Filter {
   static const uint8_t DC_BLOCKER_SHIFT = 10;
 
   // Filter Drive: the input is multiplied by (1 + v / 128)^2 (1.0 at 0, 1.41 at
-  // 24, 3.97 at 127), which drives the loop, the leak and the output clip
-  // harder, and the output is divided by the same, so that the level stays
-  // and the Drive changes the tone alone: in effect the leak's ceiling and the
-  // output clip's knee come down by the Drive. The self-oscillation, set
-  // inside the loop, comes out lower by the Drive too (SELF_OSC_LEVEL in
-  // pra32-u2-generate-filter-table.rb is raised by the default Drive 24, so
-  // that it is 0.5 there). The gain and its reciprocal are computed from the
-  // smoothed value at the low rate by m_filter[0], a division each time
-  // whatever the value, so the load is constant
+  // 24, 3.97 at 127), which drives the loop and its leak harder, and what
+  // leaves the loop is divided by the same ahead of the output clip, so that
+  // the level stays and the Drive changes the tone alone: in effect the leak's
+  // ceiling comes down by the Drive, and the output clip stays where it is.
+  // The self-oscillation, set inside the loop, comes out lower by the Drive
+  // too (SELF_OSC_LEVEL in pra32-u2-generate-filter-table.rb is raised by the
+  // default Drive 24, so that it is 0.5 there). The gain and its reciprocal
+  // are computed from the smoothed value at the low rate by m_filter[0], a
+  // division each time whatever the value, so the load is constant
   static const int32_t DRIVE_UNITY_Q16 = 1 << 16;
 
   int32_t m_g;                        // g = tan(pi * f_0 / f_s), Q26
@@ -484,8 +484,8 @@ public:
     int32_t y_0 = audio_input_int24 << FILTER_CALC_SCALING_BITS;
 #endif
 
-    // The Drive's gain taken back off after the output clip
-    return multiply_shift_right(soft_clip_output(y_0 >> FILTER_CALC_SCALING_BITS), m_drive_comp, 16);
+    // The Drive's gain taken back off ahead of the output clip
+    return soft_clip_output(multiply_shift_right(y_0, m_drive_comp, 16 + FILTER_CALC_SCALING_BITS));
   }
 
 private:
