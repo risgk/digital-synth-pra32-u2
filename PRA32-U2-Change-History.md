@@ -59,7 +59,7 @@
     - PRA32-U2 Editor: Make the page no wider than in a 960 px window, so that the Software Keyboard shows the 37 keys (e.g. C3 - C6) and the lines end there even in a wider window
     - PRA32-U2 Editor: Move the Software Keyboard below the parameters, and keep it at the bottom of the window while they scroll above it, with lower keys (100 px, from 140 px), so that they can be changed while playing
     - PRA32-U2 Editor: Show the value of Pitch Bend with "+" for 0 and above (e.g. "+0" and "+8191"), as the parameters of [-|+]
-    - PRA32-U2 Editor: Show Panic of the Software Keyboard even while it is hidden, and turn Hold off by Panic and by hiding the keyboard
+    - PRA32-U2 Editor: Show Panic of the Software Keyboard even while it is hidden, and turn Hold off by Panic and by hiding the keyboard (as in SPMS-1 Editor)
     - PRA32-U2 Editor: Make the sliders below the Software Keyboard (Performance Controls) hidable apart from the keyboard, so that the keyboard at the bottom of the window takes less of it (e.g. on a phone); hidden the first time in a window up to 700 px high, and shown or hidden as the last time
     - PRA32-U2 Editor: Change Undo to go back up to 200 steps, also over the moves of the sliders, and add Redo (instead of Undo again)
     - PRA32-U2 Editor: Show "(None)" for no port in MIDI In 1-4 and MIDI Out, instead of an empty box
@@ -68,7 +68,7 @@
     - PRA32-U2 Editor: Make the thumbs of the sliders larger (24 px, from 16 px) on a touch screen, with the sliders longer (157 px) so that the thumb still moves a pixel a value, and the value labels narrower (48 px)
     - PRA32-U2 Editor: Put the MIDI settings under "MIDI", and Actions, Factory Preset, User Preset, and Save & Load (as its sub heading) under "Actions & Presets", each of which can be hidden (shown by default, and shown or hidden as the last time)
     - PRA32-U2 Editor: Keep the program buttons with names in 4 columns in a 360 px window too (a little smaller and closer together)
-    - PRA32-U2 Editor: Color the sliders orange (the color of PRA32-U2), and the buttons under the pointer and while pressed, and show the title larger in orange over an orange line, with the version and the link smaller in gray (#6b6b6b)
+    - PRA32-U2 Editor: Color the sliders orange (the color of PRA32-U2), and the buttons under the pointer and while pressed, and show the title larger in orange over an orange line, with the version and the link smaller in gray (#6b6b6b) (as in SPMS-1 Editor)
     - PRA32-U2 Editor: Make the buttons taller (30 px, from 21 px) on a touch screen
     - PRA32-U2 Editor: Show the ring of the keyboard focus in orange
     - PRA32-U2 Editor: Add the keys for Undo (Ctrl+Z) and Redo (Ctrl+Y or Ctrl+Shift+Z), Command instead of Ctrl on a Mac
@@ -77,8 +77,8 @@
     - PRA32-U2 Editor: Show a note in the MIDI settings if Web MIDI is not available or not allowed (only in the console before)
     - PRA32-U2 Editor: Make the values of the parameters not used (e.g. Amp Attack while EG Amp Mod is On) a little darker gray (#a0a0a0, from #d3d3d3), as an empty preset
     - PRA32-U2 Editor: Wrap the bar of the Software Keyboard by the group in a narrow window, with a space between the lines, so that the buttons do not touch (Hold and Panic at the right end)
-    - PRA32-U2 Editor: Narrow the keys of the Software Keyboard with the window, so that it shows the 37 keys (e.g. C3 - C6) down to a 481 px window (e.g. a 640 px one), on a phone an octave of 13 keys (C - C), and on another touch screen (e.g. a phone on its side or a tablet) two octaves of 25 keys, so that the keys are wide enough for a finger
-    - PRA32-U2 Editor: Keep the page from scrolling under a finger on the Software Keyboard on an iPhone (Safari and the other browsers there), which let the key go, and hide "PC Keys" on a phone or a tablet
+    - PRA32-U2 Editor: Narrow the keys of the Software Keyboard with the window, so that it shows the 37 keys (e.g. C3 - C6) down to a 481 px window (e.g. a 640 px one), on a phone an octave of 13 keys (C - C), and on another touch screen (e.g. a phone on its side or a tablet) two octaves of 25 keys, so that the keys are wide enough for a finger (as in SPMS-1 Editor)
+    - PRA32-U2 Editor: Keep the page from scrolling under a finger on the Software Keyboard on an iPhone (Safari and the other browsers there), which let the key go, and hide "PC Keys" on a phone or a tablet (as in SPMS-1 Editor)
     - Tested with Arduino-Pico version 6.3.0
 - v3.16.1 (2026-10-23):
     - PRA32-U2 Editor: Make the supplements in [] (e.g. "[Saw|Sqr|Tri|Sin|WT|Pls]") and the control numbers in the parameter names smaller, so that the names are narrower, and put the control numbers a little apart (also "PC#127" in "Randomize Synth")
