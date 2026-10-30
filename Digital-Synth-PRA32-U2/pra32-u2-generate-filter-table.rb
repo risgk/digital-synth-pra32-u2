@@ -70,10 +70,9 @@ end
 # Osc output was 1 / 1.25 of the current one: the ratio of the two is kept);
 # of the Presets, Sync Lead, WT Pad, Fifth Lead, and PWM Lead stop it while
 # playing. Below the knee of soft_clip_output() (0.75), so that it leaves the
-# Filter as a clean sine. The Filter divides its output by the Drive's gain
-# (see pra32-u2-filter.h), so the level inside the loop is raised by the gain
-# of the default Drive 24, (1 + 24 / 128)^2 = 1.41, to come out at 0.5
-SELF_OSC_LEVEL = 0.5 * ((1.0 + 24.0 / 128.0) ** 2)
+# Filter as a clean sine (the Filter Drive, x 1 in the Presets, divides what
+# leaves the loop by its gain, so a Drive above 0 lowers it: see pra32-u2-filter.h)
+SELF_OSC_LEVEL = 0.5
 SELF_OSC_KAPPA = ((SELF_OSC_LEVEL / 11.4) ** 2) * (48000.0 / SAMPLING_RATE)
 
 # The leak of the band pass integrator gives the self-oscillation a 3rd

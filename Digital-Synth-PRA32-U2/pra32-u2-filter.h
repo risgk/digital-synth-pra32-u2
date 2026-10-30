@@ -138,14 +138,13 @@ class PRA32_U2_Filter {
   // high pass at about f_s / (2 * pi * 2^10), i.e. 7.5 Hz at 48 kHz
   static const uint8_t DC_BLOCKER_SHIFT = 10;
 
-  // Filter Drive: the input is multiplied by (1 + v / 128)^2 (1.0 at 0, 1.41 at
-  // 24, 3.97 at 127), which drives the loop and its leak harder, and what
+  // Filter Drive: the input is multiplied by (1 + v / 128)^2 (1.0 at 0, 2.25 at
+  // 64, 3.97 at 127), which drives the loop and its leak harder, and what
   // leaves the loop is divided by the same ahead of the output clip, so that
   // the level stays and the Drive changes the tone alone: in effect the leak's
   // ceiling comes down by the Drive, and the output clip stays where it is.
   // The self-oscillation, set inside the loop, comes out lower by the Drive
-  // too (SELF_OSC_LEVEL in pra32-u2-generate-filter-table.rb is raised by the
-  // default Drive 24, so that it is 0.5 there). The gain and its reciprocal
+  // too (0.5 at the Presets' Drive 0). The gain and its reciprocal
   // are computed from the smoothed value at the low rate by m_filter[0], a
   // division each time whatever the value, so the load is constant
   static const int32_t DRIVE_UNITY_Q16 = 1 << 16;
