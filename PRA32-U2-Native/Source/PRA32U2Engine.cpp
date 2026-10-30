@@ -82,6 +82,7 @@ const PRA32U2Engine::ParameterInfo s_parameter_names[] = {
   { BTH_AMP_MOD    , "Breath Amp Mode [Off|Q|L|LO|QO|Opn]"    },
   { AFT_T_LFO_AMT  , "After Touch LFO Amt"                    },
   { PORTA_MODE     , "Portamento Mode [Sw|Aut]"               },
+  { FILTER_DRIVE   , "Filter Drive"                           },
 
   { CHORUS_MIX     , "Chorus Level"                           },
   { FX_ROUTING     , "FX Routing [Cho|Cho|Dly|Dly|Cmp|Dry]"   },

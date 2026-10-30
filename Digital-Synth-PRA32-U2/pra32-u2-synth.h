@@ -100,6 +100,7 @@ static uint8_t s_program_table_parameters[] = {
   BTH_AMP_MOD    ,
   AFT_T_LFO_AMT  ,
   PORTA_MODE     ,
+  FILTER_DRIVE   ,
 
   CHORUS_MIX     ,
   FX_ROUTING     ,
@@ -417,6 +418,7 @@ public:
     std::memcpy(m_program_table[BTH_AMP_MOD    ], g_preset_table_BTH_AMP_MOD    , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[AFT_T_LFO_AMT  ], g_preset_table_AFT_T_LFO_AMT  , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[PORTA_MODE     ], g_preset_table_PORTA_MODE     , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[FILTER_DRIVE   ], g_preset_table_FILTER_DRIVE   , sizeof(m_program_table[0]));
 
     std::memcpy(m_program_table[CHORUS_MIX     ], g_preset_table_CHORUS_MIX     , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[FX_ROUTING     ], g_preset_table_FX_ROUTING     , sizeof(m_program_table[0]));
@@ -1231,6 +1233,13 @@ if constexpr (NO_FX == false) {
       m_filter[3].set_filter_mode(controller_value);
       break;
 
+    case FILTER_DRIVE   :
+      m_filter[0].set_drive(controller_value);
+      m_filter[1].set_drive(controller_value);
+      m_filter[2].set_drive(controller_value);
+      m_filter[3].set_drive(controller_value);
+      break;
+
     case FILTER_KEY_TRK :
       m_filter[0].set_cutoff_pitch_amt(controller_value);
       m_filter[1].set_cutoff_pitch_amt(controller_value);
@@ -1521,6 +1530,7 @@ if constexpr (NO_FX == false) {
       uint32_t control_number = s_program_table_parameters[i];
       if ((control_number != VOICE_MODE     ) &&
           (control_number != AMP_GAIN       ) &&
+          (control_number != FILTER_DRIVE   ) &&
           (control_number != CHORUS_MIX     ) &&
           (control_number != FX_ROUTING     ) &&
           (control_number != CHORUS_RATE    ) &&

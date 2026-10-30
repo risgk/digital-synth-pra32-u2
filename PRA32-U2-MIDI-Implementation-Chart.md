@@ -92,6 +92,7 @@
 |                            61 | x             | o             | Breath Amp Mode [Off|Q|L|LO|QO|Opn]  |
 |                            37 | x             | o             | After Touch LFO Amt                  |
 |                            34 | x             | o             | Portamento Mode [Sw|Aut]             |
+|                            31 | x             | o             | Filter Drive                         |
 |                               |               |               |                                      |
 |                            93 | x             | o             | Chorus Level                         |
 |                            95 | x             | o             | FX Routing [Cho|Cho|Dly|Dly|Cmp|Dry] |

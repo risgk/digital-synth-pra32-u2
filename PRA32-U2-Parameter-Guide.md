@@ -395,6 +395,14 @@
     - 0 (0-63): Switch (Sw), The Portamento is on only while Portamento Switch (Control Change #65) is On (64-127)
     - 127 (64-127): Auto (Aut), The Portamento is always on
     - NOTE: In Legato Portamento (Voice Mode: LP), the Portamento is effective only for the legato notes, also while it is on
+- Filter Drive: The gain into the Filter, (value / 64)^2, which drives the loop (the leak, at a high Resonance or near the cutoff) and the output clip harder; above 64 the output is lowered by the same, so that the level stays and the Drive changes the tone alone (the self-oscillation comes out lower by it)
+    - 0: x 0 (silent, min)
+    - 32: x 0.25 (-12 dB)
+    - 64: x 1.00 (0 dB)
+    - 76: x 1.41 (+3 dB, the Presets)
+    - 90: x 1.98 (+5.9 dB)
+    - 127: x 3.94 (+11.9 dB, max)
+    - NOTE: Not changed by "Randomize Synth"
 - Chorus Level: Chorus Send Level
 - FX Routing [Cho|Cho|Dly|Dly|Cmp|Dry]: Where the output is input to the FX (connected in series: Chorus -> Delay -> Output Compressor)
     - 0 (0-12): Chorus (through the Chorus, the Delay, and the Output Compressor)

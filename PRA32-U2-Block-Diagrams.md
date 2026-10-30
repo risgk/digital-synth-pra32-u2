@@ -73,11 +73,15 @@ a guard that ordinary use never reaches. The curve is biased by 1/8, so that the
 harmonics as the band pass is driven (at a high Resonance or near the cutoff), with its
 small-signal gain made up for, so that the resonance is kept; a DC blocker on the output
 removes the DC that comes with it. The output clip comes last. Above the Filter
-Resonance 122, k turns negative and the loop oscillates.
+Resonance 122, k turns negative and the loop oscillates. Filter Drive multiplies the input by
+(value / 64)^2, 1.0 at 64 and 3.94 at 127, which drives the leak and the output clip harder, and
+above 1.0 divides the output by the same, so that the level stays and the Drive changes the tone
+alone; the Presets are at 76 (1.41).
 
 ```mermaid
 flowchart LR
-    IN([Input]) --> SUM((Σ))
+    IN([Input]) --> DRV["× Drive<br/>(value / 64)², 1.41 at 76"]
+    DRV --> SUM((Σ))
     SUM -->|HP| I1["Integrator 1<br/>BP, state s1"]
     I1 -->|BP| I2["Integrator 2<br/>LP, state s2"]
     SUM -->|HP| MS["Filter Mode<br/>LP / BP / BR / HP"]
@@ -85,7 +89,8 @@ flowchart LR
     I2 -->|LP| MS
     MS --> DC["DC blocker<br/>7.5 Hz"]
     DC --> OC["Output clip<br/>linear up to 0.75"]
-    OC --> OUT([Output])
+    OC --> DIV["÷ Drive<br/>above 1.0"]
+    DIV --> OUT([Output])
     SC["Nonlinear leak<br/>biased 1/8, ceiling 4.0, one-step simplified Newton"] -.- I1
     L2["s2 is linear<br/>guard clamp at 16"] -.- I2
     I1 -->|"−k·BP"| SUM
@@ -100,7 +105,8 @@ output clip. It is an interpretation, not a reproduction of an actual circuit.
 
 ```mermaid
 flowchart LR
-    IN([Input]) --> A1["Summing amp Σ"]
+    IN([Input]) --> IA["Input amp<br/>gain = Drive"]
+    IA --> A1["Summing amp Σ"]
     A1 -->|HP| A2["Integrator ∫<br/>C1"]
     D["Diode pair<br/>asymmetric"] -.-|across C1| A2
     A2 -->|BP| A3["Integrator ∫<br/>C2, linear"]
@@ -109,7 +115,8 @@ flowchart LR
     A3 -->|LP| MS
     MS --> CC["Coupling capacitor"]
     CC --> LIM["Output clipper"]
-    LIM --> OUT([Output])
+    LIM --> OA["Output attenuator<br/>1 / Drive"]
+    OA --> OUT([Output])
     A2 -->|"R/k (resonance)"| A1
     A3 -->|R| A1
     classDef nl fill:#FAECE7,stroke:#D85A30,color:#712B13

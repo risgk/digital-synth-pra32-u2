@@ -857,6 +857,7 @@ const BTH_FILTER_AMT  = 60;
 const BTH_AMP_MOD     = 61;
 const AFT_T_LFO_AMT   = 37;
 const PORTA_MODE      = 34;
+const FILTER_DRIVE    = 31;
 
 const CHORUS_MIX      = 93;
 const FX_ROUTING      = 95;
@@ -959,6 +960,7 @@ var controlNumberToStringMap = new Map([
   [ BTH_AMP_MOD    , "BTH_AMP_MOD    " ],
   [ AFT_T_LFO_AMT  , "AFT_T_LFO_AMT  " ],
   [ PORTA_MODE     , "PORTA_MODE     " ],
+  [ FILTER_DRIVE   , "FILTER_DRIVE   " ],
 
   [ CHORUS_MIX     , "CHORUS_MIX     " ],
   [ FX_ROUTING     , "FX_ROUTING     " ],
@@ -1037,6 +1039,7 @@ var controllersInLocalStorage = [
   BTH_AMP_MOD    ,
   AFT_T_LFO_AMT  ,
   PORTA_MODE     ,
+  FILTER_DRIVE   ,
 
   CHORUS_MIX     ,
   FX_ROUTING     ,
@@ -1117,6 +1120,7 @@ presetControllers[BTH_FILTER_AMT ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   
 presetControllers[BTH_AMP_MOD    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 presetControllers[AFT_T_LFO_AMT  ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 presetControllers[PORTA_MODE     ] = [127, 127, 127, 127, 127, 127, 127, 127,   127, 127, 127, 127, 127, 127, 127, 127];
+presetControllers[FILTER_DRIVE   ] = [76 , 76 , 76 , 76 , 76 , 76 , 76 , 76 ,   76 , 76 , 76 , 76 , 76 , 76 , 76 , 76 ];
 
 presetControllers[CHORUS_MIX     ] = [127, 127, 127, 127, 127, 127, 127, 0  ,   127, 127, 127, 127, 127, 127, 127, 0  ];
 presetControllers[FX_ROUTING     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
@@ -1893,6 +1897,7 @@ function setRandom() {
         (i != BTH_AMP_MOD    ) &&
         (i != AFT_T_LFO_AMT  ) &&
         (i != PORTA_MODE     ) &&
+        (i != FILTER_DRIVE   ) &&
         (i != AMP_ATTACK     ) &&
         (i != AMP_DECAY      ) &&
         (i != AMP_SUSTAIN    ) &&
@@ -2904,6 +2909,7 @@ function fileExport() {
   str += fileExportOneLine(BTH_AMP_MOD    );
   str += fileExportOneLine(AFT_T_LFO_AMT  );
   str += fileExportOneLine(PORTA_MODE     );
+  str += fileExportOneLine(FILTER_DRIVE   );
   str += "\n";
   str += fileExportOneLine(CHORUS_MIX     );
   str += fileExportOneLine(FX_ROUTING     );
@@ -3296,6 +3302,10 @@ function getStoredCCValueString(index, number) {
 <div class="param">
   <div class="param-name"><b>Filter</b> Mode <span class="sup">[LP|LP|BP|BP|BR|HP]</span> <span class="cc">CC#39</span></div>
   <div class="param-ctrl soft-markers-6"><input  id="inputFILTER_MODE    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(FILTER_MODE    , value)"><span    id="spanFILTER_MODE    " >-</span><span   id="span2FILTER_MODE    " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>Filter</b> Drive <span class="cc">CC#31</span></div>
+  <div class="param-ctrl"><input  id="inputFILTER_DRIVE   "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(FILTER_DRIVE   , value)"><span    id="spanFILTER_DRIVE   " >-</span><span   id="span2FILTER_DRIVE   " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name">Pitch Bend Range <span class="cc">CC#57</span></div>

@@ -138,6 +138,18 @@ class PRA32_U2_Filter {
   // high pass at about f_s / (2 * pi * 2^10), i.e. 7.5 Hz at 48 kHz
   static const uint8_t DC_BLOCKER_SHIFT = 10;
 
+  // Filter Drive: the input is multiplied by (v / 64)^2 (1.0 at 64, 3.94 at
+  // 127, 0 at 0), which drives the loop, the leak and the output clip harder,
+  // and the output is divided by the same above 1.0 (left as it is below), so
+  // that the level stays and the Drive changes the tone alone: in effect the
+  // leak's ceiling and the output clip's knee come down by the Drive. The
+  // self-oscillation, set inside the loop, comes out lower by the Drive too
+  // (SELF_OSC_LEVEL in pra32-u2-generate-filter-table.rb is raised by the
+  // default Drive 76, so that it is 0.5 there). The gain and its reciprocal
+  // are computed from the smoothed value at the low rate by m_filter[0], a
+  // division each time whatever the value, so the load is constant
+  static const int32_t DRIVE_UNITY_Q16 = 1 << 16;
+
   int32_t m_g;                        // g = tan(pi * f_0 / f_s), Q26
   int32_t m_one_over_a_0;              // 1 / a_0, Q30, where a_0 = 1 + g * (g + k)
   int32_t m_g_plus_k_over_a_0;         // (g + k) / a_0, Q30
@@ -173,6 +185,11 @@ class PRA32_U2_Filter {
   int32_t m_cutoff_base_current;       // The smoothed Cutoff with the Breath modulation
   uint16_t m_cutoff_drift;
   int32_t m_cutoff_drift_noise;
+  uint8_t m_drive_target;
+  int32_t m_drive_stage_1;
+  int32_t m_drive_current;             // Q16 controller value, smoothed
+  int32_t m_drive_gain;                // Q16, (Drive / 64)^2
+  int32_t m_drive_comp;                // Q16, 1 / m_drive_gain, at most 1.0
 
 public:
   PRA32_U2_Filter()
@@ -211,9 +228,15 @@ public:
   , m_cutoff_base_current()
   , m_cutoff_drift()
   , m_cutoff_drift_noise()
+  , m_drive_target()
+  , m_drive_stage_1()
+  , m_drive_current()
+  , m_drive_gain(DRIVE_UNITY_Q16)
+  , m_drive_comp(DRIVE_UNITY_Q16)
   {
     set_cutoff(127);
     set_resonance(0);
+    set_drive(64);
     set_cutoff_eg_amt(0, 64);
     set_cutoff_eg_amt(1, 64);
     set_cutoff_lfo_amt(0, 64);
@@ -230,6 +253,7 @@ public:
     m_cutoff_lfo_amt_stage_1[1] = m_cutoff_lfo_amt_current[1] = 0;
     m_cutoff_current = m_cutoff_base_current;
     m_resonance_stage_1 = m_resonance_current = static_cast<int32_t>(m_resonance_target) << 16;
+    m_drive_stage_1 = m_drive_current = static_cast<int32_t>(m_drive_target) << 16;
 
     update_coefs(0, 0, 60 << 16, *this);
     m_g                 = m_g_last;
@@ -246,6 +270,10 @@ public:
 
   INLINE void set_resonance(uint8_t controller_value) {
     m_resonance_target = controller_value;
+  }
+
+  INLINE void set_drive(uint8_t controller_value) {
+    m_drive_target = controller_value;
   }
 
   INLINE int8_t get_cutoff_mod_amt(uint8_t controller_value) {
@@ -332,10 +360,25 @@ public:
     m_breath_controller_current = approach_exp_fast(m_breath_controller_current, m_breath_controller);
     update_cutoff_base_current();
     approach_exp_slow(m_resonance_stage_1, m_resonance_current, static_cast<int32_t>(m_resonance_target) << 16);
+    approach_exp_slow(m_drive_stage_1, m_drive_current, static_cast<int32_t>(m_drive_target) << 16);
+    update_drive_gain();
     for (int i = 0; i < 2; ++i) {
       approach_exp_slow(m_cutoff_eg_amt_stage_1[i],  m_cutoff_eg_amt_current[i],  static_cast<int32_t>(m_cutoff_eg_amt_target[i]) << 16);
       approach_exp_slow(m_cutoff_lfo_amt_stage_1[i], m_cutoff_lfo_amt_current[i], static_cast<int32_t>(m_cutoff_lfo_amt[i])       << 16);
     }
+  }
+
+  // The Drive's gain, (v / 64)^2 in Q16 from the smoothed v in Q8 (v^2 is Q16,
+  // over 64^2 = 2^12), and its reciprocal, held at 1.0 and below: the 32-bit
+  // division is a single instruction, taken every time so that the load does
+  // not depend on the value; + 1 lands exactly on 1.0 at the unity gain, and
+  // is a 1/65536 past it, and the gain is held at 1 LSB so that a Drive of 0
+  // (silence) divides by nothing worse
+  INLINE void update_drive_gain() {
+    int32_t v_q8 = m_drive_current >> 8;
+    m_drive_gain = (v_q8 * v_q8) >> 12;
+    uint32_t reciprocal = (0xFFFFFFFFu / static_cast<uint32_t>(maximum(m_drive_gain, 1))) + 1;
+    m_drive_comp = (reciprocal < static_cast<uint32_t>(DRIVE_UNITY_Q16)) ? static_cast<int32_t>(reciprocal) : DRIVE_UNITY_Q16;
   }
 
   // (m_breath_controller_current * (m_cutoff_breath_amt_current >> 8)) >> 6 is
@@ -364,7 +407,8 @@ public:
   INLINE int32_t process(int32_t audio_input_int24) {
 #if 1
     // ZDF (Zero-Delay Feedback) / TPT (Topology-Preserving Transform) State Variable Filter (with a nonlinear leak on the band pass integrator, solved by one step of the simplified Newton method)
-    int32_t x_0 = audio_input_int24 << FILTER_CALC_SCALING_BITS;
+    // The Drive's gain on the input (see DRIVE_UNITY_Q16), with the scaling shift folded in
+    int32_t x_0 = multiply_shift_right(audio_input_int24, m_drive_gain, 16 - FILTER_CALC_SCALING_BITS);
 
     // Ramp the coefficients toward the ones computed at the last update
     m_g                 += m_g_slope;
@@ -441,7 +485,8 @@ public:
     int32_t y_0 = audio_input_int24 << FILTER_CALC_SCALING_BITS;
 #endif
 
-    return soft_clip_output(y_0 >> FILTER_CALC_SCALING_BITS);
+    // The Drive's gain taken back off after the output clip, down to 1.0
+    return multiply_shift_right(soft_clip_output(y_0 >> FILTER_CALC_SCALING_BITS), m_drive_comp, 16);
   }
 
 private:
@@ -456,6 +501,8 @@ private:
     // The Amt parameters are multiplied in Q7 (the product stays within 31 bits),
     // so that the smoothing is not lost by rounding them to integers
     const int32_t resonance_current = smoothed.m_resonance_current;
+    m_drive_gain = smoothed.m_drive_gain;
+    m_drive_comp = smoothed.m_drive_comp;
 
     // 2. Add the LFO and Pitch modulations
     int32_t lfo_mod_target = 0;
