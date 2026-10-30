@@ -167,8 +167,7 @@ input[type="range"]:hover::-moz-range-thumb {
 }
 
 /* ---- Header ----
-   The name large, in the color of PRA32-U2, with the version and the link smaller and gray, over a line of the color
-   (as in SPMS-1 Editor) */
+   The name large, in the color of PRA32-U2, with the version and the link smaller and gray, over a line of the color */
 .header {
   display: flex;
   flex-wrap: wrap;
@@ -177,7 +176,7 @@ input[type="range"]:hover::-moz-range-thumb {
   row-gap: 2px;
   padding-bottom: 4px;
   border-bottom: 3px solid var(--pra32-color);
-  color: #6b6b6b;  /* gray, 5.3:1 on white (as in SPMS-1 Editor) */
+  color: #6b6b6b;  /* gray, 5.3:1 on white */
 }
 #spanAppNameVersion {
   white-space: nowrap;
@@ -561,7 +560,7 @@ span.cc {
               linear-gradient(#101010, #101010) calc(var(--marker-0) + var(--marker-span) * 127/127) var(--marker-y) / 1px 4px no-repeat;
 }
 
-/* ---- Soft keyboard (after SPMS-1 Editor): C-1 - G9 (37 keys, C3 - C6, in a 960px window), scrolled by the octave buttons or the scroll bar ---- */
+/* ---- Soft keyboard: C-1 - G9 (37 keys, C3 - C6, in a 960px window), scrolled by the octave buttons or the scroll bar ---- */
 
 /* The bar of the keyboard is the summary (a list item, not a flex box, for the marker), with the label and the groups
    of the controls in a flex box after the marker, which wraps them by the group in a narrow window with a space
@@ -587,7 +586,7 @@ span.cc {
 .kbd-bar #spanKbdLabel {
   display: inline-block;
 }
-/* Hidden, the bar keeps Panic (a note left on still needs it); Hold is turned off by hiding (as in SPMS-1 Editor) */
+/* Hidden, the bar keeps Panic (a note left on still needs it); Hold is turned off by hiding */
 #kbdDetails:not([open]) .kbd-octave, #kbdDetails:not([open]) .kbd-hold, #kbdDetails:not([open]) .kbd-hint, #kbdDetails:not([open]) .kbd-vel {
   display: none;
 }
@@ -2144,7 +2143,7 @@ function fitParamNames() {
   });
 }
 
-// ---- Soft keyboard (after SPMS-1 Editor) ----
+// ---- Soft keyboard ----
 //
 // A key lights while its note is on, counted as PRA32-U2 counts it (pra32-u2-synth.h): a Note On adds 1, and
 // a Note Off (or a Note On with velocity 0) subtracts 1 only from a note that is on; All Notes Off (and
