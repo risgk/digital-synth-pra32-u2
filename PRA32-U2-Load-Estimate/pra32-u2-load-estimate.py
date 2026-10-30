@@ -124,7 +124,7 @@ def adc_read(uc, access, address, size, value, _):
 for uc in cores:
     uc.hook_add(UC_HOOK_MEM_READ, adc_read, begin=ADC_RESULT, end=ADC_RESULT + 3)
 
-# Cortex-M33 cost model, cycles per instruction, first-order (as in SPMS-1's sim_load): 1 for most,
+# Cortex-M33 cost model, cycles per instruction, first-order: 1 for most,
 # 2 for a single load, 1 more per register for a multiple load or store, 6 for an integer divide,
 # 14 for a floating-point divide or square root, and 2 more after a taken branch.
 md = Cs(CS_ARCH_ARM, CS_MODE_THUMB | CS_MODE_MCLASS | CS_MODE_V8)
