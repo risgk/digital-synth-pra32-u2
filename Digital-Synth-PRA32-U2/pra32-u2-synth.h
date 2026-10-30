@@ -81,6 +81,11 @@ static uint8_t s_program_table_parameters[] = {
   AMP_SUSTAIN    ,
   AMP_RELEASE    ,
 
+  OSC_DRIFT      ,
+  FILTER_DRIVE   ,
+  COARSE_TUNE    ,
+  FINE_TUNE      ,
+
   A_D_VEL_SENS   ,
   REL_VEL_SENS   ,
   EG_VEL_SENS    ,
@@ -91,16 +96,11 @@ static uint8_t s_program_table_parameters[] = {
   PAN            ,
   STRETCH_TUNE   ,
 
-  OSC_DRIFT      ,
-  OSC_SAW_W_MODE ,
-  COARSE_TUNE    ,
-  FINE_TUNE      ,
-
   BTH_FILTER_AMT ,
   BTH_AMP_MOD    ,
   AFT_T_LFO_AMT  ,
   PORTA_MODE     ,
-  FILTER_DRIVE   ,
+  OSC_SAW_W_MODE ,
 
   CHORUS_MIX     ,
   FX_ROUTING     ,
@@ -399,6 +399,11 @@ public:
     std::memcpy(m_program_table[AMP_SUSTAIN    ], g_preset_table_AMP_SUSTAIN    , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[AMP_RELEASE    ], g_preset_table_AMP_RELEASE    , sizeof(m_program_table[0]));
 
+    std::memcpy(m_program_table[OSC_DRIFT      ], g_preset_table_OSC_DRIFT      , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[FILTER_DRIVE   ], g_preset_table_FILTER_DRIVE   , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[COARSE_TUNE    ], g_preset_table_COARSE_TUNE    , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[FINE_TUNE      ], g_preset_table_FINE_TUNE      , sizeof(m_program_table[0]));
+
     std::memcpy(m_program_table[A_D_VEL_SENS   ], g_preset_table_A_D_VEL_SENS   , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[REL_VEL_SENS   ], g_preset_table_REL_VEL_SENS   , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[EG_VEL_SENS    ], g_preset_table_EG_VEL_SENS    , sizeof(m_program_table[0]));
@@ -409,16 +414,11 @@ public:
     std::memcpy(m_program_table[PAN            ], g_preset_table_PAN            , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[STRETCH_TUNE   ], g_preset_table_STRETCH_TUNE   , sizeof(m_program_table[0]));
 
-    std::memcpy(m_program_table[OSC_DRIFT      ], g_preset_table_OSC_DRIFT      , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[OSC_SAW_W_MODE ], g_preset_table_OSC_SAW_W_MODE , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[COARSE_TUNE    ], g_preset_table_COARSE_TUNE    , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[FINE_TUNE      ], g_preset_table_FINE_TUNE      , sizeof(m_program_table[0]));
-
     std::memcpy(m_program_table[BTH_FILTER_AMT ], g_preset_table_BTH_FILTER_AMT , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[BTH_AMP_MOD    ], g_preset_table_BTH_AMP_MOD    , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[AFT_T_LFO_AMT  ], g_preset_table_AFT_T_LFO_AMT  , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[PORTA_MODE     ], g_preset_table_PORTA_MODE     , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[FILTER_DRIVE   ], g_preset_table_FILTER_DRIVE   , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[OSC_SAW_W_MODE ], g_preset_table_OSC_SAW_W_MODE , sizeof(m_program_table[0]));
 
     std::memcpy(m_program_table[CHORUS_MIX     ], g_preset_table_CHORUS_MIX     , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[FX_ROUTING     ], g_preset_table_FX_ROUTING     , sizeof(m_program_table[0]));

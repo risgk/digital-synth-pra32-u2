@@ -307,6 +307,30 @@
 - EG/Amp Rel = Dec [Off|On]
     - 0 (0-63): Off
     - 127 (64-127): On, EG Release = EG Decay and Amp Release = Amp Decay
+- Osc/Filter Drift: Randomly drifts the pitch of each oscillator, and the Filter Cutoff of each voice by the same amount (100 cent = 1 Cutoff value)
+    - 0: Off
+    - 32: About 0.7 cent (RMS)
+    - 64: About 1.4 cent (RMS)
+    - 127: About 2.8 cent (RMS)
+- Filter Drive: The gain into the Filter, (1 + value / 128)^2, which drives the loop (the leak, at a high Resonance or near the cutoff) harder; what leaves the loop is lowered by the same ahead of the output clip, so that the level stays and the Drive changes the tone alone (the self-oscillation comes out lower by it, and a high Drive holds the resonant peak down; at a low Resonance it does little)
+    - 0: x 1.00 (0 dB, min, the Presets: the Filter as it was)
+    - 24: x 1.41 (+3 dB)
+    - 64: x 2.25 (+7 dB)
+    - 96: x 3.06 (+9.7 dB)
+    - 127: x 3.97 (+12 dB, max)
+    - NOTE: Not changed by "Randomize Synth"
+- Coarse Tune [-|+]
+    - -64 (0): -64 semitone
+    - -1 (63): -1 semitone
+    - +0 (64): +0 semitone
+    - +1 (65): +1 semitone
+    - +63 (127): +63 semitone
+- Fine Tune [-|+]
+    - -64 (0): -100 cent
+    - -1 (63): -1.5625 cent
+    - +0 (64): +0 cent
+    - +1 (65): +1.5625 cent
+    - +63 (127): +98.4375 cent
 - EG Att/Dec Velo Sens [-|+]: EG Attack/Decay Velocity Sensitivity, Modulates the attack/decay times by note on velocity
     - -64 (0): -100% (+63 to -63)
     - -32 (31-32): -50% (+31.5 to -31.5)
@@ -349,26 +373,6 @@
     - +16 (80): +9.4 cent at note number 108 (-9.4 cent at note number 12)
     - +32 (96): +18.8 cent at note number 108 (-18.8 cent at note number 12)
     - +63 (127): +36.9 cent at note number 108 (-36.9 cent at note number 12) (max)
-- Osc/Filter Drift: Randomly drifts the pitch of each oscillator, and the Filter Cutoff of each voice by the same amount (100 cent = 1 Cutoff value)
-    - 0: Off
-    - 32: About 0.7 cent (RMS)
-    - 64: About 1.4 cent (RMS)
-    - 127: About 2.8 cent (RMS)
-- Osc Saw Wave Mode [Str|Cur]
-    - 0 (0-63): Straight Saw Wave
-    - 127 (64-127): Curved Saw Wave, This does not affect the Pulse Wave
-- Coarse Tune [-|+]
-    - -64 (0): -64 semitone
-    - -1 (63): -1 semitone
-    - +0 (64): +0 semitone
-    - +1 (65): +1 semitone
-    - +63 (127): +63 semitone
-- Fine Tune [-|+]
-    - -64 (0): -100 cent
-    - -1 (63): -1.5625 cent
-    - +0 (64): +0 cent
-    - +1 (65): +1.5625 cent
-    - +63 (127): +98.4375 cent
 - Breath Filter Amt [-|+]: 2x the other Amt parameters (e.g. Filter EG Amt), so that a weak breath also opens the Filter
     - -60 (0-4): -240 (min)
     - +30 (94): +120, the Cutoff +120 with the max breath
@@ -395,13 +399,9 @@
     - 0 (0-63): Switch (Sw), The Portamento is on only while Portamento Switch (Control Change #65) is On (64-127)
     - 127 (64-127): Auto (Aut), The Portamento is always on
     - NOTE: In Legato Portamento (Voice Mode: LP), the Portamento is effective only for the legato notes, also while it is on
-- Filter Drive: The gain into the Filter, (1 + value / 128)^2, which drives the loop (the leak, at a high Resonance or near the cutoff) harder; what leaves the loop is lowered by the same ahead of the output clip, so that the level stays and the Drive changes the tone alone (the self-oscillation comes out lower by it, and a high Drive holds the resonant peak down; at a low Resonance it does little)
-    - 0: x 1.00 (0 dB, min, the Presets: the Filter as it was)
-    - 24: x 1.41 (+3 dB)
-    - 64: x 2.25 (+7 dB)
-    - 96: x 3.06 (+9.7 dB)
-    - 127: x 3.97 (+12 dB, max)
-    - NOTE: Not changed by "Randomize Synth"
+- Osc Saw Wave Mode [Str|Cur]
+    - 0 (0-63): Straight Saw Wave
+    - 127 (64-127): Curved Saw Wave, This does not affect the Pulse Wave
 - Chorus Level: Chorus Send Level
 - FX Routing [Cho|Cho|Dly|Dly|Cmp|Dry]: Where the output is input to the FX (connected in series: Chorus -> Delay -> Output Compressor)
     - 0 (0-12): Chorus (through the Chorus, the Delay, and the Output Compressor)

@@ -73,6 +73,11 @@
 |                            54 | x             | o             | Amp Sustain                          |
 |                            55 | x             | o             | Amp Release                          |
 |                               |               |               |                                      |
+|                            82 | x             | o             | Osc/Filter Drift                     |
+|                            31 | x             | o             | Filter Drive                         |
+|                            86 | x             | o             | Coarse Tune [-|+]                    |
+|                            70 | x             | o             | Fine Tune [-|+]                      |
+|                               |               |               |                                      |
 |                            51 | x             | o             | EG Att/Dec Velo Sens [-|+]           |
 |                            81 | x             | o             | EG Rel Velo Sens [-|+]               |
 |                            62 | x             | o             | EG Level Velo Sens                   |
@@ -83,16 +88,11 @@
 |                            10 | x             | o             | Pan                                  |
 |                            22 | x             | o             | Stretch Tune [-|+]                   |
 |                               |               |               |                                      |
-|                            82 | x             | o             | Osc/Filter Drift                     |
-|                            83 | x             | o             | Osc Saw Wave Mode [Str|Cur]          |
-|                            86 | x             | o             | Coarse Tune [-|+]                    |
-|                            70 | x             | o             | Fine Tune [-|+]                      |
-|                               |               |               |                                      |
 |                            60 | x             | o             | Breath Filter Amt [-|+]              |
 |                            61 | x             | o             | Breath Amp Mode [Off|Q|L|LO|QO|Opn]  |
 |                            37 | x             | o             | After Touch LFO Amt                  |
 |                            34 | x             | o             | Portamento Mode [Sw|Aut]             |
-|                            31 | x             | o             | Filter Drive                         |
+|                            83 | x             | o             | Osc Saw Wave Mode [Str|Cur]          |
 |                               |               |               |                                      |
 |                            93 | x             | o             | Chorus Level                         |
 |                            95 | x             | o             | FX Routing [Cho|Cho|Dly|Dly|Cmp|Dry] |
