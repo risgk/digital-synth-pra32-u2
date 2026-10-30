@@ -2,6 +2,8 @@
 
 - v3.17.6 (2026-??-??):
     - PWM Audio: Write a sample with fewer instructions (about 70 from about 110, in a row), with the same output: the subperiod levels from the level's quotient and a table by the remainders, the dither's 4 uniform values from one xorshift32 step (in 1/256 of a step), and no clamp, the level scaled to 5 steps less than the period and raised by 3 so that the dither and the fed back error keep it in range (0.16% of level and half a step of offset)
+    - Filter Drive (Control Change #31, next to Filter Mode on the panel of PRA32-U2/P): the gain into the Filter, 2^(value / 32) (6 dB every 32 values), x 1 to x 15.7, which drives the loop and its leak harder; what leaves the loop is lowered by the same ahead of the output clip, so that it changes the tone and not the level. The Presets are at 0, where the Filter is as it was (the self-oscillation comes out lower by a Drive above 0). Not changed by Randomize Synth. A user program written before has no value for it and takes 0
+    - PRA32-U2 Editor, the chart, and the JSON files: Filter Drive takes the place of Osc Saw Wave Mode, next to Osc/Filter Drift, and that row (Osc/Filter Drift, Filter Drive, Coarse Tune, Fine Tune) moves up to just after the Amp envelope, so that the Drive is near the main parameters; Osc Saw Wave Mode moves to after Portamento Mode
     - Tested with Arduino-Pico version 6.3.0
 - v3.17.5 (2026-10-26):
     - Presets: #22 Synth Bass: Filter Cutoff 52 to 40 and Filter Resonance 96 to 64 (darker); #24 Synth Brs: Filter Cutoff 88 to 94 (brighter);

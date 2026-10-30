@@ -159,7 +159,7 @@
 | A-09 Osc e     | Osc/Filter Drift     | Osc Saw W Mode       |
 | A-10 Filter a  | Filter Cutoff        | Filter Resonance     |
 | A-11 Filter b  | Filter EG Amt        | Filter Key Track     |
-| A-12 Filter c  | Filter Mode          |                      |
+| A-12 Filter c  | Filter Mode          | Filter Drive         |
 | A-13 EG a      | EG Attack            | EG Decay             |
 | A-14 EG b      | EG Sustain           | EG Release           |
 | A-15 EG c      | EG Amp Mod           | EG/Amp Rel = Dec     |

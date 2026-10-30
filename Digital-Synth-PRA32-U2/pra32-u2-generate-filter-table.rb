@@ -70,7 +70,8 @@ end
 # Osc output was 1 / 1.25 of the current one: the ratio of the two is kept);
 # of the Presets, Sync Lead, WT Pad, Fifth Lead, and PWM Lead stop it while
 # playing. Below the knee of soft_clip_output() (0.75), so that it leaves the
-# Filter as a clean sine
+# Filter as a clean sine (the Filter Drive, x 1 in the Presets, divides what
+# leaves the loop by its gain, so a Drive above 0 lowers it: see pra32-u2-filter.h)
 SELF_OSC_LEVEL = 0.5
 SELF_OSC_KAPPA = ((SELF_OSC_LEVEL / 11.4) ** 2) * (48000.0 / SAMPLING_RATE)
 
@@ -146,5 +147,13 @@ write_header("pra32-u2-filter-table.h") do |file|
     k = resonance_k(controller_value)
     printf("reso  : %3d, q  : %9.3f, k: %9.6f\n", controller_value, (k > 0.0) ? 1.0 / k : Float::INFINITY, k)
     k
+  end
+
+  # The gain of the Filter Drive, 2^(value / 32): 1.0 at 0, 4.0 at 64, 15.7 at 127
+  # (6 dB every 32 values), in Q16
+  write_filter_table(file, "g_filter_drive_gain_table", "Filter Drive gain = 2^(value / 32), Q16", 16) do |controller_value|
+    gain = 2.0 ** (controller_value / 32.0)
+    printf("drive : %3d, gain: %9.4f\n", controller_value, gain)
+    gain
   end
 end

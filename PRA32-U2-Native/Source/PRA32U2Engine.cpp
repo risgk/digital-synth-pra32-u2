@@ -63,6 +63,11 @@ const PRA32U2Engine::ParameterInfo s_parameter_names[] = {
   { AMP_SUSTAIN    , "Amp Sustain"                            },
   { AMP_RELEASE    , "Amp Release"                            },
 
+  { OSC_DRIFT      , "Osc/Filter Drift"                       },
+  { FILTER_DRIVE   , "Filter Drive"                           },
+  { COARSE_TUNE    , "Coarse Tune [-|+]"                      },
+  { FINE_TUNE      , "Fine Tune [-|+]"                        },
+
   { A_D_VEL_SENS   , "EG Att/Dec Velo Sens [-|+]"             },
   { REL_VEL_SENS   , "EG Rel Velo Sens [-|+]"                 },
   { EG_VEL_SENS    , "EG Level Velo Sens"                     },
@@ -73,15 +78,11 @@ const PRA32U2Engine::ParameterInfo s_parameter_names[] = {
   { PAN            , "Pan"                                    },
   { STRETCH_TUNE   , "Stretch Tune [-|+]"                     },
 
-  { OSC_DRIFT      , "Osc/Filter Drift"                       },
-  { OSC_SAW_W_MODE , "Osc Saw Wave Mode [Str|Cur]"            },
-  { COARSE_TUNE    , "Coarse Tune [-|+]"                      },
-  { FINE_TUNE      , "Fine Tune [-|+]"                        },
-
   { BTH_FILTER_AMT , "Breath Filter Amt [-|+]"                },
   { BTH_AMP_MOD    , "Breath Amp Mode [Off|Q|L|LO|QO|Opn]"    },
   { AFT_T_LFO_AMT  , "After Touch LFO Amt"                    },
   { PORTA_MODE     , "Portamento Mode [Sw|Aut]"               },
+  { OSC_SAW_W_MODE , "Osc Saw Wave Mode [Str|Cur]"            },
 
   { CHORUS_MIX     , "Chorus Level"                           },
   { FX_ROUTING     , "FX Routing [Cho|Cho|Dly|Dly|Cmp|Dry]"   },

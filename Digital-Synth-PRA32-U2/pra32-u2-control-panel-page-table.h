@@ -37,7 +37,7 @@ static const PRA32_U2_ControlPanelPage g_control_panel_page_table_a[] = {
   { "Page=A-09 ", "Osc e     ",   "Osc/Filter", "Drift     ", OSC_DRIFT      ,   "Osc       ", "Saw W Mode", OSC_SAW_W_MODE ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=A-10 ", "Filter a  ",   "Filter    ", "Cutoff    ", FILTER_CUTOFF  ,   "Filter    ", "Resonance ", FILTER_RESO    ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=A-11 ", "Filter b  ",   "Filter    ", "EG Amt    ", FILTER_EG_AMT  ,   "Filter    ", "Key Track ", FILTER_KEY_TRK ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=A-12 ", "Filter c  ",   "Filter    ", "Mode      ", FILTER_MODE    ,   "          ", "          ", 0xFF           ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=A-12 ", "Filter c  ",   "Filter    ", "Mode      ", FILTER_MODE    ,   "Filter    ", "Drive     ", FILTER_DRIVE   ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=A-13 ", "EG a      ",   "EG        ", "Attack    ", EG_ATTACK      ,   "EG        ", "Decay     ", EG_DECAY       ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=A-14 ", "EG b      ",   "EG        ", "Sustain   ", EG_SUSTAIN     ,   "EG        ", "Release   ", EG_RELEASE     ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=A-15 ", "EG c      ",   "EG        ", "Amp Mod   ", EG_AMP_MOD     ,   "EG/Amp    ", "Rel = Dec ", REL_EQ_DECAY   ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },

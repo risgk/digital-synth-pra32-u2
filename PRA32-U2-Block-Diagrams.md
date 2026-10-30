@@ -73,18 +73,23 @@ a guard that ordinary use never reaches. The curve is biased by 1/8, so that the
 harmonics as the band pass is driven (at a high Resonance or near the cutoff), with its
 small-signal gain made up for, so that the resonance is kept; a DC blocker on the output
 removes the DC that comes with it. The output clip comes last. Above the Filter
-Resonance 122, k turns negative and the loop oscillates.
+Resonance 122, k turns negative and the loop oscillates. Filter Drive multiplies the input by
+2^(value / 32), 1.0 at 0, 4.0 at 64 and 15.7 at 127, which drives the loop and its leak harder, and divides
+what leaves the loop by the same ahead of the output clip, so that the level stays and the Drive
+changes the tone alone; the Presets are at 0 (1.0).
 
 ```mermaid
 flowchart LR
-    IN([Input]) --> SUM((Σ))
+    IN([Input]) --> DRV["× Drive<br/>2^(value / 32), 1.0 at 0"]
+    DRV --> SUM((Σ))
     SUM -->|HP| I1["Integrator 1<br/>BP, state s1"]
     I1 -->|BP| I2["Integrator 2<br/>LP, state s2"]
     SUM -->|HP| MS["Filter Mode<br/>LP / BP / BR / HP"]
     I1 -->|BP| MS
     I2 -->|LP| MS
     MS --> DC["DC blocker<br/>7.5 Hz"]
-    DC --> OC["Output clip<br/>linear up to 0.75"]
+    DC --> DIV["÷ Drive"]
+    DIV --> OC["Output clip<br/>linear up to 0.75"]
     OC --> OUT([Output])
     SC["Nonlinear leak<br/>biased 1/8, ceiling 4.0, one-step simplified Newton"] -.- I1
     L2["s2 is linear<br/>guard clamp at 16"] -.- I2
@@ -100,7 +105,8 @@ output clip. It is an interpretation, not a reproduction of an actual circuit.
 
 ```mermaid
 flowchart LR
-    IN([Input]) --> A1["Summing amp Σ"]
+    IN([Input]) --> IA["Input amp<br/>gain = Drive"]
+    IA --> A1["Summing amp Σ"]
     A1 -->|HP| A2["Integrator ∫<br/>C1"]
     D["Diode pair<br/>asymmetric"] -.-|across C1| A2
     A2 -->|BP| A3["Integrator ∫<br/>C2, linear"]
@@ -108,7 +114,8 @@ flowchart LR
     A2 -->|BP| MS
     A3 -->|LP| MS
     MS --> CC["Coupling capacitor"]
-    CC --> LIM["Output clipper"]
+    CC --> OA["Attenuator<br/>1 / Drive"]
+    OA --> LIM["Output clipper"]
     LIM --> OUT([Output])
     A2 -->|"R/k (resonance)"| A1
     A3 -->|R| A1
