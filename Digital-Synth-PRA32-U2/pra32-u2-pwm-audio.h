@@ -26,7 +26,7 @@
 //   - The dither is included in the fed back error, so it is also noise shaped (the total noise is +4.8 dB, -3.4 dB at 3 kHz without noise shaping and dither)
 //   - The 4 uniform values of a sample (2 a channel) are the 4 bytes of one xorshift32 step, in 1/256 of a step
 // - The level is scaled to 5 steps less than the period and raised by 3, so that the dither and the fed
-//   back error, less than 3 steps down and 2 up together, keep it in 0 to period without a clamp;
+//   back error, less than 2 steps down and 3 up together, keep it in 0 to period without a clamp;
 //   the 0.16% of level and the half step of offset this costs are below anything the output shows
 // - What a sample costs: about 70 instructions in a row, no calls, from about 110 with the subperiods
 //   each worked out from the level, 2 xorshift steps for 16-bit dither, and the level clamped
