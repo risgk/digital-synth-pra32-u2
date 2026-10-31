@@ -187,7 +187,7 @@ class PRA32_U2_Filter {
   uint8_t m_drive_target;
   int32_t m_drive_stage_1;
   int32_t m_drive_current;             // Q16 controller value, smoothed
-  int32_t m_drive_gain;                // Q16, (Drive / 64)^2
+  int32_t m_drive_gain;                // Q16, 2^(Drive / 32)
   int32_t m_drive_comp;                // Q16, 1 / m_drive_gain, at most 1.0
 
 public:

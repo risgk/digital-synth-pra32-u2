@@ -312,12 +312,12 @@
     - 32: About 0.7 cent (RMS)
     - 64: About 1.4 cent (RMS)
     - 127: About 2.8 cent (RMS)
-- Filter Drive: The gain into the Filter, 2^(value / 32) (6 dB every 32), which drives the loop (the leak, at a high Resonance or near the cutoff) harder; what leaves the loop is lowered by the same ahead of the output clip, so that the level stays and the Drive changes the tone alone (the self-oscillation comes out lower by it, and a high Drive holds the resonant peak down; at a low Resonance it does little)
+- Filter Drive: The gain into the Filter, 2^(value / 32) (6 dB every 32 values), which drives the loop (the leak, at a high Resonance or near the cutoff) harder; what leaves the loop is lowered by the same ahead of the output clip, so that the level stays and the Drive changes the tone alone (the self-oscillation comes out lower by it, and a high Drive holds the resonant peak down; at a low Resonance it does little)
     - 0: x 1.00 (0 dB, min, the Presets: the Filter as it was)
     - 32: x 2.00 (+6 dB)
     - 64: x 4.00 (+12 dB)
     - 96: x 8.00 (+18 dB)
-    - 127: x 15.7 (+23.8 dB, max)
+    - 127: x 15.7 (+23.9 dB, max)
     - NOTE: Not changed by "Randomize Synth"
 - Coarse Tune [-|+]
     - -64 (0): -64 semitone
