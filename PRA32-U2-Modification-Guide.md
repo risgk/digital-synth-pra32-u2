@@ -170,6 +170,10 @@
     #define PRA32_U2_PWM_AUDIO_R_PIN               (27)
     ```
 
+    - The audio jack of the Pico VGA Demo Base comes after the circuit of "PWM audio" in
+      [Hardware design with RP2040](https://datasheets.raspberrypi.com/rp2040/hardware-design-with-rp2040.pdf)
+      (a buffer, an analogue filter, and AC coupling), which can be connected to an amplifier or headphones
+
 
 ## Simple Circuit for PWM Audio (Optional)
 
