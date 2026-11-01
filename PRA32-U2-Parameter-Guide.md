@@ -270,7 +270,7 @@
     - 0: 0 Hz (min)
     - 1: 0.0715 Hz
     - 64: 2.73 Hz
-    - 80: 6.87 Hz
+    - 79: 6.49 Hz (the Presets, but #30 PWM Lead)
     - 127: 104 Hz (max)
 - LFO Rate (Red Noise: sets the low-pass cutoff of the noise, the level stays the same)
     - 0: 0 Hz (min)

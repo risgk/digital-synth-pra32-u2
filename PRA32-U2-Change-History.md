@@ -5,6 +5,7 @@
     - Add Filter Drive (Control Change #31): the gain into the Filter, 2^(value / 32) (6 dB every 32 values), x 1 at 0 to x 15.7 at 127, which drives the loop and its leak harder, toward a saturated Filter at the top; what leaves the loop is lowered by the same ahead of the output clip, so that it changes the tone and not the level, and acts mostly on the resonance (little at a low Resonance)
         - 0 (x 1) in the Presets and in a user program written before, where the Filter is as it was; the self-oscillation comes out lower by a Drive above 0. Not changed by Randomize Synth
         - In PRA32-U2 Editor, the chart, and the JSON files, it takes the place of Osc Saw Wave Mode, next to Osc/Filter Drift, and that row (Osc/Filter Drift, Filter Drive, Coarse Tune, Fine Tune) moves up to just after the Amp envelope; Osc Saw Wave Mode moves to after Portamento Mode. On the panel of PRA32-U2/P, it is next to Filter Mode (A-12)
+    - Presets: LFO Rate 80 to 79 (6.88 Hz to 6.49 Hz, a slightly slower vibrato); #30 PWM Lead: LFO Rate 56 to 55 (1.72 Hz to 1.62 Hz)
     - Tested with Arduino-Pico version 6.3.0
 - v3.17.5 (2026-10-26):
     - Presets: #22 Synth Bass: Filter Cutoff 52 to 40 and Filter Resonance 96 to 64 (darker); #24 Synth Brs: Filter Cutoff 88 to 94 (brighter);
