@@ -50,9 +50,7 @@
 ## Synthesizer Block Diagram
 
 ```mermaid
-graph TB
-    subgraph R1[" "]
-    direction LR
+graph LR
     subgraph V1[Voice 1]
         V1O1[Osc 1 w/ Sub Osc] --> V1OM[Osc Mixer]
         V1O2[Osc 2] --> V1OM
@@ -66,18 +64,12 @@ graph TB
     N[Noise Gen]  --> V1O2 & V1OM & V2 & V3 & V4
     N -.-> L[LFO w/ S/H]
     L -.-> V1O1 & V1O2 & V1F & V2 & V3 & V4
-    end
-    subgraph R2[" "]
-    direction LR
-    P[Panner] --> FR{FX Routing}
+    VM --> J1((A))
+    J2((A)) --> P[Panner] --> FR{FX Routing}
     FR -->|Cho| C[Chorus FX] --> D[Delay/Reverb FX] --> OC[Output Compressor] --> OG["x 0.75<br/>Soft Clip"] --> AO[Audio Out]
     FR -->|Dly| D
     FR -->|Cmp| OC
     FR -->|Dry| OG
-    end
-    R1 -->|"Voice Mixer → Panner"| R2
-    style R1 fill:none,stroke:none
-    style R2 fill:none,stroke:none
 ```
 
 
