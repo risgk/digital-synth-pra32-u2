@@ -12,6 +12,9 @@
 - The times in us, since the last report, against the 1333 us that a loop of 64 frames lasts at 48 kHz:
     - `min(audio)` and `max(audio)`: the processing of the 64 frames by the synth
     - `min(loop)` and `max(loop)`: from the start of the loop (MIDI and the panel) to the end of that processing
+    - Both are of the primary core (core 0); what core 1 takes is in them only as the waits of core 0 for it
+- `underruns`: the times the output buffer was found empty (the DMA had played all of it, and plays it again: heard as a glitch),
+  since the start; not counted after a write to the flash (e.g. Write Program), where the output stops for a while
 - It is printed by the secondary core (core 1), a line at a time, and skipped while the host is not reading
 - To measure PRA32-U2/M, /P, or /M/P, build it as "pra32-u2-load-estimate.sh" in "PRA32-U2-Load-Estimate" does with arduino-cli
   (a copy of the "Digital-Synth-PRA32-U2" folder, with "Digital-Synth-PRA32-U2-M.ino" as its .ino for /M, and `PRA32_U2_USE_CONTROL_PANEL` uncommented for /P,
@@ -38,9 +41,11 @@
       so all of the FX are on core 1, the front and the back of a frame in two calls (between them, a request of core 0 waits for half of them at most;
       in PRA32-U2/M, also while core 1 waits for the request of the Voices 2 and 3);
       not in Poly, core 0 would wait for core 1, so it processes the back of a frame whose front is done, one a frame, before the (Main) Synth, and the rest (a few) at the end
+      (so a loop takes a little more or less with how many are left; making core 0 wait for the fronts, one a frame, took more, with core 1 doing them first)
     - In PRA32-U2/M with the 4 Synths, with all of the FX on core 1, core 1 was busier than core 0, which waited for it
       (on the device, 1214 us a loop at v3.17.5; estimated at about 30% of a loop of waits on core 0 with the Distortion);
-      with the back on core 0, core 1 is about 78% and core 0 about 88-92% (estimated)
+      with the back on core 0, core 1 is about 78% and core 0 about 88-92% (estimated), and on the device `max(loop)` 1251 us
+      (`min(loop)` 1179 us) with the Distortion
     - The Customization Examples (Lite) process all of it on one core, with `process_fx()` (the front and the back in one)
 - MIDI is read at the start of each loop: 5 bytes of USB MIDI and 8 bytes of UART MIDI, more than the about 4.2 bytes that 31250 bps brings in a loop;
   the messages are processed there, so a burst of MIDI (e.g. from USB MIDI and UART MIDI at the same time) makes that loop a little longer
