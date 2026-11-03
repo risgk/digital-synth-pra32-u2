@@ -177,10 +177,11 @@
 | A-27 LFO d     | LFO Filter Amt       |                      |
 | A-28 Breath    | Breath Filter Amt    | Breath Amp Mode      |
 | A-29 Aft Touch | Aft Touch LFO Amt    |                      |
-| A-30 Chorus a  | Chorus Level         | FX Routing           |
-| A-31 Chorus b  | Chorus Rate          | Chorus Depth         |
-| A-32 Delay a   | Delay Level          | Delay Mode           |
-| A-33 Delay b   | Delay Time           | Delay Feedback       |
+| A-30 FX        | Distortion Drive     | FX Routing           |
+| A-31 Chorus a  | Chorus Level         |                      |
+| A-32 Chorus b  | Chorus Rate          | Chorus Depth         |
+| A-33 Delay a   | Delay Level          | Delay Mode           |
+| A-34 Delay b   | Delay Time           | Delay Feedback       |
 | B-00 Panel a   | Panel Play Mode      | MIDI Basic Ch        |
 | B-01 Panel b   | Panel Play Pitch     | Panel Play Velo      |
 | B-02 Panel c   | Panel Scale          | Panel Pitch Ofst     |

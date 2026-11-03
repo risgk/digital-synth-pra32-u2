@@ -8,7 +8,7 @@
 ## Overview
 
 - **PRA32-U2** is a 4-Voice Polyphonic Synthesizer for Raspberry Pi Pico 2/RP2350
-    - Built-in Chorus and Delay/Reverb FX, followed by the Output Compressor (which also works as the limiter)
+    - Built-in Distortion, Chorus, and Delay/Reverb FX, followed by the Output Compressor (which also works as the limiter)
     - Controlled by MIDI -- PRA32-U2 is a MIDI sound module
     - Can write the parameters to the user programs and the flash
     - PRA32-U2 started as the successor to PRA32-U (for Raspberry Pi Pico/RP2040), and has since become a different synthesizer
@@ -68,6 +68,7 @@ graph LR
     L -.-> V1O1 & V1O2 & V1F & V2 & V3 & V4
     VM --> J1((A))
     J2((A)) --> P[Panner] ==> FR{FX Routing}
+    FR ==>|Dst| DS[Distortion FX] ==> C
     FR ==>|Cho| C[Chorus FX] ==> D[Delay/Reverb FX] ==> OC[Output Compressor] ==> OG["x 0.75<br/>Soft Clip"] ==> AO[Audio Out]
     FR ==>|Dly| D
     FR ==>|Cmp| OC
@@ -77,7 +78,7 @@ graph LR
 
 ## [Block Diagrams and Wave Table Graphs](./PRA32-U2-Block-Diagrams.md)
 
-- The diagrams of the Osc, the Filter, the Chorus FX, the Delay FX, the Reverb, the Output Compressor, and PRA32-U2/M, and the graphs of the Wave Tables
+- The diagrams of the Osc, the Filter, the Distortion FX, the Chorus FX, the Delay FX, the Reverb, the Output Compressor, and PRA32-U2/M, and the graphs of the Wave Tables
 
 
 ## [Modification Guide](./PRA32-U2-Modification-Guide.md)
@@ -199,7 +200,7 @@ graph LR
 ## Customization Examples
 
 - Files in the "customization-examples" folder: each is a sketch, to be used in place of "Digital-Synth-PRA32-U2.ino" (or "Digital-Synth-PRA32-U2-M.ino" for PRA32-U2/M)
-- **Digital Synth PRA32-U2 (Lite)** and **Digital Synth PRA32-U2/M (Lite)**: Osc 1 Shape and Morph are disabled in Saw, Sqr, and WT, and the synth is processed on a single core (core 0)
+- **Digital Synth PRA32-U2 (Lite)** and **Digital Synth PRA32-U2/M (Lite)**: Osc 1 Shape and Morph are disabled in Saw, Sqr, and WT, the Distortion FX passes its input through (Dst as Cho), Delay Mode Rev is the Stereo Delay (Ste), and the synth is processed on a single core (core 0)
     - "Digital-Synth-PRA32-U2.ino.Lite-Core-0-Only.txt" and "Digital-Synth-PRA32-U2-M.ino.Lite-Core-0-Only.txt":
       with MIDI (USB MIDI and UART MIDI), the panel, and Debug Print, as the sketch; core 1 only updates the panel and prints the debug print
     - "Digital-Synth-PRA32-U2.ino.Lite-Core-1-Only.txt" and "Digital-Synth-PRA32-U2-M.ino.Lite-Core-1-Only.txt":
@@ -221,6 +222,7 @@ graph LR
     - The output may be affected by USB communication noise; try [UART MIDI](./PRA32-U2-Modification-Guide.md#uart-midi)
     - With PWM Audio without the RC filters, reduce the level: see [PWM Audio (Optional)](./PRA32-U2-Modification-Guide.md#pwm-audio-optional)
 - Distortion
+    - Check that "Distortion Drive" is 0 (or that FX Routing is not Dst)
     - Lower "Amp Gain" (a high Filter Resonance or a high Osc 1 Shape/Morph makes the sound louder)
     - With FX Routing Dry, the output does not go through the Output Compressor, and loud sounds are distorted by the soft clipping; choose another FX Routing (e.g. Cmp)
 - No portamento

@@ -3,7 +3,7 @@
 - 2026-10-26 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
-The diagrams of the Osc, the Filter, the FX (Chorus FX, Delay FX, and Reverb), the Output Compressor, and PRA32-U2/M,
+The diagrams of the Osc, the Filter, the FX (Distortion FX, Chorus FX, Delay FX, and Reverb), the Output Compressor, and PRA32-U2/M,
 and the graphs of the Wave Tables.
 For the whole synthesizer, see [Synthesizer Block Diagram](./README.md#synthesizer-block-diagram) in README.md.
 Solid arrows carry audio (thick ones the stereo audio, L / R), dashed arrows carry control.
@@ -121,6 +121,29 @@ flowchart LR
     A3 -->|R| A1
     classDef nl fill:#FAECE7,stroke:#D85A30,color:#712B13
     class D,LIM nl
+```
+
+
+## Distortion FX
+
+At the head of the FX, for the synths whose FX Routing is Dst: the input is driven by
+2^(value / 32), x 1 at 0 to x 15.7 at 127, into a curve that is a straight line up to 1.0 (full
+scale) and a quadratic shoulder that lands on 2.0 at 3.0, each side (L and R) on its own, and is taken back down by half the drive
+in dB, so that a sound at full scale saturates without falling away; the Output Compressor holds
+the rest. The curve's part beyond the straight line goes through first-order antiderivative
+anti-aliasing (ADAA), so a sample that reaches no shoulder passes exactly, and the aliasing past
+it is lower. What comes out goes on to the Chorus FX, with the input of FX Routing Cho.
+
+```mermaid
+flowchart LR
+    IN([Input L / R<br/>FX Routing Dst]) ==> G["× Drive<br/>2^(value / 32)"]
+    G ==> SC["Soft clip, ADAA<br/>linear up to 1.0, 2.0 at 3.0<br/>each side"]
+    SC ==> M["× 1 / √Drive"]
+    M ==> S((Σ))
+    CHO([Input L / R<br/>FX Routing Cho]) ==> S
+    S ==> OUT([To the Chorus FX])
+    classDef nl fill:#FAECE7,stroke:#D85A30,color:#712B13
+    class SC nl
 ```
 
 
@@ -309,6 +332,7 @@ flowchart LR
     C15([MIDI Ch 15<br/>Layering]) -.-> S2 & S3
     C16([MIDI Ch 16<br/>Layering]) -.-> MS & S1 & S2 & S3
     MS & S1 & S2 & S3 ==> FR{"FX Routing<br/>of each synth"}
+    FR ==>|Dst| DS[Distortion FX] ==> C
     FR ==>|Cho| C[Chorus FX] ==> D[Delay/Reverb FX] ==> OC[Output Compressor] ==> OG["x 0.75<br/>Soft Clip"] ==> AO[Audio Out]
     FR ==>|Dly| D
     FR ==>|Cmp| OC

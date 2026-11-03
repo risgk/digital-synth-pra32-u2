@@ -481,6 +481,10 @@ span.cc {
   grid-template-columns: minmax(0, 1fr);  /* the name as wide as the parameter, not as its text */
   min-width: 0;
 }
+/* An empty cell of a row, which keeps the parameters after it in their columns (e.g. under the Distortion) */
+.param-spacer {
+  grid-row: span 2;
+}
 .param-name {
   padding: 4px 1px 0 1px;
   align-self: end;
@@ -858,8 +862,10 @@ const AFT_T_LFO_AMT   = 37;
 const PORTA_MODE      = 34;
 const FILTER_DRIVE    = 31;
 
+const DISTORTION      = 95;
+const FX_ROUTING      = 88;
+
 const CHORUS_MIX      = 93;
-const FX_ROUTING      = 95;
 
 const CHORUS_RATE     = 58;
 const CHORUS_DEPTH    = 59;
@@ -961,8 +967,9 @@ var controlNumberToStringMap = new Map([
   [ PORTA_MODE     , "PORTA_MODE     " ],
   [ OSC_SAW_W_MODE , "OSC_SAW_W_MODE " ],
 
-  [ CHORUS_MIX     , "CHORUS_MIX     " ],
+  [ DISTORTION     , "DISTORTION     " ],
   [ FX_ROUTING     , "FX_ROUTING     " ],
+  [ CHORUS_MIX     , "CHORUS_MIX     " ],
 
   [ CHORUS_RATE    , "CHORUS_RATE    " ],
   [ CHORUS_DEPTH   , "CHORUS_DEPTH   " ],
@@ -1040,8 +1047,9 @@ var controllersInLocalStorage = [
   PORTA_MODE     ,
   OSC_SAW_W_MODE ,
 
-  CHORUS_MIX     ,
+  DISTORTION     ,
   FX_ROUTING     ,
+  CHORUS_MIX     ,
 
   CHORUS_RATE    ,
   CHORUS_DEPTH   ,
@@ -1121,8 +1129,9 @@ presetControllers[AFT_T_LFO_AMT  ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   
 presetControllers[PORTA_MODE     ] = [127, 127, 127, 127, 127, 127, 127, 127,   127, 127, 127, 127, 127, 127, 127, 127];
 presetControllers[OSC_SAW_W_MODE ] = [127, 127, 127, 127, 127, 127, 127, 127,   127, 127, 127, 127, 127, 127, 127, 127];
 
-presetControllers[CHORUS_MIX     ] = [127, 127, 127, 127, 127, 127, 127, 0  ,   127, 127, 127, 127, 127, 127, 127, 0  ];
+presetControllers[DISTORTION     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 presetControllers[FX_ROUTING     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+presetControllers[CHORUS_MIX     ] = [127, 127, 127, 127, 127, 127, 127, 0  ,   127, 127, 127, 127, 127, 127, 127, 0  ];
 
 presetControllers[CHORUS_RATE    ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 presetControllers[CHORUS_DEPTH   ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
@@ -1801,7 +1810,7 @@ function updateDisplayOfControl(number, value) {
     break;
   case FX_ROUTING      :
     {
-      var ary = ["Cho","Cho","Dly","Dly","Cmp","Dry"];
+      var ary = ["Dst","Cho","Dly","Dly","Cmp","Dry"];
       var index = Math.floor(((value * 10) + 128) >> 8);
       dispValue = ary[index];
     }
@@ -1872,6 +1881,7 @@ function setRandom() {
   controllersInLocalStorage.forEach(function(i) {
     if ((i != VOICE_MODE     ) &&
         (i != AMP_GAIN       ) &&
+        (i != DISTORTION     ) &&
         (i != CHORUS_MIX     ) &&
         (i != FX_ROUTING     ) &&
         (i != CHORUS_RATE    ) &&
@@ -2910,8 +2920,9 @@ function fileExport() {
   str += fileExportOneLine(PORTA_MODE     );
   str += fileExportOneLine(OSC_SAW_W_MODE );
   str += "\n";
-  str += fileExportOneLine(CHORUS_MIX     );
+  str += fileExportOneLine(DISTORTION     );
   str += fileExportOneLine(FX_ROUTING     );
+  str += fileExportOneLine(CHORUS_MIX     );
   str += "\n";
   str += fileExportOneLine(CHORUS_RATE    );
   str += fileExportOneLine(CHORUS_DEPTH   );
@@ -3405,13 +3416,20 @@ function getStoredCCValueString(index, number) {
 </div>
 <div class="param-group">
 <div class="param">
+  <div class="param-name"><b>Distortion</b> Drive <span class="cc">CC#95</span></div>
+  <div class="param-ctrl"><input  id="inputDISTORTION     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(DISTORTION     , value)"><span    id="spanDISTORTION     " >-</span><span   id="span2DISTORTION     " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name">FX Routing <span class="sup">[Dst|Cho|Dly|Dly|Cmp|Dry]</span> <span class="cc">CC#88</span></div>
+  <div class="param-ctrl soft-markers-6"><input  id="inputFX_ROUTING     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(FX_ROUTING     , value)"><span    id="spanFX_ROUTING     " >-</span><span   id="span2FX_ROUTING     " >-</span></div>
+</div>
+<div class="param-spacer" aria-hidden="true"></div>
+<div class="param-spacer" aria-hidden="true"></div>
+<div class="param">
   <div class="param-name"><b>Chorus</b> Level <span class="cc">CC#93</span></div>
   <div class="param-ctrl"><input  id="inputCHORUS_MIX     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(CHORUS_MIX     , value)"><span    id="spanCHORUS_MIX     " >-</span><span   id="span2CHORUS_MIX     " >-</span></div>
 </div>
-<div class="param">
-  <div class="param-name">FX Routing <span class="sup">[Cho|Cho|Dly|Dly|Cmp|Dry]</span> <span class="cc">CC#95</span></div>
-  <div class="param-ctrl soft-markers-6"><input  id="inputFX_ROUTING     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(FX_ROUTING     , value)"><span    id="spanFX_ROUTING     " >-</span><span   id="span2FX_ROUTING     " >-</span></div>
-</div>
+<div class="param-spacer" aria-hidden="true"></div>
 <div class="param">
   <div class="param-name"><b>Chorus</b> Rate <span class="cc">CC#58</span></div>
   <div class="param-ctrl"><input  id="inputCHORUS_RATE    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(CHORUS_RATE    , value)"><span    id="spanCHORUS_RATE    " >-</span><span   id="span2CHORUS_RATE    " >-</span></div>

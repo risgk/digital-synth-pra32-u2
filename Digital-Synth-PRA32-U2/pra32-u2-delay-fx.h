@@ -294,8 +294,13 @@ public:
   }
 
   INLINE void set_delay_mode(uint8_t controller_value) {
+#if !defined(PRA32_U2_DISABLE_REVERB)
     m_delay_mode_target = (controller_value >= 96) ? DELAY_MODE_REVERB :
                           (controller_value >= 32) ? DELAY_MODE_PING_PONG : DELAY_MODE_STEREO;
+#else  // !defined(PRA32_U2_DISABLE_REVERB)
+    // Without the Reverb (for the load), Reverb (96-127) is the Stereo Delay
+    m_delay_mode_target = ((controller_value >= 32) && (controller_value < 96)) ? DELAY_MODE_PING_PONG : DELAY_MODE_STEREO;
+#endif  // !defined(PRA32_U2_DISABLE_REVERB)
   }
 
   INLINE void process_at_low_rate(uint8_t count) {

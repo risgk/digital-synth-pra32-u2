@@ -22,11 +22,26 @@
 
 - `loop()` on the primary core (core 0) reads MIDI, and then processes 64 frames (`PRA32_U2_I2S_BUFFER_WORDS`)
   and writes them to the output, which blocks while the output buffer is full: the loop is paced by the audio output
-- With `PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING`, core 1 (`loop1()`) takes a part of the processing of each frame on request from core 0, which waits for it
-  (the Voices 2 and 3 of the Main Synth, and the Sub Synths 1 and 3 of PRA32-U2/M); core 1 also updates the panel and prints the debug print
-    - The FX (Chorus, Delay, and the Output Compressor) are processed by core 1 too, a frame after the synths and between them: core 0 puts the FX input of each frame
-      with the count of the synth for it (`process_fx(fx_bus, count)`), and at the end of the loop waits until all are done, so the output is the same, with no more latency
-    - In PRA32-U2/M with the 4 Synths, core 1 is then about as busy as core 0, which waits for it (on the device, 1205 us from 1258 us a loop with the 4 Synths)
+- With `PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING`, core 1 (`loop1()`) takes a part of the processing of each frame on request from core 0, which waits for it;
+  core 1 also updates the panel and prints the debug print. What each core processes:
+
+    | Mode | Core 0 | Core 1 |
+    | :-- | :-- | :-- |
+    | Poly (PRA32-U2, PRA32-U2/M) | MIDI; the Voices 0 and 1 of the (Main) Synth | the Voices 2 and 3; all of the FX |
+    | Mono and Legato (PRA32-U2) | MIDI; the Synth; the back of the FX | the front of the FX |
+    | The 4 Synths (PRA32-U2/M, not in Poly) | MIDI; the Main Synth and the Sub Synth 2; the back of the FX | the Sub Synths 1 and 3; the front of the FX |
+
+    - The FX are in two halves: the front (`process_fx_front()`: Distortion and Chorus) and the back (`process_fx_back()`: Delay and the Output Compressor).
+      They are processed a frame after the synths and between them: core 0 puts the FX input of each frame with the count of the synth for it,
+      and at the end of the loop waits until all are done (and does the backs left), so the output is the same, with no more latency
+    - The back goes to the core that has more time to spare: in Poly, core 0 has the low-rate updates of all the Voices and MIDI, and little wait for core 1,
+      so all of the FX are on core 1, the front and the back of a frame in two calls (between them, a request of core 0 waits for half of them at most;
+      in PRA32-U2/M, also while core 1 waits for the request of the Voices 2 and 3);
+      not in Poly, core 0 would wait for core 1, so it processes the back of a frame whose front is done, one a frame, before the (Main) Synth, and the rest (a few) at the end
+    - In PRA32-U2/M with the 4 Synths, with all of the FX on core 1, core 1 was busier than core 0, which waited for it
+      (on the device, 1214 us a loop at v3.17.5; estimated at about 30% of a loop of waits on core 0 with the Distortion);
+      with the back on core 0, core 1 is about 78% and core 0 about 88-92% (estimated)
+    - The Customization Examples (Lite) process all of it on one core, with `process_fx()` (the front and the back in one)
 - MIDI is read at the start of each loop: 5 bytes of USB MIDI and 8 bytes of UART MIDI, more than the about 4.2 bytes that 31250 bps brings in a loop;
   the messages are processed there, so a burst of MIDI (e.g. from USB MIDI and UART MIDI at the same time) makes that loop a little longer
 - The output buffer is a ring buffer read by DMA without interrupts ("pra32-u2-audio-ring-buffer.h"): 2 * 64 frames (2.7 ms) by default

@@ -94,9 +94,10 @@
 |                            34 | x             | o             | Portamento Mode [Sw|Aut]             |
 |                            83 | x             | o             | Osc Saw Wave Mode [Str|Cur]          |
 |                               |               |               |                                      |
-|                            93 | x             | o             | Chorus Level                         |
-|                            95 | x             | o             | FX Routing [Cho|Cho|Dly|Dly|Cmp|Dry] |
+|                            95 | x             | o             | Distortion Drive                     |
+|                            88 | x             | o             | FX Routing [Dst|Cho|Dly|Dly|Cmp|Dry] |
 |                               |               |               |                                      |
+|                            93 | x             | o             | Chorus Level                         |
 |                            58 | x             | o             | Chorus Rate                          |
 |                            59 | x             | o             | Chorus Depth                         |
 |                               |               |               |                                      |

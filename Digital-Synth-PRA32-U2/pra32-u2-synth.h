@@ -8,6 +8,7 @@
 #include "pra32-u2-lfo.h"
 #include "pra32-u2-noise-gen.h"
 #include "pra32-u2-eg.h"
+#include "pra32-u2-distortion-fx.h"
 #include "pra32-u2-chorus-fx.h"
 #include "pra32-u2-delay-fx.h"
 #if defined(PRA32_U2_USE_LEGACY_OUTPUT_LIMITER)
@@ -102,8 +103,10 @@ static uint8_t s_program_table_parameters[] = {
   PORTA_MODE     ,
   OSC_SAW_W_MODE ,
 
-  CHORUS_MIX     ,
+  DISTORTION     ,
   FX_ROUTING     ,
+
+  CHORUS_MIX     ,
   CHORUS_RATE    ,
   CHORUS_DEPTH   ,
 
@@ -222,6 +225,7 @@ class PRA32_U2_Synth {
   PRA32_U2_LFO      m_lfo;
   PRA32_U2_EG       m_eg[2 * 4];
 
+  using DistortionFx = std::conditional_t<NO_FX, std::monostate, PRA32_U2_DistortionFx>;
   using ChorusFx = std::conditional_t<NO_FX, std::monostate, PRA32_U2_ChorusFx>;
   using DelayFx  = std::conditional_t<NO_FX, std::monostate, PRA32_U2_DelayFx>;
 #if defined(PRA32_U2_USE_LEGACY_OUTPUT_LIMITER)
@@ -229,6 +233,7 @@ class PRA32_U2_Synth {
 #else  // defined(PRA32_U2_USE_LEGACY_OUTPUT_LIMITER)
   using OutputDynamics = std::conditional_t<NO_FX, std::monostate, PRA32_U2_OutputCompressor>;
 #endif  // defined(PRA32_U2_USE_LEGACY_OUTPUT_LIMITER)
+  DistortionFx      m_distortion_fx;
   ChorusFx          m_chorus_fx;
   DelayFx           m_delay_fx;
   OutputDynamics    m_output_dynamics;
@@ -283,6 +288,7 @@ public:
   , m_noise_gen(SYNTH_ID)
   , m_lfo()
   , m_eg()
+  , m_distortion_fx()
   , m_chorus_fx()
   , m_delay_fx()
   , m_output_dynamics()
@@ -420,9 +426,10 @@ public:
     std::memcpy(m_program_table[PORTA_MODE     ], g_preset_table_PORTA_MODE     , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[OSC_SAW_W_MODE ], g_preset_table_OSC_SAW_W_MODE , sizeof(m_program_table[0]));
 
-    std::memcpy(m_program_table[CHORUS_MIX     ], g_preset_table_CHORUS_MIX     , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[DISTORTION     ], g_preset_table_DISTORTION     , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[FX_ROUTING     ], g_preset_table_FX_ROUTING     , sizeof(m_program_table[0]));
 
+    std::memcpy(m_program_table[CHORUS_MIX     ], g_preset_table_CHORUS_MIX     , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[CHORUS_RATE    ], g_preset_table_CHORUS_RATE    , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[CHORUS_DEPTH   ], g_preset_table_CHORUS_DEPTH   , sizeof(m_program_table[0]));
 
@@ -1136,6 +1143,12 @@ if constexpr (NO_FX == false) {
       m_chorus_fx.set_chorus_rate(controller_value);
 }
       break;
+    case DISTORTION     :
+if constexpr (NO_FX == false) {
+      m_distortion_fx.set_distortion(controller_value);
+}
+      break;
+
     case CHORUS_MIX     :
 if constexpr (NO_FX == false) {
       m_chorus_fx.set_chorus_level(controller_value);
@@ -1143,10 +1156,10 @@ if constexpr (NO_FX == false) {
       break;
     case FX_ROUTING     :
       // Every synth has its own FX Routing, as the FX input that its output is added to
-      // (PRA32-U2/M); [Cho|Cho|Dly|Dly|Cmp|Dry] (Cmp was Byp until v3.15.0)
+      // (PRA32-U2/M); [Dst|Cho|Dly|Dly|Cmp|Dry] (Dst was Cho until v3.17.5, Cmp was Byp until v3.15.0)
       {
         static const uint8_t fx_routing_table[6] PRA32_U2_TABLE_IN_RAM(fx_routing_table) =
-          { FX_BUS_CHORUS, FX_BUS_CHORUS, FX_BUS_DELAY, FX_BUS_DELAY, FX_BUS_COMP, FX_BUS_DRY };
+          { FX_BUS_DIST, FX_BUS_CHORUS, FX_BUS_DELAY, FX_BUS_DELAY, FX_BUS_COMP, FX_BUS_DRY };
         m_fx_routing = fx_routing_table[((controller_value * 10) + 128) >> 8];
       }
       break;
@@ -1531,6 +1544,7 @@ if constexpr (NO_FX == false) {
       if ((control_number != VOICE_MODE     ) &&
           (control_number != AMP_GAIN       ) &&
           (control_number != FILTER_DRIVE   ) &&
+          (control_number != DISTORTION     ) &&
           (control_number != CHORUS_MIX     ) &&
           (control_number != FX_ROUTING     ) &&
           (control_number != CHORUS_RATE    ) &&
@@ -1640,7 +1654,7 @@ if constexpr (BYPASS_SYNTH == false) {
         m_eg[0].process_at_low_rate();
         m_eg[1].process_at_low_rate();
         int32_t lfo_output = m_lfo.get_output<0>();
-        m_osc.process_at_low_rate<0>(m_count >> 2, lfo_output, m_eg[0].get_output(), noise_int23);
+        m_osc.process_at_low_rate<0, RESTRICT_SQR_WT>(m_count >> 2, lfo_output, m_eg[0].get_output(), noise_int23);
         // The smoothing of the Filter and Amp parameters is the same for all voices,
         // so it is done once by m_filter[0] and m_amp[0], and read by all voices
         if (is_slow_smoothing_period(m_count >> 2)) {
@@ -1661,7 +1675,7 @@ if (m_voice_mode == VOICE_POLYPHONIC) {
         m_eg[2].process_at_low_rate();
         m_eg[3].process_at_low_rate();
         int32_t lfo_output = m_lfo.get_output<1>();
-        m_osc.process_at_low_rate<1>(m_count >> 2, lfo_output, m_eg[2].get_output(), noise_int23);
+        m_osc.process_at_low_rate<1, RESTRICT_SQR_WT>(m_count >> 2, lfo_output, m_eg[2].get_output(), noise_int23);
         m_filter[1].template process_at_low_rate<1>(m_count >> 2, m_eg[2].get_output(), lfo_output, m_osc.get_osc_pitch(1), noise_int23, m_filter[0]);
         m_amp[1].process_at_low_rate(branchless_conditional(m_controller_value_eg_amp_mod >= 64, m_eg[2].get_output(), m_eg[3].get_output()), m_amp[0]);
 }
@@ -1679,7 +1693,7 @@ if (m_voice_mode == VOICE_POLYPHONIC) {
         m_eg[4].process_at_low_rate();
         m_eg[5].process_at_low_rate();
         int32_t lfo_output = m_lfo.get_output<2>();
-        m_osc.process_at_low_rate<2>(m_count >> 2, lfo_output, m_eg[4].get_output(), noise_int23);
+        m_osc.process_at_low_rate<2, RESTRICT_SQR_WT>(m_count >> 2, lfo_output, m_eg[4].get_output(), noise_int23);
         m_filter[2].template process_at_low_rate<2>(m_count >> 2, m_eg[4].get_output(), lfo_output, m_osc.get_osc_pitch(2), noise_int23, m_filter[0]);
         m_amp[2].process_at_low_rate(branchless_conditional(m_controller_value_eg_amp_mod >= 64, m_eg[4].get_output(), m_eg[5].get_output()), m_amp[0]);
 }
@@ -1696,7 +1710,7 @@ if (m_voice_mode == VOICE_POLYPHONIC) {
         m_eg[6].process_at_low_rate();
         m_eg[7].process_at_low_rate();
         int32_t lfo_output = m_lfo.get_output<3>();
-        m_osc.process_at_low_rate<3>(m_count >> 2, lfo_output, m_eg[6].get_output(), noise_int23);
+        m_osc.process_at_low_rate<3, RESTRICT_SQR_WT>(m_count >> 2, lfo_output, m_eg[6].get_output(), noise_int23);
         m_filter[3].template process_at_low_rate<3>(m_count >> 2, m_eg[6].get_output(), lfo_output, m_osc.get_osc_pitch(3), noise_int23, m_filter[0]);
         m_amp[3].process_at_low_rate(branchless_conditional(m_controller_value_eg_amp_mod >= 64, m_eg[6].get_output(), m_eg[7].get_output()), m_amp[0]);
 }
@@ -1815,8 +1829,8 @@ if constexpr ((NO_FX == false) && (BYPASS_FX == false)) {
     fx_bus.input[m_fx_routing].right += synth_output.right;
   }
 
-  // Processes the FX in series: the Chorus input goes through the Chorus, the Delay, and the
-  // Output Compressor, the Delay input through the Delay and the Output Compressor, the Comp
+  // Processes the FX in series: the Distortion input goes through the Distortion, and then on with
+  // the Chorus input, which goes through the Chorus, the Delay, and the Output Compressor, the Delay input through the Delay and the Output Compressor, the Comp
   // input through the Output Compressor only, and the Dry input through none of them.
   // The count is that of process() for the sample (get_count() after it), so that the FX
   // update their controls at the low rate in step with it, also when the FX of a sample are
@@ -1827,22 +1841,61 @@ if constexpr ((NO_FX == false) && (BYPASS_FX == false)) {
 
   // noclone: see process()
   __attribute__((noclone)) PRA32_U2_StereoSample __not_in_flash_func(process_fx)(const PRA32_U2_FxBusSample& fx_bus, uint32_t count, boolean low_rate = true) {
+    PRA32_U2_StereoSample delay_fx_input = process_fx_front_inline(fx_bus, count, low_rate);
+    return process_fx_back_inline(delay_fx_input, fx_bus, count, low_rate);
+  }
+
+  // The FX in two halves, which can be processed on different cores (PRA32-U2/M): the front
+  // (the Distortion and the Chorus) gives the input of the Delay, and the back (the Delay and
+  // the Output Compressor) takes it, with the same FX bus and count; one after the other, the
+  // same as process_fx()
+  __attribute__((noclone)) PRA32_U2_StereoSample __not_in_flash_func(process_fx_front)(const PRA32_U2_FxBusSample& fx_bus, uint32_t count) {
+    return process_fx_front_inline(fx_bus, count, true);
+  }
+
+  __attribute__((noclone)) PRA32_U2_StereoSample __not_in_flash_func(process_fx_back)(PRA32_U2_StereoSample delay_fx_input, const PRA32_U2_FxBusSample& fx_bus, uint32_t count) {
+    return process_fx_back_inline(delay_fx_input, fx_bus, count, true);
+  }
+
+private:
+  INLINE PRA32_U2_StereoSample process_fx_front_inline(const PRA32_U2_FxBusSample& fx_bus, uint32_t count, boolean low_rate) {
     if (low_rate) {
       switch (count & (0x04 - 1)) {
+#if !defined(PRA32_U2_DISABLE_DISTORTION_FX)
+      case 0x01:
+        m_distortion_fx.process_at_low_rate(count >> 2);
+        break;
+#endif  // !defined(PRA32_U2_DISABLE_DISTORTION_FX)
       case 0x02:
         m_chorus_fx.process_at_low_rate(count >> 2);
-        break;
-      case 0x03:
-        m_delay_fx.process_at_low_rate(count >> 2);
         break;
       }
     }
 
-    PRA32_U2_StereoSample chorus_fx_output = m_chorus_fx.process(fx_bus.input[FX_BUS_CHORUS]);
+#if !defined(PRA32_U2_DISABLE_DISTORTION_FX)
+    PRA32_U2_StereoSample distortion_fx_output = m_distortion_fx.process(fx_bus.input[FX_BUS_DIST]);
+#else  // !defined(PRA32_U2_DISABLE_DISTORTION_FX)
+    PRA32_U2_StereoSample distortion_fx_output = fx_bus.input[FX_BUS_DIST];
+#endif  // !defined(PRA32_U2_DISABLE_DISTORTION_FX)
+
+    PRA32_U2_StereoSample chorus_fx_input;
+    chorus_fx_input.left  = distortion_fx_output.left  + fx_bus.input[FX_BUS_CHORUS].left;
+    chorus_fx_input.right = distortion_fx_output.right + fx_bus.input[FX_BUS_CHORUS].right;
+
+    PRA32_U2_StereoSample chorus_fx_output = m_chorus_fx.process(chorus_fx_input);
 
     PRA32_U2_StereoSample delay_fx_input;
     delay_fx_input.left  = chorus_fx_output.left  + fx_bus.input[FX_BUS_DELAY].left;
     delay_fx_input.right = chorus_fx_output.right + fx_bus.input[FX_BUS_DELAY].right;
+    return delay_fx_input;
+  }
+
+  INLINE PRA32_U2_StereoSample process_fx_back_inline(PRA32_U2_StereoSample delay_fx_input, const PRA32_U2_FxBusSample& fx_bus, uint32_t count, boolean low_rate) {
+    if (low_rate) {
+      if ((count & (0x04 - 1)) == 0x03) {
+        m_delay_fx.process_at_low_rate(count >> 2);
+      }
+    }
 
     PRA32_U2_StereoSample delay_fx_output = m_delay_fx.process(delay_fx_input);
     delay_fx_output.left  += fx_bus.input[FX_BUS_COMP].left;
@@ -1853,6 +1906,8 @@ if constexpr ((NO_FX == false) && (BYPASS_FX == false)) {
     // is only delayed (as the look-ahead), lowered (x 0.75), and clipped with it
     return m_output_dynamics.process(delay_fx_output, fx_bus.input[FX_BUS_DRY]);
   }
+
+public:
 
   template <boolean RESTRICT_SAW = false, boolean RESTRICT_SQR_WT = false>
   /* INLINE */ boolean __not_in_flash_func(secondary_core_process)() {
