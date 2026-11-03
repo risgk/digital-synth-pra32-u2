@@ -67,6 +67,10 @@ graph LR
     N -.-> L[LFO w/ S/H]
     L -.-> V1O1 & V1O2 & V1F & V2 & V3 & V4
     VM --> J1((A))
+```
+
+```mermaid
+graph LR
     J2((A)) --> P[Panner] ==> FR{FX Routing}
     FR ==>|Dst| DS[Distortion FX] ==> C
     FR ==>|Cho| C[Chorus FX] ==> D[Delay/Reverb FX] ==> OC[Output Compressor] ==> OG["x 0.75<br/>Soft Clip"] ==> AO[Audio Out]
