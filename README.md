@@ -49,6 +49,8 @@
 
 ## Synthesizer Block Diagram
 
+Thick arrows carry the stereo audio (L / R), from the Panner on.
+
 ```mermaid
 graph LR
     subgraph V1[Voice 1]
@@ -65,11 +67,11 @@ graph LR
     N -.-> L[LFO w/ S/H]
     L -.-> V1O1 & V1O2 & V1F & V2 & V3 & V4
     VM --> J1((A))
-    J2((A)) --> P[Panner] --> FR{FX Routing}
-    FR -->|Cho| C[Chorus FX] --> D[Delay/Reverb FX] --> OC[Output Compressor] --> OG["x 0.75<br/>Soft Clip"] --> AO[Audio Out]
-    FR -->|Dly| D
-    FR -->|Cmp| OC
-    FR -->|Dry| OG
+    J2((A)) --> P[Panner] ==> FR{FX Routing}
+    FR ==>|Cho| C[Chorus FX] ==> D[Delay/Reverb FX] ==> OC[Output Compressor] ==> OG["x 0.75<br/>Soft Clip"] ==> AO[Audio Out]
+    FR ==>|Dly| D
+    FR ==>|Cmp| OC
+    FR ==>|Dry| OG
 ```
 
 
