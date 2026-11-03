@@ -102,4 +102,4 @@ and "Other" is the rest (e.g. Debug Print).
 | :-- | --: | --: | --: | --: |
 | | 384404 (73%) | 483968 (92%) | 404984 (77%) | 505872 (96%) |
 
-On the device (v3.17.5, PRA32-U2/M/P, Debug Print `max(loop)`): 4 Synths 1214 us (91%; `min(loop)` 1192 us)
+On the device (v3.17.5, PRA32-U2/M/P, Debug Print `max(loop)`): 4 Synths: #5 Sync Lead (Mono, and Delay Mode Rev) by MIDI Channel 16 (Layering), 4 notes, 1214 us (91%; `min(loop)` 1192 us), more than the estimate (86% / 84%)
