@@ -58,7 +58,7 @@ graph LR
         V1O2[Osc 2] --> V1OM
         V1OM --> V1F[Filter]
         V1F --> V1A[Amp]
-        E[EG] -.-> V1O1 & V1O2 & V1F
+        E[EG] -.-> V1O1 & V1O2 & V1F & V1A
         V1AE[Amp EG] -.-> V1A
     end
     V1A --> VM[Voice Mixer]
