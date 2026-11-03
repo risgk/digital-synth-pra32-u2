@@ -6,7 +6,7 @@
 The diagrams of the Osc, the Filter, the FX (Chorus FX, Delay FX, and Reverb), the Output Compressor, and PRA32-U2/M,
 and the graphs of the Wave Tables.
 For the whole synthesizer, see [Synthesizer Block Diagram](./README.md#synthesizer-block-diagram) in README.md.
-Solid arrows carry audio, dashed arrows carry control.
+Solid arrows carry audio (thick ones the stereo audio, L / R), dashed arrows carry control.
 
 
 ## Osc
@@ -167,15 +167,15 @@ Each side has a delay line and a loop of its own. The diagram is one side; the o
 
 ```mermaid
 flowchart LR
-    IN([Input L / R]) --> S["× Delay Level"]
-    S --> SUM((Σ))
-    SUM --> FB["× Delay Feedback<br/>0 to 0.5"]
-    FB --> LPF["Low pass<br/>1-pole"]
-    LPF --> DL["Delay line<br/>Delay Time, up to 340 ms"]
-    DL --> SUM
-    DL --> M((Σ))
-    IN --> M
-    M --> OUT([Output L / R])
+    IN([Input L / R]) ==> S["× Delay Level"]
+    S ==> SUM((Σ))
+    SUM ==> FB["× Delay Feedback<br/>0 to 0.5"]
+    FB ==> LPF["Low pass<br/>1-pole"]
+    LPF ==> DL["Delay line<br/>Delay Time, up to 340 ms"]
+    DL ==> SUM
+    DL ==> M((Σ))
+    IN ==> M
+    M ==> OUT([Output L / R])
 ```
 
 ### Ping Pong Delay
@@ -219,9 +219,9 @@ same length and loudness of the tail.
 
 ```mermaid
 flowchart LR
-    IN([Input L / R]) --> S["× Delay Level<br/>× Delay Feedback"]
-    S --> AP["Input allpass × 2<br/>each side"]
-    AP --> SUM((Σ))
+    IN([Input L / R]) ==> S["× Delay Level<br/>× Delay Feedback"]
+    S ==> AP["Input allpass × 2<br/>each side"]
+    AP ==> SUM((Σ))
     SUM -->|"L to line 0, R to line 1"| LN["4 delay lines<br/>Delay Time / 3, and<br/>219, 187, 157 / 256 of it"]
     LN --> H["4 × 4 Hadamard"]
     H --> G["× Decay<br/>each line"]
@@ -229,9 +229,9 @@ flowchart LR
     LPF --> LA["Loop allpass<br/>each line"]
     LA --> SUM
     LN --> OM["Output mix<br/>L: (line 0 + line 3) × 17/16<br/>R: (line 1 − line 2) × 17/16"]
-    OM --> M((Σ))
-    IN --> M
-    M --> OUT([Output L / R])
+    OM ==> M((Σ))
+    IN ==> M
+    M ==> OUT([Output L / R])
 ```
 
 - It runs at half the sampling rate (24 kHz), every other sample, to halve its processing time:
@@ -263,15 +263,15 @@ lowered by the output gain, and clipped with the output.
 
 ```mermaid
 flowchart LR
-    IN([Input L / R<br/>from the Delay FX<br/>and FX Routing Comp]) --> DLY["Delay<br/>1 ms (look-ahead)"]
-    DLY --> VCA["× Gain"]
-    VCA --> SUM((Σ))
-    DRY([Input L / R<br/>FX Routing Dry]) --> DD["Delay<br/>1 ms"]
-    DD --> OG["× 0.75<br/>-2.5 dB"]
-    OG --> SUM
-    SUM --> SC["Soft clip<br/>linear up to 0.75, ceiling 1.0"]
-    SC --> OUT([Audio Out L / R])
-    IN --> PK["Peak<br/>max of |L| and |R|,<br/>held over 25-50 ms"]
+    IN([Input L / R<br/>from the Delay FX<br/>and FX Routing Comp]) ==> DLY["Delay<br/>1 ms (look-ahead)"]
+    DLY ==> VCA["× Gain"]
+    VCA ==> SUM((Σ))
+    DRY([Input L / R<br/>FX Routing Dry]) ==> DD["Delay<br/>1 ms"]
+    DD ==> OG["× 0.75<br/>-2.5 dB"]
+    OG ==> SUM
+    SUM ==> SC["Soft clip<br/>linear up to 0.75, ceiling 1.0"]
+    SC ==> OUT([Audio Out L / R])
+    IN ==> PK["Peak<br/>max of |L| and |R|,<br/>held over 25-50 ms"]
     PK -.-> ENV["Envelope<br/>attack 1 ms, release 100 ms"]
     ENV -.-> GT["Gain table<br/>2:1 above -6 dB (soft knee -9 to -3 dB),<br/>ceiling at 1.0, × 0.75"]
     GT -.-> VCA
@@ -308,11 +308,11 @@ flowchart LR
     C14([MIDI Ch 14<br/>Layering]) -.-> MS & S1
     C15([MIDI Ch 15<br/>Layering]) -.-> S2 & S3
     C16([MIDI Ch 16<br/>Layering]) -.-> MS & S1 & S2 & S3
-    MS & S1 & S2 & S3 --> FR{"FX Routing<br/>of each synth"}
-    FR -->|Cho| C[Chorus FX] --> D[Delay/Reverb FX] --> OC[Output Compressor] --> OG["x 0.75<br/>Soft Clip"] --> AO[Audio Out]
-    FR -->|Dly| D
-    FR -->|Cmp| OC
-    FR -->|Dry| OG
+    MS & S1 & S2 & S3 ==> FR{"FX Routing<br/>of each synth"}
+    FR ==>|Cho| C[Chorus FX] ==> D[Delay/Reverb FX] ==> OC[Output Compressor] ==> OG["x 0.75<br/>Soft Clip"] ==> AO[Audio Out]
+    FR ==>|Dly| D
+    FR ==>|Cmp| OC
+    FR ==>|Dry| OG
 ```
 
 - The Sub Synths are processed only while the Main Synth is in the Mono modes (the Main Synth in
