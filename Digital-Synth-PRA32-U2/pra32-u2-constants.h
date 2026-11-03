@@ -132,8 +132,10 @@ const uint8_t   AFT_T_LFO_AMT   = 37;
 const uint8_t   PORTA_MODE      = 34;
 const uint8_t   FILTER_DRIVE    = 31;
 
+const uint8_t   DISTORTION      = 95;
+const uint8_t   FX_ROUTING      = 88;
+
 const uint8_t   CHORUS_MIX      = 93;
-const uint8_t   FX_ROUTING      = 95;
 
 const uint8_t   CHORUS_RATE     = 58;
 const uint8_t   CHORUS_DEPTH    = 59;

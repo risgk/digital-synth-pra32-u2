@@ -56,6 +56,9 @@
 
 //#define PRA32_U2_USE_LEGACY_OUTPUT_LIMITER     // Use the Output Limiter (until v3.15.0) instead of the Output Compressor
 
+#define PRA32_U2_DISABLE_DISTORTION_FX           // The Distortion FX passes its input through (Dst as Cho), for the load
+#define PRA32_U2_DISABLE_REVERB                  // Delay Mode Rev is the Stereo Delay (Ste), for the load
+
 #define PRA32_U2_NUMBER_OF_SYNTHS              (1)
 
 ////////////////////////////////////////////////////////////////

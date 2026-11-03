@@ -13,10 +13,12 @@ cd "$(dirname "$0")"
 FQBN='rp2040:rp2040:rpipico2:flash=4194304_0,freq=150,arch=arm,opt=Small,os=none,profile=Disabled,rtti=Disabled,stackprotect=Disabled,exceptions=Disabled,dbgport=Disabled,dbglvl=None,usbstack=tinyusb,ipbtstack=ipv4only,uploadmethod=default'
 
 # All 4 are built, for their RAM; the load is estimated for PRA32-U2, the lightest, and PRA32-U2/M/P,
-# which has all of them (PRA32-U2/M and /P differ from these little: the panel's I2C is left out)
-VARIANTS='u2 m p mp'
-ESTIMATED='u2 mp'
-# The builds run in parallel (all 4 at once), and the estimates too (as many at a time as the CPUs)
+# which has all of them (PRA32-U2/M and /P differ from these little: the panel's I2C is left out),
+# and for the Lite of the Customization Examples, PRA32-U2 (Lite) and PRA32-U2/M (Lite), Core 0 Only
+# (the synth on one core; the Core 1 Only ones, without MIDI, cannot be played here, and process the same)
+VARIANTS='u2 m p mp u2l ml'
+ESTIMATED='u2 mp u2l ml'
+# The builds run in parallel (all at once), and the estimates too (as many at a time as the CPUs)
 JOBS=$(getconf _NPROCESSORS_ONLN 2>/dev/null || echo 2)
 # The paths of the files of the core in the asserts (e.g. "/home/runner/.arduino15/packages/rp2040/hardware/rp2040/6.3.0/...")
 # as "/rp2040/...", so that the build is the same wherever it is built (the length of the path shifts the estimate by about 1%)
@@ -27,7 +29,11 @@ for v in $VARIANTS; do
   rm -rf build/src-$v
   mkdir -p $src
   cp ../Digital-Synth-PRA32-U2/* $src/
-  case $v in m|mp) cp ../Digital-Synth-PRA32-U2-M/Digital-Synth-PRA32-U2-M.ino $src/Digital-Synth-PRA32-U2.ino ;; esac
+  case $v in
+    m|mp) cp ../Digital-Synth-PRA32-U2-M/Digital-Synth-PRA32-U2-M.ino $src/Digital-Synth-PRA32-U2.ino ;;
+    u2l)  cp ../customization-examples/Digital-Synth-PRA32-U2.ino.Lite-Core-0-Only.txt $src/Digital-Synth-PRA32-U2.ino ;;
+    ml)   cp ../customization-examples/Digital-Synth-PRA32-U2-M.ino.Lite-Core-0-Only.txt $src/Digital-Synth-PRA32-U2.ino ;;
+  esac
   # With Debug Print (USB Serial), as measured on the device; without "sed -i", which differs between GNU and BSD (macOS)
   sed 's|^//#define PRA32_U2_USE_DEBUG_PRINT$|#define PRA32_U2_USE_DEBUG_PRINT|' $src/Digital-Synth-PRA32-U2.ino > $src/ino.tmp
   mv $src/ino.tmp $src/Digital-Synth-PRA32-U2.ino
@@ -66,6 +72,9 @@ row() {  # case, variants, options
       *" $v "*)
         n=$((n + 1))
         opts="--brief $*"
+        case $v in u2l|ml)  # The Lite: Osc 1 Wave Sin in #5 Sync Lead, the heaviest there (Sqr is lighter without its Shape and Morph)
+          opts=$(printf '%s' "$opts" | sed -e 's/--cc 18=0,35=127/&,102=77/' -e 's/--cc 1:35=127/&,1:102=77/') ;;
+        esac
         if [ "$v" = "$MODULES_OF" ]; then
           opts="$opts --modules"
           echo build/est/$n.txt > build/modules-$v.src
@@ -104,13 +113,13 @@ row 'Poly, with Program Change #0 (Poly itself) back to back by UART MIDI (Runni
 row 'Poly, with Program Change by CC #112 (#0) back to back by UART MIDI (Running Status) and USB MIDI' "$ESTIMATED" $POLY \
   --uart-midi $PC_BY_CC_RS --usb-midi B0707FB07000
 MODULES_OF=mp
-row '4 Synths: #5 Sync Lead (Mono, and Delay Mode Rev) by MIDI Channel 16 (Layering), 4 notes' 'mp' $SYNTHS
+row '4 Synths: #5 Sync Lead (Mono, and Delay Mode Rev) by MIDI Channel 16 (Layering), 4 notes' 'mp ml' $SYNTHS
 MODULES_OF=''
-row '4 Synths, with Note On and Off of another note by MIDI Channel 16 by UART MIDI (Running Status) and USB MIDI' 'mp' $SYNTHS \
+row '4 Synths, with Note On and Off of another note by MIDI Channel 16 by UART MIDI (Running Status) and USB MIDI' 'mp ml' $SYNTHS \
   --uart-midi $NOTE_ON_OFF_16_RS --usb-midi $NOTE_ON_OFF_16
-row '4 Synths, with Program Change #0 (4 Synths itself) by MIDI Channel 16 back to back by UART MIDI (Running Status) and USB MIDI' 'mp' $SYNTHS \
+row '4 Synths, with Program Change #0 (4 Synths itself) by MIDI Channel 16 back to back by UART MIDI (Running Status) and USB MIDI' 'mp ml' $SYNTHS \
   --uart-midi $PROGRAM_CHANGES_16_RS --usb-midi CF00
-row '4 Synths, with Program Change by CC #112 (#0) by MIDI Channel 16 back to back by UART MIDI (Running Status) and USB MIDI' 'mp' $SYNTHS \
+row '4 Synths, with Program Change by CC #112 (#0) by MIDI Channel 16 back to back by UART MIDI (Running Status) and USB MIDI' 'mp ml' $SYNTHS \
   --uart-midi $PC_BY_CC_16_RS --usb-midi BF707FBF7000
 
 # The jobs, the longest first: those of PRA32-U2/M/P (the 4 Synths, queued last, first of them), then the others
@@ -123,11 +132,11 @@ awk '{ a[NR] = $0 } END { for (i = NR; i >= 1; i--) if (a[i] ~ / build\/mp\//) p
 : > build/warnings.txt
 echo "#### $version"
 echo
-echo "| Case (core 0 / core 1, max) | PRA32-U2 | PRA32-U2/M/P |"
-echo "| :-- | --: | --: |"
-while IFS='	' read -r name c1 c2; do
+echo "| Case (core 0 / core 1, max) | PRA32-U2 | PRA32-U2/M/P | PRA32-U2 (Lite) | PRA32-U2/M (Lite) |"
+echo "| :-- | --: | --: | --: | --: |"
+while IFS='	' read -r name c1 c2 c3 c4; do
   line="| $name |"
-  for c in "$c1" "$c2"; do
+  for c in "$c1" "$c2" "$c3" "$c4"; do
     case $c in
       -) line="$line - |" ;;
       *)  # "core 0 avg%, max%, core 1 avg%, max%" in the first line
@@ -147,7 +156,7 @@ echo
 echo "⚠: over 100% (1333 us), △: over 95%"
 echo
 # The load of each module (class), the average of core 0 / core 1, in the heaviest of each (above)
-for v in $ESTIMATED; do
+for v in u2 mp; do
   awk '/^modules,/ { m = 1; next } m { print $1, $2, $4 }' "$(cat build/modules-$v.src)" > build/modules-$v.txt
 done
 echo "| Module (core 0 / core 1, avg) | PRA32-U2, Poly | PRA32-U2/M/P, 4 Synths |"
@@ -157,8 +166,8 @@ awk 'NR == FNR { a[$1] = $2 " / " $3; order[++n] = $1; next }
      END { for (i = 1; i <= n; i++) { k = order[i]; printf "| %s | %s | %s |\n", k, (k in a) ? a[k] : "-", (k in b) ? b[k] : "-" } }' \
   build/modules-u2.txt build/modules-mp.txt
 echo
-echo "| RAM (global variables) | PRA32-U2 | PRA32-U2/M | PRA32-U2/P | PRA32-U2/M/P |"
-echo "| :-- | --: | --: | --: | --: |"
+echo "| RAM (global variables) | PRA32-U2 | PRA32-U2/M | PRA32-U2/P | PRA32-U2/M/P | PRA32-U2 (Lite) | PRA32-U2/M (Lite) |"
+echo "| :-- | --: | --: | --: | --: | --: | --: |"
 line='| |'
 for v in $VARIANTS; do
   line="$line $(sed -n 's/^Global variables use \([0-9]*\) bytes (\([0-9]*%\)).*/\1 (\2)/p' build/$v.log) |"

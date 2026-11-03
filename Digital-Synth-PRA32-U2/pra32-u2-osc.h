@@ -473,11 +473,12 @@ public:
     m_phase[N] = 0;
   }
 
-  template <uint8_t N>
+  // RESTRICT_SQR_WT: as for process(), where the Shape and the Morph of Sqr and WT are not used
+  template <uint8_t N, boolean RESTRICT_SQR_WT = false>
   INLINE void process_at_low_rate(uint32_t count, int32_t lfo_level, int32_t eg_level, int32_t noise_int23) {
     update_pitch_current<N>();
     update_osc1_shape<N>(lfo_level, eg_level);
-    update_osc1_shape_effective<N>();
+    update_osc1_shape_effective<N, RESTRICT_SQR_WT>();
     update_freq_base<N + 0>(lfo_level, eg_level);
     update_freq_base<N + 4>(lfo_level, eg_level);
 
@@ -880,10 +881,13 @@ if constexpr (RESTRICT_SQR_WT == false) {
     m_osc1_shape_eg_target[N] = (eg_level * (m_shape_eg_amt_current >> 9)) >> (6 + 7);
   }
 
-  template <uint8_t N>
+  // The offsets of the 16 waves of Sqr and WT for their Shape (and Morph), not computed with
+  // RESTRICT_SQR_WT, where they are not used (they are the most of the low-rate update of a voice)
+  template <uint8_t N, boolean RESTRICT_SQR_WT = false>
   INLINE void update_osc1_shape_effective() {
     m_osc1_shape_current[N] = clamp((m_osc1_shape_base_current >> 8) + m_osc1_shape_lfo_target[N] + m_osc1_shape_eg_target[N], (0 << 8), (256 << 8));
 
+if constexpr (RESTRICT_SQR_WT == false) {
     uint32_t shape = maximum(m_osc1_shape_current[N] - (128 << 8), 0);
     if (m_waveform[0] == WAVEFORM_SQUARE) {
       const uint16_t (* sqr_shape_table)[OSC_WAVE_SHAPE_TABLE_LEN_X][OSC_WAVE_SHAPE_TABLE_LEN_Y] = &g_osc_sqr_shape_table;
@@ -896,6 +900,7 @@ if constexpr (RESTRICT_SQR_WT == false) {
         m_osc1_wt_shape_offset[N][i] = get_osc_wave_shape_data(wt_shape_table, shape, i);
       }
     }
+}
   }
 
   INLINE void update_pitch_bend() {

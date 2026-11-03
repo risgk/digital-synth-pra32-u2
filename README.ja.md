@@ -9,7 +9,7 @@
 ## 概要
 
 - **PRA32-U2** は、Raspberry Pi Pico 2/RP2350 用の 4 ボイス・ポリフォニック・シンセサイザーです
-    - Chorus FX と Delay/Reverb FX を内蔵し、その後に Output Compressor (リミッターを兼ねる) があります
+    - Distortion FX、Chorus FX、Delay/Reverb FX を内蔵し、その後に Output Compressor (リミッターを兼ねる) があります
     - MIDI で制御します -- PRA32-U2 は MIDI 音源モジュールです
     - パラメーターをユーザー・プログラムとフラッシュに書き込む機能があります
     - PRA32-U2 は PRA32-U (Raspberry Pi Pico/RP2040 用) の後継として始まりましたが、今では別のシンセサイザーです
@@ -66,7 +66,7 @@
     - 音作りは、"#23 Initial" よりも、FX が有効な "#19 Plain Poly" から始めるのがお勧めです
 - [MIDI Implementation Chart](./PRA32-U2-MIDI-Implementation-Chart.md) (MIDI インプリメンテーション・チャート)
 - [Block Diagrams](./PRA32-U2-Block-Diagrams.md) (ブロック図)
-    - Osc、Filter、Chorus FX、Delay FX、Reverb、Output Compressor、PRA32-U2/M のブロック図と、Wave Table のグラフです
+    - Osc、Filter、Distortion FX、Chorus FX、Delay FX、Reverb、Output Compressor、PRA32-U2/M のブロック図と、Wave Table のグラフです
 - [Modification Guide](./PRA32-U2-Modification-Guide.md) (改造ガイド)
     - USB MIDI、UART MIDI、I2S、オーディオ・バッファー、PWM Audio の設定と、PWM Audio の簡易回路です
 - [Development](./PRA32-U2-Development.md) (開発ノート)
@@ -151,7 +151,7 @@
 ## 改造サンプル
 
 - "customization-examples" フォルダーのファイルです。それぞれがスケッチで、"Digital-Synth-PRA32-U2.ino" (PRA32-U2/M では "Digital-Synth-PRA32-U2-M.ino") の代わりに使います
-- **Digital Synth PRA32-U2 (Lite)** と **Digital Synth PRA32-U2/M (Lite)**: Saw、Sqr、WT で Osc 1 Shape と Morph が効かない代わりに、シンセを 1 つのコア (コア 0) で処理します
+- **Digital Synth PRA32-U2 (Lite)** と **Digital Synth PRA32-U2/M (Lite)**: Saw、Sqr、WT で Osc 1 Shape と Morph が効かず、Distortion FX は入力をそのまま通し (Dst は Cho と同じ)、Delay Mode の Rev は Stereo Delay (Ste) になる代わりに、シンセを 1 つのコア (コア 0) で処理します
     - "...Lite-Core-0-Only.txt": 通常のスケッチと同じく、MIDI (USB MIDI と UART MIDI)、パネル、デバッグプリントがあります。コア 1 はパネルの更新とデバッグプリントだけを行います
     - "...Lite-Core-1-Only.txt": シンセと音声出力だけで、MIDI、パネル、デバッグプリントはありません (このままでは音が出ません)。`loop()` の `// TODO` に自分のコードを書いて、シンセを鳴らすための雛形です
 - 詳しくは英語版の [Customization Examples](./README.md#customization-examples) を参照してください
@@ -172,6 +172,7 @@
     - USB 通信のノイズの影響を受けることがあります。英語版の [UART MIDI](./PRA32-U2-Modification-Guide.md#uart-midi) を試してください
     - RC フィルターなしの PWM Audio では、レベルを下げてください (英語版の [PWM Audio](./PRA32-U2-Modification-Guide.md#pwm-audio-optional) を参照)
 - 音が歪む
+    - Distortion Drive が 0 になっているか確認してください (または FX Routing を Dst 以外にしてください)
     - Amp Gain を下げてください (Filter Resonance や Osc 1 Shape/Morph が高いと、音が大きくなります)
     - FX Routing が Dry の場合は Output Compressor を通らないため、大きな音はソフトクリップで歪みます。Cmp などを選んでください
 - ポルタメントが掛からない

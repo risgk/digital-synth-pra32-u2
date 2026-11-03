@@ -54,6 +54,9 @@
 
 //#define PRA32_U2_USE_LEGACY_OUTPUT_LIMITER     // Use the Output Limiter (until v3.15.0) instead of the Output Compressor
 
+//#define PRA32_U2_DISABLE_DISTORTION_FX         // The Distortion FX passes its input through (Dst as Cho), for the load
+//#define PRA32_U2_DISABLE_REVERB                // Delay Mode Rev is the Stereo Delay (Ste), for the load
+
 #define PRA32_U2_ENABLE_LAYERING
 
 #if defined(PRA32_U2_ENABLE_LAYERING)
@@ -326,17 +329,35 @@ void __not_in_flash_func(setup1)() {
 }
 
 #if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
-// The FX of the frames (the Chorus, the Delay, and the Output Compressor) are processed by the
+// The FX of the frames (the Distortion, the Chorus, the Delay, and the Output Compressor) are processed by the
 // secondary core, between the synths that it processes for the primary core, which has less time
 // to spare: the primary core puts the FX input of each frame (s_fx_bus, of all the synths) here,
 // with the count of the Main Synth for it, and takes the outputs at the end of the loop, when all
 // of them are done. Those of a frame wait for the synths of the next one (but the last), which
-// the primary core waits for, so that they are not delayed by the FX
+// the primary core waits for, so that they are not delayed by the FX.
+// With the 4 Synths (not in Poly, where the primary core has less time to spare), the secondary core
+// has the Sub Synths 1 and 3 and the primary core waits for it, so it processes only the front of the
+// FX (the Distortion and the Chorus, into the input of the Delay, in s_fx_outputs), and the primary
+// core the back (the Delay and the Output Compressor) of a frame whose front is done, one a frame,
+// before the Main Synth, which waits for the secondary core anyway, and the rest (a few) at the end
+// of the loop
 static PRA32_U2_FxBusSample  s_fx_inputs [PRA32_U2_I2S_BUFFER_WORDS];
 static uint32_t              s_fx_counts [PRA32_U2_I2S_BUFFER_WORDS];
 static PRA32_U2_StereoSample s_fx_outputs[PRA32_U2_I2S_BUFFER_WORDS];
 static volatile uint32_t     s_fx_frames_put  = 0;
 static volatile uint32_t     s_fx_frames_done = 0;
+static volatile boolean      s_fx_front_only  = false;
+static uint32_t              s_fx_backs_done  = 0;  // Of the primary core
+
+// The back of the FX of the next frame whose front is done, if any, on the primary core
+static INLINE void processFxBackOfNextFrame() {
+  uint32_t i = s_fx_backs_done;
+  if (i < s_fx_frames_done) {
+    __compiler_memory_barrier();
+    s_fx_outputs[i] = g_synth.process_fx_back(s_fx_outputs[i], s_fx_inputs[i], s_fx_counts[i]);
+    s_fx_backs_done = i + 1;
+  }
+}
 
 // The FX of the frame i can be processed once the next frame is put (after the synths of it,
 // which the primary core has waited for), or all the frames are
@@ -346,13 +367,27 @@ static INLINE boolean isFxOfFrameReady(uint32_t i, uint32_t frames_put) {
   return next_frame_put || all_frames_put;
 }
 
+// The front and the back of the FX of a frame in two calls, so that a request of the primary core
+// in between waits for half of them at most
 static void __not_in_flash_func(processFxOfNextFrame)() {
+  static boolean s_back_next = false;  // The front of the frame is done, and not the back
   uint32_t i = s_fx_frames_done;
   if (isFxOfFrameReady(i, s_fx_frames_put)) {
     __compiler_memory_barrier();
-    s_fx_outputs[i] = g_synth.process_fx(s_fx_inputs[i], s_fx_counts[i]);
-    __compiler_memory_barrier();
-    s_fx_frames_done = i + 1;
+    if (s_back_next) {
+      s_fx_outputs[i] = g_synth.process_fx_back(s_fx_outputs[i], s_fx_inputs[i], s_fx_counts[i]);
+      s_back_next = false;
+      __compiler_memory_barrier();
+      s_fx_frames_done = i + 1;
+    } else {
+      s_fx_outputs[i] = g_synth.process_fx_front(s_fx_inputs[i], s_fx_counts[i]);
+      if (s_fx_front_only) {
+        __compiler_memory_barrier();
+        s_fx_frames_done = i + 1;
+      } else {
+        s_back_next = true;
+      }
+    }
   }
 }
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
@@ -368,8 +403,16 @@ static void __not_in_flash_func(loop1_once)() {
       sub_1_synth_output = g_sub_1_synth.process(0, 0);
     }
 
+    // In Poly, where the Sub Synths are not processed and it waits long for the request of the Main
+    // Synth's Voices 2 and 3, the FX go on meanwhile, a half of those of a frame at a time (with the
+    // 4 Synths, the wait is short, and the FX there would only delay the Voices 2 and 3)
     while (processed == false) {
       processed = g_synth.secondary_core_process();
+#if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
+      if ((processed == false) && g_synth_is_in_polyphonic_mode) {
+        processFxOfNextFrame();
+      }
+#endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
     }
 
     // Added after the Main Synth's Voices 2 and 3, which the primary core waits for in
@@ -584,8 +627,11 @@ void __not_in_flash_func(loop)() {
   int32_t right_buffer[PRA32_U2_I2S_BUFFER_WORDS];
 #if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
   // The FX of the frames are processed by the secondary core (see processFxOfNextFrame()),
-  // which has done all of those of the last loop
+  // which has done all of those of the last loop, but the back by the primary core (processFxBackOfNextFrame())
+  // with the 4 Synths
   s_fx_frames_put = 0;
+  s_fx_front_only = (g_synth_is_in_polyphonic_mode == false);
+  s_fx_backs_done = s_fx_front_only ? 0 : PRA32_U2_I2S_BUFFER_WORDS;
   __compiler_memory_barrier();
   s_fx_frames_done = 0;
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
@@ -603,6 +649,10 @@ void __not_in_flash_func(loop)() {
     clear_fx_bus(s_fx_bus);
     g_sub_2_synth.add_to_fx_bus(sub_2_synth_output, s_fx_bus);
     __compiler_memory_barrier();
+
+#if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
+    processFxBackOfNextFrame();
+#endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
 
     PRA32_U2_StereoSample synth_output = g_synth.process<false, true>(0, 0);
 
@@ -624,6 +674,10 @@ void __not_in_flash_func(loop)() {
     ;
   }
   __compiler_memory_barrier();
+
+  while (s_fx_backs_done < PRA32_U2_I2S_BUFFER_WORDS) {
+    processFxBackOfNextFrame();
+  }
 
   for (uint32_t i = 0; i < PRA32_U2_I2S_BUFFER_WORDS; i++) {
     int32_t gain = g_output_fader.next_gain_q8();

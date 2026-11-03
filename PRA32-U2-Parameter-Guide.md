@@ -402,10 +402,16 @@
 - Osc Saw Wave Mode [Str|Cur]
     - 0 (0-63): Straight Saw Wave
     - 127 (64-127): Curved Saw Wave, This does not affect the Pulse Wave
-- Chorus Level: Chorus Send Level
-- FX Routing [Cho|Cho|Dly|Dly|Cmp|Dry]: Where the output is input to the FX (connected in series: Chorus -> Delay -> Output Compressor)
-    - 0 (0-12): Chorus (through the Chorus, the Delay, and the Output Compressor)
-    - 26 (13-38): Chorus
+- Distortion Drive: The drive into the Distortion FX, 2^(value / 32) (6 dB every 32 values), for the synths whose FX Routing is Dst; the output is lowered by half the drive in dB, so that a sound at full scale saturates without falling away (the Output Compressor holds the rest). The Distortion's aliasing is reduced by ADAA (antiderivative anti-aliasing)
+    - 0: x 1.00 (0 dB, min, the Presets: a sound below full scale passes as it is)
+    - 32: x 2.00 (+6 dB)
+    - 64: x 4.00 (+12 dB)
+    - 96: x 8.00 (+18 dB)
+    - 127: x 15.7 (+23.9 dB, max)
+    - NOTE: Not changed by "Randomize Synth" or "Randomize FX"
+- FX Routing [Dst|Cho|Dly|Dly|Cmp|Dry]: Where the output is input to the FX (connected in series: Distortion -> Chorus -> Delay -> Output Compressor)
+    - 0 (0-12): Dst (through the Distortion, the Chorus, the Delay, and the Output Compressor)
+    - 26 (13-38): Chorus (through the Chorus, the Delay, and the Output Compressor, not the Distortion)
     - 51 (39-63): Delay (through the Delay and the Output Compressor)
     - 77 (64-89): Delay
     - 102 (90-115): Comp (through the Output Compressor only)

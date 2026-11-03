@@ -6,7 +6,10 @@
 - "pra32-u2-load-estimate.sh" builds PRA32-U2, PRA32-U2/M, PRA32-U2/P, and PRA32-U2/M/P with arduino-cli (as the GitHub Actions workflow builds the UF2 files),
   estimates the load of PRA32-U2 (the lightest) and PRA32-U2/M/P (which has all of the editions) with "pra32-u2-load-estimate.py", and prints the tables below with the RAM of all 4;
   PRA32-U2/M and PRA32-U2/P differ from these little (as estimated at v3.17.1)
-    - All 4 are built with Debug Print (USB Serial), as measured on the device, so their RAM is a little more than that of the UF2 files (the buffer of Debug Print);
+    - And the Lite of the Customization Examples, PRA32-U2 (Lite) and PRA32-U2/M (Lite), Core 0 Only, which process the synth on one core;
+      the Core 1 Only ones, without MIDI, cannot be played by the estimate, and process the synth the same.
+      In the cases of #5 Sync Lead, the Lite have Osc 1 Wave Sin instead of Sqr, the heaviest there (Sqr is lighter without its Shape and Morph)
+    - All of them are built with Debug Print (USB Serial), as measured on the device, so their RAM is a little more than that of the UF2 files (the buffer of Debug Print);
       PRA32-U2/P and PRA32-U2/M/P with all of the keys of the panel (SW1-6, with SW3-5 that the sketch leaves out by default), released
     - The paths of the files of the core in the asserts are built as "/rp2040/..." (`-ffile-prefix-map`), so that the estimate is the same wherever it is built
       (the length of the path shifts it by about 1%; the estimate of v3.17.5 below is made again with it)
@@ -61,6 +64,7 @@
 
 The maximum of core 0 / core 1, of 1333 us. A maximum over 100% is marked with "⚠", and one over 95% with "△"
 (and shown as a warning in the workflow): check such a case on the device with Debug Print.
+On the device, it is measured basically in "4 Synths" (#5 Sync Lead with Delay Mode Rev, 4 notes) on PRA32-U2/M/P, and in the others (e.g. the Lite) as needed.
 The load of each module is the average of core 0 / core 1 (`--modules`), in "Poly" for PRA32-U2 and in "4 Synths" for PRA32-U2/M/P:
 "Synth" is the rest of the synth (the voices, the parameters, and the mixing), "Sketch" is `loop()` and `loop1()` (MIDI and the panel),
 and "Other" is the rest (e.g. Debug Print).
