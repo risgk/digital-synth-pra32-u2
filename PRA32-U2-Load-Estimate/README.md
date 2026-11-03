@@ -107,3 +107,8 @@ and "Other" is the rest (e.g. Debug Print).
 | | 384404 (73%) | 483968 (92%) | 404984 (77%) | 505872 (96%) |
 
 On the device (v3.17.5, PRA32-U2/M/P, Debug Print `max(loop)`): 4 Synths: #5 Sync Lead (Mono, and Delay Mode Rev) by MIDI Channel 16 (Layering), 4 notes, 1214 us (91%; `min(loop)` 1192 us), more than the estimate (86% / 84%)
+
+On the device on the way to v3.17.6 (236d481b, with the Distortion FX; Debug Print `max(loop)`, against the estimate of it, core 0):
+PRA32-U2, Poly: #5 Sync Lead, 4 notes, 1058 us (79%; 1057 us with PWM Audio), against 76%;
+PRA32-U2/M/P, 4 Synths, 1251 us (94%; `min(loop)` 1179 us), against 88%;
+PRA32-U2/M (Lite), 4 Synths with Osc 1 Wave Sin, 1263 us (95%), against 83%, the most above the estimate (on one core)

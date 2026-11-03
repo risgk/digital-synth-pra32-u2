@@ -306,6 +306,15 @@ static void __not_in_flash_func(loop1_once)() {
         s_debug_measurement_min1_us = UINT32_MAX;
         s_debug_measurement_max1_us = 0;
         break;
+      case  0 * 400:
+        PRA32_U2_DEBUG_PRINT_SERIAL.print("\e[6;1H\e[K");
+        PRA32_U2_DEBUG_PRINT_SERIAL.print("underruns  ");
+#if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
+        PRA32_U2_DEBUG_PRINT_SERIAL.print(g_pwm_output.getUnderruns());
+#else  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
+        PRA32_U2_DEBUG_PRINT_SERIAL.print(g_i2s_output.getUnderruns());
+#endif  // defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
+        break;
       default:
         PRA32_U2_ControlPanel_debug_print(s_loop_counter);
         break;

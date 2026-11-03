@@ -8,6 +8,8 @@
 // - The writer blocks while the buffer is full, and reads the DMA read address only when the cached writable count is 0
 // - If the writer stops (e.g. while EEPROM.commit() is writing to the flash), the DMA keeps playing the ring repeatedly,
 //   so write the whole ring with writeSilence() before stopping, and call resync() after restarting
+// - getUnderruns(): the times the writer found the buffer empty (the DMA had played all of it, and plays
+//   it again), when it read the DMA read address, but the first time after the start or resync()
 
 #include "pra32-u2-common.h"
 #include <hardware/dma.h>
@@ -29,6 +31,8 @@ protected:
   uint32_t* m_ring[2];
   uint32_t  m_write_index;  // in words
   uint32_t  m_writable;     // in frames
+  uint32_t  m_underruns;
+  boolean   m_check_underrun;
 
   PRA32_U2_AudioRingBuffer()
   : m_buffer_frames(DEFAULT_BUFFER_FRAMES)
@@ -43,6 +47,8 @@ protected:
   , m_ring{}
   , m_write_index()
   , m_writable()
+  , m_underruns()
+  , m_check_underrun()
   {}
 
   // words_per_frame: 1, 2, 4, or 8
@@ -158,6 +164,12 @@ public:
   // Discards the cached writable count, which is invalid after the writer has stopped longer than the buffer
   void resync() {
     m_writable = 0;
+    m_check_underrun = false;
+  }
+
+  // The times the buffer was found empty (see above), for Debug Print
+  uint32_t getUnderruns() const {
+    return m_underruns;
   }
 
 private:
@@ -177,6 +189,11 @@ private:
       if (writable >= frames) {
         writable -= frames;
       }
+      // Empty: the DMA has caught up with the writer (only the gap of 1 frame is not writable)
+      if (m_check_underrun && (writable == frames - 1)) {
+        ++m_underruns;
+      }
+      m_check_underrun = true;
     } while (writable == 0);
     m_writable = writable;
   }
