@@ -111,8 +111,15 @@ def interp_read(uc, access, address, size, value, _):
         accum1, base0, base1 = struct.unpack('<III', bytes(uc.mem_read(0xd0000084, 12)))
         result = s32(base0) + ((s32(base1) - s32(base0)) * (accum1 & 0xff) >> 8)
         uc.mem_write(0xd00000a4, struct.pack('<I', result & 0xffffffff))
+# BASE_1AND0: the lower 16 bits to BASE0 and the upper to BASE1, each sign-extended (both lanes signed)
+def interp_write(uc, access, address, size, value, _):
+    if address == 0xd00000bc:
+        lo, hi = value & 0xffff, (value >> 16) & 0xffff
+        sx = lambda h: h - 0x10000 if h & 0x8000 else h
+        uc.mem_write(0xd0000088, struct.pack('<ii', sx(lo), sx(hi)))
 for uc in cores:
     uc.hook_add(UC_HOOK_MEM_READ, interp_read, begin=0xd0000080, end=0xd00000bf)
+    uc.hook_add(UC_HOOK_MEM_WRITE, interp_write, begin=0xd00000bc, end=0xd00000bf)
 
 # The ADC (RESULT, 12 bits) of the panel's knobs: turned all the way and back in --adc loops, over
 # and over (as a triangle wave of the time); the panel reads it once per sample
