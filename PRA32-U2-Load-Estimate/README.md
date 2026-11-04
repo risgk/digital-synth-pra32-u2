@@ -69,7 +69,7 @@ The load of each module is the average of core 0 / core 1 (`--modules`), in "Pol
 "Synth" is the rest of the synth (the voices, the parameters, and the mixing), "Sketch" is `loop()` and `loop1()` (MIDI and the panel),
 and "Other" is the rest (e.g. Debug Print).
 
-#### v3.17.6 (develop, 0fa95e2c; to be replaced at the release)
+#### v3.18.0 (develop, 0fa95e2c; to be replaced at the release)
 
 The Distortion FX in fixed point (int32, no FPU, no branch: the 64-bit products shifted back and one 32-bit division a sample on each side),
 in "Synth" below (with the front of the FX on core 1 not in Poly); the wave table lookups of the Osc by BASE_1AND0 of INTERP0;
@@ -112,7 +112,7 @@ the Lite with Osc 1 Wave Sin in #5 Sync Lead (Sqr is lighter there)
 
 On the device (v3.17.5, PRA32-U2/M/P, Debug Print `max(loop)`): 4 Synths: #5 Sync Lead (Mono, and Delay Mode Rev) by MIDI Channel 16 (Layering), 4 notes, 1214 us (91%; `min(loop)` 1192 us), more than the estimate (86% / 84%)
 
-On the device on the way to v3.17.6 (0fa95e2c, with the Distortion FX in fixed point and the wave table lookups by BASE_1AND0;
+On the device on the way to v3.18.0 (0fa95e2c, with the Distortion FX in fixed point and the wave table lookups by BASE_1AND0;
 Debug Print `max(loop)`, against the estimate of it, core 0; `underruns` 0):
 PRA32-U2, Poly: #5 Sync Lead, 4 notes, 1028 us (77%; `min(loop)` 1007 us), against 73%;
 PRA32-U2/M/P, 4 Synths, 1249 us (94%; `min(loop)` 1226 us), against 85%;

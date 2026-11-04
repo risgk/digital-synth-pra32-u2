@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v3.17.6 (2026-??-??):
+- v3.18.0 (2026-??-??):
     - Add **Filter Drive** (Control Change #31): the gain into the Filter, 2^(value / 32) (6 dB every 32 values), x 1 at 0 to x 15.7 at 127, which drives the loop and its leak harder, toward a saturated Filter at the top; what leaves the loop is lowered by the same ahead of the output clip, so that it changes the tone and not the level, and acts mostly on the resonance (little at a low Resonance)
         - 0 (x 1) in the Presets and in a user program written before, where the Filter is as it was; the self-oscillation comes out lower by a Drive above 0. Not changed by Randomize Synth
         - In PRA32-U2 Editor, the chart, and the JSON files, it takes the place of Osc Saw Wave Mode, next to Osc/Filter Drift, and that row (Osc/Filter Drift, Filter Drive, Coarse Tune, Fine Tune) moves up to just after the Amp envelope; Osc Saw Wave Mode moves to after Portamento Mode. On the panel of PRA32-U2/P, it is next to Filter Mode (A-12)
