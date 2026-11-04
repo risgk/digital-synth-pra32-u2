@@ -7,9 +7,10 @@
 // by D = 2^(value / 32), x 1 at 0 to x 15.7 at 127 (6 dB every 32 values, as the Filter Drive),
 // into a curve that is a straight line up to the knee, 1.0 (1 << 23), and a quadratic shoulder
 // from there that lands on 2.0 with zero slope at 3.0 (below zero, a shorter one, to -1.5 at -2.0,
-// so that it adds even harmonics too, with its DC taken off), and is taken back down by 1 / sqrt(D): half
-// the drive in dB, so that a sound at 1.0 saturates without falling away, and the Output
-// Compressor holds the rest. What comes out goes on to the Chorus, with the Chorus bus.
+// so that it adds even harmonics too, with its DC taken off), and is taken back down by D^(-15/16):
+// 15/16 of the drive in dB, so that the level stays within about 1.5 dB as the drive goes up (a little
+// up halfway, and a little down where it saturates hard). What comes out goes on to the Chorus, with
+// the Chorus bus.
 // The curve's part beyond the straight line, f(u) - u, goes through first-order antiderivative
 // anti-aliasing (ADAA): the difference of its antiderivative over the step from the last sample,
 // divided by the step. On the straight line that part is zero, so a sample that reaches no
@@ -32,7 +33,7 @@ class PRA32_U2_DistortionFx {
   int32_t m_distortion_stage_1;
   int32_t m_distortion_current;        // Q16 controller value, smoothed
   int32_t m_drive;                     // D, Q16
-  int32_t m_make_up;                   // 1 / sqrt(D), Q16 (1 << 16 at x 1)
+  int32_t m_make_up;                   // D^(-15/16), Q16 (1 << 16 at x 1)
   int32_t m_tone_rest;                 // The weight of the tone's last output, Q30, 0 at x 1
   int32_t m_tone;                      // (1 << 30) - m_tone_rest, the weight of its input
   int32_t m_last_u[2];
@@ -61,16 +62,16 @@ public:
     m_distortion_target = controller_value;
   }
 
-  // The drive and its make-up from the smoothed value, every time whatever the value: sqrt(D) is
-  // 2^(value / 64), the drive's own table at half the value, so that no square root is taken
+  // The drive and its make-up from the smoothed value, every time whatever the value: D^(15/16) is
+  // 2^(value * 15/16 / 32), the drive's own table at 15/16 of the value, so that no power is taken
   INLINE void process_at_low_rate(uint8_t count) {
     if (is_slow_smoothing_period(count)) {
       approach_exp_slow(m_distortion_stage_1, m_distortion_current, static_cast<int32_t>(m_distortion_target) << 16);
     }
     m_drive = interpolate_filter_table(g_filter_drive_gain_table, m_distortion_current);
-    const int32_t drive_sqrt = interpolate_filter_table(g_filter_drive_gain_table, m_distortion_current >> 1);
-    // 2^32 / sqrt(D) in Q16, by a 32-bit division (exact at x 1, 1 << 16)
-    m_make_up = static_cast<int32_t>(((static_cast<uint32_t>(1) << 31) / static_cast<uint32_t>(drive_sqrt)) << 1);
+    const int32_t drive_15_16 = interpolate_filter_table(g_filter_drive_gain_table, (m_distortion_current * 15) >> 4);
+    // 2^32 / D^(15/16) in Q16, by a 32-bit division (exact at x 1, 1 << 16; about 11 bits at the top)
+    m_make_up = static_cast<int32_t>(((static_cast<uint32_t>(1) << 31) / static_cast<uint32_t>(drive_15_16)) << 1);
     // The tone: a 1-pole low pass after the curve, from none at 0 (the weight of its input 1.0) down
     // to about 10 kHz at 64 and 5 kHz at 127 (0.52 of its last output), against the harsh highs
     // of the harmonics: 67 = 0.52 * 2^30 / (127 << 16)
