@@ -403,7 +403,7 @@
 - Osc Saw Wave Mode [Str|Cur]
     - 0 (0-63): Straight Saw Wave
     - 127 (64-127): Curved Saw Wave, This does not affect the Pulse Wave
-- Distortion Drive: The drive into the Distortion FX, 2^(value / 32) (6 dB every 32 values), for the synths whose FX Routing is Dst; the output is lowered by 15/16 of the drive in dB, so that the level stays within about 1.5 dB as the drive goes up (a little up halfway, and a little down where it saturates hard). Below the knee, an even term adds the 2nd harmonic, more with the drive up to 64, so that a little of the dial thickens the sound; the shoulder below zero is shorter than above (even harmonics too), the aliasing is reduced by ADAA (antiderivative anti-aliasing), and a tone (a 1-pole low pass) after it takes the edge off the harmonics, more with more drive (none at 0, about 10 kHz at 64, 5 kHz at 127)
+- Distortion Drive: The drive into the Distortion FX, 2^(value / 32) (6 dB every 32 values), for the synths whose FX Routing is Dst; the output is lowered by 15/16 of the drive in dB, so that the level stays within about 1.5 dB as the drive goes up (a little up halfway, and a little down where it saturates hard). The shoulder below zero is shorter than above (even harmonics too), the aliasing is reduced by ADAA (antiderivative anti-aliasing), and a tone (a 1-pole low pass) after it takes the edge off the harmonics, more with more drive (none at 0, about 10 kHz at 64, 5 kHz at 127)
     - 0: x 1.00 (0 dB, min, the Presets: a sound below full scale passes as it is)
     - 32: x 2.00 (+6 dB)
     - 64: x 4.00 (+12 dB)
