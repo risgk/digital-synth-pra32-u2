@@ -138,8 +138,8 @@ class PRA32_U2_Filter {
   // high pass at about f_s / (2 * pi * 2^10), i.e. 7.5 Hz at 48 kHz
   static const uint8_t DC_BLOCKER_SHIFT = 10;
 
-  // Filter Drive: the input is multiplied by 2^(v / 32) (1.0 at 0, 4.0 at 64,
-  // 15.7 at 127: 6 dB every 32 values), which drives the loop and its leak harder, and what
+  // Filter Drive: the input is multiplied by 2^(v / 24) (1.0 at 0, 4.0 at 48, 32.0 at
+  // 120, 39.2 at 127: 6 dB every 24 values), which drives the loop and its leak harder, and what
   // leaves the loop is divided by the same ahead of the output clip, so that
   // the level stays and the Drive changes the tone alone: in effect the leak's
   // ceiling comes down by the Drive, and the output clip stays where it is.
@@ -187,7 +187,7 @@ class PRA32_U2_Filter {
   uint8_t m_drive_target;
   int32_t m_drive_stage_1;
   int32_t m_drive_current;             // Q16 controller value, smoothed
-  int32_t m_drive_gain;                // Q16, 2^(Drive / 32)
+  int32_t m_drive_gain;                // Q16, 2^(Drive / 24)
   int32_t m_drive_comp;                // Q16, 1 / m_drive_gain, at most 1.0
   int32_t m_output_gain;               // Q16, m_drive_comp times the output level by the Resonance
 
@@ -369,12 +369,12 @@ public:
     }
   }
 
-  // The Drive's gain, 2^(v / 32) in Q16 interpolated from its table at the
+  // The Drive's gain, 2^(v / 24) in Q16 interpolated from its table at the
   // smoothed v, and its reciprocal: the 32-bit division is a single
   // instruction, taken every time so that the load does not depend on the
   // value; + 1 lands exactly on 1.0 at a Drive of 0, and is a 1/65536 past it.
-  // At the top, an input of 0.6 times 15.7 is 9.4, within the headroom of 32
-  // of the loop
+  // At the top, the input, held within +-0.8 (see process()), times 39.2 is 31.4, within the
+  // headroom of 32 of the loop
   INLINE void update_drive_gain() {
     m_drive_gain = interpolate_filter_table(g_filter_drive_gain_table, m_drive_current);
     uint32_t reciprocal = (0xFFFFFFFFu / static_cast<uint32_t>(m_drive_gain)) + 1;
@@ -408,7 +408,10 @@ public:
 #if 1
     // ZDF (Zero-Delay Feedback) / TPT (Topology-Preserving Transform) State Variable Filter (with a nonlinear leak on the band pass integrator, solved by one step of the simplified Newton method)
     // The Drive's gain on the input (see DRIVE_UNITY_Q16), with the scaling shift folded in
-    int32_t x_0 = multiply_shift_right(audio_input_int24, m_drive_gain, 16 - FILTER_CALC_SCALING_BITS);
+    // (the input held within +-0.8 first, far above what an Osc puts out, so that 39.2 times it
+    // stays within the headroom of 32)
+    const int32_t input_held = clamp(audio_input_int24, -6710886, 6710886);  // 0.8 * 2^23
+    int32_t x_0 = multiply_shift_right(input_held, m_drive_gain, 16 - FILTER_CALC_SCALING_BITS);
 
     // Ramp the coefficients toward the ones computed at the last update
     m_g                 += m_g_slope;

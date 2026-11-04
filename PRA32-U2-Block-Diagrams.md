@@ -74,7 +74,7 @@ harmonics as the band pass is driven (at a high Resonance or near the cutoff), w
 small-signal gain made up for, so that the resonance is kept; a DC blocker on the output
 removes the DC that comes with it. The output clip comes last. Above the Filter
 Resonance 122, k turns negative and the loop oscillates. Filter Drive multiplies the input by
-2^(value / 32), 1.0 at 0, 4.0 at 64 and 15.7 at 127, which drives the loop and its leak harder, and divides
+2^(value / 24), 1.0 at 0, 4.0 at 48, 32.0 at 120, and 39.2 at 127, which drives the loop and its leak harder, and divides
 what leaves the loop by the same ahead of the output clip, so that the level stays and the Drive
 changes the tone alone; the Presets are at 0 (1.0). With it, the output is lowered by the
 Resonance above 96 (-2.8 dB at 122, and -6.0 dB at 127, where the self-oscillation, 0.5 in the
@@ -83,7 +83,7 @@ it was.
 
 ```mermaid
 flowchart LR
-    IN([Input]) --> DRV["× Drive<br/>2^(value / 32), 1.0 at 0"]
+    IN([Input]) --> DRV["× Drive<br/>2^(value / 24), 1.0 at 0"]
     DRV --> SUM((Σ))
     SUM -->|HP| I1["Integrator 1<br/>BP, state s1"]
     I1 -->|BP| I2["Integrator 2<br/>LP, state s2"]
@@ -130,10 +130,10 @@ flowchart LR
 ## Distortion FX
 
 At the head of the FX, for the synths whose FX Routing is Dst: the input is driven by
-2^(value / 32), x 1 at 0 to x 15.7 at 127, into a curve that is a straight line up to 1.0 (full
+2^(value / 24), x 1 at 0 to x 32 at 120 (and x 39.2 at 127), into a curve that is a straight line up to 1.0 (full
 scale) and a quadratic shoulder that lands on 2.0 at 3.0 (below zero, a shorter one that lands on
 -1.5 at -2.0, so that even harmonics are added too), each side (L and R) on its own, and is taken
-back down by 15/16 of the drive in dB, so that the level stays within about 1.5 dB as the drive
+back down by 15/16 of the drive in dB up to 96 (x 16), and by as much as there above it, so that the level stays within about 2 dB as the drive
 goes up (a little up halfway, and a little down where it saturates hard). The curve's part beyond the straight line goes through
 first-order antiderivative anti-aliasing (ADAA), so a sample that reaches no shoulder passes
 exactly, and the aliasing past it is lower, and its DC (from the shoulders not symmetric) is
@@ -143,7 +143,7 @@ Chorus FX, with the input of FX Routing Cho.
 
 ```mermaid
 flowchart LR
-    IN([Input L / R<br/>FX Routing Dst]) ==> G["× Drive<br/>2^(value / 32)"]
+    IN([Input L / R<br/>FX Routing Dst]) ==> G["× Drive<br/>2^(value / 24)"]
     G ==> SC["Soft clip, ADAA<br/>linear up to 1.0,<br/>2.0 at 3.0, -1.5 at -2.0<br/>each side"]
     SC ==> T["Tone<br/>Low pass 1-pole<br/>none to 5 kHz"]
     T ==> M["× Drive^(−15/16)"]

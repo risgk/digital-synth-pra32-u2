@@ -4,11 +4,11 @@
 #include "pra32-u2-filter.h"  // g_filter_drive_gain_table and interpolate_filter_table()
 
 // Distortion, at the head of the FX: the input of the Distortion bus (FX Routing: Dst) is driven
-// by D = 2^(value / 32), x 1 at 0 to x 15.7 at 127 (6 dB every 32 values, as the Filter Drive),
+// by D = 2^(value / 24), x 1 at 0 to x 32 at 120 and x 39.2 at 127 (6 dB every 24 values, as the Filter Drive),
 // into a curve that is a straight line up to the knee, 1.0 (1 << 23), and a quadratic shoulder
 // from there that lands on 2.0 with zero slope at 3.0 (below zero, a shorter one, to -1.5 at -2.0,
 // so that it adds even harmonics too, with its DC taken off), and is taken back down by D^(-15/16):
-// 15/16 of the drive in dB, so that the level stays within about 1.5 dB as the drive goes up (a little
+// 15/16 of the drive in dB (held from 96, x 16, on), so that the level stays within about 2 dB as the drive goes up (a little
 // up halfway, and a little down where it saturates hard). What comes out goes on to the Chorus, with
 // the Chorus bus.
 // The curve's part beyond the straight line, f(u) - u, goes through first-order antiderivative
@@ -63,13 +63,15 @@ public:
   }
 
   // The drive and its make-up from the smoothed value, every time whatever the value: D^(15/16) is
-  // 2^(value * 15/16 / 32), the drive's own table at 15/16 of the value, so that no power is taken
+  // 2^(value * 15/16 / 24), the drive's own table at 15/16 of the value, so that no power is taken
   INLINE void process_at_low_rate(uint8_t count) {
     if (is_slow_smoothing_period(count)) {
       approach_exp_slow(m_distortion_stage_1, m_distortion_current, static_cast<int32_t>(m_distortion_target) << 16);
     }
     m_drive = interpolate_filter_table(g_filter_drive_gain_table, m_distortion_current);
-    const int32_t drive_15_16 = interpolate_filter_table(g_filter_drive_gain_table, (m_distortion_current * 15) >> 4);
+    // (held at 96, x 16, where most of a sound is past the shoulder already, which holds the level of
+    // what comes out from there on)
+    const int32_t drive_15_16 = interpolate_filter_table(g_filter_drive_gain_table, (minimum(m_distortion_current, 96 << 16) * 15) >> 4);
     // 2^32 / D^(15/16) in Q16, by a 32-bit division (exact at x 1, 1 << 16; about 11 bits at the top)
     m_make_up = static_cast<int32_t>(((static_cast<uint32_t>(1) << 31) / static_cast<uint32_t>(drive_15_16)) << 1);
     // The tone: a 1-pole low pass after the curve, from none at 0 (the weight of its input 1.0) down
