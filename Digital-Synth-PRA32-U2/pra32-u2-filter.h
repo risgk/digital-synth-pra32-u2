@@ -189,6 +189,7 @@ class PRA32_U2_Filter {
   int32_t m_drive_current;             // Q16 controller value, smoothed
   int32_t m_drive_gain;                // Q16, 2^(Drive / 32)
   int32_t m_drive_comp;                // Q16, 1 / m_drive_gain, at most 1.0
+  int32_t m_output_gain;               // Q16, m_drive_comp times the output level by the Resonance
 
 public:
   PRA32_U2_Filter()
@@ -232,6 +233,7 @@ public:
   , m_drive_current()
   , m_drive_gain(DRIVE_UNITY_Q16)
   , m_drive_comp(DRIVE_UNITY_Q16)
+  , m_output_gain(DRIVE_UNITY_Q16)
   {
     set_cutoff(127);
     set_resonance(0);
@@ -483,8 +485,8 @@ public:
     int32_t y_0 = audio_input_int24 << FILTER_CALC_SCALING_BITS;
 #endif
 
-    // The Drive's gain taken back off ahead of the output clip
-    return soft_clip_output(multiply_shift_right(y_0, m_drive_comp, 16 + FILTER_CALC_SCALING_BITS));
+    // The Drive's gain taken back off ahead of the output clip, with the output level by the Resonance
+    return soft_clip_output(multiply_shift_right(y_0, m_output_gain, 16 + FILTER_CALC_SCALING_BITS));
   }
 
 private:
@@ -500,7 +502,6 @@ private:
     // so that the smoothing is not lost by rounding them to integers
     const int32_t resonance_current = smoothed.m_resonance_current;
     m_drive_gain = smoothed.m_drive_gain;
-    m_drive_comp = smoothed.m_drive_comp;
 
     // 2. Add the LFO and Pitch modulations
     int32_t lfo_mod_target = 0;
@@ -531,6 +532,12 @@ private:
     int32_t resonance = resonance_current - self_osc_over
                       + multiply_shift_right(self_osc_over, self_osc_weight, FILTER_TABLE_FRACTION_BITS);
     int32_t k = interpolate_filter_table(g_filter_k_table, resonance);
+
+    // The output level by the Resonance (1.0 up to 96), on the Drive's gain taken back off, so
+    // that a high Resonance is about as loud as 96 while the loop is as it was: the
+    // self-oscillation starts and holds against the input as before, and comes out lower
+    // (by the Resonance after the fade at a high cutoff, so it follows the self-oscillation)
+    m_output_gain = multiply_shift_right(smoothed.m_drive_comp, interpolate_filter_table(g_filter_resonance_level_table, resonance), 16);
 
     // k -= t * kappa / g, where t = (Resonance - 122) / 5, clamped to 0 .. 1,
     // and the table holds kappa / g / 5
