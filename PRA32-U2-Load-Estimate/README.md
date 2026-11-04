@@ -108,7 +108,10 @@ and "Other" is the rest (e.g. Debug Print).
 
 On the device (v3.17.5, PRA32-U2/M/P, Debug Print `max(loop)`): 4 Synths: #5 Sync Lead (Mono, and Delay Mode Rev) by MIDI Channel 16 (Layering), 4 notes, 1214 us (91%; `min(loop)` 1192 us), more than the estimate (86% / 84%)
 
-On the device on the way to v3.17.6 (236d481b, with the Distortion FX; Debug Print `max(loop)`, against the estimate of it, core 0):
-PRA32-U2, Poly: #5 Sync Lead, 4 notes, 1058 us (79%; 1057 us with PWM Audio), against 76%;
-PRA32-U2/M/P, 4 Synths, 1251 us (94%; `min(loop)` 1179 us), against 88%;
-PRA32-U2/M (Lite), 4 Synths with Osc 1 Wave Sin, 1263 us (95%), against 83%, the most above the estimate (on one core)
+On the device on the way to v3.17.6 (0fa95e2c, with the Distortion FX in fixed point and the wave table lookups by BASE_1AND0;
+Debug Print `max(loop)`, against the estimate of it, core 0; `underruns` 0):
+PRA32-U2, Poly: #5 Sync Lead, 4 notes, 1028 us (77%; `min(loop)` 1007 us), against 73%;
+PRA32-U2/M/P, 4 Synths, 1249 us (94%; `min(loop)` 1226 us), against 85%;
+PRA32-U2/M (Lite), Poly: #5 Sync Lead with Osc 1 Wave Sin, 4 notes, 1226 us (92%; `min(loop)` 1206 us), against 83%.
+So the device takes about 6% more than the estimate on PRA32-U2, and about 10% more on PRA32-U2/M/P and the Lite
+(at 236d481b, before those: 1058 us, 1251 us, and 1263 us with the 4 Synths of the Lite)
