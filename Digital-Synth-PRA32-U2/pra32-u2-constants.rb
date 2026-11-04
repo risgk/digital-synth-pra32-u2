@@ -133,7 +133,7 @@ PORTA_MODE      = 34
 FILTER_DRIVE    = 31
 
 DISTORTION      = 95
-FX_ROUTING      = 88
+FX_ROUTING      = 77
 
 CHORUS_MIX      = 93
 

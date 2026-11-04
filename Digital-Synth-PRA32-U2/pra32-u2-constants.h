@@ -133,7 +133,7 @@ const uint8_t   PORTA_MODE      = 34;
 const uint8_t   FILTER_DRIVE    = 31;
 
 const uint8_t   DISTORTION      = 95;
-const uint8_t   FX_ROUTING      = 88;
+const uint8_t   FX_ROUTING      = 77;
 
 const uint8_t   CHORUS_MIX      = 93;
 

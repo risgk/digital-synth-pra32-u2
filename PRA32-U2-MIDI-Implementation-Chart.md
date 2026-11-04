@@ -95,7 +95,7 @@
 |                            83 | x             | o             | Osc Saw Wave Mode [Str|Cur]          |
 |                               |               |               |                                      |
 |                            95 | x             | o             | Distortion Drive                     |
-|                            88 | x             | o             | FX Routing [Dst|Cho|Dly|Dly|Cmp|Dry] |
+|                            77 | x             | o             | FX Routing [Dst|Cho|Dly|Dly|Cmp|Dry] |
 |                               |               |               |                                      |
 |                            93 | x             | o             | Chorus Level                         |
 |                            58 | x             | o             | Chorus Rate                          |
