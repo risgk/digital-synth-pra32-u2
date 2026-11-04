@@ -26,12 +26,12 @@ PC = :program_change
 # The presets, with Amp Gain lowered for the balance of the parts (the same as the user programs of "pra32-u2-m-demo-ode-to-joy.json")
 SETUP = [
   [[PC, 20],                     # #20 Saw Lead (Legato: Mono, so that the Sub Synths play),
-   [AMP_GAIN, 79]],              # whose FX (Chorus, and Delay of an eighth note at 120 BPM) are for all the synths
+   [AMP_GAIN, 94]],              # whose FX (Chorus, and Delay of an eighth note at 120 BPM) are for all the synths
   [[PC, 22],                     # #22 Synth Bass
    [FX_ROUTING, 102],            # Comp (no Chorus or Delay on the bass)
    [AMP_GAIN, 82]],
   [[PC, 18],                     # #18 FM Piano
-   [AMP_GAIN, 73]],
+   [AMP_GAIN, 87]],
   # The rhythm: #23 Initial, made a drum of a sine with a pitch drop and noise, whose sound changes with
   # the note: the higher, the brighter (Filter Key Track) and the shorter (EG Att/Dec Key Track)
   [[PC, 23],                     # #23 Initial
@@ -59,8 +59,8 @@ SETUP = [
 # The melody from the bars: #21 Sync Lead from the middle, and #28 Fifth Lead from them again
 # (whose FX are the same as those of #20 Saw Lead)
 LEAD_CHANGES = {
-  10 => [[PC, 21], [AMP_GAIN, 63]],  # #21 Sync Lead
-  18 => [[PC, 28], [AMP_GAIN, 64]],  # #28 Fifth Lead
+  10 => [[PC, 21], [AMP_GAIN, 75]],  # #21 Sync Lead
+  18 => [[PC, 28], [AMP_GAIN, 76]],  # #28 Fifth Lead
 }
 
 # The Modulation Wheel at the most in a long note (a half note or longer)
