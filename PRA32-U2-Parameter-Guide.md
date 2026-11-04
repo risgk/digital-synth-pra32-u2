@@ -419,6 +419,7 @@
     - 127 (116-127): Dry (through none of them)
         - The output is still delayed by 1 ms and lowered by 2.5 dB (x 0.75) as the others, and is clipped (soft clipping) if it is too loud
     - In PRA32-U2/M, each synth has its own FX Routing, while the other FX parameters of the Main Synth apply to all synths
+- Chorus Level: The level of the chorused signal L (0.0 at 0 to 1.0 at 127) added to the input; the sum is lowered by about 1 / sqrt(1 + L^2) (x 0.707 at 127, where the two are equal), so that the level stays within about 1 dB as the Chorus Level goes up
 - Chorus Rate
     - 0: LFO Frequency 0.0114 Hz (min)
     - 64: LFO Frequency 0.482 Hz
