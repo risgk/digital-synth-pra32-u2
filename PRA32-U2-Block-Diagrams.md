@@ -128,17 +128,22 @@ flowchart LR
 
 At the head of the FX, for the synths whose FX Routing is Dst: the input is driven by
 2^(value / 32), x 1 at 0 to x 15.7 at 127, into a curve that is a straight line up to 1.0 (full
-scale) and a quadratic shoulder that lands on 2.0 at 3.0, each side (L and R) on its own, and is taken back down by half the drive
-in dB, so that a sound at full scale saturates without falling away; the Output Compressor holds
-the rest. The curve's part beyond the straight line goes through first-order antiderivative
-anti-aliasing (ADAA), so a sample that reaches no shoulder passes exactly, and the aliasing past
-it is lower. What comes out goes on to the Chorus FX, with the input of FX Routing Cho.
+scale) and a quadratic shoulder that lands on 2.0 at 3.0 (below zero, a shorter one that lands on
+-1.5 at -2.0, so that even harmonics are added too), each side (L and R) on its own, and is taken
+back down by half the drive in dB, so that a sound at full scale saturates without falling away;
+the Output Compressor holds the rest. The curve's part beyond the straight line goes through
+first-order antiderivative anti-aliasing (ADAA), so a sample that reaches no shoulder passes
+exactly, and the aliasing past it is lower, and its DC (from the shoulders not symmetric) is
+taken off. After the curve, a 1-pole low pass (the tone) takes the edge off the harmonics, more
+with more drive: none at 0, about 10 kHz at 64, and 5 kHz at 127. What comes out goes on to the
+Chorus FX, with the input of FX Routing Cho.
 
 ```mermaid
 flowchart LR
     IN([Input L / R<br/>FX Routing Dst]) ==> G["× Drive<br/>2^(value / 32)"]
-    G ==> SC["Soft clip, ADAA<br/>linear up to 1.0, 2.0 at 3.0<br/>each side"]
-    SC ==> M["× 1 / √Drive"]
+    G ==> SC["Soft clip, ADAA<br/>linear up to 1.0,<br/>2.0 at 3.0, -1.5 at -2.0<br/>each side"]
+    SC ==> T["Tone<br/>Low pass 1-pole<br/>none to 5 kHz"]
+    T ==> M["× 1 / √Drive"]
     M ==> S((Σ))
     CHO([Input L / R<br/>FX Routing Cho]) ==> S
     S ==> OUT([To the Chorus FX])
