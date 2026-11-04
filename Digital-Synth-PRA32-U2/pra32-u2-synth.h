@@ -538,6 +538,7 @@ public:
 #if defined(ARDUINO_ARCH_RP2040)
     interp_config config0_0 = interp_default_config();
     interp_config_set_blend(&config0_0, true);
+    interp_config_set_signed(&config0_0, true);  // BASE0 sign-extended by a write to BASE_1AND0 (get_wave_level() of the Osc)
     interp_set_config(interp0, 0, &config0_0);
 
     interp_config config0_1 = interp_default_config();

@@ -11,6 +11,7 @@
         - In PRA32-U2 Editor, the chart, and the JSON files, Distortion Drive and FX Routing take a row of their own above the Chorus; on the panel of PRA32-U2/P, they are on A-30 (FX), and the Chorus and the Delay move to A-31 to A-34
         - The FX are split in two, the front (the Distortion and the Chorus) on the secondary core (core 1) and the back (the Delay and the Output Compressor) on the primary core (core 0), when not in Poly (with the 4 Synths of PRA32-U2/M, where core 0 waits for core 1); in Poly, all of them on core 1 as before
         - Customization Examples (Lite): Without the Distortion FX (`PRA32_U2_DISABLE_DISTORTION_FX`, Dst as Cho) and the Reverb (`PRA32_U2_DISABLE_REVERB`, Delay Mode Rev as the Stereo Delay), for the load
+    - Osc: Read the two samples of a wave table lookup as one 32-bit word, and write them to INTERP0 (BASE_1AND0) at once, with the same output: about 7% less of a loop on both cores with #5 Sync Lead (Osc 1 Sqr, 16 lookups a sample; estimated)
     - Debug Print: Add `underruns`, the times the output buffer was found empty (heard as a glitch)
     - Customization Examples (Lite): Osc 1 Sqr and WT lighter, without the offsets for their Shape (not used there)
     - Presets: LFO Rate 80 to 79 (6.88 Hz to 6.49 Hz, a slightly slower vibrato); #30 PWM Lead: LFO Rate 56 to 55 (1.72 Hz to 1.62 Hz)

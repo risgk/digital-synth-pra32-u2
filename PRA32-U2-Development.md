@@ -65,6 +65,9 @@
     - Spread: the control processing (12 kHz, once per 4 samples) is shared out among the 4 samples by `m_count`,
       and the smoothing at 6 kHz takes the amounts and the balances by turns
 - Some settings still take more than others (e.g. Osc 1 Wave Sqr and WT, Delay Mode Rev, and PRA32-U2/M with 4 Synths in Mono): check the heaviest with the Load Estimate below
+- The wave table lookups of the Osc (the most of the load) use INTERP0 of the SIO for the linear interpolation (`setup_interp()`: lane 0 blend, both lanes signed):
+  the two samples are read as one 32-bit word (unaligned, which the Cortex-M33 allows) and written to BASE_1AND0 at once, each half sign-extended,
+  and the weight is written as it is, as the blend uses only its 8 LSBs; the Load Estimate models INTERP0 the same way
 
 
 ## Load Estimate

@@ -10,6 +10,7 @@
 #include "pra32-u2-osc-wave-shape-table-4.h"
 #include "pra32-u2-osc-wave-shape-table-5.h"
 #include <math.h>
+#include <cstring>  // std::memcpy() (get_wave_level())
 
 #if defined(ARDUINO_ARCH_RP2040)
 #include "hardware/interp.h"
@@ -539,16 +540,20 @@ private:
   // are longer, so that the images the linear interpolation leaves stay low.
   // Each table carries its own number of index bits in the entry before the
   // samples, which is what the pointer in the table array points past
+  // On the RP2350, the two samples are read as one 32-bit word (unaligned, which the Cortex-M33 allows)
+  // and written to BASE_1AND0 of INTERP0 at once, each half sign-extended (both lanes signed), and the
+  // weight is written as it is, as the blend uses only its 8 LSBs: fewer instructions, the same result
   INLINE int16_t get_wave_level(const int16_t* wave_table, uint32_t phase_24) {
     uint32_t samples_bits = static_cast<uint32_t>(wave_table[-1]);
-    uint16_t curr_index  = (phase_24 & 0xFFFFFF) >> (24 - samples_bits);
-    uint16_t next_weight = (phase_24 >> (24 - samples_bits - 8)) & 0xFF;
+    uint32_t curr_index  = (phase_24 & 0xFFFFFF) >> (24 - samples_bits);
 #if defined(ARDUINO_ARCH_RP2040)
-    interp0->accum[1]    = next_weight;
-    interp0->base[0]     = wave_table[curr_index + 0];
-    interp0->base[1]     = wave_table[curr_index + 1];
+    uint32_t both_data;
+    std::memcpy(&both_data, &wave_table[curr_index], sizeof(both_data));  // [curr_index] and [curr_index + 1]
+    interp0->accum[1]    = phase_24 >> (24 - samples_bits - 8);  // The weight in the 8 LSBs
+    interp0->base01      = both_data;
     int16_t  level       = static_cast<int16_t>(interp0->peek[1]); // lerp
 #else  // defined(ARDUINO_ARCH_RP2040)
+    uint16_t next_weight = (phase_24 >> (24 - samples_bits - 8)) & 0xFF;
     int16_t  curr_data   = wave_table[curr_index + 0];
     int16_t  next_data   = wave_table[curr_index + 1];
     int16_t  level       = curr_data + (((next_data - curr_data) * next_weight) >> 8); // lerp
