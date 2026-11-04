@@ -14,7 +14,7 @@
     - Debug Print: Add `underruns`, the times the output buffer was found empty
     - Presets: LFO Rate a little slower (a slower vibrato, and #30 PWM Lead); Amp Gain 10 up (80 to 90, 90 to 100, 100 to 110, and 110 to 120, about +1.8 dB), which takes back most of the Chorus FX's 3 dB (#23 Initial, with no Chorus, about 1.8 dB louder); and the user programs at first, the same as the Presets
     - PRA32-U2-Parameter-Guide.md: Distortion Drive among the Main Parameters
-    - PRA32-U2/M Demo: Amp Gain of the melody and the arpeggio about 3 dB up (Saw Lead 79 to 94, Sync Lead 63 to 75, Fifth Lead 64 to 76, and FM Piano 73 to 87), for the Chorus FX, so that the parts and the level are as they were; and the melody through the Distortion FX (Distortion Drive 72), the arpeggio with FX Routing Cho
+    - PRA32-U2/M Demo: Amp Gain of the melody and the arpeggio about 3 dB up (Saw Lead 79 to 94, Sync Lead 63 to 75, Fifth Lead 64 to 76, and FM Piano 73 to 87), for the Chorus FX, so that the parts and the level are as they were; and the melody through the Distortion FX (Distortion Drive 72) in the last part, with #28 Fifth Lead, the arpeggio with FX Routing Cho
     - Tested with Arduino-Pico version 6.3.0
 - v3.17.5 (2026-10-26):
     - Presets: #22 Synth Bass: Filter Cutoff 52 to 40 and Filter Resonance 96 to 64 (darker); #24 Synth Brs: Filter Cutoff 88 to 94 (brighter);

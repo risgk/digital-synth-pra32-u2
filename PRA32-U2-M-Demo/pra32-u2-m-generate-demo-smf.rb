@@ -22,16 +22,15 @@ S       = PPQ / 4  # Sixteenth note
 
 PC = :program_change
 
-# The Distortion Drive of the melody, the same all through (the Distortion FX of the Main Synth,
-# which the melody alone goes through: the arpeggio is routed to the Chorus without it)
+# The Distortion Drive of the melody in them again, with #28 Fifth Lead (the Distortion FX of the
+# Main Synth, which the melody alone goes through: the arpeggio is routed to the Chorus without it)
 LEAD_DISTORTION = 72
 
 # The setup of each part: a preset (Program Change), then CCs
 # The presets, with Amp Gain lowered for the balance of the parts (the same as the user programs of "pra32-u2-m-demo-ode-to-joy.json")
 SETUP = [
   [[PC, 20],                     # #20 Saw Lead (Legato: Mono, so that the Sub Synths play),
-   [AMP_GAIN, 94],               # whose FX (Chorus, and Delay of an eighth note at 120 BPM) are for all the synths,
-   [DISTORTION, LEAD_DISTORTION]],  # and the Distortion, for the melody alone
+   [AMP_GAIN, 94]],              # whose FX (Chorus, and Delay of an eighth note at 120 BPM) are for all the synths
   [[PC, 22],                     # #22 Synth Bass
    [FX_ROUTING, 102],            # Comp (no Chorus or Delay on the bass)
    [AMP_GAIN, 82]],
@@ -65,7 +64,7 @@ SETUP = [
 # The melody from the bars: #21 Sync Lead from the middle, and #28 Fifth Lead from them again
 # (whose FX are the same as those of #20 Saw Lead)
 LEAD_CHANGES = {
-  10 => [[PC, 21], [AMP_GAIN, 75], [DISTORTION, LEAD_DISTORTION]],  # #21 Sync Lead
+  10 => [[PC, 21], [AMP_GAIN, 75]],  # #21 Sync Lead
   18 => [[PC, 28], [AMP_GAIN, 76], [DISTORTION, LEAD_DISTORTION]],  # #28 Fifth Lead
 }
 
