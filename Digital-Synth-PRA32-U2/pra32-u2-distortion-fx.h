@@ -9,8 +9,10 @@
 // from there that lands on 2.0 with zero slope at 3.0 (below zero, a shorter one, to -1.5 at -2.0,
 // so that it adds even harmonics too, with its DC taken off), and is taken back down by D^(-15/16):
 // 15/16 of the drive in dB, so that the level stays within about 1.5 dB as the drive goes up (a little
-// up halfway, and a little down where it saturates hard). What comes out goes on to the Chorus, with
-// the Chorus bus.
+// up halfway, and a little down where it saturates hard). Below the knee, an even term c * w^2 (w the
+// sample held within +-1.0, c from 0 at 0 to 0.5 at 64 and held there, the most that keeps the curve
+// rising) thickens a sound with the 2nd harmonic, and a chord with its sum and difference tones,
+// from a little of the dial on. What comes out goes on to the Chorus, with the Chorus bus.
 // The curve's part beyond the straight line, f(u) - u, goes through first-order antiderivative
 // anti-aliasing (ADAA): the difference of its antiderivative over the step from the last sample,
 // divided by the step. On the straight line that part is zero, so a sample that reaches no
@@ -36,6 +38,7 @@ class PRA32_U2_DistortionFx {
   int32_t m_make_up;                   // D^(-15/16), Q16 (1 << 16 at x 1)
   int32_t m_tone_rest;                 // The weight of the tone's last output, Q30, 0 at x 1
   int32_t m_tone;                      // (1 << 30) - m_tone_rest, the weight of its input
+  int32_t m_even;                      // c of the even term c * w^2, Q16, 0 at x 1
   int32_t m_last_u[2];
   int32_t m_last_antiderivative[2];
   int32_t m_tone_out[2];
@@ -50,6 +53,7 @@ public:
   , m_make_up(1 << 16)
   , m_tone_rest()
   , m_tone(1 << 30)
+  , m_even()
   , m_last_u()
   , m_last_antiderivative()
   , m_tone_out()
@@ -77,6 +81,8 @@ public:
     // of the harmonics: 67 = 0.52 * 2^30 / (127 << 16)
     m_tone_rest = m_distortion_current * 67;
     m_tone      = (1 << 30) - m_tone_rest;
+    // The even term: c from 0 at 0 up to 0.5 at 64, and held there (0.5 = (64 << 16) >> 7)
+    m_even = minimum(m_distortion_current, 64 << 16) >> 7;
   }
 
   INLINE PRA32_U2_StereoSample process(PRA32_U2_StereoSample input_int24) {
@@ -115,7 +121,12 @@ private:
     m_last_antiderivative[N] = antiderivative;
     // The part against the driven sample itself (what the hold within +-16.0 took off too), so that
     // the straight line is the driven sample, whose mean is that of the input
-    const int32_t whole_part = r + (u - driven);
+    // The even term, c * w^2 with w the sample held within +-1.0, so that a sound below the knee
+    // gets the 2nd harmonic too, more with the drive; added as it is, not through ADAA (smooth,
+    // it only doubles the band, and two products rather than five), and its DC taken off below
+    const int32_t w    = clamp(u, -ONE, ONE);
+    const int32_t even = multiply_shift_right(multiply_shift_right(w, m_even, 16), w, 23);
+    const int32_t whole_part = r + (u - driven) + even;
     // The DC that the curve, not symmetric, puts into its part is taken off: its 1-pole low pass
     // (about 3.7 Hz, 2^-11, a shift) taken from it, on that part only: zero in, zero out, so that
     // a sound below the knee passes exactly

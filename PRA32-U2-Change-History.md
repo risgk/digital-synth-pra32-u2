@@ -3,7 +3,7 @@
 - v3.18.0 (2026-??-??):
     - Add **Filter Drive** (Control Change #31): drives the Filter harder, x 1 to x 15.7, for a saturated resonance, with the level kept; 0 (x 1) in the Presets and in a user program written before
         - In PRA32-U2 Editor, the chart, and the JSON files, next to Osc/Filter Drift (Osc Saw Wave Mode moves to after Portamento Mode); on the panel of PRA32-U2/P, next to Filter Mode (A-12)
-    - Add the **Distortion FX** at the head of the FX, with **Distortion Drive** (Control Change #95): a soft clip with less aliasing (ADAA) and a tone after it, with the level kept within about 1.5 dB; in fixed point; 0 (x 1) in the Presets
+    - Add the **Distortion FX** at the head of the FX, with **Distortion Drive** (Control Change #95): a soft clip with less aliasing (ADAA) and a tone after it, with the level kept within about 1.5 dB, and the 2nd harmonic below the knee too, so that a little of the dial thickens the sound; in fixed point; 0 (x 1) in the Presets
         - FX Routing moves to Control Change #77 and becomes [Dst|Cho|Dly|Dly|Cmp|Dry] (Not compatible: a user program written before has its FX Routing as the Distortion Drive)
         - In PRA32-U2 Editor, the chart, and the JSON files, a row of its own above the Chorus; on the panel of PRA32-U2/P, on A-30 (the Chorus and the Delay move to A-31 to A-34)
         - The Distortion and the Chorus on core 1, and the Delay and the Output Compressor on core 0, when not in Poly
