@@ -12,7 +12,7 @@
     - Lighter: Osc (about 7% less of a loop with #5 Sync Lead) and PWM Audio, with the same output
     - Customization Examples (Lite): Without the Distortion FX and the Reverb, and Osc 1 Sqr and WT lighter, for the load
     - Debug Print: Add `underruns`, the times the output buffer was found empty
-    - Presets: LFO Rate a little slower (a slower vibrato, and #30 PWM Lead)
+    - Presets: LFO Rate a little slower (a slower vibrato, and #30 PWM Lead); Amp Gain 10 up (80 to 90, 90 to 100, 100 to 110, and 110 to 120, about +1.8 dB), which takes back most of the Chorus FX's 3 dB (#23 Initial, with no Chorus, about 1.8 dB louder); and the user programs at first, the same as the Presets
     - PRA32-U2-Parameter-Guide.md: Distortion Drive among the Main Parameters
     - Tested with Arduino-Pico version 6.3.0
 - v3.17.5 (2026-10-26):
