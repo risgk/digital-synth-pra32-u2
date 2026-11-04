@@ -189,10 +189,10 @@ write_header("pra32-u2-filter-table.h") do |file|
     level
   end
 
-  # The gain of the Filter Drive, 2^(value / 32): 1.0 at 0, 4.0 at 64, 15.7 at 127
-  # (6 dB every 32 values), in Q16
-  write_filter_table(file, "g_filter_drive_gain_table", "Filter Drive gain = 2^(value / 32), Q16", 16) do |controller_value|
-    gain = 2.0 ** (controller_value / 32.0)
+  # The gain of the Filter Drive and the Distortion Drive, 2^(value / 24): 1.0 at 0, 4.0 at 48,
+  # 32.0 at 120, and 39.2 at 127 (6 dB every 24 values), in Q16
+  write_filter_table(file, "g_filter_drive_gain_table", "Drive gain = 2^(value / 24), Q16", 16) do |controller_value|
+    gain = 2.0 ** (controller_value / 24.0)
     printf("drive : %3d, gain: %9.4f\n", controller_value, gain)
     gain
   end
