@@ -157,8 +157,10 @@ flowchart LR
 
 ## Chorus FX
 
-A stereo chorus, used as a send effect: the input is sent at the Chorus Level, and the
-chorused signal is added to the input. Each side goes through a gentle low pass filter into a
+A stereo chorus: the input is sent at the Chorus Level L, and the chorused signal is added to
+the input, and the sum is lowered by about 1 / sqrt(1 + L^2) (0.707 at 127, where the two are
+equal), so that the level stays about the same as the Chorus Level goes up, as the two are
+nearly uncorrelated. Each side goes through a gentle low pass filter into a
 short delay line of its own. A triangle LFO swings the two delay times in opposite directions
 about 5.33 ms (by the Chorus Depth, at the Chorus Rate), so the left and right delayed signals
 bend in pitch against each other, and a mono source comes out spread across the stereo field.
@@ -170,13 +172,15 @@ flowchart LR
     FL --> DL["Delay line L<br/>5.33 ms − LFO"]
     DL --> ML((Σ))
     INL --> ML
-    ML --> OUTL([Output L])
+    ML --> GL["× 1 / √(1 + L²)"]
+    GL --> OUTL([Output L])
     INR([Input R]) --> SR["× Chorus Level"]
     SR --> FR["Low pass<br/>1-pole"]
     FR --> DR["Delay line R<br/>5.33 ms + LFO"]
     DR --> MR((Σ))
     INR --> MR
-    MR --> OUTR([Output R])
+    MR --> GR["× 1 / √(1 + L²)"]
+    GR --> OUTR([Output R])
     LFO["Triangle LFO<br/>Chorus Rate, Chorus Depth"] -.-> DL & DR
 ```
 
