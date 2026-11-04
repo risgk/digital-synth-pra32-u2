@@ -76,7 +76,10 @@ removes the DC that comes with it. The output clip comes last. Above the Filter
 Resonance 122, k turns negative and the loop oscillates. Filter Drive multiplies the input by
 2^(value / 32), 1.0 at 0, 4.0 at 64 and 15.7 at 127, which drives the loop and its leak harder, and divides
 what leaves the loop by the same ahead of the output clip, so that the level stays and the Drive
-changes the tone alone; the Presets are at 0 (1.0).
+changes the tone alone; the Presets are at 0 (1.0). With it, the output is lowered by the
+Resonance above 96 (-2.8 dB at 122, and -6.0 dB at 127, where the self-oscillation, 0.5 in the
+loop, comes out at 0.25), so that a high Resonance is about as loud as 96, while the loop is as
+it was.
 
 ```mermaid
 flowchart LR
@@ -88,7 +91,7 @@ flowchart LR
     I1 -->|BP| MS
     I2 -->|LP| MS
     MS --> DC["DC blocker<br/>7.5 Hz"]
-    DC --> DIV["÷ Drive"]
+    DC --> DIV["÷ Drive<br/>× level by the Resonance"]
     DIV --> OC["Output clip<br/>linear up to 0.75"]
     OC --> OUT([Output])
     SC["Nonlinear leak<br/>biased 1/8, ceiling 4.0, one-step simplified Newton"] -.- I1
@@ -114,7 +117,7 @@ flowchart LR
     A2 -->|BP| MS
     A3 -->|LP| MS
     MS --> CC["Coupling capacitor"]
-    CC --> OA["Attenuator<br/>1 / Drive"]
+    CC --> OA["Attenuator<br/>1 / Drive, lower at a high Resonance"]
     OA --> LIM["Output clipper"]
     LIM --> OUT([Output])
     A2 -->|"R/k (resonance)"| A1
