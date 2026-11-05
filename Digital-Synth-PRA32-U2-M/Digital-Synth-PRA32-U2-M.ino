@@ -59,6 +59,10 @@
 
 #define PRA32_U2_ENABLE_LAYERING
 
+#if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
+#define PRA32_U2_SECONDARY_CORE_IN_POLY_ONLY     // The 4 Synths without waiting at every frame (see loop())
+#endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
+
 #if defined(PRA32_U2_ENABLE_LAYERING)
 #define PRA32_U2_NUMBER_OF_SYNTHS              (4 + 3)
 #else
@@ -336,11 +340,10 @@ void __not_in_flash_func(setup1)() {
 // of them are done. Those of a frame wait for the synths of the next one (but the last), which
 // the primary core waits for, so that they are not delayed by the FX.
 // With the 4 Synths (not in Poly, where the primary core has less time to spare), the secondary core
-// has the Sub Synths 1 and 3 and the primary core waits for it, so it processes only the front of the
-// FX (the Distortion and the Chorus, into the input of the Delay, in s_fx_outputs), and the primary
-// core the back (the Delay and the Output Compressor) of a frame whose front is done, one a frame,
-// before the Main Synth, which waits for the secondary core anyway, and the rest (a few) at the end
-// of the loop
+// has the Sub Synths 1 and 3 too, so it processes only the front of the FX (the Distortion and the
+// Chorus, into the input of the Delay, in s_fx_outputs; see processSubSynthsOrFxFront()), and the
+// primary core the back (the Delay and the Output Compressor) of a frame whose front is done, one a
+// frame, before the Main Synth, and the rest (a few) at the end of the loop
 static PRA32_U2_FxBusSample  s_fx_inputs [PRA32_U2_I2S_BUFFER_WORDS];
 static uint32_t              s_fx_counts [PRA32_U2_I2S_BUFFER_WORDS];
 static PRA32_U2_StereoSample s_fx_outputs[PRA32_U2_I2S_BUFFER_WORDS];
@@ -390,6 +393,55 @@ static void __not_in_flash_func(processFxOfNextFrame)() {
     }
   }
 }
+
+// With the 4 Synths, the two cores do not wait for each other at every frame: the secondary core
+// processes the Sub Synths 1 and 3 of the frames one after another into s_sub_fx_buses (it does
+// not depend on the primary core, as the Main Synth does not request its Voices 2 and 3 when not in
+// Poly), a few frames ahead of the primary core at most, and the front of the FX of the frames
+// that the primary core has put in between; the primary core processes the Sub Synth 2 and the
+// Main Synth, adds the Sub Synths 1 and 3 of the frame (waiting for them only if they are not done
+// yet), puts the FX input, and processes the back of the FX of a frame whose front is done
+static PRA32_U2_FxBusSample  s_sub_fx_buses[PRA32_U2_I2S_BUFFER_WORDS];
+static volatile uint32_t     s_sub_frames_done    = 0;
+static volatile boolean      s_sub_frames_pending = false;
+
+// The frames of the Sub Synths 1 and 3 that the secondary core may be ahead of the front of the FX
+static const uint32_t SUB_FRAMES_AHEAD = 2;
+
+static INLINE void addFxBus(PRA32_U2_FxBusSample& fx_bus, const PRA32_U2_FxBusSample& other) {
+  for (uint32_t k = 0; k < 5; k++) {
+    fx_bus.input[k].left  += other.input[k].left;
+    fx_bus.input[k].right += other.input[k].right;
+  }
+}
+
+// One step of the secondary core with the 4 Synths: the Sub Synths 1 and 3 of the next frame, or the
+// front of the FX of the next frame put; true if a frame of the Sub Synths is processed
+static boolean __not_in_flash_func(processSubSynthsOrFxFront)() {
+  uint32_t i = s_sub_frames_done;
+  uint32_t f = s_fx_frames_done;
+  boolean front_ready = (f < s_fx_frames_put);
+  if ((i < PRA32_U2_I2S_BUFFER_WORDS) && ((front_ready == false) || (i < f + SUB_FRAMES_AHEAD))) {
+    PRA32_U2_StereoSample sub_3_synth_output = g_sub_3_synth.process(0, 0);
+    PRA32_U2_StereoSample sub_1_synth_output = g_sub_1_synth.process(0, 0);
+    clear_fx_bus(s_sub_fx_buses[i]);
+    g_sub_3_synth.add_to_fx_bus(sub_3_synth_output, s_sub_fx_buses[i]);
+    g_sub_1_synth.add_to_fx_bus(sub_1_synth_output, s_sub_fx_buses[i]);
+    __compiler_memory_barrier();
+    s_sub_frames_done = i + 1;
+    return true;
+  }
+  if (front_ready) {
+    __compiler_memory_barrier();
+    s_fx_outputs[f] = g_synth.process_fx_front(s_fx_inputs[f], s_fx_counts[f]);
+    // Done with the loop before the last front is told done (the Sub Synths of all the frames are
+    // done before that is put), as the primary core may start the next loop right after that
+    s_sub_frames_pending = (f + 1 < PRA32_U2_I2S_BUFFER_WORDS);
+    __compiler_memory_barrier();
+    s_fx_frames_done = f + 1;
+  }
+  return false;
+}
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
 
 static void __not_in_flash_func(loop1_once)() {
@@ -425,6 +477,9 @@ static void __not_in_flash_func(loop1_once)() {
     processed = true;
   }
 #if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
+  else if (s_sub_frames_pending) {
+    processed = processSubSynthsOrFxFront();
+  }
   else {
     processFxOfNextFrame();
   }
@@ -643,6 +698,36 @@ void __not_in_flash_func(loop)() {
   s_fx_backs_done = s_fx_front_only ? 0 : PRA32_U2_I2S_BUFFER_WORDS;
   __compiler_memory_barrier();
   s_fx_frames_done = 0;
+
+  if (g_synth_is_in_polyphonic_mode == false) {
+    s_sub_frames_done = 0;
+    __compiler_memory_barrier();
+    s_sub_frames_pending = true;
+
+    for (uint32_t i = 0; i < PRA32_U2_I2S_BUFFER_WORDS; i++) {
+      PRA32_U2_StereoSample sub_2_synth_output = g_sub_2_synth.process(0, 0);
+
+      processFxBackOfNextFrame();
+
+      PRA32_U2_StereoSample synth_output = g_synth.process<false, true>(0, 0);
+
+      PRA32_U2_FxBusSample fx_bus;
+      clear_fx_bus(fx_bus);
+      g_sub_2_synth.add_to_fx_bus(sub_2_synth_output, fx_bus);
+      g_synth.add_to_fx_bus(synth_output, fx_bus);
+
+      while (s_sub_frames_done <= i) {
+        ;
+      }
+      __compiler_memory_barrier();
+      addFxBus(fx_bus, s_sub_fx_buses[i]);
+
+      s_fx_inputs[i] = fx_bus;
+      s_fx_counts[i] = g_synth.get_count();
+      __compiler_memory_barrier();
+      s_fx_frames_put = i + 1;
+    }
+  } else
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
   for (uint32_t i = 0; i < PRA32_U2_I2S_BUFFER_WORDS; i++) {
     s_secondary_core_processing_request = 1;

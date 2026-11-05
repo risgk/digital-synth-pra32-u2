@@ -40,12 +40,14 @@
     - The back goes to the core that has more time to spare: in Poly, core 0 has the low-rate updates of all the Voices and MIDI, and little wait for core 1,
       so all of the FX are on core 1, the front and the back of a frame in two calls (between them, a request of core 0 waits for half of them at most;
       in PRA32-U2/M, also while core 1 waits for the request of the Voices 2 and 3);
-      not in Poly, core 0 would wait for core 1, so it processes the back of a frame whose front is done, one a frame, before the (Main) Synth, and the rest (a few) at the end
+      not in Poly, core 0 processes the back of a frame whose front is done, one a frame, before the (Main) Synth, and the rest (a few) at the end
       (so a loop takes a little more or less with how many are left; making core 0 wait for the fronts, one a frame, took more, with core 1 doing them first)
-    - In PRA32-U2/M with the 4 Synths, with all of the FX on core 1, core 1 was busier than core 0, which waited for it
-      (on the device, 1214 us a loop at v3.17.5; estimated at about 30% of a loop of waits on core 0 with the Distortion);
-      with the back on core 0, core 1 is about 78% and core 0 about 88-92% (estimated), and on the device `max(loop)` 1251 us
-      (`min(loop)` 1179 us) with the Distortion
+    - In PRA32-U2/M with the 4 Synths, the two cores do not wait for each other at every frame: the Main Synth does not request its Voices 2 and 3
+      when not in Poly (`PRA32_U2_SECONDARY_CORE_IN_POLY_ONLY`), so core 1 goes on with the Sub Synths 1 and 3 of the frames one after another
+      (into a buffer, a few frames ahead of the front of the FX at most) and the front of the FX of the frames that core 0 has put, and core 0
+      waits for the Sub Synths of a frame only if they are not done yet
+      (at v3.18.0, with a request and a wait at every frame, core 0 waited for core 1 for about 11% of a loop: 87% / 75% estimated,
+      and on the device `max(loop)` 1272 us; now 76% / 74% estimated, and on the device `max(loop)` 1083 us, `min(loop)` 1064 us)
     - The Customization Examples (Lite) process all of it on one core, with `process_fx()` (the front and the back in one)
 - MIDI is read at the start of each loop: 5 bytes of USB MIDI and 8 bytes of UART MIDI, more than the about 4.2 bytes that 31250 bps brings in a loop;
   the messages are processed there, so a burst of MIDI (e.g. from USB MIDI and UART MIDI at the same time) makes that loop a little longer

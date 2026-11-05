@@ -215,6 +215,15 @@ extern void PRA32_U2_ControlPanel_on_control_change(uint8_t control_number);
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 
 
+// The secondary core is requested (and waited for) for the Voices 2 and 3 only in Poly, so that it
+// can go on with other work when not in Poly (PRA32-U2/M, whose secondary core processes the Sub
+// Synths then, defines PRA32_U2_SECONDARY_CORE_IN_POLY_ONLY)
+#if defined(PRA32_U2_SECONDARY_CORE_IN_POLY_ONLY)
+static const boolean SECONDARY_CORE_IN_POLY_ONLY = true;
+#else  // defined(PRA32_U2_SECONDARY_CORE_IN_POLY_ONLY)
+static const boolean SECONDARY_CORE_IN_POLY_ONLY = false;
+#endif  // defined(PRA32_U2_SECONDARY_CORE_IN_POLY_ONLY)
+
 template <boolean NO_FX = false, boolean EXT_INPUT = false, boolean EXT_OUTPUT = false, uint32_t SYNTH_ID = 0, boolean MONO_LEVEL_DOWN = false, boolean RESTRICT_POLY_AND_CORES = false>
 class PRA32_U2_Synth {
   PRA32_U2_Osc      m_osc;
@@ -1728,9 +1737,11 @@ if (m_voice_mode == VOICE_POLYPHONIC) {
 
 #if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)
 if constexpr (RESTRICT_POLY_AND_CORES == false) {
+if ((SECONDARY_CORE_IN_POLY_ONLY == false) || (m_voice_mode == VOICE_POLYPHONIC)) {
     m_secondary_core_processing_argument = noise_int23;
     PRA32_U2_COMPILER_MEMORY_BARRIER();  // What the Voices 2 and 3 read is written before the request
     m_secondary_core_processing_request = 1;
+}
 }
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)
 
@@ -1764,10 +1775,14 @@ if (m_voice_mode == VOICE_POLYPHONIC) {
 
 #if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
 if constexpr (RESTRICT_POLY_AND_CORES == false) {
+if ((SECONDARY_CORE_IN_POLY_ONLY == false) || (m_voice_mode == VOICE_POLYPHONIC)) {
     while (m_secondary_core_processing_request) {
       ;
     }
     PRA32_U2_COMPILER_MEMORY_BARRIER();  // What the secondary core wrote is read after it is done
+} else {
+    m_secondary_core_processing_result = 0;
+}
 } else {
     m_secondary_core_processing_result = 0;
 }
