@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v3.18.0 (2026-??-??):
+- v3.18.0 (2026-11-05):
     - Add **Filter Drive** (Control Change #31): drives the Filter harder, x 1 to x 32 at 120 (x 39.2 at 127), for a saturated resonance, with the level kept; 0 (x 1) in the Presets and in a user program written before
         - In PRA32-U2 Editor, the chart, and the JSON files, next to Osc/Filter Drift (Osc Saw Wave Mode moves to after Portamento Mode); on the panel of PRA32-U2/P, next to Filter Mode (A-12)
     - Add the **Distortion FX** at the head of the FX, with **Distortion Drive** (Control Change #95, x 1 to x 32 at 120 and x 39.2 at 127): a soft clip with less aliasing (ADAA) and a tone after it, with the level kept within about 2 dB; in fixed point; 0 (x 1) in the Presets
