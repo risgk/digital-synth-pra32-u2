@@ -16,6 +16,7 @@ class PRA32_U2_ChorusFx {
   uint16_t m_chorus_level_target;
   int32_t  m_chorus_level_stage_1;
   int32_t  m_chorus_level_current;        // Q16
+  int32_t  m_chorus_mix_gain;             // Q16, about 1 / sqrt(1 + L^2), L = Chorus Level / 128
   uint16_t m_chorus_depth_target;
   int32_t  m_chorus_depth_stage_1;
   int32_t  m_chorus_depth_current;        // Q6
@@ -40,6 +41,7 @@ public:
   , m_chorus_level_target()
   , m_chorus_level_stage_1()
   , m_chorus_level_current()
+  , m_chorus_mix_gain(1 << 16)
   , m_chorus_depth_target()
   , m_chorus_depth_stage_1()
   , m_chorus_depth_current()
@@ -104,6 +106,15 @@ public:
       approach_exp_slow(m_chorus_delay_time_stage_1, m_chorus_delay_time_current, m_chorus_delay_time_target);
     }
 
+    // The direct sound and the delayed one (at the Level L, 0.0 to 1.0) are both taken down by
+    // about 1 / sqrt(1 + L^2), so that the sum keeps about the power of the direct sound alone,
+    // as the two are nearly uncorrelated: 1.0 at 0 (the direct sound as it is), and 0.707 at 127,
+    // where the two are equal. 1 - L^2 * (0.5 - 0.2071 * L^2), within 0.2 dB of it, by products
+    // (13573 = 0.2071 * 2^16), every time whatever the value
+    const int32_t chorus_level_q16   = m_chorus_level_current >> 7;
+    const int32_t chorus_level_2_q16 = multiply_shift_right(chorus_level_q16, chorus_level_q16, 16);
+    m_chorus_mix_gain = (1 << 16) - multiply_shift_right(chorus_level_2_q16, (1 << 15) - multiply_shift_right(13573, chorus_level_2_q16, 16), 16);
+
     int32_t chorus_depth_current_limited = minimum(minimum(m_chorus_depth_current, m_chorus_delay_time_current << 1),
                                                    ((127 << 6) - m_chorus_delay_time_current) << 1);
 
@@ -151,8 +162,8 @@ public:
     delay_buff_push(0, m_lpf_out_0);
     delay_buff_push(1, m_lpf_out_1);
 
-    return { left_input_int24  + eff_sample_0,
-             right_input_int24 + eff_sample_1 };
+    return { multiply_shift_right(left_input_int24  + eff_sample_0, m_chorus_mix_gain, 16),
+             multiply_shift_right(right_input_int24 + eff_sample_1, m_chorus_mix_gain, 16) };
   }
 
 private:

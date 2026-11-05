@@ -1,5 +1,21 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v3.18.0 (2026-11-05):
+    - Add **Filter Drive** (Control Change #31): drives the Filter harder, x 1 to x 32 at 120 (x 39.2 at 127), for a saturated resonance, with the level kept; 0 (x 1) in the Presets and in a user program written before
+        - In PRA32-U2 Editor, the chart, and the JSON files, next to Osc/Filter Drift (Osc Saw Wave Mode moves to after Portamento Mode); on the panel of PRA32-U2/P, next to Filter Mode (A-12)
+    - Add the **Distortion FX** at the head of the FX, with **Distortion Drive** (Control Change #95, x 1 to x 32 at 120 and x 39.2 at 127): a soft clip with less aliasing (ADAA) and a tone after it, with the level kept within about 2 dB; in fixed point; 0 (x 1) in the Presets
+        - FX Routing moves to Control Change #77 and becomes [Dst|Cho|Dly|Dly|Cmp|Dry] (Not compatible: a user program written before has its FX Routing as the Distortion Drive)
+        - In PRA32-U2 Editor, the chart, and the JSON files, a row of its own above the Chorus; on the panel of PRA32-U2/P, on A-30 (the Chorus and the Delay move to A-31 to A-34)
+        - The Distortion and the Chorus on core 1, and the Delay and the Output Compressor on core 0, when not in Poly
+    - Filter: A high Resonance (above 96) is about as loud as a moderate one, and the self-oscillation is quieter (0.25 at most, from 0.5), while it holds against the input as before
+    - Chorus FX: The level stays as the Chorus Level goes up; the Presets with the Chorus (all but #23 Initial) are about 3 dB lower
+    - Lighter: Osc (about 7% less of a loop with #5 Sync Lead) and PWM Audio, with the same output
+    - Customization Examples (Lite): Without the Distortion FX and the Reverb, and Osc 1 Sqr and WT lighter, for the load
+    - Debug Print: Add `underruns`, the times the output buffer was found empty
+    - Presets: LFO Rate a little slower (a slower vibrato, and #30 PWM Lead); Amp Gain 10 up (80 to 90, 90 to 100, 100 to 110, and 110 to 120, about +1.8 dB), which takes back most of the Chorus FX's 3 dB (#23 Initial, with no Chorus, about 1.8 dB louder); and the user programs at first, the same as the Presets
+    - PRA32-U2-Parameter-Guide.md: Distortion Drive among the Main Parameters
+    - PRA32-U2/M Demo: Amp Gain of the melody and the arpeggio about 3 dB up (Saw Lead 79 to 94, Sync Lead 63 to 75, Fifth Lead 64 to 76, and FM Piano 73 to 87), for the Chorus FX, so that the parts and the level are as they were; and the melody through the Distortion FX (Distortion Drive 72) in the last part, with #28 Fifth Lead, the arpeggio with FX Routing Cho
+    - Tested with Arduino-Pico version 6.3.0
 - v3.17.5 (2026-10-26):
     - Presets: #22 Synth Bass: Filter Cutoff 52 to 40 and Filter Resonance 96 to 64 (darker); #24 Synth Brs: Filter Cutoff 88 to 94 (brighter);
       #21 Sync Lead and #26 WT Pad: LFO Mod Amt 72 to 64 and LFO Filter Amt 64 to 76 (the Modulation Wheel moves the Filter Cutoff, as on #24 Synth Brs, instead of Osc 1 Shape);

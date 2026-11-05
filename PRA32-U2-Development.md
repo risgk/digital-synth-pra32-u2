@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 Development v3.17.5
+# Digital Synth PRA32-U2 Development v3.18.0
 
-- 2026-10-26 ISGK Instruments
+- 2026-11-05 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 - Notes for changing the code of PRA32-U2: how it runs and how to measure it; for the settings, see [Modification Guide](./PRA32-U2-Modification-Guide.md)
 
@@ -12,6 +12,9 @@
 - The times in us, since the last report, against the 1333 us that a loop of 64 frames lasts at 48 kHz:
     - `min(audio)` and `max(audio)`: the processing of the 64 frames by the synth
     - `min(loop)` and `max(loop)`: from the start of the loop (MIDI and the panel) to the end of that processing
+    - Both are of the primary core (core 0); what core 1 takes is in them only as the waits of core 0 for it
+- `underruns`: the times the output buffer was found empty (the DMA had played all of it, and plays it again: heard as a glitch),
+  since the start; not counted after a write to the flash (e.g. Write Program), where the output stops for a while
 - It is printed by the secondary core (core 1), a line at a time, and skipped while the host is not reading
 - To measure PRA32-U2/M, /P, or /M/P, build it as "pra32-u2-load-estimate.sh" in "PRA32-U2-Load-Estimate" does with arduino-cli
   (a copy of the "Digital-Synth-PRA32-U2" folder, with "Digital-Synth-PRA32-U2-M.ino" as its .ino for /M, and `PRA32_U2_USE_CONTROL_PANEL` uncommented for /P,
@@ -22,11 +25,28 @@
 
 - `loop()` on the primary core (core 0) reads MIDI, and then processes 64 frames (`PRA32_U2_I2S_BUFFER_WORDS`)
   and writes them to the output, which blocks while the output buffer is full: the loop is paced by the audio output
-- With `PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING`, core 1 (`loop1()`) takes a part of the processing of each frame on request from core 0, which waits for it
-  (the Voices 2 and 3 of the Main Synth, and the Sub Synths 1 and 3 of PRA32-U2/M); core 1 also updates the panel and prints the debug print
-    - The FX (Chorus, Delay, and the Output Compressor) are processed by core 1 too, a frame after the synths and between them: core 0 puts the FX input of each frame
-      with the count of the synth for it (`process_fx(fx_bus, count)`), and at the end of the loop waits until all are done, so the output is the same, with no more latency
-    - In PRA32-U2/M with the 4 Synths, core 1 is then about as busy as core 0, which waits for it (on the device, 1205 us from 1258 us a loop with the 4 Synths)
+- With `PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING`, core 1 (`loop1()`) takes a part of the processing of each frame on request from core 0, which waits for it;
+  core 1 also updates the panel and prints the debug print. What each core processes:
+
+    | Mode | Core 0 | Core 1 |
+    | :-- | :-- | :-- |
+    | Poly (PRA32-U2, PRA32-U2/M) | MIDI; the Voices 0 and 1 of the (Main) Synth | the Voices 2 and 3; all of the FX |
+    | Mono and Legato (PRA32-U2) | MIDI; the Synth; the back of the FX | the front of the FX |
+    | The 4 Synths (PRA32-U2/M, not in Poly) | MIDI; the Main Synth and the Sub Synth 2; the back of the FX | the Sub Synths 1 and 3; the front of the FX |
+
+    - The FX are in two halves: the front (`process_fx_front()`: Distortion and Chorus) and the back (`process_fx_back()`: Delay and the Output Compressor).
+      They are processed a frame after the synths and between them: core 0 puts the FX input of each frame with the count of the synth for it,
+      and at the end of the loop waits until all are done (and does the backs left), so the output is the same, with no more latency
+    - The back goes to the core that has more time to spare: in Poly, core 0 has the low-rate updates of all the Voices and MIDI, and little wait for core 1,
+      so all of the FX are on core 1, the front and the back of a frame in two calls (between them, a request of core 0 waits for half of them at most;
+      in PRA32-U2/M, also while core 1 waits for the request of the Voices 2 and 3);
+      not in Poly, core 0 would wait for core 1, so it processes the back of a frame whose front is done, one a frame, before the (Main) Synth, and the rest (a few) at the end
+      (so a loop takes a little more or less with how many are left; making core 0 wait for the fronts, one a frame, took more, with core 1 doing them first)
+    - In PRA32-U2/M with the 4 Synths, with all of the FX on core 1, core 1 was busier than core 0, which waited for it
+      (on the device, 1214 us a loop at v3.17.5; estimated at about 30% of a loop of waits on core 0 with the Distortion);
+      with the back on core 0, core 1 is about 78% and core 0 about 88-92% (estimated), and on the device `max(loop)` 1251 us
+      (`min(loop)` 1179 us) with the Distortion
+    - The Customization Examples (Lite) process all of it on one core, with `process_fx()` (the front and the back in one)
 - MIDI is read at the start of each loop: 5 bytes of USB MIDI and 8 bytes of UART MIDI, more than the about 4.2 bytes that 31250 bps brings in a loop;
   the messages are processed there, so a burst of MIDI (e.g. from USB MIDI and UART MIDI at the same time) makes that loop a little longer
 - The output buffer is a ring buffer read by DMA without interrupts ("pra32-u2-audio-ring-buffer.h"): 2 * 64 frames (2.7 ms) by default
@@ -45,6 +65,9 @@
     - Spread: the control processing (12 kHz, once per 4 samples) is shared out among the 4 samples by `m_count`,
       and the smoothing at 6 kHz takes the amounts and the balances by turns
 - Some settings still take more than others (e.g. Osc 1 Wave Sqr and WT, Delay Mode Rev, and PRA32-U2/M with 4 Synths in Mono): check the heaviest with the Load Estimate below
+- The wave table lookups of the Osc (the most of the load) use INTERP0 of the SIO for the linear interpolation (`setup_interp()`: lane 0 blend, both lanes signed):
+  the two samples are read as one 32-bit word (unaligned, which the Cortex-M33 allows) and written to BASE_1AND0 at once, each half sign-extended,
+  and the weight is written as it is, as the blend uses only its 8 LSBs; the Load Estimate models INTERP0 the same way
 
 
 ## Load Estimate
@@ -93,10 +116,18 @@ Basically, a release goes as follows:
    `APP_NAME_VERSION` in "pra32-u2-editor.html"; `_version` in the 2 preset JSON files; the headings of the documents
    (README.md, README.ja.md, README-PRA32-U2-P.md with its Info page, the guides, PRA32-U2-Native, and PRA32-U2-Web), and the License of README.md;
    and the dates under the headings ("YYYY-MM-DD ISGK Instruments"), all of them at every release
-4. Commit as "vX.Y.Z"
-5. Run "PRA32-U2 Build" on develop with `commit_package` and `load_estimate`, for the UF2 files, PRA32-U2 Native, PRA32-U2 Web, and the load estimate
-6. Replace the tables in [PRA32-U2 Load Estimate](./PRA32-U2-Load-Estimate/README.md) with those of the version from the summary of the run, and commit them
-   (or estimate the load before step 4 with `sh PRA32-U2-Load-Estimate/pra32-u2-load-estimate.sh`, and replace them with the version)
+4. Estimate the load with `sh PRA32-U2-Load-Estimate/pra32-u2-load-estimate.sh` (it takes the version from "Digital-Synth-PRA32-U2.ino"),
+   and replace the tables in [PRA32-U2 Load Estimate](./PRA32-U2-Load-Estimate/README.md) with those printed
+5. Commit them all as "vX.Y.Z"
+6. Run "PRA32-U2 Build" on develop with `commit_package` only, for the UF2 files, PRA32-U2 Native, and PRA32-U2 Web
+   (`load_estimate` is for an estimate without arduino-cli at hand: the tables are in the summary of the run, and they are committed by hand)
 7. Merge develop into main by a pull request
-8. Make the GitHub Release: the tag "vX.Y.Z" on main, and the notes "# Digital Synth PRA32-U2 vX.Y.Z", the line of what it is, and "## Change History" with the versions of this release
-9. Add the next version to PRA32-U2-Change-History.md ("vX.Y.Z (2026-??-??)")
+8. Make the GitHub Release: the tag "vX.Y.Z" on main, and the notes "# Digital Synth PRA32-U2 vX.Y.Z", the line of what it is,
+   and "## Change History" with the version of this release only; write "#N" (a program, a CC, ...) as "#&#8203;N" (with a zero-width space),
+   so that GitHub does not link it to an issue or a pull request
+9. Add the next version to PRA32-U2-Change-History.md ("vX.Y.Z (2026-??-??)", with "Tested with Arduino-Pico version")
+
+- In the commit messages too, "#N" is linked to an issue or a pull request: write the name of a program instead (e.g. "Sync Lead"), or "CC 112"
+- For the maintainer: after a release, update PRA32-U2 Editor and PRA32-U2 Web on the official page
+  ([risgk.github.io](https://github.com/risgk/risgk.github.io)): copy "pra32-u2-editor.html" and "pra32-u2-web-synth.js"
+  of main to "digital-synth-pra32-u2" there (not needed for a fork)

@@ -10,6 +10,7 @@
 #include "pra32-u2-osc-wave-shape-table-4.h"
 #include "pra32-u2-osc-wave-shape-table-5.h"
 #include <math.h>
+#include <cstring>  // std::memcpy() (get_wave_level())
 
 #if defined(ARDUINO_ARCH_RP2040)
 #include "hardware/interp.h"
@@ -473,11 +474,12 @@ public:
     m_phase[N] = 0;
   }
 
-  template <uint8_t N>
+  // RESTRICT_SQR_WT: as for process(), where the Shape and the Morph of Sqr and WT are not used
+  template <uint8_t N, boolean RESTRICT_SQR_WT = false>
   INLINE void process_at_low_rate(uint32_t count, int32_t lfo_level, int32_t eg_level, int32_t noise_int23) {
     update_pitch_current<N>();
     update_osc1_shape<N>(lfo_level, eg_level);
-    update_osc1_shape_effective<N>();
+    update_osc1_shape_effective<N, RESTRICT_SQR_WT>();
     update_freq_base<N + 0>(lfo_level, eg_level);
     update_freq_base<N + 4>(lfo_level, eg_level);
 
@@ -538,16 +540,20 @@ private:
   // are longer, so that the images the linear interpolation leaves stay low.
   // Each table carries its own number of index bits in the entry before the
   // samples, which is what the pointer in the table array points past
+  // On the RP2350, the two samples are read as one 32-bit word (unaligned, which the Cortex-M33 allows)
+  // and written to BASE_1AND0 of INTERP0 at once, each half sign-extended (both lanes signed), and the
+  // weight is written as it is, as the blend uses only its 8 LSBs: fewer instructions, the same result
   INLINE int16_t get_wave_level(const int16_t* wave_table, uint32_t phase_24) {
     uint32_t samples_bits = static_cast<uint32_t>(wave_table[-1]);
-    uint16_t curr_index  = (phase_24 & 0xFFFFFF) >> (24 - samples_bits);
-    uint16_t next_weight = (phase_24 >> (24 - samples_bits - 8)) & 0xFF;
+    uint32_t curr_index  = (phase_24 & 0xFFFFFF) >> (24 - samples_bits);
 #if defined(ARDUINO_ARCH_RP2040)
-    interp0->accum[1]    = next_weight;
-    interp0->base[0]     = wave_table[curr_index + 0];
-    interp0->base[1]     = wave_table[curr_index + 1];
+    uint32_t both_data;
+    std::memcpy(&both_data, &wave_table[curr_index], sizeof(both_data));  // [curr_index] and [curr_index + 1]
+    interp0->accum[1]    = phase_24 >> (24 - samples_bits - 8);  // The weight in the 8 LSBs
+    interp0->base01      = both_data;
     int16_t  level       = static_cast<int16_t>(interp0->peek[1]); // lerp
 #else  // defined(ARDUINO_ARCH_RP2040)
+    uint16_t next_weight = (phase_24 >> (24 - samples_bits - 8)) & 0xFF;
     int16_t  curr_data   = wave_table[curr_index + 0];
     int16_t  next_data   = wave_table[curr_index + 1];
     int16_t  level       = curr_data + (((next_data - curr_data) * next_weight) >> 8); // lerp
@@ -880,10 +886,13 @@ if constexpr (RESTRICT_SQR_WT == false) {
     m_osc1_shape_eg_target[N] = (eg_level * (m_shape_eg_amt_current >> 9)) >> (6 + 7);
   }
 
-  template <uint8_t N>
+  // The offsets of the 16 waves of Sqr and WT for their Shape (and Morph), not computed with
+  // RESTRICT_SQR_WT, where they are not used (they are the most of the low-rate update of a voice)
+  template <uint8_t N, boolean RESTRICT_SQR_WT = false>
   INLINE void update_osc1_shape_effective() {
     m_osc1_shape_current[N] = clamp((m_osc1_shape_base_current >> 8) + m_osc1_shape_lfo_target[N] + m_osc1_shape_eg_target[N], (0 << 8), (256 << 8));
 
+if constexpr (RESTRICT_SQR_WT == false) {
     uint32_t shape = maximum(m_osc1_shape_current[N] - (128 << 8), 0);
     if (m_waveform[0] == WAVEFORM_SQUARE) {
       const uint16_t (* sqr_shape_table)[OSC_WAVE_SHAPE_TABLE_LEN_X][OSC_WAVE_SHAPE_TABLE_LEN_Y] = &g_osc_sqr_shape_table;
@@ -896,6 +905,7 @@ if constexpr (RESTRICT_SQR_WT == false) {
         m_osc1_wt_shape_offset[N][i] = get_osc_wave_shape_data(wt_shape_table, shape, i);
       }
     }
+}
   }
 
   INLINE void update_pitch_bend() {

@@ -1,12 +1,12 @@
-# Digital Synth PRA32-U2 Block Diagrams v3.17.5
+# Digital Synth PRA32-U2 Block Diagrams v3.18.0
 
-- 2026-10-26 ISGK Instruments
+- 2026-11-05 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
-The diagrams of the Osc, the Filter, the FX (Chorus FX, Delay FX, and Reverb), the Output Compressor, and PRA32-U2/M,
+The diagrams of the Osc, the Filter, the FX (Distortion FX, Chorus FX, Delay FX, and Reverb), the Output Compressor, and PRA32-U2/M,
 and the graphs of the Wave Tables.
 For the whole synthesizer, see [Synthesizer Block Diagram](./README.md#synthesizer-block-diagram) in README.md.
-Solid arrows carry audio, dashed arrows carry control.
+Solid arrows carry audio (thick ones the stereo audio, L / R), dashed arrows carry control.
 
 
 ## Osc
@@ -73,18 +73,26 @@ a guard that ordinary use never reaches. The curve is biased by 1/8, so that the
 harmonics as the band pass is driven (at a high Resonance or near the cutoff), with its
 small-signal gain made up for, so that the resonance is kept; a DC blocker on the output
 removes the DC that comes with it. The output clip comes last. Above the Filter
-Resonance 122, k turns negative and the loop oscillates.
+Resonance 122, k turns negative and the loop oscillates. Filter Drive multiplies the input by
+2^(value / 24), 1.0 at 0, 4.0 at 48, 32.0 at 120, and 39.2 at 127, which drives the loop and its leak harder, and divides
+what leaves the loop by the same ahead of the output clip, so that the level stays and the Drive
+changes the tone alone; the Presets are at 0 (1.0). With it, the output is lowered by the
+Resonance above 96 (-2.8 dB at 122, and -6.0 dB at 127, where the self-oscillation, 0.5 in the
+loop, comes out at 0.25), so that a high Resonance is about as loud as 96, while the loop is as
+it was.
 
 ```mermaid
 flowchart LR
-    IN([Input]) --> SUM((Σ))
+    IN([Input]) --> DRV["× Drive<br/>2^(value / 24), 1.0 at 0"]
+    DRV --> SUM((Σ))
     SUM -->|HP| I1["Integrator 1<br/>BP, state s1"]
     I1 -->|BP| I2["Integrator 2<br/>LP, state s2"]
     SUM -->|HP| MS["Filter Mode<br/>LP / BP / BR / HP"]
     I1 -->|BP| MS
     I2 -->|LP| MS
     MS --> DC["DC blocker<br/>7.5 Hz"]
-    DC --> OC["Output clip<br/>linear up to 0.75"]
+    DC --> DIV["÷ Drive<br/>× level by the Resonance"]
+    DIV --> OC["Output clip<br/>linear up to 0.75"]
     OC --> OUT([Output])
     SC["Nonlinear leak<br/>biased 1/8, ceiling 4.0, one-step simplified Newton"] -.- I1
     L2["s2 is linear<br/>guard clamp at 16"] -.- I2
@@ -100,7 +108,8 @@ output clip. It is an interpretation, not a reproduction of an actual circuit.
 
 ```mermaid
 flowchart LR
-    IN([Input]) --> A1["Summing amp Σ"]
+    IN([Input]) --> IA["Input amp<br/>gain = Drive"]
+    IA --> A1["Summing amp Σ"]
     A1 -->|HP| A2["Integrator ∫<br/>C1"]
     D["Diode pair<br/>asymmetric"] -.-|across C1| A2
     A2 -->|BP| A3["Integrator ∫<br/>C2, linear"]
@@ -108,7 +117,8 @@ flowchart LR
     A2 -->|BP| MS
     A3 -->|LP| MS
     MS --> CC["Coupling capacitor"]
-    CC --> LIM["Output clipper"]
+    CC --> OA["Attenuator<br/>1 / Drive, lower at a high Resonance"]
+    OA --> LIM["Output clipper"]
     LIM --> OUT([Output])
     A2 -->|"R/k (resonance)"| A1
     A3 -->|R| A1
@@ -117,10 +127,40 @@ flowchart LR
 ```
 
 
+## Distortion FX
+
+At the head of the FX, for the synths whose FX Routing is Dst: the input is driven by
+2^(value / 24), x 1 at 0 to x 32 at 120 (and x 39.2 at 127), into a curve that is a straight line up to 1.0 (full
+scale) and a quadratic shoulder that lands on 2.0 at 3.0 (below zero, a shorter one that lands on
+-1.5 at -2.0, so that even harmonics are added too), each side (L and R) on its own, and is taken
+back down by 15/16 of the drive in dB up to 96 (x 16), and by as much as there above it, so that the level stays within about 2 dB as the drive
+goes up (a little up halfway, and a little down where it saturates hard). The curve's part beyond the straight line goes through
+first-order antiderivative anti-aliasing (ADAA), so a sample that reaches no shoulder passes
+exactly, and the aliasing past it is lower, and its DC (from the shoulders not symmetric) is
+taken off. After the curve, a 1-pole low pass (the tone) takes the edge off the harmonics, more
+with more drive: none at 0, about 10 kHz at 64, and 5 kHz at 127. What comes out goes on to the
+Chorus FX, with the input of FX Routing Cho.
+
+```mermaid
+flowchart LR
+    IN([Input L / R<br/>FX Routing Dst]) ==> G["× Drive<br/>2^(value / 24)"]
+    G ==> SC["Soft clip, ADAA<br/>linear up to 1.0,<br/>2.0 at 3.0, -1.5 at -2.0<br/>each side"]
+    SC ==> T["Tone<br/>Low pass 1-pole<br/>none to 5 kHz"]
+    T ==> M["× Drive^(−15/16)"]
+    M ==> S((Σ))
+    CHO([Input L / R<br/>FX Routing Cho]) ==> S
+    S ==> OUT([To the Chorus FX])
+    classDef nl fill:#FAECE7,stroke:#D85A30,color:#712B13
+    class SC nl
+```
+
+
 ## Chorus FX
 
-A stereo chorus, used as a send effect: the input is sent at the Chorus Level, and the
-chorused signal is added to the input. Each side goes through a gentle low pass filter into a
+A stereo chorus: the input is sent at the Chorus Level L, and the chorused signal is added to
+the input, and the sum is lowered by about 1 / sqrt(1 + L^2) (0.707 at 127, where the two are
+equal), so that the level stays about the same as the Chorus Level goes up, as the two are
+nearly uncorrelated. Each side goes through a gentle low pass filter into a
 short delay line of its own. A triangle LFO swings the two delay times in opposite directions
 about 5.33 ms (by the Chorus Depth, at the Chorus Rate), so the left and right delayed signals
 bend in pitch against each other, and a mono source comes out spread across the stereo field.
@@ -132,13 +172,15 @@ flowchart LR
     FL --> DL["Delay line L<br/>5.33 ms − LFO"]
     DL --> ML((Σ))
     INL --> ML
-    ML --> OUTL([Output L])
+    ML --> GL["× 1 / √(1 + L²)"]
+    GL --> OUTL([Output L])
     INR([Input R]) --> SR["× Chorus Level"]
     SR --> FR["Low pass<br/>1-pole"]
     FR --> DR["Delay line R<br/>5.33 ms + LFO"]
     DR --> MR((Σ))
     INR --> MR
-    MR --> OUTR([Output R])
+    MR --> GR["× 1 / √(1 + L²)"]
+    GR --> OUTR([Output R])
     LFO["Triangle LFO<br/>Chorus Rate, Chorus Depth"] -.-> DL & DR
 ```
 
@@ -160,15 +202,15 @@ Each side has a delay line and a loop of its own. The diagram is one side; the o
 
 ```mermaid
 flowchart LR
-    IN([Input L / R]) --> S["× Delay Level"]
-    S --> SUM((Σ))
-    SUM --> FB["× Delay Feedback<br/>0 to 0.5"]
-    FB --> LPF["Low pass<br/>1-pole"]
-    LPF --> DL["Delay line<br/>Delay Time, up to 340 ms"]
-    DL --> SUM
-    DL --> M((Σ))
-    IN --> M
-    M --> OUT([Output L / R])
+    IN([Input L / R]) ==> S["× Delay Level"]
+    S ==> SUM((Σ))
+    SUM ==> FB["× Delay Feedback<br/>0 to 0.5"]
+    FB ==> LPF["Low pass<br/>1-pole"]
+    LPF ==> DL["Delay line<br/>Delay Time, up to 340 ms"]
+    DL ==> SUM
+    DL ==> M((Σ))
+    IN ==> M
+    M ==> OUT([Output L / R])
 ```
 
 ### Ping Pong Delay
@@ -212,9 +254,9 @@ same length and loudness of the tail.
 
 ```mermaid
 flowchart LR
-    IN([Input L / R]) --> S["× Delay Level<br/>× Delay Feedback"]
-    S --> AP["Input allpass × 2<br/>each side"]
-    AP --> SUM((Σ))
+    IN([Input L / R]) ==> S["× Delay Level<br/>× Delay Feedback"]
+    S ==> AP["Input allpass × 2<br/>each side"]
+    AP ==> SUM((Σ))
     SUM -->|"L to line 0, R to line 1"| LN["4 delay lines<br/>Delay Time / 3, and<br/>219, 187, 157 / 256 of it"]
     LN --> H["4 × 4 Hadamard"]
     H --> G["× Decay<br/>each line"]
@@ -222,9 +264,9 @@ flowchart LR
     LPF --> LA["Loop allpass<br/>each line"]
     LA --> SUM
     LN --> OM["Output mix<br/>L: (line 0 + line 3) × 17/16<br/>R: (line 1 − line 2) × 17/16"]
-    OM --> M((Σ))
-    IN --> M
-    M --> OUT([Output L / R])
+    OM ==> M((Σ))
+    IN ==> M
+    M ==> OUT([Output L / R])
 ```
 
 - It runs at half the sampling rate (24 kHz), every other sample, to halve its processing time:
@@ -256,15 +298,15 @@ lowered by the output gain, and clipped with the output.
 
 ```mermaid
 flowchart LR
-    IN([Input L / R<br/>from the Delay FX<br/>and FX Routing Comp]) --> DLY["Delay<br/>1 ms (look-ahead)"]
-    DLY --> VCA["× Gain"]
-    VCA --> SUM((Σ))
-    DRY([Input L / R<br/>FX Routing Dry]) --> DD["Delay<br/>1 ms"]
-    DD --> OG["× 0.75<br/>-2.5 dB"]
-    OG --> SUM
-    SUM --> SC["Soft clip<br/>linear up to 0.75, ceiling 1.0"]
-    SC --> OUT([Audio Out L / R])
-    IN --> PK["Peak<br/>max of |L| and |R|,<br/>held over 25-50 ms"]
+    IN([Input L / R<br/>from the Delay FX<br/>and FX Routing Comp]) ==> DLY["Delay<br/>1 ms (look-ahead)"]
+    DLY ==> VCA["× Gain"]
+    VCA ==> SUM((Σ))
+    DRY([Input L / R<br/>FX Routing Dry]) ==> DD["Delay<br/>1 ms"]
+    DD ==> OG["× 0.75<br/>-2.5 dB"]
+    OG ==> SUM
+    SUM ==> SC["Soft clip<br/>linear up to 0.75, ceiling 1.0"]
+    SC ==> OUT([Audio Out L / R])
+    IN ==> PK["Peak<br/>max of |L| and |R|,<br/>held over 25-50 ms"]
     PK -.-> ENV["Envelope<br/>attack 1 ms, release 100 ms"]
     ENV -.-> GT["Gain table<br/>2:1 above -6 dB (soft knee -9 to -3 dB),<br/>ceiling at 1.0, × 0.75"]
     GT -.-> VCA
@@ -301,11 +343,12 @@ flowchart LR
     C14([MIDI Ch 14<br/>Layering]) -.-> MS & S1
     C15([MIDI Ch 15<br/>Layering]) -.-> S2 & S3
     C16([MIDI Ch 16<br/>Layering]) -.-> MS & S1 & S2 & S3
-    MS & S1 & S2 & S3 --> FR{"FX Routing<br/>of each synth"}
-    FR -->|Cho| C[Chorus FX] --> D[Delay/Reverb FX] --> OC[Output Compressor] --> OG["x 0.75<br/>Soft Clip"] --> AO[Audio Out]
-    FR -->|Dly| D
-    FR -->|Cmp| OC
-    FR -->|Dry| OG
+    MS & S1 & S2 & S3 ==> FR{"FX Routing<br/>of each synth"}
+    FR ==>|Dst| DS[Distortion FX] ==> C
+    FR ==>|Cho| C[Chorus FX] ==> D[Delay/Reverb FX] ==> OC[Output Compressor] ==> OG["x 0.75<br/>Soft Clip"] ==> AO[Audio Out]
+    FR ==>|Dly| D
+    FR ==>|Cmp| OC
+    FR ==>|Dry| OG
 ```
 
 - The Sub Synths are processed only while the Main Synth is in the Mono modes (the Main Synth in
@@ -319,3 +362,5 @@ flowchart LR
 ## Wave Table Graphs
 
 ![Wave Table Graphs](./pra32-u2-wave-table-graphs.png)
+
+The source data of the graphs: [pra32-u2-wave-table-graphs.ods](./pra32-u2-wave-table-graphs.ods)

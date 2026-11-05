@@ -6,8 +6,14 @@
 - "pra32-u2-load-estimate.sh" builds PRA32-U2, PRA32-U2/M, PRA32-U2/P, and PRA32-U2/M/P with arduino-cli (as the GitHub Actions workflow builds the UF2 files),
   estimates the load of PRA32-U2 (the lightest) and PRA32-U2/M/P (which has all of the editions) with "pra32-u2-load-estimate.py", and prints the tables below with the RAM of all 4;
   PRA32-U2/M and PRA32-U2/P differ from these little (as estimated at v3.17.1)
-    - All 4 are built with Debug Print (USB Serial), as measured on the device, so their RAM is a little more than that of the UF2 files (the buffer of Debug Print);
+    - And the Lite of the Customization Examples, PRA32-U2 (Lite) and PRA32-U2/M (Lite), Core 0 Only, which process the synth on one core;
+      the Core 1 Only ones, without MIDI, cannot be played by the estimate, and process the synth the same.
+      In the cases of #5 Sync Lead, the Lite have Osc 1 Wave Sin instead of Sqr, the heaviest there (Sqr is lighter without its Shape and Morph)
+    - All of them are built with Debug Print (USB Serial), as measured on the device, so their RAM is a little more than that of the UF2 files (the buffer of Debug Print);
       PRA32-U2/P and PRA32-U2/M/P with all of the keys of the panel (SW1-6, with SW3-5 that the sketch leaves out by default), released
+    - The paths of the files of the core in the asserts are built as "/rp2040/..." (`-ffile-prefix-map`), so that the estimate is the same wherever it is built
+      (the length of the path shifts it by about 1%)
+    - The builds and the estimates run in parallel, as many at a time as the CPUs (about 10 min with 4 CPUs)
 
     ```
     sh PRA32-U2-Load-Estimate/pra32-u2-load-estimate.sh
@@ -23,7 +29,7 @@
         ```
 
     - And Python 3 with `pip install unicorn capstone pyelftools` (Unicorn 2)
-    - Or run the GitHub Actions workflow "PRA32-U2 Build" with `load_estimate` (about 15 min): the table is in the summary of the run
+    - Or run the GitHub Actions workflow "PRA32-U2 Build" with `load_estimate`: the table is in the summary of the run
     - "pra32-u2-load-estimate.py" estimates a case of its own, e.g. `python3 PRA32-U2-Load-Estimate/pra32-u2-load-estimate.py PRA32-U2-Load-Estimate/build/u2/Digital-Synth-PRA32-U2.ino.elf --program 0 --cc 102=26,35=127 --profile`
         - For PRA32-U2/P (and /M/P), `--adc 8` turns the knobs all the way and back every 8 loops, and `--keys 19 --keys-held 21` presses Prog + (SW4)
           as fast as the panel takes it (16 loops of each 48) while holding Shift (SW5), with `--loops 64` (see `--help`);
@@ -58,45 +64,58 @@
 
 The maximum of core 0 / core 1, of 1333 us. A maximum over 100% is marked with "⚠", and one over 95% with "△"
 (and shown as a warning in the workflow): check such a case on the device with Debug Print.
+On the device, it is measured basically in "4 Synths" (#5 Sync Lead with Delay Mode Rev, 4 notes) on PRA32-U2/M/P, and in the others (e.g. the Lite) as needed.
 The load of each module is the average of core 0 / core 1 (`--modules`), in "Poly" for PRA32-U2 and in "4 Synths" for PRA32-U2/M/P:
 "Synth" is the rest of the synth (the voices, the parameters, and the mixing), "Sketch" is `loop()` and `loop1()` (MIDI and the panel),
 and "Other" is the rest (e.g. Debug Print).
 
-#### v3.17.5
+#### v3.18.0
 
-| Case (core 0 / core 1, max) | PRA32-U2 | PRA32-U2/M/P |
-| :-- | --: | --: |
-| #0 Synth Pad, 4 notes | 54% / 51% | 58% / 53% |
-| Poly: #5 Sync Lead (Osc 1 Wave Sqr) in Poly with Delay Mode Rev, 4 notes | 73% / 64% | 75% / 62% |
-| Poly, with Note On and Off of another note by UART MIDI (Running Status) and USB MIDI | 74% / 64% | 76% / 62% |
-| Poly, with Program Change #0 (Poly itself) back to back by UART MIDI (Running Status) and USB MIDI | 76% / 64% | 79% / 62% |
-| Poly, with Program Change by CC #112 (#0) back to back by UART MIDI (Running Status) and USB MIDI | 75% / 64% | 79% / 62% |
-| 4 Synths: #5 Sync Lead (Mono, and Delay Mode Rev) by MIDI Channel 16 (Layering), 4 notes | - | 86% / 84% |
-| 4 Synths, with Note On and Off of another note by MIDI Channel 16 by UART MIDI (Running Status) and USB MIDI | - | 90% / 85% |
-| 4 Synths, with Program Change #0 (4 Synths itself) by MIDI Channel 16 back to back by UART MIDI (Running Status) and USB MIDI | - | 90% / 84% |
-| 4 Synths, with Program Change by CC #112 (#0) by MIDI Channel 16 back to back by UART MIDI (Running Status) and USB MIDI | - | 75% / 67% |
+The Distortion FX in fixed point (int32, no FPU, no branch: the 64-bit products shifted back and one 32-bit division a sample on each side),
+in "Synth" below (with the front of the FX on core 1 not in Poly); the wave table lookups of the Osc by BASE_1AND0 of INTERP0;
+the Lite with Osc 1 Wave Sin in #5 Sync Lead (Sqr is lighter there)
+
+| Case (core 0 / core 1, max) | PRA32-U2 | PRA32-U2/M/P | PRA32-U2 (Lite) | PRA32-U2/M (Lite) |
+| :-- | --: | --: | --: | --: |
+| #0 Synth Pad, 4 notes | 61% / 59% | 65% / 63% | 68% / 1% | 84% / 1% |
+| Poly: #5 Sync Lead (Osc 1 Wave Sqr) in Poly with Delay Mode Rev, 4 notes | 73% / 70% | 77% / 74% | 73% / 1% | 85% / 1% |
+| Poly, with Note On and Off of another note by UART MIDI (Running Status) and USB MIDI | 74% / 70% | 78% / 74% | 74% / 1% | 86% / 1% |
+| Poly, with Program Change #0 (Poly itself) back to back by UART MIDI (Running Status) and USB MIDI | 75% / 70% | 81% / 74% | 76% / 1% | 88% / 1% |
+| Poly, with Program Change by CC #112 (#0) back to back by UART MIDI (Running Status) and USB MIDI | 75% / 70% | 81% / 74% | 75% / 1% | 88% / 1% |
+| 4 Synths: #5 Sync Lead (Mono, and Delay Mode Rev) by MIDI Channel 16 (Layering), 4 notes | - | 87% / 75% | - | 83% / 1% |
+| 4 Synths, with Note On and Off of another note by MIDI Channel 16 by UART MIDI (Running Status) and USB MIDI | - | 90% / 75% | - | 87% / 1% |
+| 4 Synths, with Program Change #0 (4 Synths itself) by MIDI Channel 16 back to back by UART MIDI (Running Status) and USB MIDI | - | 92% / 75% | - | 86% / 1% |
+| 4 Synths, with Program Change by CC #112 (#0) by MIDI Channel 16 back to back by UART MIDI (Running Status) and USB MIDI | - | 77% / 63% | - | 86% / 1% |
 
 ⚠: over 100% (1333 us), △: over 95%
 
 | Module (core 0 / core 1, avg) | PRA32-U2, Poly | PRA32-U2/M/P, 4 Synths |
 | :-- | --: | --: |
-| Osc | 44.6% / 28.9% | 37.9% / 37.6% |
-| Filter | 12.7% / 6.8% | 10.7% / 10.7% |
-| Synth | 6.7% / 7.0% | 22.6% / 6.2% |
-| DelayFx | 0.0% / 8.5% | 0.0% / 8.5% |
-| Sketch | 2.6% / 3.4% | 7.3% / 0.1% |
-| OutputCompressor | 0.0% / 4.2% | 0.0% / 4.2% |
-| ChorusFx | 0.0% / 3.7% | 0.0% / 3.7% |
-| Amp | 2.2% / 1.1% | 2.1% / 2.1% |
-| EG | 1.4% / 0.0% | 0.6% / 0.6% |
-| LFO | 1.2% / 0.0% | 1.9% / 1.7% |
+| Osc | 37.4% / 22.2% | 30.8% / 30.6% |
+| Synth | 10.8% / 16.8% | 15.6% / 14.5% |
+| Filter | 14.7% / 7.8% | 12.4% / 12.4% |
+| DelayFx | 0.0% / 8.3% | 8.3% / 0.0% |
+| Sketch | 3.4% / 4.6% | 8.0% / 0.1% |
+| OutputCompressor | 0.0% / 4.2% | 4.2% / 0.0% |
+| ChorusFx | 0.0% / 4.2% | 0.0% / 4.2% |
+| Amp | 2.1% / 1.1% | 2.1% / 2.1% |
+| EG | 1.3% / 0.0% | 0.6% / 0.6% |
+| LFO | 1.3% / 0.0% | 1.9% / 1.7% |
 | Panner | 0.6% / 0.0% | 1.2% / 1.1% |
 | NoiseGen | 0.3% / 0.0% | 0.6% / 0.6% |
 | OutputFader | 0.2% / 0.0% | 0.2% / 0.0% |
-| Other | 0.1% / 0.1% | 0.1% / 6.1% |
+| Other | 0.1% / 0.1% | 0.1% / 6.7% |
 
-| RAM (global variables) | PRA32-U2 | PRA32-U2/M | PRA32-U2/P | PRA32-U2/M/P |
-| :-- | --: | --: | --: | --: |
-| | 384404 (73%) | 483968 (92%) | 404984 (77%) | 505872 (96%) |
+| RAM (global variables) | PRA32-U2 | PRA32-U2/M | PRA32-U2/P | PRA32-U2/M/P | PRA32-U2 (Lite) | PRA32-U2/M (Lite) |
+| :-- | --: | --: | --: | --: | --: | --: |
+| | 384828 (73%) | 482996 (92%) | 405428 (77%) | 504888 (96%) | 343528 (65%) | 428312 (81%) |
 
-On the device (v3.17.5, PRA32-U2/M/P, Debug Print `max(loop)`): 4 Synths 1214 us (91%; `min(loop)` 1192 us)
+On the device (v3.18.0, PRA32-U2/M/P, Debug Print `max(loop)`): 4 Synths: #5 Sync Lead (Mono, and Delay Mode Rev) by MIDI Channel 16 (Layering), 4 notes, 1272 us (95%; `min(loop)` 1248 us; `max(audio)` 1243 us; `underruns` 0), more than the estimate (87% / 75%)
+
+On the device on the way to v3.18.0 (0fa95e2c, with the Distortion FX in fixed point and the wave table lookups by BASE_1AND0;
+Debug Print `max(loop)`, against the estimate of it, core 0; `underruns` 0):
+PRA32-U2, Poly: #5 Sync Lead, 4 notes, 1028 us (77%; `min(loop)` 1007 us), against 73%;
+PRA32-U2/M/P, 4 Synths, 1249 us (94%; `min(loop)` 1226 us), against 85%;
+PRA32-U2/M (Lite), Poly: #5 Sync Lead with Osc 1 Wave Sin, 4 notes, 1226 us (92%; `min(loop)` 1206 us), against 83%.
+So the device takes about 6% more than the estimate on PRA32-U2, and about 10% more on PRA32-U2/M/P and the Lite
+(at 236d481b, before those: 1058 us, 1251 us, and 1263 us with the 4 Synths of the Lite)

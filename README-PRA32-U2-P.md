@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2/P v3.17.5
+# Digital Synth PRA32-U2/P v3.18.0
 
-- 2026-10-26 ISGK Instruments
+- 2026-11-05 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 
@@ -147,7 +147,7 @@
 
 | Page           | Parameter A          | Parameter B          |
 | :------------- | :------------------- | :------------------- |
-| A-00 Info      | PRA32-U2/P           | v3.17.5              |
+| A-00 Info      | PRA32-U2/P           | v3.18.0              |
 | A-01 Voice     | Voice Mode           | Voice Asgn Mode      |
 | A-02 Pitch a   | Portamento Time      | Portamento Mode      |
 | A-03 Pitch b   | Pitch Bend Range     | Stretch Tune         |
@@ -159,7 +159,7 @@
 | A-09 Osc e     | Osc/Filter Drift     | Osc Saw W Mode       |
 | A-10 Filter a  | Filter Cutoff        | Filter Resonance     |
 | A-11 Filter b  | Filter EG Amt        | Filter Key Track     |
-| A-12 Filter c  | Filter Mode          |                      |
+| A-12 Filter c  | Filter Mode          | Filter Drive         |
 | A-13 EG a      | EG Attack            | EG Decay             |
 | A-14 EG b      | EG Sustain           | EG Release           |
 | A-15 EG c      | EG Amp Mod           | EG/Amp Rel = Dec     |
@@ -177,10 +177,11 @@
 | A-27 LFO d     | LFO Filter Amt       |                      |
 | A-28 Breath    | Breath Filter Amt    | Breath Amp Mode      |
 | A-29 Aft Touch | Aft Touch LFO Amt    |                      |
-| A-30 Chorus a  | Chorus Level         | FX Routing           |
-| A-31 Chorus b  | Chorus Rate          | Chorus Depth         |
-| A-32 Delay a   | Delay Level          | Delay Mode           |
-| A-33 Delay b   | Delay Time           | Delay Feedback       |
+| A-30 FX        | Distortion Drive     | FX Routing           |
+| A-31 Chorus a  | Chorus Level         |                      |
+| A-32 Chorus b  | Chorus Rate          | Chorus Depth         |
+| A-33 Delay a   | Delay Level          | Delay Mode           |
+| A-34 Delay b   | Delay Time           | Delay Feedback       |
 | B-00 Panel a   | Panel Play Mode      | MIDI Basic Ch        |
 | B-01 Panel b   | Panel Play Pitch     | Panel Play Velo      |
 | B-02 Panel c   | Panel Scale          | Panel Pitch Ofst     |

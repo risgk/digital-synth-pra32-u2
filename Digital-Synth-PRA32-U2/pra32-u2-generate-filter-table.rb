@@ -70,7 +70,8 @@ end
 # Osc output was 1 / 1.25 of the current one: the ratio of the two is kept);
 # of the Presets, Sync Lead, WT Pad, Fifth Lead, and PWM Lead stop it while
 # playing. Below the knee of soft_clip_output() (0.75), so that it leaves the
-# Filter as a clean sine
+# Filter as a clean sine (the Filter Drive, x 1 in the Presets, divides what
+# leaves the loop by its gain, so a Drive above 0 lowers it: see pra32-u2-filter.h)
 SELF_OSC_LEVEL = 0.5
 SELF_OSC_KAPPA = ((SELF_OSC_LEVEL / 11.4) ** 2) * (48000.0 / SAMPLING_RATE)
 
@@ -107,6 +108,34 @@ def self_osc_weight(controller_value)
   f_0 = cutoff_f_0(controller_value)
   w = Math.log2(SELF_OSC_FADE_END_FREQ / f_0) / Math.log2(SELF_OSC_FADE_END_FREQ / SELF_OSC_FADE_START_FREQ)
   w.clamp(0.0, 1.0)
+end
+
+# Up to 122 the points (Resonance, dB) were set from the measured RMS of the Saw (Plain Poly,
+# Initial, and Saw Lead) against the Resonance: the harmonic near the cutoff that the
+# resonance brings up. From 123 the self-oscillation takes over, SELF_OSC_LEVEL * sqrt(t) in
+# the loop (0.22 at 123, 0.39 at 125, and 0.5 at 127), and the level is set so that it comes
+# out at SELF_OSC_OUTPUT_MIN at 123 rising in a line to SELF_OSC_OUTPUT_MAX at 127: still
+# louder with the Resonance, but by less, while how readily it holds against the input
+# follows the level in the loop as before
+RESONANCE_LEVEL_POINTS = [[0, 0.0], [96, 0.0], [108, -1.3], [116, -2.5], [122, -2.8]]
+SELF_OSC_OUTPUT_MIN = 0.15
+SELF_OSC_OUTPUT_MAX = 0.25
+
+def self_osc_output_level(controller_value)
+  t = (controller_value - 122) / 5.0
+  target = SELF_OSC_OUTPUT_MIN + ((SELF_OSC_OUTPUT_MAX - SELF_OSC_OUTPUT_MIN) * (controller_value - 123) / 4.0)
+  target / (SELF_OSC_LEVEL * Math.sqrt(t))
+end
+
+def resonance_level_db(controller_value)
+  r = controller_value.clamp(0, 127)
+  if r >= 123
+    20.0 * Math.log10(self_osc_output_level(r))
+  else
+    points = RESONANCE_LEVEL_POINTS
+    i = points.index { |point| point[0] >= r }
+    (i == 0) ? points[0][1] : points[i - 1][1] + ((points[i][1] - points[i - 1][1]) * (r - points[i - 1][0]) / (points[i][0] - points[i - 1][0]).to_f)
+  end
 end
 
 def write_filter_table(file, name, comment, fraction_bits)
@@ -146,5 +175,25 @@ write_header("pra32-u2-filter-table.h") do |file|
     k = resonance_k(controller_value)
     printf("reso  : %3d, q  : %9.3f, k: %9.6f\n", controller_value, (k > 0.0) ? 1.0 / k : Float::INFINITY, k)
     k
+  end
+
+  # The output level by the Resonance (after the self-oscillation's fade at a high cutoff),
+  # in Q16: 1.0 up to 96, where the Presets are, and lower above it, so that a sound
+  # at a high Resonance (the harmonic near the cutoff, and the self-oscillation from 123) is
+  # about as loud as one at 96, while the loop, and so how readily the self-oscillation
+  # starts and holds against the input, stays as it was (see RESONANCE_LEVEL_POINTS)
+  write_filter_table(file, "g_filter_resonance_level_table", "Output level by the Resonance, Q16", 16) do |controller_value|
+    db = resonance_level_db(controller_value)
+    level = 10.0 ** (db / 20.0)
+    printf("reso  : %3d, level: %9.4f (%5.1f dB)\n", controller_value, level, db)
+    level
+  end
+
+  # The gain of the Filter Drive and the Distortion Drive, 2^(value / 24): 1.0 at 0, 4.0 at 48,
+  # 32.0 at 120, and 39.2 at 127 (6 dB every 24 values), in Q16
+  write_filter_table(file, "g_filter_drive_gain_table", "Drive gain = 2^(value / 24), Q16", 16) do |controller_value|
+    gain = 2.0 ** (controller_value / 24.0)
+    printf("drive : %3d, gain: %9.4f\n", controller_value, gain)
+    gain
   end
 end

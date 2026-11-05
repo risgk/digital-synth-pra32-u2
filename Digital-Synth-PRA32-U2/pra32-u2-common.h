@@ -36,9 +36,10 @@ const uint8_t FX_BUS_CHORUS = 0;  // Through the Chorus, the Delay, and the Outp
 const uint8_t FX_BUS_DELAY  = 1;  // Through the Delay and the Output Compressor
 const uint8_t FX_BUS_COMP   = 2;  // Through the Output Compressor only
 const uint8_t FX_BUS_DRY    = 3;  // Through none of them
+const uint8_t FX_BUS_DIST   = 4;  // Through the Distortion, and then as the Chorus input
 
 struct PRA32_U2_FxBusSample {
-  PRA32_U2_StereoSample input[4];
+  PRA32_U2_StereoSample input[5];
 };
 
 // Not "= {}", which -Os compiles into a call to memset() in the flash (through a veneer)
@@ -51,6 +52,8 @@ static INLINE void clear_fx_bus(PRA32_U2_FxBusSample& fx_bus) {
   fx_bus.input[2].right = 0;
   fx_bus.input[3].left  = 0;
   fx_bus.input[3].right = 0;
+  fx_bus.input[4].left  = 0;
+  fx_bus.input[4].right = 0;
 }
 
 static INLINE uint8_t low_byte(uint16_t x) {

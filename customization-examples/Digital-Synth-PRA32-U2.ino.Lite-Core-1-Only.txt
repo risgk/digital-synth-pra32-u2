@@ -4,7 +4,7 @@
  * - Osc 1 Shape and Morph are disabled in Saw, Sqr, and WT
  */
 
-#define PRA32_U2_VERSION                       "v3.17.5   "
+#define PRA32_U2_VERSION                       "v3.18.0   "
 
 #define PRA32_U2_MIDI_CH                       (0)  // 0-based
 
@@ -32,6 +32,9 @@
 //#define PRA32_U2_LIMIT_DELAY_TIME_TO_SAVE_MEM
 
 //#define PRA32_U2_USE_LEGACY_OUTPUT_LIMITER     // Use the Output Limiter (until v3.15.0) instead of the Output Compressor
+
+#define PRA32_U2_DISABLE_DISTORTION_FX           // The Distortion FX passes its input through (Dst as Cho), for the load
+#define PRA32_U2_DISABLE_REVERB                  // Delay Mode Rev is the Stereo Delay (Ste), for the load
 
 #define PRA32_U2_NUMBER_OF_SYNTHS              (1)
 

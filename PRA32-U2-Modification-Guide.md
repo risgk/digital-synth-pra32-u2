@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 Modification Guide v3.17.5
+# Digital Synth PRA32-U2 Modification Guide v3.18.0
 
-- 2026-10-26 ISGK Instruments
+- 2026-11-05 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 - For modifying PRA32-U2 with Arduino IDE: the MIDI and audio output settings, and the circuit for PWM Audio; see also [README](./README.md)
 
@@ -169,6 +169,10 @@
     #define PRA32_U2_PWM_AUDIO_L_PIN               (28)
     #define PRA32_U2_PWM_AUDIO_R_PIN               (27)
     ```
+
+    - The audio jack of the Pico VGA Demo Base comes after the circuit of "PWM audio" in
+      [Hardware design with RP2040](https://datasheets.raspberrypi.com/rp2040/hardware-design-with-rp2040.pdf)
+      (a buffer, an analogue filter, and AC coupling), which can be connected to an amplifier or headphones
 
 
 ## Simple Circuit for PWM Audio (Optional)

@@ -63,6 +63,11 @@ const PRA32U2Engine::ParameterInfo s_parameter_names[] = {
   { AMP_SUSTAIN    , "Amp Sustain"                            },
   { AMP_RELEASE    , "Amp Release"                            },
 
+  { OSC_DRIFT      , "Osc/Filter Drift"                       },
+  { FILTER_DRIVE   , "Filter Drive"                           },
+  { COARSE_TUNE    , "Coarse Tune [-|+]"                      },
+  { FINE_TUNE      , "Fine Tune [-|+]"                        },
+
   { A_D_VEL_SENS   , "EG Att/Dec Velo Sens [-|+]"             },
   { REL_VEL_SENS   , "EG Rel Velo Sens [-|+]"                 },
   { EG_VEL_SENS    , "EG Level Velo Sens"                     },
@@ -73,18 +78,16 @@ const PRA32U2Engine::ParameterInfo s_parameter_names[] = {
   { PAN            , "Pan"                                    },
   { STRETCH_TUNE   , "Stretch Tune [-|+]"                     },
 
-  { OSC_DRIFT      , "Osc/Filter Drift"                       },
-  { OSC_SAW_W_MODE , "Osc Saw Wave Mode [Str|Cur]"            },
-  { COARSE_TUNE    , "Coarse Tune [-|+]"                      },
-  { FINE_TUNE      , "Fine Tune [-|+]"                        },
-
   { BTH_FILTER_AMT , "Breath Filter Amt [-|+]"                },
   { BTH_AMP_MOD    , "Breath Amp Mode [Off|Q|L|LO|QO|Opn]"    },
   { AFT_T_LFO_AMT  , "After Touch LFO Amt"                    },
   { PORTA_MODE     , "Portamento Mode [Sw|Aut]"               },
+  { OSC_SAW_W_MODE , "Osc Saw Wave Mode [Str|Cur]"            },
+
+  { DISTORTION     , "Distortion Drive"                       },
+  { FX_ROUTING     , "FX Routing [Dst|Cho|Dly|Dly|Cmp|Dry]"   },
 
   { CHORUS_MIX     , "Chorus Level"                           },
-  { FX_ROUTING     , "FX Routing [Cho|Cho|Dly|Dly|Cmp|Dry]"   },
   { CHORUS_RATE    , "Chorus Rate"                            },
   { CHORUS_DEPTH   , "Chorus Depth"                           },
 
@@ -229,7 +232,7 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value) {
   static const char* const SAW_W_MODES[2]  = { "Str", "Cur" };
   static const char* const PORTA_MODES[2]  = { "Sw", "Aut" };
   static const char* const BTH_AMP_MODS[6] = { "Off", "Q", "L", "LO", "QO", "Opn" };
-  static const char* const FX_ROUTINGS[6]  = { "Cho", "Cho", "Dly", "Dly", "Cmp", "Dry" };
+  static const char* const FX_ROUTINGS[6]  = { "Dst", "Cho", "Dly", "Dly", "Cmp", "Dry" };
   static const char* const ASGN_MODES[6]   = { "1", "1", "3", "3", "4", "2" };
   static const char* const DELAY_MODES[3]  = { "Ste", "PP", "Rev" };
 
