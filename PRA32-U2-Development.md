@@ -25,8 +25,8 @@
 
 - `loop()` on the primary core (core 0) reads MIDI, and then processes 64 frames (`PRA32_U2_I2S_BUFFER_WORDS`)
   and writes them to the output, which blocks while the output buffer is full: the loop is paced by the audio output
-- With `PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING`, core 1 (`loop1()`) takes a part of the processing of each frame on request from core 0, which waits for it;
-  core 1 also updates the panel and prints the debug print. What each core processes:
+- With `PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING`, core 1 (`loop1()`) takes a part of the processing of each frame on request from core 0, which waits for it
+  (with the 4 Synths of PRA32-U2/M, without a request: see below); core 1 also updates the panel and prints the debug print. What each core processes:
 
     | Mode | Core 0 | Core 1 |
     | :-- | :-- | :-- |
@@ -42,12 +42,22 @@
       in PRA32-U2/M, also while core 1 waits for the request of the Voices 2 and 3);
       not in Poly, core 0 processes the back of a frame whose front is done, one a frame, before the (Main) Synth, and the rest (a few) at the end
       (so a loop takes a little more or less with how many are left; making core 0 wait for the fronts, one a frame, took more, with core 1 doing them first)
-    - In PRA32-U2/M with the 4 Synths, the two cores do not wait for each other at every frame: the Main Synth does not request its Voices 2 and 3
-      when not in Poly (`PRA32_U2_SECONDARY_CORE_IN_POLY_ONLY`), so core 1 goes on with the Sub Synths 1 and 3 of the frames one after another
-      (into a buffer, a few frames ahead of the front of the FX at most) and the front of the FX of the frames that core 0 has put, and core 0
-      waits for the Sub Synths of a frame only if they are not done yet
-      (at v3.18.0, with a request and a wait at every frame, core 0 waited for core 1 for about 11% of a loop: 87% / 75% estimated,
-      and on the device `max(loop)` 1272 us; now 76% / 74% estimated, and on the device `max(loop)` 1083 us, `min(loop)` 1064 us)
+    - In PRA32-U2/M with the 4 Synths, the two cores do not wait for each other at every frame, but each goes on as far as what it needs is done
+      (at v3.18.0, with a request and a wait at every frame, core 0 waited for core 1 for about 11% of a loop, also while core 1 finished a front of
+      the FX that it had started: 87% / 75% estimated, and on the device `max(loop)` 1272 us; now 76% / 74% estimated, and on the device
+      `max(loop)` 1083 us, `min(loop)` 1064 us). What the work is, and when it is done, are the same; the RAM is about 3 KB more (the buffer below)
+        - The Main Synth does not request its Voices 2 and 3 of core 1 when not in Poly (`PRA32_U2_SECONDARY_CORE_IN_POLY_ONLY`, which PRA32-U2/M defines)
+        - Core 1 (`processSubSynthsOrFxFront()`) processes the Sub Synths 1 and 3 of the frames one after another into `s_sub_fx_buses` (their FX inputs,
+          by their FX Routing), and tells how many are done (`s_sub_frames_done`); it does not wait for core 0 for them, and goes `SUB_FRAMES_AHEAD` (2)
+          frames ahead of the front of the FX at most, doing the front of a frame that core 0 has put (`s_fx_frames_put`) instead, as soon as it is put.
+          It updates the panel once for each frame of the Sub Synths, 64 times a loop, as with the requests
+        - Core 0 processes the Sub Synth 2 and the Main Synth of a frame, waits for the Sub Synths 1 and 3 of the frame only if they are not done yet
+          (they are, mostly), adds them, and puts the FX input; it processes the back of a frame whose front is done, one a frame, as before,
+          and at the end of the loop waits until all of the fronts are done. The sum of the FX input is the same (the order of the integer additions
+          differs: Sub Synth 2, Main Synth, Sub Synths 3 and 1, from Sub Synth 2, Sub Synths 3 and 1, Main Synth)
+        - The loops do not overlap: core 1 starts the Sub Synths of a loop only after core 0 has read and processed the MIDI of it
+          (`s_sub_frames_pending`), so a Note On takes effect on all of the synths from the first frame of the loop, as before; and it ends the loop
+          before it tells the last front done, after which core 0 may start the next one
     - The Customization Examples (Lite) process all of it on one core, with `process_fx()` (the front and the back in one)
 - MIDI is read at the start of each loop: 5 bytes of USB MIDI and 8 bytes of UART MIDI, more than the about 4.2 bytes that 31250 bps brings in a loop;
   the messages are processed there, so a burst of MIDI (e.g. from USB MIDI and UART MIDI at the same time) makes that loop a little longer
