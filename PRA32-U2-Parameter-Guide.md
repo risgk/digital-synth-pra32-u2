@@ -315,10 +315,12 @@
     - 127: About 2.8 cent (RMS)
 - Filter Drive: The gain into the Filter, 2^(value / 24) (6 dB every 24 values; x 4 at 48, x 32 at 120, x 39.2 at 127), which drives the loop (the leak, at a high Resonance or near the cutoff) harder; what leaves the loop is lowered by the same ahead of the output clip, so that the level stays and the Drive changes the tone alone (the self-oscillation comes out lower by it, and a high Drive holds the resonant peak down; at a low Resonance it does little)
     - 0: x 1.00 (0 dB, min, the Presets: the Filter as it was)
-    - 32: x 2.00 (+6 dB)
-    - 64: x 4.00 (+12 dB)
-    - 96: x 8.00 (+18 dB)
-    - 127: x 15.7 (+23.9 dB, max)
+    - 24: x 2.00 (+6 dB)
+    - 48: x 4.00 (+12 dB)
+    - 72: x 8.00 (+18 dB)
+    - 96: x 16.0 (+24 dB)
+    - 120: x 32.0 (+30 dB)
+    - 127: x 39.2 (+31.9 dB, max)
     - NOTE: Not changed by "Randomize Synth"
 - Coarse Tune [-|+]
     - -64 (0): -64 semitone
@@ -406,10 +408,12 @@
 - Distortion Drive: The drive into the Distortion FX, 2^(value / 24) (6 dB every 24 values; x 4 at 48, x 32 at 120, x 39.2 at 127), for the synths whose FX Routing is Dst; the output is lowered by 15/16 of the drive in dB up to 96 (x 16), and by as much as there above it, where most of a sound is past the shoulder already, so that the level stays within about 2 dB as the drive goes up (a single quiet note gets a few dB louder at the top) (a little up halfway, and a little down where it saturates hard). The shoulder below zero is shorter than above (even harmonics too), the aliasing is reduced by ADAA (antiderivative anti-aliasing), and a tone (a 1-pole low pass) after it takes the edge off the harmonics, more with more drive (none at 0, about 10 kHz at 64, 5 kHz at 127)
     - NOTE: On a single note of the Saw Wave, which has every harmonic already, the Distortion changes the tone little; it is heard best on a chord (from a Distortion Drive of about 30 up, with the Presets), with a high Filter Resonance (about 110 or above, from a Distortion Drive of about 72 up), or with the Sine or the Triangle Wave
     - 0: x 1.00 (0 dB, min, the Presets: a sound below full scale passes as it is)
-    - 32: x 2.00 (+6 dB)
-    - 64: x 4.00 (+12 dB)
-    - 96: x 8.00 (+18 dB)
-    - 127: x 15.7 (+23.9 dB, max)
+    - 24: x 2.00 (+6 dB)
+    - 48: x 4.00 (+12 dB)
+    - 72: x 8.00 (+18 dB)
+    - 96: x 16.0 (+24 dB)
+    - 120: x 32.0 (+30 dB)
+    - 127: x 39.2 (+31.9 dB, max)
     - NOTE: Not changed by "Randomize Synth" or "Randomize FX"
 - FX Routing [Dst|Cho|Dly|Dly|Cmp|Dry]: Where the output is input to the FX (connected in series: Distortion -> Chorus -> Delay -> Output Compressor)
     - 0 (0-12): Dst (through the Distortion, the Chorus, the Delay, and the Output Compressor)
