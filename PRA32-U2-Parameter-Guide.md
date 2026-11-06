@@ -309,7 +309,6 @@
     - 96: x 16.0 (+24 dB)
     - 120: x 32.0 (+30 dB)
     - 127: x 39.2 (+31.9 dB, max)
-    - NOTE: Not changed by "Randomize Synth"
 - EG Amp Mod [Off|On]
     - 0 (0-63): Off
     - 127 (64-127): On
@@ -324,6 +323,7 @@
 - Pitch Bend Range
     - 0: 0 semitone (min)
     - 64 (64-127): 64 semitone (max)
+    - NOTE: Not changed by "Randomize Synth"
 - Coarse Tune [-|+]
     - -64 (0): -64 semitone
     - -1 (63): -1 semitone
