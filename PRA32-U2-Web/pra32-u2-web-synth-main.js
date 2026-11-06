@@ -87,7 +87,8 @@
     console.log(PRA32_U2_WEB_VERSION + " ready (" + context.sampleRate + " Hz)");
   }
 
-  let outputGain = 1;  // That of the output that sent last
+  let outputGain = 1;      // That of the output that sent last
+  let outputIsM  = false;  // PRA32-U2/M Web, or PRA32-U2 Web
 
   function post(message) {
     if (node) {
@@ -98,15 +99,18 @@
   }
 
   // The outputs for MIDI Out: as PRA32-U2 sounds, and 6 dB louder (x 2, with a soft clip above -2 dBFS),
-  // for a level closer to that of other sounds (e.g. of a Web browser); the one that sends sets the gain
-  function makeOutput(name, gain) {
+  // for a level closer to that of other sounds (e.g. of a Web browser); and PRA32-U2/M Web (the 4 synths by the MIDI
+  // channels, with the Basic Channel 1), the same. The one that sends sets the gain and selects the synth (each of
+  // PRA32-U2 Web and PRA32-U2/M Web keeps its own state)
+  function makeOutput(name, gain, m) {
     return {
       name: name,
       isPRA32U2WebSynth: true,
       send: function(data) {
-        if (outputGain !== gain) {
+        if ((outputGain !== gain) || (outputIsM !== m)) {
           outputGain = gain;
-          post({ outputGain: gain });
+          outputIsM  = m;
+          post({ outputGain: gain, m: m });
         }
         post(Array.from(data).slice(0, 3));
 
@@ -118,8 +122,10 @@
     };
   }
 
-  const output     = makeOutput("PRA32-U2 Web (Built-in)", 1);
-  const outputLoud = makeOutput("PRA32-U2 Web (Built-in, +6 dB)", 2);
+  const output      = makeOutput("PRA32-U2 Web (Built-in)", 1, false);
+  const outputLoud  = makeOutput("PRA32-U2 Web (Built-in, +6 dB)", 2, false);
+  const outputM     = makeOutput("PRA32-U2/M Web (Built-in)", 1, true);
+  const outputMLoud = makeOutput("PRA32-U2/M Web (Built-in, +6 dB)", 2, true);
 
-  window.PRA32U2WebSynth = { version: PRA32_U2_WEB_VERSION, output: output, outputs: [output, outputLoud] };
+  window.PRA32U2WebSynth = { version: PRA32_U2_WEB_VERSION, output: output, outputs: [output, outputLoud, outputM, outputMLoud] };
 })();

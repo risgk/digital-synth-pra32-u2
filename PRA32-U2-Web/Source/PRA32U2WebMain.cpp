@@ -1,5 +1,7 @@
 // The C API of PRA32-U2 Web (WebAssembly), used by the AudioWorkletProcessor (pra32-u2-web-synth-processor.js).
-// The renderer of PRA32-U2 Native (PRA32U2Renderer, PRA32U2Engine, PRA32U2Resampler) is used as it is
+// The renderer of PRA32-U2 Native (PRA32U2Renderer, PRA32U2Engine, PRA32U2Resampler) is used as it is,
+// for PRA32-U2 Web and for PRA32-U2/M Web (built with PRA32_U2_ENGINE_M), each with its own state; the one selected
+// takes the MIDI messages and is rendered
 
 #include <emscripten/emscripten.h>
 
@@ -9,7 +11,8 @@ namespace {
 
 constexpr int kMaxBlockSize = 1024;
 
-PRA32U2Renderer* s_renderer = nullptr;
+PRA32U2Renderer* s_renderers[2] = { nullptr, nullptr };  // PRA32-U2 Web, and PRA32-U2/M Web
+PRA32U2Renderer* s_renderer = nullptr;                    // The one selected
 float            s_left[kMaxBlockSize];
 float            s_right[kMaxBlockSize];
 
@@ -23,9 +26,17 @@ EMSCRIPTEN_KEEPALIVE int pra32u2_web_max_block_size() {
 
 EMSCRIPTEN_KEEPALIVE void pra32u2_web_prepare(double samplingRate) {
   if (s_renderer == nullptr) {
-    s_renderer = new PRA32U2Renderer();
+    s_renderers[0] = new PRA32U2Renderer(false);
+    s_renderers[1] = new PRA32U2Renderer(true);
+    s_renderer = s_renderers[0];
   }
-  s_renderer->prepare(samplingRate);
+  s_renderers[0]->prepare(samplingRate);
+  s_renderers[1]->prepare(samplingRate);
+}
+
+// Selects PRA32-U2 Web (0) or PRA32-U2/M Web (1)
+EMSCRIPTEN_KEEPALIVE void pra32u2_web_select(int m) {
+  s_renderer = s_renderers[(m != 0) ? 1 : 0];
 }
 
 // Adds a MIDI message (1-3 bytes) at sampleOffset in the next pra32u2_web_render() block

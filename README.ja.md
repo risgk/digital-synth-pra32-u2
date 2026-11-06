@@ -100,6 +100,10 @@
         - "PRA32-U2 Web (Built-in, +6 dB)": 6 dB 大きく、他の音源に近い音量です (-2 dBFS を超えるピークは丸めます)
             - "+6 dB" なしは PRA32-U2 と同じ音です (実機と比べるときなど)
             - Amp Gain が高いと、丸めたピークが少し歪んで聞こえることがあります
+    - PRA32-U2 Web で PRA32-U2/M (4 台のシンセ) を使うには、"PRA32-U2/M Web (Built-in)" (または "+6 dB" 付き) を選んでください
+        - Basic Channel は 1 です (変更できません)。編集するシンセは "MIDI Ch" で選んでください (チャンネルは PRA32-U2/M の説明を参照)
+        - PRA32-U2/M と同じく、Main Synth はプログラム #0、Sub Synth 1-3 は #1-3 で始まります。Sub Synth は Main Synth が Poly でないときだけ鳴ります
+    - 出力を選んでも何も送りません (PRA32-U2 Web も同じ)。"Send Current" で PRA32-U2 Editor のパラメーター (1 組) を "MIDI Ch" のシンセに送ります
 
 
 ### プログラムとプリセット

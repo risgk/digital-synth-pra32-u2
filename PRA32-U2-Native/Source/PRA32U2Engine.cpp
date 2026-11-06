@@ -14,6 +14,23 @@ uint8_t g_midi_ch = 0;  // Used by the core (only for the panel); the engine rec
 
 #include <array>
 
+#if defined(PRA32_U2_ENGINE_M)
+// PRA32-U2/M (PRA32-U2/M Web): the 4 synths (the Main Synth and the Sub Synths 1-3), as "Digital-Synth-PRA32-U2-M.ino",
+// with the MIDI messages by "pra32-u2-m-midi.h" (the Basic Channel 1, the Layering, and the Round Robin).
+// They are global variables, as "pra32-u2-m-midi.h" uses them, so there is one of them at most in a process
+typedef uint8_t byte;
+
+PRA32_U2_Synth<false, false, true, 0, false> g_synth;
+PRA32_U2_Synth<true,  false, true, 1, true>  g_sub_1_synth;
+PRA32_U2_Synth<true,  false, true, 2, true>  g_sub_2_synth;
+PRA32_U2_Synth<true,  false, true, 3, true>  g_sub_3_synth;
+boolean g_synth_is_in_polyphonic_mode = true;
+
+#define PRA32_U2_ENABLE_LAYERING
+#define PRA32_U2_ENABLE_ROUND_ROBIN
+#include "pra32-u2-m-midi.h"
+#endif  // defined(PRA32_U2_ENGINE_M)
+
 namespace {
 
 // The names of the parameters, the same as PRA32-U2 Editor (the parameters and their order are s_program_table_parameters of the core)
@@ -130,6 +147,8 @@ const float OUTPUT_SCALE = 1.0f / static_cast<float>(1 << 23);  // The output of
 
 struct PRA32U2Engine::Impl {
   PRA32_U2_Synth<false, false, true> synth;  // The same as Digital-Synth-PRA32-U2.ino
+  bool     m = false;   // PRA32-U2/M (with PRA32_U2_ENGINE_M only)
+  uint32_t frame = 0;   // In a loop of 64 frames of "Digital-Synth-PRA32-U2-M.ino"
 };
 
 int PRA32U2Engine::getNumParameters() {
@@ -289,9 +308,21 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value) {
   return std::to_string(v) + " [" + dispValue + "]";
 }
 
-PRA32U2Engine::PRA32U2Engine()
+PRA32U2Engine::PRA32U2Engine(bool m)
 : m_impl(std::make_unique<Impl>())
 {
+#if defined(PRA32_U2_ENGINE_M)
+  m_impl->m = m;
+  if (m) {
+    g_synth.initialize();
+    g_sub_1_synth.initialize();
+    g_sub_2_synth.initialize();
+    g_sub_3_synth.initialize();
+    return;
+  }
+#else
+  (void) m;
+#endif  // defined(PRA32_U2_ENGINE_M)
   m_impl->synth.initialize();
 }
 
@@ -305,6 +336,28 @@ void PRA32U2Engine::handleMidiMessage(const uint8_t* data, int size) {
   uint8_t status = data[0] & 0xF0;
   uint8_t data_1 = (size >= 2) ? (data[1] & 0x7F) : 0;
   uint8_t data_2 = (size >= 3) ? (data[2] & 0x7F) : 0;
+
+#if defined(PRA32_U2_ENGINE_M)
+  if (m_impl->m) {
+    // By the channel, as "Digital-Synth-PRA32-U2-M.ino" (a Program Change is processed in one of the next loops)
+    byte channel = (data[0] & 0x0F) + 1;
+    switch (status) {
+    case 0x80: if (size >= 3) { handleNoteOff(channel, data_1, data_2); } break;
+    case 0x90:
+      if (size >= 3) {
+        if (data_2 == 0) { handleNoteOff(channel, data_1, 64); } else { handleNoteOn(channel, data_1, data_2); }
+      }
+      break;
+    case 0xA0: if (size >= 3) { handleAfterTouchPoly(channel, data_1, data_2); } break;
+    case 0xB0: if (size >= 3) { handleControlChange(channel, data_1, data_2); } break;
+    case 0xC0: if (size >= 2) { handleProgramChange(channel, data_1); } break;
+    case 0xD0: if (size >= 2) { handleAfterTouchChannel(channel, data_1); } break;
+    case 0xE0: if (size >= 3) { handlePitchBend(channel, ((data_2 << 7) | data_1) - 8192); } break;
+    default: break;
+    }
+    return;
+  }
+#endif  // defined(PRA32_U2_ENGINE_M)
 
   switch (status) {
   case 0x80:
@@ -339,15 +392,67 @@ void PRA32U2Engine::handleMidiMessage(const uint8_t* data, int size) {
   }
 }
 
+// (For PRA32-U2/M, those of the Main Synth)
 void PRA32U2Engine::controlChange(uint8_t controlNumber, uint8_t value) {
+#if defined(PRA32_U2_ENGINE_M)
+  if (m_impl->m) {
+    g_synth.control_change(controlNumber & 0x7F, value & 0x7F);
+    return;
+  }
+#endif  // defined(PRA32_U2_ENGINE_M)
   m_impl->synth.control_change(controlNumber & 0x7F, value & 0x7F);
 }
 
 uint8_t PRA32U2Engine::getControllerValue(uint8_t controlNumber) const {
+#if defined(PRA32_U2_ENGINE_M)
+  if (m_impl->m) {
+    return g_synth.current_controller_value(controlNumber & 0x7F);
+  }
+#endif  // defined(PRA32_U2_ENGINE_M)
   return m_impl->synth.current_controller_value(controlNumber & 0x7F);
 }
 
 void PRA32U2Engine::process(float& left, float& right) {
+#if defined(PRA32_U2_ENGINE_M)
+  if (m_impl->m) {
+    // A loop of 64 frames, and the synths of each frame in the order of "Digital-Synth-PRA32-U2-M.ino" (on one core);
+    // the Sub Synths only while the Main Synth is not in Poly
+    if (m_impl->frame == 0) {
+      processOnePendingProgramChange();
+      boolean mode = g_synth.is_in_polyphonic_mode();
+      if (g_synth_is_in_polyphonic_mode != mode) {
+        g_synth_is_in_polyphonic_mode = mode;
+        g_sub_1_synth.all_notes_off(true);
+        g_sub_2_synth.all_notes_off(true);
+        g_sub_3_synth.all_notes_off(true);
+        roundRobinReset();
+      }
+    }
+    m_impl->frame = (m_impl->frame + 1) & 63;
+
+    PRA32_U2_StereoSample sub_1_output = { 0, 0 };
+    PRA32_U2_StereoSample sub_2_output = { 0, 0 };
+    PRA32_U2_StereoSample sub_3_output = { 0, 0 };
+    if (g_synth_is_in_polyphonic_mode == false) {
+      sub_2_output = g_sub_2_synth.process(0, 0);
+    }
+    PRA32_U2_FxBusSample fx_bus;
+    clear_fx_bus(fx_bus);
+    g_sub_2_synth.add_to_fx_bus(sub_2_output, fx_bus);
+    PRA32_U2_StereoSample main_output = g_synth.process<false, true>(0, 0);
+    if (g_synth_is_in_polyphonic_mode == false) {
+      sub_3_output = g_sub_3_synth.process(0, 0);
+      sub_1_output = g_sub_1_synth.process(0, 0);
+    }
+    g_sub_3_synth.add_to_fx_bus(sub_3_output, fx_bus);
+    g_sub_1_synth.add_to_fx_bus(sub_1_output, fx_bus);
+    g_synth.add_to_fx_bus(main_output, fx_bus);
+    PRA32_U2_StereoSample output = g_synth.process_fx(fx_bus);
+    left  = static_cast<float>(output.left)  * OUTPUT_SCALE;
+    right = static_cast<float>(output.right) * OUTPUT_SCALE;
+    return;
+  }
+#endif  // defined(PRA32_U2_ENGINE_M)
   PRA32_U2_StereoSample output = m_impl->synth.process(0, 0);
   left  = static_cast<float>(output.left)  * OUTPUT_SCALE;
   right = static_cast<float>(output.right) * OUTPUT_SCALE;

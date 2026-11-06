@@ -31,7 +31,7 @@ const sources = [
   path.join(NATIVE, "PRA32U2Resampler.cpp"),
 ];
 const command = [
-  "em++", "-O3", "-std=c++17", "-fno-exceptions", "-Wno-unknown-attributes",
+  "em++", "-O3", "-std=c++17", "-fno-exceptions", "-Wno-unknown-attributes", "-DPRA32_U2_ENGINE_M",
   "-sSTANDALONE_WASM", "--no-entry", "-sFILESYSTEM=0",
   "-sINITIAL_MEMORY=2MB", "-sSTACK_SIZE=256KB", "-sALLOW_MEMORY_GROWTH=0",
   "-I" + JSON.stringify(NATIVE), "-I" + JSON.stringify(CORE),

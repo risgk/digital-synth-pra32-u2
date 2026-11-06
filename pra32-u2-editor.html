@@ -1686,12 +1686,10 @@ function onChangeInputPort4(){
   }
 }
 
+// Nothing is sent to the output chosen (PRA32-U2 Web too, as PRA32-U2 is): "Send Current" sends the parameters
 function onChangeOutputPort() {
   var selectOutputPort = document.getElementById("selectOutputPort");
   midiOutput = midiOutputs[selectOutputPort.selectedIndex];
-  if (midiOutput && midiOutput.isPRA32U2WebSynth) {
-    sendCurrentParameters();
-  }
 }
 
 function onChangeMIDICh() {
