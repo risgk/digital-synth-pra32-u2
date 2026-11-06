@@ -832,7 +832,7 @@ const LFO_FILTER_AMT  = 25;
 const AMP_GAIN        = 15;
 
 const FILTER_MODE     = 39;
-const P_BEND_RANGE    = 57;
+const FILTER_DRIVE    = 31;
 const EG_AMP_MOD      = 36;
 const REL_EQ_DECAY    = 105;
 
@@ -860,7 +860,7 @@ const BTH_FILTER_AMT  = 60;
 const BTH_AMP_MOD     = 61;
 const AFT_T_LFO_AMT   = 37;
 const PORTA_MODE      = 34;
-const FILTER_DRIVE    = 31;
+const P_BEND_RANGE    = 57;
 
 const DISTORTION      = 95;
 const FX_ROUTING      = 77;
@@ -937,7 +937,7 @@ var controlNumberToStringMap = new Map([
   [ AMP_GAIN       , "AMP_GAIN       " ],
 
   [ FILTER_MODE    , "FILTER_MODE    " ],
-  [ P_BEND_RANGE   , "P_BEND_RANGE   " ],
+  [ FILTER_DRIVE   , "FILTER_DRIVE   " ],
   [ EG_AMP_MOD     , "EG_AMP_MOD     " ],
   [ REL_EQ_DECAY   , "REL_EQ_DECAY   " ],
 
@@ -947,7 +947,7 @@ var controlNumberToStringMap = new Map([
   [ AMP_RELEASE    , "AMP_RELEASE    " ],
 
   [ OSC_DRIFT      , "OSC_DRIFT      " ],
-  [ FILTER_DRIVE   , "FILTER_DRIVE   " ],
+  [ P_BEND_RANGE   , "P_BEND_RANGE   " ],
   [ COARSE_TUNE    , "COARSE_TUNE    " ],
   [ FINE_TUNE      , "FINE_TUNE      " ],
 
@@ -1017,7 +1017,7 @@ var controllersInLocalStorage = [
   AMP_GAIN       ,
 
   FILTER_MODE    ,
-  P_BEND_RANGE   ,
+  FILTER_DRIVE   ,
   EG_AMP_MOD     ,
   REL_EQ_DECAY   ,
 
@@ -1027,7 +1027,7 @@ var controllersInLocalStorage = [
   AMP_RELEASE    ,
 
   OSC_DRIFT      ,
-  FILTER_DRIVE   ,
+  P_BEND_RANGE   ,
   COARSE_TUNE    ,
   FINE_TUNE      ,
 
@@ -1099,7 +1099,7 @@ presetControllers[LFO_FILTER_AMT ] = [76 , 76 , 76 , 64 , 64 , 76 , 76 , 64 ,   
 presetControllers[AMP_GAIN       ] = [90 , 90 , 110, 90 , 100, 80 , 100, 90 ,   90 , 90 , 90 , 90 , 90 , 80 , 80 , 90 ];
 
 presetControllers[FILTER_MODE    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
-presetControllers[P_BEND_RANGE   ] = [2  , 2  , 2  , 2  , 2  , 2  , 2  , 2  ,   2  , 2  , 2  , 2  , 2  , 2  , 2  , 2  ];
+presetControllers[FILTER_DRIVE   ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 presetControllers[EG_AMP_MOD     ] = [0  , 127, 127, 127, 127, 0  , 127, 127,   0  , 127, 127, 127, 127, 127, 127, 127];
 presetControllers[REL_EQ_DECAY   ] = [127, 127, 127, 127, 127, 127, 127, 127,   127, 127, 127, 127, 127, 127, 127, 127];
 
@@ -1109,7 +1109,7 @@ presetControllers[AMP_SUSTAIN    ] = [127, 127, 127, 127, 127, 127, 127, 127,   
 presetControllers[AMP_RELEASE    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 
 presetControllers[OSC_DRIFT      ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
-presetControllers[FILTER_DRIVE   ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+presetControllers[P_BEND_RANGE   ] = [2  , 2  , 2  , 2  , 2  , 2  , 2  , 2  ,   2  , 2  , 2  , 2  , 2  , 2  , 2  , 2  ];
 presetControllers[COARSE_TUNE    ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 presetControllers[FINE_TUNE      ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 
@@ -1904,7 +1904,7 @@ function setRandom() {
         (i != BTH_AMP_MOD    ) &&
         (i != AFT_T_LFO_AMT  ) &&
         (i != PORTA_MODE     ) &&
-        (i != FILTER_DRIVE   ) &&
+        (i != P_BEND_RANGE   ) &&
         (i != AMP_ATTACK     ) &&
         (i != AMP_DECAY      ) &&
         (i != AMP_SUSTAIN    ) &&
@@ -2893,7 +2893,7 @@ function fileExport() {
   str += fileExportOneLine(AMP_GAIN       );
   str += "\n";
   str += fileExportOneLine(FILTER_MODE    );
-  str += fileExportOneLine(P_BEND_RANGE   );
+  str += fileExportOneLine(FILTER_DRIVE   );
   str += fileExportOneLine(EG_AMP_MOD     );
   str += fileExportOneLine(REL_EQ_DECAY   );
   str += "\n";
@@ -2902,7 +2902,7 @@ function fileExport() {
   str += fileExportOneLine(AMP_SUSTAIN    );
   str += fileExportOneLine(AMP_RELEASE    );
   str += fileExportOneLine(OSC_DRIFT      );
-  str += fileExportOneLine(FILTER_DRIVE   );
+  str += fileExportOneLine(P_BEND_RANGE   );
   str += fileExportOneLine(COARSE_TUNE    );
   str += fileExportOneLine(FINE_TUNE      );
   str += "\n";
@@ -3317,8 +3317,8 @@ function getStoredCCValueString(index, number) {
   <div class="param-ctrl soft-markers-6"><input  id="inputFILTER_MODE    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(FILTER_MODE    , value)"><span    id="spanFILTER_MODE    " >-</span><span   id="span2FILTER_MODE    " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name">Pitch Bend Range <span class="cc">CC#57</span></div>
-  <div class="param-ctrl"><input  id="inputP_BEND_RANGE   "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(P_BEND_RANGE   , value)"><span    id="spanP_BEND_RANGE   " >-</span><span   id="span2P_BEND_RANGE   " >-</span></div>
+  <div class="param-name"><b>Filter</b> Drive <span class="cc">CC#31</span></div>
+  <div class="param-ctrl"><input  id="inputFILTER_DRIVE   "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(FILTER_DRIVE   , value)"><span    id="spanFILTER_DRIVE   " >-</span><span   id="span2FILTER_DRIVE   " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>EG</b> Amp Mod <span class="sup">[Off|On]</span> <span class="cc">CC#36</span></div>
@@ -3351,8 +3351,8 @@ function getStoredCCValueString(index, number) {
   <div class="param-ctrl"><input  id="inputOSC_DRIFT      "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_DRIFT      , value)"><span    id="spanOSC_DRIFT      " >-</span><span   id="span2OSC_DRIFT      " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>Filter</b> Drive <span class="cc">CC#31</span></div>
-  <div class="param-ctrl"><input  id="inputFILTER_DRIVE   "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(FILTER_DRIVE   , value)"><span    id="spanFILTER_DRIVE   " >-</span><span   id="span2FILTER_DRIVE   " >-</span></div>
+  <div class="param-name">Pitch Bend Range <span class="cc">CC#57</span></div>
+  <div class="param-ctrl"><input  id="inputP_BEND_RANGE   "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(P_BEND_RANGE   , value)"><span    id="spanP_BEND_RANGE   " >-</span><span   id="span2P_BEND_RANGE   " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name">Coarse Tune <span class="sup">[-|+]</span> <span class="cc">CC#86</span></div>

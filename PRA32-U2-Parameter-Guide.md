@@ -12,9 +12,9 @@
     - "#19 Plain Poly" is a plain Saw Wave sound (Osc 1 Wave: Pulse Wave, with Osc 1 Morph: Saw 100%) in Poly, with the FX on (Chorus, and Reverb), while "#23 Initial" is in Mono, with the FX off
     - In "#19 Plain Poly", Osc 1 Morph changes the wave from the Saw: lower to a Pulse, higher to 2 Saws, with the pulse width (or the phase of the 2nd Saw) set by Osc 1 Shape (Osc 1 Shape has no effect while Osc 1 Morph is 64)
     - In both, EG Amp Mod is On: the EG also works as the Amp EG, so the Amp Attack/Decay/Sustain/Release are not used
-- Voice and Pitch: Voice Mode, Portamento Time, Pitch Bend Range
+- Voice and Pitch: Voice Mode, Portamento Time
 - Osc: Osc 1 Wave, Mixer Noise/Sub Osc, Osc 1 Shape, Osc 1 Morph, Osc 2 Wave, Mixer Osc Mix, Osc 2 Coarse, Osc 2 Pitch
-- Filter: Filter Cutoff, Filter Resonance, Filter EG Amt, Filter Key Track, Filter Mode
+- Filter: Filter Cutoff, Filter Resonance, Filter EG Amt, Filter Key Track, Filter Mode, Filter Drive
 - Amp: Amp Gain
 - EG: EG Attack, EG Decay, EG Sustain, EG Release, EG Mod Amt, EG Mod Dst, EG Amp Mod, EG/Amp Rel = Dec
 - LFO: LFO Wave, LFO Fade Time, LFO Rate, LFO Depth, LFO Mod Amt, LFO Mod Dst, LFO Filter Amt
@@ -299,9 +299,15 @@
     - 77 (64-89): Band Pass
     - 102 (90-115): Band Reject (Notch)
     - 127 (116-127): High Pass
-- Pitch Bend Range
-    - 0: 0 semitone (min)
-    - 64 (64-127): 64 semitone (max)
+- Filter Drive: The gain into the Filter, 2^(value / 24) (6 dB every 24 values; x 4 at 48, x 32 at 120, x 39.2 at 127), which drives the loop (the leak, at a high Resonance or near the cutoff) harder; what leaves the loop is lowered by the same ahead of the output clip, so that the level stays and the Drive changes the tone alone (the self-oscillation comes out lower by it, and a high Drive holds the resonant peak down; at a low Resonance it does little)
+    - 0: x 1.00 (0 dB, min, the Presets: the Filter as it was)
+    - 24: x 2.00 (+6 dB)
+    - 48: x 4.00 (+12 dB)
+    - 72: x 8.00 (+18 dB)
+    - 96: x 16.0 (+24 dB)
+    - 120: x 32.0 (+30 dB)
+    - 127: x 39.2 (+31.9 dB, max)
+    - NOTE: Not changed by "Randomize Synth"
 - EG Amp Mod [Off|On]
     - 0 (0-63): Off
     - 127 (64-127): On
@@ -313,15 +319,9 @@
     - 32: About 0.7 cent (RMS)
     - 64: About 1.4 cent (RMS)
     - 127: About 2.8 cent (RMS)
-- Filter Drive: The gain into the Filter, 2^(value / 24) (6 dB every 24 values; x 4 at 48, x 32 at 120, x 39.2 at 127), which drives the loop (the leak, at a high Resonance or near the cutoff) harder; what leaves the loop is lowered by the same ahead of the output clip, so that the level stays and the Drive changes the tone alone (the self-oscillation comes out lower by it, and a high Drive holds the resonant peak down; at a low Resonance it does little)
-    - 0: x 1.00 (0 dB, min, the Presets: the Filter as it was)
-    - 24: x 2.00 (+6 dB)
-    - 48: x 4.00 (+12 dB)
-    - 72: x 8.00 (+18 dB)
-    - 96: x 16.0 (+24 dB)
-    - 120: x 32.0 (+30 dB)
-    - 127: x 39.2 (+31.9 dB, max)
-    - NOTE: Not changed by "Randomize Synth"
+- Pitch Bend Range
+    - 0: 0 semitone (min)
+    - 64 (64-127): 64 semitone (max)
 - Coarse Tune [-|+]
     - -64 (0): -64 semitone
     - -1 (63): -1 semitone

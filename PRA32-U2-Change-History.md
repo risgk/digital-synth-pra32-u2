@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v3.20.1 (2026-??-??):
+    - Filter Drive among the main parameters, in the place of Pitch Bend Range (and Pitch Bend Range in that of Filter Drive), in PRA32-U2 Editor, the chart, the JSON files, the Parameter Guide, and PRA32-U2 Native; "Randomize Synth" (Program Change #127) changes Filter Drive, and no longer Pitch Bend Range
     - Tested with Arduino-Pico version 6.3.0
 - v3.20.0 (2026-11-06):
     - PRA32-U2 Web: Add **"PRA32-U2/M Web (Built-in)"** (and with "+6 dB") to MIDI Out: PRA32-U2/M (the 4 synths) by the MIDI channels (the Basic Channel 1), with the Layering and the Round Robin

@@ -71,7 +71,7 @@ const PRA32U2Engine::ParameterInfo s_parameter_names[] = {
   { AMP_GAIN       , "Amp Gain"                               },
 
   { FILTER_MODE    , "Filter Mode [LP|LP|BP|BP|BR|HP]"        },
-  { P_BEND_RANGE   , "Pitch Bend Range"                       },
+  { FILTER_DRIVE   , "Filter Drive"                           },
   { EG_AMP_MOD     , "EG Amp Mod [Off|On]"                    },
   { REL_EQ_DECAY   , "EG/Amp Rel = Dec [Off|On]"              },
 
@@ -81,7 +81,7 @@ const PRA32U2Engine::ParameterInfo s_parameter_names[] = {
   { AMP_RELEASE    , "Amp Release"                            },
 
   { OSC_DRIFT      , "Osc/Filter Drift"                       },
-  { FILTER_DRIVE   , "Filter Drive"                           },
+  { P_BEND_RANGE   , "Pitch Bend Range"                       },
   { COARSE_TUNE    , "Coarse Tune [-|+]"                      },
   { FINE_TUNE      , "Fine Tune [-|+]"                        },
 

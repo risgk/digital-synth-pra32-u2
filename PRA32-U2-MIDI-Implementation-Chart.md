@@ -64,7 +64,7 @@
 |                            15 | x             | o             | Amp Gain                             |
 |                               |               |               |                                      |
 |                            39 | x             | o             | Filter Mode [LP|LP|BP|BP|BR|HP]      |
-|                            57 | x             | o             | Pitch Bend Range                     |
+|                            31 | x             | o             | Filter Drive                         |
 |                            36 | x             | o             | EG Amp Mod [Off|On]                  |
 |                           105 | x             | o             | EG/Amp Rel = Dec [Off|On]            |
 |                               |               |               |                                      |
@@ -74,7 +74,7 @@
 |                            55 | x             | o             | Amp Release                          |
 |                               |               |               |                                      |
 |                            82 | x             | o             | Osc/Filter Drift                     |
-|                            31 | x             | o             | Filter Drive                         |
+|                            57 | x             | o             | Pitch Bend Range                     |
 |                            86 | x             | o             | Coarse Tune [-|+]                    |
 |                            70 | x             | o             | Fine Tune [-|+]                      |
 |                               |               |               |                                      |

@@ -73,7 +73,7 @@ static uint8_t s_program_table_parameters[] = {
   AMP_GAIN       ,
 
   FILTER_MODE    ,
-  P_BEND_RANGE   ,
+  FILTER_DRIVE   ,
   EG_AMP_MOD     ,
   REL_EQ_DECAY   ,
 
@@ -83,7 +83,7 @@ static uint8_t s_program_table_parameters[] = {
   AMP_RELEASE    ,
 
   OSC_DRIFT      ,
-  FILTER_DRIVE   ,
+  P_BEND_RANGE   ,
   COARSE_TUNE    ,
   FINE_TUNE      ,
 
@@ -405,7 +405,7 @@ public:
     std::memcpy(m_program_table[AMP_GAIN       ], g_preset_table_AMP_GAIN       , sizeof(m_program_table[0]));
 
     std::memcpy(m_program_table[FILTER_MODE    ], g_preset_table_FILTER_MODE    , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[P_BEND_RANGE   ], g_preset_table_P_BEND_RANGE   , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[FILTER_DRIVE   ], g_preset_table_FILTER_DRIVE   , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[EG_AMP_MOD     ], g_preset_table_EG_AMP_MOD     , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[REL_EQ_DECAY   ], g_preset_table_REL_EQ_DECAY   , sizeof(m_program_table[0]));
 
@@ -415,7 +415,7 @@ public:
     std::memcpy(m_program_table[AMP_RELEASE    ], g_preset_table_AMP_RELEASE    , sizeof(m_program_table[0]));
 
     std::memcpy(m_program_table[OSC_DRIFT      ], g_preset_table_OSC_DRIFT      , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[FILTER_DRIVE   ], g_preset_table_FILTER_DRIVE   , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[P_BEND_RANGE   ], g_preset_table_P_BEND_RANGE   , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[COARSE_TUNE    ], g_preset_table_COARSE_TUNE    , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[FINE_TUNE      ], g_preset_table_FINE_TUNE      , sizeof(m_program_table[0]));
 
@@ -1558,7 +1558,7 @@ if constexpr (NO_FX == false) {
       uint32_t control_number = s_program_table_parameters[i];
       if ((control_number != VOICE_MODE     ) &&
           (control_number != AMP_GAIN       ) &&
-          (control_number != FILTER_DRIVE   ) &&
+          (control_number != P_BEND_RANGE   ) &&
           (control_number != DISTORTION     ) &&
           (control_number != CHORUS_MIX     ) &&
           (control_number != FX_ROUTING     ) &&

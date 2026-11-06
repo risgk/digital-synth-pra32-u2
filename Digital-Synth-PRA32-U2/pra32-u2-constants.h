@@ -102,7 +102,7 @@ const uint8_t   LFO_FILTER_AMT  = 25;
 const uint8_t   AMP_GAIN        = 15;
 
 const uint8_t   FILTER_MODE     = 39;
-const uint8_t   P_BEND_RANGE    = 57;
+const uint8_t   FILTER_DRIVE    = 31;
 const uint8_t   EG_AMP_MOD      = 36;
 const uint8_t   REL_EQ_DECAY    = 105;
 
@@ -130,7 +130,7 @@ const uint8_t   BTH_FILTER_AMT  = 60;
 const uint8_t   BTH_AMP_MOD     = 61;
 const uint8_t   AFT_T_LFO_AMT   = 37;
 const uint8_t   PORTA_MODE      = 34;
-const uint8_t   FILTER_DRIVE    = 31;
+const uint8_t   P_BEND_RANGE    = 57;
 
 const uint8_t   DISTORTION      = 95;
 const uint8_t   FX_ROUTING      = 77;
