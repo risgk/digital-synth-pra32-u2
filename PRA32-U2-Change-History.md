@@ -12,6 +12,7 @@
     - PRA32-U2/M: With the 4 Synths, **about 15% lighter** on the device (`max(loop)` 1083 us from 1272 us with #5 Sync Lead on PRA32-U2/M/P), as the two cores do not wait for each other at every frame; the same output, with about 3 KB more of the RAM
     - PRA32-U2 Web: Add **"PRA32-U2 Web (Built-in, +6 dB)"** to MIDI Out: 6 dB louder, closer to other sounds (the peaks above -2 dBFS rounded off)
     - PRA32-U2 Editor: While Hold is on, a key pressed again while its note is held turns the note off
+    - PRA32-U2 Native: The packages (zip) are in the assets of the GitHub Releases (from v3.9.0), instead of "PRA32-U2-Native/bin" (removed from the history too, so that a clone of the repository is about 0.7 GB smaller)
     - PRA32-U2/M Demo: The MP3 rendered again (about 3 dB lower, with the same balance of the parts)
 - v3.18.0 (2026-11-05):
     - Add **Filter Drive** (Control Change #31): drives the Filter harder, x 1 to x 32 at 120 (x 39.2 at 127), for a saturated resonance, with the level kept; 0 (x 1) in the Presets and in a user program written before

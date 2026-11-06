@@ -1,4 +1,4 @@
-# PRA32-U2 Build: the UF2 files ("bin/"), PRA32-U2 Native for Windows, macOS, and Linux ("PRA32-U2-Native/bin/"),
+# PRA32-U2 Build: the UF2 files ("bin/"), PRA32-U2 Native for Windows, macOS, and Linux (the GitHub Releases),
 # and PRA32-U2 Web ("pra32-u2-web-synth.js")
 # - UF2: built with arduino-cli (Ubuntu), the same as the Arduino IDE builds (see README.md)
 # - PRA32-U2 Native: built with Visual Studio 2022 (Windows), Xcode (macOS), and GCC (Linux),
@@ -12,9 +12,13 @@ on:
   workflow_dispatch:  # Manual runs only (e.g. at a release)
     inputs:
       commit_package:
-        description: 'Commit the UF2 files (bin/), the packages (zip, PRA32-U2-Native/bin/), and pra32-u2-web-synth.js on the selected branch'
+        description: 'Commit the UF2 files (bin/) and pra32-u2-web-synth.js on the selected branch'
         type: boolean
         default: false
+      release_tag:
+        description: 'Attach the PRA32-U2 Native packages (zip) to the GitHub Release of this tag (e.g. v3.18.1, after the release is made; empty for none)'
+        type: string
+        default: ''
       load_estimate:
         description: 'Estimate the load of PRA32-U2, /M, /P, and /M/P (PRA32-U2 Load Estimate, about 12 min), into the summary of the run'
         type: boolean
@@ -290,6 +294,48 @@ jobs:
 
       - uses: actions/download-artifact@v7
         with:
+          name: ${{ needs.web.outputs.name }}
+          path: web
+
+      - name: Commit the UF2 files and PRA32-U2 Web
+        run: |
+          branch="${{ github.ref_name }}"
+          git fetch -q origin "$branch"
+
+          # Not committed if the sources were changed after this build (the binaries would be older than the sources)
+          changed=$(git diff --name-only "${{ github.sha }}" "origin/$branch" -- . ":(exclude)bin" ":(exclude)pra32-u2-web-synth.js" ":(exclude).github")
+          if [ -n "$changed" ]; then
+            echo "::warning::Not committed: the sources were changed after ${{ github.sha }} (run this workflow again)"
+            echo "$changed" | sed 's/^/  /'
+            exit 0
+          fi
+
+          # Committed on the latest branch (e.g. after the binaries committed by another run)
+          git checkout -q -B "$branch" "origin/$branch"
+          cp uf2/*.uf2 bin/
+          cp web/pra32-u2-web-synth.js .
+          git add bin pra32-u2-web-synth.js
+          message="Update the UF2 files and PRA32-U2 Web: ${{ needs.uf2.outputs.name }}, ${{ needs.web.outputs.name }}"
+          if git diff --cached --quiet; then
+            echo "Nothing to commit: the binaries are the same as on $branch"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "$message" -m "Built by ${{ github.workflow }} run #${{ github.run_number }} from ${{ github.sha }}"
+          git push origin "HEAD:$branch"
+
+  # The PRA32-U2 Native packages are not committed (each is about 22 MB in the history): they are attached to the
+  # GitHub Release of release_tag, and those of every run are in the artifacts of the run
+  release-assets:
+    if: inputs.release_tag != ''
+    needs: [native-windows, native-macos, native-linux]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v7
+        with:
           name: ${{ needs.native-windows.outputs.name }}
           path: package/${{ needs.native-windows.outputs.name }}
 
@@ -303,35 +349,11 @@ jobs:
           name: ${{ needs.native-linux.outputs.name }}
           path: zip
 
-      - uses: actions/download-artifact@v7
-        with:
-          name: ${{ needs.web.outputs.name }}
-          path: web
-
-      - name: Commit the UF2 files and the packages
+      - name: Attach the packages to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           name="${{ needs.native-windows.outputs.name }}"
-          branch="${{ github.ref_name }}"
-          git fetch -q origin "$branch"
-
-          # Not committed if the sources were changed after this build (the binaries would be older than the sources)
-          changed=$(git diff --name-only "${{ github.sha }}" "origin/$branch" -- . ":(exclude)bin" ":(exclude)PRA32-U2-Native/bin" ":(exclude)pra32-u2-web-synth.js" ":(exclude).github")
-          if [ -n "$changed" ]; then
-            echo "::warning::Not committed: the sources were changed after ${{ github.sha }} (run this workflow again)"
-            echo "$changed" | sed 's/^/  /'
-            exit 0
-          fi
-
-          # Committed on the latest branch (e.g. after the binaries committed by another run)
-          git checkout -q -B "$branch" "origin/$branch"
-          cp uf2/*.uf2 bin/
-          git rm -q --ignore-unmatch "PRA32-U2-Native/bin/*.zip"  # Only the latest package is kept
-          mkdir -p PRA32-U2-Native/bin  # After git rm, which removes the empty folder
-          (cd package && zip -q -r "../PRA32-U2-Native/bin/$name.zip" "$name")
-          cp zip/*.zip PRA32-U2-Native/bin/
-          cp web/pra32-u2-web-synth.js .
-          git add bin PRA32-U2-Native/bin pra32-u2-web-synth.js
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "Update the UF2 files, the PRA32-U2 Native packages, and PRA32-U2 Web: $name, ${{ needs.native-macos.outputs.name }}, ${{ needs.native-linux.outputs.name }}, ${{ needs.web.outputs.name }}" -m "Built by ${{ github.workflow }} run #${{ github.run_number }} from ${{ github.sha }}"
-          git push origin "HEAD:$branch"
+          (cd package && zip -q -r "../zip/$name.zip" "$name")
+          ls -l zip
+          gh release upload "${{ inputs.release_tag }}" zip/*.zip --clobber -R "${{ github.repository }}"

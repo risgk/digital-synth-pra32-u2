@@ -115,7 +115,8 @@
     ```
 
 - GitHub Actions "PRA32-U2 Build" (".github/workflows/pra32-u2.yml", manual runs): builds the UF2 files, PRA32-U2 Native, and PRA32-U2 Web,
-  and commits them to the selected branch with `commit_package`
+  commits the UF2 files and PRA32-U2 Web to the selected branch with `commit_package`, and attaches the PRA32-U2 Native packages
+  to the GitHub Release of `release_tag` (they are not committed, as each is about 22 MB in the history; those of every run are in the artifacts of the run)
 
 
 ## Release
@@ -131,13 +132,14 @@ Basically, a release goes as follows:
 4. Estimate the load with `sh PRA32-U2-Load-Estimate/pra32-u2-load-estimate.sh` (it takes the version from "Digital-Synth-PRA32-U2.ino"),
    and replace the tables in [PRA32-U2 Load Estimate](./PRA32-U2-Load-Estimate/README.md) with those printed
 5. Commit them all as "vX.Y.Z"
-6. Run "PRA32-U2 Build" on develop with `commit_package` only, for the UF2 files, PRA32-U2 Native, and PRA32-U2 Web
+6. Run "PRA32-U2 Build" on develop with `commit_package` only, for the UF2 files and PRA32-U2 Web
    (`load_estimate` is for an estimate without arduino-cli at hand: the tables are in the summary of the run, and they are committed by hand)
 7. Merge develop into main by a pull request
 8. Make the GitHub Release: the tag "vX.Y.Z" on main, and the notes "# Digital Synth PRA32-U2 vX.Y.Z", the line of what it is,
    and "## Change History" with the version of this release only; write "#N" (a program, a CC, ...) as "#&#8203;N" (with a zero-width space),
    so that GitHub does not link it to an issue or a pull request
-9. Add the next version to PRA32-U2-Change-History.md ("vX.Y.Z (2026-??-??)", with "Tested with Arduino-Pico version")
+9. Run "PRA32-U2 Build" on main with `release_tag` "vX.Y.Z", which attaches the PRA32-U2 Native packages to the release
+10. Add the next version to PRA32-U2-Change-History.md ("vX.Y.Z (2026-??-??)", with "Tested with Arduino-Pico version")
 
 - In the commit messages too, "#N" is linked to an issue or a pull request: write the name of a program instead (e.g. "Sync Lead"), or "CC 112"
 - For the maintainer: after a release, update PRA32-U2 Editor and PRA32-U2 Web on the official page
