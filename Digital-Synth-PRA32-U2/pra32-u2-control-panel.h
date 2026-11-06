@@ -946,10 +946,10 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
     break;
   case FILTER_MODE     :
     {
-      // LP, BR, HP, BP, and LP at 0, 32, 64, 96, and 127; "~" in between
-      static const char ary[5][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {" LP"," BR"," HP"," BP"," LP"};
+      // LP, BR, HP, BP, and LP at 0, 32, 64, 96, and 127; in between, the two ends (e.g. L-R for LP to BR)
+      static const char ary[9][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {" LP","L-R"," BR","R-H"," HP","H-B"," BP","B-L"," LP"};
       uint32_t x = (controller_value >= 127) ? 128 : controller_value;
-      PRA32_U2_ControlPanel_copy_text(value_display_text, ((x & 31) == 0) ? ary[x >> 5] : "  ~");
+      PRA32_U2_ControlPanel_copy_text(value_display_text, ary[((x & 31) == 0) ? (x >> 4) : ((x >> 5) * 2 + 1)]);
       result = true;
     }
     break;

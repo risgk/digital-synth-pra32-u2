@@ -250,7 +250,7 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value) {
   static const char* const MOD_DSTS[6]     = { "P", "P", "2P", "2P", "F", "1S" };
   static const char* const VOICE_MODES[6]  = { "Pol", "Pol", "Mon", "Mon", "LP", "Lgt" };
   static const char* const LFO_WAVES[6]    = { "Tri", "Sin", "Nos", "Saw", "S&H", "Sqr" };
-  static const char* const FILTER_MODES[5] = { "LP", "BR", "HP", "BP", "LP" };
+  static const char* const FILTER_MODES[9] = { "LP", "L-R", "BR", "R-H", "HP", "H-B", "BP", "B-L", "LP" };
   static const char* const OFF_ON[2]       = { "Off", "On" };
   static const char* const SAW_W_MODES[2]  = { "Str", "Cur" };
   static const char* const PORTA_MODES[2]  = { "Sw", "Aut" };
@@ -282,9 +282,9 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value) {
   case LFO_OSC_DST     : dispValue = select6(v, MOD_DSTS);           break;
   case VOICE_MODE      : dispValue = select6(v, VOICE_MODES);        break;
   case LFO_WAVE        : dispValue = select6(v, LFO_WAVES);          break;
-  case FILTER_MODE     : {  // LP, BR, HP, BP, and LP at 0, 32, 64, 96, and 127 (taken as 128); "~" in between
+  case FILTER_MODE     : {  // LP, BR, HP, BP, and LP at 0, 32, 64, 96, and 127 (taken as 128); the two ends in between
     int x = (v >= 127) ? 128 : v;
-    dispValue = ((x % 32) == 0) ? std::string(FILTER_MODES[x / 32]) : std::string("~");
+    dispValue = std::string(FILTER_MODES[((x % 32) == 0) ? (x / 16) : ((x / 32) * 2 + 1)]);
     break;
   }
   case EG_AMP_MOD      :

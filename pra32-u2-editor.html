@@ -1779,10 +1779,11 @@ function updateDisplayOfControl(number, value) {
     break;
   case FILTER_MODE     :
     {
-      // LP, BR, HP, BP, and LP at 0, 32, 64, 96, and 127 (taken as 128); "~" in between (crossfaded)
-      var ary = ["LP","BR","HP","BP","LP"];
+      // LP, BR, HP, BP, and LP at 0, 32, 64, 96, and 127 (taken as 128); in between (crossfaded), the two ends
+      // (e.g. L-R for LP to BR)
+      var ary = ["LP","L-R","BR","R-H","HP","H-B","BP","B-L","LP"];
       var x = (value >= 127) ? 128 : value;
-      dispValue = ((x % 32) == 0) ? ary[x / 32] : "~";
+      dispValue = ary[((x % 32) == 0) ? (x / 16) : (Math.floor(x / 32) * 2 + 1)];
     }
     break;
   case EG_AMP_MOD      :
