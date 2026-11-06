@@ -63,7 +63,7 @@
 |                            25 | x             | o             | LFO Filter Amt [-|+]                 |
 |                            15 | x             | o             | Amp Gain                             |
 |                               |               |               |                                      |
-|                            39 | x             | o             | Filter Mode [LP|LP|BP|BP|BR|HP]      |
+|                            39 | x             | o             | Filter Mode [LP|BR|HP|BP|LP]         |
 |                            31 | x             | o             | Filter Drive                         |
 |                            36 | x             | o             | EG Amp Mod [Off|On]                  |
 |                           105 | x             | o             | EG/Amp Rel = Dec [Off|On]            |

@@ -292,13 +292,16 @@
     - NOTE: The actual LFO depth is the "LFO Depth" value plus the "Modulation Wheel" value and the after touch effect (up to 100%)
 - Amp Gain
     - NOTE: The Output Compressor (after the FX) compresses the peaks above -6 dB (0.5 of full scale) at its input by 2:1 (with a soft knee from -9 dB to -3 dB), limits the peaks so that they do not go above 1.0 (full scale) at its input (reached at +6 dB), and lowers the output by 2.5 dB (x 0.75) (with the Presets, the peaks of chords are lowered by about 0.5 dB)
-- Filter Mode [LP|LP|BP|BP|BR|HP]
-    - 0 (0-12): Low Pass
-    - 26 (13-38): Low Pass
-    - 51 (39-63): Band Pass
-    - 77 (64-89): Band Pass
-    - 102 (90-115): Band Reject (Notch)
-    - 127 (116-127): High Pass
+- Filter Mode [LP|BR|HP|BP|LP]: The response of the Filter, changing smoothly in between (127 is taken as 128)
+    - 0: Low Pass (min, the Presets)
+    - 1-31: Low Pass to Band Reject (the High Pass added: the notch comes down from the top to the cutoff)
+    - 32: Band Reject (Notch)
+    - 33-63: Band Reject to High Pass (the Low Pass taken away: the notch goes on down and away)
+    - 64: High Pass
+    - 65-95: High Pass to Band Pass (crossfaded; no notch in between)
+    - 96: Band Pass
+    - 97-126: Band Pass to Low Pass (crossfaded; no notch in between)
+    - 127: Low Pass (max, the same as 0)
 - Filter Drive: The gain into the Filter, 2^(value / 24) (6 dB every 24 values; x 4 at 48, x 32 at 120, x 39.2 at 127), which drives the loop (the leak, at a high Resonance or near the cutoff) harder; what leaves the loop is lowered by the same ahead of the output clip, so that the level stays and the Drive changes the tone alone (the self-oscillation comes out lower by it, and a high Drive holds the resonant peak down; at a low Resonance it does little)
     - 0: x 1.00 (0 dB, min, the Presets: the Filter as it was)
     - 24: x 2.00 (+6 dB)

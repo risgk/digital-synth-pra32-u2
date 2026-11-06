@@ -70,7 +70,7 @@ const PRA32U2Engine::ParameterInfo s_parameter_names[] = {
   { LFO_FILTER_AMT , "LFO Filter Amt [-|+]"                   },
   { AMP_GAIN       , "Amp Gain"                               },
 
-  { FILTER_MODE    , "Filter Mode [LP|LP|BP|BP|BR|HP]"        },
+  { FILTER_MODE    , "Filter Mode [LP|BR|HP|BP|LP]"           },
   { FILTER_DRIVE   , "Filter Drive"                           },
   { EG_AMP_MOD     , "EG Amp Mod [Off|On]"                    },
   { REL_EQ_DECAY   , "EG/Amp Rel = Dec [Off|On]"              },
@@ -163,6 +163,7 @@ const PRA32U2Engine::ParameterInfo& PRA32U2Engine::getParameterInfo(int index) {
 int PRA32U2Engine::getMarkers(uint8_t controlNumber, const uint8_t** markerValues) {
   static const uint8_t MARKERS_6[]   = { 0, 26, 51, 77, 102, 127 };
   static const uint8_t MARKERS_3[]   = { 0, 64, 127 };
+  static const uint8_t MARKERS_5[]   = { 0, 32, 64, 96, 127 };
   static const uint8_t MARKERS_2[]   = { 0, 127 };
   static const uint8_t MARKERS_C[]   = { 64 };  // The center, for [-|+] and [N|S]
   static const uint8_t MARKERS_6_C[] = { 0, 26, 51, 64, 77, 102, 127 };  // The 6 markers and the center
@@ -176,10 +177,12 @@ int PRA32U2Engine::getMarkers(uint8_t controlNumber, const uint8_t** markerValue
   case LFO_OSC_DST     :
   case VOICE_ASGN_MODE :
   case BTH_AMP_MOD     :
-  case FILTER_MODE     :
   case FX_ROUTING      :
     *markerValues = MARKERS_6;
     return 6;
+  case FILTER_MODE     :  // LP, BR, HP, BP, and LP
+    *markerValues = MARKERS_5;
+    return 5;
   case OSC_1_MORPH     :  // Can be used as a 6-way switch (the markers of the sliders do not pull the values)
     *markerValues = MARKERS_6_C;
     return 7;
@@ -247,7 +250,7 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value) {
   static const char* const MOD_DSTS[6]     = { "P", "P", "2P", "2P", "F", "1S" };
   static const char* const VOICE_MODES[6]  = { "Pol", "Pol", "Mon", "Mon", "LP", "Lgt" };
   static const char* const LFO_WAVES[6]    = { "Tri", "Sin", "Nos", "Saw", "S&H", "Sqr" };
-  static const char* const FILTER_MODES[6] = { "LP", "LP", "BP", "BP", "BR", "HP" };
+  static const char* const FILTER_MODES[5] = { "LP", "BR", "HP", "BP", "LP" };
   static const char* const OFF_ON[2]       = { "Off", "On" };
   static const char* const SAW_W_MODES[2]  = { "Str", "Cur" };
   static const char* const PORTA_MODES[2]  = { "Sw", "Aut" };
@@ -279,7 +282,11 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value) {
   case LFO_OSC_DST     : dispValue = select6(v, MOD_DSTS);           break;
   case VOICE_MODE      : dispValue = select6(v, VOICE_MODES);        break;
   case LFO_WAVE        : dispValue = select6(v, LFO_WAVES);          break;
-  case FILTER_MODE     : dispValue = select6(v, FILTER_MODES);       break;
+  case FILTER_MODE     : {  // LP, BR, HP, BP, and LP at 0, 32, 64, 96, and 127 (taken as 128); "~" in between
+    int x = (v >= 127) ? 128 : v;
+    dispValue = ((x % 32) == 0) ? std::string(FILTER_MODES[x / 32]) : std::string("~");
+    break;
+  }
   case EG_AMP_MOD      :
   case REL_EQ_DECAY    : dispValue = select2(v, OFF_ON);             break;
   case OSC_SAW_W_MODE  : dispValue = select2(v, SAW_W_MODES);        break;

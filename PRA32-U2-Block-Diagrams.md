@@ -87,7 +87,7 @@ flowchart LR
     DRV --> SUM((Σ))
     SUM -->|HP| I1["Integrator 1<br/>BP, state s1"]
     I1 -->|BP| I2["Integrator 2<br/>LP, state s2"]
-    SUM -->|HP| MS["Filter Mode<br/>LP / BP / BR / HP"]
+    SUM -->|HP| MS["Filter Mode<br/>LP / BP / HP / BR, mixed"]
     I1 -->|BP| MS
     I2 -->|LP| MS
     MS --> DC["DC blocker<br/>7.5 Hz"]
@@ -113,7 +113,7 @@ flowchart LR
     A1 -->|HP| A2["Integrator ∫<br/>C1"]
     D["Diode pair<br/>asymmetric"] -.-|across C1| A2
     A2 -->|BP| A3["Integrator ∫<br/>C2, linear"]
-    A1 -->|HP| MS["Filter Mode<br/>LP / BP / BR / HP"]
+    A1 -->|HP| MS["Filter Mode<br/>LP / BP / HP / BR, mixed"]
     A2 -->|BP| MS
     A3 -->|LP| MS
     MS --> CC["Coupling capacitor"]

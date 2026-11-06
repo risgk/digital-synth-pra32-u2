@@ -173,7 +173,9 @@ class PRA32_U2_Filter {
   int32_t m_cutoff_lfo_amt_stage_1[2];
   int32_t m_cutoff_lfo_amt_current[2];  // Q16
   int16_t m_cutoff_pitch_amt;
-  uint8_t m_filter_mode;               // 0: Low Pass, 1: Band Pass, 2: High Pass, 3: Band Reject (Notch)
+  int32_t m_mode_lp_gain;              // Filter Mode: the gains of the low pass, the high pass, and the band pass (Q16)
+  int32_t m_mode_hp_gain;
+  int32_t m_mode_bp_gain;
   int16_t m_cutoff_breath_amt;
   int16_t m_breath_controller;
   int16_t m_breath_controller_current;
@@ -217,7 +219,9 @@ public:
   , m_cutoff_lfo_amt_stage_1()
   , m_cutoff_lfo_amt_current()
   , m_cutoff_pitch_amt()
-  , m_filter_mode()
+  , m_mode_lp_gain(1 << 16)
+  , m_mode_hp_gain()
+  , m_mode_bp_gain()
   , m_cutoff_breath_amt()
   , m_breath_controller()
   , m_breath_controller_current()
@@ -312,10 +316,27 @@ public:
     m_cutoff_pitch_amt = ((controller_value - 64) + 4) >> 3;
   }
 
-  // [LP|LP|BP|BP|BR|HP], so that 0, 64, and 127 stay LP, BP, and HP
+  // [LP|BR|HP|BP|LP]: 0 Low Pass, 32 Band Reject (Notch), 64 High Pass, 96 Band Pass, and 127 (taken as 128)
+  // Low Pass again, in between crossfaded: LP to BR to HP by the high pass added to the low pass and then the low
+  // pass taken away (the notch comes down from the top to the cutoff, and on down to none), as the Notch of a
+  // multimode filter; HP to BP to LP by a crossfade of two, which are 90 degrees apart at every frequency, so
+  // that no notch comes in between (the resonant peak stays as high, at the cutoff each is Q times). Toward 127,
+  // the band pass, which falls above the cutoff too, leaves the low pass smoothly
   INLINE void set_filter_mode(uint8_t controller_value) {
-    static const uint8_t filter_mode_table[6] PRA32_U2_TABLE_IN_RAM(filter_mode_table) = { 0, 0, 1, 1, 3, 2 };
-    m_filter_mode = filter_mode_table[((controller_value * 10) + 128) >> 8];
+    int32_t x = (controller_value >= 127) ? 128 : controller_value;
+    int32_t lp = 0, hp = 0, bp = 0;  // In 32nds
+    if (x <= 32) {
+      lp = 32;      hp = x;
+    } else if (x <= 64) {
+      lp = 64 - x;  hp = 32;
+    } else if (x <= 96) {
+      hp = 96 - x;  bp = x - 64;
+    } else {
+      bp = 128 - x; lp = x - 96;
+    }
+    m_mode_lp_gain = lp << 11;
+    m_mode_hp_gain = hp << 11;
+    m_mode_bp_gain = bp << 11;
   }
 
   INLINE void set_cutoff_breath_amt(uint8_t controller_value) {
@@ -466,20 +487,14 @@ public:
     m_s_1 = band_pass + band_pass - s_1;
     m_s_2 = low_pass  + low_pass  - s_2;
 
-    int32_t y_0 = low_pass;
-    if (m_filter_mode == 1) {
-      y_0 = band_pass;
-    } else if (m_filter_mode >= 2) {
-      // The high pass of the linear solution: the exact one,
-      // x_0 - s_2 - (g + k) * band_pass, differs by (g + k) times the chord
-      // step's correction, which is small at the levels the High Pass passes
-      y_0 = high_pass_lin;
-      if (m_filter_mode == 3) {
-        // The band reject (notch), the low pass plus the high pass: x_0 - k * band_pass,
-        // less the same difference, so the notch is slightly shallower at a high level
-        y_0 += low_pass;
-      }
-    }
+    // The mix by the Filter Mode, the same work at any value, so that the load does not change with it (the low
+    // pass alone, at 0 and 127, e.g. the Presets, comes out exactly as it is). The high pass of the linear solution:
+    // the exact one, x_0 - s_2 - (g + k) * band_pass, differs by (g + k) times the chord step's correction, which is
+    // small at the levels the High Pass passes (and the Band Reject, the low pass plus the high pass,
+    // x_0 - k * band_pass less the same difference, is slightly shallower at a high level)
+    int32_t y_0 = multiply_shift_right(low_pass,      m_mode_lp_gain, 16)
+                + multiply_shift_right(high_pass_lin, m_mode_hp_gain, 16)
+                + multiply_shift_right(band_pass,     m_mode_bp_gain, 16);
 
     // Remove the DC from the biased leak of the band pass
     m_dc_blocker += (y_0 - m_dc_blocker) >> DC_BLOCKER_SHIFT;

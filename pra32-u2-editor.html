@@ -528,7 +528,7 @@ span.cc {
 /* Markers below a slider: drawn as the background of the slider cell (the input is at 3px, and a marker of the value v
    is at the center of the thumb for v, 1px wide and 4px high, just below the thumb; e.g. 74px for 64 in a 149px slider cell).
    The center (64) for [-|+] and [N|S]; the 2 ends for [Off|On]; the 2 ends and the center; the 6 values of a 6-way
-   switch; and the 6 values and the center for Osc 1 Morph, which can be used as a 6-way switch */
+   switch; the 5 values of Filter Mode (LP, BR, HP, BP, and LP); and the 6 values and the center for Osc 1 Morph, which can be used as a 6-way switch */
 .param-ctrl {
   --marker-0: calc(2px + var(--thumb-size) / 2);                     /* the left of the marker for 0 */
   --marker-span: calc(var(--slider-width) - 6px - var(--thumb-size));  /* the travel of the thumb */
@@ -552,6 +552,13 @@ span.cc {
               linear-gradient(#101010, #101010) calc(var(--marker-0) + var(--marker-span) * 51/127) var(--marker-y) / 1px 4px no-repeat,
               linear-gradient(#101010, #101010) calc(var(--marker-0) + var(--marker-span) * 77/127) var(--marker-y) / 1px 4px no-repeat,
               linear-gradient(#101010, #101010) calc(var(--marker-0) + var(--marker-span) * 102/127) var(--marker-y) / 1px 4px no-repeat,
+              linear-gradient(#101010, #101010) calc(var(--marker-0) + var(--marker-span) * 127/127) var(--marker-y) / 1px 4px no-repeat;
+}
+.soft-markers-5 {
+  background: linear-gradient(#101010, #101010) calc(var(--marker-0) + var(--marker-span) * 0/127) var(--marker-y) / 1px 4px no-repeat,
+              linear-gradient(#101010, #101010) calc(var(--marker-0) + var(--marker-span) * 32/127) var(--marker-y) / 1px 4px no-repeat,
+              linear-gradient(#101010, #101010) calc(var(--marker-0) + var(--marker-span) * 64/127) var(--marker-y) / 1px 4px no-repeat,
+              linear-gradient(#101010, #101010) calc(var(--marker-0) + var(--marker-span) * 96/127) var(--marker-y) / 1px 4px no-repeat,
               linear-gradient(#101010, #101010) calc(var(--marker-0) + var(--marker-span) * 127/127) var(--marker-y) / 1px 4px no-repeat;
 }
 .soft-markers-6-c {
@@ -1772,9 +1779,10 @@ function updateDisplayOfControl(number, value) {
     break;
   case FILTER_MODE     :
     {
-      var ary = ["LP","LP","BP","BP","BR","HP"];
-      var index = Math.floor(((value * 10) + 128) >> 8);
-      dispValue = ary[index];
+      // LP, BR, HP, BP, and LP at 0, 32, 64, 96, and 127 (taken as 128); "~" in between (crossfaded)
+      var ary = ["LP","BR","HP","BP","LP"];
+      var x = (value >= 127) ? 128 : value;
+      dispValue = ((x % 32) == 0) ? ary[x / 32] : "~";
     }
     break;
   case EG_AMP_MOD      :
@@ -3314,8 +3322,8 @@ function getStoredCCValueString(index, number) {
   <div class="param-ctrl"><input  id="inputAMP_GAIN       "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(AMP_GAIN       , value)"><span    id="spanAMP_GAIN       " >-</span><span   id="span2AMP_GAIN       " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>Filter</b> Mode <span class="sup">[LP|LP|BP|BP|BR|HP]</span> <span class="cc">CC#39</span></div>
-  <div class="param-ctrl soft-markers-6"><input  id="inputFILTER_MODE    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(FILTER_MODE    , value)"><span    id="spanFILTER_MODE    " >-</span><span   id="span2FILTER_MODE    " >-</span></div>
+  <div class="param-name"><b>Filter</b> Mode <span class="sup">[LP|BR|HP|BP|LP]</span> <span class="cc">CC#39</span></div>
+  <div class="param-ctrl soft-markers-5"><input  id="inputFILTER_MODE    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(FILTER_MODE    , value)"><span    id="spanFILTER_MODE    " >-</span><span   id="span2FILTER_MODE    " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>Filter</b> Drive <span class="cc">CC#31</span></div>
