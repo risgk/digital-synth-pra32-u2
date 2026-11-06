@@ -10,6 +10,7 @@
         - In the Mono modes, the level is no longer x 1.5 (about 3.5 dB lower): a note is as loud as a voice of the Polyphonic Mode
         - Presets: Amp Gain 10 down (about -1.8 dB, back to the values before v3.18.0), and the user programs at first; the Output Compressor lowers the peaks of chords less (about 0.5 dB)
     - PRA32-U2/M: With the 4 Synths, **about 15% lighter** on the device (`max(loop)` 1083 us from 1272 us with #5 Sync Lead on PRA32-U2/M/P), as the two cores do not wait for each other at every frame; the same output, with about 3 KB more of the RAM
+    - PRA32-U2 Web: Add **"PRA32-U2 Web (Built-in, +6 dB)"** to MIDI Out: 6 dB louder, closer to other sounds (the peaks above -2 dBFS rounded off)
     - PRA32-U2 Editor: While Hold is on, a key pressed again while its note is held turns the note off
     - PRA32-U2/M Demo: The MP3 rendered again (about 3 dB lower, with the same balance of the parts)
 - v3.18.0 (2026-11-05):

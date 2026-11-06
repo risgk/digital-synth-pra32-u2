@@ -19,6 +19,7 @@ PRA32-U2 Web: a software synthesizer version of Digital Synth PRA32-U2 that runs
 
 - Open "pra32-u2-editor.html" (a local file, or on a Web server) with Google Chrome or Microsoft Edge (recommended)
 - Select "PRA32-U2 Web (Built-in)" in the list "MIDI Out"
+    - Or "PRA32-U2 Web (Built-in, +6 dB)": 6 dB louder (x 2), closer to other sounds, with a soft clip that rounds off the peaks above -2 dBFS
     - The current parameters of PRA32-U2 Editor are sent to PRA32-U2 Web ("Send Current")
 - Play the keyboard of PRA32-U2 Editor, or a MIDI keyboard selected in "MIDI In 1-4"
     - Web browsers start the audio only after a user operation in the page (e.g. a click, a tap, or a key press),

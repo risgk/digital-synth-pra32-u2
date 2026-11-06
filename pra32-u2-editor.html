@@ -1547,7 +1547,7 @@ function onMIDISuccess(midiAccess) {
     midiOutputs.push(o.value)
   }
   if (window.PRA32U2WebSynth) {
-    midiOutputs.push(PRA32U2WebSynth.output);
+    PRA32U2WebSynth.outputs.forEach(function(output) { midiOutputs.push(output); });
   }
 
   var selectInputPort1 = document.getElementById("selectInputPort1");

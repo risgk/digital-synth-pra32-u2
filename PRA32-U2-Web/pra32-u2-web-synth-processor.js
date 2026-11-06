@@ -1,6 +1,22 @@
 // The AudioWorkletProcessor of PRA32-U2 Web: runs the PRA32-U2 engine (WebAssembly) on the audio thread.
 // Embedded in "pra32-u2-web-synth.js" (as a string, loaded by a Blob URL) by "pra32-u2-web-build.js"
 
+// The output gain of the "+6 dB" output: x 2, with a soft clip that leaves the samples below 0.8 (-2 dBFS) as they are,
+// and rounds off those above it toward 1.0 (so that a peak is not cut); x 1 leaves the output as it is
+const SOFT_CLIP_KNEE = 0.8;
+function applyOutputGain(samples, n, gain) {
+  for (let i = 0; i < n; i++) {
+    const x = samples[i] * gain;
+    const a = Math.abs(x);
+    if (a > SOFT_CLIP_KNEE) {
+      const y = SOFT_CLIP_KNEE + (1 - SOFT_CLIP_KNEE) * Math.tanh((a - SOFT_CLIP_KNEE) / (1 - SOFT_CLIP_KNEE));
+      samples[i] = (x < 0) ? -y : y;
+    } else {
+      samples[i] = x;
+    }
+  }
+}
+
 class PRA32U2WebSynthProcessor extends AudioWorkletProcessor {
   constructor(options) {
     super();
@@ -17,9 +33,16 @@ class PRA32U2WebSynthProcessor extends AudioWorkletProcessor {
     this.left  = new Float32Array(this.wasm.memory.buffer, this.wasm.pra32u2_web_left(),  this.maxBlockSize);
     this.right = new Float32Array(this.wasm.memory.buffer, this.wasm.pra32u2_web_right(), this.maxBlockSize);
 
-    // A MIDI message (an array of 1-3 bytes) is handled at the beginning of the next block
+    this.outputGain = 1;
+
+    // A MIDI message (an array of 1-3 bytes) is handled at the beginning of the next block;
+    // { outputGain: gain } sets the output gain (by the output chosen in MIDI Out)
     this.port.onmessage = (event) => {
       const data = event.data;
+      if (!Array.isArray(data)) {
+        this.outputGain = data.outputGain;
+        return;
+      }
       this.wasm.pra32u2_web_midi(0, data[0] | 0, data[1] | 0, data[2] | 0, Math.min(data.length, 3));
     };
   }
@@ -34,6 +57,9 @@ class PRA32U2WebSynthProcessor extends AudioWorkletProcessor {
       if (output.length >= 2) {
         output[1].set(this.right.subarray(0, n), offset);
       }
+    }
+    if (this.outputGain !== 1) {
+      output.forEach((channel) => applyOutputGain(channel, numSamples, this.outputGain));
     }
     return true;
   }

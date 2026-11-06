@@ -1,4 +1,5 @@
 // The main thread part of PRA32-U2 Web: "PRA32U2WebSynth.output" is a virtual MIDI output
+// ("PRA32U2WebSynth.outputs" has it and the one 6 dB louder)
 // (with "name" and "send()", the same as MIDIOutput of Web MIDI API) for PRA32-U2 Editor.
 // "pra32-u2-web-build.js" generates "pra32-u2-web-synth.js" from this file
 // (with the WebAssembly binary and the AudioWorkletProcessor embedded, so that it works with "file://" too)
@@ -86,23 +87,39 @@
     console.log(PRA32_U2_WEB_VERSION + " ready (" + context.sampleRate + " Hz)");
   }
 
-  const output = {
-    name: "PRA32-U2 Web (Built-in)",
-    isPRA32U2WebSynth: true,
-    send: function(data) {
-      const message = Array.from(data).slice(0, 3);
-      if (node) {
-        node.port.postMessage(message);
-      } else if (pendingMessages.length < MAX_PENDING_MESSAGES) {
-        pendingMessages.push(message);
-      }
+  let outputGain = 1;  // That of the output that sent last
 
-      if (!context) {
-        start().catch(function(e) { console.log("Failed to start PRA32-U2 Web - " + e); });
-      }
-      resume();
-    },
-  };
+  function post(message) {
+    if (node) {
+      node.port.postMessage(message);
+    } else if (pendingMessages.length < MAX_PENDING_MESSAGES) {
+      pendingMessages.push(message);
+    }
+  }
 
-  window.PRA32U2WebSynth = { version: PRA32_U2_WEB_VERSION, output: output };
+  // The outputs for MIDI Out: as PRA32-U2 sounds, and 6 dB louder (x 2, with a soft clip above -2 dBFS),
+  // for a level closer to that of other sounds (e.g. of a Web browser); the one that sends sets the gain
+  function makeOutput(name, gain) {
+    return {
+      name: name,
+      isPRA32U2WebSynth: true,
+      send: function(data) {
+        if (outputGain !== gain) {
+          outputGain = gain;
+          post({ outputGain: gain });
+        }
+        post(Array.from(data).slice(0, 3));
+
+        if (!context) {
+          start().catch(function(e) { console.log("Failed to start PRA32-U2 Web - " + e); });
+        }
+        resume();
+      },
+    };
+  }
+
+  const output     = makeOutput("PRA32-U2 Web (Built-in)", 1);
+  const outputLoud = makeOutput("PRA32-U2 Web (Built-in, +6 dB)", 2);
+
+  window.PRA32U2WebSynth = { version: PRA32_U2_WEB_VERSION, output: output, outputs: [output, outputLoud] };
 })();
