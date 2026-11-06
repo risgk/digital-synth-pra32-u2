@@ -414,7 +414,7 @@
     - 96: x 16.0 (+24 dB)
     - 120: x 32.0 (+30 dB)
     - 127: x 39.2 (+31.9 dB, max)
-    - NOTE: Not changed by "Randomize Synth" or "Randomize FX"
+    - NOTE: Changed by "Randomize FX" (of PRA32-U2 Editor and PRA32-U2 Native), not by "Randomize Synth"
 - FX Routing [Dst|Cho|Dly|Dly|Cmp|Dry]: Where the output is input to the FX (connected in series: Distortion -> Chorus -> Delay -> Output Compressor)
     - 0 (0-12): Dst (through the Distortion, the Chorus, the Delay, and the Output Compressor)
     - 26 (13-38): Chorus (through the Chorus, the Delay, and the Output Compressor, not the Distortion)

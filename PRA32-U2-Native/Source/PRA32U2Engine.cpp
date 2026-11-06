@@ -218,6 +218,7 @@ int PRA32U2Engine::getMarkers(uint8_t controlNumber, const uint8_t** markerValue
 // The same as setRandomChorus() of PRA32-U2 Editor (pra32-u2-editor.html)
 bool PRA32U2Engine::isRandomizedAsFx(uint8_t controlNumber) {
   switch (controlNumber) {
+  case DISTORTION      :
   case CHORUS_MIX      :
   case CHORUS_RATE     :
   case CHORUS_DEPTH    :

@@ -1917,7 +1917,8 @@ function setRandom() {
 function setRandomChorus() {
   saveUndo();
   controllersInLocalStorage.forEach(function(i) {
-    if ((i == CHORUS_MIX     ) ||
+    if ((i == DISTORTION     ) ||
+        (i == CHORUS_MIX     ) ||
         (i == CHORUS_RATE    ) ||
         (i == CHORUS_DEPTH   ) ||
         (i == DELAY_LEVEL    ) ||
