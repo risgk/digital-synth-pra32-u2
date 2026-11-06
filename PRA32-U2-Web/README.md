@@ -1,4 +1,4 @@
-# PRA32-U2 Web v3.19.0
+# PRA32-U2 Web v3.20.0
 
 - 2026-11-06 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
@@ -10,7 +10,7 @@ PRA32-U2 Web: a software synthesizer version of Digital Synth PRA32-U2 that runs
   (PRA32U2Engine, PRA32U2Renderer, and PRA32U2Resampler)
 - Version: the same as PRA32-U2 (`PRA32_U2_VERSION` in "Digital-Synth-PRA32-U2.ino"), shown in the console of the Web browser
 - "pra32-u2-web-synth.js" (in the parent folder, next to "pra32-u2-editor.html"): the built file
-    - The WebAssembly binary (about 260 KB) and the AudioWorkletProcessor are embedded, so that it works
+    - The WebAssembly binary (about 400 KB) and the AudioWorkletProcessor are embedded, so that it works
       both on a Web server (e.g. GitHub Pages) and with a local file ("file://")
     - Without this file, PRA32-U2 Editor works as before (MIDI Out only)
 
@@ -22,7 +22,14 @@ PRA32-U2 Web: a software synthesizer version of Digital Synth PRA32-U2 that runs
     - Or "PRA32-U2 Web (Built-in, +6 dB)": 6 dB louder (x 2), closer to other sounds, with a soft clip that rounds off the peaks above -2 dBFS
         - Without "+6 dB", it sounds as PRA32-U2 does (e.g. to compare with it)
         - With a high Amp Gain, the peaks rounded off can be heard as a little distortion
-    - The current parameters of PRA32-U2 Editor are sent to PRA32-U2 Web ("Send Current")
+    - PRA32-U2 Web starts with the program #0, as PRA32-U2 does; "Send Current" sends the current parameters of PRA32-U2 Editor to it
+    - Or "PRA32-U2/M Web (Built-in)" (or with "+6 dB"): PRA32-U2/M, the 4 synths by the MIDI channels (the Basic Channel 1, which cannot be changed),
+      with the Layering and the Round Robin, as "Digital-Synth-PRA32-U2-M.ino" (by "pra32-u2-m-midi.h" of the core)
+        - Select the synth in "MIDI Ch" of PRA32-U2 Editor: e.g. 2 for the Sub Synth 1 (see PRA32-U2/M in the README.md of PRA32-U2)
+        - The Main Synth starts with the program #0 and the Sub Synths 1-3 with #1-3; the Sub Synths sound only while the Main Synth is not in Poly
+        - PRA32-U2 Web and PRA32-U2/M Web keep their own states; the one selected sounds
+    - The user programs (#0-15) start as they are at first on PRA32-U2 (the same as the Presets #16-31) at each load of the page:
+      not those of PRA32-U2, nor the User Presets of PRA32-U2 Editor; those written by "Write" are kept until the page is closed
 - Play the keyboard of PRA32-U2 Editor, or a MIDI keyboard selected in "MIDI In 1-4"
     - Web browsers start the audio only after a user operation in the page (e.g. a click, a tap, or a key press),
       so click the page once before playing a MIDI keyboard (clicking the keyboard of PRA32-U2 Editor also starts the audio)

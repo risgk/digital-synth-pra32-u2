@@ -1,4 +1,4 @@
-# Digital Synth PRA32-U2 Development v3.19.0
+# Digital Synth PRA32-U2 Development v3.20.0
 
 - 2026-11-06 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
@@ -43,7 +43,7 @@
       not in Poly, core 0 processes the back of a frame whose front is done, one a frame, before the (Main) Synth, and the rest (a few) at the end
       (so a loop takes a little more or less with how many are left; making core 0 wait for the fronts, one a frame, took more, with core 1 doing them first)
     - In PRA32-U2/M with the 4 Synths, the two cores do not wait for each other at every frame, but each goes on as far as what it needs is done
-      (at v3.19.0, with a request and a wait at every frame, core 0 waited for core 1 for about 11% of a loop, also while core 1 finished a front of
+      (at v3.20.0, with a request and a wait at every frame, core 0 waited for core 1 for about 11% of a loop, also while core 1 finished a front of
       the FX that it had started: 87% / 75% estimated, and on the device `max(loop)` 1272 us; now 76% / 74% estimated, and on the device
       `max(loop)` 1083 us, `min(loop)` 1064 us). What the work is, and when it is done, are the same; the RAM is about 3 KB more (the buffer below)
         - The Main Synth does not request its Voices 2 and 3 of core 1 when not in Poly (`PRA32_U2_SECONDARY_CORE_IN_POLY_ONLY`, which PRA32-U2/M defines)
@@ -135,10 +135,11 @@ Basically, a release goes as follows:
 6. Run "PRA32-U2 Build" on develop with `commit_package` only, for the UF2 files and PRA32-U2 Web
    (`load_estimate` is for an estimate without arduino-cli at hand: the tables are in the summary of the run, and they are committed by hand)
 7. Merge develop into main by a pull request
-8. Make the GitHub Release: the tag "vX.Y.Z" on main, and the notes "# Digital Synth PRA32-U2 vX.Y.Z", the line of what it is,
+8. Make the GitHub Release as a draft ("Save draft"): the tag "vX.Y.Z" on main (made when the release is published), and the notes "# Digital Synth PRA32-U2 vX.Y.Z", the line of what it is,
    and "## Change History" with the version of this release only; write "#N" (a program, a CC, ...) as "#&#8203;N" (with a zero-width space),
    so that GitHub does not link it to an issue or a pull request
-9. Run "PRA32-U2 Build" on main with `release_tag` "vX.Y.Z", which attaches the PRA32-U2 Native packages to the release
+9. Run "PRA32-U2 Build" on main with `release_tag` "vX.Y.Z", which attaches the PRA32-U2 Native packages to the draft;
+   check them in the draft, and publish the release (so that it is published with the packages)
 10. Add the next version to PRA32-U2-Change-History.md ("vX.Y.Z (2026-??-??)", with "Tested with Arduino-Pico version")
 
 - In the commit messages too, "#N" is linked to an issue or a pull request: write the name of a program instead (e.g. "Sync Lead"), or "CC 112"

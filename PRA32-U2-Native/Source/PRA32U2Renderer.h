@@ -10,6 +10,9 @@
 
 class PRA32U2Renderer {
 public:
+  // m: PRA32-U2/M (see PRA32U2Engine)
+  explicit PRA32U2Renderer(bool m = false) : m_engine(m) {}
+
   void prepare(double hostSamplingRate);
 
   // Latency in the host samples (0 at 48 kHz)

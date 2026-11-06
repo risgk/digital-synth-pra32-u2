@@ -5,7 +5,8 @@
 // - The MIDI messages are read at the start of each loop (64 frames), as on the device; a Program Change
 //   (or one by CC #111-119) is processed at once, where the device processes it in one of the next loops
 // - The output fader is not used (the output is at full level from the start)
-// - Basic Channel 1: Channels 1-4 for the Main Synth and the Sub Synths 1-3, and 14-16 for the Layering
+// - Basic Channel 1: the MIDI messages are handled by "pra32-u2-m-midi.h", the same as the device: Channels 1-4 for
+//   the Main Synth and the Sub Synths 1-3, 14-16 for the Layering, and 7-9, 12, and 13 for the Round Robin
 //
 // g++ -O2 -std=gnu++17 pra32-u2-m-make-wav-file-from-smf.cc -o pra32-u2-m-make-wav-file-from-smf
 // ./pra32-u2-m-make-wav-file-from-smf input.mid output.wav
@@ -20,6 +21,7 @@
 #include <algorithm>
 
 typedef signed char boolean;
+typedef uint8_t byte;
 
 #define __not_in_flash_func(func) (func)
 
@@ -34,6 +36,12 @@ PRA32_U2_Synth<true,  false, true, 1, true>  g_sub_1_synth;
 PRA32_U2_Synth<true,  false, true, 2, true>  g_sub_2_synth;
 PRA32_U2_Synth<true,  false, true, 3, true>  g_sub_3_synth;
 PRA32_U2_WAVFileOut                                 g_wav_file_out;
+
+boolean g_synth_is_in_polyphonic_mode = true;
+
+#define PRA32_U2_ENABLE_LAYERING
+#define PRA32_U2_ENABLE_ROUND_ROBIN
+#include "../Digital-Synth-PRA32-U2/pra32-u2-m-midi.h"
 
 const uint32_t FRAMES_PER_LOOP = 64;
 const uint32_t TAIL_SEC        = 1;
@@ -128,69 +136,19 @@ static boolean readSMF(const std::vector<uint8_t>& smf, std::vector<MIDIEvent>& 
   return true;
 }
 
-// The synths of a channel, as "Digital-Synth-PRA32-U2-M.ino" (with the Layering) has them:
-// the bits of the synths (Main Synth: bit 0, Sub Synths 1-3: bits 1-3)
-static uint32_t synthsOfChannel(uint8_t channel) {
-  if (channel == g_midi_ch)                 { return 0x1; }
-  if (channel == ((g_midi_ch + 1) & 0x0F))  { return 0x2; }
-  if (channel == ((g_midi_ch + 2) & 0x0F))  { return 0x4; }
-  if (channel == ((g_midi_ch + 3) & 0x0F))  { return 0x8; }
-  if (channel == ((g_midi_ch - 3) & 0x0F))  { return 0x3; }
-  if (channel == ((g_midi_ch - 2) & 0x0F))  { return 0xC; }
-  if (channel == ((g_midi_ch - 1) & 0x0F))  { return 0xF; }
-  return 0;
-}
-
-template <typename Synth>
-static void sendToSynth(Synth& synth, uint8_t type, uint8_t data1, uint8_t data2) {
-  switch (type) {
-  case 0x80: synth.note_off(data1, data2); break;
-  case 0x90: if (data2 == 0) { synth.note_off(data1, 64); } else { synth.note_on(data1, data2); } break;
-  case 0xA0: synth.after_touch_poly(data1, data2); break;
-  case 0xB0: synth.control_change(data1, data2); break;
-  case 0xC0: synth.program_change(data1); break;
-  case 0xD0: synth.after_touch_channel(data1); break;
-  case 0xE0: synth.pitch_bend(data1, data2); break;
-  }
-}
-
-static void sendToSynth(uint32_t synth, uint8_t type, uint8_t data1, uint8_t data2) {
-  switch (synth) {
-  case 0: sendToSynth(g_synth,       type, data1, data2); break;
-  case 1: sendToSynth(g_sub_1_synth, type, data1, data2); break;
-  case 2: sendToSynth(g_sub_2_synth, type, data1, data2); break;
-  case 3: sendToSynth(g_sub_3_synth, type, data1, data2); break;
-  }
-}
-
-// Program Change by CC (#112-119) and Special Random Control (#111) take effect when the value goes up
-// from 63 or below to 64 or above, as Program Changes, as in "Digital-Synth-PRA32-U2-M.ino"
-static uint8_t s_special_cc_values[4][PC_BY_CC_7 - SP_RAND_CTRL + 1];
-
+// A MIDI message to the handlers of "pra32-u2-m-midi.h"; a Program Change is processed at once
 static void handleMIDIEvent(uint8_t status, uint8_t data1, uint8_t data2) {
-  uint8_t type = status & 0xF0;
-  uint32_t synths = synthsOfChannel(status & 0x0F);
-  uint32_t k = 0;  // The synth #k of the Layering
-  for (uint32_t synth = 0; synth < 4; ++synth) {
-    if ((synths & (1 << synth)) == 0) {
-      continue;
-    }
-    if ((type == 0xB0) && (data1 >= SP_RAND_CTRL) && (data1 <= PC_BY_CC_7)) {
-      uint8_t old_value = s_special_cc_values[synth][data1 - SP_RAND_CTRL];
-      s_special_cc_values[synth][data1 - SP_RAND_CTRL] = data2;
-      if ((old_value <= 63) && (data2 >= 64)) {
-        uint8_t program_number = (data1 == SP_RAND_CTRL) ? 127 : (data1 - PC_BY_CC_0);
-        sendToSynth(synth, 0xC0, program_number, 0);
-      }
-    } else if ((type == 0xC0) && (data1 <= PROGRAM_NUMBER_MAX)) {
-      // The program + k, wrapping around in the user programs (#0-15) and in the presets (#16-31) each
-      uint8_t program_number = (data1 & ~USER_PROGRAM_NUMBER_MAX) | ((data1 + k) & USER_PROGRAM_NUMBER_MAX);
-      sendToSynth(synth, 0xC0, program_number, 0);
-    } else {
-      sendToSynth(synth, type, data1, data2);
-    }
-    ++k;
+  byte channel = (status & 0x0F) + 1;
+  switch (status & 0xF0) {
+  case 0x80: handleNoteOff(channel, data1, data2); break;
+  case 0x90: if (data2 == 0) { handleNoteOff(channel, data1, 64); } else { handleNoteOn(channel, data1, data2); } break;
+  case 0xA0: handleAfterTouchPoly(channel, data1, data2); break;
+  case 0xB0: handleControlChange(channel, data1, data2); break;
+  case 0xC0: handleProgramChange(channel, data1); break;
+  case 0xD0: handleAfterTouchChannel(channel, data1); break;
+  case 0xE0: handlePitchBend(channel, ((data2 << 7) | data1) - 8192); break;
   }
+  processPendingProgramChanges();
 }
 
 int main(int argc, char *argv[]) {
@@ -242,7 +200,6 @@ int main(int argc, char *argv[]) {
   g_sub_2_synth.initialize();
   g_sub_3_synth.initialize();
 
-  boolean synth_is_in_polyphonic_mode = true;
   size_t next_event = 0;
   for (uint64_t f = 0; f < total_frames; f += FRAMES_PER_LOOP) {
     while ((next_event < events.size()) && (frames[next_event] <= f)) {
@@ -253,18 +210,19 @@ int main(int argc, char *argv[]) {
     }
 
     boolean mode = g_synth.is_in_polyphonic_mode();
-    if (synth_is_in_polyphonic_mode != mode) {
-      synth_is_in_polyphonic_mode = mode;
+    if (g_synth_is_in_polyphonic_mode != mode) {
+      g_synth_is_in_polyphonic_mode = mode;
       g_sub_1_synth.all_notes_off(true);
       g_sub_2_synth.all_notes_off(true);
       g_sub_3_synth.all_notes_off(true);
+      roundRobinReset();
     }
 
     for (uint32_t i = 0; i < FRAMES_PER_LOOP; ++i) {
       PRA32_U2_StereoSample sub_1_synth_output = { 0, 0 };
       PRA32_U2_StereoSample sub_2_synth_output = { 0, 0 };
       PRA32_U2_StereoSample sub_3_synth_output = { 0, 0 };
-      if (synth_is_in_polyphonic_mode == false) {
+      if (g_synth_is_in_polyphonic_mode == false) {
         sub_2_synth_output = g_sub_2_synth.process(0, 0);
       }
 
@@ -274,7 +232,7 @@ int main(int argc, char *argv[]) {
 
       PRA32_U2_StereoSample synth_output = g_synth.process<false, true>(0, 0);
 
-      if (synth_is_in_polyphonic_mode == false) {
+      if (g_synth_is_in_polyphonic_mode == false) {
         sub_3_synth_output = g_sub_3_synth.process(0, 0);
         sub_1_synth_output = g_sub_1_synth.process(0, 0);
       }

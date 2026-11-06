@@ -69,7 +69,7 @@ The load of each module is the average of core 0 / core 1 (`--modules`), in "Pol
 "Synth" is the rest of the synth (the voices, the parameters, and the mixing), "Sketch" is `loop()` and `loop1()` (MIDI and the panel),
 and "Other" is the rest (e.g. Debug Print).
 
-#### v3.19.0
+#### v3.20.0
 
 With the 4 Synths of PRA32-U2/M, the two cores do not wait for each other at every frame (the Main Synth requests its Voices 2 and 3 of core 1 only in Poly);
 the Distortion FX in fixed point, in "Synth" below (with the front of the FX on core 1 not in Poly); the wave table lookups of the Osc by BASE_1AND0 of INTERP0;
@@ -108,7 +108,7 @@ the Lite with Osc 1 Wave Sin in #5 Sync Lead (Sqr is lighter there)
 
 | RAM (global variables) | PRA32-U2 | PRA32-U2/M | PRA32-U2/P | PRA32-U2/M/P | PRA32-U2 (Lite) | PRA32-U2/M (Lite) |
 | :-- | --: | --: | --: | --: | --: | --: |
-| | 384812 (73%) | 487512 (92%) | 406320 (77%) | 510040 (97%) | 343504 (65%) | 429612 (81%) |
+| | 384812 (73%) | 487628 (93%) | 406320 (77%) | 510156 (97%) | 343504 (65%) | 429728 (81%) |
 
 On the device on the way to v3.19.0 (a5f1f60b, PRA32-U2/M/P, Debug Print `max(loop)`): 4 Synths: #5 Sync Lead (Mono, and Delay Mode Rev) by MIDI Channel 16 (Layering), 4 notes, 1083 us (81%; `min(loop)` 1064 us; `max(audio)` 1052 us; `underruns` 0), more than the estimate (76% / 74%)
 

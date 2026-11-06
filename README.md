@@ -1,4 +1,4 @@
-# Digital Synth PRA32-U2 v3.19.0
+# Digital Synth PRA32-U2 v3.20.0
 
 - 2026-11-06 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
@@ -122,6 +122,11 @@ graph LR
         - "PRA32-U2 Web (Built-in, +6 dB)": 6 dB louder, closer to other sounds (the peaks above -2 dBFS rounded off)
             - Without "+6 dB", it sounds as PRA32-U2 does (e.g. to compare with it)
             - With a high Amp Gain, the peaks rounded off can be heard as a little distortion
+    - Select "PRA32-U2/M Web (Built-in)" (or with "+6 dB") to use PRA32-U2/M (the 4 synths) in PRA32-U2 Web
+        - The Basic Channel is 1 (it cannot be changed): select the synth to edit in "MIDI Ch" (see the channels of PRA32-U2/M below)
+        - The Main Synth starts with the program #0 and the Sub Synths 1-3 with #1-3, as PRA32-U2/M does;
+          the Sub Synths sound only while the Main Synth is not in Poly
+    - Nothing is sent when an output is selected (PRA32-U2 Web too): "Send Current" sends the parameters of PRA32-U2 Editor (one set) to the synth of "MIDI Ch"
 
 
 ### Programs and Presets
@@ -259,11 +264,11 @@ graph LR
 
 ![CC0](http://i.creativecommons.org/p/zero/1.0/88x31.png)
 
-**Digital Synth PRA32-U2 v3.19.0 by ISGK Instruments (Ryo Ishigaki)**
+**Digital Synth PRA32-U2 v3.20.0 by ISGK Instruments (Ryo Ishigaki)**
 
 To the extent possible under law, ISGK Instruments (Ryo Ishigaki)
 has waived all copyright and related or neighboring rights
-to Digital Synth PRA32-U2 v3.19.0.
+to Digital Synth PRA32-U2 v3.20.0.
 
 You should have received a copy of the CC0 legalcode along with this
 work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.

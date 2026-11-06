@@ -36,11 +36,12 @@ class PRA32U2WebSynthProcessor extends AudioWorkletProcessor {
     this.outputGain = 1;
 
     // A MIDI message (an array of 1-3 bytes) is handled at the beginning of the next block;
-    // { outputGain: gain } sets the output gain (by the output chosen in MIDI Out)
+    // { outputGain: gain, m: m } sets the output gain and selects PRA32-U2 Web or PRA32-U2/M Web (by the output chosen in MIDI Out)
     this.port.onmessage = (event) => {
       const data = event.data;
       if (!Array.isArray(data)) {
         this.outputGain = data.outputGain;
+        this.wasm.pra32u2_web_select(data.m ? 1 : 0);
         return;
       }
       this.wasm.pra32u2_web_midi(0, data[0] | 0, data[1] | 0, data[2] | 0, Math.min(data.length, 3));
