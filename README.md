@@ -194,10 +194,13 @@ graph LR
     - Round Robin (only if Basic Channel + 0 (Main Synth) is in Mono modes)
         - Basic Channel - 4 (Default 13): The notes are taken by Basic Channel + 0, + 1, + 2, and + 3 in turn (4 notes, as a polyphonic synth of the 4 Mono synths)
         - Basic Channel - 5 (Default 12): The notes are taken by Basic Channel + 1, + 2, and + 3 in turn (3 notes; Basic Channel + 0 is left to its own channel)
+        - Basic Channel + 7 and + 8 (Default 8 and 9): The notes are taken by Basic Channel + 0 and + 1, and by + 2 and + 3, in turn (2 notes each); only with the Layering enabled too
         - The synths are assigned as the voices of the Polyphonic Mode, by the Voice Assign Mode of the first synth of the channel (Basic Channel + 0, or + 1): Mode 1 and 3 a free one from the next in turn, Mode 2 and 4 the free one of the smallest number, Mode 3 and 4 reuse the note-off synth of the same note first; when none is free, the one with the oldest note, which is turned off
         - The other messages go to all the synths of the channel; Program Change gives them all the same program (not + 1 to + 3, as with the Layering)
+        - The Sustain Pedal on the channel keeps the synths of the notes held by it, as the voices of the Polyphonic Mode: they are not taken by new notes until the pedal is released, unless none is free
+        - Each synth has its own LFO, unlike the voices of the Polyphonic Mode, which share one: the LFOs of the notes are not in step, and the LFO Key Trigger and Fade Time work for each note
         - Each synth is in Mono, whose level is 1.5 times that of a voice in Poly, so a chord is about 3.5 dB louder than in Poly; Amp Gain (Control Change #15) on the channel turns all the synths down
-        - With the panel (PRA32-U2/M/P), the Round Robin channels can be selected too (Prev Key + Next Key): the synths of Basic Channel + 0 to + 3, and then Basic Channel - 5 to - 1 (Default 1-4 and 12-16); there, the current values and Write Program are those of the first synth of the channel
+        - With the panel (PRA32-U2/M/P), the Round Robin channels can be selected too (Prev Key + Next Key): the synths of Basic Channel + 0 to + 3, and then Basic Channel + 7 and + 8 (with the Layering) and - 5 to - 1 (Default 1-4, 8-9, and 12-16); there, the current values and Write Program are those of the first synth of the channel
         - Not to use this feature, comment out `#define PRA32_U2_ENABLE_ROUND_ROBIN` in "Digital-Synth-PRA32-U2-M.ino"
 - How to modify (with Arduino IDE)
     - Copy all files in the "Digital-Synth-PRA32-U2" folder, except for "Digital-Synth-PRA32-U2.ino", to the "Digital-Synth-PRA32-U2-M" folder
