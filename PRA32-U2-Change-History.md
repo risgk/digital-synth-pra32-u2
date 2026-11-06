@@ -7,6 +7,7 @@
     - PRA32-U2/M: Add the **Round Robin** (Channels 7-9, 12, and 13 by default, with the Layering): the Mono synths played as a polyphonic synth (4, 3, or 2 notes)
     - PRA32-U2/M: With the 4 Synths, the two cores do not wait for each other at every frame (the Main Synth requests its Voices 2 and 3 of core 1 only in Poly),
       so a loop takes about 15% less on the device (`max(loop)` 1083 us from 1272 us with #5 Sync Lead on PRA32-U2/M/P), with the same output; the RAM is about 3 KB more
+    - PRA32-U2 Editor: While Hold is on, a key of the Software Keyboard pressed again while its note is held turns the note off
 - v3.18.0 (2026-11-05):
     - Add **Filter Drive** (Control Change #31): drives the Filter harder, x 1 to x 32 at 120 (x 39.2 at 127), for a saturated resonance, with the level kept; 0 (x 1) in the Presets and in a user program written before
         - In PRA32-U2 Editor, the chart, and the JSON files, next to Osc/Filter Drift (Osc Saw Wave Mode moves to after Portamento Mode); on the panel of PRA32-U2/P, next to Filter Mode (A-12)

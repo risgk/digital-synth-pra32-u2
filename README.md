@@ -159,7 +159,7 @@ graph LR
 - The controls look the same in every Web browser and OS (as in Chrome); on a touch screen, the thumbs of the sliders are larger, and the buttons taller
 - Software Keyboard
     - Below the parameters, it stays at the bottom of the window while they scroll above it, so that they can be changed while playing; it can be hidden (Panic stays shown; hiding turns Hold off)
-    - While Hold is on, the keys released keep their notes on (turning Hold off, or Panic, turns them off)
+    - While Hold is on, the keys released keep their notes on (pressing a key held again, turning Hold off, or Panic, turns them off)
     - The PC keyboard can also be played while it is shown (A - K for C - C, W - U for the black keys, and Z / X for the octave);
       some PC keyboards cannot take many keys at the same time (e.g. a chord of 4 notes)
     - The velocities of Note On and Note Off can be entered (1-127, 100 and 64 by default)

@@ -2165,8 +2165,9 @@ function fitParamNames() {
 // on (and the key lights) until both keys are released.
 //
 // Hold (as a Sustain Pedal, in the Editor): while it is on, a key released keeps its note on (no Note Off),
-// and the note is turned off when Hold is turned off. A key pressed again while its note is held takes over
-// the note (a Note On, and then the Note Off of the held one, so that the count stays 1)
+// and the note is turned off when Hold is turned off. A key pressed again while its note is held turns the note
+// off (gliding onto it takes over the note: a Note On, and then the Note Off of the held one, so that the count
+// stays 1)
 
 const KBD_NOTE_MIN    = 0;    // C-1
 const KBD_NOTE_MAX    = 127;  // G9
@@ -2255,6 +2256,10 @@ function noteOff(noteNumber) {
 // of the old key, for legato (e.g. the Voice Mode Legato)
 function kbdPress(pointerId, note) {
   var oldNote = kbdPointers.get(pointerId);
+  if ((oldNote === undefined) && kbdHold && kbdHeld.delete(note)) {
+    noteOff(note);  // the press holds nothing, so its release (or gliding) does nothing
+    return;
+  }
   noteOn(note);
   kbdPointers.set(pointerId, note);
   if (kbdHeld.delete(note)) {
