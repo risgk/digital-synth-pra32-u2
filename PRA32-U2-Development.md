@@ -135,10 +135,11 @@ Basically, a release goes as follows:
 6. Run "PRA32-U2 Build" on develop with `commit_package` only, for the UF2 files and PRA32-U2 Web
    (`load_estimate` is for an estimate without arduino-cli at hand: the tables are in the summary of the run, and they are committed by hand)
 7. Merge develop into main by a pull request
-8. Make the GitHub Release: the tag "vX.Y.Z" on main, and the notes "# Digital Synth PRA32-U2 vX.Y.Z", the line of what it is,
+8. Make the GitHub Release as a draft ("Save draft"): the tag "vX.Y.Z" on main (made when the release is published), and the notes "# Digital Synth PRA32-U2 vX.Y.Z", the line of what it is,
    and "## Change History" with the version of this release only; write "#N" (a program, a CC, ...) as "#&#8203;N" (with a zero-width space),
    so that GitHub does not link it to an issue or a pull request
-9. Run "PRA32-U2 Build" on main with `release_tag` "vX.Y.Z", which attaches the PRA32-U2 Native packages to the release
+9. Run "PRA32-U2 Build" on main with `release_tag` "vX.Y.Z", which attaches the PRA32-U2 Native packages to the draft;
+   check them in the draft, and publish the release (so that it is published with the packages)
 10. Add the next version to PRA32-U2-Change-History.md ("vX.Y.Z (2026-??-??)", with "Tested with Arduino-Pico version")
 
 - In the commit messages too, "#N" is linked to an issue or a pull request: write the name of a program instead (e.g. "Sync Lead"), or "CC 112"
