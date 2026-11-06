@@ -1,13 +1,17 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v3.18.1 (2026-??-??):
-    - Presets: Amp Gain 10 down (about -1.8 dB, back to the values before v3.18.0), for room to raise a sound (a Mono lead, for one), and the Output Compressor lowers the peaks of chords less (about 0.5 dB); and the user programs at first, the same as the Presets
-    - In the Mono modes, the level is no longer x 1.5 (about 3.5 dB lower): a note is as loud as a voice of the Polyphonic Mode; raise the Amp Gain if needed
-    - PRA32-U2/P: Add **Undo Write** and **Undo Read** (Pages C-09 and D-17), which bring back what the last Write and the last Read (or Init Panel Prms) of the panel replaced; doing one again redoes it
-    - PRA32-U2/M: Add the **Round Robin** (Channels 7-9, 12, and 13 by default, with the Layering): the Mono synths played as a polyphonic synth (4, 3, or 2 notes)
-    - PRA32-U2/M: With the 4 Synths, the two cores do not wait for each other at every frame (the Main Synth requests its Voices 2 and 3 of core 1 only in Poly),
-      so a loop takes about 15% less on the device (`max(loop)` 1083 us from 1272 us with #5 Sync Lead on PRA32-U2/M/P), with the same output; the RAM is about 3 KB more
-    - PRA32-U2 Editor: While Hold is on, a key of the Software Keyboard pressed again while its note is held turns the note off
+    - PRA32-U2/M: Add the **Round Robin**: the Mono synths played as a polyphonic synth, with the Layering (enabled by default); the channels with the Basic Channel 1:
+        - Channel 12: 4 notes (the 4 synths); Channel 13: 3 notes (the Sub Synths 1-3)
+        - Channels 7 and 8: 2 notes each (the Main Synth and the Sub Synth 1, and the Sub Synths 2 and 3); Channel 9: **the two layered**
+        - The notes taken as the Voice Assign Mode does, with the Sustain Pedal
+    - PRA32-U2/P: Add **Undo Write** and **Undo Read** (Pages C-09 and D-17): bring back what the last Write, or the last Read (or Init Panel Prms), replaced; doing one again redoes it
+    - **Room to raise a sound** (a Mono lead, for one)
+        - In the Mono modes, the level is no longer x 1.5 (about 3.5 dB lower): a note is as loud as a voice of the Polyphonic Mode
+        - Presets: Amp Gain 10 down (about -1.8 dB, back to the values before v3.18.0), and the user programs at first; the Output Compressor lowers the peaks of chords less (about 0.5 dB)
+    - PRA32-U2/M: With the 4 Synths, **about 15% lighter** on the device (`max(loop)` 1083 us from 1272 us with #5 Sync Lead on PRA32-U2/M/P), as the two cores do not wait for each other at every frame; the same output, with about 3 KB more of the RAM
+    - PRA32-U2 Editor: While Hold is on, a key pressed again while its note is held turns the note off
+    - PRA32-U2/M Demo: The MP3 rendered again (about 3 dB lower, with the same balance of the parts)
 - v3.18.0 (2026-11-05):
     - Add **Filter Drive** (Control Change #31): drives the Filter harder, x 1 to x 32 at 120 (x 39.2 at 127), for a saturated resonance, with the level kept; 0 (x 1) in the Presets and in a user program written before
         - In PRA32-U2 Editor, the chart, and the JSON files, next to Osc/Filter Drift (Osc Saw Wave Mode moves to after Portamento Mode); on the panel of PRA32-U2/P, next to Filter Mode (A-12)
