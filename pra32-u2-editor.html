@@ -223,7 +223,7 @@ input[type="range"]:hover::-moz-range-thumb {
 .midi-note[hidden] {
   display: none;
 }
-/* A line break in a flex container (MIDI Ch / MIDI In / MIDI Out, and Program Change / Write in 2 or 1 column) */
+/* A line break in a flex container (MIDI Ch / MIDI In / MIDI Out, and Write / Program Change in 2 or 1 column) */
 .midi-break, .line-break, .bank-break {
   flex-basis: 100%;
   height: 0;
@@ -238,7 +238,7 @@ input[type="range"]:hover::-moz-range-thumb {
   white-space: nowrap;
 }
 
-/* ---- Program buttons (Factory Preset, User Preset, Store, Program Change, Write) ----
+/* ---- Program buttons (Factory Preset, User Preset, Store, Write, Program Change) ----
    A group is the label and 2 banks; a bank is 2 rows x 4 buttons, the same as the rows of the table before.
    The groups and the banks float: they go to the next line if they do not fit */
 .prog-row {
@@ -306,7 +306,7 @@ input[type="range"]:hover::-moz-range-thumb {
 .bank.named.two-cols > :nth-child(1), .bank.named.two-cols > :nth-child(2) { order: 2; }
 .bank.named.two-cols > :nth-child(7), .bank.named.two-cols > :nth-child(8) { order: 3; }
 .bank.named.two-cols > :nth-child(5), .bank.named.two-cols > :nth-child(6) { order: 4; }
-/* The number buttons (Store, Program Change, Write) all as wide as the widest one (e.g. "#15"),
+/* The number buttons (Store, Write, Program Change) all as wide as the widest one (e.g. "#15"),
    measured by fitButtons() (the widths of the fonts differ among the OSes) */
 .bank.num button {
   width: var(--num-button-width, auto);
@@ -440,7 +440,7 @@ span.cc {
   .banks.split-2 > .bank:first-child {
     margin-top: 8px;  /* the space by a margin, not row-gap, which the empty line of the break would double */
   }
-  /* Write under Program Change, always (by the line break between them) */
+  /* Program Change under Write, always (by the line break between them) */
   .prog-row:has(> .line-break) {
     row-gap: 0;
   }
@@ -456,7 +456,7 @@ span.cc {
   }
 }
 @container (max-width: 455px) {
-  /* The banks of Store, Program Change, and Write (#0-7 / #8-15) in 2 lines too (in 2 columns, they fit in 1 line) */
+  /* The banks of Store, Write, and Program Change (#0-7 / #8-15) in 2 lines too (in 2 columns, they fit in 1 line) */
   .banks.split-1 {
     row-gap: 0;
     flex: 1 1 0;  /* next to the label (as Store), not below it, if a bank fits */
@@ -2109,7 +2109,7 @@ function fitProgLabels() {
   });
 }
 
-// The number buttons (Store, Program Change, Write) all as wide as the widest one, and the buttons with names
+// The number buttons (Store, Write, Program Change) all as wide as the widest one, and the buttons with names
 // (Factory Preset, User Preset) too, so that the columns of the banks line up
 function fitButtons() {
   fitButtonsWidth(".bank.num button", "--num-button-width");
@@ -3145,8 +3145,8 @@ function getStoredCCValueString(index, number) {
 <div class="section prog-row">
 <div class="prog-group">
 <div class="prog-label lbl-store"><span>Store</span> <span>(to Browser)</span></div>
-<div class="banks split-1">
-<div class="bank num">
+<div class="banks split-2">
+<div class="bank named">
   <button type="button" onclick="storeParameters(4)">#4</button>
   <button type="button" onclick="storeParameters(5)">#5</button>
   <button type="button" onclick="storeParameters(6)">#6</button>
@@ -3157,7 +3157,7 @@ function getStoredCCValueString(index, number) {
   <button type="button" onclick="storeParameters(3)">#3</button>
 </div>
 <div class="bank-break"></div>
-<div class="bank num">
+<div class="bank named">
   <button type="button" onclick="storeParameters(12)">#12</button>
   <button type="button" onclick="storeParameters(13)">#13</button>
   <button type="button" onclick="storeParameters(14)">#14</button>
@@ -3172,33 +3172,6 @@ function getStoredCCValueString(index, number) {
 </div>
 
 <div class="prog-row">
-<div class="prog-group">
-<div class="prog-label lbl-green" style="color:green"><span>Program Change</span> <span>(to PRA32-U2)</span></div>
-<div class="banks split-1">
-<div class="bank num">
-  <button type="button" onclick="sendProgramChange(4)" style="color:green">#4</button>
-  <button type="button" onclick="sendProgramChange(5)" style="color:green">#5</button>
-  <button type="button" onclick="sendProgramChange(6)" style="color:green">#6</button>
-  <button type="button" onclick="sendProgramChange(7)" style="color:green">#7</button>
-  <button type="button" onclick="sendProgramChange(0)" style="color:green">#0</button>
-  <button type="button" onclick="sendProgramChange(1)" style="color:green">#1</button>
-  <button type="button" onclick="sendProgramChange(2)" style="color:green">#2</button>
-  <button type="button" onclick="sendProgramChange(3)" style="color:green">#3</button>
-</div>
-<div class="bank-break"></div>
-<div class="bank num">
-  <button type="button" onclick="sendProgramChange(12)" style="color:green">#12</button>
-  <button type="button" onclick="sendProgramChange(13)" style="color:green">#13</button>
-  <button type="button" onclick="sendProgramChange(14)" style="color:green">#14</button>
-  <button type="button" onclick="sendProgramChange(15)" style="color:green">#15</button>
-  <button type="button" onclick="sendProgramChange(8)" style="color:green">#8</button>
-  <button type="button" onclick="sendProgramChange(9)" style="color:green">#9</button>
-  <button type="button" onclick="sendProgramChange(10)" style="color:green">#10</button>
-  <button type="button" onclick="sendProgramChange(11)" style="color:green">#11</button>
-</div>
-</div>
-</div>
-<div class="line-break narrow-only"></div>
 <div class="prog-group">
 <div class="prog-label lbl-green" style="color:green"><span>Write</span> <span>(to PRA32-U2)</span></div>
 <div class="banks split-1">
@@ -3222,6 +3195,33 @@ function getStoredCCValueString(index, number) {
   <button type="button" onclick="writeParameters(9)" style="color:green">#9</button>
   <button type="button" onclick="writeParameters(10)" style="color:green">#10</button>
   <button type="button" onclick="writeParameters(11)" style="color:green">#11</button>
+</div>
+</div>
+</div>
+<div class="line-break narrow-only"></div>
+<div class="prog-group">
+<div class="prog-label lbl-green" style="color:green"><span>Program Change</span> <span>(to PRA32-U2)</span></div>
+<div class="banks split-1">
+<div class="bank num">
+  <button type="button" onclick="sendProgramChange(4)" style="color:green">#4</button>
+  <button type="button" onclick="sendProgramChange(5)" style="color:green">#5</button>
+  <button type="button" onclick="sendProgramChange(6)" style="color:green">#6</button>
+  <button type="button" onclick="sendProgramChange(7)" style="color:green">#7</button>
+  <button type="button" onclick="sendProgramChange(0)" style="color:green">#0</button>
+  <button type="button" onclick="sendProgramChange(1)" style="color:green">#1</button>
+  <button type="button" onclick="sendProgramChange(2)" style="color:green">#2</button>
+  <button type="button" onclick="sendProgramChange(3)" style="color:green">#3</button>
+</div>
+<div class="bank-break"></div>
+<div class="bank num">
+  <button type="button" onclick="sendProgramChange(12)" style="color:green">#12</button>
+  <button type="button" onclick="sendProgramChange(13)" style="color:green">#13</button>
+  <button type="button" onclick="sendProgramChange(14)" style="color:green">#14</button>
+  <button type="button" onclick="sendProgramChange(15)" style="color:green">#15</button>
+  <button type="button" onclick="sendProgramChange(8)" style="color:green">#8</button>
+  <button type="button" onclick="sendProgramChange(9)" style="color:green">#9</button>
+  <button type="button" onclick="sendProgramChange(10)" style="color:green">#10</button>
+  <button type="button" onclick="sendProgramChange(11)" style="color:green">#11</button>
 </div>
 </div>
 </div>
