@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v3.19.1 (2026-??-??):
+    - PRA32-U2/M: Round Robin: A note played twice (e.g. by 2 keys) is counted as in Poly, so that it is not left on (it is turned off when the last of them is); and a note played again on its synth stays as old as it was, taken first, as in Poly
     - Tested with Arduino-Pico version 6.3.0
 - v3.19.0 (2026-11-06):
     - PRA32-U2/M: Add the **Round Robin**: the Mono synths played as a polyphonic synth, with the Layering (enabled by default); the channels with the Basic Channel 1:

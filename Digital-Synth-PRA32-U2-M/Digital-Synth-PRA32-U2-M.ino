@@ -325,9 +325,11 @@ static uint8_t __not_in_flash_func(layeringProgramNumber)(uint8_t number, uint32
 #endif  // defined(PRA32_U2_ENABLE_LAYERING)
 
 #if defined(PRA32_U2_ENABLE_ROUND_ROBIN)
-// The Round Robin (see README.md): the note each synth plays, the note it played last, and when it started
+// The Round Robin (see README.md): the note each synth plays, how many times it is on (as the synth counts
+// a note, e.g. by 2 keys), the note it played last, and when it started
 static const uint8_t RR_NOTE_NONE = 0xFF;
 static uint8_t  s_rr_note[4]      = { RR_NOTE_NONE, RR_NOTE_NONE, RR_NOTE_NONE, RR_NOTE_NONE };
+static uint8_t  s_rr_note_count[4];
 static uint8_t  s_rr_asgn_note[4] = { RR_NOTE_NONE, RR_NOTE_NONE, RR_NOTE_NONE, RR_NOTE_NONE };
 static uint32_t s_rr_age[4];
 static uint32_t s_rr_count = 0;
@@ -440,27 +442,51 @@ static void __not_in_flash_func(roundRobinNoteOn)(uint32_t first, uint32_t last,
         chosen = s;
       }
     }
-    noteOffOf(chosen, s_rr_note[chosen], 64);
+    // As many Note Offs as the Note Ons, so that the synth does not keep the note
+    for (uint32_t n = 0; n < s_rr_note_count[chosen]; n++) {
+      noteOffOf(chosen, s_rr_note[chosen], 64);
+    }
+    s_rr_note_count[chosen] = 0;
   }
   noteOnOf(chosen, pitch, velocity);
+  if (s_rr_note[chosen] != pitch) {
+    // A new note: the oldest is taken first, as in Poly (a note played again on its synth stays as old as it was)
+    s_rr_note_count[chosen] = 0;
+    s_rr_age[chosen] = ++s_rr_count;
+  }
+  if (s_rr_note_count[chosen] < 255) {
+    s_rr_note_count[chosen]++;
+  }
   s_rr_note[chosen] = pitch;
   s_rr_sustained[chosen] = false;
   s_rr_asgn_note[chosen] = pitch;
-  s_rr_age[chosen] = ++s_rr_count;
   s_rr_last[roundRobinGroupIndex(first, last)] = chosen;
 }
 
 static void __not_in_flash_func(roundRobinNoteOff)(uint32_t first, uint32_t last, uint8_t pitch, uint8_t velocity) {
   boolean pedal = s_rr_pedal[roundRobinGroupIndex(first, last)];
   for (uint32_t s = first; s <= last; s++) {
-    if ((s_rr_note[s] == pitch) && (s_rr_sustained[s] == false)) {
+    if ((s_rr_note[s] == pitch) && (s_rr_note_count[s] > 0)) {
+      // Free when the last Note On of the note is turned off (or held by the Sustain Pedal)
       noteOffOf(s, pitch, velocity);
-      if (pedal) {
-        s_rr_sustained[s] = true;
-      } else {
-        s_rr_note[s] = RR_NOTE_NONE;
+      s_rr_note_count[s]--;
+      if (s_rr_note_count[s] == 0) {
+        if (pedal) {
+          s_rr_sustained[s] = true;
+        } else {
+          s_rr_note[s] = RR_NOTE_NONE;
+        }
       }
     }
+  }
+}
+
+// All the synths free, when the Sub Synths have their notes turned off (as the Main Synth goes in and out of Poly)
+static void __not_in_flash_func(roundRobinReset)() {
+  for (uint32_t s = 0; s < 4; s++) {
+    s_rr_note[s] = RR_NOTE_NONE;
+    s_rr_note_count[s] = 0;
+    s_rr_sustained[s] = false;
   }
 }
 
@@ -474,6 +500,7 @@ static void __not_in_flash_func(roundRobinControlChange)(uint32_t first, uint32_
     boolean released = (number == SUSTAIN_PEDAL) && (value < 64) && s_rr_sustained[s];
     if ((number >= ALL_SOUND_OFF) || released) {
       s_rr_note[s] = RR_NOTE_NONE;
+      s_rr_note_count[s] = 0;
       s_rr_sustained[s] = false;
     }
   }
@@ -891,6 +918,9 @@ void __not_in_flash_func(loop)() {
     g_sub_1_synth.all_notes_off(true);
     g_sub_2_synth.all_notes_off(true);
     g_sub_3_synth.all_notes_off(true);
+#if defined(PRA32_U2_ENABLE_ROUND_ROBIN)
+    roundRobinReset();
+#endif  // defined(PRA32_U2_ENABLE_ROUND_ROBIN)
   }
 
 #if defined(PRA32_U2_USE_DEBUG_PRINT)
