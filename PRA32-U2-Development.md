@@ -1,6 +1,5 @@
-# Digital Synth PRA32-U2 Development v3.20.0
+# Digital Synth PRA32-U2 Development
 
-- 2026-11-06 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 - Notes for changing the code of PRA32-U2: how it runs and how to measure it; for the settings, see [Modification Guide](./PRA32-U2-Modification-Guide.md)
 
@@ -126,9 +125,10 @@ Basically, a release goes as follows:
 1. Check it on the device: PRA32-U2 and PRA32-U2/M, whose UF2 files are released (/P and /M/P are built by the users)
 2. In PRA32-U2-Change-History.md, set the date of the version (instead of "2026-??-??"), and "Tested with Arduino-Pico version"
 3. Change the version: `PRA32_U2_VERSION` in "Digital-Synth-PRA32-U2.ino", "Digital-Synth-PRA32-U2-M.ino", and the 4 files in "customization-examples";
-   `APP_NAME_VERSION` in "pra32-u2-editor.html"; `_version` in the 2 preset JSON files; the headings of the documents
-   (README.md, README.ja.md, README-PRA32-U2-P.md with its Info page, the guides, PRA32-U2-Native, and PRA32-U2-Web), and the License of README.md;
-   and the dates under the headings ("YYYY-MM-DD ISGK Instruments"), all of them at every release
+   `APP_NAME_VERSION` in "pra32-u2-editor.html"; `_version` in the 2 preset JSON files; the headings of README.md and README.ja.md,
+   and the dates under them ("YYYY-MM-DD ISGK Instruments"); the License of README.md; the Info page in README-PRA32-U2-P.md;
+   and the Version and the Date of PRA32-U2-MIDI-Implementation-Chart.md, all of them at every release
+   (the other documents have no version or date)
 4. Estimate the load with `sh PRA32-U2-Load-Estimate/pra32-u2-load-estimate.sh` (it takes the version from "Digital-Synth-PRA32-U2.ino"),
    and replace the tables in [PRA32-U2 Load Estimate](./PRA32-U2-Load-Estimate/README.md) with those printed
 5. Commit them all as "vX.Y.Z"
