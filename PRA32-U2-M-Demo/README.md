@@ -9,7 +9,7 @@
     - MIDI Channel 4 (Sub Synth 3): Rhythm, #23 Initial made a drum by CCs: a sine with a pitch drop and noise, whose sound changes with the note,
       the higher the brighter (Filter Key Track) and the shorter (EG Att/Dec Key Track): the kick (note 36), the snare (55), and the hats (108)
     - The presets are used as they are but for the rhythm, with Amp Gain lowered for the balance of the parts
-      (Saw Lead 110 to 94, Sync Lead 90 to 75, Fifth Lead 100 to 76, Synth Bass 110 to 82, and FM Piano 120 to 87; the rhythm up from 100 to 127);
+      (Saw Lead 100 to 94, Sync Lead 80 to 75, Fifth Lead 90 to 76, Synth Bass 100 to 82, and FM Piano 110 to 87; the rhythm up from 90 to 127);
       the FX (Chorus, and Delay of an eighth note at 120 BPM) of the Main Synth are for all the synths, and its Distortion (Distortion Drive 72, x 8) for the melody alone in them again, with #28 Fifth Lead (the arpeggio with FX Routing Cho)
     - Play it to PRA32-U2/M (with the Basic Channel 1) by a MIDI player; it sets the programs and the parameters of the 4 synths at the start
 - "pra32-u2-m-demo-ode-to-joy.json": the sounds of the song as the user programs #0-11 for PRA32-U2 Editor ("Import All"; #12-15 are Initial)
