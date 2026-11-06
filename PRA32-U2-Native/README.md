@@ -1,6 +1,6 @@
-# PRA32-U2 Native v3.18.0
+# PRA32-U2 Native v3.19.0
 
-- 2026-11-05 ISGK Instruments
+- 2026-11-06 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 PRA32-U2 Native: a software synthesizer (VST3 plugin and standalone application) version of Digital Synth PRA32-U2

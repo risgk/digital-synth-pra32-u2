@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v3.18.1 (2026-??-??):
+- v3.19.0 (2026-11-06):
     - PRA32-U2/M: Add the **Round Robin**: the Mono synths played as a polyphonic synth, with the Layering (enabled by default); the channels with the Basic Channel 1:
         - Channel 12: 4 notes (the 4 synths); Channel 13: 3 notes (the Sub Synths 1-3)
         - Channels 7 and 8: 2 notes each (the Main Synth and the Sub Synth 1, and the Sub Synths 2 and 3); Channel 9: **the two layered**
@@ -14,6 +14,7 @@
     - PRA32-U2 Editor: While Hold is on, a key pressed again while its note is held turns the note off
     - PRA32-U2 Native: The packages (zip) are in the assets of the GitHub Releases (from v3.9.0), instead of "PRA32-U2-Native/bin" (removed from the history too, so that a clone of the repository is about 0.7 GB smaller)
     - PRA32-U2/M Demo: The MP3 rendered again (about 3 dB lower, with the same balance of the parts)
+    - Tested with Arduino-Pico version 6.3.0
 - v3.18.0 (2026-11-05):
     - Add **Filter Drive** (Control Change #31): drives the Filter harder, x 1 to x 32 at 120 (x 39.2 at 127), for a saturated resonance, with the level kept; 0 (x 1) in the Presets and in a user program written before
         - In PRA32-U2 Editor, the chart, and the JSON files, next to Osc/Filter Drift (Osc Saw Wave Mode moves to after Portamento Mode); on the panel of PRA32-U2/P, next to Filter Mode (A-12)

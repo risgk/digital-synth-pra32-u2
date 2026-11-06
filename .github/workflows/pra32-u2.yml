@@ -16,7 +16,7 @@ on:
         type: boolean
         default: false
       release_tag:
-        description: 'Attach the PRA32-U2 Native packages (zip) to the GitHub Release of this tag (e.g. v3.18.1, after the release is made; empty for none)'
+        description: 'Attach the PRA32-U2 Native packages (zip) to the GitHub Release of this tag (e.g. v3.19.0, after the release is made; empty for none)'
         type: string
         default: ''
       load_estimate:
