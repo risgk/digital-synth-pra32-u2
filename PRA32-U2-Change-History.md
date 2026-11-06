@@ -1,9 +1,9 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v3.19.1 (2026-??-??):
-    - PRA32-U2/M: Round Robin: A note played twice (e.g. by 2 keys) is counted as in Poly, so that it is not left on (it is turned off when the last of them is); and a note played again on its synth stays as old as it was, taken first, as in Poly
+- v3.20.0 (2026-11-06):
     - PRA32-U2 Web: Add **"PRA32-U2/M Web (Built-in)"** (and with "+6 dB") to MIDI Out: PRA32-U2/M (the 4 synths) by the MIDI channels (the Basic Channel 1), with the Layering and the Round Robin
         - "pra32-u2-m-midi.h": the MIDI messages of PRA32-U2/M, shared by "Digital-Synth-PRA32-U2-M.ino", PRA32-U2/M Web, and PRA32-U2/M Demo (now with the Round Robin)
+    - PRA32-U2/M: Round Robin: A note played twice (e.g. by 2 keys) is counted as in Poly, so that it is not left on (it is turned off when the last of them is); and a note played again on its synth stays as old as it was, taken first, as in Poly
     - PRA32-U2 Editor: Nothing is sent to PRA32-U2 Web when it is chosen in MIDI Out (the parameters and Panic were), as PRA32-U2: "Send Current" sends the parameters
     - Tested with Arduino-Pico version 6.3.0
 - v3.19.0 (2026-11-06):

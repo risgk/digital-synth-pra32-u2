@@ -1,4 +1,4 @@
-# Digital Synth PRA32-U2 Development v3.19.0
+# Digital Synth PRA32-U2 Development v3.20.0
 
 - 2026-11-06 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
@@ -43,7 +43,7 @@
       not in Poly, core 0 processes the back of a frame whose front is done, one a frame, before the (Main) Synth, and the rest (a few) at the end
       (so a loop takes a little more or less with how many are left; making core 0 wait for the fronts, one a frame, took more, with core 1 doing them first)
     - In PRA32-U2/M with the 4 Synths, the two cores do not wait for each other at every frame, but each goes on as far as what it needs is done
-      (at v3.19.0, with a request and a wait at every frame, core 0 waited for core 1 for about 11% of a loop, also while core 1 finished a front of
+      (at v3.20.0, with a request and a wait at every frame, core 0 waited for core 1 for about 11% of a loop, also while core 1 finished a front of
       the FX that it had started: 87% / 75% estimated, and on the device `max(loop)` 1272 us; now 76% / 74% estimated, and on the device
       `max(loop)` 1083 us, `min(loop)` 1064 us). What the work is, and when it is done, are the same; the RAM is about 3 KB more (the buffer below)
         - The Main Synth does not request its Voices 2 and 3 of core 1 when not in Poly (`PRA32_U2_SECONDARY_CORE_IN_POLY_ONLY`, which PRA32-U2/M defines)

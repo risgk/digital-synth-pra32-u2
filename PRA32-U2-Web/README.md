@@ -1,4 +1,4 @@
-# PRA32-U2 Web v3.19.0
+# PRA32-U2 Web v3.20.0
 
 - 2026-11-06 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
@@ -10,7 +10,7 @@ PRA32-U2 Web: a software synthesizer version of Digital Synth PRA32-U2 that runs
   (PRA32U2Engine, PRA32U2Renderer, and PRA32U2Resampler)
 - Version: the same as PRA32-U2 (`PRA32_U2_VERSION` in "Digital-Synth-PRA32-U2.ino"), shown in the console of the Web browser
 - "pra32-u2-web-synth.js" (in the parent folder, next to "pra32-u2-editor.html"): the built file
-    - The WebAssembly binary (about 260 KB) and the AudioWorkletProcessor are embedded, so that it works
+    - The WebAssembly binary (about 400 KB) and the AudioWorkletProcessor are embedded, so that it works
       both on a Web server (e.g. GitHub Pages) and with a local file ("file://")
     - Without this file, PRA32-U2 Editor works as before (MIDI Out only)
 
