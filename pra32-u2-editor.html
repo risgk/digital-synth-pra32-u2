@@ -347,8 +347,7 @@ button {
 details.section > summary {
   margin-bottom: 8px;
 }
-/* MIDI, and Actions & Presets: the last section in each (Save & Load, the sub heading of Actions & Presets) without the
-   space below, which is that of the details */
+/* MIDI, and Actions & Presets: the last section in each without the space below, which is that of the details */
 #midiDetails > .section:last-child, #presetsDetails > .section:last-child {
   margin-bottom: 0;
 }
@@ -356,13 +355,15 @@ details.section:not([open]) > summary {
   margin-bottom: 0;  /* the space below a hidden one is that between the sections */
 }
 /* A line above the keyboard (after the parameters), to the right end of the window (as the lines of the parameters);
-   none above Save & Load, a sub heading of MIDI, Actions & Presets */
+   none above MIDI, Actions & Presets, and Save & Load */
 #kbdDetails {
   border-top: 1px solid #c0c0c0;
   padding-top: 6px;
 }
-/* The Synth Parameters and the FX Parameters, each with a line above its heading (as the keyboard), and the lines
-   of the groups below it; none at the bottom, as the line of the next one is there */
+/* The Synth Parameters (the first 32, the 2 groups of the main ones), the More Synth Parameters (the others),
+   and the FX Parameters, each with a line above its heading (as the keyboard), and none below it (a line followed by
+   a heading divides the sections, and one followed by the parameters the groups); none at the bottom, as the line of
+   the next one is there */
 .params-details {
   border-top: 1px solid #c0c0c0;
   padding-top: 6px;
@@ -372,16 +373,10 @@ details.section:not([open]) > summary {
   cursor: pointer;
 }
 .params-details > .params {
-  border-top: 1px solid #c0c0c0;
+  border-top: none;
 }
-/* The Synth Parameters after the first 32 (the 2 groups of the main ones), below the line of the 2nd group */
-#synthMoreDetails > summary {
-  margin-top: 6px;
-  cursor: pointer;
-}
-#synthMoreDetails[open] > summary {
-  padding-bottom: 6px;
-  border-bottom: 1px solid #c0c0c0;
+.params-details[open] > summary {
+  margin-bottom: 0;  /* the space above the parameters is that of the 1st group */
 }
 /* The control numbers in the parameter names (as in PRA32-U2 Native), and the program number in "Randomize Synth",
    small and gray so as not to stand out, and a little apart */
@@ -1236,7 +1231,7 @@ window.onload = function() {
     localStorage.setItem("keySaveLoadOpen", saveLoadDetails.open ? "1" : "0");
   });
   // MIDI, and Actions & Presets are shown by default, and each shown or hidden as the last time
-  // (and the Synth Parameters, those after the first 32 of them, and the FX Parameters too)
+  // (and the Synth Parameters, the More Synth Parameters, and the FX Parameters too)
   [["midiDetails", "keyMIDIOpen"], ["presetsDetails", "keyPresetsOpen"],
    ["synthDetails", "keySynthOpen"], ["synthMoreDetails", "keySynthMoreOpen"], ["fxDetails", "keyFxOpen"]].forEach(function(item) {
     var details = document.getElementById(item[0]);
@@ -3131,6 +3126,7 @@ function getStoredCCValueString(index, number) {
 </div>
 </div>
 </div>
+</details>
 
 <details class="section" id="saveLoadDetails">
 <summary>Save &amp; Load</summary>
@@ -3227,7 +3223,6 @@ function getStoredCCValueString(index, number) {
 </div>
 </div>
 </div>
-</details>
 </details>
 
 <details class="section params-details" id="synthDetails" open>
@@ -3365,8 +3360,12 @@ function getStoredCCValueString(index, number) {
   <div class="param-ctrl soft-markers-2"><input  id="inputREL_EQ_DECAY   "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(REL_EQ_DECAY   , value)"><span    id="spanREL_EQ_DECAY   " >-</span><span   id="span2REL_EQ_DECAY   " >-</span></div>
 </div>
 </div>
-<details id="synthMoreDetails" open>
+</div>
+</details>
+
+<details class="section params-details" id="synthMoreDetails" open>
 <summary>More Synth Parameters</summary>
+<div class="params">
 <div class="param-group">
 <div class="param">
   <div class="param-name"><b>Amp</b> Attack <span class="cc">CC#52</span></div>
@@ -3455,7 +3454,6 @@ function getStoredCCValueString(index, number) {
   <div class="param-ctrl soft-markers-2"><input  id="inputOSC_SAW_W_MODE "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_SAW_W_MODE , value)"><span    id="spanOSC_SAW_W_MODE " >-</span><span   id="span2OSC_SAW_W_MODE " >-</span></div>
 </div>
 </div>
-</details>
 </div>
 </details>
 

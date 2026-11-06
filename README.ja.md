@@ -137,8 +137,8 @@
 - JSON ファイルへのエクスポートと、JSON ファイルからのインポート
 - Randomize Synth と Randomize FX: シンセや FX のパラメーターをランダムに設定します
 - Undo: 直前の変更 (プリセット、Randomize、Import、スライダーの操作) の前のパラメーターに戻します (200 段階まで)。Redo で進めます (Ctrl+Z と、Ctrl+Y または Ctrl+Shift+Z でも。Mac では Command)
-- "MIDI" と "Actions & Presets" ("Save & Load" を含む) はそれぞれ隠せるので、パラメーターに画面を広く使えます
-- "Synth Parameters" (最初の 32 個以外の "More Synth Parameters" を含む) と "FX Parameters" も、それぞれ隠せます
+- "MIDI"、"Actions & Presets"、"Save & Load" はそれぞれ隠せるので、パラメーターに画面を広く使えます
+- "Synth Parameters" (最初の 32 個)、"More Synth Parameters" (残り)、"FX Parameters" も、それぞれ隠せます
 - ボタンやスライダーなどは、どのブラウザーや OS でも同じ見た目 (Chrome 相当) です。タッチ画面では、スライダーのつまみが大きく、ボタンが高くなります
 - Software Keyboard: マウス、タッチ、PC のキーボード (A - K が C - C、W - U が黒鍵、Z / X がオクターブ) で弾けます
     - パラメーターの下にあり、パラメーターをスクロールしても画面の下に残るので、弾きながらパラメーターを変えられます。隠すこともできます (Panic は表示されたまま。隠すと Hold はオフになります)
