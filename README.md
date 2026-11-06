@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 v3.18.0
+# Digital Synth PRA32-U2 v3.19.0
 
-- 2026-11-05 ISGK Instruments
+- 2026-11-06 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 - [日本語版 README (抄訳)](./README.ja.md)
 
@@ -119,6 +119,9 @@ graph LR
       so PRA32-U2 Editor can be used only with PRA32-U2 Web (Built-in), not with PRA32-U2 or other MIDI devices
 - Select "PRA32-U2" (or "PRA32-U2/M", etc.) in the list "MIDI Out"
     - Select "PRA32-U2 Web (Built-in)" to use [PRA32-U2 Web](./PRA32-U2-Web/README.md), without PRA32-U2
+        - "PRA32-U2 Web (Built-in, +6 dB)": 6 dB louder, closer to other sounds (the peaks above -2 dBFS rounded off)
+            - Without "+6 dB", it sounds as PRA32-U2 does (e.g. to compare with it)
+            - With a high Amp Gain, the peaks rounded off can be heard as a little distortion
 
 
 ### Programs and Presets
@@ -159,7 +162,7 @@ graph LR
 - The controls look the same in every Web browser and OS (as in Chrome); on a touch screen, the thumbs of the sliders are larger, and the buttons taller
 - Software Keyboard
     - Below the parameters, it stays at the bottom of the window while they scroll above it, so that they can be changed while playing; it can be hidden (Panic stays shown; hiding turns Hold off)
-    - While Hold is on, the keys released keep their notes on (turning Hold off, or Panic, turns them off)
+    - While Hold is on, the keys released keep their notes on (pressing a key held again, turning Hold off, or Panic, turns them off)
     - The PC keyboard can also be played while it is shown (A - K for C - C, W - U for the black keys, and Z / X for the octave);
       some PC keyboards cannot take many keys at the same time (e.g. a chord of 4 notes)
     - The velocities of Note On and Note Off can be entered (1-127, 100 and 64 by default)
@@ -171,22 +174,38 @@ graph LR
 ## PRA32-U2/M (PRA32-U2 Multi-Timbre Edition)
 
 - Features
-    - The Basic Channel is the MIDI Channel of PRA32-U2 (1 by default, `PRA32_U2_MIDI_CH`), and the channels of the synths are relative to it
-    - Synths
-        - Basic Channel + 0 (Default 1): Main Synth, Poly or Mono; The default program is #0; The FX parameters (except FX Routing) apply to all channels
-        - Basic Channel + 1 (Default 2): Sub Synth 1, Mono; The default program is #1; The FX parameters (except FX Routing) are disabled
-        - Basic Channel + 2 (Default 3): Sub Synth 2, Mono; The default program is #2; The FX parameters (except FX Routing) are disabled
-        - Basic Channel + 3 (Default 4): Sub Synth 3, Mono; The default program is #3; The FX parameters (except FX Routing) are disabled
-        - *Basic Channels + 1 to + 3 (Sub Synths) are processed only if Basic Channel + 0 (Main Synth) is in Mono modes*
-    - Layering
-        - Basic Channel - 3 (Default 14): Control Basic Channel + 0 and + 1 simultaneously
-            - Results of Program Change: Program # + 0 for Basic Channel + 0 and Program # + 1 for Basic Channel + 1
-        - Basic Channel - 2 (Default 15): Control Basic Channel + 2 and + 3 simultaneously
-            - Results of Program Change: Program # + 0 for Basic Channel + 2 and Program # + 1 for Basic Channel + 3
-        - Basic Channel - 1 (Default 16): Control Basic Channel + 0, + 1, + 2, and + 3 simultaneously
-            - Results of Program Change: Program # + 0 for Basic Channel + 0, Program # + 1 for Basic Channel + 1, Program # + 2 for Basic Channel + 2, and Program # + 3 for Basic Channel + 3
-        - Program # + 1 to + 3 wrap around in the user programs (#0-15) and in the presets (#16-31) each (e.g. #15: #15, #0, #1, and #2; #31: #31, #16, #17, and #18), and Program Change #127 (Randomize Synth) is for all the synths
-        - Not to use this feature, comment out `#define PRA32_U2_ENABLE_LAYERING` in "Digital-Synth-PRA32-U2-M.ino"
+    - 4 synths: the Main Synth (Poly or Mono) and the Sub Synths 1-3 (Mono)
+        - The Sub Synths are processed only if the Main Synth is in Mono modes
+        - The FX parameters (except FX Routing) of the Main Synth apply to all the synths
+    - The channels are relative to the Basic Channel (the MIDI Channel of PRA32-U2, 1 by default, `PRA32_U2_MIDI_CH`):
+
+        | Channel (Default) | Basic Channel | Function | Synths (Basic Channel +) | Program Change (Program # +) |
+        | :-- | :-- | :-- | :-- | :-- |
+        | 1 | + 0 | Main Synth | 0 | 0 |
+        | 2 | + 1 | Sub Synth 1 | 1 | 0 |
+        | 3 | + 2 | Sub Synth 2 | 2 | 0 |
+        | 4 | + 3 | Sub Synth 3 | 3 | 0 |
+        | 7 | + 6 | Round Robin (2 notes) * | 0, 1 | 0, 0 |
+        | 8 | + 7 | Round Robin (2 notes) * | 2, 3 | 0, 0 |
+        | 9 | + 8 | Round Robin (2 notes) x 2, layered * | 0, 1 / 2, 3 | 0, 0 / 1, 1 |
+        | 12 | - 5 | Round Robin (3 notes) * | 1, 2, 3 | 0, 0, 0 |
+        | 13 | - 4 | Round Robin (4 notes) * | 0, 1, 2, 3 | 0, 0, 0, 0 |
+        | 14 | - 3 | Layering | 0, 1 | 0, 1 |
+        | 15 | - 2 | Layering | 2, 3 | 0, 1 |
+        | 16 | - 1 | Layering | 0, 1, 2, 3 | 0, 1, 2, 3 |
+
+        - \* With both the Layering and the Round Robin enabled (by default)
+    - Layering: a note (and every other message) goes to all the synths of the channel
+        - Program # + 1 to + 3 wrap around in the user programs (#0-15) and in the presets (#16-31) each; Program Change #127 (Randomize Synth) is for all the synths
+    - Round Robin: the notes go to the synths of the channel in turn, as the voices of a polyphonic synth (the other messages go to all of them)
+        - The synths are assigned by the Voice Assign Mode of the first synth, as the voices of the Polyphonic Mode, and kept by the Sustain Pedal
+        - Unlike the Polyphonic Mode, each synth has its own LFO, and a note is as loud as a voice of the Polyphonic Mode
+    - MPE (MIDI Polyphonic Expression) controllers: each synth works as a member channel, with its own pitch bend, pressure, and CC #74 (Filter Cutoff) (not fully supported)
+        - Basic Channel 1 (default): Channels 2-4 play 3 notes
+        - Basic Channel 2: Channels 2-5 play 4 notes, and Channel 1 (the Layering of all) works as the Master Channel
+        - Set Pitch Bend Range to that of the controller (e.g. 48 semitones)
+    - With the panel (PRA32-U2/M/P), all the channels above can be selected (see [PRA32-U2/P](./README-PRA32-U2-P.md))
+    - Not to use the Layering or the Round Robin, comment out `#define PRA32_U2_ENABLE_LAYERING` or `#define PRA32_U2_ENABLE_ROUND_ROBIN` in "Digital-Synth-PRA32-U2-M.ino"
 - How to modify (with Arduino IDE)
     - Copy all files in the "Digital-Synth-PRA32-U2" folder, except for "Digital-Synth-PRA32-U2.ino", to the "Digital-Synth-PRA32-U2-M" folder
     - "Digital-Synth-PRA32-U2-M.ino" is an Arduino sketch
@@ -240,11 +259,11 @@ graph LR
 
 ![CC0](http://i.creativecommons.org/p/zero/1.0/88x31.png)
 
-**Digital Synth PRA32-U2 v3.18.0 by ISGK Instruments (Ryo Ishigaki)**
+**Digital Synth PRA32-U2 v3.19.0 by ISGK Instruments (Ryo Ishigaki)**
 
 To the extent possible under law, ISGK Instruments (Ryo Ishigaki)
 has waived all copyright and related or neighboring rights
-to Digital Synth PRA32-U2 v3.18.0.
+to Digital Synth PRA32-U2 v3.19.0.
 
 You should have received a copy of the CC0 legalcode along with this
 work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.

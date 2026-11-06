@@ -330,6 +330,8 @@ const uint8_t   WR_PROGRAM_15   = 128 + 111;
 
 const uint8_t   RD_PANEL_PRMS   = 128 + 112;
 const uint8_t   IN_PANEL_PRMS   = 128 + 113;
+const uint8_t   UNDO_READ       = 128 + 114;
+const uint8_t   UNDO_WRITE      = 128 + 115;
 
 const uint8_t   WR_PANEL_PRMS   = 128 + 116;
 

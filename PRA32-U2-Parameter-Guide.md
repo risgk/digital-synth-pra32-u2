@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 Parameter Guide v3.18.0
+# Digital Synth PRA32-U2 Parameter Guide v3.19.0
 
-- 2026-11-05 ISGK Instruments
+- 2026-11-06 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 ## Main Parameters
@@ -291,7 +291,7 @@
     - 127: 100% (max)
     - NOTE: The actual LFO depth is the "LFO Depth" value plus the "Modulation Wheel" value and the after touch effect (up to 100%)
 - Amp Gain
-    - NOTE: The Output Compressor (after the FX) compresses the peaks above -6 dB (0.5 of full scale) at its input by 2:1 (with a soft knee from -9 dB to -3 dB), limits the peaks so that they do not go above 1.0 (full scale) at its input (reached at +6 dB), and lowers the output by 2.5 dB (x 0.75) (with the Presets, the peaks are lowered by about 1 dB)
+    - NOTE: The Output Compressor (after the FX) compresses the peaks above -6 dB (0.5 of full scale) at its input by 2:1 (with a soft knee from -9 dB to -3 dB), limits the peaks so that they do not go above 1.0 (full scale) at its input (reached at +6 dB), and lowers the output by 2.5 dB (x 0.75) (with the Presets, the peaks of chords are lowered by about 0.5 dB)
 - Filter Mode [LP|LP|BP|BP|BR|HP]
     - 0 (0-12): Low Pass
     - 26 (13-38): Low Pass

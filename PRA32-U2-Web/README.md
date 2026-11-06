@@ -1,6 +1,6 @@
-# PRA32-U2 Web v3.18.0
+# PRA32-U2 Web v3.19.0
 
-- 2026-11-05 ISGK Instruments
+- 2026-11-06 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 PRA32-U2 Web: a software synthesizer version of Digital Synth PRA32-U2 that runs in a Web browser, built into PRA32-U2 Editor
@@ -19,6 +19,9 @@ PRA32-U2 Web: a software synthesizer version of Digital Synth PRA32-U2 that runs
 
 - Open "pra32-u2-editor.html" (a local file, or on a Web server) with Google Chrome or Microsoft Edge (recommended)
 - Select "PRA32-U2 Web (Built-in)" in the list "MIDI Out"
+    - Or "PRA32-U2 Web (Built-in, +6 dB)": 6 dB louder (x 2), closer to other sounds, with a soft clip that rounds off the peaks above -2 dBFS
+        - Without "+6 dB", it sounds as PRA32-U2 does (e.g. to compare with it)
+        - With a high Amp Gain, the peaks rounded off can be heard as a little distortion
     - The current parameters of PRA32-U2 Editor are sent to PRA32-U2 Web ("Send Current")
 - Play the keyboard of PRA32-U2 Editor, or a MIDI keyboard selected in "MIDI In 1-4"
     - Web browsers start the audio only after a user operation in the page (e.g. a click, a tap, or a key press),

@@ -2,7 +2,7 @@
  * Digital Synth PRA32-U2/M
  */
 
-#define PRA32_U2_VERSION                       "v3.18.0   "
+#define PRA32_U2_VERSION                       "v3.19.0   "
 
 //#define PRA32_U2_USE_DEBUG_PRINT
 
@@ -58,12 +58,28 @@
 //#define PRA32_U2_DISABLE_REVERB                // Delay Mode Rev is the Stereo Delay (Ste), for the load
 
 #define PRA32_U2_ENABLE_LAYERING
+#define PRA32_U2_ENABLE_ROUND_ROBIN              // Only with the Layering (see README.md)
 
-#if defined(PRA32_U2_ENABLE_LAYERING)
-#define PRA32_U2_NUMBER_OF_SYNTHS              (4 + 3)
-#else
-#define PRA32_U2_NUMBER_OF_SYNTHS              (4)
+#if !defined(PRA32_U2_ENABLE_LAYERING)
+#undef PRA32_U2_ENABLE_ROUND_ROBIN
 #endif
+
+#if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
+#define PRA32_U2_SECONDARY_CORE_IN_POLY_ONLY     // The 4 Synths without waiting at every frame (see loop())
+#endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
+
+// The channels that the panel can select: the 4 synths, the Round Robin, and the Layering
+#if defined(PRA32_U2_ENABLE_LAYERING)
+#define PRA32_U2_NUMBER_OF_LAYERING_CHS        (3)
+#else
+#define PRA32_U2_NUMBER_OF_LAYERING_CHS        (0)
+#endif
+#if defined(PRA32_U2_ENABLE_ROUND_ROBIN)
+#define PRA32_U2_NUMBER_OF_ROUND_ROBIN_CHS     (5)
+#else
+#define PRA32_U2_NUMBER_OF_ROUND_ROBIN_CHS     (0)
+#endif
+#define PRA32_U2_NUMBER_OF_SYNTHS              (4 + PRA32_U2_NUMBER_OF_ROUND_ROBIN_CHS + PRA32_U2_NUMBER_OF_LAYERING_CHS)
 
 ////////////////////////////////////////////////////////////////
 
@@ -109,10 +125,10 @@ uint8_t g_midi_ch = PRA32_U2_MIDI_CH;
 
 // Written by the primary core at the start of a loop, and read by the secondary core every frame
 volatile boolean g_synth_is_in_polyphonic_mode = true;
-PRA32_U2_Synth<false, false, true, 0, false, false> g_synth;
-PRA32_U2_Synth<true,  false, true, 1, false, true>  g_sub_1_synth;
-PRA32_U2_Synth<true,  false, true, 2, false, true>  g_sub_2_synth;
-PRA32_U2_Synth<true,  false, true, 3, false, true>  g_sub_3_synth;
+PRA32_U2_Synth<false, false, true, 0, false> g_synth;
+PRA32_U2_Synth<true,  false, true, 1, true>  g_sub_1_synth;
+PRA32_U2_Synth<true,  false, true, 2, true>  g_sub_2_synth;
+PRA32_U2_Synth<true,  false, true, 3, true>  g_sub_3_synth;
 
 #include <MIDI.h>
 struct MySettings : public midi::DefaultSettings {
@@ -308,6 +324,204 @@ static uint8_t __not_in_flash_func(layeringProgramNumber)(uint8_t number, uint32
 }
 #endif  // defined(PRA32_U2_ENABLE_LAYERING)
 
+#if defined(PRA32_U2_ENABLE_ROUND_ROBIN)
+// The Round Robin (see README.md): the note each synth plays, the note it played last, and when it started
+static const uint8_t RR_NOTE_NONE = 0xFF;
+static uint8_t  s_rr_note[4]      = { RR_NOTE_NONE, RR_NOTE_NONE, RR_NOTE_NONE, RR_NOTE_NONE };
+static uint8_t  s_rr_asgn_note[4] = { RR_NOTE_NONE, RR_NOTE_NONE, RR_NOTE_NONE, RR_NOTE_NONE };
+static uint32_t s_rr_age[4];
+static uint32_t s_rr_count = 0;
+// The synth of the last note of each group
+static uint32_t s_rr_last[6] = { 3, 3, 3, 3, 3, 3 };
+
+// The index of a group (the first and the last synth): 0: 0-1, 1: 0-3, 3: 1-3, 5: 2-3
+static INLINE uint32_t roundRobinGroupIndex(uint32_t first, uint32_t last) {
+  return (first << 1) + (last == 3);
+}
+
+// The Sustain Pedal of each group, and the synths held by it (not free until it is released)
+static boolean s_rr_pedal[6];
+static boolean s_rr_sustained[4];
+
+static void __not_in_flash_func(noteOnOf)(uint32_t synth, uint8_t pitch, uint8_t velocity) {
+  switch (synth) {
+  case 0: g_synth      .note_on(pitch, velocity); break;
+  case 1: g_sub_1_synth.note_on(pitch, velocity); break;
+  case 2: g_sub_2_synth.note_on(pitch, velocity); break;
+  case 3: g_sub_3_synth.note_on(pitch, velocity); break;
+  }
+}
+
+static uint8_t __not_in_flash_func(voiceAsgnModeOf)(uint32_t synth) {
+  switch (synth) {
+  case 1:  return g_sub_1_synth.voice_asgn_mode();
+  case 2:  return g_sub_2_synth.voice_asgn_mode();
+  case 3:  return g_sub_3_synth.voice_asgn_mode();
+  default: return g_synth      .voice_asgn_mode();
+  }
+}
+
+static void __not_in_flash_func(pitchBendOf)(uint32_t synth, int bend) {
+  switch (synth) {
+  case 0: g_synth      .pitch_bend((bend + 8192) & 0x7F, (bend + 8192) >> 7); break;
+  case 1: g_sub_1_synth.pitch_bend((bend + 8192) & 0x7F, (bend + 8192) >> 7); break;
+  case 2: g_sub_2_synth.pitch_bend((bend + 8192) & 0x7F, (bend + 8192) >> 7); break;
+  case 3: g_sub_3_synth.pitch_bend((bend + 8192) & 0x7F, (bend + 8192) >> 7); break;
+  }
+}
+
+static void __not_in_flash_func(afterTouchPolyOf)(uint32_t synth, uint8_t note, uint8_t pressure) {
+  switch (synth) {
+  case 0: g_synth      .after_touch_poly(note, pressure); break;
+  case 1: g_sub_1_synth.after_touch_poly(note, pressure); break;
+  case 2: g_sub_2_synth.after_touch_poly(note, pressure); break;
+  case 3: g_sub_3_synth.after_touch_poly(note, pressure); break;
+  }
+}
+
+static void __not_in_flash_func(afterTouchChannelOf)(uint32_t synth, uint8_t pressure) {
+  switch (synth) {
+  case 0: g_synth      .after_touch_channel(pressure); break;
+  case 1: g_sub_1_synth.after_touch_channel(pressure); break;
+  case 2: g_sub_2_synth.after_touch_channel(pressure); break;
+  case 3: g_sub_3_synth.after_touch_channel(pressure); break;
+  }
+}
+
+static void __not_in_flash_func(noteOffOf)(uint32_t synth, uint8_t pitch, uint8_t velocity) {
+  switch (synth) {
+  case 0: g_synth      .note_off(pitch, velocity); break;
+  case 1: g_sub_1_synth.note_off(pitch, velocity); break;
+  case 2: g_sub_2_synth.note_off(pitch, velocity); break;
+  case 3: g_sub_3_synth.note_off(pitch, velocity); break;
+  }
+}
+
+// Not in Poly, where the Sub Synths are not processed. A synth taken from its oldest note has the note
+// turned off first, so that it (in Mono) does not go back to the note
+static void __not_in_flash_func(roundRobinNoteOn)(uint32_t first, uint32_t last, uint8_t pitch, uint8_t velocity) {
+  if (g_synth_is_in_polyphonic_mode) {
+    return;
+  }
+  uint8_t asgn_mode = voiceAsgnModeOf(first);
+  uint32_t count = last - first + 1;
+  uint32_t chosen = 4;
+  for (uint32_t s = first; s <= last; s++) {
+    if (s_rr_note[s] == pitch) {
+      chosen = s;
+    }
+  }
+  if ((chosen == 4) && ((asgn_mode == 3) || (asgn_mode == 4))) {
+    // Reuse the note-off synth that played the note last
+    for (uint32_t s = first; s <= last; s++) {
+      if ((s_rr_asgn_note[s] == pitch) && (s_rr_note[s] == RR_NOTE_NONE)) {
+        chosen = s;
+      }
+    }
+  }
+  if (chosen == 4) {
+    // From the next to the last in turn (1 and 3), or from the smallest number (2 and 4)
+    uint32_t start = 0;
+    if ((asgn_mode == 1) || (asgn_mode == 3)) {
+      uint32_t group_last = s_rr_last[roundRobinGroupIndex(first, last)];
+      start = ((group_last >= first) && (group_last <= last)) ? (group_last - first + 1) : 0;
+    }
+    for (uint32_t i = 0; (i < count) && (chosen == 4); i++) {
+      uint32_t s = first + ((start + i) % count);
+      if (s_rr_note[s] == RR_NOTE_NONE) {
+        chosen = s;
+      }
+    }
+  }
+  if (chosen == 4) {
+    chosen = first;
+    for (uint32_t s = first + 1; s <= last; s++) {
+      if (s_rr_age[s] < s_rr_age[chosen]) {
+        chosen = s;
+      }
+    }
+    noteOffOf(chosen, s_rr_note[chosen], 64);
+  }
+  noteOnOf(chosen, pitch, velocity);
+  s_rr_note[chosen] = pitch;
+  s_rr_sustained[chosen] = false;
+  s_rr_asgn_note[chosen] = pitch;
+  s_rr_age[chosen] = ++s_rr_count;
+  s_rr_last[roundRobinGroupIndex(first, last)] = chosen;
+}
+
+static void __not_in_flash_func(roundRobinNoteOff)(uint32_t first, uint32_t last, uint8_t pitch, uint8_t velocity) {
+  boolean pedal = s_rr_pedal[roundRobinGroupIndex(first, last)];
+  for (uint32_t s = first; s <= last; s++) {
+    if ((s_rr_note[s] == pitch) && (s_rr_sustained[s] == false)) {
+      noteOffOf(s, pitch, velocity);
+      if (pedal) {
+        s_rr_sustained[s] = true;
+      } else {
+        s_rr_note[s] = RR_NOTE_NONE;
+      }
+    }
+  }
+}
+
+// The other messages go to all the synths of the group
+static void __not_in_flash_func(roundRobinControlChange)(uint32_t first, uint32_t last, uint8_t number, uint8_t value) {
+  if (number == SUSTAIN_PEDAL) {
+    s_rr_pedal[roundRobinGroupIndex(first, last)] = (value >= 64);
+  }
+  for (uint32_t s = first; s <= last; s++) {
+    controlChange(s, number, value);
+    boolean released = (number == SUSTAIN_PEDAL) && (value < 64) && s_rr_sustained[s];
+    if ((number >= ALL_SOUND_OFF) || released) {
+      s_rr_note[s] = RR_NOTE_NONE;
+      s_rr_sustained[s] = false;
+    }
+  }
+  if (number >= ALL_SOUND_OFF) {
+    s_rr_pedal[roundRobinGroupIndex(first, last)] = false;
+  }
+}
+
+// The group (the first and the last synth) of a channel; false if none
+static boolean __not_in_flash_func(roundRobinGroup)(byte channel, uint32_t& first, uint32_t& last) {
+  if ((channel - 1) == ((g_midi_ch - 4) & 0x0F)) {
+    first = 0;
+    last  = 3;
+    return true;
+  } else if ((channel - 1) == ((g_midi_ch - 5) & 0x0F)) {
+    first = 1;
+    last  = 3;
+    return true;
+  } else if ((channel - 1) == ((g_midi_ch + 6) & 0x0F)) {
+    first = 0;
+    last  = 1;
+    return true;
+  } else if ((channel - 1) == ((g_midi_ch + 7) & 0x0F)) {
+    first = 2;
+    last  = 3;
+    return true;
+  }
+  return false;
+}
+
+// The channel of the groups 0-1 and 2-3 layered
+static boolean __not_in_flash_func(roundRobinLayered)(byte channel) {
+  return ((channel - 1) == ((g_midi_ch + 8) & 0x0F));
+}
+
+// The synths of a channel for Pitch Bend and After Touch; false if none
+static boolean __not_in_flash_func(roundRobinSynths)(byte channel, uint32_t& first, uint32_t& last) {
+  if (roundRobinGroup(channel, first, last)) {
+    return true;
+  } else if (roundRobinLayered(channel)) {
+    first = 0;
+    last  = 3;
+    return true;
+  }
+  return false;
+}
+#endif  // defined(PRA32_U2_ENABLE_ROUND_ROBIN)
+
 void __not_in_flash_func(setup1)() {
   g_synth.initialize_secondary_core();
   g_sub_1_synth.initialize_secondary_core();
@@ -336,11 +550,10 @@ void __not_in_flash_func(setup1)() {
 // of them are done. Those of a frame wait for the synths of the next one (but the last), which
 // the primary core waits for, so that they are not delayed by the FX.
 // With the 4 Synths (not in Poly, where the primary core has less time to spare), the secondary core
-// has the Sub Synths 1 and 3 and the primary core waits for it, so it processes only the front of the
-// FX (the Distortion and the Chorus, into the input of the Delay, in s_fx_outputs), and the primary
-// core the back (the Delay and the Output Compressor) of a frame whose front is done, one a frame,
-// before the Main Synth, which waits for the secondary core anyway, and the rest (a few) at the end
-// of the loop
+// has the Sub Synths 1 and 3 too, so it processes only the front of the FX (the Distortion and the
+// Chorus, into the input of the Delay, in s_fx_outputs; see processSubSynthsOrFxFront()), and the
+// primary core the back (the Delay and the Output Compressor) of a frame whose front is done, one a
+// frame, before the Main Synth, and the rest (a few) at the end of the loop
 static PRA32_U2_FxBusSample  s_fx_inputs [PRA32_U2_I2S_BUFFER_WORDS];
 static uint32_t              s_fx_counts [PRA32_U2_I2S_BUFFER_WORDS];
 static PRA32_U2_StereoSample s_fx_outputs[PRA32_U2_I2S_BUFFER_WORDS];
@@ -390,6 +603,55 @@ static void __not_in_flash_func(processFxOfNextFrame)() {
     }
   }
 }
+
+// With the 4 Synths, the two cores do not wait for each other at every frame: the secondary core
+// processes the Sub Synths 1 and 3 of the frames one after another into s_sub_fx_buses (it does
+// not depend on the primary core, as the Main Synth does not request its Voices 2 and 3 when not in
+// Poly), a few frames ahead of the primary core at most, and the front of the FX of the frames
+// that the primary core has put in between; the primary core processes the Sub Synth 2 and the
+// Main Synth, adds the Sub Synths 1 and 3 of the frame (waiting for them only if they are not done
+// yet), puts the FX input, and processes the back of the FX of a frame whose front is done
+static PRA32_U2_FxBusSample  s_sub_fx_buses[PRA32_U2_I2S_BUFFER_WORDS];
+static volatile uint32_t     s_sub_frames_done    = 0;
+static volatile boolean      s_sub_frames_pending = false;
+
+// The frames of the Sub Synths 1 and 3 that the secondary core may be ahead of the front of the FX
+static const uint32_t SUB_FRAMES_AHEAD = 2;
+
+static INLINE void addFxBus(PRA32_U2_FxBusSample& fx_bus, const PRA32_U2_FxBusSample& other) {
+  for (uint32_t k = 0; k < 5; k++) {
+    fx_bus.input[k].left  += other.input[k].left;
+    fx_bus.input[k].right += other.input[k].right;
+  }
+}
+
+// One step of the secondary core with the 4 Synths: the Sub Synths 1 and 3 of the next frame, or the
+// front of the FX of the next frame put; true if a frame of the Sub Synths is processed
+static boolean __not_in_flash_func(processSubSynthsOrFxFront)() {
+  uint32_t i = s_sub_frames_done;
+  uint32_t f = s_fx_frames_done;
+  boolean front_ready = (f < s_fx_frames_put);
+  if ((i < PRA32_U2_I2S_BUFFER_WORDS) && ((front_ready == false) || (i < f + SUB_FRAMES_AHEAD))) {
+    PRA32_U2_StereoSample sub_3_synth_output = g_sub_3_synth.process(0, 0);
+    PRA32_U2_StereoSample sub_1_synth_output = g_sub_1_synth.process(0, 0);
+    clear_fx_bus(s_sub_fx_buses[i]);
+    g_sub_3_synth.add_to_fx_bus(sub_3_synth_output, s_sub_fx_buses[i]);
+    g_sub_1_synth.add_to_fx_bus(sub_1_synth_output, s_sub_fx_buses[i]);
+    __compiler_memory_barrier();
+    s_sub_frames_done = i + 1;
+    return true;
+  }
+  if (front_ready) {
+    __compiler_memory_barrier();
+    s_fx_outputs[f] = g_synth.process_fx_front(s_fx_inputs[f], s_fx_counts[f]);
+    // Done with the loop before the last front is told done (the Sub Synths of all the frames are
+    // done before that is put), as the primary core may start the next loop right after that
+    s_sub_frames_pending = (f + 1 < PRA32_U2_I2S_BUFFER_WORDS);
+    __compiler_memory_barrier();
+    s_fx_frames_done = f + 1;
+  }
+  return false;
+}
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
 
 static void __not_in_flash_func(loop1_once)() {
@@ -425,6 +687,9 @@ static void __not_in_flash_func(loop1_once)() {
     processed = true;
   }
 #if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
+  else if (s_sub_frames_pending) {
+    processed = processSubSynthsOrFxFront();
+  }
   else {
     processFxOfNextFrame();
   }
@@ -643,6 +908,36 @@ void __not_in_flash_func(loop)() {
   s_fx_backs_done = s_fx_front_only ? 0 : PRA32_U2_I2S_BUFFER_WORDS;
   __compiler_memory_barrier();
   s_fx_frames_done = 0;
+
+  if (g_synth_is_in_polyphonic_mode == false) {
+    s_sub_frames_done = 0;
+    __compiler_memory_barrier();
+    s_sub_frames_pending = true;
+
+    for (uint32_t i = 0; i < PRA32_U2_I2S_BUFFER_WORDS; i++) {
+      PRA32_U2_StereoSample sub_2_synth_output = g_sub_2_synth.process(0, 0);
+
+      processFxBackOfNextFrame();
+
+      PRA32_U2_StereoSample synth_output = g_synth.process<false, true>(0, 0);
+
+      PRA32_U2_FxBusSample fx_bus;
+      clear_fx_bus(fx_bus);
+      g_sub_2_synth.add_to_fx_bus(sub_2_synth_output, fx_bus);
+      g_synth.add_to_fx_bus(synth_output, fx_bus);
+
+      while (s_sub_frames_done <= i) {
+        ;
+      }
+      __compiler_memory_barrier();
+      addFxBus(fx_bus, s_sub_fx_buses[i]);
+
+      s_fx_inputs[i] = fx_bus;
+      s_fx_counts[i] = g_synth.get_count();
+      __compiler_memory_barrier();
+      s_fx_frames_put = i + 1;
+    }
+  } else
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
   for (uint32_t i = 0; i < PRA32_U2_I2S_BUFFER_WORDS; i++) {
     s_secondary_core_processing_request = 1;
@@ -776,6 +1071,16 @@ void __not_in_flash_func(handleNoteOn)(byte channel, byte pitch, byte velocity)
     g_sub_3_synth.note_on(pitch, velocity);
 #endif  // defined(PRA32_U2_ENABLE_LAYERING)
   }
+
+#if defined(PRA32_U2_ENABLE_ROUND_ROBIN)
+  uint32_t first, last;
+  if (roundRobinGroup(channel, first, last)) {
+    roundRobinNoteOn(first, last, pitch, velocity);
+  } else if (roundRobinLayered(channel)) {
+    roundRobinNoteOn(0, 1, pitch, velocity);
+    roundRobinNoteOn(2, 3, pitch, velocity);
+  }
+#endif  // defined(PRA32_U2_ENABLE_ROUND_ROBIN)
 }
 
 void __not_in_flash_func(handleNoteOff)(byte channel, byte pitch, byte velocity)
@@ -804,6 +1109,16 @@ void __not_in_flash_func(handleNoteOff)(byte channel, byte pitch, byte velocity)
     g_sub_3_synth.note_off(pitch, velocity);
 #endif  // defined(PRA32_U2_ENABLE_LAYERING)
   }
+
+#if defined(PRA32_U2_ENABLE_ROUND_ROBIN)
+  uint32_t first, last;
+  if (roundRobinGroup(channel, first, last)) {
+    roundRobinNoteOff(first, last, pitch, velocity);
+  } else if (roundRobinLayered(channel)) {
+    roundRobinNoteOff(0, 1, pitch, velocity);
+    roundRobinNoteOff(2, 3, pitch, velocity);
+  }
+#endif  // defined(PRA32_U2_ENABLE_ROUND_ROBIN)
 }
 
 void __not_in_flash_func(handleControlChange)(byte channel, byte number, byte value)
@@ -830,6 +1145,16 @@ void __not_in_flash_func(handleControlChange)(byte channel, byte number, byte va
     controlChange(3, number, value);
 #endif  // defined(PRA32_U2_ENABLE_LAYERING)
   }
+
+#if defined(PRA32_U2_ENABLE_ROUND_ROBIN)
+  uint32_t first, last;
+  if (roundRobinGroup(channel, first, last)) {
+    roundRobinControlChange(first, last, number, value);
+  } else if (roundRobinLayered(channel)) {
+    roundRobinControlChange(0, 1, number, value);
+    roundRobinControlChange(2, 3, number, value);
+  }
+#endif  // defined(PRA32_U2_ENABLE_ROUND_ROBIN)
 }
 
 void __not_in_flash_func(handleProgramChange)(byte channel, byte number)
@@ -857,6 +1182,22 @@ void __not_in_flash_func(handleProgramChange)(byte channel, byte number)
     programChange(3, layeringProgramNumber(number, 3));
 #endif  // defined(PRA32_U2_ENABLE_LAYERING)
   }
+
+#if defined(PRA32_U2_ENABLE_ROUND_ROBIN)
+  // The same program for all the synths of the group, as the voices of a polyphonic synth
+  uint32_t first, last;
+  if (roundRobinGroup(channel, first, last)) {
+    for (uint32_t s = first; s <= last; s++) {
+      programChange(s, number);
+    }
+  } else if (roundRobinLayered(channel)) {
+    // As with the Layering: + 0 for 0-1, and + 1 for 2-3
+    programChange(0, number);
+    programChange(1, number);
+    programChange(2, layeringProgramNumber(number, 1));
+    programChange(3, layeringProgramNumber(number, 1));
+  }
+#endif  // defined(PRA32_U2_ENABLE_ROUND_ROBIN)
 }
 
 void __not_in_flash_func(handlePitchBend)(byte channel, int bend)
@@ -885,6 +1226,15 @@ void __not_in_flash_func(handlePitchBend)(byte channel, int bend)
     g_sub_3_synth.pitch_bend((bend + 8192) & 0x7F, (bend + 8192) >> 7);
 #endif  // defined(PRA32_U2_ENABLE_LAYERING)
   }
+
+#if defined(PRA32_U2_ENABLE_ROUND_ROBIN)
+  uint32_t first, last;
+  if (roundRobinSynths(channel, first, last)) {
+    for (uint32_t s = first; s <= last; s++) {
+      pitchBendOf(s, bend);
+    }
+  }
+#endif  // defined(PRA32_U2_ENABLE_ROUND_ROBIN)
 }
 
 void __not_in_flash_func(handleAfterTouchPoly)(byte channel, byte note, byte pressure)
@@ -913,6 +1263,15 @@ void __not_in_flash_func(handleAfterTouchPoly)(byte channel, byte note, byte pre
     g_sub_3_synth.after_touch_poly(note, pressure);
 #endif  // defined(PRA32_U2_ENABLE_LAYERING)
   }
+
+#if defined(PRA32_U2_ENABLE_ROUND_ROBIN)
+  uint32_t first, last;
+  if (roundRobinSynths(channel, first, last)) {
+    for (uint32_t s = first; s <= last; s++) {
+      afterTouchPolyOf(s, note, pressure);
+    }
+  }
+#endif  // defined(PRA32_U2_ENABLE_ROUND_ROBIN)
 }
 
 void __not_in_flash_func(handleAfterTouchChannel)(byte channel, byte pressure)
@@ -941,6 +1300,15 @@ void __not_in_flash_func(handleAfterTouchChannel)(byte channel, byte pressure)
     g_sub_3_synth.after_touch_channel(pressure);
 #endif  // defined(PRA32_U2_ENABLE_LAYERING)
   }
+
+#if defined(PRA32_U2_ENABLE_ROUND_ROBIN)
+  uint32_t first, last;
+  if (roundRobinSynths(channel, first, last)) {
+    for (uint32_t s = first; s <= last; s++) {
+      afterTouchChannelOf(s, pressure);
+    }
+  }
+#endif  // defined(PRA32_U2_ENABLE_ROUND_ROBIN)
 }
 
 void __not_in_flash_func(handleClock)()
@@ -989,6 +1357,19 @@ uint8_t __not_in_flash_func(getCurrentControllerValue)(byte channel, byte number
   } else if ((channel - 1) == ((g_midi_ch - 1) & 0x0F)) {
     return g_synth.current_controller_value(number);
 #endif  // defined(PRA32_U2_ENABLE_LAYERING)
+#if defined(PRA32_U2_ENABLE_ROUND_ROBIN)
+  // The Round Robin: its first synth
+  } else if ((channel - 1) == ((g_midi_ch - 4) & 0x0F)) {
+    return g_synth.current_controller_value(number);
+  } else if ((channel - 1) == ((g_midi_ch - 5) & 0x0F)) {
+    return g_sub_1_synth.current_controller_value(number);
+  } else if ((channel - 1) == ((g_midi_ch + 6) & 0x0F)) {
+    return g_synth.current_controller_value(number);
+  } else if ((channel - 1) == ((g_midi_ch + 7) & 0x0F)) {
+    return g_sub_2_synth.current_controller_value(number);
+  } else if ((channel - 1) == ((g_midi_ch + 8) & 0x0F)) {
+    return g_synth.current_controller_value(number);
+#endif  // defined(PRA32_U2_ENABLE_ROUND_ROBIN)
   }
 
   return 0;
@@ -1012,6 +1393,19 @@ void __not_in_flash_func(getRandUint8Rrray)(byte channel, uint8_t array[8])
   } else if ((channel - 1) == ((g_midi_ch - 1) & 0x0F)) {
     g_synth.get_rand_uint8_array(array);
 #endif  // defined(PRA32_U2_ENABLE_LAYERING)
+#if defined(PRA32_U2_ENABLE_ROUND_ROBIN)
+  // The Round Robin: its first synth
+  } else if ((channel - 1) == ((g_midi_ch - 4) & 0x0F)) {
+    g_synth.get_rand_uint8_array(array);
+  } else if ((channel - 1) == ((g_midi_ch - 5) & 0x0F)) {
+    g_sub_1_synth.get_rand_uint8_array(array);
+  } else if ((channel - 1) == ((g_midi_ch + 6) & 0x0F)) {
+    g_synth.get_rand_uint8_array(array);
+  } else if ((channel - 1) == ((g_midi_ch + 7) & 0x0F)) {
+    g_sub_2_synth.get_rand_uint8_array(array);
+  } else if ((channel - 1) == ((g_midi_ch + 8) & 0x0F)) {
+    g_synth.get_rand_uint8_array(array);
+#endif  // defined(PRA32_U2_ENABLE_ROUND_ROBIN)
   }
 }
 
@@ -1035,19 +1429,98 @@ void __not_in_flash_func(writeParametersToProgram)(byte channel, byte number)
   } else if ((channel - 1) == ((g_midi_ch - 1) & 0x0F)) {
     g_synth.write_parameters_to_program(number);
 #endif  // defined(PRA32_U2_ENABLE_LAYERING)
+#if defined(PRA32_U2_ENABLE_ROUND_ROBIN)
+  // The Round Robin: its first synth
+  } else if ((channel - 1) == ((g_midi_ch - 4) & 0x0F)) {
+    g_synth.write_parameters_to_program(number);
+  } else if ((channel - 1) == ((g_midi_ch - 5) & 0x0F)) {
+    g_sub_1_synth.write_parameters_to_program(number);
+  } else if ((channel - 1) == ((g_midi_ch + 6) & 0x0F)) {
+    g_synth.write_parameters_to_program(number);
+  } else if ((channel - 1) == ((g_midi_ch + 7) & 0x0F)) {
+    g_sub_2_synth.write_parameters_to_program(number);
+  } else if ((channel - 1) == ((g_midi_ch + 8) & 0x0F)) {
+    g_synth.write_parameters_to_program(number);
+#endif  // defined(PRA32_U2_ENABLE_ROUND_ROBIN)
   }
 }
 
+// The MIDI channel of a synth that the panel selects (see README.md)
 byte __not_in_flash_func(getTargetMIDICh)(byte synth)
 {
-#if defined(PRA32_U2_ENABLE_LAYERING)
-  if (synth >= 4) {
-    return (((g_midi_ch + synth + 9) & 0x0F) + 1);
+  if (synth < 4) {
+    return (((g_midi_ch + synth) & 0x0F) + 1);
   }
-  return (((g_midi_ch + synth) & 0x0F) + 1);
-#else
-  return (((g_midi_ch + synth) & 0x0F) + 1);
-#endif
+  static const int8_t s_offsets[PRA32_U2_NUMBER_OF_SYNTHS - 4 + 1] = {
+    6, 7, 8,
+#if defined(PRA32_U2_ENABLE_ROUND_ROBIN)
+    -5, -4,
+#endif  // defined(PRA32_U2_ENABLE_ROUND_ROBIN)
+#if defined(PRA32_U2_ENABLE_LAYERING)
+    -3, -2, -1,
+#endif  // defined(PRA32_U2_ENABLE_LAYERING)
+    0,
+  };
+  return (((g_midi_ch + s_offsets[synth - 4]) & 0x0F) + 1);
+}
+
+// The synth of a MIDI channel, for the functions below
+template <typename F>
+static void forSynthOfChannel(byte channel, F f)
+{
+  if ((channel - 1) == g_midi_ch) {
+    f(g_synth);
+  } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
+    f(g_sub_1_synth);
+  } else if ((channel - 1) == ((g_midi_ch + 2) & 0x0F)) {
+    f(g_sub_2_synth);
+  } else if ((channel - 1) == ((g_midi_ch + 3) & 0x0F)) {
+    f(g_sub_3_synth);
+#if defined(PRA32_U2_ENABLE_LAYERING)
+  } else if ((channel - 1) == ((g_midi_ch - 3) & 0x0F)) {
+    f(g_synth);
+  } else if ((channel - 1) == ((g_midi_ch - 2) & 0x0F)) {
+    f(g_sub_2_synth);
+  } else if ((channel - 1) == ((g_midi_ch - 1) & 0x0F)) {
+    f(g_synth);
+#endif  // defined(PRA32_U2_ENABLE_LAYERING)
+#if defined(PRA32_U2_ENABLE_ROUND_ROBIN)
+  // The Round Robin: its first synth
+  } else if ((channel - 1) == ((g_midi_ch - 4) & 0x0F)) {
+    f(g_synth);
+  } else if ((channel - 1) == ((g_midi_ch - 5) & 0x0F)) {
+    f(g_sub_1_synth);
+  } else if ((channel - 1) == ((g_midi_ch + 6) & 0x0F)) {
+    f(g_synth);
+  } else if ((channel - 1) == ((g_midi_ch + 7) & 0x0F)) {
+    f(g_sub_2_synth);
+  } else if ((channel - 1) == ((g_midi_ch + 8) & 0x0F)) {
+    f(g_synth);
+#endif  // defined(PRA32_U2_ENABLE_ROUND_ROBIN)
+  }
+}
+
+// For Undo Read and Undo Write of the control panel
+void getCurrentValues(byte channel, uint8_t values[128 + 128])
+{
+  processPendingProgramChanges();
+  forSynthOfChannel(channel, [&](auto& synth) { synth.get_current_values(values); });
+}
+
+void setValues(byte channel, boolean panel, const uint8_t values[128 + 128])
+{
+  processPendingProgramChanges();
+  forSynthOfChannel(channel, [&](auto& synth) { synth.set_values(panel, values); });
+}
+
+void getProgramValues(byte channel, byte number, uint8_t values[128 + 128])
+{
+  forSynthOfChannel(channel, [&](auto& synth) { synth.get_program_values(number, values); });
+}
+
+void writeValuesToProgram(byte channel, byte number, const uint8_t values[128 + 128])
+{
+  forSynthOfChannel(channel, [&](auto& synth) { synth.write_values_to_program(number, values); });
 }
 
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)

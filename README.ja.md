@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 v3.18.0
+# Digital Synth PRA32-U2 v3.19.0
 
-- 2026-11-05 ISGK Instruments
+- 2026-11-06 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 - [English README](./README.md) の抄訳です (英語版が正です)。詳しい仕様は英語版を参照してください
     - 英語のドキュメントは、必要に応じて Web ブラウザーなどの自動翻訳を使ってお読みください
@@ -97,6 +97,9 @@
       PRA32-U2 Editor は PRA32-U2 Web (Built-in) でだけ使えます (PRA32-U2 や他の MIDI 機器とはつながりません)
 - "MIDI Out" のリストで "PRA32-U2" (PRA32-U2/M の場合は "PRA32-U2/M" など) を選んでください
     - PRA32-U2 なしで [PRA32-U2 Web](./PRA32-U2-Web/README.md) を使うには、"PRA32-U2 Web (Built-in)" を選んでください
+        - "PRA32-U2 Web (Built-in, +6 dB)": 6 dB 大きく、他の音源に近い音量です (-2 dBFS を超えるピークは丸めます)
+            - "+6 dB" なしは PRA32-U2 と同じ音です (実機と比べるときなど)
+            - Amp Gain が高いと、丸めたピークが少し歪んで聞こえることがあります
 
 
 ### プログラムとプリセット
@@ -135,7 +138,7 @@
 - Software Keyboard: マウス、タッチ、PC のキーボード (A - K が C - C、W - U が黒鍵、Z / X がオクターブ) で弾けます
     - パラメーターの下にあり、パラメーターをスクロールしても画面の下に残るので、弾きながらパラメーターを変えられます。隠すこともできます (Panic は表示されたまま。隠すと Hold はオフになります)
     - ノートオンとノートオフのベロシティを入力できます (1-127、初期値は 100 と 64)
-    - Hold がオンの間は、離した鍵盤のノートが鳴り続けます (Hold をオフにするか、Panic で止まります)
+    - Hold がオンの間は、離した鍵盤のノートが鳴り続けます (その鍵盤をもう一度押すか、Hold をオフにするか、Panic で止まります)
     - 鍵盤の下のスライダーで、Pitch Bend (離すと中央に戻ります)、Modulation Wheel、Breath Controller、Expression、Sustain Pedal、Portamento Switch、Channel Pressure を送れます (Performance Controls。スマホなどでは、鍵盤とは別に隠せます)
 
 

@@ -133,6 +133,58 @@ extern uint8_t getCurrentControllerValue(byte channel, byte number);
 extern void getRandUint8Rrray(byte channel, uint8_t array[8]);
 extern void writeParametersToProgram(byte channel, byte number);
 extern byte getTargetMIDICh(byte synth);
+extern void getCurrentValues(byte channel, uint8_t values[128 + 128]);
+extern void setValues(byte channel, boolean panel, const uint8_t values[128 + 128]);
+extern void getProgramValues(byte channel, byte number, uint8_t values[128 + 128]);
+extern void writeValuesToProgram(byte channel, byte number, const uint8_t values[128 + 128]);
+
+// Undo Read and Undo Write (Page D-17): what the last Read (or Init Panel Prms) and the last Write of
+// the panel replaced, kept until the next one (not in the flash); undoing one swaps it back in, so
+// that a second Undo redoes it
+struct PRA32_U2_ControlPanelUndo {
+  uint8_t values[128 + 128];  // Indexed by the control number
+  boolean valid;
+  boolean panel;              // The panel parameters (Read Panel Prms, Init Panel Prms, Write Panel Prms)
+  byte    channel;            // The MIDI channel of the synth (Undo Read)
+  byte    program_number;     // #0-15, or 128 for the panel parameters (Undo Write)
+};
+static PRA32_U2_ControlPanelUndo s_undo_read;
+static PRA32_U2_ControlPanelUndo s_undo_write;
+
+static void PRA32_U2_ControlPanel_keep_for_undo_read(byte channel, boolean panel) {
+  getCurrentValues(channel, s_undo_read.values);
+  s_undo_read.channel = channel;
+  s_undo_read.panel   = panel;
+  s_undo_read.valid   = true;
+}
+
+static void PRA32_U2_ControlPanel_keep_for_undo_write(byte channel, byte program_number) {
+  getProgramValues(channel, program_number, s_undo_write.values);
+  s_undo_write.channel        = channel;
+  s_undo_write.program_number = program_number;
+  s_undo_write.panel          = (program_number == 128);
+  s_undo_write.valid          = true;
+}
+
+static void PRA32_U2_ControlPanel_undo_read() {
+  if (s_undo_read.valid == false) {
+    return;
+  }
+  uint8_t current_values[128 + 128];
+  getCurrentValues(s_undo_read.channel, current_values);
+  setValues(s_undo_read.channel, s_undo_read.panel, s_undo_read.values);
+  std::memcpy(s_undo_read.values, current_values, sizeof(current_values));
+}
+
+static void PRA32_U2_ControlPanel_undo_write() {
+  if (s_undo_write.valid == false) {
+    return;
+  }
+  uint8_t program_values[128 + 128];
+  getProgramValues(s_undo_write.channel, s_undo_write.program_number, program_values);
+  writeValuesToProgram(s_undo_write.channel, s_undo_write.program_number, s_undo_write.values);
+  std::memcpy(s_undo_write.values, program_values, sizeof(program_values));
+}
 
 
 static INLINE uint8_t PRA32_U2_ControlPanel_get_index_scale()
@@ -629,6 +681,7 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
       if (s_adc_control_value[adc_number] <= 31) {
         s_ready_to_read[program_number_to_read] = true;
       } else if (s_ready_to_read[program_number_to_read] && (s_adc_control_value[adc_number] >= 96)) {
+        PRA32_U2_ControlPanel_keep_for_undo_read(getTargetMIDICh(s_current_synth), false);
         handleProgramChange(getTargetMIDICh(s_current_synth), s_adc_control_target[adc_number] - RD_PROGRAM_0);
         s_ready_to_read[program_number_to_read] = false;
       }
@@ -638,6 +691,7 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
       if (s_adc_control_value[adc_number] <= 31) {
         s_ready_to_write[program_number_to_write] = true;
       } else if (s_ready_to_write[program_number_to_write] && (s_adc_control_value[adc_number] >= 96)) {
+        PRA32_U2_ControlPanel_keep_for_undo_write(getTargetMIDICh(s_current_synth), program_number_to_write);
         writeParametersToProgram(getTargetMIDICh(s_current_synth), program_number_to_write);
         s_ready_to_write[program_number_to_write] = false;
       }
@@ -646,6 +700,7 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
       if (s_adc_control_value[adc_number] <= 31) {
         s_ready_to_read_panel_prms = true;
       } else if (s_ready_to_read_panel_prms && (s_adc_control_value[adc_number] >= 96)) {
+        PRA32_U2_ControlPanel_keep_for_undo_read(getTargetMIDICh(s_current_synth), true);
         handleProgramChange(getTargetMIDICh(s_current_synth), 128);
         s_ready_to_read_panel_prms = false;
       }
@@ -654,6 +709,7 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
       if (s_adc_control_value[adc_number] <= 31) {
         s_ready_to_init_panel_prms = true;
       } else if (s_ready_to_init_panel_prms && (s_adc_control_value[adc_number] >= 96)) {
+        PRA32_U2_ControlPanel_keep_for_undo_read(getTargetMIDICh(s_current_synth), true);
         handleProgramChange(getTargetMIDICh(s_current_synth), 129);
         s_ready_to_init_panel_prms = false;
       }
@@ -662,8 +718,25 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
       if (s_adc_control_value[adc_number] <= 31) {
         s_ready_to_write_panel_prms = true;
       } else if (s_ready_to_write_panel_prms && (s_adc_control_value[adc_number] >= 96)) {
+        PRA32_U2_ControlPanel_keep_for_undo_write(getTargetMIDICh(0), 128);
         g_synth.write_parameters_to_program(128);
         s_ready_to_write_panel_prms = false;
+      }
+    } else if (s_adc_control_target[adc_number] == UNDO_READ) {
+      static boolean s_ready_to_undo_read;
+      if (s_adc_control_value[adc_number] <= 31) {
+        s_ready_to_undo_read = true;
+      } else if (s_ready_to_undo_read && (s_adc_control_value[adc_number] >= 96)) {
+        PRA32_U2_ControlPanel_undo_read();
+        s_ready_to_undo_read = false;
+      }
+    } else if (s_adc_control_target[adc_number] == UNDO_WRITE) {
+      static boolean s_ready_to_undo_write;
+      if (s_adc_control_value[adc_number] <= 31) {
+        s_ready_to_undo_write = true;
+      } else if (s_ready_to_undo_write && (s_adc_control_value[adc_number] >= 96)) {
+        PRA32_U2_ControlPanel_undo_write();
+        s_ready_to_undo_write = false;
       }
     } else if (s_adc_control_target[adc_number] == SEQ_RAND_PITCH) {
       static boolean s_ready_to_rand_pitch;
@@ -1008,6 +1081,8 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case  RD_PANEL_PRMS  :
   case  IN_PANEL_PRMS  :
   case  WR_PANEL_PRMS  :
+  case  UNDO_READ      :
+  case  UNDO_WRITE     :
   case  SEQ_RAND_PITCH :
   case  SEQ_RAND_VELO  :
   case  PANIC_OP       :

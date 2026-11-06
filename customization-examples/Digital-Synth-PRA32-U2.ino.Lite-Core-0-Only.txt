@@ -4,7 +4,7 @@
  * - Osc 1 Shape and Morph are disabled in Saw, Sqr, and WT
  */
 
-#define PRA32_U2_VERSION                       "v3.18.0   "
+#define PRA32_U2_VERSION                       "v3.19.0   "
 
 //#define PRA32_U2_USE_DEBUG_PRINT
 
@@ -637,6 +637,37 @@ void __not_in_flash_func(writeParametersToProgram)(byte channel, byte number)
 byte __not_in_flash_func(getTargetMIDICh)(byte synth)
 {
   return (((g_midi_ch + synth) & 0x0F) + 1);
+}
+
+// For Undo Read and Undo Write of the control panel
+void getCurrentValues(byte channel, uint8_t values[128 + 128])
+{
+  if ((channel - 1) == g_midi_ch) {
+    processPendingProgramChange();
+    g_synth.get_current_values(values);
+  }
+}
+
+void setValues(byte channel, boolean panel, const uint8_t values[128 + 128])
+{
+  if ((channel - 1) == g_midi_ch) {
+    processPendingProgramChange();
+    g_synth.set_values(panel, values);
+  }
+}
+
+void getProgramValues(byte channel, byte number, uint8_t values[128 + 128])
+{
+  if ((channel - 1) == g_midi_ch) {
+    g_synth.get_program_values(number, values);
+  }
+}
+
+void writeValuesToProgram(byte channel, byte number, const uint8_t values[128 + 128])
+{
+  if ((channel - 1) == g_midi_ch) {
+    g_synth.write_values_to_program(number, values);
+  }
 }
 
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)

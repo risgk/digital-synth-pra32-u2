@@ -4,7 +4,7 @@
  * - Synth 0 to 3: Osc 1 Shape and Morph are disabled in Saw, Sqr, and WT
  */
 
-#define PRA32_U2_VERSION                       "v3.18.0   "
+#define PRA32_U2_VERSION                       "v3.19.0   "
 
 #define PRA32_U2_MIDI_CH                       (0)  // 0-based
 
@@ -36,7 +36,7 @@
 #define PRA32_U2_DISABLE_DISTORTION_FX           // The Distortion FX passes its input through (Dst as Cho), for the load
 #define PRA32_U2_DISABLE_REVERB                  // Delay Mode Rev is the Stereo Delay (Ste), for the load
 
-#define PRA32_U2_NUMBER_OF_SYNTHS              (2)
+#define PRA32_U2_NUMBER_OF_SYNTHS              (4)
 
 //#define PRA32_U2_ENABLE_LAYERING
 
@@ -48,10 +48,10 @@ uint8_t g_midi_ch = PRA32_U2_MIDI_CH;
 #include "pra32-u2-synth.h"
 
 boolean g_synth_is_in_polyphonic_mode = true;
-PRA32_U2_Synth<false, false, true, 0, false, false> g_synth;
-PRA32_U2_Synth<true,  false, true, 1, false, true>  g_sub_1_synth;
-PRA32_U2_Synth<true,  false, true, 2, false, true>  g_sub_2_synth;
-PRA32_U2_Synth<true,  false, true, 3, false, true>  g_sub_3_synth;
+PRA32_U2_Synth<false, false, true, 0, false> g_synth;
+PRA32_U2_Synth<true,  false, true, 1, true>  g_sub_1_synth;
+PRA32_U2_Synth<true,  false, true, 2, true>  g_sub_2_synth;
+PRA32_U2_Synth<true,  false, true, 3, true>  g_sub_3_synth;
 
 #if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
 #include "pra32-u2-pwm-audio.h"

@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2/P v3.18.0
+# Digital Synth PRA32-U2/P v3.19.0
 
-- 2026-11-05 ISGK Instruments
+- 2026-11-06 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 
@@ -45,9 +45,9 @@
 - Copy all files in the "Digital-Synth-PRA32-U2" folder, except for "Digital-Synth-PRA32-U2.ino", to the "Digital-Synth-PRA32-U2-M" folder
 - Uncomment `//#define PRA32_U2_USE_CONTROL_PANEL` in "Digital-Synth-PRA32-U2-M.ino"
 - Prev Key + Next Key: Push to go to the next synth (channel)
-    - "$0" -> "$1" -> "$2" -> "$3" -> "$D" -> "$E" -> "$F" -> "$0"
-    - "$0" to "$3": Basic Channel + 0 to + 3 (Synths)
-    - "$D" to "$F": Basic Channel - 3 to - 1 (Layering)
+    - "$0" -> "$1" -> "$2" -> "$3" -> "$6" -> "$7" -> "$8" -> "$B" -> "$C" -> "$D" -> "$E" -> "$F" -> "$0"
+    - The MIDI channel - 1, in hex: "$0" to "$3" the synths, "$6" to "$C" the Round Robin, and "$D" to "$F" the Layering (see [PRA32-U2/M](./README.md#pra32-u2m-pra32-u2-multi-timbre-edition))
+    - On the Round Robin and the Layering, the current values (and Write) are those of the first synth of the channel
 
 
 ### GUI Pages
@@ -116,6 +116,11 @@
 - Read Operations
     - Read #0-15 (User), #16-31 (Factory Presets), Read Panel Prms, Init Panel Prms
         - Change the value from 0-31 [Rdy] to 96-127 [Exe] to read from the flash
+- Undo Operations (also on Page C-09, after the Write Operations)
+    - Undo Write: Brings back the user program (or the panel parameters) in the flash that the last Write replaced
+    - Undo Read: Brings back the parameters (or the panel parameters) that the last Read (or Init Panel Prms) replaced
+        - Change the value from 0-31 [Rdy] to 96-127 [Exe] to undo; doing it again redoes it
+        - Only the last Write and the last Read, of the synth selected then, until the power is turned off
 
 
 ### Circuit Diagram
@@ -147,7 +152,7 @@
 
 | Page           | Parameter A          | Parameter B          |
 | :------------- | :------------------- | :------------------- |
-| A-00 Info      | PRA32-U2/P           | v3.18.0              |
+| A-00 Info      | PRA32-U2/P           | v3.19.0              |
 | A-01 Voice     | Voice Mode           | Voice Asgn Mode      |
 | A-02 Pitch a   | Portamento Time      | Portamento Mode      |
 | A-03 Pitch b   | Pitch Bend Range     | Stretch Tune         |
@@ -214,6 +219,7 @@
 | C-06 Write 12  | Write #12 User       | Write #13 User       |
 | C-07 Write 14  | Write #14 User       | Write #15 User       |
 | C-08 Write a   | Write Panel Prms     |                      |
+| C-09 Undo      | Undo Write           | Undo Read            |
 | D-00 Read 0    | Read #0 User         | Read #1 User         |
 | D-01 Read 2    | Read #2 User         | Read #3 User         |
 | D-02 Read 4    | Read #4 User         | Read #5 User         |
@@ -231,3 +237,4 @@
 | D-14 Read 28   | Read #28 Fifth Lead  | Read #29 Sqr Lead    |
 | D-15 Read 30   | Read #30 PWM Lead    | Read #31 ---         |
 | D-16 Read a    | Read Panel Prms      | Init Panel Prms      |
+| D-17 Undo      | Undo Write           | Undo Read            |

@@ -215,7 +215,16 @@ extern void PRA32_U2_ControlPanel_on_control_change(uint8_t control_number);
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 
 
-template <boolean NO_FX = false, boolean EXT_INPUT = false, boolean EXT_OUTPUT = false, uint32_t SYNTH_ID = 0, boolean MONO_LEVEL_DOWN = false, boolean RESTRICT_POLY_AND_CORES = false>
+// The secondary core is requested (and waited for) for the Voices 2 and 3 only in Poly, so that it
+// can go on with other work when not in Poly (PRA32-U2/M, whose secondary core processes the Sub
+// Synths then, defines PRA32_U2_SECONDARY_CORE_IN_POLY_ONLY)
+#if defined(PRA32_U2_SECONDARY_CORE_IN_POLY_ONLY)
+static const boolean SECONDARY_CORE_IN_POLY_ONLY = true;
+#else  // defined(PRA32_U2_SECONDARY_CORE_IN_POLY_ONLY)
+static const boolean SECONDARY_CORE_IN_POLY_ONLY = false;
+#endif  // defined(PRA32_U2_SECONDARY_CORE_IN_POLY_ONLY)
+
+template <boolean NO_FX = false, boolean EXT_INPUT = false, boolean EXT_OUTPUT = false, uint32_t SYNTH_ID = 0, boolean RESTRICT_POLY_AND_CORES = false>
 class PRA32_U2_Synth {
   PRA32_U2_Osc      m_osc;
   PRA32_U2_Filter   m_filter[4];
@@ -545,6 +554,11 @@ public:
     interp_config_set_signed(&config0_1, true);
     interp_set_config(interp0, 1, &config0_1);
 #endif  // defined(ARDUINO_ARCH_RP2040)
+  }
+
+  // 1-4 (see the Parameter Guide), for the Round Robin of PRA32-U2/M too
+  INLINE uint8_t voice_asgn_mode() {
+    return m_voice_asgn_mode;
   }
 
   INLINE uint8_t current_controller_value(uint8_t control_number) {
@@ -1581,6 +1595,51 @@ if constexpr (NO_FX == false) {
   }
 
   /* INLINE */ void __not_in_flash_func(write_parameters_to_program)(uint8_t program_number_to_write) {
+    write_values_to_program(program_number_to_write, m_current_controller_value_table);
+  }
+
+  // For Undo Read and Undo Write of the control panel: the current values of the parameters and
+  // of the panel parameters, indexed by the control number (128 + 128 of them)
+  INLINE void get_current_values(uint8_t values[128 + 128]) {
+    std::memcpy(values, m_current_controller_value_table, sizeof(m_current_controller_value_table));
+  }
+
+  // Sets the parameters (or the panel parameters) to the values, as Control Changes
+  void set_values(boolean panel, const uint8_t values[128 + 128]) {
+    if (panel) {
+      for (uint32_t i = 0; i < sizeof(s_program_table_panel_parameters) / sizeof(s_program_table_panel_parameters[0]); ++i) {
+        uint32_t control_number = s_program_table_panel_parameters[i];
+        control_change(control_number, values[control_number]);
+      }
+    } else {
+      for (uint32_t i = 0; i < sizeof(s_program_table_parameters) / sizeof(s_program_table_parameters[0]); ++i) {
+        uint32_t control_number = s_program_table_parameters[i];
+        control_change(control_number, values[control_number]);
+      }
+    }
+  }
+
+  // The values of a user program (#0-15), or of the panel parameters written (128)
+  void get_program_values(uint8_t program_number, uint8_t values[128 + 128]) {
+    if (program_number <= USER_PROGRAM_NUMBER_MAX) {
+      for (uint32_t i = 0; i < sizeof(s_program_table_parameters) / sizeof(s_program_table_parameters[0]); ++i) {
+        uint32_t control_number = s_program_table_parameters[i];
+        values[control_number] = m_program_table[control_number][program_number];
+      }
+    }
+
+#if defined(PRA32_U2_USE_CONTROL_PANEL)
+    if (program_number == 128) {
+      for (uint32_t i = 0; i < sizeof(s_program_table_panel_parameters) / sizeof(s_program_table_panel_parameters[0]); ++i) {
+        uint32_t control_number = s_program_table_panel_parameters[i];
+        values[control_number] = m_program_table_panel[0][control_number];
+      }
+    }
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
+  }
+
+  // Writes the values to a user program (#0-15), or to the panel parameters (128), in the flash too
+  /* INLINE */ void __not_in_flash_func(write_values_to_program)(uint8_t program_number_to_write, const uint8_t values[128 + 128]) {
     if ((program_number_to_write > USER_PROGRAM_NUMBER_MAX) && (program_number_to_write != 128)) {
       return;
     }
@@ -1588,7 +1647,7 @@ if constexpr (NO_FX == false) {
     if (program_number_to_write <= USER_PROGRAM_NUMBER_MAX) {
         for (uint32_t i = 0; i < sizeof(s_program_table_parameters) / sizeof(s_program_table_parameters[0]); ++i) {
           uint32_t control_number = s_program_table_parameters[i];
-          m_program_table[control_number][program_number_to_write] = m_current_controller_value_table[control_number];
+          m_program_table[control_number][program_number_to_write] = values[control_number];
         }
     }
 
@@ -1596,7 +1655,7 @@ if constexpr (NO_FX == false) {
     if (program_number_to_write == 128) {
       for (uint32_t i = 0; i < sizeof(s_program_table_panel_parameters) / sizeof(s_program_table_panel_parameters[0]); ++i) {
         uint32_t control_number = s_program_table_panel_parameters[i];
-        m_program_table_panel[0][control_number] = m_current_controller_value_table[control_number];
+        m_program_table_panel[0][control_number] = values[control_number];
       }
     }
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
@@ -1607,7 +1666,7 @@ if constexpr (NO_FX == false) {
     if (program_number_to_write <= PROGRAM_NUMBER_MAX) {
       for (uint32_t i = 0; i < sizeof(s_program_table_parameters) / sizeof(s_program_table_parameters[0]); ++i) {
         uint32_t control_number = s_program_table_parameters[i];
-        EEPROM.write(1024 + program_number_to_write * 128 + control_number, m_current_controller_value_table[control_number]);
+        EEPROM.write(1024 + program_number_to_write * 128 + control_number, values[control_number]);
       }
 
       EEPROM.write(1024 + program_number_to_write * 128,     'U');
@@ -1728,9 +1787,11 @@ if (m_voice_mode == VOICE_POLYPHONIC) {
 
 #if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)
 if constexpr (RESTRICT_POLY_AND_CORES == false) {
+if ((SECONDARY_CORE_IN_POLY_ONLY == false) || (m_voice_mode == VOICE_POLYPHONIC)) {
     m_secondary_core_processing_argument = noise_int23;
     PRA32_U2_COMPILER_MEMORY_BARRIER();  // What the Voices 2 and 3 read is written before the request
     m_secondary_core_processing_request = 1;
+}
 }
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING) || defined(PRA32_U2_ENABLE_POLY_ON_1_CORE)
 
@@ -1764,10 +1825,14 @@ if (m_voice_mode == VOICE_POLYPHONIC) {
 
 #if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
 if constexpr (RESTRICT_POLY_AND_CORES == false) {
+if ((SECONDARY_CORE_IN_POLY_ONLY == false) || (m_voice_mode == VOICE_POLYPHONIC)) {
     while (m_secondary_core_processing_request) {
       ;
     }
     PRA32_U2_COMPILER_MEMORY_BARRIER();  // What the secondary core wrote is read after it is done
+} else {
+    m_secondary_core_processing_result = 0;
+}
 } else {
     m_secondary_core_processing_result = 0;
 }
@@ -1782,11 +1847,7 @@ if constexpr (RESTRICT_POLY_AND_CORES == false) {
     if (m_voice_mode == VOICE_POLYPHONIC) {
       voice_mixer_output = amp_output[0] + amp_output[1] + m_secondary_core_processing_result;
     } else {
-if constexpr (MONO_LEVEL_DOWN == false) {
-      voice_mixer_output = amp_output[0] + (amp_output[0] >> 1);
-} else {
       voice_mixer_output = amp_output[0];
-}
     }
 
     panner_output = m_panner.process(voice_mixer_output);
