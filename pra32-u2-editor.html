@@ -378,6 +378,9 @@ details.section:not([open]) > summary {
 .params-details[open] > summary {
   margin-bottom: 0;  /* the space above the parameters is that of the 1st group */
 }
+.params-details:not([open]) {
+  padding-bottom: 8px;  /* hidden, the space below the heading is that below a hidden Save & Load (between the sections) */
+}
 /* The control numbers in the parameter names (as in PRA32-U2 Native), and the program number in "Randomize Synth",
    small and gray so as not to stand out, and a little apart */
 span.cc {
