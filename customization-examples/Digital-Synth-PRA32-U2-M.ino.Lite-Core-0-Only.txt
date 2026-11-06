@@ -63,26 +63,21 @@
 #define PRA32_U2_DISABLE_REVERB                  // Delay Mode Rev is the Stereo Delay (Ste), for the load
 
 #define PRA32_U2_ENABLE_LAYERING
-#define PRA32_U2_ENABLE_ROUND_ROBIN              // Basic Channel - 4 and - 5: the notes taken by the synths in turn
+#define PRA32_U2_ENABLE_ROUND_ROBIN              // Only with the Layering (see README.md)
 
-// With the Layering and the Round Robin, also Basic Channel + 7 and + 8 (Default 8 and 9): the Round Robin of
-// the Main Synth and the Sub Synth 1, and of the Sub Synths 2 and 3 (2 notes each, the pairs of the Layering)
-#if defined(PRA32_U2_ENABLE_LAYERING) && defined(PRA32_U2_ENABLE_ROUND_ROBIN)
-#define PRA32_U2_ENABLE_ROUND_ROBIN_2_PLUS_2
+#if !defined(PRA32_U2_ENABLE_LAYERING)
+#undef PRA32_U2_ENABLE_ROUND_ROBIN
 #endif
 
 
-// The synths (channels) that the panel can select: the 4 synths, the Round Robin (2, or 4 with 2 + 2), and the
-// Layering (3)
+// The channels that the panel can select: the 4 synths, the Round Robin, and the Layering
 #if defined(PRA32_U2_ENABLE_LAYERING)
 #define PRA32_U2_NUMBER_OF_LAYERING_CHS        (3)
 #else
 #define PRA32_U2_NUMBER_OF_LAYERING_CHS        (0)
 #endif
-#if defined(PRA32_U2_ENABLE_ROUND_ROBIN_2_PLUS_2)
-#define PRA32_U2_NUMBER_OF_ROUND_ROBIN_CHS     (4)
-#elif defined(PRA32_U2_ENABLE_ROUND_ROBIN)
-#define PRA32_U2_NUMBER_OF_ROUND_ROBIN_CHS     (2)
+#if defined(PRA32_U2_ENABLE_ROUND_ROBIN)
+#define PRA32_U2_NUMBER_OF_ROUND_ROBIN_CHS     (5)
 #else
 #define PRA32_U2_NUMBER_OF_ROUND_ROBIN_CHS     (0)
 #endif
@@ -329,31 +324,21 @@ static uint8_t __not_in_flash_func(layeringProgramNumber)(uint8_t number, uint32
 #endif  // defined(PRA32_U2_ENABLE_LAYERING)
 
 #if defined(PRA32_U2_ENABLE_ROUND_ROBIN)
-// The Round Robin: the notes of a channel taken by the (Mono) synths of a group, as the voices of a
-// polyphonic synth, each with its own program; Basic Channel - 4 for the Main Synth and the Sub Synths
-// 1-3 (4 notes), Basic Channel - 5 for the Sub Synths 1-3 (3 notes, the Main Synth left to its own
-// channel), and with 2 + 2, Basic Channel + 7 and + 8 for the Main Synth and the Sub Synth 1, and for the
-// Sub Synths 2 and 3 (2 notes each). The synths are assigned as the voices of the Polyphonic Mode by the Voice Assign Mode of
-// the first synth of the group (see the Parameter Guide): 1 and 3 a free one from the next to the last
-// in turn, 2 and 4 the free one of the smallest number, 3 and 4 the one that played the note last
-// first; when none is free, the one with the oldest note.
-// The note each synth plays by the Round Robin, the note it played last, and when it started
+// The Round Robin (see README.md): the note each synth plays, the note it played last, and when it started
 static const uint8_t RR_NOTE_NONE = 0xFF;
 static uint8_t  s_rr_note[4]      = { RR_NOTE_NONE, RR_NOTE_NONE, RR_NOTE_NONE, RR_NOTE_NONE };
 static uint8_t  s_rr_asgn_note[4] = { RR_NOTE_NONE, RR_NOTE_NONE, RR_NOTE_NONE, RR_NOTE_NONE };
 static uint32_t s_rr_age[4];
 static uint32_t s_rr_count = 0;
-// The synth of the last note of each group (see roundRobinGroupIndex()), as each polyphonic synth has
-// its own; the notes the synths play are common to the groups, as they share the synths
+// The synth of the last note of each group
 static uint32_t s_rr_last[6] = { 3, 3, 3, 3, 3, 3 };
 
-// 0: 0-1, 1: 0-3, 3: 1-3, 5: 2-3
+// The index of a group (the first and the last synth): 0: 0-1, 1: 0-3, 3: 1-3, 5: 2-3
 static INLINE uint32_t roundRobinGroupIndex(uint32_t first, uint32_t last) {
   return (first << 1) + (last == 3);
 }
 
-// The Sustain Pedal of each group, and the synths whose notes are off but held by it: as the voices of
-// the Polyphonic Mode, such a synth is not free until the pedal is released
+// The Sustain Pedal of each group, and the synths held by it (not free until it is released)
 static boolean s_rr_pedal[6];
 static boolean s_rr_sustained[4];
 
@@ -411,9 +396,8 @@ static void __not_in_flash_func(noteOffOf)(uint32_t synth, uint8_t pitch, uint8_
   }
 }
 
-// Not in Poly, where the Sub Synths are not processed. A note already played by a synth of the group
-// is played again by it; a synth taken from its oldest note has the note turned off first, so that
-// the synth (in Mono) does not go back to it when the new note is off
+// Not in Poly, where the Sub Synths are not processed. A synth taken from its oldest note has the note
+// turned off first, so that it (in Mono) does not go back to the note
 static void __not_in_flash_func(roundRobinNoteOn)(uint32_t first, uint32_t last, uint8_t pitch, uint8_t velocity) {
   if (g_synth_is_in_polyphonic_mode) {
     return;
@@ -479,8 +463,7 @@ static void __not_in_flash_func(roundRobinNoteOff)(uint32_t first, uint32_t last
   }
 }
 
-// Other messages go to all the synths of the group, as with the Layering; All Notes Off and the like
-// free the synths too
+// The other messages go to all the synths of the group
 static void __not_in_flash_func(roundRobinControlChange)(uint32_t first, uint32_t last, uint8_t number, uint8_t value) {
   if (number == SUSTAIN_PEDAL) {
     s_rr_pedal[roundRobinGroupIndex(first, last)] = (value >= 64);
@@ -498,8 +481,7 @@ static void __not_in_flash_func(roundRobinControlChange)(uint32_t first, uint32_
   }
 }
 
-// The channels of the groups: (Basic Channel - 4) for 0-3, (Basic Channel - 5) for 1-3, and with 2 + 2,
-// (Basic Channel + 7) for 0-1 and (Basic Channel + 8) for 2-3; false if none
+// The group (the first and the last synth) of a channel; false if none
 static boolean __not_in_flash_func(roundRobinGroup)(byte channel, uint32_t& first, uint32_t& last) {
   if ((channel - 1) == ((g_midi_ch - 4) & 0x0F)) {
     first = 0;
@@ -509,16 +491,31 @@ static boolean __not_in_flash_func(roundRobinGroup)(byte channel, uint32_t& firs
     first = 1;
     last  = 3;
     return true;
-#if defined(PRA32_U2_ENABLE_ROUND_ROBIN_2_PLUS_2)
-  } else if ((channel - 1) == ((g_midi_ch + 7) & 0x0F)) {
+  } else if ((channel - 1) == ((g_midi_ch + 6) & 0x0F)) {
     first = 0;
     last  = 1;
     return true;
-  } else if ((channel - 1) == ((g_midi_ch + 8) & 0x0F)) {
+  } else if ((channel - 1) == ((g_midi_ch + 7) & 0x0F)) {
     first = 2;
     last  = 3;
     return true;
-#endif  // defined(PRA32_U2_ENABLE_ROUND_ROBIN_2_PLUS_2)
+  }
+  return false;
+}
+
+// The channel of the groups 0-1 and 2-3 layered
+static boolean __not_in_flash_func(roundRobinLayered)(byte channel) {
+  return ((channel - 1) == ((g_midi_ch + 8) & 0x0F));
+}
+
+// The synths of a channel for Pitch Bend and After Touch; false if none
+static boolean __not_in_flash_func(roundRobinSynths)(byte channel, uint32_t& first, uint32_t& last) {
+  if (roundRobinGroup(channel, first, last)) {
+    return true;
+  } else if (roundRobinLayered(channel)) {
+    first = 0;
+    last  = 3;
+    return true;
   }
   return false;
 }
@@ -860,6 +857,9 @@ void __not_in_flash_func(handleNoteOn)(byte channel, byte pitch, byte velocity)
   uint32_t first, last;
   if (roundRobinGroup(channel, first, last)) {
     roundRobinNoteOn(first, last, pitch, velocity);
+  } else if (roundRobinLayered(channel)) {
+    roundRobinNoteOn(0, 1, pitch, velocity);
+    roundRobinNoteOn(2, 3, pitch, velocity);
   }
 #endif  // defined(PRA32_U2_ENABLE_ROUND_ROBIN)
 }
@@ -894,6 +894,9 @@ void __not_in_flash_func(handleNoteOff)(byte channel, byte pitch, byte velocity)
   uint32_t first, last;
   if (roundRobinGroup(channel, first, last)) {
     roundRobinNoteOff(first, last, pitch, velocity);
+  } else if (roundRobinLayered(channel)) {
+    roundRobinNoteOff(0, 1, pitch, velocity);
+    roundRobinNoteOff(2, 3, pitch, velocity);
   }
 #endif  // defined(PRA32_U2_ENABLE_ROUND_ROBIN)
 }
@@ -926,6 +929,9 @@ void __not_in_flash_func(handleControlChange)(byte channel, byte number, byte va
   uint32_t first, last;
   if (roundRobinGroup(channel, first, last)) {
     roundRobinControlChange(first, last, number, value);
+  } else if (roundRobinLayered(channel)) {
+    roundRobinControlChange(0, 1, number, value);
+    roundRobinControlChange(2, 3, number, value);
   }
 #endif  // defined(PRA32_U2_ENABLE_ROUND_ROBIN)
 }
@@ -962,6 +968,12 @@ void __not_in_flash_func(handleProgramChange)(byte channel, byte number)
     for (uint32_t s = first; s <= last; s++) {
       programChange(s, number);
     }
+  } else if (roundRobinLayered(channel)) {
+    // As with the Layering: + 0 for 0-1, and + 1 for 2-3
+    programChange(0, number);
+    programChange(1, number);
+    programChange(2, layeringProgramNumber(number, 1));
+    programChange(3, layeringProgramNumber(number, 1));
   }
 #endif  // defined(PRA32_U2_ENABLE_ROUND_ROBIN)
 }
@@ -994,7 +1006,7 @@ void __not_in_flash_func(handlePitchBend)(byte channel, int bend)
   }
 #if defined(PRA32_U2_ENABLE_ROUND_ROBIN)
   uint32_t first, last;
-  if (roundRobinGroup(channel, first, last)) {
+  if (roundRobinSynths(channel, first, last)) {
     for (uint32_t s = first; s <= last; s++) {
       pitchBendOf(s, bend);
     }
@@ -1030,7 +1042,7 @@ void __not_in_flash_func(handleAfterTouchPoly)(byte channel, byte note, byte pre
   }
 #if defined(PRA32_U2_ENABLE_ROUND_ROBIN)
   uint32_t first, last;
-  if (roundRobinGroup(channel, first, last)) {
+  if (roundRobinSynths(channel, first, last)) {
     for (uint32_t s = first; s <= last; s++) {
       afterTouchPolyOf(s, note, pressure);
     }
@@ -1066,7 +1078,7 @@ void __not_in_flash_func(handleAfterTouchChannel)(byte channel, byte pressure)
   }
 #if defined(PRA32_U2_ENABLE_ROUND_ROBIN)
   uint32_t first, last;
-  if (roundRobinGroup(channel, first, last)) {
+  if (roundRobinSynths(channel, first, last)) {
     for (uint32_t s = first; s <= last; s++) {
       afterTouchChannelOf(s, pressure);
     }
@@ -1126,12 +1138,12 @@ uint8_t __not_in_flash_func(getCurrentControllerValue)(byte channel, byte number
     return g_synth.current_controller_value(number);
   } else if ((channel - 1) == ((g_midi_ch - 5) & 0x0F)) {
     return g_sub_1_synth.current_controller_value(number);
-#if defined(PRA32_U2_ENABLE_ROUND_ROBIN_2_PLUS_2)
-  } else if ((channel - 1) == ((g_midi_ch + 7) & 0x0F)) {
+  } else if ((channel - 1) == ((g_midi_ch + 6) & 0x0F)) {
     return g_synth.current_controller_value(number);
-  } else if ((channel - 1) == ((g_midi_ch + 8) & 0x0F)) {
+  } else if ((channel - 1) == ((g_midi_ch + 7) & 0x0F)) {
     return g_sub_2_synth.current_controller_value(number);
-#endif  // defined(PRA32_U2_ENABLE_ROUND_ROBIN_2_PLUS_2)
+  } else if ((channel - 1) == ((g_midi_ch + 8) & 0x0F)) {
+    return g_synth.current_controller_value(number);
 #endif  // defined(PRA32_U2_ENABLE_ROUND_ROBIN)
   }
 
@@ -1162,12 +1174,12 @@ void __not_in_flash_func(getRandUint8Rrray)(byte channel, uint8_t array[8])
     g_synth.get_rand_uint8_array(array);
   } else if ((channel - 1) == ((g_midi_ch - 5) & 0x0F)) {
     g_sub_1_synth.get_rand_uint8_array(array);
-#if defined(PRA32_U2_ENABLE_ROUND_ROBIN_2_PLUS_2)
-  } else if ((channel - 1) == ((g_midi_ch + 7) & 0x0F)) {
+  } else if ((channel - 1) == ((g_midi_ch + 6) & 0x0F)) {
     g_synth.get_rand_uint8_array(array);
-  } else if ((channel - 1) == ((g_midi_ch + 8) & 0x0F)) {
+  } else if ((channel - 1) == ((g_midi_ch + 7) & 0x0F)) {
     g_sub_2_synth.get_rand_uint8_array(array);
-#endif  // defined(PRA32_U2_ENABLE_ROUND_ROBIN_2_PLUS_2)
+  } else if ((channel - 1) == ((g_midi_ch + 8) & 0x0F)) {
+    g_synth.get_rand_uint8_array(array);
 #endif  // defined(PRA32_U2_ENABLE_ROUND_ROBIN)
   }
 }
@@ -1198,28 +1210,24 @@ void __not_in_flash_func(writeParametersToProgram)(byte channel, byte number)
     g_synth.write_parameters_to_program(number);
   } else if ((channel - 1) == ((g_midi_ch - 5) & 0x0F)) {
     g_sub_1_synth.write_parameters_to_program(number);
-#if defined(PRA32_U2_ENABLE_ROUND_ROBIN_2_PLUS_2)
-  } else if ((channel - 1) == ((g_midi_ch + 7) & 0x0F)) {
+  } else if ((channel - 1) == ((g_midi_ch + 6) & 0x0F)) {
     g_synth.write_parameters_to_program(number);
-  } else if ((channel - 1) == ((g_midi_ch + 8) & 0x0F)) {
+  } else if ((channel - 1) == ((g_midi_ch + 7) & 0x0F)) {
     g_sub_2_synth.write_parameters_to_program(number);
-#endif  // defined(PRA32_U2_ENABLE_ROUND_ROBIN_2_PLUS_2)
+  } else if ((channel - 1) == ((g_midi_ch + 8) & 0x0F)) {
+    g_synth.write_parameters_to_program(number);
 #endif  // defined(PRA32_U2_ENABLE_ROUND_ROBIN)
   }
 }
 
-// The synths 0-3 on Basic Channel + 0 to + 3, and then the channels of the Round Robin (+ 7 and + 8
-// with 2 + 2, - 5 and - 4) and of the Layering (- 3 to - 1), in the order of the channels (Default 1-4,
-// 8-9, 12-16)
+// The MIDI channel of a synth that the panel selects (see README.md)
 byte __not_in_flash_func(getTargetMIDICh)(byte synth)
 {
   if (synth < 4) {
     return (((g_midi_ch + synth) & 0x0F) + 1);
   }
   static const int8_t s_offsets[PRA32_U2_NUMBER_OF_SYNTHS - 4 + 1] = {
-#if defined(PRA32_U2_ENABLE_ROUND_ROBIN_2_PLUS_2)
-    7, 8,
-#endif  // defined(PRA32_U2_ENABLE_ROUND_ROBIN_2_PLUS_2)
+    6, 7, 8,
 #if defined(PRA32_U2_ENABLE_ROUND_ROBIN)
     -5, -4,
 #endif  // defined(PRA32_U2_ENABLE_ROUND_ROBIN)
@@ -1257,12 +1265,12 @@ static void forSynthOfChannel(byte channel, F f)
     f(g_synth);
   } else if ((channel - 1) == ((g_midi_ch - 5) & 0x0F)) {
     f(g_sub_1_synth);
-#if defined(PRA32_U2_ENABLE_ROUND_ROBIN_2_PLUS_2)
-  } else if ((channel - 1) == ((g_midi_ch + 7) & 0x0F)) {
+  } else if ((channel - 1) == ((g_midi_ch + 6) & 0x0F)) {
     f(g_synth);
-  } else if ((channel - 1) == ((g_midi_ch + 8) & 0x0F)) {
+  } else if ((channel - 1) == ((g_midi_ch + 7) & 0x0F)) {
     f(g_sub_2_synth);
-#endif  // defined(PRA32_U2_ENABLE_ROUND_ROBIN_2_PLUS_2)
+  } else if ((channel - 1) == ((g_midi_ch + 8) & 0x0F)) {
+    f(g_synth);
 #endif  // defined(PRA32_U2_ENABLE_ROUND_ROBIN)
   }
 }

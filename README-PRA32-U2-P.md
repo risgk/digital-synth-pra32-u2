@@ -45,10 +45,9 @@
 - Copy all files in the "Digital-Synth-PRA32-U2" folder, except for "Digital-Synth-PRA32-U2.ino", to the "Digital-Synth-PRA32-U2-M" folder
 - Uncomment `//#define PRA32_U2_USE_CONTROL_PANEL` in "Digital-Synth-PRA32-U2-M.ino"
 - Prev Key + Next Key: Push to go to the next synth (channel)
-    - "$0" -> "$1" -> "$2" -> "$3" -> "$7" -> "$8" -> "$B" -> "$C" -> "$D" -> "$E" -> "$F" -> "$0"
-    - "$0" to "$3": Basic Channel + 0 to + 3 (Synths)
-    - "$7" and "$8": Basic Channel + 7 and + 8 (Round Robin 2 + 2), "$B" and "$C": Basic Channel - 5 and - 4 (Round Robin); the current values and Write are those of the first synth of the channel
-    - "$D" to "$F": Basic Channel - 3 to - 1 (Layering)
+    - "$0" -> "$1" -> "$2" -> "$3" -> "$6" -> "$7" -> "$8" -> "$B" -> "$C" -> "$D" -> "$E" -> "$F" -> "$0"
+    - The MIDI channel - 1, in hex: "$0" to "$3" the synths, "$6" to "$C" the Round Robin, and "$D" to "$F" the Layering (see [PRA32-U2/M](./README.md#pra32-u2m-pra32-u2-multi-timbre-edition))
+    - On the Round Robin and the Layering, the current values (and Write) are those of the first synth of the channel
 
 
 ### GUI Pages
