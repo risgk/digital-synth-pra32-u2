@@ -310,8 +310,8 @@
     - 120: x 32.0 (+30 dB)
     - 127: x 39.2 (+31.9 dB, max)
 - EG Amp Mod [Off|On]
-    - 0 (0-63): Off
-    - 127 (64-127): On
+    - 0 (0-63): Off, the Amp EG (Amp Attack/Decay/Sustain/Release, in the More Synth Parameters of PRA32-U2 Editor) changes the level (as a gate in the Presets: Amp Attack 0, Amp Decay 0, Amp Sustain 127, and Amp Release 0)
+    - 127 (64-127): On, the EG also works as the Amp EG (the Amp Attack/Decay/Sustain/Release are not used)
 - EG/Amp Rel = Dec [Off|On]
     - 0 (0-63): Off
     - 127 (64-127): On, EG Release = EG Decay and Amp Release = Amp Decay
