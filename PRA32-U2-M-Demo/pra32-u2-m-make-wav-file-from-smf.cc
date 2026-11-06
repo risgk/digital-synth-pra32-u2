@@ -29,10 +29,10 @@ uint8_t g_midi_ch = PRA32_U2_MIDI_CH;
 #include "../Digital-Synth-PRA32-U2/pra32-u2-synth.h"
 #include "../pra32-u2-wav-file-out.h"
 
-PRA32_U2_Synth<false, false, true, 0, false, false> g_synth;
-PRA32_U2_Synth<true,  false, true, 1, false, true>  g_sub_1_synth;
-PRA32_U2_Synth<true,  false, true, 2, false, true>  g_sub_2_synth;
-PRA32_U2_Synth<true,  false, true, 3, false, true>  g_sub_3_synth;
+PRA32_U2_Synth<false, false, true, 0, false> g_synth;
+PRA32_U2_Synth<true,  false, true, 1, true>  g_sub_1_synth;
+PRA32_U2_Synth<true,  false, true, 2, true>  g_sub_2_synth;
+PRA32_U2_Synth<true,  false, true, 3, true>  g_sub_3_synth;
 PRA32_U2_WAVFileOut                                 g_wav_file_out;
 
 const uint32_t FRAMES_PER_LOOP = 64;

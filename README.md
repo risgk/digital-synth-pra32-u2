@@ -196,7 +196,7 @@ graph LR
         - Program # + 1 to + 3 wrap around in the user programs (#0-15) and in the presets (#16-31) each; Program Change #127 (Randomize Synth) is for all the synths
     - Round Robin: the notes go to the synths of the channel in turn, as the voices of a polyphonic synth (the other messages go to all of them)
         - The synths are assigned by the Voice Assign Mode of the first synth, as the voices of the Polyphonic Mode, and kept by the Sustain Pedal
-        - Unlike the Polyphonic Mode, each synth has its own LFO, and its level is that of Mono (a chord is about 3.5 dB louder; turn Amp Gain down if needed)
+        - Unlike the Polyphonic Mode, each synth has its own LFO, and a note is as loud as a voice of the Polyphonic Mode
     - MPE (MIDI Polyphonic Expression) controllers: each synth works as a member channel, with its own pitch bend, pressure, and CC #74 (Filter Cutoff) (not fully supported)
         - Basic Channel 1 (default): Channels 2-4 play 3 notes
         - Basic Channel 2: Channels 2-5 play 4 notes, and Channel 1 (the Layering of all) works as the Master Channel

@@ -224,7 +224,7 @@ static const boolean SECONDARY_CORE_IN_POLY_ONLY = true;
 static const boolean SECONDARY_CORE_IN_POLY_ONLY = false;
 #endif  // defined(PRA32_U2_SECONDARY_CORE_IN_POLY_ONLY)
 
-template <boolean NO_FX = false, boolean EXT_INPUT = false, boolean EXT_OUTPUT = false, uint32_t SYNTH_ID = 0, boolean MONO_LEVEL_DOWN = false, boolean RESTRICT_POLY_AND_CORES = false>
+template <boolean NO_FX = false, boolean EXT_INPUT = false, boolean EXT_OUTPUT = false, uint32_t SYNTH_ID = 0, boolean RESTRICT_POLY_AND_CORES = false>
 class PRA32_U2_Synth {
   PRA32_U2_Osc      m_osc;
   PRA32_U2_Filter   m_filter[4];
@@ -1847,11 +1847,7 @@ if ((SECONDARY_CORE_IN_POLY_ONLY == false) || (m_voice_mode == VOICE_POLYPHONIC)
     if (m_voice_mode == VOICE_POLYPHONIC) {
       voice_mixer_output = amp_output[0] + amp_output[1] + m_secondary_core_processing_result;
     } else {
-if constexpr (MONO_LEVEL_DOWN == false) {
-      voice_mixer_output = amp_output[0] + (amp_output[0] >> 1);
-} else {
       voice_mixer_output = amp_output[0];
-}
     }
 
     panner_output = m_panner.process(voice_mixer_output);

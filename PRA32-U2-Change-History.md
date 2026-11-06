@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v3.18.1 (2026-??-??):
+    - In the Mono modes, the level is no longer x 1.5 (about 3.5 dB lower): a note is as loud as a voice of the Polyphonic Mode; raise the Amp Gain if needed
     - PRA32-U2/P: Add **Undo Write** and **Undo Read** (Pages C-09 and D-17), which bring back what the last Write and the last Read (or Init Panel Prms) of the panel replaced; doing one again redoes it
     - PRA32-U2/M: Add the **Round Robin** (Channels 7-9, 12, and 13 by default, with the Layering): the Mono synths played as a polyphonic synth (4, 3, or 2 notes)
     - PRA32-U2/M: With the 4 Synths, the two cores do not wait for each other at every frame (the Main Synth requests its Voices 2 and 3 of core 1 only in Poly),

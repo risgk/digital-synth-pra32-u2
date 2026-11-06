@@ -126,10 +126,10 @@ uint8_t g_midi_ch = PRA32_U2_MIDI_CH;
 #include "pra32-u2-synth.h"
 
 boolean g_synth_is_in_polyphonic_mode = true;
-PRA32_U2_Synth<false, false, true, 0, false, false> g_synth;
-PRA32_U2_Synth<true,  false, true, 1, false, true>  g_sub_1_synth;
-PRA32_U2_Synth<true,  false, true, 2, false, true>  g_sub_2_synth;
-PRA32_U2_Synth<true,  false, true, 3, false, true>  g_sub_3_synth;
+PRA32_U2_Synth<false, false, true, 0, false> g_synth;
+PRA32_U2_Synth<true,  false, true, 1, true>  g_sub_1_synth;
+PRA32_U2_Synth<true,  false, true, 2, true>  g_sub_2_synth;
+PRA32_U2_Synth<true,  false, true, 3, true>  g_sub_3_synth;
 
 #include <MIDI.h>
 struct MySettings : public midi::DefaultSettings {
