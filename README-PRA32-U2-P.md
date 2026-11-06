@@ -116,6 +116,11 @@
 - Read Operations
     - Read #0-15 (User), #16-31 (Factory Presets), Read Panel Prms, Init Panel Prms
         - Change the value from 0-31 [Rdy] to 96-127 [Exe] to read from the flash
+- Undo Operations (also on Page C-09, after the Write Operations)
+    - Undo Write: Brings back the user program (or the panel parameters) in the flash that the last Write replaced
+    - Undo Read: Brings back the parameters (or the panel parameters) that the last Read (or Init Panel Prms) replaced
+        - Change the value from 0-31 [Rdy] to 96-127 [Exe] to undo; doing it again redoes it
+        - Only the last Write and the last Read, of the synth selected then, until the power is turned off
 
 
 ### Circuit Diagram
@@ -214,6 +219,7 @@
 | C-06 Write 12  | Write #12 User       | Write #13 User       |
 | C-07 Write 14  | Write #14 User       | Write #15 User       |
 | C-08 Write a   | Write Panel Prms     |                      |
+| C-09 Undo      | Undo Write           | Undo Read            |
 | D-00 Read 0    | Read #0 User         | Read #1 User         |
 | D-01 Read 2    | Read #2 User         | Read #3 User         |
 | D-02 Read 4    | Read #4 User         | Read #5 User         |
@@ -231,3 +237,4 @@
 | D-14 Read 28   | Read #28 Fifth Lead  | Read #29 Sqr Lead    |
 | D-15 Read 30   | Read #30 PWM Lead    | Read #31 ---         |
 | D-16 Read a    | Read Panel Prms      | Init Panel Prms      |
+| D-17 Undo      | Undo Write           | Undo Read            |

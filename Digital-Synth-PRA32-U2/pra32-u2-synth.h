@@ -1590,6 +1590,51 @@ if constexpr (NO_FX == false) {
   }
 
   /* INLINE */ void __not_in_flash_func(write_parameters_to_program)(uint8_t program_number_to_write) {
+    write_values_to_program(program_number_to_write, m_current_controller_value_table);
+  }
+
+  // For Undo Read and Undo Write of the control panel: the current values of the parameters and
+  // of the panel parameters, indexed by the control number (128 + 128 of them)
+  INLINE void get_current_values(uint8_t values[128 + 128]) {
+    std::memcpy(values, m_current_controller_value_table, sizeof(m_current_controller_value_table));
+  }
+
+  // Sets the parameters (or the panel parameters) to the values, as Control Changes
+  void set_values(boolean panel, const uint8_t values[128 + 128]) {
+    if (panel) {
+      for (uint32_t i = 0; i < sizeof(s_program_table_panel_parameters) / sizeof(s_program_table_panel_parameters[0]); ++i) {
+        uint32_t control_number = s_program_table_panel_parameters[i];
+        control_change(control_number, values[control_number]);
+      }
+    } else {
+      for (uint32_t i = 0; i < sizeof(s_program_table_parameters) / sizeof(s_program_table_parameters[0]); ++i) {
+        uint32_t control_number = s_program_table_parameters[i];
+        control_change(control_number, values[control_number]);
+      }
+    }
+  }
+
+  // The values of a user program (#0-15), or of the panel parameters written (128)
+  void get_program_values(uint8_t program_number, uint8_t values[128 + 128]) {
+    if (program_number <= USER_PROGRAM_NUMBER_MAX) {
+      for (uint32_t i = 0; i < sizeof(s_program_table_parameters) / sizeof(s_program_table_parameters[0]); ++i) {
+        uint32_t control_number = s_program_table_parameters[i];
+        values[control_number] = m_program_table[control_number][program_number];
+      }
+    }
+
+#if defined(PRA32_U2_USE_CONTROL_PANEL)
+    if (program_number == 128) {
+      for (uint32_t i = 0; i < sizeof(s_program_table_panel_parameters) / sizeof(s_program_table_panel_parameters[0]); ++i) {
+        uint32_t control_number = s_program_table_panel_parameters[i];
+        values[control_number] = m_program_table_panel[0][control_number];
+      }
+    }
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
+  }
+
+  // Writes the values to a user program (#0-15), or to the panel parameters (128), in the flash too
+  /* INLINE */ void __not_in_flash_func(write_values_to_program)(uint8_t program_number_to_write, const uint8_t values[128 + 128]) {
     if ((program_number_to_write > USER_PROGRAM_NUMBER_MAX) && (program_number_to_write != 128)) {
       return;
     }
@@ -1597,7 +1642,7 @@ if constexpr (NO_FX == false) {
     if (program_number_to_write <= USER_PROGRAM_NUMBER_MAX) {
         for (uint32_t i = 0; i < sizeof(s_program_table_parameters) / sizeof(s_program_table_parameters[0]); ++i) {
           uint32_t control_number = s_program_table_parameters[i];
-          m_program_table[control_number][program_number_to_write] = m_current_controller_value_table[control_number];
+          m_program_table[control_number][program_number_to_write] = values[control_number];
         }
     }
 
@@ -1605,7 +1650,7 @@ if constexpr (NO_FX == false) {
     if (program_number_to_write == 128) {
       for (uint32_t i = 0; i < sizeof(s_program_table_panel_parameters) / sizeof(s_program_table_panel_parameters[0]); ++i) {
         uint32_t control_number = s_program_table_panel_parameters[i];
-        m_program_table_panel[0][control_number] = m_current_controller_value_table[control_number];
+        m_program_table_panel[0][control_number] = values[control_number];
       }
     }
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
@@ -1616,7 +1661,7 @@ if constexpr (NO_FX == false) {
     if (program_number_to_write <= PROGRAM_NUMBER_MAX) {
       for (uint32_t i = 0; i < sizeof(s_program_table_parameters) / sizeof(s_program_table_parameters[0]); ++i) {
         uint32_t control_number = s_program_table_parameters[i];
-        EEPROM.write(1024 + program_number_to_write * 128 + control_number, m_current_controller_value_table[control_number]);
+        EEPROM.write(1024 + program_number_to_write * 128 + control_number, values[control_number]);
       }
 
       EEPROM.write(1024 + program_number_to_write * 128,     'U');

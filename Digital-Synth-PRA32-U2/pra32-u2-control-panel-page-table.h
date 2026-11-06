@@ -98,6 +98,7 @@ static const PRA32_U2_ControlPanelPage g_control_panel_page_table_c[] = {
   { "Page=C-06 ", "Write 12  ",   "Write #12 ", "User      ", WR_PROGRAM_12  ,   "Write #13 ", "User      ", WR_PROGRAM_13  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=C-07 ", "Write 14  ",   "Write #14 ", "User      ", WR_PROGRAM_14  ,   "Write #15 ", "User      ", WR_PROGRAM_15  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=C-08 ", "Write a   ",   "Write     ", "Panel Prms", WR_PANEL_PRMS  ,   "          ", "          ", 0xFF           ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=C-09 ", "Undo      ",   "Undo      ", "Write     ", UNDO_WRITE     ,   "Undo      ", "Read      ", UNDO_READ      ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
 };
 
 static const PRA32_U2_ControlPanelPage g_control_panel_page_table_d[] = {
@@ -118,6 +119,7 @@ static const PRA32_U2_ControlPanelPage g_control_panel_page_table_d[] = {
   { "Page=D-14 ", "Read 28   ",   "Read #28  ", "Fifth Lead", RD_PROGRAM_28  ,   "Read #29  ", "Sqr Lead  ", RD_PROGRAM_29  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=D-15 ", "Read 30   ",   "Read #30  ", "PWM Lead  ", RD_PROGRAM_30  ,   "Read #31  ", "---       ", RD_PROGRAM_31  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=D-16 ", "Read a    ",   "Read      ", "Panel Prms", RD_PANEL_PRMS  ,   "Init      ", "Panel Prms", IN_PANEL_PRMS  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=D-17 ", "Undo      ",   "Undo      ", "Write     ", UNDO_WRITE     ,   "Undo      ", "Read      ", UNDO_READ      ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
 };
 
 const PRA32_U2_ControlPanelPage* g_control_panel_page_table[] = {

@@ -1135,4 +1135,50 @@ byte __not_in_flash_func(getTargetMIDICh)(byte synth)
 #endif
 }
 
+// The synth of a MIDI channel, for the functions below
+template <typename F>
+static void forSynthOfChannel(byte channel, F f)
+{
+  if ((channel - 1) == g_midi_ch) {
+    f(g_synth);
+  } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
+    f(g_sub_1_synth);
+  } else if ((channel - 1) == ((g_midi_ch + 2) & 0x0F)) {
+    f(g_sub_2_synth);
+  } else if ((channel - 1) == ((g_midi_ch + 3) & 0x0F)) {
+    f(g_sub_3_synth);
+#if defined(PRA32_U2_ENABLE_LAYERING)
+  } else if ((channel - 1) == ((g_midi_ch - 3) & 0x0F)) {
+    f(g_synth);
+  } else if ((channel - 1) == ((g_midi_ch - 2) & 0x0F)) {
+    f(g_sub_2_synth);
+  } else if ((channel - 1) == ((g_midi_ch - 1) & 0x0F)) {
+    f(g_synth);
+#endif  // defined(PRA32_U2_ENABLE_LAYERING)
+  }
+}
+
+// For Undo Read and Undo Write of the control panel
+void getCurrentValues(byte channel, uint8_t values[128 + 128])
+{
+  processPendingProgramChanges();
+  forSynthOfChannel(channel, [&](auto& synth) { synth.get_current_values(values); });
+}
+
+void setValues(byte channel, boolean panel, const uint8_t values[128 + 128])
+{
+  processPendingProgramChanges();
+  forSynthOfChannel(channel, [&](auto& synth) { synth.set_values(panel, values); });
+}
+
+void getProgramValues(byte channel, byte number, uint8_t values[128 + 128])
+{
+  forSynthOfChannel(channel, [&](auto& synth) { synth.get_program_values(number, values); });
+}
+
+void writeValuesToProgram(byte channel, byte number, const uint8_t values[128 + 128])
+{
+  forSynthOfChannel(channel, [&](auto& synth) { synth.write_values_to_program(number, values); });
+}
+
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)

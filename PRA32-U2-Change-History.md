@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v3.18.1 (2026-??-??):
+    - PRA32-U2/P: Add **Undo Write** and **Undo Read** (Pages C-09 and D-17), which bring back what the last Write and the last Read (or Init Panel Prms) of the panel replaced; doing one again redoes it
     - PRA32-U2/M: With the 4 Synths, the two cores do not wait for each other at every frame (the Main Synth requests its Voices 2 and 3 of core 1 only in Poly),
       so a loop takes about 15% less on the device (`max(loop)` 1083 us from 1272 us with #5 Sync Lead on PRA32-U2/M/P), with the same output; the RAM is about 3 KB more
 - v3.18.0 (2026-11-05):
