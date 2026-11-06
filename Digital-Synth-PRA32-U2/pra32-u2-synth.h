@@ -556,6 +556,11 @@ public:
 #endif  // defined(ARDUINO_ARCH_RP2040)
   }
 
+  // 1-4 (see the Parameter Guide), for the Round Robin of PRA32-U2/M too
+  INLINE uint8_t voice_asgn_mode() {
+    return m_voice_asgn_mode;
+  }
+
   INLINE uint8_t current_controller_value(uint8_t control_number) {
     return m_current_controller_value_table[control_number];
   }

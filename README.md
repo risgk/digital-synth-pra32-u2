@@ -187,6 +187,18 @@ graph LR
             - Results of Program Change: Program # + 0 for Basic Channel + 0, Program # + 1 for Basic Channel + 1, Program # + 2 for Basic Channel + 2, and Program # + 3 for Basic Channel + 3
         - Program # + 1 to + 3 wrap around in the user programs (#0-15) and in the presets (#16-31) each (e.g. #15: #15, #0, #1, and #2; #31: #31, #16, #17, and #18), and Program Change #127 (Randomize Synth) is for all the synths
         - Not to use this feature, comment out `#define PRA32_U2_ENABLE_LAYERING` in "Digital-Synth-PRA32-U2-M.ino"
+    - MPE (MIDI Polyphonic Expression) controllers (not fully supported: no MPE Configuration Message): with the Main Synth in Mono modes, each synth is a member channel, with its own pitch bend, pressure, and CC #74 (Filter Cutoff)
+        - Basic Channel 1 (default): Channels 2-4 (Sub Synths 1-3) play 3 notes of the Lower Zone (Master Channel 1)
+        - Basic Channel 2: Channels 2-5 (the 4 synths) play 4 notes, and Channel 1 (Basic Channel - 1, the Layering) works as the Master Channel, whose messages go to all the synths
+        - Set Pitch Bend Range of the synths to that of the controller (e.g. 48 semitones)
+    - Round Robin (only if Basic Channel + 0 (Main Synth) is in Mono modes)
+        - Basic Channel - 4 (Default 13): The notes are taken by Basic Channel + 0, + 1, + 2, and + 3 in turn (4 notes, as a polyphonic synth of the 4 Mono synths)
+        - Basic Channel - 5 (Default 12): The notes are taken by Basic Channel + 1, + 2, and + 3 in turn (3 notes; Basic Channel + 0 is left to its own channel)
+        - The synths are assigned as the voices of the Polyphonic Mode, by the Voice Assign Mode of the first synth of the channel (Basic Channel + 0, or + 1): Mode 1 and 3 a free one from the next in turn, Mode 2 and 4 the free one of the smallest number, Mode 3 and 4 reuse the note-off synth of the same note first; when none is free, the one with the oldest note, which is turned off
+        - The other messages go to all the synths of the channel; Program Change gives them all the same program (not + 1 to + 3, as with the Layering)
+        - Each synth is in Mono, whose level is 1.5 times that of a voice in Poly, so a chord is about 3.5 dB louder than in Poly; Amp Gain (Control Change #15) on the channel turns all the synths down
+        - With the panel (PRA32-U2/M/P), the Round Robin channels can be selected too (Prev Key + Next Key): the synths of Basic Channel + 0 to + 3, and then Basic Channel - 5 to - 1 (Default 1-4 and 12-16); there, the current values and Write Program are those of the first synth of the channel
+        - Not to use this feature, comment out `#define PRA32_U2_ENABLE_ROUND_ROBIN` in "Digital-Synth-PRA32-U2-M.ino"
 - How to modify (with Arduino IDE)
     - Copy all files in the "Digital-Synth-PRA32-U2" folder, except for "Digital-Synth-PRA32-U2.ino", to the "Digital-Synth-PRA32-U2-M" folder
     - "Digital-Synth-PRA32-U2-M.ino" is an Arduino sketch
