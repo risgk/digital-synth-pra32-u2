@@ -361,6 +361,28 @@ details.section:not([open]) > summary {
   border-top: 1px solid #c0c0c0;
   padding-top: 6px;
 }
+/* The Synth Parameters and the FX Parameters, each with a line above its heading (as the keyboard), and the lines
+   of the groups below it; none at the bottom, as the line of the next one is there */
+.params-details {
+  border-top: 1px solid #c0c0c0;
+  padding-top: 6px;
+  margin-bottom: 0;
+}
+.params-details > summary {
+  cursor: pointer;
+}
+.params-details > .params {
+  border-top: 1px solid #c0c0c0;
+}
+/* The Synth Parameters after the first 32 (the 2 groups of the main ones), below the line of the 2nd group */
+#synthMoreDetails > summary {
+  margin-top: 6px;
+  cursor: pointer;
+}
+#synthMoreDetails[open] > summary {
+  padding-bottom: 6px;
+  border-bottom: 1px solid #c0c0c0;
+}
 /* The control numbers in the parameter names (as in PRA32-U2 Native), and the program number in "Randomize Synth",
    small and gray so as not to stand out, and a little apart */
 span.cc {
@@ -1214,7 +1236,9 @@ window.onload = function() {
     localStorage.setItem("keySaveLoadOpen", saveLoadDetails.open ? "1" : "0");
   });
   // MIDI, and Actions & Presets are shown by default, and each shown or hidden as the last time
-  [["midiDetails", "keyMIDIOpen"], ["presetsDetails", "keyPresetsOpen"]].forEach(function(item) {
+  // (and the Synth Parameters, those after the first 32 of them, and the FX Parameters too)
+  [["midiDetails", "keyMIDIOpen"], ["presetsDetails", "keyPresetsOpen"],
+   ["synthDetails", "keySynthOpen"], ["synthMoreDetails", "keySynthMoreOpen"], ["fxDetails", "keyFxOpen"]].forEach(function(item) {
     var details = document.getElementById(item[0]);
     details.open = (localStorage.getItem(item[1]) != "0");
     details.addEventListener("toggle", function() {
@@ -3206,6 +3230,8 @@ function getStoredCCValueString(index, number) {
 </details>
 </details>
 
+<details class="section params-details" id="synthDetails" open>
+<summary>Synth Parameters</summary>
 <div class="params">
 <div class="param-group">
 <div class="param">
@@ -3339,6 +3365,8 @@ function getStoredCCValueString(index, number) {
   <div class="param-ctrl soft-markers-2"><input  id="inputREL_EQ_DECAY   "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(REL_EQ_DECAY   , value)"><span    id="spanREL_EQ_DECAY   " >-</span><span   id="span2REL_EQ_DECAY   " >-</span></div>
 </div>
 </div>
+<details id="synthMoreDetails" open>
+<summary>More Synth Parameters</summary>
 <div class="param-group">
 <div class="param">
   <div class="param-name"><b>Amp</b> Attack <span class="cc">CC#52</span></div>
@@ -3427,6 +3455,13 @@ function getStoredCCValueString(index, number) {
   <div class="param-ctrl soft-markers-2"><input  id="inputOSC_SAW_W_MODE "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_SAW_W_MODE , value)"><span    id="spanOSC_SAW_W_MODE " >-</span><span   id="span2OSC_SAW_W_MODE " >-</span></div>
 </div>
 </div>
+</details>
+</div>
+</details>
+
+<details class="section params-details" id="fxDetails" open>
+<summary>FX Parameters</summary>
+<div class="params">
 <div class="param-group">
 <div class="param">
   <div class="param-name"><b>Distortion</b> Drive <span class="cc">CC#95</span></div>
@@ -3469,6 +3504,7 @@ function getStoredCCValueString(index, number) {
 </div>
 </div>
 </div>
+</details>
 
 <details class="section" id="kbdDetails" open>
 <summary class="kbd-bar"><span class="kbd-bar-items"><span id="spanKbdLabel">Software Keyboard</span>
