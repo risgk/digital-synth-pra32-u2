@@ -113,9 +113,9 @@
     - "MIDI In" から (Editor の MIDI Ch で) 届いたプログラム・チェンジは PRA32-U2 に送らず、Editor がプリセットを読み込んで、そのパラメーターをコントロール・チェンジで送ります
     - #0-15 は Editor のユーザー・プリセット (ブラウザーに保存) で、PRA32-U2 のプログラム #0-15 (Write で書き込んだもの) ではありません
     - #16-31 はファクトリー・プリセットです (PRA32-U2 のプログラム #16-31 と同じ)
-    - PRA32-U2 自身のプログラムを選ぶには、Editor を経由せずにプログラム・チェンジを送るか、"Save & Load" の Program Change ボタンを使ってください
+    - PRA32-U2 自身のプログラムを選ぶには、Editor を経由せずにプログラム・チェンジを送るか、"Write & Program Change" の Program Change ボタンを使ってください
 - Editor で作った音を PRA32-U2 に書き込んでおけば、後で Editor なしで呼び出せます
-    1. Write: Editor の "Save & Load" にある Write ボタン (#0-15) で、現在のパラメーターを PRA32-U2 のプログラムに書き込みます
+    1. Write: Editor の "Write & Program Change" にある Write ボタン (#0-15) で、現在のパラメーターを PRA32-U2 のプログラムに書き込みます
        (フラッシュにも書き込まれるので、電源を切っても残ります)。書き込みの前に、Editor に表示されているパラメーターを送り直します
     2. Editor を経由せずに、PRA32-U2 にプログラム・チェンジ #0-15 を直接送ると、そのプログラムを呼び出せます
 - Randomize Synth: シンセのパラメーターをランダムに設定します (プログラム・チェンジ #127、またはコントロール・チェンジ #111 を Off (63 以下) から On (64 以上) に)
@@ -133,11 +133,11 @@
 ### 主な機能
 
 - ファクトリー・プリセット (#16-31) とユーザー・プリセット (#0-15) の読み込み
-- ユーザー・プリセットはブラウザーに保存され、Store で 10 文字までの名前 (ASCII の英数字と記号) を付けられます
+- ユーザー・プリセットはブラウザーに保存され、Store で 10 文字までの名前 (ASCII の英数字と記号) を付けられます (User Preset と Store のボタンに表示)
 - JSON ファイルへのエクスポートと、JSON ファイルからのインポート
 - Randomize Synth と Randomize FX: シンセや FX のパラメーターをランダムに設定します
 - Undo: 直前の変更 (プリセット、Randomize、Import、スライダーの操作) の前のパラメーターに戻します (200 段階まで)。Redo で進めます (Ctrl+Z と、Ctrl+Y または Ctrl+Shift+Z でも。Mac では Command)
-- "MIDI"、"Actions & Presets"、"Save & Load" はそれぞれ隠せるので、パラメーターに画面を広く使えます
+- "MIDI"、"Actions & Presets"、"Save & Load"、"Write & Program Change" はそれぞれ隠せるので、パラメーターに画面を広く使えます
 - "Synth Parameters" (最初の 32 個)、"More Synth Parameters" (残り)、"FX Parameters" も、それぞれ隠せます
 - ボタンやスライダーなどは、どのブラウザーや OS でも同じ見た目 (Chrome 相当) です。タッチ画面では、スライダーのつまみが大きく、ボタンが高くなります
 - Software Keyboard: マウス、タッチ、PC のキーボード (A - K が C - C、W - U が黒鍵、Z / X がオクターブ) で弾けます

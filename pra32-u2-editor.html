@@ -223,12 +223,12 @@ input[type="range"]:hover::-moz-range-thumb {
 .midi-note[hidden] {
   display: none;
 }
-/* A line break in a flex container (MIDI Ch / MIDI In / MIDI Out, and Write / Program Change in 2 or 1 column) */
-.midi-break, .line-break, .bank-break {
+/* A line break in a flex container (MIDI Ch / MIDI In / MIDI Out) */
+.midi-break, .bank-break {
   flex-basis: 100%;
   height: 0;
 }
-/* The break between the 2 banks of a group: shown in 2 or 1 column (see .banks.split-2 and .banks.split-1) */
+/* The break between the 2 banks of a group: shown in 2 or 1 column (see .banks.split-2) */
 .bank-break {
   display: none;
 }
@@ -306,11 +306,6 @@ input[type="range"]:hover::-moz-range-thumb {
 .bank.named.two-cols > :nth-child(1), .bank.named.two-cols > :nth-child(2) { order: 2; }
 .bank.named.two-cols > :nth-child(7), .bank.named.two-cols > :nth-child(8) { order: 3; }
 .bank.named.two-cols > :nth-child(5), .bank.named.two-cols > :nth-child(6) { order: 4; }
-/* The number buttons (Store, Write, Program Change) all as wide as the widest one (e.g. "#15"),
-   measured by fitButtons() (the widths of the fonts differ among the OSes) */
-.bank.num button {
-  width: var(--num-button-width, auto);
-}
 button {
   white-space: nowrap;
 }
@@ -347,8 +342,10 @@ button {
 details.section > summary {
   margin-bottom: 8px;
 }
-/* MIDI, and Actions & Presets: the last section in each without the space below, which is that of the details */
-#midiDetails > .section:last-child, #presetsDetails > .section:last-child {
+/* MIDI, Actions & Presets, Save & Load, and Write & Program Change: the last section in each without the space below,
+   which is that of the details */
+#midiDetails > .section:last-child, #presetsDetails > .section:last-child,
+#saveLoadDetails > .section:last-child, #writePCDetails > .section:last-child {
   margin-bottom: 0;
 }
 details.section:not([open]) > summary {
@@ -440,13 +437,6 @@ span.cc {
   .banks.split-2 > .bank:first-child {
     margin-top: 8px;  /* the space by a margin, not row-gap, which the empty line of the break would double */
   }
-  /* Program Change under Write, always (by the line break between them) */
-  .prog-row:has(> .line-break) {
-    row-gap: 0;
-  }
-  .prog-row > .line-break + .prog-group {
-    margin-top: 8px;
-  }
 }
 /* 1 column (a list, as in PRA32-U2 Native) if 2 parameters do not fit (e.g. iPhone SE 2, 375px wide):
    no narrower sliders, which would not move a pixel a value */
@@ -456,23 +446,6 @@ span.cc {
   }
 }
 @container (max-width: 455px) {
-  /* The banks of Store, Write, and Program Change (#0-7 / #8-15) in 2 lines too (in 2 columns, they fit in 1 line) */
-  .banks.split-1 {
-    row-gap: 0;
-    flex: 1 1 0;  /* next to the label (as Store), not below it, if a bank fits */
-    min-width: 0;
-  }
-  /* The numbers go up from the bottom to the top (as in the rows of a bank): the 2nd bank above the 1st one */
-  .banks.split-1 > .bank-break + .bank {
-    order: -2;
-  }
-  .banks.split-1 > .bank-break {
-    display: block;
-    order: -1;
-  }
-  .banks.split-1 > .bank:first-child {
-    margin-top: 8px;  /* the space by a margin, not row-gap, which the empty line of the break would double */
-  }
   /* A narrow window: the program buttons with names still in 4 columns, a little smaller and closer together,
      so that they fit in a 360px window (e.g. 82px for "#27 Elec Organ") */
   .bank.named {
@@ -1232,6 +1205,12 @@ window.onload = function() {
   saveLoadDetails.open = (localStorage.getItem("keySaveLoadOpen") == "1");
   saveLoadDetails.addEventListener("toggle", function() {
     localStorage.setItem("keySaveLoadOpen", saveLoadDetails.open ? "1" : "0");
+  });
+  // Write & Program Change too (to PRA32-U2: under Save & Load before)
+  var writePCDetails = document.getElementById("writePCDetails");
+  writePCDetails.open = (localStorage.getItem("keyWritePCOpen") == "1");
+  writePCDetails.addEventListener("toggle", function() {
+    localStorage.setItem("keyWritePCOpen", writePCDetails.open ? "1" : "0");
   });
   // MIDI, and Actions & Presets are shown by default, and each shown or hidden as the last time
   // (and the Synth Parameters, the More Synth Parameters, and the FX Parameters too)
@@ -2009,11 +1988,15 @@ function isUserPresetEmpty(number) {
   });
 }
 
+// The User Preset button, and the Store button of the same number (as it, so that what is stored over is seen)
 function updateRecallButton(number) {
   var name = getUserPresetName(number);
-  var button = document.getElementById("buttonRecall" + String(number));
-  button.textContent = "#" + String(number) + " " + (name || "---");
-  button.classList.toggle("empty", isUserPresetEmpty(number));
+  var empty = isUserPresetEmpty(number);
+  ["buttonRecall", "buttonStore"].forEach(function(id) {
+    var button = document.getElementById(id + String(number));
+    button.textContent = "#" + String(number) + " " + (name || "---");
+    button.classList.toggle("empty", empty);
+  });
 }
 
 // A name with a character that cannot be used (or too long) is asked again, with the characters removed (or cut)
@@ -2109,10 +2092,9 @@ function fitProgLabels() {
   });
 }
 
-// The number buttons (Store, Write, Program Change) all as wide as the widest one, and the buttons with names
-// (Factory Preset, User Preset) too, so that the columns of the banks line up
+// The program buttons (Factory Preset, User Preset, Store, Write, and Program Change) all as wide as the widest one,
+// so that the columns of the banks line up
 function fitButtons() {
-  fitButtonsWidth(".bank.num button", "--num-button-width");
   fitButtonsWidth(".bank.named button", "--named-button-width");
 }
 
@@ -3147,35 +3129,39 @@ function getStoredCCValueString(index, number) {
 <div class="prog-label lbl-store"><span>Store</span> <span>(to Browser)</span></div>
 <div class="banks split-2">
 <div class="bank named">
-  <button type="button" onclick="storeParameters(4)">#4</button>
-  <button type="button" onclick="storeParameters(5)">#5</button>
-  <button type="button" onclick="storeParameters(6)">#6</button>
-  <button type="button" onclick="storeParameters(7)">#7</button>
-  <button type="button" onclick="storeParameters(0)">#0</button>
-  <button type="button" onclick="storeParameters(1)">#1</button>
-  <button type="button" onclick="storeParameters(2)">#2</button>
-  <button type="button" onclick="storeParameters(3)">#3</button>
+  <button type="button" id="buttonStore4" onclick="storeParameters(4)">#4 ---</button>
+  <button type="button" id="buttonStore5" onclick="storeParameters(5)">#5 ---</button>
+  <button type="button" id="buttonStore6" onclick="storeParameters(6)">#6 ---</button>
+  <button type="button" id="buttonStore7" onclick="storeParameters(7)">#7 ---</button>
+  <button type="button" id="buttonStore0" onclick="storeParameters(0)">#0 ---</button>
+  <button type="button" id="buttonStore1" onclick="storeParameters(1)">#1 ---</button>
+  <button type="button" id="buttonStore2" onclick="storeParameters(2)">#2 ---</button>
+  <button type="button" id="buttonStore3" onclick="storeParameters(3)">#3 ---</button>
 </div>
 <div class="bank-break"></div>
 <div class="bank named">
-  <button type="button" onclick="storeParameters(12)">#12</button>
-  <button type="button" onclick="storeParameters(13)">#13</button>
-  <button type="button" onclick="storeParameters(14)">#14</button>
-  <button type="button" onclick="storeParameters(15)">#15</button>
-  <button type="button" onclick="storeParameters(8)">#8</button>
-  <button type="button" onclick="storeParameters(9)">#9</button>
-  <button type="button" onclick="storeParameters(10)">#10</button>
-  <button type="button" onclick="storeParameters(11)">#11</button>
+  <button type="button" id="buttonStore12" onclick="storeParameters(12)">#12 ---</button>
+  <button type="button" id="buttonStore13" onclick="storeParameters(13)">#13 ---</button>
+  <button type="button" id="buttonStore14" onclick="storeParameters(14)">#14 ---</button>
+  <button type="button" id="buttonStore15" onclick="storeParameters(15)">#15 ---</button>
+  <button type="button" id="buttonStore8" onclick="storeParameters(8)">#8 ---</button>
+  <button type="button" id="buttonStore9" onclick="storeParameters(9)">#9 ---</button>
+  <button type="button" id="buttonStore10" onclick="storeParameters(10)">#10 ---</button>
+  <button type="button" id="buttonStore11" onclick="storeParameters(11)">#11 ---</button>
 </div>
 </div>
 </div>
 </div>
 
-<div class="prog-row">
+</details>
+
+<details class="section" id="writePCDetails">
+<summary>Write &amp; Program Change</summary>
+<div class="section prog-row">
 <div class="prog-group">
 <div class="prog-label lbl-green" style="color:green"><span>Write</span> <span>(to PRA32-U2)</span></div>
-<div class="banks split-1">
-<div class="bank num">
+<div class="banks split-2">
+<div class="bank named">
   <button type="button" onclick="writeParameters(4)" style="color:green">#4</button>
   <button type="button" onclick="writeParameters(5)" style="color:green">#5</button>
   <button type="button" onclick="writeParameters(6)" style="color:green">#6</button>
@@ -3186,7 +3172,7 @@ function getStoredCCValueString(index, number) {
   <button type="button" onclick="writeParameters(3)" style="color:green">#3</button>
 </div>
 <div class="bank-break"></div>
-<div class="bank num">
+<div class="bank named">
   <button type="button" onclick="writeParameters(12)" style="color:green">#12</button>
   <button type="button" onclick="writeParameters(13)" style="color:green">#13</button>
   <button type="button" onclick="writeParameters(14)" style="color:green">#14</button>
@@ -3198,11 +3184,13 @@ function getStoredCCValueString(index, number) {
 </div>
 </div>
 </div>
-<div class="line-break narrow-only"></div>
+</div>
+
+<div class="section prog-row">
 <div class="prog-group">
 <div class="prog-label lbl-green" style="color:green"><span>Program Change</span> <span>(to PRA32-U2)</span></div>
-<div class="banks split-1">
-<div class="bank num">
+<div class="banks split-2">
+<div class="bank named">
   <button type="button" onclick="sendProgramChange(4)" style="color:green">#4</button>
   <button type="button" onclick="sendProgramChange(5)" style="color:green">#5</button>
   <button type="button" onclick="sendProgramChange(6)" style="color:green">#6</button>
@@ -3213,7 +3201,7 @@ function getStoredCCValueString(index, number) {
   <button type="button" onclick="sendProgramChange(3)" style="color:green">#3</button>
 </div>
 <div class="bank-break"></div>
-<div class="bank num">
+<div class="bank named">
   <button type="button" onclick="sendProgramChange(12)" style="color:green">#12</button>
   <button type="button" onclick="sendProgramChange(13)" style="color:green">#13</button>
   <button type="button" onclick="sendProgramChange(14)" style="color:green">#14</button>

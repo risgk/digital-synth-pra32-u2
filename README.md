@@ -137,13 +137,13 @@ graph LR
     - #0-15: the user presets of PRA32-U2 Editor (stored in the Web browser), not the programs #0-15 of PRA32-U2 (written by Write)
     - #16-31: the factory presets (the same as the programs #16-31 of PRA32-U2)
     - To select the programs of PRA32-U2 itself, send Program Changes to PRA32-U2 directly (without PRA32-U2 Editor),
-      or use the Program Change buttons (in "Save & Load")
+      or use the Program Change buttons (in "Write & Program Change")
 - Sounds made with PRA32-U2 Editor can be written to PRA32-U2, and recalled later without PRA32-U2 Editor
-    1. Write: press a Write button (#0-15, in "Save & Load") of PRA32-U2 Editor, to write the current parameters
+    1. Write: press a Write button (#0-15, in "Write & Program Change") of PRA32-U2 Editor, to write the current parameters
        to the program of PRA32-U2 (also to the flash, so that they are kept after the power is turned off);
        the parameters shown in PRA32-U2 Editor are sent again before writing
     2. Send Program Change #0-15 to PRA32-U2 directly (not via PRA32-U2 Editor) to recall the program
-- The Program Change buttons (in "Save & Load") of PRA32-U2 Editor also send Program Changes to PRA32-U2 directly
+- The Program Change buttons (in "Write & Program Change") of PRA32-U2 Editor also send Program Changes to PRA32-U2 directly
   (NOTE: The parameters shown in PRA32-U2 Editor are not updated)
 - "Randomize Synth": processed when Program Change #127 is entered or Control Change #111 is changed from Off (63 or lower) to On (64 or higher);
   also by PRA32-U2 itself, when they are sent to it directly
@@ -161,9 +161,9 @@ graph LR
 
 - PRA32-U2 Editor stores the current control values and the user presets (#0-15) in a Web browser (localStorage)
 - Current parameter values and user presets (#0-15) can be imported/exported from/to JSON files
-- User presets: a name of up to 10 ASCII letters, digits, and symbols can be given by Store (shown on the User Preset buttons)
+- User presets: a name of up to 10 ASCII letters, digits, and symbols can be given by Store (shown on the User Preset buttons and the Store buttons)
 - Undo: back to the parameters before the last change (a preset, Randomize, Import, or a move of a slider), up to 200 steps; Redo: forward again (also by Ctrl+Z and Ctrl+Y or Ctrl+Shift+Z, or Command on a Mac)
-- "MIDI", "Actions & Presets", and "Save & Load" can each be hidden, to give the parameters more of the window
+- "MIDI", "Actions & Presets", "Save & Load", and "Write & Program Change" can each be hidden, to give the parameters more of the window
 - "Synth Parameters" (the first 32), "More Synth Parameters" (the others), and "FX Parameters" can each be hidden too
 - The controls look the same in every Web browser and OS (as in Chrome); on a touch screen, the thumbs of the sliders are larger, and the buttons taller
 - Software Keyboard
