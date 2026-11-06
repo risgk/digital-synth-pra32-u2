@@ -1,7 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v3.20.1 (2026-??-??):
-    - **Filter Mode** [LP|BR|HP|BP|LP] changes smoothly: Low Pass at 0 (and 127), Band Reject (Notch) at 32, High Pass at 64, and Band Pass at 96, crossfaded in between (LP to BR to HP with the notch moving down, and HP to BP to LP with no notch; shown as L-R, R-H, H-B, and B-L); the same load at any value
+    - **Filter Mode** [LP|BR|HP|BP|LP] changes smoothly: Low Pass at 0 (and 127), Band Reject (Notch) at 32, High Pass at 64, and Band Pass at 96, crossfaded in between (LP to BR to HP with the notch moving down, and HP to BP to LP with no notch; shown as L-R, R-H, H-B, and B-L), and smoothed; the same load at any value
         - Not compatible: a user program with Filter Mode other than LP (written before) sounds otherwise (e.g. the High Pass, 127, is now LP: set it to 64); the Presets are LP (0), as before
     - Filter Drive among the main parameters, in the place of Pitch Bend Range (and Pitch Bend Range in that of Filter Drive), in PRA32-U2 Editor, the chart, the JSON files, the Parameter Guide, and PRA32-U2 Native; "Randomize Synth" (Program Change #127) changes Filter Drive, and no longer Pitch Bend Range
     - PRA32-U2 Editor and PRA32-U2 Native: "Randomize FX" changes Distortion Drive too

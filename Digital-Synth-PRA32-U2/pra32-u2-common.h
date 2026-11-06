@@ -121,7 +121,7 @@ static INLINE int32_t approach_exp_wide(int32_t current_value, int32_t target_va
 // - Slow: approach_exp_slow(), 2 stages at the rate 4096 at 6 kHz (5.3 ms average delay, 99% in 18 ms),
 //   for the amounts (of the tone, the level, or a modulation), whose steps are easily heard
 //   - Filter: Cutoff, Resonance, Filter EG Amt, LFO Filter Amt, Breath Filter Amt,
-//     EG/LFO Mod Amt (Dst: F)
+//     EG/LFO Mod Amt (Dst: F), Filter Drive, and the gains of the Filter Mode
 //   - Osc: Osc 1 Shape, EG/LFO Mod Amt (Dst: 1S)
 //   - Amp: Amp Gain
 //   - LFO: LFO Depth (the sum with the LFO Fade, the Modulation Wheel, and the After Touch, per voice)

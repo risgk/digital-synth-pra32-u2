@@ -173,9 +173,18 @@ class PRA32_U2_Filter {
   int32_t m_cutoff_lfo_amt_stage_1[2];
   int32_t m_cutoff_lfo_amt_current[2];  // Q16
   int16_t m_cutoff_pitch_amt;
-  int32_t m_mode_lp_gain;              // Filter Mode: the gains of the low pass, the high pass, and the band pass (Q16)
-  int32_t m_mode_hp_gain;
+  int32_t m_mode_lp_gain;              // Filter Mode: the gains of the low pass, the high pass, and the band pass (Q16),
+  int32_t m_mode_hp_gain;              // the smoothed ones of m_filter[0] (see update_smoothing())
   int32_t m_mode_bp_gain;
+  int32_t m_mode_lp_target;            // Their targets, by the Filter Mode
+  int32_t m_mode_hp_target;
+  int32_t m_mode_bp_target;
+  int32_t m_mode_lp_stage_1;           // Smooth state variables (of m_filter[0])
+  int32_t m_mode_hp_stage_1;
+  int32_t m_mode_bp_stage_1;
+  int32_t m_mode_lp_current;
+  int32_t m_mode_hp_current;
+  int32_t m_mode_bp_current;
   int16_t m_cutoff_breath_amt;
   int16_t m_breath_controller;
   int16_t m_breath_controller_current;
@@ -222,6 +231,15 @@ public:
   , m_mode_lp_gain(1 << 16)
   , m_mode_hp_gain()
   , m_mode_bp_gain()
+  , m_mode_lp_target(1 << 16)
+  , m_mode_hp_target()
+  , m_mode_bp_target()
+  , m_mode_lp_stage_1(1 << 16)
+  , m_mode_hp_stage_1()
+  , m_mode_bp_stage_1()
+  , m_mode_lp_current(1 << 16)
+  , m_mode_hp_current()
+  , m_mode_bp_current()
   , m_cutoff_breath_amt()
   , m_breath_controller()
   , m_breath_controller_current()
@@ -259,6 +277,7 @@ public:
     m_cutoff_current = m_cutoff_base_current;
     m_resonance_stage_1 = m_resonance_current = static_cast<int32_t>(m_resonance_target) << 16;
     m_drive_stage_1 = m_drive_current = static_cast<int32_t>(m_drive_target) << 16;
+    jump_mode_gains();
 
     update_coefs(0, 0, 60 << 16, *this);
     m_g                 = m_g_last;
@@ -334,9 +353,9 @@ public:
     } else {
       bp = 128 - x; lp = x - 96;
     }
-    m_mode_lp_gain = lp << 11;
-    m_mode_hp_gain = hp << 11;
-    m_mode_bp_gain = bp << 11;
+    m_mode_lp_target = lp << 11;
+    m_mode_hp_target = hp << 11;
+    m_mode_bp_target = bp << 11;
   }
 
   INLINE void set_cutoff_breath_amt(uint8_t controller_value) {
@@ -368,6 +387,14 @@ public:
     m_cutoff_eg_amt_stage_1[1] = m_cutoff_eg_amt_current[1] = static_cast<int32_t>(m_cutoff_eg_amt_target[1]) << 16;
     m_cutoff_lfo_amt_stage_1[0] = m_cutoff_lfo_amt_current[0] = static_cast<int32_t>(m_cutoff_lfo_amt[0]) << 16;
     m_cutoff_lfo_amt_stage_1[1] = m_cutoff_lfo_amt_current[1] = static_cast<int32_t>(m_cutoff_lfo_amt[1]) << 16;
+    jump_mode_gains();
+  }
+
+  // The gains of the Filter Mode at their targets (at the start, and while the sound is off)
+  INLINE void jump_mode_gains() {
+    m_mode_lp_stage_1 = m_mode_lp_current = m_mode_lp_gain = m_mode_lp_target;
+    m_mode_hp_stage_1 = m_mode_hp_current = m_mode_hp_gain = m_mode_hp_target;
+    m_mode_bp_stage_1 = m_mode_bp_current = m_mode_bp_gain = m_mode_bp_target;
   }
 
   // The base cutoff, the Resonance, and the Amt parameters are the same for
@@ -384,6 +411,10 @@ public:
     approach_exp_slow(m_resonance_stage_1, m_resonance_current, static_cast<int32_t>(m_resonance_target) << 16);
     approach_exp_slow(m_drive_stage_1, m_drive_current, static_cast<int32_t>(m_drive_target) << 16);
     update_drive_gain();
+    // The gains of the Filter Mode, slow as a balance (they land on their targets exactly)
+    approach_exp_slow(m_mode_lp_stage_1, m_mode_lp_current, m_mode_lp_target);
+    approach_exp_slow(m_mode_hp_stage_1, m_mode_hp_current, m_mode_hp_target);
+    approach_exp_slow(m_mode_bp_stage_1, m_mode_bp_current, m_mode_bp_target);
     for (int i = 0; i < 2; ++i) {
       approach_exp_slow(m_cutoff_eg_amt_stage_1[i],  m_cutoff_eg_amt_current[i],  static_cast<int32_t>(m_cutoff_eg_amt_target[i]) << 16);
       approach_exp_slow(m_cutoff_lfo_amt_stage_1[i], m_cutoff_lfo_amt_current[i], static_cast<int32_t>(m_cutoff_lfo_amt[i])       << 16);
@@ -520,6 +551,9 @@ private:
     // so that the smoothing is not lost by rounding them to integers
     const int32_t resonance_current = smoothed.m_resonance_current;
     m_drive_gain = smoothed.m_drive_gain;
+    m_mode_lp_gain = smoothed.m_mode_lp_current;
+    m_mode_hp_gain = smoothed.m_mode_hp_current;
+    m_mode_bp_gain = smoothed.m_mode_bp_current;
 
     // 2. Add the LFO and Pitch modulations
     int32_t lfo_mod_target = 0;
