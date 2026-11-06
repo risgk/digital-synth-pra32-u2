@@ -120,6 +120,8 @@ graph LR
 - Select "PRA32-U2" (or "PRA32-U2/M", etc.) in the list "MIDI Out"
     - Select "PRA32-U2 Web (Built-in)" to use [PRA32-U2 Web](./PRA32-U2-Web/README.md), without PRA32-U2
         - "PRA32-U2 Web (Built-in, +6 dB)": 6 dB louder, closer to other sounds (the peaks above -2 dBFS rounded off)
+            - Without "+6 dB", it sounds as PRA32-U2 does (e.g. to compare with it)
+            - With a high Amp Gain, the peaks rounded off can be heard as a little distortion
 
 
 ### Programs and Presets
