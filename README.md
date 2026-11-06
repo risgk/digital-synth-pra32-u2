@@ -126,7 +126,7 @@ graph LR
         - The Basic Channel is 1 (it cannot be changed): select the synth to edit in "MIDI Ch" (see the channels of PRA32-U2/M below)
         - The Main Synth starts with the program #0 and the Sub Synths 1-3 with #1-3, as PRA32-U2/M does;
           the Sub Synths sound only while the Main Synth is not in Poly
-    - Nothing is sent when an output is selected (PRA32-U2 Web too): "Send Current" (next to MIDI Out, with Panic) sends the parameters of PRA32-U2 Editor (one set) to the synth of "MIDI Ch"
+    - Nothing is sent when an output is selected (PRA32-U2 Web too): "Send Current" (next to MIDI Out) sends the parameters of PRA32-U2 Editor (one set) to the synth of "MIDI Ch"
 
 
 ### Programs and Presets
@@ -163,7 +163,7 @@ graph LR
 - Current parameter values and user presets (#0-15) can be imported/exported from/to JSON files
 - User presets: a name of up to 10 ASCII letters, digits, and symbols can be given by Store (shown on the User Preset buttons and the Store buttons)
 - Undo: back to the parameters before the last change (a preset, Randomize, Import, or a move of a slider), up to 200 steps; Redo: forward again (also by Ctrl+Z and Ctrl+Y or Ctrl+Shift+Z, or Command on a Mac)
-- "MIDI", "Actions & Presets", "Store & File", and "Write & Program Change" can each be hidden, to give the parameters more of the window (while "MIDI" is hidden, Send Current and Panic are on its heading)
+- "MIDI", "Actions & Presets", "Store & File", and "Write & Program Change" can each be hidden, to give the parameters more of the window (while "MIDI" is hidden, Send Current is on its heading)
 - "Synth Parameters" (the first 32), "More Synth Parameters" (the others), and "FX Parameters" can each be hidden too
 - The controls look the same in every Web browser and OS (as in Chrome); on a touch screen, the thumbs of the sliders are larger, and the buttons taller
 - Software Keyboard

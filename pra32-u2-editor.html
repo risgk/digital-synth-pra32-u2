@@ -210,8 +210,8 @@ input[type="range"]:hover::-moz-range-thumb {
   min-width: 0;
   max-width: 100%;
 }
-/* Send Current and Panic next to MIDI Out (to the output): on the bar of MIDI instead, while MIDI is hidden
-   (as Panic on the bar of the keyboard), so that they are always at hand */
+/* Send Current next to MIDI Out (to the output): on the bar of MIDI instead, while MIDI is hidden
+   (as Panic on the bar of the keyboard, which is always in the window), so that it is always at hand */
 .midi-buttons button {
   height: var(--button-height);
   padding: 1px 5px;
@@ -3032,8 +3032,7 @@ function getStoredCCValueString(index, number) {
 
 <details class="section" id="midiDetails" open>
 <summary class="midi-bar"><span class="midi-bar-items"><span>MIDI</span>
-<span class="midi-buttons"><button type="button" onclick="sendCurrentParameters()">Send Current</button>
-<button type="button" onclick="panic()">Panic</button></span></span></summary>
+<span class="midi-buttons"><button type="button" onclick="sendCurrentParameters()">Send Current</button></span></span></summary>
 <div class="section midi">
 <div class="midi-item"><span class="lbl-midi">MIDI Ch</span>
 <select id="selectMIDICh" size="1" onchange="onChangeMIDICh()">
@@ -3063,8 +3062,7 @@ function getStoredCCValueString(index, number) {
 <div class="midi-break"></div>
 <div class="midi-item"><span class="lbl-midi">MIDI Out</span>
 <select id="selectOutputPort" size="1" onchange="onChangeOutputPort(); savePortSelection('selectOutputPort', midiOutputs)"><option>(None)</option></select></div>
-<div class="midi-item midi-buttons"><button type="button" onclick="sendCurrentParameters()">Send Current</button>
-<button type="button" onclick="panic()">Panic</button></div>
+<div class="midi-item midi-buttons"><button type="button" onclick="sendCurrentParameters()">Send Current</button></div>
 <div class="midi-break"></div>
 <div class="midi-note" id="divMIDINote" hidden></div>
 </div>

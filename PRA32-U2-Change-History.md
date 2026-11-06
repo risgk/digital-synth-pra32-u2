@@ -8,7 +8,7 @@
     - PRA32-U2 Editor: "Synth Parameters" (the first 32), "More Synth Parameters" (the others), and "FX Parameters" can each be hidden (shown by default);
       "Save & Load" is now "Store & File" (Store, and File below it), no longer under "Actions & Presets", and "Write & Program Change" (to the device) is apart from it, each shown or hidden apart (hidden by default);
       Store, Write, and Program Change are laid out as User Preset (each button right below that of the same number; Store with the name too), with Write and Program Change "(to Device)"
-    - PRA32-U2 Editor: "Send Current" and "Panic" moved from Actions to next to MIDI Out (on the heading of "MIDI" while it is hidden)
+    - PRA32-U2 Editor: "Send Current" moved from Actions to next to MIDI Out (on the heading of "MIDI" while it is hidden); "Panic" removed from Actions (on the bar of the Software Keyboard, as before)
     - Tested with Arduino-Pico version 6.3.0
 - v3.20.0 (2026-11-06):
     - PRA32-U2 Web: Add **"PRA32-U2/M Web (Built-in)"** (and with "+6 dB") to MIDI Out: PRA32-U2/M (the 4 synths) by the MIDI channels (the Basic Channel 1), with the Layering and the Round Robin
