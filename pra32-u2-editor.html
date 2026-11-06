@@ -210,6 +210,25 @@ input[type="range"]:hover::-moz-range-thumb {
   min-width: 0;
   max-width: 100%;
 }
+/* Send Current and Panic next to MIDI Out (to the output): on the bar of MIDI instead, while MIDI is hidden
+   (as Panic on the bar of the keyboard), so that they are always at hand */
+.midi-buttons button {
+  height: var(--button-height);
+  padding: 1px 5px;
+}
+.midi-bar-items {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+}
+.midi-bar .midi-buttons {
+  display: inline-flex;
+  gap: 4px;
+}
+#midiDetails[open] > .midi-bar .midi-buttons {
+  display: none;
+}
 .midi-item select {
   min-width: 0;
   max-width: 100%;
@@ -331,7 +350,7 @@ button {
 .misc-group > span:first-child {
   min-width: 100px;
 }
-/* The buttons wrap under the first button (e.g. "Randomize FX" under "Send Current"), not under the label */
+/* The buttons wrap under the first button (e.g. "Undo" under "Randomize Synth"), not under the label */
 .misc-buttons {
   display: flex;
   flex-wrap: wrap;
@@ -342,7 +361,7 @@ button {
 details.section > summary {
   margin-bottom: 8px;
 }
-/* MIDI, Actions & Presets, Save & Load, and Write & Program Change: the last section in each without the space below,
+/* MIDI, Actions & Presets, Store & File, and Write & Program Change: the last section in each without the space below,
    which is that of the details */
 #midiDetails > .section:last-child, #presetsDetails > .section:last-child,
 #saveLoadDetails > .section:last-child, #writePCDetails > .section:last-child {
@@ -352,7 +371,7 @@ details.section:not([open]) > summary {
   margin-bottom: 0;  /* the space below a hidden one is that between the sections */
 }
 /* A line above the keyboard (after the parameters), to the right end of the window (as the lines of the parameters);
-   none above MIDI, Actions & Presets, and Save & Load */
+   none above MIDI, Actions & Presets, Store & File, and Write & Program Change */
 #kbdDetails {
   border-top: 1px solid #c0c0c0;
   padding-top: 6px;
@@ -376,7 +395,7 @@ details.section:not([open]) > summary {
   margin-bottom: 0;  /* the space above the parameters is that of the 1st group */
 }
 .params-details:not([open]) {
-  padding-bottom: 8px;  /* hidden, the space below the heading is that below a hidden Save & Load (between the sections) */
+  padding-bottom: 8px;  /* hidden, the space below the heading is that below a hidden Store & File (between the sections) */
 }
 /* The control numbers in the parameter names (as in PRA32-U2 Native), and the program number in "Randomize Synth",
    small and gray so as not to stand out, and a little apart */
@@ -1200,7 +1219,7 @@ window.onload = function() {
     document.fonts.ready.then(fitLayout);
   }
   window.addEventListener("resize", fitLayout);
-  // Save & Load is hidden by default, and shown or hidden as the last time (as the keyboard)
+  // Store & File ("Save & Load" before, as its id and key) is hidden by default, and shown or hidden as the last time (as the keyboard)
   var saveLoadDetails = document.getElementById("saveLoadDetails");
   saveLoadDetails.open = (localStorage.getItem("keySaveLoadOpen") == "1");
   saveLoadDetails.addEventListener("toggle", function() {
@@ -1214,6 +1233,12 @@ window.onload = function() {
   });
   // MIDI, and Actions & Presets are shown by default, and each shown or hidden as the last time
   // (and the Synth Parameters, the More Synth Parameters, and the FX Parameters too)
+  // The buttons on the bar of MIDI (while hidden) do not show or hide it
+  document.querySelector("#midiDetails > summary").addEventListener("click", function(event) {
+    if (event.target.closest("button")) {
+      event.preventDefault();
+    }
+  });
   [["midiDetails", "keyMIDIOpen"], ["presetsDetails", "keyPresetsOpen"],
    ["synthDetails", "keySynthOpen"], ["synthMoreDetails", "keySynthMoreOpen"], ["fxDetails", "keyFxOpen"]].forEach(function(item) {
     var details = document.getElementById(item[0]);
@@ -3006,7 +3031,9 @@ function getStoredCCValueString(index, number) {
 </div>
 
 <details class="section" id="midiDetails" open>
-<summary>MIDI</summary>
+<summary class="midi-bar"><span class="midi-bar-items"><span>MIDI</span>
+<span class="midi-buttons"><button type="button" onclick="sendCurrentParameters()">Send Current</button>
+<button type="button" onclick="panic()">Panic</button></span></span></summary>
 <div class="section midi">
 <div class="midi-item"><span class="lbl-midi">MIDI Ch</span>
 <select id="selectMIDICh" size="1" onchange="onChangeMIDICh()">
@@ -3036,6 +3063,8 @@ function getStoredCCValueString(index, number) {
 <div class="midi-break"></div>
 <div class="midi-item"><span class="lbl-midi">MIDI Out</span>
 <select id="selectOutputPort" size="1" onchange="onChangeOutputPort(); savePortSelection('selectOutputPort', midiOutputs)"><option>(None)</option></select></div>
+<div class="midi-item midi-buttons"><button type="button" onclick="sendCurrentParameters()">Send Current</button>
+<button type="button" onclick="panic()">Panic</button></div>
 <div class="midi-break"></div>
 <div class="midi-note" id="divMIDINote" hidden></div>
 </div>
@@ -3046,8 +3075,6 @@ function getStoredCCValueString(index, number) {
 
 <div class="section misc">
 <div class="misc-group"><span>Actions</span><div class="misc-buttons">
-<button type="button" onclick="sendCurrentParameters()">Send Current</button>
-<button type="button" onclick="panic()">Panic</button>
 <button type="button" onclick="setRandom()">Randomize Synth <span class="cc">PC#127</span></button>
 <button type="button" onclick="setRandomChorus()">Randomize FX</button>
 <button type="button" id="buttonUndo" onclick="undo()" title="Back to the parameters before the last change (a preset, Randomize, Import, or a move of a slider) (Ctrl+Z)">Undo</button>
@@ -3114,16 +3141,7 @@ function getStoredCCValueString(index, number) {
 </details>
 
 <details class="section" id="saveLoadDetails">
-<summary>Save &amp; Load</summary>
-<div class="section misc">
-<div class="misc-group"><span>File</span><div class="misc-buttons">
-<input type="file" id="fileImportAll" style="display:none" accept=".json"/>
-<button type="button" onclick="fileImportAll()">Import All</button>
-<input type="file" id="fileImportCurrent" style="display:none" accept=".json"/>
-<button type="button" onclick="fileImportCurrent()">Import Current</button>
-<button type="button" onclick="fileExport()">Export All</button></div></div>
-</div>
-
+<summary>Store &amp; File</summary>
 <div class="section prog-row">
 <div class="prog-group">
 <div class="prog-label lbl-store"><span>Store</span> <span>(to Browser)</span></div>
@@ -3151,6 +3169,15 @@ function getStoredCCValueString(index, number) {
 </div>
 </div>
 </div>
+</div>
+
+<div class="section misc">
+<div class="misc-group"><span>File</span><div class="misc-buttons">
+<input type="file" id="fileImportAll" style="display:none" accept=".json"/>
+<button type="button" onclick="fileImportAll()">Import All</button>
+<input type="file" id="fileImportCurrent" style="display:none" accept=".json"/>
+<button type="button" onclick="fileImportCurrent()">Import Current</button>
+<button type="button" onclick="fileExport()">Export All</button></div></div>
 </div>
 
 </details>

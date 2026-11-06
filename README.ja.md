@@ -103,7 +103,7 @@
     - PRA32-U2 Web で PRA32-U2/M (4 台のシンセ) を使うには、"PRA32-U2/M Web (Built-in)" (または "+6 dB" 付き) を選んでください
         - Basic Channel は 1 です (変更できません)。編集するシンセは "MIDI Ch" で選んでください (チャンネルは PRA32-U2/M の説明を参照)
         - PRA32-U2/M と同じく、Main Synth はプログラム #0、Sub Synth 1-3 は #1-3 で始まります。Sub Synth は Main Synth が Poly でないときだけ鳴ります
-    - 出力を選んでも何も送りません (PRA32-U2 Web も同じ)。"Send Current" で PRA32-U2 Editor のパラメーター (1 組) を "MIDI Ch" のシンセに送ります
+    - 出力を選んでも何も送りません (PRA32-U2 Web も同じ)。MIDI Out の横の "Send Current" (Panic も並びます) で PRA32-U2 Editor のパラメーター (1 組) を "MIDI Ch" のシンセに送ります
 
 
 ### プログラムとプリセット
@@ -137,7 +137,7 @@
 - JSON ファイルへのエクスポートと、JSON ファイルからのインポート
 - Randomize Synth と Randomize FX: シンセや FX のパラメーターをランダムに設定します
 - Undo: 直前の変更 (プリセット、Randomize、Import、スライダーの操作) の前のパラメーターに戻します (200 段階まで)。Redo で進めます (Ctrl+Z と、Ctrl+Y または Ctrl+Shift+Z でも。Mac では Command)
-- "MIDI"、"Actions & Presets"、"Save & Load"、"Write & Program Change" はそれぞれ隠せるので、パラメーターに画面を広く使えます
+- "MIDI"、"Actions & Presets"、"Store & File"、"Write & Program Change" はそれぞれ隠せるので、パラメーターに画面を広く使えます ("MIDI" を隠している間は、Send Current と Panic が見出しに並びます)
 - "Synth Parameters" (最初の 32 個)、"More Synth Parameters" (残り)、"FX Parameters" も、それぞれ隠せます
 - ボタンやスライダーなどは、どのブラウザーや OS でも同じ見た目 (Chrome 相当) です。タッチ画面では、スライダーのつまみが大きく、ボタンが高くなります
 - Software Keyboard: マウス、タッチ、PC のキーボード (A - K が C - C、W - U が黒鍵、Z / X がオクターブ) で弾けます

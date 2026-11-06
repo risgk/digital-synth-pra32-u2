@@ -6,8 +6,9 @@
     - Filter Drive among the main parameters, in the place of Pitch Bend Range (and Pitch Bend Range in that of Filter Drive), in PRA32-U2 Editor, the chart, the JSON files, the Parameter Guide, and PRA32-U2 Native; "Randomize Synth" (Program Change #127) changes Filter Drive, and no longer Pitch Bend Range
     - PRA32-U2 Editor and PRA32-U2 Native: "Randomize FX" changes Distortion Drive too
     - PRA32-U2 Editor: "Synth Parameters" (the first 32), "More Synth Parameters" (the others), and "FX Parameters" can each be hidden (shown by default);
-      "Save & Load" (File and Store) is no longer under "Actions & Presets", and "Write & Program Change" (to PRA32-U2) is apart from "Save & Load", each shown or hidden apart (hidden by default);
+      "Save & Load" is now "Store & File" (Store, and File below it), no longer under "Actions & Presets", and "Write & Program Change" (to PRA32-U2) is apart from it, each shown or hidden apart (hidden by default);
       Store, Write, and Program Change are laid out as User Preset (each button right below that of the same number; Store with the name too)
+    - PRA32-U2 Editor: "Send Current" and "Panic" moved from Actions to next to MIDI Out (on the heading of "MIDI" while it is hidden)
     - Tested with Arduino-Pico version 6.3.0
 - v3.20.0 (2026-11-06):
     - PRA32-U2 Web: Add **"PRA32-U2/M Web (Built-in)"** (and with "+6 dB") to MIDI Out: PRA32-U2/M (the 4 synths) by the MIDI channels (the Basic Channel 1), with the Layering and the Round Robin
