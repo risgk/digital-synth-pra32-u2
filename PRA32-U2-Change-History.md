@@ -1,5 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v3.19.1 (2026-??-??):
+    - Tested with Arduino-Pico version 6.3.0
 - v3.19.0 (2026-11-06):
     - PRA32-U2/M: Add the **Round Robin**: the Mono synths played as a polyphonic synth, with the Layering (enabled by default); the channels with the Basic Channel 1:
         - Channel 12: 4 notes (the 4 synths); Channel 13: 3 notes (the Sub Synths 1-3)
