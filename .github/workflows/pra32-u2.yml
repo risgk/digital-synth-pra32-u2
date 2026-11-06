@@ -1,8 +1,8 @@
 # PRA32-U2 Build: the UF2 files ("bin/"), PRA32-U2 Native for Windows, macOS, and Linux (the GitHub Releases),
 # and PRA32-U2 Web ("pra32-u2-web-synth.js")
 # - UF2: built with arduino-cli (Ubuntu), the same as the Arduino IDE builds (see README.md)
-# - PRA32-U2 Native: built with Visual Studio 2022 (Windows), Xcode (macOS), and GCC (Linux),
-#   and validated with pluginval (and auval for AU) (see PRA32-U2-Native/README.md)
+# - PRA32-U2 Native (with "native" or "release_tag" only, as it takes the longest): built with Visual Studio 2022
+#   (Windows), Xcode (macOS), and GCC (Linux), and validated with pluginval (and auval for AU) (see PRA32-U2-Native/README.md)
 # - PRA32-U2 Web: built with Emscripten (Ubuntu), and tested with Node.js (see PRA32-U2-Web/README.md)
 # - PRA32-U2 Load Estimate (with "load_estimate" only): the table of PRA32-U2-Load-Estimate/README.md,
 #   in the summary of the run (about 12 min)
@@ -13,6 +13,10 @@ on:
     inputs:
       commit_package:
         description: 'Commit the UF2 files (bin/) and pra32-u2-web-synth.js on the selected branch'
+        type: boolean
+        default: false
+      native:
+        description: 'Build PRA32-U2 Native for Windows, macOS, and Linux, and validate it (about 10 min; always with release_tag)'
         type: boolean
         default: false
       release_tag:
@@ -79,6 +83,7 @@ jobs:
           path: uf2
 
   native-windows:
+    if: inputs.native || (inputs.release_tag != '')
     runs-on: windows-2022
     outputs:
       name: ${{ steps.package.outputs.name }}
@@ -122,6 +127,7 @@ jobs:
 
   # PRA32-U2 Native for macOS (Universal: arm64 and x86_64, VST3, AU, and Standalone)
   native-macos:
+    if: inputs.native || (inputs.release_tag != '')
     runs-on: macos-15
     outputs:
       name: ${{ steps.package.outputs.name }}
@@ -172,6 +178,7 @@ jobs:
 
   # PRA32-U2 Native for Linux (x64, VST3 and Standalone)
   native-linux:
+    if: inputs.native || (inputs.release_tag != '')
     runs-on: ubuntu-22.04  # The older glibc, so that the binaries run on more distributions
     outputs:
       name: ${{ steps.package.outputs.name }}
@@ -278,7 +285,7 @@ jobs:
 
   commit:
     if: inputs.commit_package
-    needs: [uf2, native-windows, native-macos, native-linux, web]
+    needs: [uf2, web]  # Not PRA32-U2 Native, which is built only with native or release_tag
     runs-on: ubuntu-latest
     permissions:
       contents: write

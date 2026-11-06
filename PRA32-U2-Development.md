@@ -114,9 +114,9 @@
     ./pra32-u2-m-make-wav-file-from-smf ../pra32-u2-sample.mid pra32-u2-sample.wav
     ```
 
-- GitHub Actions "PRA32-U2 Build" (".github/workflows/pra32-u2.yml", manual runs): builds the UF2 files, PRA32-U2 Native, and PRA32-U2 Web,
-  commits the UF2 files and PRA32-U2 Web to the selected branch with `commit_package`, and attaches the PRA32-U2 Native packages
-  to the GitHub Release of `release_tag` (they are not committed, as each is about 22 MB in the history; those of every run are in the artifacts of the run)
+- GitHub Actions "PRA32-U2 Build" (".github/workflows/pra32-u2.yml", manual runs): builds the UF2 files and PRA32-U2 Web, and PRA32-U2 Native
+  only with `native` or `release_tag` (it takes the longest, about 10 min); commits the UF2 files and PRA32-U2 Web to the selected branch
+  with `commit_package`, and attaches the PRA32-U2 Native packages to the GitHub Release of `release_tag` (they are not committed, as each is about 22 MB in the history; those of every run are in the artifacts of the run)
 
 
 ## Release
