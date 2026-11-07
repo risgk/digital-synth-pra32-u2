@@ -369,7 +369,7 @@ public:
   // Same mapping as PRA32_U2_Osc::set_drift(), so that the cutoff drifts by
   // the same amount as the Osc pitch
   INLINE void set_drift(uint8_t controller_value) {
-    m_cutoff_drift = (((controller_value + 1) >> 1) * 362) >> 5;
+    m_cutoff_drift = ((controller_value + 1) >> 1) << 3;
   }
 
   INLINE void reset() {
@@ -448,7 +448,7 @@ public:
     // phase none of the 8 oscillators uses, so that the drift of this voice is
     // not correlated with the drift of its oscillators
     if ((count & 0x07) == ((N + 2) & 0x07)) {
-      m_cutoff_drift_noise += ((noise_int23 << 8) - m_cutoff_drift_noise) >> 13;  // as PRA32_U2_Osc (about 5.4 s)
+      m_cutoff_drift_noise += ((noise_int23 << 8) - m_cutoff_drift_noise) >> 14;  // as PRA32_U2_Osc (about 11 s)
     }
 
     m_s_1 += noise_int23 >> SELF_OSC_NOISE_SHIFT;
@@ -569,7 +569,7 @@ private:
     eg_mod_target += (eg_input * (smoothed.m_cutoff_eg_amt_current[1] >> 9)) >> 7;
 
     // 4. Bound and lock final composite values into active controller value registers
-    int32_t drift_mod = multiply_shift_right((m_cutoff_drift_noise >> 16) * m_cutoff_drift, DRIFT_SCALE, 24);
+    int32_t drift_mod = multiply_shift_right((m_cutoff_drift_noise >> 15) * m_cutoff_drift, DRIFT_SCALE, 24);
     m_cutoff_current = clamp(smoothed.m_cutoff_base_current + lfo_mod_target + pitch_mod + eg_mod_target + drift_mod, 0, CONTROLLER_VALUE_Q16_MAX);
 
     // 5. Interpolate the coefficient tables and solve the zero-delay feedback

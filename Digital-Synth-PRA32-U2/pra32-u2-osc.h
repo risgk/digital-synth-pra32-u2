@@ -401,8 +401,7 @@ public:
   }
 
   INLINE void set_drift(uint8_t controller_value) {
-    // x 8 x sqrt(2) (362 / 32 = 11.3125), as the low pass of the noise (2^13) is 1 / sqrt(2) times as much as with 2^12
-    m_drift = (((controller_value + 1) >> 1) * 362) >> 5;
+    m_drift = ((controller_value + 1) >> 1) << 3;
   }
 
   INLINE void set_saw_wave_mode(uint8_t controller_value) {
@@ -831,14 +830,14 @@ if constexpr (RESTRICT_SQR_WT == false) {
   template <uint8_t N>
   INLINE void update_freq_offset(int32_t noise_int23) {
     // The noise smoothed by a one pole low pass at 1500 Hz (once every 8 counts), with a time constant of
-    // about 5.4 s (2^13 updates), so that the pitch wanders slowly, and a little within a held note too
+    // about 11 s (2^14 updates), so that the pitch wanders slowly
     // (about 1.4 cent RMS at 32, the Presets, 2.8 cent at 64, and 5.6 cent at 127)
-    m_drift_noise[N] += ((noise_int23 << 8) - m_drift_noise[N]) >> 13;
+    m_drift_noise[N] += ((noise_int23 << 8) - m_drift_noise[N]) >> 14;
 
     // The drift r (Q24) is applied as the frequency ratio e^r, so that the
     // pitch drifts by (1200 / ln 2) * r cents, up and down symmetrically, the
     // same as the Filter cutoff. e^r - 1 is approximated by r + r^2 / 2
-    int32_t drift_r = (m_drift_noise[N] >> 16) * m_drift;
+    int32_t drift_r = (m_drift_noise[N] >> 15) * m_drift;
     int32_t drift_ratio_minus_one = drift_r + multiply_shift_right(drift_r, drift_r, 25);
 
     m_freq_offset[N] = (N >> 2) << 1;

@@ -315,7 +315,7 @@
 - EG/Amp Rel = Dec [Off|On]
     - 0 (0-63): Off
     - 127 (64-127): On, EG Release = EG Decay and Amp Release = Amp Decay
-- Osc/Filter Drift: Randomly drifts the pitch of each oscillator, and the Filter Cutoff of each voice by the same amount (100 cent = 1 Cutoff value), wandering slowly (a time constant of about 5.4 s), and a little within a held note too
+- Osc/Filter Drift: Randomly drifts the pitch of each oscillator, and the Filter Cutoff of each voice by the same amount (100 cent = 1 Cutoff value), wandering slowly (a time constant of about 11 s)
     - 0: Off
     - 32: About 1.4 cent (RMS) (the Presets)
     - 64: About 2.8 cent (RMS)
