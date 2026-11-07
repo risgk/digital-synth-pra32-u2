@@ -369,7 +369,7 @@ public:
   // Same mapping as PRA32_U2_Osc::set_drift(), so that the cutoff drifts by
   // the same amount as the Osc pitch
   INLINE void set_drift(uint8_t controller_value) {
-    m_cutoff_drift = ((controller_value + 1) >> 1) << 3;
+    m_cutoff_drift = (((controller_value + 1) >> 1) * 362) >> 5;
   }
 
   INLINE void reset() {
@@ -448,7 +448,7 @@ public:
     // phase none of the 8 oscillators uses, so that the drift of this voice is
     // not correlated with the drift of its oscillators
     if ((count & 0x07) == ((N + 2) & 0x07)) {
-      m_cutoff_drift_noise += ((noise_int23 << 8) - m_cutoff_drift_noise) >> 14;
+      m_cutoff_drift_noise += ((noise_int23 << 8) - m_cutoff_drift_noise) >> 13;  // as PRA32_U2_Osc (about 5.4 s)
     }
 
     m_s_1 += noise_int23 >> SELF_OSC_NOISE_SHIFT;
