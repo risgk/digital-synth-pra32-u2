@@ -362,6 +362,12 @@ public:
     m_cutoff_breath_amt = get_cutoff_mod_amt(controller_value) << 1;
   }
 
+  // The drift of the cutoff starts from a random value, as PRA32_U2_Osc::start_drift(), and goes on
+  // through reset() (not back to 0), as that of the Osc
+  INLINE void start_drift(int32_t drift_noise) {
+    m_cutoff_drift_noise = drift_noise;
+  }
+
   INLINE void set_breath_controller(uint8_t controller_value) {
     m_breath_controller = (controller_value * 16384) / 127;
   }
@@ -376,7 +382,6 @@ public:
     m_s_1 = 0;
     m_s_2 = 0;
     m_dc_blocker = 0;
-    m_cutoff_drift_noise = 0;
     // The smoothing states jump to their targets while the sound is off, so
     // that the next note does not start with a slow filter sweep
     m_cutoff_target_stage_1 = m_cutoff_target_current = m_cutoff_target;
@@ -448,7 +453,7 @@ public:
     // phase none of the 8 oscillators uses, so that the drift of this voice is
     // not correlated with the drift of its oscillators
     if ((count & 0x07) == ((N + 2) & 0x07)) {
-      m_cutoff_drift_noise += ((noise_int23 << 8) - m_cutoff_drift_noise) >> 14;  // as PRA32_U2_Osc (about 11 s)
+      m_cutoff_drift_noise += ((noise_int23 << 8) - m_cutoff_drift_noise) >> 16;  // as PRA32_U2_Osc (about 44 s)
     }
 
     m_s_1 += noise_int23 >> SELF_OSC_NOISE_SHIFT;
@@ -569,7 +574,7 @@ private:
     eg_mod_target += (eg_input * (smoothed.m_cutoff_eg_amt_current[1] >> 9)) >> 7;
 
     // 4. Bound and lock final composite values into active controller value registers
-    int32_t drift_mod = multiply_shift_right((m_cutoff_drift_noise >> 15) * m_cutoff_drift, DRIFT_SCALE, 24);
+    int32_t drift_mod = multiply_shift_right((m_cutoff_drift_noise >> 14) * m_cutoff_drift, DRIFT_SCALE, 24);
     m_cutoff_current = clamp(smoothed.m_cutoff_base_current + lfo_mod_target + pitch_mod + eg_mod_target + drift_mod, 0, CONTROLLER_VALUE_Q16_MAX);
 
     // 5. Interpolate the coefficient tables and solve the zero-delay feedback

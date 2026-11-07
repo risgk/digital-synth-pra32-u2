@@ -1,6 +1,7 @@
 #pragma once
 
 #include "pra32-u2-common.h"
+#include "pra32-u2-noise-gen.h"
 #include "pra32-u2-osc-table.h"
 #include "pra32-u2-osc-sqr-shape-table.h"
 #include "pra32-u2-osc-wave-shape-table-0.h"
@@ -398,6 +399,22 @@ public:
 
   INLINE void set_fine_tune(uint8_t controller_value) {
     m_fine_tune = controller_value - 64;
+  }
+
+  // The drift of each oscillator starts from a random value with the spread it has after a long time,
+  // not from 0, which it would take a few minutes to leave: the sum of 4 noises (nearly a normal
+  // distribution) scaled to the RMS of the low pass of the noise (2^30 / sqrt(3) * sqrt(2^-17)),
+  // 181 / 512 of the sum. The noise is of a generator of its own with a fixed seed, so that it starts
+  // the same at every start
+  INLINE void start_drift(PRA32_U2_NoiseGen& noise_gen) {
+    for (uint32_t i = 0; i < sizeof(m_drift_noise) / sizeof(m_drift_noise[0]); ++i) {
+      m_drift_noise[i] = random_drift_noise(noise_gen);
+    }
+  }
+
+  static INLINE int32_t random_drift_noise(PRA32_U2_NoiseGen& noise_gen) {
+    int32_t sum = noise_gen.process() + noise_gen.process() + noise_gen.process() + noise_gen.process();
+    return ((sum >> 2) * 181) >> 7;
   }
 
   INLINE void set_drift(uint8_t controller_value) {
@@ -830,14 +847,15 @@ if constexpr (RESTRICT_SQR_WT == false) {
   template <uint8_t N>
   INLINE void update_freq_offset(int32_t noise_int23) {
     // The noise smoothed by a one pole low pass at 1500 Hz (once every 8 counts), with a time constant of
-    // about 11 s (2^14 updates), so that the pitch wanders slowly
-    // (about 1.4 cent RMS at 32, the Presets, 2.8 cent at 64, and 5.6 cent at 127)
-    m_drift_noise[N] += ((noise_int23 << 8) - m_drift_noise[N]) >> 14;
+    // about 44 s (2^16 updates), so that the pitch wanders very slowly, as a slight difference of each
+    // oscillator that changes over a piece (about 1.4 cent RMS at 32, the Presets, 2.8 cent at 64, and
+    // 5.6 cent at 127); it starts from a random value of the same spread (see start_drift())
+    m_drift_noise[N] += ((noise_int23 << 8) - m_drift_noise[N]) >> 16;
 
     // The drift r (Q24) is applied as the frequency ratio e^r, so that the
     // pitch drifts by (1200 / ln 2) * r cents, up and down symmetrically, the
     // same as the Filter cutoff. e^r - 1 is approximated by r + r^2 / 2
-    int32_t drift_r = (m_drift_noise[N] >> 15) * m_drift;
+    int32_t drift_r = (m_drift_noise[N] >> 14) * m_drift;
     int32_t drift_ratio_minus_one = drift_r + multiply_shift_right(drift_r, drift_r, 25);
 
     m_freq_offset[N] = (N >> 2) << 1;

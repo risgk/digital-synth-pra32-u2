@@ -368,7 +368,24 @@ public:
     m_lfo_osc_amt = 64;
   }
 
+  // Not in RAM, as it runs only at the start (initialize() is in RAM)
+  __attribute__((noinline)) void start_drifts() {
+    // The drifts start from random values, the same at every start (see PRA32_U2_Osc::start_drift()),
+    // by a generator of their own (not the noise of the synth), with a seed apart from those of the synths:
+    // 84 + SYNTH_ID, with which the start values of the 4 synths are as spread as the drift (about
+    // 1.3 cent RMS at 32) and none of them far out (within 2.6 cent at 32), those of the 1st voice within
+    // 0.7 cent (the voice of the Mono modes)
+    PRA32_U2_NoiseGen drift_noise_gen(84 + SYNTH_ID);
+    m_osc.start_drift(drift_noise_gen);
+    m_filter[0].start_drift(PRA32_U2_Osc::random_drift_noise(drift_noise_gen));
+    m_filter[1].start_drift(PRA32_U2_Osc::random_drift_noise(drift_noise_gen));
+    m_filter[2].start_drift(PRA32_U2_Osc::random_drift_noise(drift_noise_gen));
+    m_filter[3].start_drift(PRA32_U2_Osc::random_drift_noise(drift_noise_gen));
+  }
+
   /* INLINE */ void __not_in_flash_func(initialize)() {
+    start_drifts();
+
     std::memcpy(m_program_table[OSC_1_WAVE     ], g_preset_table_OSC_1_WAVE     , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[MIXER_SUB_OSC  ], g_preset_table_MIXER_SUB_OSC  , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[OSC_1_SHAPE    ], g_preset_table_OSC_1_SHAPE    , sizeof(m_program_table[0]));

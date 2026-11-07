@@ -5,7 +5,9 @@
         - Not compatible: a user program with Filter Mode other than LP (written before) sounds otherwise (e.g. the High Pass, 127, is now LP: set it to 64); the Presets are LP (0), as before
     - Filter Drive among the main parameters, in the place of Pitch Bend Range (and Pitch Bend Range in that of Filter Drive), in PRA32-U2 Editor, the chart, the JSON files, the Parameter Guide, and PRA32-U2 Native; "Randomize Synth" (Program Change #127) changes Filter Drive, and no longer Pitch Bend Range
     - PRA32-U2 Editor and PRA32-U2 Native: "Randomize FX" changes Distortion Drive too
-    - Osc/Filter Drift drifts by 2 times as much at a value (about 1.4 cent RMS at 32, 2.8 cent at 64, and 5.6 cent at 127); the Presets are 32 (64 before), drifting by as much as before
+    - Osc/Filter Drift drifts by 2 times as much at a value (about 1.4 cent RMS at 32, 2.8 cent at 64, and 5.6 cent at 127); the Presets are 32 (64 before), drifting by as much as before;
+      it wanders about 4 times as slowly (a time constant of about 44 s, from about 11 s), and starts from a random value of the same spread (the same at every start), not from 0;
+      the drift of the cutoff is no longer reset to 0 by All Sound Off (and a change of Voice Mode or Voice Assign Mode), as that of the pitch
         - Not compatible: a user program with Osc/Filter Drift (written before) drifts by 2 times as much (e.g. 64, the Presets before, is now 2.8 cent: set it to 32)
     - Presets: Stretch Tune +8 (72), half the stretch of before (+16, 80): +4.7 cent at note number 108 and -4.7 cent at note number 12
     - PRA32-U2 Editor: "Synth Parameters" (the first 32), "More Synth Parameters" (the others), and "FX Parameters" can each be hidden (shown by default);
