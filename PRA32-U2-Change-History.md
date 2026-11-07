@@ -7,6 +7,7 @@
     - PRA32-U2 Editor and PRA32-U2 Native: "Randomize FX" changes Distortion Drive too
     - Osc/Filter Drift wanders about 2 times as fast (a time constant of about 5.4 s, from about 11 s), a little within a held note too, and by 2 times as much at a value (about 1.4 cent RMS at 32, 2.8 cent at 64, and 5.6 cent at 127); the Presets are 32 (64 before), drifting by as much as before
         - Not compatible: a user program with Osc/Filter Drift (written before) drifts by 2 times as much (e.g. 64, the Presets before, is now 2.8 cent: set it to 32)
+    - Presets: Stretch Tune +8 (72), half the stretch of before (+16, 80): +4.7 cent at note number 108 and -4.7 cent at note number 12
     - PRA32-U2 Editor: "Synth Parameters" (the first 32), "More Synth Parameters" (the others), and "FX Parameters" can each be hidden (shown by default);
       "Save & Load" is now "Store & File" (Store, and File below it), no longer under "Actions & Presets", and "Write & Program Change" (to the device) is apart from it, each shown or hidden apart (hidden by default);
       Store, Write, and Program Change are laid out as User Preset (each button right below that of the same number; Store with the name too), with Write and Program Change "(to Device)"

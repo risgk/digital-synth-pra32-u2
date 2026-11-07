@@ -375,6 +375,7 @@
     - -64 (0): -37.5 cent at note number 108 (+37.5 cent at note number 12) (min)
     - -32 (32): -18.8 cent at note number 108 (+18.8 cent at note number 12)
     - +0 (64): +0 cent
+    - +8 (72): +4.7 cent at note number 108 (-4.7 cent at note number 12) (the Presets)
     - +16 (80): +9.4 cent at note number 108 (-9.4 cent at note number 12)
     - +32 (96): +18.8 cent at note number 108 (-18.8 cent at note number 12)
     - +63 (127): +36.9 cent at note number 108 (-36.9 cent at note number 12) (max)
