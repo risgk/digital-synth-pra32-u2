@@ -76,8 +76,8 @@ Resonance 122, k turns negative and the loop oscillates. Filter Drive multiplies
 2^(value / 24), 1.0 at 0, 4.0 at 48, 32.0 at 120, and 39.2 at 127, which drives the loop and its leak harder, and divides
 what leaves the loop by the same ahead of the output clip, so that the level stays and the Drive
 changes the tone alone; the Presets are at 0 (1.0). With it, the output is lowered by the
-Resonance above 96 (-2.8 dB at 122, and -6.0 dB at 127, where the self-oscillation, 0.5 in the
-loop, comes out at 0.25), so that a high Resonance is about as loud as 96, while the loop is as
+Resonance above 96 (-2.8 dB at 122, and -4.4 dB at 127, where the self-oscillation, 0.5 in the
+loop, comes out at 0.3), so that a high Resonance is about as loud as 96, while the loop is as
 it was.
 
 ```mermaid

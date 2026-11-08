@@ -145,10 +145,12 @@
     - 120: Q = 152
     - 122: Q = 256
     - 123: Self-oscillation (peak level 0.15 out of the Filter; 0.22 in the loop)
-    - 125: Self-oscillation (peak level 0.20 out of the Filter; 0.39 in the loop)
-    - 127: Self-oscillation (peak level 0.25 out of the Filter; 0.50 in the loop) (max)
+    - 124: Self-oscillation (peak level 0.21 out of the Filter; 0.32 in the loop)
+    - 125: Self-oscillation (peak level 0.25 out of the Filter; 0.39 in the loop)
+    - 126: Self-oscillation (peak level 0.28 out of the Filter; 0.45 in the loop)
+    - 127: Self-oscillation (peak level 0.30 out of the Filter; 0.50 in the loop) (max)
         - NOTE: The full scale is 1.0 (e.g. the peak level of the Osc 1 Saw Wave is 0.25)
-    - Above 96, the output of the Filter is lowered with the Resonance (-1.3 dB at 108, -2.8 dB at 122, -3.5 dB at 123, and -6.0 dB at 127), so that a high Resonance is about as loud as 96; how readily the self-oscillation holds against the input follows its level in the loop, as before
+    - Above 96, the output of the Filter is lowered with the Resonance (-1.3 dB at 108, -2.8 dB at 122, -3.5 dB at 123, -3.8 dB at 125, and -4.4 dB at 127), so that a high Resonance is about as loud as 96; how readily the self-oscillation holds against the input follows its level in the loop, as before
     - The self-oscillation fades out as the cutoff (including the modulation) rises from the Cutoff 111 (f = 7.9 kHz) to 116 (f = 10.5 kHz), and above that the Resonance 123-127 acts as 122
     - A loud input near the cutoff (e.g. the Square or the Multi Saw) weakens or stops the self-oscillation, and an input harmonic near it pulls it to the pitch of that harmonic
     - NOTE: With a high Resonance (about 112 or above), chords can still get louder, and the Output Compressor lowers the level; if it is too much, lower the "Amp Gain"

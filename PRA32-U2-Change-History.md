@@ -9,6 +9,7 @@
       it wanders about 4 times as slowly (a time constant of about 44 s, from about 11 s), and starts from a random value of the same spread (the same at every start), not from 0;
       the drift of the cutoff is no longer reset to 0 by All Sound Off (and a change of Voice Mode or Voice Assign Mode), as that of the pitch
         - Not compatible: a user program with Osc/Filter Drift (written before) drifts by 2 times as much (e.g. 64, the Presets before, is now 2.8 cent: set it to 32)
+    - Filter: The self-oscillation 0.3 at most (0.25 before): 0.15 at the Resonance 123 (as before), 0.21 at 124, 0.25 at 125, 0.28 at 126, and 0.3 at 127, with the output of the Filter lowered less at a high Resonance (-4.4 dB at 127, from -6.0 dB) and more at each step up
     - Presets: Stretch Tune +8 (72), half the stretch of before (+16, 80): +4.7 cent at note number 108 and -4.7 cent at note number 12
     - PRA32-U2 Editor: "Synth Parameters" (the first 32), "More Synth Parameters" (the others), and "FX Parameters" can each be hidden (shown by default);
       "Save & Load" is now "Store & File" (Store, and File below it), no longer under "Actions & Presets", and "Write & Program Change" (to the device) is apart from it, each shown or hidden apart (hidden by default);
