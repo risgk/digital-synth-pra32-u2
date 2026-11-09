@@ -377,8 +377,8 @@
     - 102 (90-115): Voice Off (VOf), An LFO for each Voice, free running; the note on of the Voice restarts its fade
     - 127 (116-127): Voice Auto (VAu), An LFO for each Voice; the note on of the Voice restarts its phase of Saw, S&H, and Square, and its fade (Triangle and Sine run on)
     - NOTE: A restarted phase starts from the center going up (Triangle and Sine), or from the top (Saw and Square); S&H takes a new value
-    - NOTE: The LFOs of the Voices start a quarter apart (at the start, and at All Sound Off), and the LFO of Voice N runs a little faster, by about 0.0007 Hz x N, so that they drift apart over minutes; the Red Noise is shared. The 4 Synths of PRA32-U2/M are the same: Synth N starts at N / 4 and runs faster by about 0.0007 Hz x N, as Voice N of the Main Synth
-    - NOTE: In the Monophonic modes (Voice Mode: Mon, LP, and Lgt), which play Voice 0, VOn, VOf, and VAu work as On, Off, and Aut
+    - NOTE: The LFOs of the Voices start a quarter apart (at the start, and at All Sound Off), and the LFO of Voice N (1-4) runs a little faster, by about 0.0007 Hz x (N - 1), so that they drift apart over minutes; the Red Noise is shared. The 4 Synths of PRA32-U2/M are the same: Sub Synth N (1-3) starts at N / 4 and runs faster by about 0.0007 Hz x N, as Voice N + 1 of the Main Synth
+    - NOTE: In the Monophonic modes (Voice Mode: Mon, LP, and Lgt), which play Voice 1, VOn, VOf, and VAu work as On, Off, and Aut
 - Stretch Tune [-|+]
     - -64 (0): -37.5 cent at note number 108 (+37.5 cent at note number 12) (min)
     - -32 (32): -18.8 cent at note number 108 (+18.8 cent at note number 12)

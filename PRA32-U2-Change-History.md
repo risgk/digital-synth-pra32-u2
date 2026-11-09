@@ -12,7 +12,7 @@
     - Filter: The self-oscillation 0.3 at most (0.25 before): 0.15 at the Resonance 123 (as before), 0.21 at 124, 0.25 at 125, 0.28 at 126, and 0.3 at 127, with the output of the Filter lowered less at a high Resonance (-4.4 dB at 127, from -6.0 dB) and more at each step up
     - Add **LFO Trig Mode** [Aut|Off|On|VOn|VOf|VAu] (Control Change #88): how a note on restarts the LFO, and an LFO for each Voice (VOn, VOf, and VAu); Aut (the Presets) as before
         - PRA32-U2 Editor, PRA32-U2 Native, and the control panel of PRA32-U2/P (Page A-27) too
-        - PRA32-U2/M: The LFOs of the 4 Synths start a quarter apart (Synth N at N / 4, at the start and at All Sound Off), as the LFOs of the Voices; with the rates a little apart (as before), Sub Synth N runs as Voice N of the Main Synth
+        - PRA32-U2/M: The LFOs of the 4 Synths start a quarter apart (Sub Synth N at N / 4, at the start and at All Sound Off), as the LFOs of the Voices; with the rates a little apart (as before), Sub Synth N runs as Voice N + 1 of the Main Synth
     - Osc: The phases of Osc 1 and Osc 2 start from random values (the same at every start), not 0, and go back to them at All Sound Off (Osc 1 to 0 before), so that the oscillators do not start in phase with each other
     - Presets: Stretch Tune +8 (72), half the stretch of before (+16, 80): +4.7 cent at note number 108 and -4.7 cent at note number 12
     - PRA32-U2 Editor: "Synth Parameters" (the first 32), "More Synth Parameters" (the others), and "FX Parameters" can each be hidden (shown by default);
