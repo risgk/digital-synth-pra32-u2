@@ -151,6 +151,20 @@ input[type="range"]:hover::-webkit-slider-thumb {
 input[type="range"]:hover::-moz-range-thumb {
   background: var(--pra32-color-dark);
 }
+/* Until its value is shown (the class "ready" set by updateSliderFill()), a slider shows only the empty track:
+   no thumb in the middle (the default value of an input) nor the fill, before the value comes */
+input[type="range"]:not(.ready)::-webkit-slider-runnable-track {
+  background: #efefef;
+}
+input[type="range"]:not(.ready)::-moz-range-progress {
+  background: transparent;
+}
+input[type="range"]:not(.ready)::-webkit-slider-thumb {
+  opacity: 0;
+}
+input[type="range"]:not(.ready)::-moz-range-thumb {
+  opacity: 0;
+}
 
 /* On a touch screen the thumbs are larger (24px), the sliders longer (157px) so that the thumb still moves 127px,
    and the value labels narrower (48px), so that a parameter is as wide as before (230px); the buttons taller (30px) */
@@ -2152,6 +2166,7 @@ function fitButtonsWidth(selector, property) {
 // The track of a slider filled up to its thumb (see input[type="range"])
 function updateSliderFill(input) {
   input.style.setProperty("--fill", (input.value - input.min) / (input.max - input.min));
+  input.classList.add("ready");
 }
 
 function setupSliderFill() {
