@@ -92,7 +92,7 @@ const PRA32U2Engine::ParameterInfo s_parameter_names[] = {
 
   { A_D_KEY_TRK    , "EG Att/Dec Key Track [-|+]"             },
   { VOICE_ASGN_MODE, "Voice Assign Mode [1|1|3|3|4|2]"        },
-  { PAN            , "Pan"                                    },
+  { LFO_TRIG_MODE  , "LFO Trig Mode [Aut|Off|On|VOn|VOf|VAu]" },
   { STRETCH_TUNE   , "Stretch Tune [-|+]"                     },
 
   { BTH_FILTER_AMT , "Breath Filter Amt [-|+]"                },
@@ -100,6 +100,7 @@ const PRA32U2Engine::ParameterInfo s_parameter_names[] = {
   { AFT_T_LFO_AMT  , "After Touch LFO Amt"                    },
   { PORTA_MODE     , "Portamento Mode [Sw|Aut]"               },
   { OSC_SAW_W_MODE , "Osc Saw Wave Mode [Str|Cur]"            },
+  { PAN            , "Pan"                                    },
 
   { DISTORTION     , "Distortion Drive"                       },
   { FX_ROUTING     , "FX Routing [Dst|Cho|Dly|Dly|Cmp|Dry]"   },
@@ -174,6 +175,7 @@ int PRA32U2Engine::getMarkers(uint8_t controlNumber, const uint8_t** markerValue
   case EG_OSC_DST      :
   case VOICE_MODE      :
   case LFO_WAVE        :
+  case LFO_TRIG_MODE   :
   case LFO_OSC_DST     :
   case VOICE_ASGN_MODE :
   case BTH_AMP_MOD     :
@@ -255,6 +257,7 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value) {
   static const char* const SAW_W_MODES[2]  = { "Str", "Cur" };
   static const char* const PORTA_MODES[2]  = { "Sw", "Aut" };
   static const char* const BTH_AMP_MODS[6] = { "Off", "Q", "L", "LO", "QO", "Opn" };
+  static const char* const LFO_TRIG_MODES[6] = { "Aut", "Off", "On", "VOn", "VOf", "VAu" };
   static const char* const FX_ROUTINGS[6]  = { "Dst", "Cho", "Dly", "Dly", "Cmp", "Dry" };
   static const char* const ASGN_MODES[6]   = { "1", "1", "3", "3", "4", "2" };
   static const char* const DELAY_MODES[3]  = { "Ste", "PP", "Rev" };
@@ -291,6 +294,7 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value) {
   case REL_EQ_DECAY    : dispValue = select2(v, OFF_ON);             break;
   case OSC_SAW_W_MODE  : dispValue = select2(v, SAW_W_MODES);        break;
   case PORTA_MODE      : dispValue = select2(v, PORTA_MODES);        break;
+  case LFO_TRIG_MODE   : dispValue = select6(v, LFO_TRIG_MODES);      break;
   case BTH_AMP_MOD     : dispValue = select6(v, BTH_AMP_MODS);       break;
   case FX_ROUTING      : dispValue = select6(v, FX_ROUTINGS);        break;
   case VOICE_ASGN_MODE : dispValue = select6(v, ASGN_MODES);         break;

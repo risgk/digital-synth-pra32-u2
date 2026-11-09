@@ -130,6 +130,7 @@ const uint8_t   BTH_FILTER_AMT  = 60;
 const uint8_t   BTH_AMP_MOD     = 61;
 const uint8_t   AFT_T_LFO_AMT   = 37;
 const uint8_t   PORTA_MODE      = 34;
+const uint8_t   LFO_TRIG_MODE   = 88;
 const uint8_t   P_BEND_RANGE    = 57;
 
 const uint8_t   DISTORTION      = 95;

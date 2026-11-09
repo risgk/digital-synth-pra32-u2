@@ -178,7 +178,7 @@
 | A-24 LFO a     | LFO Wave             | LFO Fade Time        |
 | A-25 LFO b     | LFO Rate             | LFO Depth            |
 | A-26 LFO c     | LFO Mod Amt          | LFO Mod Dst          |
-| A-27 LFO d     | LFO Filter Amt       |                      |
+| A-27 LFO d     | LFO Filter Amt       | LFO Trig Mode        |
 | A-28 Breath    | Breath Filter Amt    | Breath Amp Mode      |
 | A-29 Aft Touch | Aft Touch LFO Amt    |                      |
 | A-30 FX        | Distortion Drive     | FX Routing           |

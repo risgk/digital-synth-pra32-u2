@@ -989,6 +989,14 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
       result = true;
     }
     break;
+  case LFO_TRIG_MODE   :
+    {
+      static const char ary[6][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"Aut","Off"," On","VOn","VOf","VAu"};
+      uint32_t index = ((controller_value * 10) + 128) >> 8;
+      PRA32_U2_ControlPanel_copy_text(value_display_text, ary[index]);
+      result = true;
+    }
+    break;
   case FX_ROUTING      :
     {
       static const char ary[6][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"Cho","Cho","Dly","Dly","Cmp","Dry"};

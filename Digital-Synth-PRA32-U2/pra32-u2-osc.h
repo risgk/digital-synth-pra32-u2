@@ -486,9 +486,14 @@ public:
     return clamp(pitch_temp, NOTE_NUMBER_MIN << 16, NOTE_NUMBER_MAX << 16);
   }
 
-  template <uint8_t N>
-  INLINE void reset() {
-    m_phase[N] = 0;
+  // The phases of Osc 1 and Osc 2 of every Voice from random values (the same at every start, by a
+  // generator with a fixed seed), so that the oscillators, free running as on an analog synth, do not
+  // start in phase with each other (e.g. Osc 1 and Osc 2 of the first notes after the start); also at
+  // All Sound Off, back to the same values (a known state, as the reset to 0 did before)
+  INLINE void start_phases(PRA32_U2_NoiseGen& noise_gen) {
+    for (uint32_t i = 0; i < sizeof(m_phase) / sizeof(m_phase[0]); ++i) {
+      m_phase[i] = static_cast<uint32_t>(noise_gen.process()) << 9;
+    }
   }
 
   // RESTRICT_SQR_WT: as for process(), where the Shape and the Morph of Sqr and WT are not used

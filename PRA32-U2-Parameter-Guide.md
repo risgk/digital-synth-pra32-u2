@@ -249,6 +249,7 @@
     - 77 (64-89): Monophonic (EG & LFO Multi Trigger)
     - 102 (90-115): Legato Portamento (Monophonic, EG & LFO Single Trigger, Auto Portamento)
     - 127 (116-127): Legato (Monophonic, EG & LFO Single Trigger)
+    - NOTE: The LFO triggers as above with "LFO Trig Mode" Aut (the Presets); see it for the others
 - Portamento Time
     - 0: 0 ms
     - 1: 1.07 ms
@@ -262,6 +263,7 @@
     - 77 (64-89): Saw Wave (Key Trigger On, -0.5 to +0.5)
     - 102 (90-115): Sample & Hold (Key Trigger On, -0.5 to +0.5)
     - 127 (116-127): Square Wave (Key Trigger On, 0.0 to 1.0)
+    - NOTE: Key Trigger On/Off is with "LFO Trig Mode" Aut (the Presets) and VAu; with On and VOn, every wave is key triggered
 - LFO Fade Time
     - 0: 0 ms (min)
     - 32: 309 ms
@@ -367,12 +369,16 @@
     - 77 (64-89): Mode 3, Reuse note-off voices, Free voice with next number has priority (Round Robin), Release and polyphonic after touch are effective
     - 102 (90-115): Mode 4, Reuse note-off voices, Free voice with small number has priority, Portamento and polyphonic after touch are effective
     - 127 (116-127): Mode 2, Free voice with small number has priority, Portamento is effective
-- Pan: Constant power panning
-    - -64 (0-1): Left (L +3.0 dB, R Off) (min)
-    - -32 (32): L +2.3 dB, R -5.5 dB
-    - +0 (64): Center (L 0 dB, R 0 dB)
-    - +32 (96): L -5.5 dB, R +2.3 dB
-    - +63 (127): Right (L Off, R +3.0 dB) (max)
+- LFO Trig Mode [Aut|Off|On|VOn|VOf|VAu]: How a note on restarts the LFO (its phase, and the LFO Fade Time), and whether the Voices share the LFO
+    - 0 (0-12): Auto (Aut, the Presets), The LFO of all the Voices; the phase of Saw, S&H, and Square, and the fade, restart at the first note on (Polyphonic and Legato) or every note on (Monophonic), as before (see Voice Mode and LFO Wave)
+    - 26 (13-38): Off, The LFO of all the Voices, free running; the fade restarts as in Aut
+    - 51 (39-63): On, The LFO of all the Voices; every note on restarts the phase (of every wave) and the fade
+    - 77 (64-89): Voice On (VOn), An LFO for each Voice; the note on of the Voice restarts its phase (of every wave) and its fade
+    - 102 (90-115): Voice Off (VOf), An LFO for each Voice, free running; the note on of the Voice restarts its fade
+    - 127 (116-127): Voice Auto (VAu), An LFO for each Voice; the note on of the Voice restarts its phase of Saw, S&H, and Square, and its fade (Triangle and Sine run on)
+    - NOTE: A restarted phase starts from the center going up (Triangle and Sine), or from the top (Saw and Square); S&H takes a new value
+    - NOTE: The LFOs of the Voices start a quarter apart (at the start, and at All Sound Off), and the LFO of Voice N runs a little faster, by about 0.0007 Hz x N, so that they drift apart over minutes; the Red Noise is shared. The 4 Synths of PRA32-U2/M are the same: Synth N starts at N / 4 and runs faster by about 0.0007 Hz x N, as Voice N of the Main Synth
+    - NOTE: In the Monophonic modes (Voice Mode: Mon, LP, and Lgt), which play Voice 0, VOn, VOf, and VAu work as On, Off, and Aut
 - Stretch Tune [-|+]
     - -64 (0): -37.5 cent at note number 108 (+37.5 cent at note number 12) (min)
     - -32 (32): -18.8 cent at note number 108 (+18.8 cent at note number 12)
@@ -410,6 +416,12 @@
 - Osc Saw Wave Mode [Str|Cur]
     - 0 (0-63): Straight Saw Wave
     - 127 (64-127): Curved Saw Wave, This does not affect the Pulse Wave
+- Pan: Constant power panning
+    - -64 (0-1): Left (L +3.0 dB, R Off) (min)
+    - -32 (32): L +2.3 dB, R -5.5 dB
+    - +0 (64): Center (L 0 dB, R 0 dB)
+    - +32 (96): L -5.5 dB, R +2.3 dB
+    - +63 (127): Right (L Off, R +3.0 dB) (max)
 - Distortion Drive: The drive into the Distortion FX, 2^(value / 24) (6 dB every 24 values; x 4 at 48, x 32 at 120, x 39.2 at 127), for the synths whose FX Routing is Dst; the output is lowered by 15/16 of the drive in dB up to 96 (x 16), and by as much as there above it, where most of a sound is past the shoulder already, so that the level stays within about 2 dB as the drive goes up (a single quiet note gets a few dB louder at the top) (a little up halfway, and a little down where it saturates hard). The shoulder below zero is shorter than above (even harmonics too), the aliasing is reduced by ADAA (antiderivative anti-aliasing), and a tone (a 1-pole low pass) after it takes the edge off the harmonics, more with more drive (none at 0, about 10 kHz at 64, 5 kHz at 127)
     - NOTE: On a single note of the Saw Wave, which has every harmonic already, the Distortion changes the tone little; it is heard best on a chord (from a Distortion Drive of about 30 up, with the Presets), with a high Filter Resonance (about 110 or above, from a Distortion Drive of about 72 up), or with the Sine or the Triangle Wave
     - 0: x 1.00 (0 dB, min, the Presets: a sound below full scale passes as it is)
