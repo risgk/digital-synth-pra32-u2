@@ -50,6 +50,8 @@
 ## Synthesizer Block Diagram
 
 Thick arrows carry the stereo audio (L / R), from the Panner on.
+Each Voice has its own LFO; the LFO of Voice 1 drives all the Voices with LFO Trig Mode Aut, Off, or On,
+and the LFO of each Voice drives the Voice with VOn, VOf, or VAu.
 
 ```mermaid
 graph LR
@@ -60,12 +62,13 @@ graph LR
         V1F --> V1A[Amp]
         E[EG] -.-> V1O1 & V1O2 & V1F & V1A
         V1AE[Amp EG] -.-> V1A
+        L["LFO w/ S/H<br/>(also Voices 2-4 in<br/>Aut / Off / On)"] -.-> V1O1 & V1O2 & V1F
     end
     V1A --> VM[Voice Mixer]
     V2[Voice 2] & V3[Voice 3] & V4[Voice 4] --> VM
     N[Noise Gen]  --> V1O2 & V1OM & V2 & V3 & V4
-    N -.-> L[LFO w/ S/H]
-    L -.-> V1O1 & V1O2 & V1F & V2 & V3 & V4
+    N -.-> L
+    L -.-> V2 & V3 & V4
     VM --> J1((A))
 ```
 
