@@ -110,6 +110,8 @@ the Lite with Osc 1 Wave Sin in #5 Sync Lead (Sqr is lighter there)
 | :-- | --: | --: | --: | --: | --: | --: |
 | | 384812 (73%) | 487628 (93%) | 406320 (77%) | 510156 (97%) | 343504 (65%) | 429728 (81%) |
 
+On the device on the way to v3.21.0 (331a179b, PRA32-U2/M/P with the 6 keys and the Panel Channel, Debug Print `max(loop)`): 4 Synths: #5 Sync Lead (Mono, and Delay Mode Rev) by MIDI Channel 16 (Layering), 4 notes, 1087 us (82%; `min(loop)` 1072 us; `max(audio)` 1061 us; `underruns` 0), about the same as on the way to v3.19.0 below
+
 On the device on the way to v3.19.0 (a5f1f60b, PRA32-U2/M/P, Debug Print `max(loop)`): 4 Synths: #5 Sync Lead (Mono, and Delay Mode Rev) by MIDI Channel 16 (Layering), 4 notes, 1083 us (81%; `min(loop)` 1064 us; `max(audio)` 1052 us; `underruns` 0), more than the estimate (76% / 74%)
 
 On the device (v3.18.0, PRA32-U2/M/P, Debug Print `max(loop)`): 4 Synths: #5 Sync Lead (Mono, and Delay Mode Rev) by MIDI Channel 16 (Layering), 4 notes, 1272 us (95%; `min(loop)` 1248 us; `max(audio)` 1243 us; `underruns` 0), more than the estimate (87% / 75%)
