@@ -3715,12 +3715,12 @@ function getStoredCCValueString(index, number) {
 <div class="misc-group"><span>Actions</span><div class="misc-buttons">
 <button type="button" onclick="panelRandomizeSteps(16)">Seq Randomize Pitch</button>
 <button type="button" onclick="panelRandomizeSteps(24)">Seq Randomize Velo</button>
-<button type="button" onclick="panelInitValues()">Initialize</button>
 <button type="button" id="buttonPanelUndo" onclick="panelUndo()" title="Back to the panel parameters before the last change (Seq Randomize Pitch/Velo, Initialize, User Preset, Import, or a move of a slider or a check box) (Ctrl+Z, with the focus here)">Undo</button>
 <button type="button" id="buttonPanelRedo" onclick="panelRedo()" title="Forward again to the panel parameters before Undo (Ctrl+Y or Ctrl+Shift+Z, with the focus here)">Redo</button></div></div>
 </div>
 <div class="section misc">
 <div class="misc-group"><span>Store &amp; Write</span><div class="misc-buttons">
+<button type="button" onclick="panelInitValues()">Initialize</button>
 <button type="button" id="buttonPanelRecall" onclick="panelRecall()">User Preset (from Browser)</button>
 <button type="button" id="buttonPanelStore" onclick="panelStore()">Store (to Browser)</button>
 <input type="file" id="filePanelImport" style="display:none" accept=".json">
