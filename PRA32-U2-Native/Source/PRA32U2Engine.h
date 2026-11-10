@@ -30,7 +30,7 @@ public:
   // The text of a controller value, the same as PRA32-U2 Editor (e.g. "26 [Sqr]", "67 [+3]", or "100")
   static std::string getValueText(uint8_t controlNumber, uint8_t value);
 
-  // m: PRA32-U2/M, the 4 synths by the MIDI channels (only if built with PRA32_U2_ENGINE_M, for PRA32-U2/M Web;
+  // m: PRA32-U2/M, the 4 synths by the MIDI channels (only if built with PRA32_U2_ENGINE_M, for PRA32-U2/M/P Web;
   // one at most in a process)
   explicit PRA32U2Engine(bool m = false);
   ~PRA32U2Engine();

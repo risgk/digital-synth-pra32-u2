@@ -125,11 +125,11 @@ graph LR
         - "PRA32-U2 Web (Built-in, +6 dB)": 6 dB louder, closer to other sounds (the peaks above -2 dBFS rounded off)
             - Without "+6 dB", it sounds as PRA32-U2 does (e.g. to compare with it)
             - With a high Amp Gain, the peaks rounded off can be heard as a little distortion
-    - Select "PRA32-U2/M Web (Built-in)" (or with "+6 dB") to use PRA32-U2/M (the 4 synths) in PRA32-U2 Web
+    - Select "PRA32-U2/M/P Web (Built-in)" (or with "+6 dB") to use PRA32-U2/M (the 4 synths) in PRA32-U2 Web
         - The Basic Channel is 1 (it cannot be changed): select the synth to edit in "MIDI Ch" (see the channels of PRA32-U2/M below)
         - The Main Synth starts with the program #0 and the Sub Synths 1-3 with #1-3, as PRA32-U2/M does;
           the Sub Synths sound only while the Main Synth is not in Poly
-    - Nothing is sent when an output is selected (PRA32-U2 Web too): "Send Current" (next to MIDI Out) sends the parameters of PRA32-U2 Editor (one set) to the synth of "MIDI Ch"
+    - Nothing is sent when an output is selected (PRA32-U2 Web too): "Send Current" (on the heading of "MIDI") sends the parameters of PRA32-U2 Editor (one set) to the synth of "MIDI Ch"
 
 
 ### Programs and Presets
@@ -166,8 +166,9 @@ graph LR
 - Current parameter values and user presets (#0-15) can be imported/exported from/to JSON files
 - User presets: a name of up to 10 ASCII letters, digits, and symbols can be given by Store (shown on the User Preset buttons and the Store buttons)
 - Undo: back to the parameters before the last change (a preset, Randomize, Import, or a move of a slider), up to 200 steps; Redo: forward again (also by Ctrl+Z and Ctrl+Y or Ctrl+Shift+Z, or Command on a Mac)
-- "MIDI", "Actions & Presets", "Store & File", and "Write & Program Change" can each be hidden, to give the parameters more of the window (while "MIDI" is hidden, Send Current is on its heading)
+- "MIDI", "Actions & Presets", "Store & File", and "Write & Program Change" can each be hidden, to give the parameters more of the window (Send Current is on the heading of "MIDI", shown while it is hidden too)
 - "Synth Parameters" (the first 32), "More Synth Parameters" (the others), and "FX Parameters" can each be hidden too
+- Experimental: "Panel & Step Sequencer" for PRA32-U2/P (see [Panel Channel](./README-PRA32-U2-P.md#panel-channel-experimental))
 - The controls look the same in every Web browser and OS (as in Chrome); on a touch screen, the thumbs of the sliders are larger, and the buttons taller
 - Software Keyboard
     - Below the parameters, it stays at the bottom of the window while they scroll above it, so that they can be changed while playing; it can be hidden (Panic stays shown; hiding turns Hold off)
@@ -197,11 +198,11 @@ graph LR
         | 7 | + 6 | Round Robin (2 notes) * | 0, 1 | 0, 0 |
         | 8 | + 7 | Round Robin (2 notes) * | 2, 3 | 0, 0 |
         | 9 | + 8 | Round Robin (2 notes) x 2, layered * | 0, 1 / 2, 3 | 0, 0 / 1, 1 |
-        | 12 | - 5 | Round Robin (3 notes) * | 1, 2, 3 | 0, 0, 0 |
-        | 13 | - 4 | Round Robin (4 notes) * | 0, 1, 2, 3 | 0, 0, 0, 0 |
-        | 14 | - 3 | Layering | 0, 1 | 0, 1 |
-        | 15 | - 2 | Layering | 2, 3 | 0, 1 |
-        | 16 | - 1 | Layering | 0, 1, 2, 3 | 0, 1, 2, 3 |
+        | 12 | + 11 | Round Robin (3 notes) * | 1, 2, 3 | 0, 0, 0 |
+        | 13 | + 12 | Round Robin (4 notes) * | 0, 1, 2, 3 | 0, 0, 0, 0 |
+        | 14 | + 13 | Layering | 0, 1 | 0, 1 |
+        | 15 | + 14 | Layering | 2, 3 | 0, 1 |
+        | 16 | + 15 | Layering | 0, 1, 2, 3 | 0, 1, 2, 3 |
 
         - \* With both the Layering and the Round Robin enabled (by default)
     - Layering: a note (and every other message) goes to all the synths of the channel

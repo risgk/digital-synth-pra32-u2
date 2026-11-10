@@ -18,7 +18,15 @@
     - PRA32-U2 Editor: "Synth Parameters" (the first 32), "More Synth Parameters" (the others), and "FX Parameters" can each be hidden (shown by default);
       "Save & Load" is now "Store & File" (Store, and File below it), no longer under "Actions & Presets", and "Write & Program Change" (to the device) is apart from it, each shown or hidden apart (hidden by default);
       Store, Write, and Program Change are laid out as User Preset (each button right below that of the same number; Store with the name too), with Write and Program Change "(to Device)"
-    - PRA32-U2 Editor: "Send Current" moved from Actions to next to MIDI Out (on the heading of "MIDI" while it is hidden); "Panic" removed from Actions (on the bar of the Software Keyboard, as before)
+    - PRA32-U2 Editor: The sliders of the switches of 2, 3, and 6 choices snap to their markers when dragged near them, as before v3.17.0
+    - PRA32-U2 Editor: "Send Current" moved from Actions to the heading of "MIDI" (shown while it is hidden too); "Panic" removed from Actions (on the bar of the Software Keyboard, as before)
+    - PRA32-U2 Editor: Fix that the parameters were sent to PRA32-U2 Web (chosen in MIDI Out the last time) when the editor started: nothing is sent, as to PRA32-U2
+    - PRA32-U2/P: Add the **Panel Channel** (Experimental, enabled by default): the Control Changes on the Basic Channel + 10 control the Panel and Step Sequencer Parameters and the operations (see README-PRA32-U2-P.md)
+        - Also without the panel: with `PRA32_U2_USE_CONTROL_PANEL`, the keys, the VRs, and the OLED display can each be left out
+        - PRA32-U2 Editor: Add **"Panel & Step Sequencer"** (Experimental, hidden by default); and the MIDI Implementation Chart of the Panel Channel, and "pra32-u2-panel-initial.json"
+        - PRA32-U2 Web: "PRA32-U2/M Web (Built-in)" is now **"PRA32-U2/M/P Web (Built-in)"**, with the Panel Channel
+        - Seq Tempo: 120 BPM (64) at first, and by Init Panel Prms (56 BPM, 32, before)
+        - About 2.8 KB less of the RAM with the panel
     - Tested with Arduino-Pico version 6.3.0
 - v3.20.0 (2026-11-06):
     - PRA32-U2 Web: Add **"PRA32-U2/M Web (Built-in)"** (and with "+6 dB") to MIDI Out: PRA32-U2/M (the 4 synths) by the MIDI channels (the Basic Channel 1), with the Layering and the Round Robin

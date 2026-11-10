@@ -4,7 +4,9 @@
 #include "pra32-u2-control-panel-font-table.h"
 #include "pra32-u2-control-panel-page-table.h"
 
+#if defined(PRA32_U2_USE_CONTROL_PANEL_OLED_DISPLAY)
 #include "hardware/i2c.h"
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL_OLED_DISPLAY)
 
 #include <cstdio>
 #include <cstring>
@@ -19,14 +21,14 @@ static volatile uint8_t  s_adc_control_value[3];
 static volatile uint8_t  s_adc_control_target[3] = { 0xFF, 0xFF, 0xFF };
 static volatile boolean  s_adc_control_catched[3];
 
-#if defined(PRA32_U2_USE_CONTROL_PANEL)
+#if defined(PRA32_U2_USE_CONTROL_PANEL_KEY_INPUT)
 static          uint32_t s_prev_key_current_value;
 static          uint32_t s_next_key_current_value;
 static          uint32_t s_play_key_current_value;
 
 static          uint32_t s_prog_minus_key_current_value;
 static          uint32_t s_prog_plus_key_current_value;
-#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL_KEY_INPUT)
 
 static          uint8_t  s_play_mode                = 0;
 static          int8_t   s_panel_transpose          = 0;
@@ -625,6 +627,48 @@ static INLINE void PRA32_U2_ControlPanel_update_control_seq() {
   }
 }
 
+// Does an operation (128 + 64 and on: Read, Write, Undo, etc.), from the panel or from the Panel Channel
+static __attribute__((noinline, unused)) void PRA32_U2_ControlPanel_execute_operation(uint8_t control_target) {
+  if        ((control_target >= RD_PROGRAM_0) && (control_target <= RD_PROGRAM_31)) {
+    PRA32_U2_ControlPanel_keep_for_undo_read(getTargetMIDICh(s_current_synth), false);
+    handleProgramChange(getTargetMIDICh(s_current_synth), control_target - RD_PROGRAM_0);
+  } else if ((control_target >= WR_PROGRAM_0) && (control_target <= WR_PROGRAM_15)) {
+    uint8_t program_number_to_write = control_target - WR_PROGRAM_0;
+    PRA32_U2_ControlPanel_keep_for_undo_write(getTargetMIDICh(s_current_synth), program_number_to_write);
+    writeParametersToProgram(getTargetMIDICh(s_current_synth), program_number_to_write);
+  } else if (control_target == RD_PANEL_PRMS) {
+    PRA32_U2_ControlPanel_keep_for_undo_read(getTargetMIDICh(s_current_synth), true);
+    handleProgramChange(getTargetMIDICh(s_current_synth), 128);
+  } else if (control_target == IN_PANEL_PRMS) {
+    PRA32_U2_ControlPanel_keep_for_undo_read(getTargetMIDICh(s_current_synth), true);
+    handleProgramChange(getTargetMIDICh(s_current_synth), 129);
+  } else if (control_target == WR_PANEL_PRMS) {
+    PRA32_U2_ControlPanel_keep_for_undo_write(getTargetMIDICh(0), 128);
+    g_synth.write_parameters_to_program(128);
+  } else if (control_target == UNDO_READ) {
+    PRA32_U2_ControlPanel_undo_read();
+  } else if (control_target == UNDO_WRITE) {
+    PRA32_U2_ControlPanel_undo_write();
+  } else if (control_target == SEQ_RAND_PITCH) {
+    uint8_t array[8] = {};
+    getRandUint8Rrray(getTargetMIDICh(s_current_synth), array);
+    for (uint32_t i = 0; i < 8; ++i) {
+      g_synth.control_change(SEQ_PITCH_0 + i, array[i] & 0x7Fu);
+    }
+  } else if (control_target == SEQ_RAND_VELO) {
+    uint8_t array[8] = {};
+    getRandUint8Rrray(getTargetMIDICh(s_current_synth), array);
+    for (uint32_t i = 0; i < 8; ++i) {
+      g_synth.control_change(SEQ_VELO_0  + i, array[i] & 0x7Fu);
+    }
+  } else if (control_target == PANIC_OP) {
+    handleControlChange(getTargetMIDICh(s_current_synth), ALL_SOUND_OFF  , 0);
+    handleControlChange(getTargetMIDICh(s_current_synth), RESET_ALL_CTRLS, 0);
+  } else if (control_target == RAND_SYNTH_OP) {
+    handleProgramChange(getTargetMIDICh(s_current_synth), 127);
+  }
+}
+
 static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_number) {
 #if !defined(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN)
   if (adc_number == 2) {
@@ -675,123 +719,17 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
       if (s_adc_control_catched[adc_number]) {
         g_synth.control_change(s_adc_control_target[adc_number], adc_control_value_new);
       }
-    } else if ((s_adc_control_target[adc_number] >= RD_PROGRAM_0) && (s_adc_control_target[adc_number] <= RD_PROGRAM_31)) {
-      static boolean s_ready_to_read[PROGRAM_NUMBER_MAX + 1] = {};
-      uint8_t program_number_to_read = s_adc_control_target[adc_number] - RD_PROGRAM_0;
-      if (s_adc_control_value[adc_number] <= 31) {
-        s_ready_to_read[program_number_to_read] = true;
-      } else if (s_ready_to_read[program_number_to_read] && (s_adc_control_value[adc_number] >= 96)) {
-        PRA32_U2_ControlPanel_keep_for_undo_read(getTargetMIDICh(s_current_synth), false);
-        handleProgramChange(getTargetMIDICh(s_current_synth), s_adc_control_target[adc_number] - RD_PROGRAM_0);
-        s_ready_to_read[program_number_to_read] = false;
-      }
-    } else if ((s_adc_control_target[adc_number] >= WR_PROGRAM_0) && (s_adc_control_target[adc_number] <= WR_PROGRAM_15)) {
-      static boolean s_ready_to_write[PROGRAM_NUMBER_MAX + 1] = {};
-      uint8_t program_number_to_write = s_adc_control_target[adc_number] - WR_PROGRAM_0;
-      if (s_adc_control_value[adc_number] <= 31) {
-        s_ready_to_write[program_number_to_write] = true;
-      } else if (s_ready_to_write[program_number_to_write] && (s_adc_control_value[adc_number] >= 96)) {
-        PRA32_U2_ControlPanel_keep_for_undo_write(getTargetMIDICh(s_current_synth), program_number_to_write);
-        writeParametersToProgram(getTargetMIDICh(s_current_synth), program_number_to_write);
-        s_ready_to_write[program_number_to_write] = false;
-      }
-    } else if (s_adc_control_target[adc_number] == RD_PANEL_PRMS) {
-      static boolean s_ready_to_read_panel_prms;
-      if (s_adc_control_value[adc_number] <= 31) {
-        s_ready_to_read_panel_prms = true;
-      } else if (s_ready_to_read_panel_prms && (s_adc_control_value[adc_number] >= 96)) {
-        PRA32_U2_ControlPanel_keep_for_undo_read(getTargetMIDICh(s_current_synth), true);
-        handleProgramChange(getTargetMIDICh(s_current_synth), 128);
-        s_ready_to_read_panel_prms = false;
-      }
-    } else if (s_adc_control_target[adc_number] == IN_PANEL_PRMS) {
-      static boolean s_ready_to_init_panel_prms;
-      if (s_adc_control_value[adc_number] <= 31) {
-        s_ready_to_init_panel_prms = true;
-      } else if (s_ready_to_init_panel_prms && (s_adc_control_value[adc_number] >= 96)) {
-        PRA32_U2_ControlPanel_keep_for_undo_read(getTargetMIDICh(s_current_synth), true);
-        handleProgramChange(getTargetMIDICh(s_current_synth), 129);
-        s_ready_to_init_panel_prms = false;
-      }
-    } else if (s_adc_control_target[adc_number] == WR_PANEL_PRMS) {
-      static boolean s_ready_to_write_panel_prms;
-      if (s_adc_control_value[adc_number] <= 31) {
-        s_ready_to_write_panel_prms = true;
-      } else if (s_ready_to_write_panel_prms && (s_adc_control_value[adc_number] >= 96)) {
-        PRA32_U2_ControlPanel_keep_for_undo_write(getTargetMIDICh(0), 128);
-        g_synth.write_parameters_to_program(128);
-        s_ready_to_write_panel_prms = false;
-      }
-    } else if (s_adc_control_target[adc_number] == UNDO_READ) {
-      static boolean s_ready_to_undo_read;
-      if (s_adc_control_value[adc_number] <= 31) {
-        s_ready_to_undo_read = true;
-      } else if (s_ready_to_undo_read && (s_adc_control_value[adc_number] >= 96)) {
-        PRA32_U2_ControlPanel_undo_read();
-        s_ready_to_undo_read = false;
-      }
-    } else if (s_adc_control_target[adc_number] == UNDO_WRITE) {
-      static boolean s_ready_to_undo_write;
-      if (s_adc_control_value[adc_number] <= 31) {
-        s_ready_to_undo_write = true;
-      } else if (s_ready_to_undo_write && (s_adc_control_value[adc_number] >= 96)) {
-        PRA32_U2_ControlPanel_undo_write();
-        s_ready_to_undo_write = false;
-      }
-    } else if (s_adc_control_target[adc_number] == SEQ_RAND_PITCH) {
-      static boolean s_ready_to_rand_pitch;
-      if (s_adc_control_value[adc_number] <= 31) {
-        s_ready_to_rand_pitch = true;
-      } else if (s_ready_to_rand_pitch && (s_adc_control_value[adc_number] >= 96)) {
-        uint8_t array[8] = {};
-        getRandUint8Rrray(getTargetMIDICh(s_current_synth), array);
-        g_synth.control_change(SEQ_PITCH_0    , array[0] & 0x7Fu);
-        g_synth.control_change(SEQ_PITCH_1    , array[1] & 0x7Fu);
-        g_synth.control_change(SEQ_PITCH_2    , array[2] & 0x7Fu);
-        g_synth.control_change(SEQ_PITCH_3    , array[3] & 0x7Fu);
-        g_synth.control_change(SEQ_PITCH_4    , array[4] & 0x7Fu);
-        g_synth.control_change(SEQ_PITCH_5    , array[5] & 0x7Fu);
-        g_synth.control_change(SEQ_PITCH_6    , array[6] & 0x7Fu);
-        g_synth.control_change(SEQ_PITCH_7    , array[7] & 0x7Fu);
-
-        s_ready_to_rand_pitch = false;
-      }
-    } else if (s_adc_control_target[adc_number] == SEQ_RAND_VELO) {
-      static boolean s_ready_to_rand_velo;
-      if (s_adc_control_value[adc_number] <= 31) {
-        s_ready_to_rand_velo = true;
-      } else if (s_ready_to_rand_velo && (s_adc_control_value[adc_number] >= 96)) {
-        uint8_t array[8] = {};
-        getRandUint8Rrray(getTargetMIDICh(s_current_synth), array);
-        g_synth.control_change(SEQ_VELO_0     , array[0] & 0x7Fu);
-        g_synth.control_change(SEQ_VELO_1     , array[1] & 0x7Fu);
-        g_synth.control_change(SEQ_VELO_2     , array[2] & 0x7Fu);
-        g_synth.control_change(SEQ_VELO_3     , array[3] & 0x7Fu);
-        g_synth.control_change(SEQ_VELO_4     , array[4] & 0x7Fu);
-        g_synth.control_change(SEQ_VELO_5     , array[5] & 0x7Fu);
-        g_synth.control_change(SEQ_VELO_6     , array[6] & 0x7Fu);
-        g_synth.control_change(SEQ_VELO_7     , array[7] & 0x7Fu);
-
-        s_ready_to_rand_velo = false;
-      }
-    } else if (s_adc_control_target[adc_number] == PANIC_OP) {
-      static boolean s_ready_to_panic;
-      if (s_adc_control_value[adc_number] <= 31) {
-        s_ready_to_panic = true;
-      } else if (s_ready_to_panic && (s_adc_control_value[adc_number] >= 96)) {
-        handleControlChange(getTargetMIDICh(s_current_synth), ALL_SOUND_OFF  , 0);
-        handleControlChange(getTargetMIDICh(s_current_synth), RESET_ALL_CTRLS, 0);
-
-        s_ready_to_panic = false;
-      }
-    } else if (s_adc_control_target[adc_number] == RAND_SYNTH_OP) {
-      static boolean s_ready_to_rand_synth;
-      if (s_adc_control_value[adc_number] <= 31) {
-        s_ready_to_rand_synth = true;
-      } else if (s_ready_to_rand_synth && (s_adc_control_value[adc_number] >= 96)) {
-        handleProgramChange(getTargetMIDICh(s_current_synth), 127);
-
-        s_ready_to_rand_synth = false;
+    } else {
+      // An operation (Read, Write, Undo, etc.): ready at 0-31 [Rdy], and done at 96-127 [Exe]
+      static boolean s_ready_to_execute[64] = {};
+      uint32_t index = s_adc_control_target[adc_number] - (128 + 64);
+      if (index < 64) {
+        if (s_adc_control_value[adc_number] <= 31) {
+          s_ready_to_execute[index] = true;
+        } else if (s_ready_to_execute[index] && (s_adc_control_value[adc_number] >= 96)) {
+          PRA32_U2_ControlPanel_execute_operation(s_adc_control_target[adc_number]);
+          s_ready_to_execute[index] = false;
+        }
       }
     }
 
@@ -801,7 +739,7 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
   return false;
 }
 
-#if defined(PRA32_U2_USE_CONTROL_PANEL)
+#if defined(PRA32_U2_USE_CONTROL_PANEL_OLED_DISPLAY)
 // Queues a short write to the OLED display into the I2C TX FIFO (16 bytes) and
 // returns without waiting for the transfer (about 180 us for 8 bytes at 400 kHz),
 // so that the secondary core is not blocked during the audio processing;
@@ -821,28 +759,28 @@ static INLINE void PRA32_U2_ControlPanel_write_to_oled_display(const uint8_t* sr
     hw->data_cmd = src[i] | ((i == (len - 1)) ? I2C_IC_DATA_CMD_STOP_BITS : 0);
   }
 }
-#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL_OLED_DISPLAY)
 
 static INLINE void PRA32_U2_ControlPanel_set_draw_position(uint8_t x, uint8_t y) {
-#if defined(PRA32_U2_USE_CONTROL_PANEL)
+#if defined(PRA32_U2_USE_CONTROL_PANEL_OLED_DISPLAY)
   uint8_t commands[] = {0x00,  static_cast<uint8_t>(0xB0 + y),
                                static_cast<uint8_t>(0x10 + ((x * 6) >> 4)),
                                static_cast<uint8_t>(0x00 + ((x * 6) & 0x0F))};
   PRA32_U2_ControlPanel_write_to_oled_display(commands, sizeof(commands));
-#else  // defined(PRA32_U2_USE_CONTROL_PANEL)
+#else  // defined(PRA32_U2_USE_CONTROL_PANEL_OLED_DISPLAY)
   static_cast<void>(x);
   static_cast<void>(y);
-#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL_OLED_DISPLAY)
 }
 
 static INLINE void PRA32_U2_ControlPanel_draw_character(uint8_t c) {
-#if defined(PRA32_U2_USE_CONTROL_PANEL)
+#if defined(PRA32_U2_USE_CONTROL_PANEL_OLED_DISPLAY)
   uint8_t data[] = {0x40,  0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
   std::memcpy(&data[1], g_control_panel_font_table[c], 6);
   PRA32_U2_ControlPanel_write_to_oled_display(data, sizeof(data));
-#else  // defined(PRA32_U2_USE_CONTROL_PANEL)
+#else  // defined(PRA32_U2_USE_CONTROL_PANEL_OLED_DISPLAY)
   static_cast<void>(c);
-#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL_OLED_DISPLAY)
 }
 
 static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_target, uint8_t controller_value, char value_display_text[5])
@@ -1354,6 +1292,7 @@ INLINE void PRA32_U2_ControlPanel_update_analog_inputs(uint32_t loop_counter) {
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 }
 
+#if defined(PRA32_U2_USE_CONTROL_PANEL_KEY_INPUT)
 INLINE uint32_t PRA32_U2_ControlPanel_debounce_key(uint32_t pin, uint32_t current_value, uint32_t& stable_counter) {
   uint32_t value = digitalRead(pin) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
 
@@ -1373,6 +1312,7 @@ INLINE uint32_t PRA32_U2_ControlPanel_debounce_key(uint32_t pin, uint32_t curren
   stable_counter = 0;
   return value;
 }
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL_KEY_INPUT)
 
 INLINE void PRA32_U2_ControlPanel_update_control() {
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
@@ -1759,7 +1699,9 @@ INLINE void PRA32_U2_ControlPanel_on_stop()
 INLINE void PRA32_U2_ControlPanel_update_display_buffer(uint32_t loop_counter) {
   static_cast<void>(loop_counter);
 
-#if defined(PRA32_U2_USE_CONTROL_PANEL)
+// The texts of the display (the values of the page), only for the display or the debug print (not without both,
+// e.g. without the panel, to save the RAM of the code)
+#if defined(PRA32_U2_USE_CONTROL_PANEL) && (defined(PRA32_U2_USE_CONTROL_PANEL_OLED_DISPLAY) || defined(PRA32_U2_USE_DEBUG_PRINT))
   if ((loop_counter & 0x7F) == 0x00) {
     char buff[6];
 
@@ -1880,7 +1822,7 @@ INLINE void PRA32_U2_ControlPanel_update_display_buffer(uint32_t loop_counter) {
       std::memset(&s_display_buffer[3][11], ' ', 10);
     }
   }
-#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL) && (defined(PRA32_U2_USE_CONTROL_PANEL_OLED_DISPLAY) || defined(PRA32_U2_USE_DEBUG_PRINT))
 }
 
 INLINE void PRA32_U2_ControlPanel_update_display(uint32_t loop_counter) {
@@ -2057,7 +1999,111 @@ INLINE void PRA32_U2_ControlPanel_update_display(uint32_t loop_counter) {
 #endif  // (PRA32_U2_NUMBER_OF_SYNTHS > 1)
   }
 
-#endif  // defined(PRA32_U2_USE_CONTROL_PANEL_ANALOG_INPUT)
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
+}
+
+// A Control Change on the Panel Channel (the Basic Channel + 10, Experimental), so that the panel parameters and the Step
+// Sequencer can be controlled by MIDI (e.g. without the panel); see README-PRA32-U2-P.md. The CC numbers
+// avoid those that a DAW or a keyboard may send by itself (e.g. Bank Select, RPN/NRPN, Data Entry, Pan,
+// the pedals, and the Channel Mode Messages), not to change a parameter, nor to write to the flash, by chance:
+// - Parameters (set as by the panel): Seq Pitch 0-7 (#16-23), Seq Velo 0-7 (#24-31), the Panel Parameters
+//   (#40-46, the panel parameter number + 32), and the other Step Sequencer Parameters (#48-57, the number);
+//   Panel Target Ch (#58, PRA32-U2/M/P: the channel that the panel selects, as the Basic Channel + the value) is only
+//   for the Panel Channel
+// - Operations (#102-108, ready at 0-31, and done at 96-127, as by the panel [Rdy] and [Exe]); not the
+//   Read and Write of the programs, which the editor does
+// - Panel Play (#111): 64-127 as the Play key pressed (Normal Mode) or the Step Sequencer started (Seq Mode),
+//   and 0-63 as released or stopped
+#if defined(PRA32_U2_USE_CONTROL_PANEL)
+static uint8_t PRA32_U2_ControlPanel_panel_ch_target(uint8_t number) {
+  if ((number >= 16) && (number <= 23)) { return SEQ_PITCH_0 + (number - 16); }
+  if ((number >= 24) && (number <= 31)) { return SEQ_VELO_0  + (number - 24); }
+
+  switch (number) {
+  case  40: return PANEL_SCALE    ;
+  case  41: return PANEL_TRANSPOSE;
+  case  42: return PANEL_PLAY_MODE;
+  case  44: return PANEL_PLAY_PIT ;
+  case  45: return PANEL_PLAY_VELO;
+  case  46: return PANEL_PIT_OFST ;
+  case 102: return WR_PANEL_PRMS  ;  // Write and then Read, as the pages of the panel (C and D)
+  case 103: return RD_PANEL_PRMS  ;
+  case 104: return IN_PANEL_PRMS  ;
+  case 105: return UNDO_WRITE     ;
+  case 106: return UNDO_READ      ;
+  case 107: return SEQ_RAND_PITCH ;
+  case 108: return SEQ_RAND_VELO  ;
+  }
+
+  if ((number >= 48) && (number <= 57)) { return 128 + number; }  // SEQ_TEMPO to SEQ_TRX_ST_SP
+
+  return 0xFF;
+}
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
+
+void PRA32_U2_ControlPanel_on_panel_ch_control_change(uint8_t number, uint8_t value)
+{
+  static_cast<void>(number);
+  static_cast<void>(value);
+
+#if defined(PRA32_U2_USE_CONTROL_PANEL)
+  if (number == 58) {  // Panel Target Ch: the Basic Channel + the value (0-15, e.g. 11 for the Round Robin of 3 notes), one of those
+                       // that the panel selects (the synths, the Round Robin, and the Layering); the others do nothing
+#if (PRA32_U2_NUMBER_OF_SYNTHS > 1)
+    for (uint32_t synth = 0; synth < PRA32_U2_NUMBER_OF_SYNTHS; ++synth) {
+      if ((((getTargetMIDICh(synth) - 1) - g_midi_ch) & 0x0F) == (value & 0x0F)) {
+        if (synth != s_current_synth) {
+          if (s_panel_playing_note_pitch <= 127) {
+            handleNoteOff(getTargetMIDICh(s_current_synth), s_panel_playing_note_pitch, 64);
+          }
+          s_current_synth = synth;
+          s_display_buffer[0][14] = s_hex_chars[getTargetMIDICh(s_current_synth) - 1];
+        }
+        break;
+      }
+    }
+#endif  // (PRA32_U2_NUMBER_OF_SYNTHS > 1)
+    return;
+  }
+
+  if (number == 111) {  // Panel Play: compared with the state now (which the Play key, Panel Play Mode, or
+                        // MIDI Start/Stop may have changed), so that a value repeated does nothing
+    boolean on = (value >= 64);
+    boolean playing = (s_playing_status != PlayingStatus_Stop);
+    if (on != playing) {
+      if (s_play_mode == 0) {  // Normal Mode
+        s_playing_status = on ? PlayingStatus_Playing : PlayingStatus_Stop;
+        s_display_buffer[0][20] = on ? '*' : ' ';
+        s_panel_play_note_gate    = on;
+        s_panel_play_note_trigger = on;
+      } else {  // Seq Mode
+        if (on) {
+          PRA32_U2_ControlPanel_seq_start();
+        } else {
+          PRA32_U2_ControlPanel_seq_stop();
+        }
+      }
+    }
+    return;
+  }
+
+  uint8_t control_target = PRA32_U2_ControlPanel_panel_ch_target(number);
+  if (control_target == 0xFF) {
+    return;
+  }
+
+  if (control_target < 128 + 64) {
+    g_synth.control_change(control_target, value);
+  } else {
+    static boolean s_ready_to_execute[128] = {};
+    if (value <= 31) {
+      s_ready_to_execute[number] = true;
+    } else if (s_ready_to_execute[number] && (value >= 96)) {
+      PRA32_U2_ControlPanel_execute_operation(control_target);
+      s_ready_to_execute[number] = false;
+    }
+  }
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 }
 
 INLINE void PRA32_U2_ControlPanel_debug_print(uint32_t loop_counter) {

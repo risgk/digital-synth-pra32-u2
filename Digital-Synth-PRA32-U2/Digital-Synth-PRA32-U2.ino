@@ -62,6 +62,7 @@
 ////////////////////////////////////////////////////////////////
 
 //#define PRA32_U2_USE_CONTROL_PANEL               // PRA32-U2/P (PRA32-U2 with Panel)
+#define PRA32_U2_USE_PANEL_CHANNEL               // The Panel Channel (the Basic Channel + 10) of PRA32-U2/P (Experimental, see README-PRA32-U2-P.md)
 
 #define PRA32_U2_USE_CONTROL_PANEL_KEY_INPUT     // Use tactile switches
 #define PRA32_U2_KEY_INPUT_ACTIVE_LEVEL          (LOW)
@@ -632,6 +633,11 @@ void __not_in_flash_func(handleControlChange)(byte channel, byte number, byte va
 {
   if ((channel - 1) == g_midi_ch) {
     controlChange(number, value);
+#if defined(PRA32_U2_USE_CONTROL_PANEL) && defined(PRA32_U2_USE_PANEL_CHANNEL)
+  } else if ((channel - 1) == ((g_midi_ch + 10) & 0x0F)) {  // the Panel Channel (see PRA32_U2_ControlPanel_on_panel_ch_control_change())
+    processPendingProgramChange();
+    PRA32_U2_ControlPanel_on_panel_ch_control_change(number, value);
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL) && defined(PRA32_U2_USE_PANEL_CHANNEL)
   }
 }
 

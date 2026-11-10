@@ -12,6 +12,7 @@
     - Playing by panel operation
     - Built-in monophonic 8-step sequencer
     - Panel and Step Sequencer Parameters
+    - Experimental: [Panel Channel](#panel-channel-experimental), to control them by MIDI, with the panel or without it
 - This option requires 2 to 6 SWs (tactile switches), 2 to 3 VRs (ADCs), and a monochrome 128x64 OLED Display based on SSD1306 series drivers
     - SWs: Prev and Next, and optionally Play, Prog -, Prog +, and Shift (see Inputs)
     - OLED Display: I2C1, SDA: GP6, SCL: GP7, Address: 0x3C (by default)
@@ -45,7 +46,8 @@
 - Uncomment `//#define PRA32_U2_USE_CONTROL_PANEL` in "Digital-Synth-PRA32-U2-M.ino"
 - Prev Key + Next Key: Push to go to the next synth (channel)
     - "$0" -> "$1" -> "$2" -> "$3" -> "$6" -> "$7" -> "$8" -> "$B" -> "$C" -> "$D" -> "$E" -> "$F" -> "$0"
-    - The MIDI channel - 1, in hex: "$0" to "$3" the synths, "$6" to "$C" the Round Robin, and "$D" to "$F" the Layering (see [PRA32-U2/M](./README.md#pra32-u2m-pra32-u2-multi-timbre-edition))
+    - The MIDI channel - 1, in hex: "$0" to "$3" the synths, "$6" to "$C" the Round Robin, and "$D" to "$F" the Layering (see [PRA32-U2/M](./README.md#pra32-u2m-pra32-u2-multi-timbre-edition));
+      with the Basic Channel 1 (default), the digit is the Basic Channel + n in hex (e.g. "$B" for the Basic Channel + 11, Channel 12)
     - On the Round Robin and the Layering, the current values (and Write) are those of the first synth of the channel
 
 
@@ -120,6 +122,20 @@
     - Undo Read: Brings back the parameters (or the panel parameters) that the last Read (or Init Panel Prms) replaced
         - Change the value from 0-31 [Rdy] to 96-127 [Exe] to undo; doing it again redoes it
         - Only the last Write and the last Read, of the synth selected then, until the power is turned off
+
+
+### Panel Channel (Experimental)
+
+- The Control Changes on the Panel Channel (the Basic Channel + 10, 11 by default) control the Panel and Step Sequencer Parameters
+  and the operations (Write Panel Prms, Seq Rand Pitch, etc.), as the panel does: see the [MIDI Implementation Chart of the Panel Channel](./PRA32-U2-P-Panel-Channel-MIDI-Implementation-Chart.md)
+    - Enabled by default: comment out `#define PRA32_U2_USE_PANEL_CHANNEL` not to use it
+- "Panel & Step Sequencer" of [PRA32-U2 Editor](./README.md#pra32-u2-editor) (hidden by default) edits them by the Panel Channel,
+  also of PRA32-U2/M/P Web (Built-in)
+    - "Basic Ch": that of PRA32-U2 (not "MIDI Ch" of the editor)
+    - PRA32-U2 sends nothing back: "Send Panel" sends the values that the editor keeps ("pra32-u2-panel-initial.json": the initial ones)
+- Without the panel: comment out `#define PRA32_U2_USE_CONTROL_PANEL_KEY_INPUT`, `#define PRA32_U2_USE_CONTROL_PANEL_ANALOG_INPUT`,
+  and `#define PRA32_U2_USE_CONTROL_PANEL_OLED_DISPLAY` (with `#define PRA32_U2_USE_CONTROL_PANEL` uncommented)
+    - The Basic Channel is `PRA32_U2_MIDI_CH` (or that written by Write Panel Prms before)
 
 
 ### Circuit Diagram

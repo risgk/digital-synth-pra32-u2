@@ -100,10 +100,10 @@
         - "PRA32-U2 Web (Built-in, +6 dB)": 6 dB 大きく、他の音源に近い音量です (-2 dBFS を超えるピークは丸めます)
             - "+6 dB" なしは PRA32-U2 と同じ音です (実機と比べるときなど)
             - Amp Gain が高いと、丸めたピークが少し歪んで聞こえることがあります
-    - PRA32-U2 Web で PRA32-U2/M (4 台のシンセ) を使うには、"PRA32-U2/M Web (Built-in)" (または "+6 dB" 付き) を選んでください
+    - PRA32-U2 Web で PRA32-U2/M (4 台のシンセ) を使うには、"PRA32-U2/M/P Web (Built-in)" (または "+6 dB" 付き) を選んでください
         - Basic Channel は 1 です (変更できません)。編集するシンセは "MIDI Ch" で選んでください (チャンネルは PRA32-U2/M の説明を参照)
         - PRA32-U2/M と同じく、Main Synth はプログラム #0、Sub Synth 1-3 は #1-3 で始まります。Sub Synth は Main Synth が Poly でないときだけ鳴ります
-    - 出力を選んでも何も送りません (PRA32-U2 Web も同じ)。MIDI Out の横の "Send Current" で PRA32-U2 Editor のパラメーター (1 組) を "MIDI Ch" のシンセに送ります
+    - 出力を選んでも何も送りません (PRA32-U2 Web も同じ)。"MIDI" の見出しの "Send Current" で PRA32-U2 Editor のパラメーター (1 組) を "MIDI Ch" のシンセに送ります
 
 
 ### プログラムとプリセット
@@ -137,8 +137,9 @@
 - JSON ファイルへのエクスポートと、JSON ファイルからのインポート
 - Randomize Synth と Randomize FX: シンセや FX のパラメーターをランダムに設定します
 - Undo: 直前の変更 (プリセット、Randomize、Import、スライダーの操作) の前のパラメーターに戻します (200 段階まで)。Redo で進めます (Ctrl+Z と、Ctrl+Y または Ctrl+Shift+Z でも。Mac では Command)
-- "MIDI"、"Actions & Presets"、"Store & File"、"Write & Program Change" はそれぞれ隠せるので、パラメーターに画面を広く使えます ("MIDI" を隠している間は、Send Current が見出しに並びます)
+- "MIDI"、"Actions & Presets"、"Store & File"、"Write & Program Change" はそれぞれ隠せるので、パラメーターに画面を広く使えます ("MIDI" の見出しの Send Current は、隠している間も使えます)
 - "Synth Parameters" (最初の 32 個)、"More Synth Parameters" (残り)、"FX Parameters" も、それぞれ隠せます
+- 実験的: PRA32-U2/P 向けの "Panel & Step Sequencer" (英語版の [Panel Channel](./README-PRA32-U2-P.md#panel-channel-experimental) を参照)
 - ボタンやスライダーなどは、どのブラウザーや OS でも同じ見た目 (Chrome 相当) です。タッチ画面では、スライダーのつまみが大きく、ボタンが高くなります
 - Software Keyboard: マウス、タッチ、PC のキーボード (A - K が C - C、W - U が黒鍵、Z / X がオクターブ) で弾けます
     - パラメーターの下にあり、パラメーターをスクロールしても画面の下に残るので、弾きながらパラメーターを変えられます。隠すこともできます (Panic は表示されたまま。隠すと Hold はオフになります)
@@ -152,7 +153,7 @@
 - Basic Channel は PRA32-U2 の MIDI チャンネル (初期値 1、`PRA32_U2_MIDI_CH`) で、各シンセのチャンネルはそれを基準に決まります
 - Basic Channel + 0 (初期値 1) が Main Synth、+ 1 から + 3 (初期値 2-4) が Sub Synth 1-3 (Mono) です
     - Sub Synth は、Main Synth が Mono 系のモードのときだけ処理されます
-- Layering: Basic Channel - 3 から - 1 (初期値 14-16) で、複数のシンセを同時に制御します
+- Layering: Basic Channel + 13 から + 15 (初期値 14-16) で、複数のシンセを同時に制御します
 - 詳しくは英語版の [PRA32-U2/M](./README.md#pra32-u2m-pra32-u2-multi-timbre-edition) を参照してください
 
 

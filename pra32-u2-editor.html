@@ -224,8 +224,8 @@ input[type="range"]:not(.ready)::-moz-range-thumb {
   min-width: 0;
   max-width: 100%;
 }
-/* Send Current next to MIDI Out (to the output): on the bar of MIDI instead, while MIDI is hidden
-   (as Panic on the bar of the keyboard, which is always in the window), so that it is always at hand */
+/* Send Current on the heading of MIDI, shown with MIDI hidden too (as Send Panel and Play on the heading of
+   Panel & Operations), so that it is always at hand */
 .midi-buttons button {
   height: var(--button-height);
   padding: 1px 5px;
@@ -239,9 +239,7 @@ input[type="range"]:not(.ready)::-moz-range-thumb {
 .midi-bar .midi-buttons {
   display: inline-flex;
   gap: 4px;
-}
-#midiDetails[open] > .midi-bar .midi-buttons {
-  display: none;
+  margin-left: 16px;  /* apart from MIDI (24px with the gap), as Send Panel from Panel & Operations */
 }
 .midi-item select {
   min-width: 0;
@@ -395,9 +393,15 @@ details.section:not([open]) > summary {
    a heading divides the sections, and one followed by the parameters the groups); none at the bottom, as the line of
    the next one is there */
 .params-details {
-  border-top: 1px solid #c0c0c0;
+  border-top: 1px solid #e0e0e0;
   padding-top: 6px;
   margin-bottom: 0;
+}
+/* The lines above Synth Parameters, Panel & Step Sequencer, and the keyboard (the 3 large parts) as they are, and the others
+   (the groups, and the More Synth Parameters, the FX Parameters, and the parts of Panel & Step Sequencer) lighter, so that
+   they do not stand out */
+#synthDetails, #panelDetails {
+  border-top-color: #c0c0c0;
 }
 .params-details > summary {
   cursor: pointer;
@@ -429,7 +433,7 @@ span.cc {
    The names of a row share their height (subgrid), so the sliders of a row line up even if a name wraps */
 /* The lines to the right end of the container (the columns of the mode: 4: 920px, 2: 460px, 1: 230px) */
 .params {
-  border-top: 1px solid #c0c0c0;
+  border-top: 1px solid #e0e0e0;
 }
 .param-group {
   display: grid;
@@ -437,7 +441,7 @@ span.cc {
   column-gap: 0;
   row-gap: 0;
   padding: 6px 0;
-  border-bottom: 1px solid #c0c0c0;
+  border-bottom: 1px solid #e0e0e0;
 }
 .param-group:last-child {
   border-bottom: none;  /* no line at the bottom */
@@ -785,6 +789,94 @@ span.cc {
 .key.white.active .key-label {
   color: var(--pra32-color-dark);
   font-weight: bold;
+}
+/* ---- Panel & Step Sequencer (Experimental) ---- */
+/* Amber, not the orange of PRA32-U2, so that this section (of the panel, not of the synth) is told apart */
+#panelDetails {
+  --pra32-color: rgb(255,191,0);
+  --pra32-color-dark: rgb(196,147,0);
+}
+/* The check boxes of the steps beside Seq On Steps and Seq Act Steps (the 4 in a row in 4 columns, 2 rows in 2 columns,
+   and each below its slider in 1 column) */
+.panel-steps-ctrl {
+  padding: 1px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: calc(13px + var(--thumb-size));  /* as a slider */
+}
+.panel-steps-ctrl label {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+/* The check boxes drawn here, with a white check on the orange (the browser would draw a black one on a light color) */
+.panel-steps-ctrl input[type="checkbox"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 13px;
+  height: 13px;
+  margin: 0;
+  border: 1px solid #767676;
+  border-radius: 2px;
+  background: #fff;
+  display: inline-grid;
+  place-content: center;
+}
+.panel-steps-ctrl input[type="checkbox"]:checked {
+  background: var(--pra32-color);
+  border-color: var(--pra32-color);
+}
+.panel-steps-ctrl input[type="checkbox"]:checked::after {
+  content: "";
+  width: 3px;
+  height: 7px;
+  margin-top: -2px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.panel-steps-ctrl input[type="checkbox"]:disabled {
+  background: #c8c8c8;
+  border-color: #c8c8c8;
+}
+.panel-steps-ctrl input[type="checkbox"]:hover:not(:disabled) {
+  border-color: var(--pra32-color-dark);
+}
+/* The 3 parts of Panel & Step Sequencer, each shown or hidden (shown by default), inside it */
+#panelDetails > details.panel-sub {
+  margin-left: 0;
+}
+#panelCtrlDetails {
+  margin-top: 6px;
+  border-top: 1px solid #e0e0e0;  /* a line above it, as above Panel Parameters and Step Sequencer Parameters */
+  padding-top: 6px;
+}
+/* Send Panel and Play in the heading, so that they are shown with Panel & Operations hidden too */
+.panel-summary-buttons {
+  margin-left: 24px;
+  font-weight: normal;
+}
+.panel-summary-buttons > button {
+  margin-right: 4px;
+}
+#panelCtrlDetails > .section:last-child {
+  margin-bottom: 0;
+}
+/* The groups (and their buttons) as wide as their contents, so that Actions and Write (to Device) are in a row in every
+   Web browser (a group of the buttons that grows, as in Actions above, may take a whole row in some of them, e.g. Safari) */
+#panelDetails .misc-buttons {
+  flex: 0 1 auto;
+}
+/* The Panel CC Ch (the Basic Ch + 10) after the Basic Ch, as the CC numbers after the names */
+#spanPanelCCCh {
+  align-self: center;
+}
+#spanPanelTarget {
+  margin-left: 12px;  /* apart from the Basic Ch (16px with the gap), as the items of MIDI */
+}
+#spanPanelTarget select {
+  max-width: 100%;
 }
 </style>
 <script>
@@ -1203,9 +1295,6 @@ window.onload = function() {
   }
   document.getElementById("selectMIDICh").selectedIndex = midi_ch;
 
-  if (window.PRA32U2WebSynth) {
-    onMIDISuccess({ inputs: new Map(), outputs: new Map() });  // PRA32-U2 Web is available without MIDI access
-  }
   if (navigator.requestMIDIAccess) {
     navigator.requestMIDIAccess({sysex: false}).then(onMIDISuccess, onMIDIFailure);
   } else {
@@ -1221,6 +1310,11 @@ window.onload = function() {
     }
   });
   updateUndoButton();
+  // PRA32-U2 Web is available without MIDI access: after the parameters restored, so that nothing is sent to it
+  // (as to PRA32-U2, whose output is available later); "Send Current" sends them
+  if (window.PRA32U2WebSynth) {
+    onMIDISuccess({ inputs: new Map(), outputs: new Map() });
+  }
 
   for (var number = 0; number <= USER_PROGRAM_NUMBER_MAX; number++) {
     updateRecallButton(number);
@@ -1338,7 +1432,7 @@ function pushUndo(parameters) {
 // A slider of the parameters (not of the Performance Controls), pressed or given a key: the parameters before it,
 // kept as the step of Undo only if it moves
 function isParamSlider(element) {
-  return element.matches && element.matches(".params:not(.perf) input[type=range]");
+  return element.matches && element.matches(".params:not(.perf):not(.panel-params) input[type=range]");
 }
 
 // Ctrl+Z (Command+Z on a Mac): Undo; Ctrl+Y or Ctrl+Shift+Z: Redo. Not in a box for text or a number, which has
@@ -1350,12 +1444,14 @@ function setupUndoKeys() {
         ((target.tagName == "INPUT") && (target.type != "range") && (target.type != "button"))) {
       return;
     }
+    // With the focus in Panel & Step Sequencer (e.g. on its slider): those of the panel parameters
+    var panel = target.closest && target.closest("#panelDetails");
     if ((event.code == "KeyZ") && !event.shiftKey) {
       event.preventDefault();
-      undo();
+      if (panel) { panelUndo(); } else { undo(); }
     } else if ((event.code == "KeyY") || ((event.code == "KeyZ") && event.shiftKey)) {
       event.preventDefault();
-      redo();
+      if (panel) { panelRedo(); } else { redo(); }
     }
   });
 }
@@ -2169,7 +2265,60 @@ function updateSliderFill(input) {
   input.classList.add("ready");
 }
 
+// The sliders of the switches of 2, 3, and 6 choices (e.g. [Off|On], [Fwd|Rvs|Bnc], and [Saw|Sqr|Tri|Sin|WT|Pls]):
+// the thumb dragged near a marker (within SLIDER_SNAP_DISTANCE) goes to it, as a datalist of Chrome did, so that
+// the values of the choices are easy to take. Not by the keys (a step a key), nor for the other markers (e.g. the
+// center of [-|+], and Filter Mode and Osc 1 Morph, which change smoothly between them)
+const SLIDER_SNAP_DISTANCE = 4;
+const SLIDER_SNAP_MARKERS = {
+  "soft-markers-2": [0, 127],
+  "soft-markers-3": [0, 64, 127],
+  "soft-markers-6": [0, 26, 51, 77, 102, 127],
+};
+var sliderSnapByPointer = false;
+
+function sliderSnapMarkers(input) {
+  var ctrl = input.parentElement;
+  if (!ctrl || !ctrl.classList) {
+    return null;
+  }
+  for (var name in SLIDER_SNAP_MARKERS) {
+    if (ctrl.classList.contains(name)) {
+      return SLIDER_SNAP_MARKERS[name];
+    }
+  }
+  return null;
+}
+
+function setupSliderSnap() {
+  document.addEventListener("pointerdown", function(event) {
+    sliderSnapByPointer = true;
+  }, true);
+  document.addEventListener("keydown", function(event) {
+    sliderSnapByPointer = false;
+  }, true);
+  // Before the other listeners of "input" (the fill, Undo, and the value), so that they take the value snapped
+  document.addEventListener("input", function(event) {
+    var input = event.target;
+    if (!sliderSnapByPointer || !input.matches || !input.matches("input[type=range]")) {
+      return;
+    }
+    var markers = sliderSnapMarkers(input);
+    if (!markers) {
+      return;
+    }
+    var value = parseInt(input.value);
+    for (var i = 0; i < markers.length; i++) {
+      if ((Math.abs(value - markers[i]) <= SLIDER_SNAP_DISTANCE) && (value != markers[i])) {
+        input.value = markers[i];
+        break;
+      }
+    }
+  }, true);
+}
+
 function setupSliderFill() {
+  setupSliderSnap();
   document.querySelectorAll("input[type=range]").forEach(updateSliderFill);
   document.addEventListener("input", function(event) {
     if (event.target.matches && event.target.matches("input[type=range]")) {
@@ -3060,7 +3209,7 @@ function getStoredCCValueString(index, number) {
 
 <details class="section" id="midiDetails" open>
 <summary class="midi-bar"><span class="midi-bar-items"><span>MIDI</span>
-<span class="midi-buttons"><button type="button" onclick="sendCurrentParameters()">Send Current</button></span></span></summary>
+<span class="midi-buttons" onclick="event.preventDefault()"><button type="button" onclick="sendCurrentParameters()">Send Current</button></span></span></summary>
 <div class="section midi">
 <div class="midi-item"><span class="lbl-midi">MIDI Ch</span>
 <select id="selectMIDICh" size="1" onchange="onChangeMIDICh()">
@@ -3090,7 +3239,6 @@ function getStoredCCValueString(index, number) {
 <div class="midi-break"></div>
 <div class="midi-item"><span class="lbl-midi">MIDI Out</span>
 <select id="selectOutputPort" size="1" onchange="onChangeOutputPort(); savePortSelection('selectOutputPort', midiOutputs)"><option>(None)</option></select></div>
-<div class="midi-item midi-buttons"><button type="button" onclick="sendCurrentParameters()">Send Current</button></div>
 <div class="midi-break"></div>
 <div class="midi-note" id="divMIDINote" hidden></div>
 </div>
@@ -3552,6 +3700,45 @@ function getStoredCCValueString(index, number) {
 </div>
 </details>
 
+<details class="section params-details" id="panelDetails">
+<summary>Panel &amp; Step Sequencer (Experimental) <span class="cc">for PRA32-U2/P and PRA32-U2/M/P</span></summary>
+<details class="section panel-sub" id="panelCtrlDetails" open>
+<summary>Panel &amp; Operations <span class="panel-summary-buttons" onclick="event.preventDefault()"><button type="button" onclick="sendPanelCurrent()">Send Panel</button>
+<button type="button" id="buttonPanelPlay" onclick="onClickPanelPlay()" title="Panel Play (CC#111): Normal Mode: holds the note; Seq Mode: starts and stops the sequencer">Play</button></span></summary>
+<div class="section misc">
+<div class="misc-group"><span>Basic Ch</span><div class="misc-buttons">
+<select id="selectPanelCh" onchange="onChangePanelCh()" aria-label="Basic Ch"></select><span class="cc" id="spanPanelCCCh"></span>
+<span id="spanPanelTarget">Panel Target Ch<span class="cc">CC#58</span> <select id="selectPanelTarget" onchange="onChangePanelTarget()"></select></span>
+</div></div>
+</div>
+<div class="section misc">
+<div class="misc-group"><span>Actions</span><div class="misc-buttons">
+<button type="button" onclick="panelRandomizeSteps(16)">Seq Randomize Pitch</button>
+<button type="button" onclick="panelRandomizeSteps(24)">Seq Randomize Velo</button>
+<button type="button" onclick="panelInitValues()">Initialize</button>
+<button type="button" id="buttonPanelUndo" onclick="panelUndo()" title="Back to the panel parameters before the last change (Seq Randomize Pitch/Velo, Initialize, User Preset, Import, or a move of a slider or a check box) (Ctrl+Z, with the focus here)">Undo</button>
+<button type="button" id="buttonPanelRedo" onclick="panelRedo()" title="Forward again to the panel parameters before Undo (Ctrl+Y or Ctrl+Shift+Z, with the focus here)">Redo</button></div></div>
+</div>
+<div class="section misc">
+<div class="misc-group"><span>Store &amp; Write</span><div class="misc-buttons">
+<button type="button" id="buttonPanelRecall" onclick="panelRecall()">User Preset (from Browser)</button>
+<button type="button" id="buttonPanelStore" onclick="panelStore()">Store (to Browser)</button>
+<input type="file" id="filePanelImport" style="display:none" accept=".json">
+<button type="button" onclick="document.getElementById('filePanelImport').click()">Import</button>
+<button type="button" onclick="panelExport()">Export</button>
+<span id="divPanelOps" style="display:contents"></span></div></div>
+</div>
+</details>
+<details class="section params-details panel-sub" id="panelParamsDetails" open>
+<summary>Panel Parameters</summary>
+<div class="params panel-params" id="divPanelParamsPanel"></div>
+</details>
+<details class="section params-details panel-sub" id="panelSeqDetails" open>
+<summary>Step Sequencer Parameters</summary>
+<div class="params panel-params" id="divPanelParamsSeq"></div>
+</details>
+</details>
+
 <details class="section" id="kbdDetails" open>
 <summary class="kbd-bar"><span class="kbd-bar-items"><span id="spanKbdLabel">Software Keyboard</span>
 <span class="kbd-octave"><button type="button" onclick="kbdShiftOctave(-1)" title="Octave Down">&#9664;</button>
@@ -3606,6 +3793,396 @@ Off <input type="number" id="inputNoteOffVelocity" min="1" max="127" step="1"></
 </details>
 
 </div>
+
+<script>
+// ---- Panel & Step Sequencer (Experimental): the panel parameters of PRA32-U2/P (and PRA32-U2/M/P), and of PRA32-U2/M/P Web,
+// by the Control Changes on the Panel Channel (the Basic Channel + 10; see "Panel Channel" in README-PRA32-U2-P.md).
+// The editor keeps the values (in the browser), and sends them (nothing comes back);
+// the panel parameters have an Undo of their own (Ctrl+Z with the focus in this section) ----
+"use strict";
+
+const PANEL_SCALES = ["Maj", "Min", "Mel", "MaP", "MiP", "Chr"];
+function panelClamp(v, min, max) { return Math.min(Math.max(v, min), max); }
+function panelSigned(v) { return (v > 0 ? "+" : "") + v; }
+function panelHex2(v) { return "x" + v.toString(16).toUpperCase().padStart(2, "0"); }
+
+// [category, name, supplement, CC#, default, display, markers (the class of PRA32-U2 Editor)], in groups (rows of 4)
+const PANEL_PARAM_GROUPS = [
+  // In the order of the pages of the panel (B-00 to B-03), 2 a page (MIDI Basic Ch of B-00 and the empty one of B-03
+  // are empty cells here)
+  [["Panel", "Play Mode",  "[Nrm|Seq]",                 42, 0,   v => ["Nrm", "Seq"][(v * 2 + 128) >> 8],       "soft-markers-2"],
+   null,
+   ["Panel", "Play Pitch", "",                          44, 0,   v => panelPitchName(v),                        ""],
+   ["Panel", "Play Velo",  "",                          45, 100, v => String(v),                                ""],
+   ["Panel", "Scale",      "[Maj|Min|Mel|MaP|MiP|Chr]", 40, 0,   v => PANEL_SCALES[(v * 10 + 128) >> 8],        "soft-markers-6"],
+   ["Panel", "Pitch Ofst", "[-|+]",                     46, 64,  v => panelSigned(panelClamp(v - 64, -60, 60)), "soft-marker-c"],
+   ["Panel", "Transpose",  "[-|+]",                     41, 64,  v => panelSigned(v - 64),                      "soft-marker-c"]],
+  // B-04 to B-08
+  [["Seq", "Step Note",  "[4|8|16]",                  55, 64,  v => ["4", "8", "16"][(v * 4 + 128) >> 8],       "soft-markers-3"],
+   ["Seq", "Clock Src",  "[Int|Ext]",                 49, 0,   v => ["Int", "Ext"][(v * 2 + 128) >> 8],         "soft-markers-2"],
+   ["Seq", "Pitch Ofst", "[-|+]",                     54, 64,  v => panelSigned(panelClamp(v - 64, -60, 60)),   "soft-marker-c"],
+   ["Seq", "T/Rx St/Sp", "[Off|On]",                  57, 0,   v => ["Off", "On"][(v * 2 + 128) >> 8],          "soft-markers-2"],
+   ["Seq", "Tempo",      "",                          48, 64,  v => String(panelClamp(v * 2 - 8, 30, 240)),     ""],
+   ["Seq", "Gate Time",  "[1/6|2/6|3/6|4/6|5/6|6/6]", 50, 60,  v => ((v * 10 + 128) >> 8) + 1 + "/6",           "soft-markers-6"],
+   ["Seq", "Mode",       "[Fwd|Rvs|Bnc]",             52, 0,   v => ["Fwd", "Rvs", "Bnc"][(v * 4 + 128) >> 8],  "soft-markers-3"],
+   ["Seq", "Num Steps",  "",                          51, 32,  v => String(Math.max((v - 2) >> 2, 0) + 1),      ""],
+   ["Seq", "On Steps",   "",                          56, 127, v => panelHex2(v),                               ""],
+   ["Seq", "Act Steps",  "",                          53, 127, v => panelHex2(v),                               ""]],
+  // B-10 to B-17
+  [0, 1, 2, 3, 4, 5, 6, 7].flatMap(i => [["Seq", "Pitch " + i, "", 16 + i, [4, 22, 37, 57, 72, 89, 107, 124][i], v => panelPitchName(v), ""],
+                                         ["Seq", "Velo " + i,  "", 24 + i, 100, v => String(v), ""]]),
+];
+const PANEL_PARAMS = PANEL_PARAM_GROUPS.flat().filter(p => p);
+const PANEL_ON_STEPS_CC = 56, PANEL_ACT_STEPS_CC = 53;
+const PANEL_OPERATIONS = [
+  // Write (and its Undo) only: Read and Init of PRA32-U2 would change the parameters there, not in the editor
+  [102, "Write (to Device)", "Write the panel parameters of PRA32-U2 (or PRA32-U2/M/P Web, until the page is closed) to its flash", true],
+  [105, "Undo Write", "Bring back what the last Write replaced in the flash of PRA32-U2", true],
+];
+// The channels that PRA32-U2/M/P (and PRA32-U2/M/P Web) selects (Panel Target Ch): [name, the Basic Channel + this]
+const PANEL_TARGETS = [
+  ["Main Synth", 0], ["Sub Synth 1", 1], ["Sub Synth 2", 2], ["Sub Synth 3", 3],
+  ["Round Robin (2 notes: Main, Sub 1)", 6], ["Round Robin (2 notes: Sub 2, 3)", 7], ["Round Robin (2 notes x 2, layered)", 8],
+  ["Round Robin (3 notes: Sub 1-3)", 11], ["Round Robin (4 notes)", 12],
+  ["Layering (Main, Sub 1)", 13], ["Layering (Sub 2, 3)", 14], ["Layering (all 4)", 15],
+];
+const PANEL_STORAGE_KEY = "keyPRA32U2EditorPanel";
+
+let panelValues = {};
+let panelSettings = { panelCh: 10, target: 0 };
+let panelPlaying = false;
+let panelUndoStack = [];
+let panelRedoStack = [];
+let panelSliderBefore = null;
+
+const PANEL_SCALE_TABLES = [
+  [60, 60, 62, 62, 62, 62, 64, 64, 64, 65, 65, 65, 67, 67, 67, 67, 69, 69, 69, 69, 71, 71, 71, 72, 72],
+  [60, 60, 62, 62, 62, 63, 63, 63, 65, 65, 65, 65, 67, 67, 67, 68, 68, 68, 70, 70, 70, 70, 72, 72, 72],
+  [60, 60, 62, 62, 62, 63, 63, 63, 65, 65, 65, 65, 67, 67, 67, 67, 69, 69, 69, 69, 71, 71, 71, 72, 72],
+  [60, 60, 62, 62, 62, 62, 64, 64, 64, 64, 64, 67, 67, 67, 67, 67, 69, 69, 69, 69, 69, 72, 72, 72, 72],
+  [60, 60, 60, 63, 63, 63, 63, 63, 65, 65, 65, 65, 67, 67, 67, 67, 67, 70, 70, 70, 70, 70, 72, 72, 72],
+  [60, 61, 61, 62, 62, 63, 63, 64, 64, 65, 65, 66, 66, 67, 67, 68, 68, 69, 69, 70, 70, 71, 71, 72, 72],
+];
+const PANEL_NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+// The pitch as PRA32-U2/P shows it (see PRA32_U2_ControlPanel_calc_value_display_pitch())
+function panelPitchName(pitch) {
+  if (pitch === 0) { return "Off"; }
+  pitch = panelClamp(pitch, 4, 124);
+  const indexScale = (panelValues[40] * 10 + 128) >> 8;
+  const p = Math.floor((((pitch + panelClamp(panelValues[46] - 64, -60, 60) + panelClamp(panelValues[54] - 64, -60, 60) + 3) * 2) + 1) / 5) - 3 + 24;
+  const note = PANEL_SCALE_TABLES[indexScale][p % 24] + Math.floor(p / 24) * 12 - 24;
+  const n = panelClamp(note + (panelValues[41] - 64), 0, 127);
+  const octave = Math.floor(n / 12) - 1;
+  return PANEL_NOTE_NAMES[n % 12] + (octave < 0 ? "-" : octave.toString(16).toUpperCase());
+}
+
+function panelDefaultValues() {
+  const v = {};
+  PANEL_PARAMS.forEach(p => { v[p[3]] = p[4]; });
+  return v;
+}
+
+function panelSendCC(number, value) {
+  if (midiOutput) {
+    midiOutput.send([CONTROL_CHANGE | panelSettings.panelCh, number, value]);
+  }
+}
+
+function panelSave() {
+  try { localStorage.setItem(PANEL_STORAGE_KEY, JSON.stringify({ values: panelValues, settings: panelSettings })); } catch (e) {}
+}
+
+function panelLoad() {
+  panelValues = panelDefaultValues();
+  try {
+    const data = JSON.parse(localStorage.getItem(PANEL_STORAGE_KEY));
+    if (data) {
+      for (const cc in data.values || {}) {
+        if (cc in panelValues) { panelValues[cc] = panelClamp(parseInt(data.values[cc]) || 0, 0, 127); }
+      }
+      Object.assign(panelSettings, data.settings || {});
+    }
+  } catch (e) {}
+}
+
+function panelPushUndo() {
+  panelUndoStack.push(Object.assign({}, panelValues));
+  if (panelUndoStack.length > 200) { panelUndoStack.shift(); }
+  panelRedoStack = [];
+  panelUpdateUndoButtons();
+}
+
+function panelSetValues(newValues) {
+  for (const cc in newValues) {
+    if (panelValues[cc] !== newValues[cc]) { panelSendCC(Number(cc), newValues[cc]); }
+  }
+  panelValues = Object.assign({}, newValues);
+  panelUpdateDisplay();
+  panelSave();
+}
+
+function panelUndo() {
+  if (!panelUndoStack.length) { return; }
+  panelRedoStack.push(Object.assign({}, panelValues));
+  panelSetValues(panelUndoStack.pop());
+  panelUpdateUndoButtons();
+}
+
+function panelRedo() {
+  if (!panelRedoStack.length) { return; }
+  panelUndoStack.push(Object.assign({}, panelValues));
+  panelSetValues(panelRedoStack.pop());
+  panelUpdateUndoButtons();
+}
+
+function panelUpdateUndoButtons() {
+  document.getElementById("buttonPanelUndo").disabled = (panelUndoStack.length === 0);
+  document.getElementById("buttonPanelRedo").disabled = (panelRedoStack.length === 0);
+}
+
+function panelOnChangeValue(cc, value) {
+  panelValues[cc] = value;
+  panelSendCC(cc, value);
+  panelUpdateDisplay();
+  panelSave();
+}
+
+function panelOnChangeBits(cc, prefix) {
+  let bits = 0;
+  for (let i = 1; i < 8; i++) {
+    if (document.getElementById(prefix + i).checked) { bits |= 1 << (i - 1); }
+  }
+  panelOnChangeValue(cc, bits);
+}
+
+function panelUpdateDisplay() {
+  PANEL_PARAMS.forEach(p => {
+    const cc = p[3];
+    const input = document.getElementById("inputPanel" + cc);
+    input.value = panelValues[cc];
+    updateSliderFill(input);
+    const text = p[5](panelValues[cc]);
+    document.getElementById("spanPanel" + cc).textContent = panelValues[cc];
+    document.getElementById("span2Panel" + cc).textContent = (text === String(panelValues[cc])) ? "" : "[" + text + "]";
+  });
+  for (let i = 1; i < 8; i++) {
+    document.getElementById("panelOn" + i).checked = (panelValues[PANEL_ON_STEPS_CC] >> (i - 1)) & 1;
+    document.getElementById("panelAct" + i).checked = (panelValues[PANEL_ACT_STEPS_CC] >> (i - 1)) & 1;
+  }
+  const play = document.getElementById("buttonPanelPlay");
+  play.classList.toggle("kbd-hold-on", panelPlaying);
+  play.textContent = panelPlaying ? "Stop" : "Play";
+}
+
+function onClickPanelPlay() {
+  panelPlaying = !panelPlaying;
+  panelSendCC(111, panelPlaying ? 127 : 0);
+  panelUpdateDisplay();
+}
+
+function sendPanelCurrent() {
+  panelSendCC(58, PANEL_TARGETS[panelSettings.target][1]);
+  // The Panel Parameters first (the Scale and the offsets that the pitches need), and then the others
+  [40, 41, 42, 44, 45, 46, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57].forEach(cc => panelSendCC(cc, panelValues[cc]));
+  for (let i = 0; i < 8; i++) { panelSendCC(16 + i, panelValues[16 + i]); panelSendCC(24 + i, panelValues[24 + i]); }
+}
+
+function panelInitValues() {
+  panelPushUndo();
+  panelValues = panelDefaultValues();
+  panelUpdateDisplay();
+  panelSave();
+  sendPanelCurrent();
+}
+
+// Randomizes Seq Pitch 0-7 (16) or Seq Velo 0-7 (24) in the editor, and sends them, so that the editor shows the values
+function panelRandomizeSteps(firstCC) {
+  panelPushUndo();
+  for (let i = 0; i < 8; i++) {
+    panelValues[firstCC + i] = Math.floor(Math.random() * 128);
+    panelSendCC(firstCC + i, panelValues[firstCC + i]);
+  }
+  panelUpdateDisplay();
+  panelSave();
+}
+
+// The Basic Channel of PRA32-U2 chosen (not MIDI Ch, the channel of the synth to edit), and the Panel CC Ch is
+// the Basic Channel + 10, as in PRA32-U2 (kept as panelCh, the Panel CC Ch, as before)
+function onChangePanelCh() {
+  panelSettings.panelCh = (document.getElementById("selectPanelCh").selectedIndex + 10) & 0x0F;
+  panelUpdateTargetOptions();
+  panelSave();
+}
+
+function onChangePanelTarget() {
+  panelSettings.target = document.getElementById("selectPanelTarget").selectedIndex;
+  panelSendCC(58, PANEL_TARGETS[panelSettings.target][1]);
+  panelSave();
+}
+
+// The channels of Panel Target Ch, by the Basic Channel (the Panel Channel - 10)
+function panelUpdateTargetOptions() {
+  const select = document.getElementById("selectPanelTarget");
+  const basicCh = (panelSettings.panelCh + 6) & 0x0F;
+  document.getElementById("spanPanelCCCh").textContent = `Panel CC Ch ${panelSettings.panelCh + 1}`;
+  select.innerHTML = "";
+  PANEL_TARGETS.forEach(([name, offset]) => {
+    const o = document.createElement("option");
+    o.textContent = `Basic Ch + ${offset}: ${name} (Ch ${((basicCh + offset) & 0x0F) + 1})`;
+    select.appendChild(o);
+  });
+  select.selectedIndex = panelSettings.target;
+}
+
+// The panel parameters kept in the browser (one set): Store keeps the current ones, and User Preset sets them in the editor
+// and sends them (Undo can bring back those before)
+const PANEL_MEMORY_KEY = "keyPanelMemory";
+
+function panelGetMemory() {
+  try {
+    const data = JSON.parse(localStorage.getItem(PANEL_MEMORY_KEY));
+    if (data && data.values) { return data; }
+  } catch (e) {}
+  return null;
+}
+
+function panelUpdateMemoryButtons() {
+  document.getElementById("buttonPanelRecall").disabled = !panelGetMemory();
+}
+
+function panelRecall() {
+  const data = panelGetMemory();
+  if (!data) { return; }
+  panelPushUndo();
+  const values = panelDefaultValues();
+  for (const cc in data.values) {
+    if (cc in values) { values[cc] = panelClamp(parseInt(data.values[cc]) || 0, 0, 127); }
+  }
+  panelSetValues(values);
+}
+
+function panelStore() {
+  try { localStorage.setItem(PANEL_MEMORY_KEY, JSON.stringify({ values: panelValues })); } catch (e) {}
+  panelUpdateMemoryButtons();
+}
+
+// File: the panel parameters exported to a JSON file ("pra32-u2-panel.json"), and imported from it (and sent)
+function panelExport() {
+  const data = { format: "PRA32-U2 Panel Parameters", values: panelValues };
+  const blob = new Blob([JSON.stringify(data, null, 2) + "\n"], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "pra32-u2-panel.json";
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+function panelImport(event) {
+  const file = event.target.files[0];
+  event.target.value = "";
+  if (!file) { return; }
+  file.text().then(text => {
+    const data = JSON.parse(text);
+    if (!data || !data.values) { throw new Error("no panel parameters"); }
+    panelPushUndo();
+    const values = panelDefaultValues();
+    for (const cc in data.values) {
+      if (cc in values) { values[cc] = panelClamp(parseInt(data.values[cc]) || 0, 0, 127); }
+    }
+    panelSetValues(values);
+  }).catch(e => alert("Could not import the file: " + e.message));
+}
+
+function setupPanel() {
+  panelLoad();
+  document.getElementById("filePanelImport").addEventListener("change", panelImport);
+
+  panelUpdateMemoryButtons();
+
+  // The 3 parts: shown or hidden as at the last time (shown by default)
+  [["panelCtrlDetails", "keyPanelCtrlOpen"], ["panelParamsDetails", "keyPanelParamsOpen"], ["panelSeqDetails", "keyPanelSeqOpen"]].forEach(([id, key]) => {
+    const sub = document.getElementById(id);
+    try { sub.open = (localStorage.getItem(key) !== "0"); } catch (e) {}
+    sub.addEventListener("toggle", () => {
+      try { localStorage.setItem(key, sub.open ? "1" : "0"); } catch (e) {}
+    });
+  });
+
+  // Shown or hidden as at the last time (hidden by default), as Store & File
+  const details = document.getElementById("panelDetails");
+  try { details.open = (localStorage.getItem("keyPanelOpen") === "1"); } catch (e) {}
+  details.addEventListener("toggle", () => {
+    try { localStorage.setItem("keyPanelOpen", details.open ? "1" : "0"); } catch (e) {}
+    if (typeof fitLayout === "function") { fitLayout(); }
+  });
+
+  const ch = document.getElementById("selectPanelCh");
+  for (let i = 1; i <= 16; i++) { const o = document.createElement("option"); o.textContent = i; ch.appendChild(o); }
+  ch.selectedIndex = (panelSettings.panelCh + 6) & 0x0F;  // the Basic Channel
+  panelUpdateTargetOptions();
+
+  // The parameters, as those of PRA32-U2 Editor (the steps as Seq Pitch N and Seq Velo N side by side)
+  PANEL_PARAM_GROUPS.forEach((group, g) => {
+    const container = document.getElementById((g === 0) ? "divPanelParamsPanel" : "divPanelParamsSeq");
+    const div = document.createElement("div");
+    div.className = "param-group";
+    group.forEach(p => {
+      if (!p) {  // An empty cell, as of PRA32-U2 Editor
+        const spacer = document.createElement("div");
+        spacer.className = "param-spacer";
+        spacer.setAttribute("aria-hidden", "true");
+        div.appendChild(spacer);
+        return;
+      }
+      const [category, name, sup, cc, , , markers] = p;
+      const param = document.createElement("div");
+      param.className = "param";
+      param.innerHTML = `<div class="param-name"><b>${category}</b> ${name}${sup ? ` <span class="sup">${sup}</span>` : ""} <span class="cc">CC#${cc}</span></div>
+        <div class="param-ctrl ${markers}"><input id="inputPanel${cc}" type="range" min="0" max="127" step="1" aria-label="${category} ${name}"><span id="spanPanel${cc}">-</span><span id="span2Panel${cc}">-</span></div>`;
+      const input = param.querySelector("input");
+      input.addEventListener("input", () => {
+        if (panelSliderBefore) { panelUndoStack.push(panelSliderBefore); panelRedoStack = []; panelSliderBefore = null; panelUpdateUndoButtons(); }
+        panelOnChangeValue(cc, parseInt(input.value));
+      });
+      ["pointerdown", "keydown"].forEach(type => input.addEventListener(type, e => { if (!e.repeat) { panelSliderBefore = Object.assign({}, panelValues); } }));
+      div.appendChild(param);
+      if (cc === PANEL_ON_STEPS_CC || cc === PANEL_ACT_STEPS_CC) {
+        // The check boxes of the steps 1-7 beside it (step 0 is always On and Active: shown checked, and not changed)
+        const prefix = (cc === PANEL_ON_STEPS_CC) ? "panelOn" : "panelAct";
+        const steps = document.createElement("div");
+        steps.className = "param";
+        steps.innerHTML = `<div class="param-name"></div><div class="panel-steps-ctrl" role="group" aria-label="${category} ${name}"><label><input type="checkbox" checked disabled>0</label>${
+          [1, 2, 3, 4, 5, 6, 7].map(i => `<label><input type="checkbox" id="${prefix}${i}">${i}</label>`).join("")}</div>`;
+        steps.querySelectorAll("input[id]").forEach(box => box.addEventListener("change", () => {
+          panelPushUndo();
+          panelOnChangeBits(cc, prefix);
+        }));
+        div.appendChild(steps);
+      }
+    });
+    container.appendChild(div);
+  });
+
+  const ops = document.getElementById("divPanelOps");
+  PANEL_OPERATIONS.forEach(([cc, name, title, confirmIt]) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.textContent = name;
+    b.style.color = "green";  // As Write (to Device) of the programs
+    b.addEventListener("click", () => {
+      if (confirmIt && !confirm(title + "?")) { return; }
+      panelSendCC(cc, 0);
+      panelSendCC(cc, 127);
+    });
+    ops.appendChild(b);
+  });
+
+  panelUpdateDisplay();
+  panelUpdateUndoButtons();
+}
+
+document.addEventListener("DOMContentLoaded", setupPanel);
+</script>
 
 </body>
 </html>

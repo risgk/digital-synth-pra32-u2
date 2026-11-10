@@ -3,6 +3,21 @@
 
 #define PRA32_U2_ENABLE_POLY_ON_1_CORE
 
+#if defined(PRA32_U2_ENGINE_M)
+// PRA32-U2/M/P Web (PRA32_U2_ENGINE_M) has the panel parameters and the Step Sequencer of PRA32-U2/M/P (Experimental),
+// as PRA32-U2/M/P without the panel (no keys, no knobs, and no display), controlled by the Panel Channel
+// (the Basic Channel + 10); the Native (without PRA32_U2_ENGINE_M) does not
+#define PRA32_U2_USE_CONTROL_PANEL
+#define PRA32_U2_USE_PANEL_CHANNEL
+#define PRA32_U2_ENABLE_LAYERING
+#define PRA32_U2_ENABLE_ROUND_ROBIN
+#define PRA32_U2_NUMBER_OF_SYNTHS              (4 + 5 + 3)  // The 4 synths, the Round Robin, and the Layering
+#define PRA32_U2_ANALOG_INPUT_DENOMINATOR      (480)        // Not used (no knobs)
+#if !defined(PRA32_U2_VERSION)
+#define PRA32_U2_VERSION                       "v?.?.?    "  // On the Info page (not shown without the display)
+#endif  // !defined(PRA32_U2_VERSION)
+#endif  // defined(PRA32_U2_ENGINE_M)
+
 #include "PRA32U2NativeCompat.h"
 
 uint8_t g_midi_ch = 0;  // Used by the core (only for the panel); the engine receives all channels
@@ -15,7 +30,7 @@ uint8_t g_midi_ch = 0;  // Used by the core (only for the panel); the engine rec
 #include <array>
 
 #if defined(PRA32_U2_ENGINE_M)
-// PRA32-U2/M (PRA32-U2/M Web): the 4 synths (the Main Synth and the Sub Synths 1-3), as "Digital-Synth-PRA32-U2-M.ino",
+// PRA32-U2/M (PRA32-U2/M/P Web): the 4 synths (the Main Synth and the Sub Synths 1-3), as "Digital-Synth-PRA32-U2-M.ino",
 // with the MIDI messages by "pra32-u2-m-midi.h" (the Basic Channel 1, the Layering, and the Round Robin).
 // They are global variables, as "pra32-u2-m-midi.h" uses them, so there is one of them at most in a process
 typedef uint8_t byte;
@@ -26,8 +41,7 @@ PRA32_U2_Synth<true,  false, true, 2, true>  g_sub_2_synth;
 PRA32_U2_Synth<true,  false, true, 3, true>  g_sub_3_synth;
 boolean g_synth_is_in_polyphonic_mode = true;
 
-#define PRA32_U2_ENABLE_LAYERING
-#define PRA32_U2_ENABLE_ROUND_ROBIN
+#include "pra32-u2-control-panel.h"
 #include "pra32-u2-m-midi.h"
 #endif  // defined(PRA32_U2_ENGINE_M)
 
@@ -330,6 +344,8 @@ PRA32U2Engine::PRA32U2Engine(bool m)
     g_sub_1_synth.initialize();
     g_sub_2_synth.initialize();
     g_sub_3_synth.initialize();
+    PRA32_U2_ControlPanel_setup();
+    PRA32_U2_ControlPanel_initialize_parameters();
     return;
   }
 #else
@@ -351,6 +367,17 @@ void PRA32U2Engine::handleMidiMessage(const uint8_t* data, int size) {
 
 #if defined(PRA32_U2_ENGINE_M)
   if (m_impl->m) {
+    // MIDI Clock, Start, and Stop, for the Step Sequencer with Seq Clock Src Ext, as "Digital-Synth-PRA32-U2-M.ino"
+    if (data[0] == 0xF8) {
+      PRA32_U2_ControlPanel_on_clock();
+      return;
+    } else if ((data[0] == 0xFA) || (data[0] == 0xFC)) {
+      if (g_synth.current_controller_value(SEQ_TRX_ST_SP  ) >= 64) {
+        if (data[0] == 0xFA) { PRA32_U2_ControlPanel_on_start(); } else { PRA32_U2_ControlPanel_on_stop(); }
+      }
+      return;
+    }
+
     // By the channel, as "Digital-Synth-PRA32-U2-M.ino" (a Program Change is processed in one of the next loops)
     byte channel = (data[0] & 0x0F) + 1;
     switch (status) {
@@ -431,6 +458,7 @@ void PRA32U2Engine::process(float& left, float& right) {
     // the Sub Synths only while the Main Synth is not in Poly
     if (m_impl->frame == 0) {
       processOnePendingProgramChange();
+      PRA32_U2_ControlPanel_update_control();  // The Step Sequencer and the panel play, a loop (as loop() of the sketch)
       boolean mode = g_synth.is_in_polyphonic_mode();
       if (g_synth_is_in_polyphonic_mode != mode) {
         g_synth_is_in_polyphonic_mode = mode;
