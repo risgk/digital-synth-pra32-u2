@@ -4084,6 +4084,7 @@ function panelImport(event) {
   file.text().then(text => {
     const data = JSON.parse(text);
     if (!data || !data.values) { throw new Error("no panel parameters"); }
+    if (!confirm("Import the panel parameters?")) { return; }  // as Import Current
     panelPushUndo();
     const values = panelDefaultValues();
     for (const cc in data.values) {
