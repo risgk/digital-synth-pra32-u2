@@ -31,7 +31,7 @@
         - The Basic Channel can be set by it too (MIDI Basic Ch and Set Basic Ch), as by the panel; "Set Basic Ch (to Device)" of PRA32-U2 Editor, whose Export keeps it
         - PRA32-U2 Editor: Add **"Panel & Step Sequencer"** (hidden by default); and the MIDI Implementation Chart of the Panel Channel, and "pra32-u2-panel-initial.json"
         - PRA32-U2 Web: "PRA32-U2/M Web (Built-in)" is now **"PRA32-U2/M/P Web (Built-in)"**, with the Panel Channel
-        - Seq Tempo: 120 BPM (64) at first, and by Init Panel Prms (56 BPM, 32, before)
+        - Seq Tempo: 120 BPM (64) at first, and by Init Panel Prms (56 BPM, 32, before); Seq Gate Time: 51 (3/6, 60 before), on its marker
         - About 2.8 KB less of the RAM with the panel
     - Tested with Arduino-Pico version 6.3.0
 - v3.20.0 (2026-11-06):
