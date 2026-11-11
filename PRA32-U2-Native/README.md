@@ -67,6 +67,8 @@ PRA32-U2 Native: a software synthesizer (VST3 plugin and standalone application)
     - The parameter changes by the host are sent to the synth as Control Changes
     - The values changed by MIDI (Control Changes, Program Changes, PRA32-U2 Editor) are reflected to the parameters
     - The parameters are saved in the host's project (the plugin state)
+    - One synth, as PRA32-U2 (not PRA32-U2/M): no Voice Group Mode (CC#80 is "---");
+      for a unison or layers, use 2-4 instances with the same MIDI in the host (e.g. Fine Tune and Pan a little apart)
 - Sampling rate: the signal processing runs at 48 kHz only, and its output is resampled to the host sampling rate
     - At 48 kHz, no resampling (no latency)
     - At other sampling rates, a windowed sinc resampler (48 taps at 48 kHz) is used,
