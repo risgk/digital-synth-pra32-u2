@@ -119,6 +119,7 @@ const uint8_t   AMP_VEL_SENS    = 63;
 const uint8_t   A_D_KEY_TRK     = 16;
 const uint8_t   VOICE_ASGN_MODE = 110;
 const uint8_t   PAN             = 10;
+const uint8_t   VOICE_GRP_MODE  = 80;  // PRA32-U2/M: of the Main Synth (see "pra32-u2-m-midi.h")
 const uint8_t   STRETCH_TUNE    = 22;
 
 const uint8_t   OSC_DRIFT       = 82;

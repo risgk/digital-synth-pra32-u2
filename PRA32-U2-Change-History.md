@@ -11,7 +11,7 @@
         - Not compatible: a user program with Osc/Filter Drift (written before) drifts by 2 times as much (e.g. 64, the Presets before, is now 2.8 cent: set it to 32)
     - Filter: The self-oscillation 0.3 at most (0.25 before): 0.15 at the Resonance 123 (as before), 0.21 at 124, 0.25 at 125, 0.28 at 126, and 0.3 at 127, with the output of the Filter lowered less at a high Resonance (-4.4 dB at 127, from -6.0 dB) and more at each step up
     - Add **LFO Trig Mode** [Aut|Off|On|VOn|VOf|VAu] (Control Change #88): how a note on restarts the LFO, and an LFO for each Voice (VOn, VOf, and VAu); Aut (the Presets) as before
-        - PRA32-U2 Editor, PRA32-U2 Native, and the control panel of PRA32-U2/P (Page A-27) too
+        - PRA32-U2 Editor, PRA32-U2 Native, and the control panel of PRA32-U2/P (Page A-28) too
         - PRA32-U2/M: The LFOs of the 4 Synths start a quarter apart (Sub Synth N at N / 4, at the start and at All Sound Off), as the LFOs of the Voices; with the rates a little apart (as before), Sub Synth N runs as Voice N + 1 of the Main Synth
     - Osc: The phases of Osc 1 and Osc 2 start from random values (the same at every start), not 0, and go back to them at All Sound Off (Osc 1 to 0 before), so that the oscillators do not start in phase with each other
     - Presets: Stretch Tune +8 (72), half the stretch of before (+16, 80): +4.7 cent at note number 108 and -4.7 cent at note number 12
@@ -21,8 +21,14 @@
     - PRA32-U2 Editor: The sliders of the switches of 2, 3, and 6 choices snap to their markers when dragged near them, as before v3.17.0
     - PRA32-U2 Editor: "Send Current" moved from Actions to the heading of "MIDI" (shown while it is hidden too); "Panic" removed from Actions (on the bar of the Software Keyboard, as before)
     - PRA32-U2 Editor: Fix that the parameters were sent to PRA32-U2 Web (chosen in MIDI Out the last time) when the editor started: nothing is sent, as to PRA32-U2
-    - PRA32-U2/P: Add the **Panel Channel** (Experimental, enabled by default): the Control Changes on the Basic Channel + 10 control the Panel and Step Sequencer Parameters and the operations (see README-PRA32-U2-P.md)
+    - PRA32-U2/M: Fewer channels: the 4 synths on the Basic Channel + 0 to + 3, and + 4, + 5, and + 15 (the Layering of all) by **Voice Group Mode**
+      (Experimental, CC #80, a parameter of the programs of the Main Synth, next to Voice Assign Mode; Off, Ly2, RLy, RR2, RR3, or RR4); not Off, Voice Mode Pol of the Main Synth acts as Mon
+        - Not compatible: the Round Robin on + 6 to + 8, + 11, and + 12, and the Layering on + 13 and + 14 are now by Voice Group Mode
+        - `PRA32_U2_ENABLE_ROUND_ROBIN` removed: the Round Robin is with the Layering (`PRA32_U2_ENABLE_LAYERING`)
+    - PRA32-U2/P: Fix that the Basic Channel was 1 or 2 at first (with no panel parameters written), when `PRA32_U2_MIDI_CH` is not 0 (Channel 1)
+    - PRA32-U2/P: Add the **Panel Channel** (Experimental, enabled by default): the Control Changes on the Basic Channel + 14 control the Panel and Step Sequencer Parameters and the operations (see README-PRA32-U2-P.md)
         - Also without the panel: with `PRA32_U2_USE_CONTROL_PANEL`, the keys, the VRs, and the OLED display can each be left out
+        - The Basic Channel can be set by it too (MIDI Basic Ch and Set Basic Ch), as by the panel; "Set Basic Ch (to Device)" of PRA32-U2 Editor, whose Export keeps it
         - PRA32-U2 Editor: Add **"Panel & Step Sequencer"** (Experimental, hidden by default); and the MIDI Implementation Chart of the Panel Channel, and "pra32-u2-panel-initial.json"
         - PRA32-U2 Web: "PRA32-U2/M Web (Built-in)" is now **"PRA32-U2/M/P Web (Built-in)"**, with the Panel Channel
         - Seq Tempo: 120 BPM (64) at first, and by Init Panel Prms (56 BPM, 32, before)

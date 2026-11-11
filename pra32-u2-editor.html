@@ -868,7 +868,7 @@ span.cc {
 #panelDetails .misc-buttons {
   flex: 0 1 auto;
 }
-/* The Panel CC Ch (the Basic Ch + 10) after the Basic Ch, as the CC numbers after the names */
+/* The Panel CC Ch (the Basic Ch + 14) after the Basic Ch, as the CC numbers after the names */
 #spanPanelCCCh {
   align-self: center;
 }
@@ -974,6 +974,7 @@ const AMP_VEL_SENS    = 63;
 const A_D_KEY_TRK     = 16;
 const VOICE_ASGN_MODE = 110;
 const PAN             = 10;
+const VOICE_GRP_MODE  = 80;  // PRA32-U2/M: of the Main Synth
 const STRETCH_TUNE    = 22;
 
 const OSC_DRIFT       = 82;
@@ -1084,14 +1085,15 @@ var controlNumberToStringMap = new Map([
 
   [ A_D_KEY_TRK    , "A_D_KEY_TRK    " ],
   [ VOICE_ASGN_MODE, "VOICE_ASGN_MODE" ],
+  [ VOICE_GRP_MODE , "VOICE_GRP_MODE " ],
   [ LFO_TRIG_MODE  , "LFO_TRIG_MODE  " ],
-  [ STRETCH_TUNE   , "STRETCH_TUNE   " ],
 
   [ BTH_FILTER_AMT , "BTH_FILTER_AMT " ],
   [ BTH_AMP_MOD    , "BTH_AMP_MOD    " ],
   [ AFT_T_LFO_AMT  , "AFT_T_LFO_AMT  " ],
   [ PORTA_MODE     , "PORTA_MODE     " ],
   [ OSC_SAW_W_MODE , "OSC_SAW_W_MODE " ],
+  [ STRETCH_TUNE   , "STRETCH_TUNE   " ],
   [ PAN            , "PAN            " ],
 
   [ DISTORTION     , "DISTORTION     " ],
@@ -1165,14 +1167,15 @@ var controllersInLocalStorage = [
 
   A_D_KEY_TRK    ,
   VOICE_ASGN_MODE,
+  VOICE_GRP_MODE ,
   LFO_TRIG_MODE  ,
-  STRETCH_TUNE   ,
 
   BTH_FILTER_AMT ,
   BTH_AMP_MOD    ,
   AFT_T_LFO_AMT  ,
   PORTA_MODE     ,
   OSC_SAW_W_MODE ,
+  STRETCH_TUNE   ,
   PAN            ,
 
   DISTORTION     ,
@@ -1248,14 +1251,15 @@ presetControllers[AMP_VEL_SENS   ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   
 
 presetControllers[A_D_KEY_TRK    ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 presetControllers[VOICE_ASGN_MODE] = [76 , 76 , 76 , 76 , 76 , 76 , 76 , 76 ,   76 , 76 , 76 , 76 , 76 , 76 , 76 , 76 ];
+presetControllers[VOICE_GRP_MODE ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 presetControllers[LFO_TRIG_MODE  ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
-presetControllers[STRETCH_TUNE   ] = [72 , 72 , 72 , 72 , 72 , 72 , 72 , 72 ,   72 , 72 , 72 , 72 , 72 , 72 , 72 , 72 ];
 
 presetControllers[BTH_FILTER_AMT ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 presetControllers[BTH_AMP_MOD    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 presetControllers[AFT_T_LFO_AMT  ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 presetControllers[PORTA_MODE     ] = [127, 127, 127, 127, 127, 127, 127, 127,   127, 127, 127, 127, 127, 127, 127, 127];
 presetControllers[OSC_SAW_W_MODE ] = [127, 127, 127, 127, 127, 127, 127, 127,   127, 127, 127, 127, 127, 127, 127, 127];
+presetControllers[STRETCH_TUNE   ] = [72 , 72 , 72 , 72 , 72 , 72 , 72 , 72 ,   72 , 72 , 72 , 72 , 72 , 72 , 72 , 72 ];
 presetControllers[PAN            ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 
 presetControllers[DISTORTION     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
@@ -1934,6 +1938,13 @@ function updateDisplayOfControl(number, value) {
       dispValue = ary[index];
     }
     break;
+  case VOICE_GRP_MODE  :
+    {
+      var ary = ["Off","Ly2","RLy","RR2","RR3","RR4"];
+      var index = Math.floor(((value * 10) + 128) >> 8);
+      dispValue = ary[index];
+    }
+    break;
   case OSC_SAW_W_MODE  :
     {
       var ary = ["Str","Cur"];
@@ -2010,6 +2021,16 @@ function updateDisplayOfControl(number, value) {
   localStorage.setItem("key" + controlNumberToStringMap.get(number), value);
 }
 
+// Voice Group Mode (PRA32-U2/M): its slider sends it on the Basic Channel (Basic Ch of Panel & Step Sequencer, 1 by default),
+// whatever MIDI Ch is, as only that of the Main Synth works (the others, e.g. by Send Current, go to the synth of MIDI Ch)
+function onChangeVoiceGroupMode(value) {
+  updateDisplayOfControl(VOICE_GRP_MODE, value);
+  if (midiOutput) {
+    var basicCh = (typeof panelSettings !== "undefined") ? panelSettings.basicCh : 0;
+    midiOutput.send([(CONTROL_CHANGE | basicCh), VOICE_GRP_MODE, parseInt(value)]);
+  }
+}
+
 function onChangeControlChange(number, value) {
   updateDisplayOfControl(number, value);
   if (DIMMING_CONTROLS.indexOf(number) >= 0) {
@@ -2051,6 +2072,7 @@ function setRandom() {
         (i != VOICE_ASGN_MODE) &&
         (i != A_D_KEY_TRK    ) &&
         (i != PAN            ) &&
+        (i != VOICE_GRP_MODE ) &&
         (i != STRETCH_TUNE   ) &&
         (i != OSC_DRIFT      ) &&
         (i != OSC_SAW_W_MODE ) &&
@@ -3128,8 +3150,8 @@ function fileExport() {
   str += "\n";
   str += fileExportOneLine(A_D_KEY_TRK    );
   str += fileExportOneLine(VOICE_ASGN_MODE);
+  str += fileExportOneLine(VOICE_GRP_MODE );
   str += fileExportOneLine(LFO_TRIG_MODE  );
-  str += fileExportOneLine(STRETCH_TUNE   );
   str += "\n";
   str += "\n";
   str += fileExportOneLine(BTH_FILTER_AMT );
@@ -3137,6 +3159,7 @@ function fileExport() {
   str += fileExportOneLine(AFT_T_LFO_AMT  );
   str += fileExportOneLine(PORTA_MODE     );
   str += fileExportOneLine(OSC_SAW_W_MODE );
+  str += fileExportOneLine(STRETCH_TUNE   );
   str += fileExportOneLine(PAN            );
   str += "\n";
   str += fileExportOneLine(DISTORTION     );
@@ -3616,12 +3639,12 @@ function getStoredCCValueString(index, number) {
   <div class="param-ctrl soft-markers-6"><input  id="inputVOICE_ASGN_MODE"  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(VOICE_ASGN_MODE, value)"><span    id="spanVOICE_ASGN_MODE" >-</span><span   id="span2VOICE_ASGN_MODE" >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>LFO</b> Trig Mode <span class="sup">[Aut|Off|On|VOn|VOf|VAu]</span> <span class="cc">CC#88</span></div>
-  <div class="param-ctrl soft-markers-6"><input  id="inputLFO_TRIG_MODE  "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_TRIG_MODE  , value)"><span    id="spanLFO_TRIG_MODE  " >-</span><span   id="span2LFO_TRIG_MODE  " >-</span></div>
+  <div class="param-name"><b>Voice</b> Group Mode <span class="sup">[Off|Ly2|RLy|RR2|RR3|RR4]</span> <span class="cc">CC#80</span></div>
+  <div class="param-ctrl soft-markers-6"><input  id="inputVOICE_GRP_MODE "  type="range" min="0" max="127" step="1" oninput="onChangeVoiceGroupMode(value)"><span    id="spanVOICE_GRP_MODE " >-</span><span   id="span2VOICE_GRP_MODE " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name">Stretch Tune <span class="sup">[-|+]</span> <span class="cc">CC#22</span></div>
-  <div class="param-ctrl soft-marker-c"><input  id="inputSTRETCH_TUNE   "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(STRETCH_TUNE   , value)"><span    id="spanSTRETCH_TUNE   " >-</span><span   id="span2STRETCH_TUNE   " >-</span></div>
+  <div class="param-name"><b>LFO</b> Trig Mode <span class="sup">[Aut|Off|On|VOn|VOf|VAu]</span> <span class="cc">CC#88</span></div>
+  <div class="param-ctrl soft-markers-6"><input  id="inputLFO_TRIG_MODE  "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_TRIG_MODE  , value)"><span    id="spanLFO_TRIG_MODE  " >-</span><span   id="span2LFO_TRIG_MODE  " >-</span></div>
 </div>
 </div>
 <div class="param-group">
@@ -3644,6 +3667,10 @@ function getStoredCCValueString(index, number) {
 <div class="param">
   <div class="param-name"><b>Osc</b> Saw Wave Mode <span class="sup">[Str|Cur]</span> <span class="cc">CC#83</span></div>
   <div class="param-ctrl soft-markers-2"><input  id="inputOSC_SAW_W_MODE "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_SAW_W_MODE , value)"><span    id="spanOSC_SAW_W_MODE " >-</span><span   id="span2OSC_SAW_W_MODE " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name">Stretch Tune <span class="sup">[-|+]</span> <span class="cc">CC#22</span></div>
+  <div class="param-ctrl soft-marker-c"><input  id="inputSTRETCH_TUNE   "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(STRETCH_TUNE   , value)"><span    id="spanSTRETCH_TUNE   " >-</span><span   id="span2STRETCH_TUNE   " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name">Pan <span class="cc">CC#10</span></div>
@@ -3708,13 +3735,14 @@ function getStoredCCValueString(index, number) {
 <div class="section misc">
 <div class="misc-group"><span>Basic Ch</span><div class="misc-buttons">
 <select id="selectPanelCh" onchange="onChangePanelCh()" aria-label="Basic Ch"></select><span class="cc" id="spanPanelCCCh"></span>
+<button type="button" id="buttonPanelSetBasicCh" onclick="panelSetBasicChAsked()" style="color: green">Set Basic Ch (to Device)</button>
 <span id="spanPanelTarget">Panel Target Ch<span class="cc">CC#58</span> <select id="selectPanelTarget" onchange="onChangePanelTarget()"></select></span>
 </div></div>
 </div>
 <div class="section misc">
 <div class="misc-group"><span>Actions</span><div class="misc-buttons">
 <button type="button" onclick="panelRandomizeSteps(16)">Seq Randomize Pitch</button>
-<button type="button" onclick="panelRandomizeSteps(24)">Seq Randomize Velo</button>
+<button type="button" onclick="panelRandomizeSteps(70)">Seq Randomize Velo</button>
 <button type="button" id="buttonPanelUndo" onclick="panelUndo()" title="Back to the panel parameters before the last change (Seq Randomize Pitch/Velo, Initialize, User Preset, Import, or a move of a slider or a check box) (Ctrl+Z, with the focus here)">Undo</button>
 <button type="button" id="buttonPanelRedo" onclick="panelRedo()" title="Forward again to the panel parameters before Undo (Ctrl+Y or Ctrl+Shift+Z, with the focus here)">Redo</button></div></div>
 </div>
@@ -3810,30 +3838,30 @@ function panelHex2(v) { return "x" + v.toString(16).toUpperCase().padStart(2, "0
 const PANEL_PARAM_GROUPS = [
   // In the order of the pages of the panel (B-00 to B-03), 2 a page (MIDI Basic Ch of B-00 and the empty one of B-03
   // are empty cells here)
-  [["Panel", "Play Mode",  "[Nrm|Seq]",                 42, 0,   v => ["Nrm", "Seq"][(v * 2 + 128) >> 8],       "soft-markers-2"],
+  [["Panel", "Play Mode",  "[Nrm|Seq]",                 53, 0,   v => ["Nrm", "Seq"][(v * 2 + 128) >> 8],       "soft-markers-2"],
    null,
-   ["Panel", "Play Pitch", "",                          44, 0,   v => panelPitchName(v),                        ""],
-   ["Panel", "Play Velo",  "",                          45, 100, v => String(v),                                ""],
-   ["Panel", "Scale",      "[Maj|Min|Mel|MaP|MiP|Chr]", 40, 0,   v => PANEL_SCALES[(v * 10 + 128) >> 8],        "soft-markers-6"],
-   ["Panel", "Pitch Ofst", "[-|+]",                     46, 64,  v => panelSigned(panelClamp(v - 64, -60, 60)), "soft-marker-c"],
-   ["Panel", "Transpose",  "[-|+]",                     41, 64,  v => panelSigned(v - 64),                      "soft-marker-c"]],
+   ["Panel", "Play Pitch", "",                          54, 0,   v => panelPitchName(v),                        ""],
+   ["Panel", "Play Velo",  "",                          55, 100, v => String(v),                                ""],
+   ["Panel", "Scale",      "[Maj|Min|Mel|MaP|MiP|Chr]", 51, 0,   v => PANEL_SCALES[(v * 10 + 128) >> 8],        "soft-markers-6"],
+   ["Panel", "Pitch Ofst", "[-|+]",                     56, 64,  v => panelSigned(panelClamp(v - 64, -60, 60)), "soft-marker-c"],
+   ["Panel", "Transpose",  "[-|+]",                     52, 64,  v => panelSigned(v - 64),                      "soft-marker-c"]],
   // B-04 to B-08
-  [["Seq", "Step Note",  "[4|8|16]",                  55, 64,  v => ["4", "8", "16"][(v * 4 + 128) >> 8],       "soft-markers-3"],
-   ["Seq", "Clock Src",  "[Int|Ext]",                 49, 0,   v => ["Int", "Ext"][(v * 2 + 128) >> 8],         "soft-markers-2"],
-   ["Seq", "Pitch Ofst", "[-|+]",                     54, 64,  v => panelSigned(panelClamp(v - 64, -60, 60)),   "soft-marker-c"],
-   ["Seq", "T/Rx St/Sp", "[Off|On]",                  57, 0,   v => ["Off", "On"][(v * 2 + 128) >> 8],          "soft-markers-2"],
-   ["Seq", "Tempo",      "",                          48, 64,  v => String(panelClamp(v * 2 - 8, 30, 240)),     ""],
-   ["Seq", "Gate Time",  "[1/6|2/6|3/6|4/6|5/6|6/6]", 50, 60,  v => ((v * 10 + 128) >> 8) + 1 + "/6",           "soft-markers-6"],
-   ["Seq", "Mode",       "[Fwd|Rvs|Bnc]",             52, 0,   v => ["Fwd", "Rvs", "Bnc"][(v * 4 + 128) >> 8],  "soft-markers-3"],
-   ["Seq", "Num Steps",  "",                          51, 32,  v => String(Math.max((v - 2) >> 2, 0) + 1),      ""],
-   ["Seq", "On Steps",   "",                          56, 127, v => panelHex2(v),                               ""],
-   ["Seq", "Act Steps",  "",                          53, 127, v => panelHex2(v),                               ""]],
+  [["Seq", "Step Note",  "[4|8|16]",                  92, 64,  v => ["4", "8", "16"][(v * 4 + 128) >> 8],       "soft-markers-3"],
+   ["Seq", "Clock Src",  "[Int|Ext]",                 86, 0,   v => ["Int", "Ext"][(v * 2 + 128) >> 8],         "soft-markers-2"],
+   ["Seq", "Pitch Ofst", "[-|+]",                     91, 64,  v => panelSigned(panelClamp(v - 64, -60, 60)),   "soft-marker-c"],
+   ["Seq", "T/Rx St/Sp", "[Off|On]",                  94, 0,   v => ["Off", "On"][(v * 2 + 128) >> 8],          "soft-markers-2"],
+   ["Seq", "Tempo",      "",                          85, 64,  v => String(panelClamp(v * 2 - 8, 30, 240)),     ""],
+   ["Seq", "Gate Time",  "[1/6|2/6|3/6|4/6|5/6|6/6]", 87, 60,  v => ((v * 10 + 128) >> 8) + 1 + "/6",           "soft-markers-6"],
+   ["Seq", "Mode",       "[Fwd|Rvs|Bnc]",             89, 0,   v => ["Fwd", "Rvs", "Bnc"][(v * 4 + 128) >> 8],  "soft-markers-3"],
+   ["Seq", "Num Steps",  "",                          88, 32,  v => String(Math.max((v - 2) >> 2, 0) + 1),      ""],
+   ["Seq", "On Steps",   "",                          93, 127, v => panelHex2(v),                               ""],
+   ["Seq", "Act Steps",  "",                          90, 127, v => panelHex2(v),                               ""]],
   // B-10 to B-17
   [0, 1, 2, 3, 4, 5, 6, 7].flatMap(i => [["Seq", "Pitch " + i, "", 16 + i, [4, 22, 37, 57, 72, 89, 107, 124][i], v => panelPitchName(v), ""],
-                                         ["Seq", "Velo " + i,  "", 24 + i, 100, v => String(v), ""]]),
+                                         ["Seq", "Velo " + i,  "", 70 + i, 100, v => String(v), ""]]),
 ];
 const PANEL_PARAMS = PANEL_PARAM_GROUPS.flat().filter(p => p);
-const PANEL_ON_STEPS_CC = 56, PANEL_ACT_STEPS_CC = 53;
+const PANEL_ON_STEPS_CC = 93, PANEL_ACT_STEPS_CC = 90;
 const PANEL_OPERATIONS = [
   // Write (and its Undo) only: Read and Init of PRA32-U2 would change the parameters there, not in the editor
   [102, "Write (to Device)", "Write the panel parameters of PRA32-U2 (or PRA32-U2/M/P Web, until the page is closed) to its flash", true],
@@ -3842,14 +3870,12 @@ const PANEL_OPERATIONS = [
 // The channels that PRA32-U2/M/P (and PRA32-U2/M/P Web) selects (Panel Target Ch): [name, the Basic Channel + this]
 const PANEL_TARGETS = [
   ["Main Synth", 0], ["Sub Synth 1", 1], ["Sub Synth 2", 2], ["Sub Synth 3", 3],
-  ["Round Robin (2 notes: Main, Sub 1)", 6], ["Round Robin (2 notes: Sub 2, 3)", 7], ["Round Robin (2 notes x 2, layered)", 8],
-  ["Round Robin (3 notes: Sub 1-3)", 11], ["Round Robin (4 notes)", 12],
-  ["Layering (Main, Sub 1)", 13], ["Layering (Sub 2, 3)", 14], ["Layering (all 4)", 15],
+  ["Group (by Voice Group Mode)", 4], ["Group 2 (by Voice Group Mode)", 5], ["Layering (all 4)", 15],
 ];
 const PANEL_STORAGE_KEY = "keyPRA32U2EditorPanel";
 
 let panelValues = {};
-let panelSettings = { panelCh: 10, target: 0 };
+let panelSettings = { basicCh: 0, target: 0 };  // the Basic Ch - 1 (the Panel CC Ch is it + 14)
 let panelPlaying = false;
 let panelUndoStack = [];
 let panelRedoStack = [];
@@ -3868,10 +3894,10 @@ const PANEL_NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", 
 function panelPitchName(pitch) {
   if (pitch === 0) { return "Off"; }
   pitch = panelClamp(pitch, 4, 124);
-  const indexScale = (panelValues[40] * 10 + 128) >> 8;
-  const p = Math.floor((((pitch + panelClamp(panelValues[46] - 64, -60, 60) + panelClamp(panelValues[54] - 64, -60, 60) + 3) * 2) + 1) / 5) - 3 + 24;
+  const indexScale = (panelValues[51] * 10 + 128) >> 8;
+  const p = Math.floor((((pitch + panelClamp(panelValues[56] - 64, -60, 60) + panelClamp(panelValues[91] - 64, -60, 60) + 3) * 2) + 1) / 5) - 3 + 24;
   const note = PANEL_SCALE_TABLES[indexScale][p % 24] + Math.floor(p / 24) * 12 - 24;
-  const n = panelClamp(note + (panelValues[41] - 64), 0, 127);
+  const n = panelClamp(note + (panelValues[52] - 64), 0, 127);
   const octave = Math.floor(n / 12) - 1;
   return PANEL_NOTE_NAMES[n % 12] + (octave < 0 ? "-" : octave.toString(16).toUpperCase());
 }
@@ -3882,14 +3908,36 @@ function panelDefaultValues() {
   return v;
 }
 
+// The Panel CC Ch (0-15): the Basic Ch + 14, as in PRA32-U2
+function panelCCCh() {
+  return (panelSettings.basicCh + 14) & 0x0F;
+}
+
 function panelSendCC(number, value) {
   if (midiOutput) {
-    midiOutput.send([CONTROL_CHANGE | panelSettings.panelCh, number, value]);
+    midiOutput.send([CONTROL_CHANGE | panelCCCh(), number, value]);
   }
 }
 
 function panelSave() {
-  try { localStorage.setItem(PANEL_STORAGE_KEY, JSON.stringify({ values: panelValues, settings: panelSettings })); } catch (e) {}
+  try { localStorage.setItem(PANEL_STORAGE_KEY, JSON.stringify({ ccs: PANEL_CCS_VERSION, values: panelValues, settings: panelSettings })); } catch (e) {}
+}
+
+// The values of the data kept (in the browser) or exported, by the CC numbers of the Panel Channel now ("ccs": 2);
+// the data before them (with no "ccs") renumbered (e.g. Seq Velo 0-7 #24-31 to #70-77)
+const PANEL_CCS_VERSION = 2;
+const PANEL_OLD_CCS = { 40: 51, 41: 52, 42: 53, 44: 54, 45: 55, 46: 56,
+  24: 70, 25: 71, 26: 72, 27: 73, 28: 74, 29: 75, 30: 76, 31: 77,
+  48: 85, 49: 86, 50: 87, 51: 88, 52: 89, 53: 90, 54: 91, 55: 92, 56: 93, 57: 94 };
+
+function panelValuesOf(data) {
+  const values = panelDefaultValues();
+  const old = (data.ccs !== PANEL_CCS_VERSION);
+  for (const key in data.values || {}) {
+    const cc = old ? (PANEL_OLD_CCS[key] || Number(key)) : Number(key);
+    if (cc in values) { values[cc] = panelClamp(parseInt(data.values[key]) || 0, 0, 127); }
+  }
+  return values;
 }
 
 function panelLoad() {
@@ -3897,10 +3945,13 @@ function panelLoad() {
   try {
     const data = JSON.parse(localStorage.getItem(PANEL_STORAGE_KEY));
     if (data) {
-      for (const cc in data.values || {}) {
-        if (cc in panelValues) { panelValues[cc] = panelClamp(parseInt(data.values[cc]) || 0, 0, 127); }
+      panelValues = panelValuesOf(data);
+      const settings = data.settings || {};
+      if ((settings.basicCh === undefined) && (settings.panelCh !== undefined)) {  // kept as the Panel CC Ch (+ 10) before
+        settings.basicCh = (settings.panelCh + 6) & 0x0F;
       }
-      Object.assign(panelSettings, data.settings || {});
+      panelSettings.basicCh = panelClamp(parseInt(settings.basicCh) || 0, 0, 15);
+      panelSettings.target = panelClamp(parseInt(settings.target) || 0, 0, PANEL_TARGETS.length - 1);
     }
   } catch (e) {}
 }
@@ -3983,8 +4034,8 @@ function onClickPanelPlay() {
 function sendPanelCurrent() {
   panelSendCC(58, PANEL_TARGETS[panelSettings.target][1]);
   // The Panel Parameters first (the Scale and the offsets that the pitches need), and then the others
-  [40, 41, 42, 44, 45, 46, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57].forEach(cc => panelSendCC(cc, panelValues[cc]));
-  for (let i = 0; i < 8; i++) { panelSendCC(16 + i, panelValues[16 + i]); panelSendCC(24 + i, panelValues[24 + i]); }
+  [51, 52, 53, 54, 55, 56, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94].forEach(cc => panelSendCC(cc, panelValues[cc]));
+  for (let i = 0; i < 8; i++) { panelSendCC(16 + i, panelValues[16 + i]); panelSendCC(70 + i, panelValues[70 + i]); }
 }
 
 function panelInitValues() {
@@ -4007,9 +4058,9 @@ function panelRandomizeSteps(firstCC) {
 }
 
 // The Basic Channel of PRA32-U2 chosen (not MIDI Ch, the channel of the synth to edit), and the Panel CC Ch is
-// the Basic Channel + 10, as in PRA32-U2 (kept as panelCh, the Panel CC Ch, as before)
+// the Basic Channel + 14, as in PRA32-U2
 function onChangePanelCh() {
-  panelSettings.panelCh = (document.getElementById("selectPanelCh").selectedIndex + 10) & 0x0F;
+  panelSettings.basicCh = document.getElementById("selectPanelCh").selectedIndex;
   panelUpdateTargetOptions();
   panelSave();
 }
@@ -4023,8 +4074,8 @@ function onChangePanelTarget() {
 // The channels of Panel Target Ch, by the Basic Channel (the Panel Channel - 10)
 function panelUpdateTargetOptions() {
   const select = document.getElementById("selectPanelTarget");
-  const basicCh = (panelSettings.panelCh + 6) & 0x0F;
-  document.getElementById("spanPanelCCCh").textContent = `Panel CC Ch ${panelSettings.panelCh + 1}`;
+  const basicCh = panelSettings.basicCh;
+  document.getElementById("spanPanelCCCh").textContent = `Panel CC Ch ${panelCCCh() + 1}`;
   select.innerHTML = "";
   PANEL_TARGETS.forEach(([name, offset]) => {
     const o = document.createElement("option");
@@ -4054,21 +4105,46 @@ function panelRecall() {
   const data = panelGetMemory();
   if (!data) { return; }
   panelPushUndo();
-  const values = panelDefaultValues();
-  for (const cc in data.values) {
-    if (cc in values) { values[cc] = panelClamp(parseInt(data.values[cc]) || 0, 0, 127); }
-  }
-  panelSetValues(values);
+  panelSetValues(panelValuesOf(data));
 }
 
 function panelStore() {
-  try { localStorage.setItem(PANEL_MEMORY_KEY, JSON.stringify({ values: panelValues })); } catch (e) {}
+  try { localStorage.setItem(PANEL_MEMORY_KEY, JSON.stringify({ ccs: PANEL_CCS_VERSION, values: panelValues })); } catch (e) {}
   panelUpdateMemoryButtons();
 }
 
 // File: the panel parameters exported to a JSON file ("pra32-u2-panel.json"), and imported from it (and sent)
+// Set Basic Ch: the Basic Channel of PRA32-U2 changed by MIDI Basic Ch (#57) and Set Basic Ch (#114) on the Panel CC Ch now,
+// and then the Basic Ch of the editor (so that the Panel CC Ch follows it); kept in the flash by Write (to Device)
+function panelBasicCh() {
+  return panelSettings.basicCh + 1;
+}
+
+function panelSetBasicCh(basicCh) {
+  panelSendCC(57, basicCh - 1);
+  panelSendCC(114, 0);
+  panelSendCC(114, 127);
+  document.getElementById("selectPanelCh").selectedIndex = basicCh - 1;
+  onChangePanelCh();
+}
+
+function panelConfirmSetBasicCh(basicCh) {
+  return confirm(`Set the Basic Channel of PRA32-U2 from ${panelBasicCh()} to ${basicCh}?\n` +
+    `The Panel CC Ch moves to ${((basicCh + 13) & 0x0F) + 1} (and the synths of PRA32-U2/M from ${basicCh}: set MIDI Ch too).\n` +
+    "Write (to Device) keeps it in the flash.");
+}
+
+function panelSetBasicChAsked() {
+  const text = prompt("Set the Basic Channel of PRA32-U2 to (1-16):", String(panelBasicCh()));
+  if (text === null) { return; }
+  const basicCh = parseInt(text);
+  if (!(basicCh >= 1 && basicCh <= 16)) { alert("The Basic Channel is 1-16."); return; }
+  if (basicCh === panelBasicCh()) { return; }
+  if (panelConfirmSetBasicCh(basicCh)) { panelSetBasicCh(basicCh); }
+}
+
 function panelExport() {
-  const data = { format: "PRA32-U2 Panel Parameters", values: panelValues };
+  const data = { format: "PRA32-U2 Panel Parameters", ccs: PANEL_CCS_VERSION, values: panelValues, basicCh: panelBasicCh() };
   const blob = new Blob([JSON.stringify(data, null, 2) + "\n"], { type: "application/json" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
@@ -4086,11 +4162,12 @@ function panelImport(event) {
     if (!data || !data.values) { throw new Error("no panel parameters"); }
     if (!confirm("Import the panel parameters?")) { return; }  // as Import Current
     panelPushUndo();
-    const values = panelDefaultValues();
-    for (const cc in data.values) {
-      if (cc in values) { values[cc] = panelClamp(parseInt(data.values[cc]) || 0, 0, 127); }
+    panelSetValues(panelValuesOf(data));
+    // The Basic Channel too, if the file has it (a backup) and it is another
+    const basicCh = parseInt(data.basicCh);
+    if ((basicCh >= 1) && (basicCh <= 16) && (basicCh !== panelBasicCh()) && panelConfirmSetBasicCh(basicCh)) {
+      panelSetBasicCh(basicCh);
     }
-    panelSetValues(values);
   }).catch(e => alert("Could not import the file: " + e.message));
 }
 
@@ -4119,7 +4196,7 @@ function setupPanel() {
 
   const ch = document.getElementById("selectPanelCh");
   for (let i = 1; i <= 16; i++) { const o = document.createElement("option"); o.textContent = i; ch.appendChild(o); }
-  ch.selectedIndex = (panelSettings.panelCh + 6) & 0x0F;  // the Basic Channel
+  ch.selectedIndex = panelSettings.basicCh;
   panelUpdateTargetOptions();
 
   // The parameters, as those of PRA32-U2 Editor (the steps as Seq Pitch N and Seq Velo N side by side)

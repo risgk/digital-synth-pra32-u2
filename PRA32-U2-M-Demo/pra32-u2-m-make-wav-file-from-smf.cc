@@ -6,7 +6,7 @@
 //   (or one by CC #111-119) is processed at once, where the device processes it in one of the next loops
 // - The output fader is not used (the output is at full level from the start)
 // - Basic Channel 1: the MIDI messages are handled by "pra32-u2-m-midi.h", the same as the device: Channels 1-4 for
-//   the Main Synth and the Sub Synths 1-3, 14-16 for the Layering, and 7-9, 12, and 13 for the Round Robin
+//   the Main Synth and the Sub Synths 1-3, 16 for the Layering, and 5 and 6 by the Voice Group Mode (Off at first)
 //
 // g++ -O2 -std=gnu++17 pra32-u2-m-make-wav-file-from-smf.cc -o pra32-u2-m-make-wav-file-from-smf
 // ./pra32-u2-m-make-wav-file-from-smf input.mid output.wav
@@ -40,7 +40,6 @@ PRA32_U2_WAVFileOut                                 g_wav_file_out;
 boolean g_synth_is_in_polyphonic_mode = true;
 
 #define PRA32_U2_ENABLE_LAYERING
-#define PRA32_U2_ENABLE_ROUND_ROBIN
 #include "../Digital-Synth-PRA32-U2/pra32-u2-m-midi.h"
 
 const uint32_t FRAMES_PER_LOOP = 64;

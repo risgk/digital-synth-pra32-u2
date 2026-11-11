@@ -85,14 +85,15 @@
 |                               |               |               |                                       |
 |                            16 | x             | o             | EG Att/Dec Key Track [-|+]            |
 |                           110 | x             | o             | Voice Assign Mode [1|1|3|3|4|2]       |
+|                            80 | x             | o             | Voice Group Mode [Off|...] (/M)       |
 |                            88 | x             | o $9          | LFO Trig Mode [Aut|Off|On|VOn|VOf|VAu]|
-|                            22 | x             | o             | Stretch Tune [-|+]                    |
 |                               |               |               |                                       |
 |                            60 | x             | o             | Breath Filter Amt [-|+]               |
 |                            61 | x             | o             | Breath Amp Mode [Off|Q|L|LO|QO|Opn]   |
 |                            37 | x             | o             | After Touch LFO Amt                   |
 |                            34 | x             | o             | Portamento Mode [Sw|Aut]              |
 |                            83 | x             | o             | Osc Saw Wave Mode [Str|Cur]           |
+|                            22 | x             | o             | Stretch Tune [-|+]                    |
 |                            10 | x             | o             | Pan                                   |
 |                               |               |               |                                       |
 |                            95 | x             | o             | Distortion Drive                      |

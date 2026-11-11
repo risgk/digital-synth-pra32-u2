@@ -1160,6 +1160,14 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
       result = true;
     }
     break;
+  case VOICE_GRP_MODE :
+    {
+      static const char ary[6][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"Off","Ly2","RLy","RR2","RR3","RR4"};
+      uint32_t index = ((controller_value * 10) + 128) >> 8;
+      PRA32_U2_ControlPanel_copy_text(value_display_text, ary[index]);
+      result = true;
+    }
+    break;
   }
 
   return result;
@@ -2002,40 +2010,44 @@ INLINE void PRA32_U2_ControlPanel_update_display(uint32_t loop_counter) {
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 }
 
-// A Control Change on the Panel Channel (the Basic Channel + 10, Experimental), so that the panel parameters and the Step
-// Sequencer can be controlled by MIDI (e.g. without the panel); see README-PRA32-U2-P.md. The CC numbers
-// avoid those that a DAW or a keyboard may send by itself (e.g. Bank Select, RPN/NRPN, Data Entry, Pan,
+// A Control Change on the Panel Channel (the Basic Channel + 14, Experimental), so that the panel parameters and the Step
+// Sequencer can be controlled by MIDI (e.g. without the panel); see README-PRA32-U2-P.md. The CC numbers are
+// only those that the synth parameters use (the others are left for them), and avoid those that a DAW or a
+// keyboard may send by itself (e.g. Bank Select, RPN/NRPN, Data Entry, Modulation, Breath, Pan, Expression,
 // the pedals, and the Channel Mode Messages), not to change a parameter, nor to write to the flash, by chance:
-// - Parameters (set as by the panel): Seq Pitch 0-7 (#16-23), Seq Velo 0-7 (#24-31), the Panel Parameters
-//   (#40-46, the panel parameter number + 32), and the other Step Sequencer Parameters (#48-57, the number);
-//   Panel Target Ch (#58, PRA32-U2/M/P: the channel that the panel selects, as the Basic Channel + the value) is only
-//   for the Panel Channel
-// - Operations (#102-108, ready at 0-31, and done at 96-127, as by the panel [Rdy] and [Exe]); not the
+// - Parameters (set as by the panel): Seq Pitch 0-7 (#16-23), Seq Velo 0-7 (#70-77), the Panel Parameters
+//   (#51-56: Scale, Transpose, Play Mode, Play Pitch, Play Velo, and Pitch Ofst), and the other Step Sequencer Parameters (#85-94, the number + 37); Panel Target Ch (#58, PRA32-U2/M/P: the channel
+//   that the panel selects, as the Basic Channel + the value) is only for the Panel Channel
+// - MIDI Basic Ch (#57, 0-15 as 1-16) is only kept, and set by Set Basic Ch (#114, as an operation), so that the channels
+//   (the Panel Channel too) do not move by one Control Change; kept in the flash by Write Panel Prms, as by the panel
+// - Operations (#102-106, #112, and #113, ready at 0-31, and done at 96-127, as by the panel [Rdy] and [Exe]); not the
 //   Read and Write of the programs, which the editor does
 // - Panel Play (#111): 64-127 as the Play key pressed (Normal Mode) or the Step Sequencer started (Seq Mode),
 //   and 0-63 as released or stopped
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
+static uint8_t s_panel_ch_basic_ch = 0xFF;  // MIDI Basic Ch (#57) to set by Set Basic Ch (#114), none at first
+
 static uint8_t PRA32_U2_ControlPanel_panel_ch_target(uint8_t number) {
   if ((number >= 16) && (number <= 23)) { return SEQ_PITCH_0 + (number - 16); }
-  if ((number >= 24) && (number <= 31)) { return SEQ_VELO_0  + (number - 24); }
+  if ((number >= 70) && (number <= 77)) { return SEQ_VELO_0  + (number - 70); }
 
   switch (number) {
-  case  40: return PANEL_SCALE    ;
-  case  41: return PANEL_TRANSPOSE;
-  case  42: return PANEL_PLAY_MODE;
-  case  44: return PANEL_PLAY_PIT ;
-  case  45: return PANEL_PLAY_VELO;
-  case  46: return PANEL_PIT_OFST ;
+  case  51: return PANEL_SCALE    ;
+  case  52: return PANEL_TRANSPOSE;
+  case  53: return PANEL_PLAY_MODE;
+  case  54: return PANEL_PLAY_PIT ;
+  case  55: return PANEL_PLAY_VELO;
+  case  56: return PANEL_PIT_OFST ;
   case 102: return WR_PANEL_PRMS  ;  // Write and then Read, as the pages of the panel (C and D)
   case 103: return RD_PANEL_PRMS  ;
   case 104: return IN_PANEL_PRMS  ;
   case 105: return UNDO_WRITE     ;
   case 106: return UNDO_READ      ;
-  case 107: return SEQ_RAND_PITCH ;
-  case 108: return SEQ_RAND_VELO  ;
+  case 112: return SEQ_RAND_PITCH ;
+  case 113: return SEQ_RAND_VELO  ;
   }
 
-  if ((number >= 48) && (number <= 57)) { return 128 + number; }  // SEQ_TEMPO to SEQ_TRX_ST_SP
+  if ((number >= 85) && (number <= 94)) { return 128 + (number - 37); }  // SEQ_TEMPO to SEQ_TRX_ST_SP
 
   return 0xFF;
 }
@@ -2063,6 +2075,27 @@ void PRA32_U2_ControlPanel_on_panel_ch_control_change(uint8_t number, uint8_t va
       }
     }
 #endif  // (PRA32_U2_NUMBER_OF_SYNTHS > 1)
+    return;
+  }
+
+  if (number == 57) {  // MIDI Basic Ch (0-15), set by Set Basic Ch (#114)
+    s_panel_ch_basic_ch = value & 0x0F;
+    return;
+  }
+
+  if (number == 114) {  // Set Basic Ch: as an operation (ready at 0-31, and done at 96-127); the Panel Channel moves too
+    static boolean s_set_basic_ch_ready = false;
+    if (value <= 31) {
+      s_set_basic_ch_ready = true;
+    } else if (s_set_basic_ch_ready && (value >= 96)) {
+      s_set_basic_ch_ready = false;
+      if ((s_panel_ch_basic_ch <= 15) && (s_panel_ch_basic_ch != g_midi_ch)) {
+        if (s_panel_playing_note_pitch <= 127) {  // off on the channel before
+          handleNoteOff(getTargetMIDICh(s_current_synth), s_panel_playing_note_pitch, 64);
+        }
+        g_synth.control_change(PANEL_MIDI_CH, s_panel_ch_basic_ch << 3);
+      }
+    }
     return;
   }
 

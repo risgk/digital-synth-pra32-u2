@@ -6,12 +6,11 @@
 #if defined(PRA32_U2_ENGINE_M)
 // PRA32-U2/M/P Web (PRA32_U2_ENGINE_M) has the panel parameters and the Step Sequencer of PRA32-U2/M/P (Experimental),
 // as PRA32-U2/M/P without the panel (no keys, no knobs, and no display), controlled by the Panel Channel
-// (the Basic Channel + 10); the Native (without PRA32_U2_ENGINE_M) does not
+// (the Basic Channel + 14); the Native (without PRA32_U2_ENGINE_M) does not
 #define PRA32_U2_USE_CONTROL_PANEL
 #define PRA32_U2_USE_PANEL_CHANNEL
 #define PRA32_U2_ENABLE_LAYERING
-#define PRA32_U2_ENABLE_ROUND_ROBIN
-#define PRA32_U2_NUMBER_OF_SYNTHS              (4 + 5 + 3)  // The 4 synths, the Round Robin, and the Layering
+#define PRA32_U2_NUMBER_OF_SYNTHS              (4 + 3)      // The 4 synths, the Voice Group Mode (+ 4 and + 5), and the Layering (+ 15)
 #define PRA32_U2_ANALOG_INPUT_DENOMINATOR      (480)        // Not used (no knobs)
 #if !defined(PRA32_U2_VERSION)
 #define PRA32_U2_VERSION                       "v?.?.?    "  // On the Info page (not shown without the display)
@@ -106,14 +105,15 @@ const PRA32U2Engine::ParameterInfo s_parameter_names[] = {
 
   { A_D_KEY_TRK    , "EG Att/Dec Key Track [-|+]"             },
   { VOICE_ASGN_MODE, "Voice Assign Mode [1|1|3|3|4|2]"        },
+  { VOICE_GRP_MODE , "Voice Group Mode [Off|Ly2|RLy|RR2|RR3|RR4]" },
   { LFO_TRIG_MODE  , "LFO Trig Mode [Aut|Off|On|VOn|VOf|VAu]" },
-  { STRETCH_TUNE   , "Stretch Tune [-|+]"                     },
 
   { BTH_FILTER_AMT , "Breath Filter Amt [-|+]"                },
   { BTH_AMP_MOD    , "Breath Amp Mode [Off|Q|L|LO|QO|Opn]"    },
   { AFT_T_LFO_AMT  , "After Touch LFO Amt"                    },
   { PORTA_MODE     , "Portamento Mode [Sw|Aut]"               },
   { OSC_SAW_W_MODE , "Osc Saw Wave Mode [Str|Cur]"            },
+  { STRETCH_TUNE   , "Stretch Tune [-|+]"                     },
   { PAN            , "Pan"                                    },
 
   { DISTORTION     , "Distortion Drive"                       },
@@ -194,6 +194,7 @@ int PRA32U2Engine::getMarkers(uint8_t controlNumber, const uint8_t** markerValue
   case VOICE_ASGN_MODE :
   case BTH_AMP_MOD     :
   case FX_ROUTING      :
+  case VOICE_GRP_MODE  :
     *markerValues = MARKERS_6;
     return 6;
   case FILTER_MODE     :  // LP, BR, HP, BP, and LP
@@ -275,6 +276,7 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value) {
   static const char* const FX_ROUTINGS[6]  = { "Dst", "Cho", "Dly", "Dly", "Cmp", "Dry" };
   static const char* const ASGN_MODES[6]   = { "1", "1", "3", "3", "4", "2" };
   static const char* const DELAY_MODES[3]  = { "Ste", "PP", "Rev" };
+  static const char* const GROUP_MODES[6]  = { "Off", "Ly2", "RLy", "RR2", "RR3", "RR4" };
 
   switch (controlNumber) {
   case OSC_2_COARSE    :
@@ -295,6 +297,7 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value) {
   case MIXER_SUB_OSC   : dispValue = (v >= 64) ? ("S" + std::to_string(v - 64)) : ("N" + std::to_string(64 - v)); break;
   case OSC_1_WAVE      : dispValue = select6(v, OSC_1_WAVES);        break;
   case OSC_2_WAVE      : dispValue = select6(v, OSC_2_WAVES);        break;
+  case VOICE_GRP_MODE  : dispValue = select6(v, GROUP_MODES);        break;
   case EG_OSC_DST      :
   case LFO_OSC_DST     : dispValue = select6(v, MOD_DSTS);           break;
   case VOICE_MODE      : dispValue = select6(v, VOICE_MODES);        break;

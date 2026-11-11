@@ -53,7 +53,8 @@ for (const samplingRate of [48000, 44100, 96000]) {
 }
 
 // PRA32-U2/M/P Web (selected by pra32u2_web_select(1)): with the Main Synth in Mono (#20 Saw Lead), a note sounds on the
-// channels of the 4 synths, the Layering, and the Round Robin (Basic Channel 1), and not on the others (e.g. 5)
+// channels of the 4 synths (Basic Channel 1), and not on the others (e.g. 5 and 16, with Voice Group Mode Off);
+// then on Channel 5 and 16 too, with Voice Group Mode RR4 (CC #80 on the Basic Channel)
 {
   const stub = () => 0;
   const wasm = new WebAssembly.Instance(wasmModule, { wasi_snapshot_preview1: { fd_close: stub, fd_write: stub, fd_seek: stub } }).exports;
@@ -62,31 +63,38 @@ for (const samplingRate of [48000, 44100, 96000]) {
   wasm.pra32u2_web_select(1);
   wasm.pra32u2_web_midi(0, 0xC0, 20, 0, 2);
   peakOf(wasm, 4800);
-  for (const channel of [1, 2, 3, 4, 5, 7, 8, 9, 12, 13, 14, 15, 16]) {
+  const cases = [[1, true], [2, true], [3, true], [4, true], [5, false], [6, false], [7, false], [12, false], [16, false],
+                 ["RR4", null], [5, true], [6, false], [16, true]];
+  for (const [channel, sounds] of cases) {
+    if (channel === "RR4") {
+      wasm.pra32u2_web_midi(0, 0xB0, 80, 127, 3); // Voice Group Mode: RR4
+      peakOf(wasm, 4800);
+      continue;
+    }
     wasm.pra32u2_web_midi(0, 0x90 | (channel - 1), 60, 100, 3);
     const noteOnPeak = peakOf(wasm, 9600);
     wasm.pra32u2_web_midi(0, 0x80 | (channel - 1), 60, 64, 3);
     peakOf(wasm, 96000);
     const afterPeak = peakOf(wasm, 4800);
-    const ok = ((channel === 5) ? (noteOnPeak < 0.001) : ((noteOnPeak > 0.01) && (noteOnPeak <= 1.0))) && (afterPeak < 0.01);
+    const ok = (sounds ? ((noteOnPeak > 0.01) && (noteOnPeak <= 1.0)) : (noteOnPeak < 0.001)) && (afterPeak < 0.01);
     failed = failed || !ok;
     console.log("PRA32-U2/M/P Web, Channel " + channel + ": peak " + noteOnPeak.toFixed(3) + ", after " + afterPeak.toFixed(4) + (ok ? "" : " NG"));
   }
 }
 
-// PRA32-U2/M/P Web with the panel parameters (Experimental): the Step Sequencer sounds by the Panel Channel (Basic Channel 1 + 10:
-// Channel 11), started by Panel Play (CC #111) in Seq Mode (Panel Play Mode, CC #42), and is almost silent after it is stopped
+// PRA32-U2/M/P Web with the panel parameters (Experimental): the Step Sequencer sounds by the Panel Channel (Basic Channel 1 + 14:
+// Channel 15), started by Panel Play (CC #111) in Seq Mode (Panel Play Mode, CC #53), and is almost silent after it is stopped
 {
   const stub = () => 0;
   const wasm = new WebAssembly.Instance(wasmModule, { wasi_snapshot_preview1: { fd_close: stub, fd_write: stub, fd_seek: stub } }).exports;
   wasm._initialize();
   wasm.pra32u2_web_prepare(48000);
   wasm.pra32u2_web_select(1);
-  wasm.pra32u2_web_midi(0, 0xBA, 42, 127, 3);  // Panel Play Mode: Seq
+  wasm.pra32u2_web_midi(0, 0xBE, 53, 127, 3);  // Panel Play Mode: Seq
   const beforePeak = peakOf(wasm, 48000);
-  wasm.pra32u2_web_midi(0, 0xBA, 111, 127, 3); // Panel Play: on (the sequencer starts)
+  wasm.pra32u2_web_midi(0, 0xBE, 111, 127, 3); // Panel Play: on (the sequencer starts)
   const playPeak = peakOf(wasm, 96000);
-  wasm.pra32u2_web_midi(0, 0xBA, 111, 0, 3);   // Panel Play: off (the sequencer stops)
+  wasm.pra32u2_web_midi(0, 0xBE, 111, 0, 3);   // Panel Play: off (the sequencer stops)
   peakOf(wasm, 96000);
   const afterPeak = peakOf(wasm, 4800);
   const ok = (beforePeak < 0.001) && (playPeak > 0.01) && (playPeak <= 1.0) && (afterPeak < 0.01);

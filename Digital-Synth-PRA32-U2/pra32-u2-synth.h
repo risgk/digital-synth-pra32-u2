@@ -94,14 +94,15 @@ static uint8_t s_program_table_parameters[] = {
 
   A_D_KEY_TRK    ,
   VOICE_ASGN_MODE,
+  VOICE_GRP_MODE ,
   LFO_TRIG_MODE  ,
-  STRETCH_TUNE   ,
 
   BTH_FILTER_AMT ,
   BTH_AMP_MOD    ,
   AFT_T_LFO_AMT  ,
   PORTA_MODE     ,
   OSC_SAW_W_MODE ,
+  STRETCH_TUNE   ,
   PAN            ,
 
   DISTORTION     ,
@@ -258,6 +259,7 @@ class PRA32_U2_Synth {
   uint8_t           m_last_note_on_index;
   boolean           m_sustain_pedal;
   uint8_t           m_voice_mode;
+  boolean           m_poly_as_mono;
   uint8_t           m_voice_asgn_mode;
 
   uint8_t           m_output_error;
@@ -313,6 +315,7 @@ public:
   , m_last_note_on_index(3)
   , m_sustain_pedal()
   , m_voice_mode(0xFF)
+  , m_poly_as_mono()
   , m_voice_asgn_mode(1)
 
   , m_output_error()
@@ -453,14 +456,15 @@ public:
 
     std::memcpy(m_program_table[A_D_KEY_TRK    ], g_preset_table_A_D_KEY_TRK    , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[VOICE_ASGN_MODE], g_preset_table_VOICE_ASGN_MODE, sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[VOICE_GRP_MODE ], g_preset_table_VOICE_GRP_MODE , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[LFO_TRIG_MODE  ], g_preset_table_LFO_TRIG_MODE  , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[STRETCH_TUNE   ], g_preset_table_STRETCH_TUNE   , sizeof(m_program_table[0]));
 
     std::memcpy(m_program_table[BTH_FILTER_AMT ], g_preset_table_BTH_FILTER_AMT , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[BTH_AMP_MOD    ], g_preset_table_BTH_AMP_MOD    , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[AFT_T_LFO_AMT  ], g_preset_table_AFT_T_LFO_AMT  , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[PORTA_MODE     ], g_preset_table_PORTA_MODE     , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[OSC_SAW_W_MODE ], g_preset_table_OSC_SAW_W_MODE , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[STRETCH_TUNE   ], g_preset_table_STRETCH_TUNE   , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[PAN            ], g_preset_table_PAN            , sizeof(m_program_table[0]));
 
     std::memcpy(m_program_table[DISTORTION     ], g_preset_table_DISTORTION     , sizeof(m_program_table[0]));
@@ -479,7 +483,7 @@ public:
       m_program_table_panel[i][PANEL_SCALE    ] = DEFAULT_PANEL_SCALE    ;
       m_program_table_panel[i][PANEL_TRANSPOSE] = DEFAULT_PANEL_TRANSPOSE;
       m_program_table_panel[i][PANEL_PLAY_MODE] = DEFAULT_PANEL_PLAY_MODE;
-      m_program_table_panel[i][PANEL_MIDI_CH  ] = g_midi_ch              ;
+      m_program_table_panel[i][PANEL_MIDI_CH  ] = g_midi_ch << 3         ;  // as the panel sets it (the value >> 3)
 
       m_program_table_panel[i][PANEL_PLAY_PIT ] = DEFAULT_PANEL_PLAY_PIT ;
       m_program_table_panel[i][PANEL_PLAY_VELO] = DEFAULT_PANEL_PLAY_VELO;
@@ -1607,6 +1611,7 @@ if constexpr (NO_FX == false) {
           (control_number != VOICE_ASGN_MODE) &&
           (control_number != A_D_KEY_TRK    ) &&
           (control_number != PAN            ) &&
+          (control_number != VOICE_GRP_MODE ) &&
           (control_number != STRETCH_TUNE   ) &&
           (control_number != OSC_DRIFT      ) &&
           (control_number != OSC_SAW_W_MODE ) &&
@@ -2055,6 +2060,14 @@ if (m_voice_mode == VOICE_POLYPHONIC) {
     return (m_voice_mode == VOICE_POLYPHONIC);
   }
 
+  // PRA32-U2/M: Voice Mode Pol as Mon (while Voice Group Mode is not Off, so that the Sub Synths sound too)
+  INLINE void set_poly_as_mono(boolean poly_as_mono) {
+    if (m_poly_as_mono != poly_as_mono) {
+      m_poly_as_mono = poly_as_mono;
+      set_voice_mode(m_current_controller_value_table[VOICE_MODE]);
+    }
+  }
+
 #if defined(PRA32_U2_USE_LEGACY_OUTPUT_LIMITER)
   // Not assigned to a Control Change; 0: Off, 127: full limiting (default)
   INLINE void set_output_limiter_depth(uint8_t controller_value) {
@@ -2129,6 +2142,9 @@ if constexpr (RESTRICT_POLY_AND_CORES == false) {
     int32_t index = ((controller_value * 10) + 128) >> 8;
 
     uint8_t new_voice_mode = voice_mode_table[index];
+    if (m_poly_as_mono && (new_voice_mode == VOICE_POLYPHONIC)) {
+      new_voice_mode = VOICE_MONOPHONIC;
+    }
     if (m_voice_mode != new_voice_mode) {
       m_voice_mode = new_voice_mode;
       all_notes_off(true);

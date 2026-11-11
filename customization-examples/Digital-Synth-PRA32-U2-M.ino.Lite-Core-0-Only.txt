@@ -62,26 +62,16 @@
 #define PRA32_U2_DISABLE_DISTORTION_FX           // The Distortion FX passes its input through (Dst as Cho), for the load
 #define PRA32_U2_DISABLE_REVERB                  // Delay Mode Rev is the Stereo Delay (Ste), for the load
 
-#define PRA32_U2_ENABLE_LAYERING
-#define PRA32_U2_ENABLE_ROUND_ROBIN              // Only with the Layering (see README.md)
-
-#if !defined(PRA32_U2_ENABLE_LAYERING)
-#undef PRA32_U2_ENABLE_ROUND_ROBIN
-#endif
+#define PRA32_U2_ENABLE_LAYERING                 // The Layering and the Round Robin (the Basic Channel + 4, + 5, and + 15; see README.md)
 
 
-// The channels that the panel can select: the 4 synths, the Round Robin, and the Layering
+// The channels that the panel can select: the 4 synths, the Basic Channel + 4 and + 5 (the Voice Group Mode), and + 15 (the Layering)
 #if defined(PRA32_U2_ENABLE_LAYERING)
-#define PRA32_U2_NUMBER_OF_LAYERING_CHS        (3)
+#define PRA32_U2_NUMBER_OF_GROUP_CHS           (3)
 #else
-#define PRA32_U2_NUMBER_OF_LAYERING_CHS        (0)
+#define PRA32_U2_NUMBER_OF_GROUP_CHS           (0)
 #endif
-#if defined(PRA32_U2_ENABLE_ROUND_ROBIN)
-#define PRA32_U2_NUMBER_OF_ROUND_ROBIN_CHS     (5)
-#else
-#define PRA32_U2_NUMBER_OF_ROUND_ROBIN_CHS     (0)
-#endif
-#define PRA32_U2_NUMBER_OF_SYNTHS              (4 + PRA32_U2_NUMBER_OF_ROUND_ROBIN_CHS + PRA32_U2_NUMBER_OF_LAYERING_CHS)
+#define PRA32_U2_NUMBER_OF_SYNTHS              (4 + PRA32_U2_NUMBER_OF_GROUP_CHS)
 
 ////////////////////////////////////////////////////////////////
 
@@ -439,9 +429,9 @@ void __not_in_flash_func(loop)() {
     g_sub_1_synth.all_notes_off(true);
     g_sub_2_synth.all_notes_off(true);
     g_sub_3_synth.all_notes_off(true);
-#if defined(PRA32_U2_ENABLE_ROUND_ROBIN)
+#if defined(PRA32_U2_ENABLE_LAYERING)
     roundRobinReset();
-#endif  // defined(PRA32_U2_ENABLE_ROUND_ROBIN)
+#endif  // defined(PRA32_U2_ENABLE_LAYERING)
   }
 
 #if defined(PRA32_U2_USE_DEBUG_PRINT)

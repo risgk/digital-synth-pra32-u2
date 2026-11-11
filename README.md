@@ -126,7 +126,7 @@ graph LR
             - Without "+6 dB", it sounds as PRA32-U2 does (e.g. to compare with it)
             - With a high Amp Gain, the peaks rounded off can be heard as a little distortion
     - Select "PRA32-U2/M/P Web (Built-in)" (or with "+6 dB") to use PRA32-U2/M (the 4 synths) in PRA32-U2 Web
-        - The Basic Channel is 1 (it cannot be changed): select the synth to edit in "MIDI Ch" (see the channels of PRA32-U2/M below)
+        - The Basic Channel is 1 at first: select the synth to edit in "MIDI Ch" (see the channels of PRA32-U2/M below)
         - The Main Synth starts with the program #0 and the Sub Synths 1-3 with #1-3, as PRA32-U2/M does;
           the Sub Synths sound only while the Main Synth is not in Poly
     - Nothing is sent when an output is selected (PRA32-U2 Web too): "Send Current" (on the heading of "MIDI") sends the parameters of PRA32-U2 Editor (one set) to the synth of "MIDI Ch"
@@ -195,27 +195,40 @@ graph LR
         | 2 | + 1 | Sub Synth 1 | 1 | 0 |
         | 3 | + 2 | Sub Synth 2 | 2 | 0 |
         | 4 | + 3 | Sub Synth 3 | 3 | 0 |
-        | 7 | + 6 | Round Robin (2 notes) * | 0, 1 | 0, 0 |
-        | 8 | + 7 | Round Robin (2 notes) * | 2, 3 | 0, 0 |
-        | 9 | + 8 | Round Robin (2 notes) x 2, layered * | 0, 1 / 2, 3 | 0, 0 / 1, 1 |
-        | 12 | + 11 | Round Robin (3 notes) * | 1, 2, 3 | 0, 0, 0 |
-        | 13 | + 12 | Round Robin (4 notes) * | 0, 1, 2, 3 | 0, 0, 0, 0 |
-        | 14 | + 13 | Layering | 0, 1 | 0, 1 |
-        | 15 | + 14 | Layering | 2, 3 | 0, 1 |
-        | 16 | + 15 | Layering | 0, 1, 2, 3 | 0, 1, 2, 3 |
+        | 5, 6 | + 4, + 5 | By Voice Group Mode (below), none by default | | |
+        | 16 | + 15 | Layering (with Voice Group Mode not Off) | 0, 1, 2, 3 | 0, 1, 2, 3 |
 
-        - \* With both the Layering and the Round Robin enabled (by default)
+    - Voice Group Mode (Experimental, CC #80): what the Basic Channel + 4 and + 5 do, and + 15 too (the Layering), by the value of the Main Synth
+      (a parameter of its programs, Off in the presets); the other channels are free (e.g. for other instruments of a sequencer)
+
+        | Voice Group Mode (CC #80) | + 4 (Channel 5) | + 5 (Channel 6) | Program Change (Program # +) |
+        | :-- | :-- | :-- | :-- |
+        | Off (0) | - | - | - |
+        | Ly2 (26) | Layering of 0, 1 | Layering of 2, 3 | 0, 1 / 0, 1 |
+        | RLy (51) | Round Robin (2 notes) of 0, 1 and of 2, 3, layered | - | 0, 0 / 1, 1 |
+        | RR2 (77) | Round Robin (2 notes) of 0, 1 | Round Robin (2 notes) of 2, 3 | 0, 0 / 0, 0 |
+        | RR3 (102) | Round Robin (3 notes) of 1, 2, 3 | - | 0, 0, 0 |
+        | RR4 (127) | Round Robin (4 notes) of 0, 1, 2, 3 | - | 0, 0, 0, 0 |
+
+        - Off: the 4 synths only (Channels 1-4), with the Main Synth in Poly or Mono
+        - The others: Voice Mode Pol of the Main Synth acts as Mon (as the Sub Synths sound only then), and + 15 is the Layering of all
+        - E.g. RR4: Channel 5 plays 4 notes (the Round Robin), and Channel 16 a lead of the 4 synths layered, with the sounds of one program
+          (+ 15 sets #n to #n + 3, and + 4 sets #n to all)
+        - In PRA32-U2 Editor, its slider sends it on the Basic Channel (Basic Ch of "Panel & Step Sequencer", 1 by default), whatever "MIDI Ch" is
+
     - Layering: a note (and every other message) goes to all the synths of the channel
         - Program # + 1 to + 3 wrap around in the user programs (#0-15) and in the presets (#16-31) each; Program Change #127 (Randomize Synth) is for all the synths
+        - So the 4 sounds stored as the user programs in a row (e.g. #4-7) are set at once by a Program Change on the Basic Channel + 15 (e.g. #4), as a setup of the 4 synths
+          (with Voice Group Mode not Off)
     - Round Robin: the notes go to the synths of the channel in turn, as the voices of a polyphonic synth (the other messages go to all of them)
         - The synths are assigned by the Voice Assign Mode of the first synth, as the voices of the Polyphonic Mode, and kept by the Sustain Pedal
         - Unlike the Polyphonic Mode, each synth has its own LFO, and a note is as loud as a voice of the Polyphonic Mode
     - MPE (MIDI Polyphonic Expression) controllers: each synth works as a member channel, with its own pitch bend, pressure, and CC #74 (Filter Cutoff) (not fully supported)
         - Basic Channel 1 (default): Channels 2-4 play 3 notes
-        - Basic Channel 2: Channels 2-5 play 4 notes, and Channel 1 (the Layering of all) works as the Master Channel
+        - Basic Channel 2: Channels 2-5 play 4 notes, and Channel 1 (the Layering of all, with Voice Group Mode not Off) works as the Master Channel
         - Set Pitch Bend Range to that of the controller (e.g. 48 semitones)
-    - With the panel (PRA32-U2/M/P), all the channels above can be selected (see [PRA32-U2/P](./README-PRA32-U2-P.md))
-    - Not to use the Layering or the Round Robin, comment out `#define PRA32_U2_ENABLE_LAYERING` or `#define PRA32_U2_ENABLE_ROUND_ROBIN` in "Digital-Synth-PRA32-U2-M.ino"
+    - With the panel (PRA32-U2/M/P), the channels above can be selected (see [PRA32-U2/P](./README-PRA32-U2-P.md))
+    - Not to use the Layering and the Round Robin, comment out `#define PRA32_U2_ENABLE_LAYERING` in "Digital-Synth-PRA32-U2-M.ino" (the Basic Channel + 4, + 5, and + 15 not used, with no Voice Group Mode)
 - How to modify (with Arduino IDE)
     - Copy all files in the "Digital-Synth-PRA32-U2" folder, except for "Digital-Synth-PRA32-U2.ino", to the "Digital-Synth-PRA32-U2-M" folder
     - "Digital-Synth-PRA32-U2-M.ino" is an Arduino sketch

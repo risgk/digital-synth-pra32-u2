@@ -369,6 +369,15 @@
     - 77 (64-89): Mode 3, Reuse note-off voices, Free voice with next number has priority (Round Robin), Release and polyphonic after touch are effective
     - 102 (90-115): Mode 4, Reuse note-off voices, Free voice with small number has priority, Portamento and polyphonic after touch are effective
     - 127 (116-127): Mode 2, Free voice with small number has priority, Portamento is effective
+- Voice Group Mode [Off|Ly2|RLy|RR2|RR3|RR4] (PRA32-U2/M, Experimental): What the Basic Channel + 4 and + 5 do (see PRA32-U2/M in README.md), and + 15 too (the Layering, not while it is Off), by the value of the Main Synth (that of the Sub Synths is not used); the notes of the synths are turned off when it changes
+    - 0 (0-12): Off, None
+    - 26 (13-38): Ly2, + 4 is the Layering of the synths 0 and 1, and + 5 that of 2 and 3
+    - 51 (39-63): RLy, + 4 is the Round Robin (2 notes) of 0 and 1 and that of 2 and 3, layered
+    - 77 (64-89): RR2, + 4 is the Round Robin (2 notes) of 0 and 1, and + 5 that of 2 and 3
+    - 102 (90-115): RR3, + 4 is the Round Robin (3 notes) of 1, 2, and 3
+    - 127 (116-127): RR4, + 4 is the Round Robin (4 notes) of 0, 1, 2, and 3
+    - NOTE: Not Off: Voice Mode Pol of the Main Synth acts as Mon (as the Sub Synths sound only then), and the Basic Channel + 15 is the Layering of all
+    - NOTE: Not changed by "Randomize Synth"; nothing in PRA32-U2 (not /M), nor without the Layering
 - LFO Trig Mode [Aut|Off|On|VOn|VOf|VAu]: How a note on restarts the LFO (its phase, and the LFO Fade Time), and whether the Voices share the LFO
     - 0 (0-12): Auto (Aut, the Presets), The LFO of all the Voices; the phase of Saw, S&H, and Square, and the fade, restart at the first note on (Polyphonic and Legato) or every note on (Monophonic), as before (see Voice Mode and LFO Wave)
     - 26 (13-38): Off, The LFO of all the Voices, free running; the fade restarts as in Aut
@@ -379,14 +388,6 @@
     - NOTE: A restarted phase starts from the center going up (Triangle and Sine), or from the top (Saw and Square); S&H takes a new value
     - NOTE: The LFOs of the Voices start a quarter apart (at the start, and at All Sound Off), and the LFO of Voice N (1-4) runs a little faster, by about 0.0007 Hz x (N - 1), so that they drift apart over minutes; the Red Noise is shared. The 4 Synths of PRA32-U2/M are the same: Sub Synth N (1-3) starts at N / 4 and runs faster by about 0.0007 Hz x N, as Voice N + 1 of the Main Synth
     - NOTE: In the Monophonic modes (Voice Mode: Mon, LP, and Lgt), which play Voice 1, VOn, VOf, and VAu work as On, Off, and Aut
-- Stretch Tune [-|+]
-    - -64 (0): -37.5 cent at note number 108 (+37.5 cent at note number 12) (min)
-    - -32 (32): -18.8 cent at note number 108 (+18.8 cent at note number 12)
-    - +0 (64): +0 cent
-    - +8 (72): +4.7 cent at note number 108 (-4.7 cent at note number 12) (the Presets)
-    - +16 (80): +9.4 cent at note number 108 (-9.4 cent at note number 12)
-    - +32 (96): +18.8 cent at note number 108 (-18.8 cent at note number 12)
-    - +63 (127): +36.9 cent at note number 108 (-36.9 cent at note number 12) (max)
 - Breath Filter Amt [-|+]: 2x the other Amt parameters (e.g. Filter EG Amt), so that a weak breath also opens the Filter
     - -60 (0-4): -240 (min)
     - +30 (94): +120, the Cutoff +120 with the max breath
@@ -416,6 +417,14 @@
 - Osc Saw Wave Mode [Str|Cur]
     - 0 (0-63): Straight Saw Wave
     - 127 (64-127): Curved Saw Wave, This does not affect the Pulse Wave
+- Stretch Tune [-|+]
+    - -64 (0): -37.5 cent at note number 108 (+37.5 cent at note number 12) (min)
+    - -32 (32): -18.8 cent at note number 108 (+18.8 cent at note number 12)
+    - +0 (64): +0 cent
+    - +8 (72): +4.7 cent at note number 108 (-4.7 cent at note number 12) (the Presets)
+    - +16 (80): +9.4 cent at note number 108 (-9.4 cent at note number 12)
+    - +32 (96): +18.8 cent at note number 108 (-18.8 cent at note number 12)
+    - +63 (127): +36.9 cent at note number 108 (-36.9 cent at note number 12) (max)
 - Pan: Constant power panning
     - -64 (0-1): Left (L +3.0 dB, R Off) (min)
     - -32 (32): L +2.3 dB, R -5.5 dB
