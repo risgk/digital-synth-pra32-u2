@@ -34,7 +34,9 @@
         - The sliders of the switches snap to their markers when dragged near them, as before v3.17.0
         - Fix that the parameters were sent to PRA32-U2 Web (chosen in MIDI Out the last time) when the editor started
     - PRA32-U2 Native: Add **"Synth ID"** (0-3) in the header, as the synths of PRA32-U2/M, so that the instances layered in the host differ (no Voice Group Mode)
-    - PRA32-U2 Load Estimate: 2 more cycles after a taken branch, as the cost model said; the estimates are 2-5% more, nearer to the device (PRA32-U2/M/P, 4 Synths, 81% from 78%, against 82%)
+    - PRA32-U2 Load Estimate
+        - 2 more cycles after a taken branch, as the cost model said; the estimates are 2-5% more, nearer to the device
+        - The cases of the 4 Synths with Voice Group Mode Ly2, so that MIDI Channel 16 plays them (its notes were dropped): 82% / 79%, against 82% on the device
     - Tested with Arduino-Pico version 6.3.0
 - v3.20.0 (2026-11-06):
     - PRA32-U2 Web: Add **"PRA32-U2/M Web (Built-in)"** (and with "+6 dB") to MIDI Out: PRA32-U2/M (the 4 synths) by the MIDI channels (the Basic Channel 1), with the Layering and the Round Robin
