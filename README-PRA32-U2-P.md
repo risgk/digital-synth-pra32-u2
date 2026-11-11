@@ -140,6 +140,7 @@
 
 - PRA32-U2/P (or PRA32-U2/M/P) without the panel (no SWs, VRs, nor OLED Display): the Step Sequencer and the Panel Parameters
   by the Panel Channel, e.g. from "Panel & Step Sequencer" of PRA32-U2 Editor
+- Prebuilt: "Digital-Synth-PRA32-U2-M-P-Headless-Pimoroni-Pico-Audio-Pack.uf2" (PRA32-U2/M/P Headless) in the "bin" folder
 - How to build: in "Digital-Synth-PRA32-U2.ino" (or "Digital-Synth-PRA32-U2-M.ino"), uncomment `//#define PRA32_U2_USE_CONTROL_PANEL`,
   and comment out `#define PRA32_U2_USE_CONTROL_PANEL_KEY_INPUT`, `#define PRA32_U2_USE_CONTROL_PANEL_ANALOG_INPUT`,
   and `#define PRA32_U2_USE_CONTROL_PANEL_OLED_DISPLAY`

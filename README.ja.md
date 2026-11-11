@@ -21,7 +21,10 @@
     - BOOTSEL ボタンを押しながら Raspberry Pi Pico 2 を PC につなぎ、UF2 ファイルを "RP2350" ドライブにコピーしてください
     - PRA32-U2/M (推奨): "Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2" は Raspberry Pi Pico 2 と Pimoroni Pico Audio Pack 用です
         - PRA32-U2 の上位互換です: Main Synth は PRA32-U2 と同じように動き、Sub Synth と Layering が加わります ([PRA32-U2/M](#pra32-u2m-pra32-u2-multi-timbre-edition) を参照)
-        - 注意: MIDI チャンネル 2-4 と 14-16 にも反応します (初期設定)。これらのチャンネルを他の機器に使う場合は、PRA32-U2 を使ってください
+        - 注意: MIDI チャンネル 2-4 にも反応します (初期設定。Voice Group Mode によっては 5、6、16 にも。プリセットでは Off)。これらのチャンネルを他の機器に使う場合は、PRA32-U2 を使ってください
+    - PRA32-U2/M/P Headless: "Digital-Synth-PRA32-U2-M-P-Headless-Pimoroni-Pico-Audio-Pack.uf2" は、PRA32-U2/M にステップ・シーケンサーとパネルのパラメーターを加えたものです
+      ([PRA32-U2/P Headless](./README-PRA32-U2-P.md#pra32-u2p-headless)、英語)。PRA32-U2 Editor の "Panel & Step Sequencer" などから使います
+        - 注意: MIDI チャンネル 15 (Panel Channel、初期設定) のコントロール・チェンジにも反応します
     - PRA32-U2: "Digital-Synth-PRA32-U2-Pimoroni-Pico-Audio-Pack.uf2" は Raspberry Pi Pico 2 と Pimoroni Pico Audio Pack 用です
 - Arduino IDE と Arduino-Pico (Earle F. Philhower, III 氏による) で改造できます: [改造の準備](#改造の準備) を参照してください (例えば他の I2S DAC、PWM Audio、パネルを使う場合)
 - オプション: 部品を追加することで、**[PRA32-U2/P](./README-PRA32-U2-P.md)** (PRA32-U2 with Panel、英語) と **PRA32-U2/M/P** も構成できます

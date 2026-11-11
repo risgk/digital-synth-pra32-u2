@@ -59,7 +59,7 @@ jobs:
           arduino-cli core install "rp2040:rp2040@$ARDUINO_PICO_VERSION" --additional-urls "$ARDUINO_PICO_INDEX_URL"
           arduino-cli lib install "MIDI Library@$MIDI_LIBRARY_VERSION"
 
-      - name: Build (PRA32-U2 and PRA32-U2/M)
+      - name: Build (PRA32-U2, PRA32-U2/M, and PRA32-U2/M/P Headless)
         id: build
         run: |
           version=$(sed -n 's/^#define PRA32_U2_VERSION *"v\([0-9.]*\).*/\1/p' Digital-Synth-PRA32-U2/Digital-Synth-PRA32-U2.ino)
@@ -76,6 +76,17 @@ jobs:
           cp Digital-Synth-PRA32-U2-M/Digital-Synth-PRA32-U2-M.ino work/Digital-Synth-PRA32-U2/Digital-Synth-PRA32-U2.ino
           arduino-cli compile --fqbn "$UF2_FQBN" --output-dir out/m work/Digital-Synth-PRA32-U2
           cp out/m/Digital-Synth-PRA32-U2.ino.uf2 uf2/Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2
+
+          # PRA32-U2/M/P Headless: PRA32-U2/M with the panel parameters and the Panel Channel, without the panel (no keys, VRs, nor display)
+          ino=work/Digital-Synth-PRA32-U2/Digital-Synth-PRA32-U2.ino
+          sed -i -e 's|^//#define PRA32_U2_USE_CONTROL_PANEL |#define PRA32_U2_USE_CONTROL_PANEL |' \
+                 -e 's|^#define PRA32_U2_USE_CONTROL_PANEL_KEY_INPUT|//#define PRA32_U2_USE_CONTROL_PANEL_KEY_INPUT|' \
+                 -e 's|^#define PRA32_U2_USE_CONTROL_PANEL_ANALOG_INPUT|//#define PRA32_U2_USE_CONTROL_PANEL_ANALOG_INPUT|' \
+                 -e 's|^#define PRA32_U2_USE_CONTROL_PANEL_OLED_DISPLAY|//#define PRA32_U2_USE_CONTROL_PANEL_OLED_DISPLAY|' "$ino"
+          grep -q '^#define PRA32_U2_USE_CONTROL_PANEL ' "$ino"
+          test "$(grep -c '^#define PRA32_U2_USE_CONTROL_PANEL_' "$ino")" -eq 0
+          arduino-cli compile --fqbn "$UF2_FQBN" --output-dir out/mph work/Digital-Synth-PRA32-U2
+          cp out/mph/Digital-Synth-PRA32-U2.ino.uf2 uf2/Digital-Synth-PRA32-U2-M-P-Headless-Pimoroni-Pico-Audio-Pack.uf2
 
       - uses: actions/upload-artifact@v6
         with:

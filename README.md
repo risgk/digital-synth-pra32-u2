@@ -18,7 +18,10 @@
     - Connect Raspberry Pi Pico 2 to a PC while pressing the BOOTSEL button, and copy a UF2 file to the "RP2350" drive
     - PRA32-U2/M (Recommended): "Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico 2 and Pimoroni Pico Audio Pack
         - A superset of PRA32-U2: the Main Synth works the same as PRA32-U2, and the Sub Synths and Layering are added (see [PRA32-U2/M](#pra32-u2m-pra32-u2-multi-timbre-edition))
-        - NOTE: It also responds to MIDI Channels 2-4 and 14-16 (by default); use PRA32-U2 if these channels are used for other devices
+        - NOTE: It also responds to MIDI Channels 2-4 (by default; and 5, 6, and 16 by Voice Group Mode, Off in the presets); use PRA32-U2 if these channels are used for other devices
+    - PRA32-U2/M/P Headless: "Digital-Synth-PRA32-U2-M-P-Headless-Pimoroni-Pico-Audio-Pack.uf2", PRA32-U2/M with the Step Sequencer and the Panel Parameters
+      ([PRA32-U2/P Headless](./README-PRA32-U2-P.md#pra32-u2p-headless)), e.g. from "Panel & Step Sequencer" of PRA32-U2 Editor
+        - NOTE: It also responds to the Control Changes on MIDI Channel 15 (the Panel Channel, by default)
     - PRA32-U2: "Digital-Synth-PRA32-U2-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico 2 and Pimoroni Pico Audio Pack
 - Modifiable with Arduino IDE and Arduino-Pico (by Earle F. Philhower, III): see [Modification Guide](./PRA32-U2-Modification-Guide.md) (e.g. for other I2S DACs, PWM Audio, or the panel)
 - Optional: **[PRA32-U2/P](./README-PRA32-U2-P.md)** (PRA32-U2 with Panel) and **PRA32-U2/M/P** (PRA32-U2 Multi-Timbre Edition with Panel) can also be configured by adding certain parts
