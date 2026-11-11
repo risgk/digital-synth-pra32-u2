@@ -448,12 +448,12 @@ public:
 
   template <uint8_t N>
   INLINE void process_at_low_rate(uint8_t count, int32_t eg_input, int32_t lfo_input, int32_t osc_pitch, int32_t noise_int23,
-                                  const PRA32_U2_Filter& smoothed) {
+                                  int32_t drift_noise_int23, const PRA32_U2_Filter& smoothed) {
     // Pick up the noise once every 8 counts, like PRA32_U2_Osc does, but at a
     // phase none of the 8 oscillators uses, so that the drift of this voice is
     // not correlated with the drift of its oscillators
     if ((count & 0x07) == ((N + 2) & 0x07)) {
-      m_cutoff_drift_noise += ((noise_int23 << 8) - m_cutoff_drift_noise) >> 16;  // as PRA32_U2_Osc (about 44 s)
+      m_cutoff_drift_noise += ((drift_noise_int23 << 8) - m_cutoff_drift_noise) >> 16;  // as PRA32_U2_Osc (about 44 s)
     }
 
     m_s_1 += noise_int23 >> SELF_OSC_NOISE_SHIFT;

@@ -233,6 +233,7 @@ class PRA32_U2_Synth {
   PRA32_U2_Amp      m_amp[4];
   PRA32_U2_Panner   m_panner;
   PRA32_U2_NoiseGen m_noise_gen;
+  PRA32_U2_NoiseGen m_drift_noise_gen;
   PRA32_U2_LFO      m_lfo;
   PRA32_U2_EG       m_eg[2 * 4];
 
@@ -298,6 +299,7 @@ public:
   , m_amp()
   , m_panner()
   , m_noise_gen(SYNTH_ID)
+  , m_drift_noise_gen(84 + SYNTH_ID)
   , m_lfo()
   , m_eg()
   , m_distortion_fx()
@@ -374,18 +376,18 @@ public:
 
   // Not in RAM, as it runs only at the start and at All Sound Off (initialize() is in RAM)
   __attribute__((noinline)) void start_drifts() {
-    // The drifts start from random values, the same at every start and at All Sound Off (see
-    // PRA32_U2_Osc::start_drift()),
-    // by a generator of their own (not the noise of the synth), with a seed apart from those of the synths:
-    // 84 + SYNTH_ID, with which the start values of the 4 synths are as spread as the drift (about
-    // 1.3 cent RMS at 32) and none of them far out (within 2.6 cent at 32), those of the 1st voice within
-    // 0.7 cent (the voice of the Mono modes)
-    PRA32_U2_NoiseGen drift_noise_gen(84 + SYNTH_ID);
-    m_osc.start_drift(drift_noise_gen);
-    m_filter[0].start_drift(PRA32_U2_Osc::random_drift_noise(drift_noise_gen));
-    m_filter[1].start_drift(PRA32_U2_Osc::random_drift_noise(drift_noise_gen));
-    m_filter[2].start_drift(PRA32_U2_Osc::random_drift_noise(drift_noise_gen));
-    m_filter[3].start_drift(PRA32_U2_Osc::random_drift_noise(drift_noise_gen));
+    // The drifts start from random values (see PRA32_U2_Osc::start_drift()) and go on by a generator
+    // of their own (not the noise of the synth), which goes back to the same state at every start and
+    // at All Sound Off, so that the drifts go the same way from there, whenever the synth was started.
+    // The seed is apart from those of the synths: 84 + SYNTH_ID, with which the start values of the
+    // 4 synths are as spread as the drift (about 1.3 cent RMS at 32) and none of them far out (within
+    // 2.6 cent at 32), those of the 1st voice within 0.7 cent (the voice of the Mono modes)
+    m_drift_noise_gen = PRA32_U2_NoiseGen(84 + SYNTH_ID);
+    m_osc.start_drift(m_drift_noise_gen);
+    m_filter[0].start_drift(PRA32_U2_Osc::random_drift_noise(m_drift_noise_gen));
+    m_filter[1].start_drift(PRA32_U2_Osc::random_drift_noise(m_drift_noise_gen));
+    m_filter[2].start_drift(PRA32_U2_Osc::random_drift_noise(m_drift_noise_gen));
+    m_filter[3].start_drift(PRA32_U2_Osc::random_drift_noise(m_drift_noise_gen));
   }
 
   // The phases of the Osc from random values, the same at every start and at All Sound Off (see
@@ -1754,14 +1756,15 @@ if constexpr (BYPASS_SYNTH == false) {
         m_eg[0].process_at_low_rate();
         m_eg[1].process_at_low_rate();
         int32_t lfo_output = m_lfo.get_output<0>();
-        m_osc.process_at_low_rate<0, RESTRICT_SQR_WT>(m_count >> 2, lfo_output, m_eg[0].get_output(), noise_int23);
+        int32_t drift_noise_int23 = m_drift_noise_gen.process();
+        m_osc.process_at_low_rate<0, RESTRICT_SQR_WT>(m_count >> 2, lfo_output, m_eg[0].get_output(), drift_noise_int23);
         // The smoothing of the Filter and Amp parameters is the same for all voices,
         // so it is done once by m_filter[0] and m_amp[0], and read by all voices
         if (is_slow_smoothing_period(m_count >> 2)) {
           m_filter[0].update_smoothing();
           m_amp[0].update_smoothing();
         }
-        m_filter[0].template process_at_low_rate<0>(m_count >> 2, m_eg[0].get_output(), lfo_output, m_osc.get_osc_pitch(0), noise_int23, m_filter[0]);
+        m_filter[0].template process_at_low_rate<0>(m_count >> 2, m_eg[0].get_output(), lfo_output, m_osc.get_osc_pitch(0), noise_int23, drift_noise_int23, m_filter[0]);
         m_amp[0].process_at_low_rate(branchless_conditional(m_controller_value_eg_amp_mod >= 64, m_eg[0].get_output(), m_eg[1].get_output()), m_amp[0]);
       }
       break;
@@ -1776,8 +1779,9 @@ if (m_voice_mode == VOICE_POLYPHONIC) {
         m_eg[3].process_at_low_rate();
         m_lfo.process_voice_at_low_rate(1);
         int32_t lfo_output = m_lfo.get_output<1>();
-        m_osc.process_at_low_rate<1, RESTRICT_SQR_WT>(m_count >> 2, lfo_output, m_eg[2].get_output(), noise_int23);
-        m_filter[1].template process_at_low_rate<1>(m_count >> 2, m_eg[2].get_output(), lfo_output, m_osc.get_osc_pitch(1), noise_int23, m_filter[0]);
+        int32_t drift_noise_int23 = m_drift_noise_gen.process();
+        m_osc.process_at_low_rate<1, RESTRICT_SQR_WT>(m_count >> 2, lfo_output, m_eg[2].get_output(), drift_noise_int23);
+        m_filter[1].template process_at_low_rate<1>(m_count >> 2, m_eg[2].get_output(), lfo_output, m_osc.get_osc_pitch(1), noise_int23, drift_noise_int23, m_filter[0]);
         m_amp[1].process_at_low_rate(branchless_conditional(m_controller_value_eg_amp_mod >= 64, m_eg[2].get_output(), m_eg[3].get_output()), m_amp[0]);
 }
 }
@@ -1795,8 +1799,9 @@ if (m_voice_mode == VOICE_POLYPHONIC) {
         m_eg[5].process_at_low_rate();
         m_lfo.process_voice_at_low_rate(2);
         int32_t lfo_output = m_lfo.get_output<2>();
-        m_osc.process_at_low_rate<2, RESTRICT_SQR_WT>(m_count >> 2, lfo_output, m_eg[4].get_output(), noise_int23);
-        m_filter[2].template process_at_low_rate<2>(m_count >> 2, m_eg[4].get_output(), lfo_output, m_osc.get_osc_pitch(2), noise_int23, m_filter[0]);
+        int32_t drift_noise_int23 = m_drift_noise_gen.process();
+        m_osc.process_at_low_rate<2, RESTRICT_SQR_WT>(m_count >> 2, lfo_output, m_eg[4].get_output(), drift_noise_int23);
+        m_filter[2].template process_at_low_rate<2>(m_count >> 2, m_eg[4].get_output(), lfo_output, m_osc.get_osc_pitch(2), noise_int23, drift_noise_int23, m_filter[0]);
         m_amp[2].process_at_low_rate(branchless_conditional(m_controller_value_eg_amp_mod >= 64, m_eg[4].get_output(), m_eg[5].get_output()), m_amp[0]);
 }
 }
@@ -1813,8 +1818,9 @@ if (m_voice_mode == VOICE_POLYPHONIC) {
         m_eg[7].process_at_low_rate();
         m_lfo.process_voice_at_low_rate(3);
         int32_t lfo_output = m_lfo.get_output<3>();
-        m_osc.process_at_low_rate<3, RESTRICT_SQR_WT>(m_count >> 2, lfo_output, m_eg[6].get_output(), noise_int23);
-        m_filter[3].template process_at_low_rate<3>(m_count >> 2, m_eg[6].get_output(), lfo_output, m_osc.get_osc_pitch(3), noise_int23, m_filter[0]);
+        int32_t drift_noise_int23 = m_drift_noise_gen.process();
+        m_osc.process_at_low_rate<3, RESTRICT_SQR_WT>(m_count >> 2, lfo_output, m_eg[6].get_output(), drift_noise_int23);
+        m_filter[3].template process_at_low_rate<3>(m_count >> 2, m_eg[6].get_output(), lfo_output, m_osc.get_osc_pitch(3), noise_int23, drift_noise_int23, m_filter[0]);
         m_amp[3].process_at_low_rate(branchless_conditional(m_controller_value_eg_amp_mod >= 64, m_eg[6].get_output(), m_eg[7].get_output()), m_amp[0]);
 }
 }

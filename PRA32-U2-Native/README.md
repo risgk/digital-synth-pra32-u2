@@ -39,6 +39,9 @@ PRA32-U2 Native: a software synthesizer (VST3 plugin and standalone application)
         - The "Synth ID" button in the header selects the Synth ID (0-3, 0 by default) of the instance, as the Main Synth and
           the Sub Synths 1-3 of PRA32-U2/M: their own drift, start phases, LFOs, and noise, so that the instances layered in the host
           are not all the same; kept in the plugin state (not a parameter), with the parameters kept when it changes
+        - All Sound Off (e.g. "Panic" of PRA32-U2 Editor) brings the drift, the start phases, and the LFOs of the instance back to the start,
+          so that the instances layered in the host go the same way from there, however apart they were started
+          (nearly: not the FX, e.g. the Chorus and the Delay, nor the noise; the host's effect plugins may be used instead)
         - The parameters named "---" can be moved in the host's generic parameter editor, but do nothing
         - The host's generic parameter editor can also be used (the parameters are in the order of the control numbers)
     - Standalone: the "Options" menu (JUCE's): "Audio/MIDI Settings...", "Save current state...", "Load a saved state...",

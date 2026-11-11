@@ -498,7 +498,7 @@ public:
 
   // RESTRICT_SQR_WT: as for process(), where the Shape and the Morph of Sqr and WT are not used
   template <uint8_t N, boolean RESTRICT_SQR_WT = false>
-  INLINE void process_at_low_rate(uint32_t count, int32_t lfo_level, int32_t eg_level, int32_t noise_int23) {
+  INLINE void process_at_low_rate(uint32_t count, int32_t lfo_level, int32_t eg_level, int32_t drift_noise_int23) {
     update_pitch_current<N>();
     update_osc1_shape<N>(lfo_level, eg_level);
     update_osc1_shape_effective<N, RESTRICT_SQR_WT>();
@@ -507,10 +507,10 @@ public:
 
     switch (count & 0x07) {
     case ((N * 0x01) + 0x00):
-      update_freq_offset<N + 0>(noise_int23);
+      update_freq_offset<N + 0>(drift_noise_int23);
       break;
     case ((N * 0x01) + 0x04):
-      update_freq_offset<N + 4>(noise_int23);
+      update_freq_offset<N + 4>(drift_noise_int23);
       break;
     }
   }
@@ -850,12 +850,12 @@ if constexpr (RESTRICT_SQR_WT == false) {
   }
 
   template <uint8_t N>
-  INLINE void update_freq_offset(int32_t noise_int23) {
+  INLINE void update_freq_offset(int32_t drift_noise_int23) {
     // The noise smoothed by a one pole low pass at 1500 Hz (once every 8 counts), with a time constant of
     // about 44 s (2^16 updates), so that the pitch wanders very slowly, as a slight difference of each
     // oscillator that changes over a piece (about 1.4 cent RMS at 32, the Presets, 2.8 cent at 64, and
     // 5.6 cent at 127); it starts from a random value of the same spread (see start_drift())
-    m_drift_noise[N] += ((noise_int23 << 8) - m_drift_noise[N]) >> 16;
+    m_drift_noise[N] += ((drift_noise_int23 << 8) - m_drift_noise[N]) >> 16;
 
     // The drift r (Q24) is applied as the frequency ratio e^r, so that the
     // pitch drifts by (1200 / ln 2) * r cents, up and down symmetrically, the
