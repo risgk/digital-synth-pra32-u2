@@ -15,9 +15,10 @@
 // "Program Change" button (the same style as the "Options" button of the Standalone), whose menu sends
 // Program Change #16-31 (the Factory Presets) to
 // the synth itself (not the hosts' presets, so that the hosts do not change the sound when they load the projects),
-// and the "Randomize Synth" and "Randomize FX" buttons (the same as PRA32-U2 Editor).
+// and the "Randomize Synth" and "Randomize FX" buttons (the same as PRA32-U2 Editor), and the "Synth ID" button,
+// whose menu selects the Synth ID (0-3, as the synths of PRA32-U2/M) of the instance.
 // (The hosts' generic editors list the parameters in the order of the control numbers, with the ones named "---")
-class PRA32U2NativeAudioProcessorEditor : public juce::AudioProcessorEditor {
+class PRA32U2NativeAudioProcessorEditor : public juce::AudioProcessorEditor, private juce::Timer {
 public:
   explicit PRA32U2NativeAudioProcessorEditor(PRA32U2NativeAudioProcessor& processor);
   ~PRA32U2NativeAudioProcessorEditor() override;
@@ -65,6 +66,9 @@ private:
   };
 
   void showProgramChangeMenu();
+  void showSynthIdMenu();
+  void updateSynthIdButton();
+  void timerCallback() override;  // The "Synth ID" button follows the processor (e.g. after the state is loaded)
 
   PRA32U2NativeAudioProcessor&                m_processor;
   LookAndFeel                                 m_lookAndFeel;  // Declared before the rows, so that it outlives them
@@ -74,6 +78,7 @@ private:
   juce::TextButton                            m_programChangeButton;
   juce::TextButton                            m_randomizeSynthButton;
   juce::TextButton                            m_randomizeFxButton;
+  juce::TextButton                            m_synthIdButton;
   Viewport                                    m_viewport;
   juce::Component                             m_content;
   std::vector<std::unique_ptr<ParameterRow>>  m_rows;

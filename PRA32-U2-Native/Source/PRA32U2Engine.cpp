@@ -173,8 +173,30 @@ const float OUTPUT_SCALE = 1.0f / static_cast<float>(1 << 23);  // The output of
 
 struct PRA32U2Engine::Impl {
   PRA32_U2_Synth<false, false, true> synth;  // The same as Digital-Synth-PRA32-U2.ino
+#if !defined(PRA32_U2_ENGINE_M)
+  // PRA32-U2 Native: the synths of the Synth IDs 1-3 too (as the Sub Synths 1-3 of PRA32-U2/M, with their own drift,
+  // start phases, LFOs, and noise), so that the instances layered in the host are not all the same
+  PRA32_U2_Synth<false, false, true, 1> synth_1;
+  PRA32_U2_Synth<false, false, true, 2> synth_2;
+  PRA32_U2_Synth<false, false, true, 3> synth_3;
+  int      synth_id = 0;
+#endif  // !defined(PRA32_U2_ENGINE_M)
   bool     m = false;   // PRA32-U2/M (with PRA32_U2_ENGINE_M only)
   uint32_t frame = 0;   // In a loop of 64 frames of "Digital-Synth-PRA32-U2-M.ino"
+
+  // The synth of the Synth ID (0 without PRA32-U2 Native)
+  template <typename F>
+  void with_synth(F f) {
+#if !defined(PRA32_U2_ENGINE_M)
+    switch (synth_id) {
+    case 1: f(synth_1); return;
+    case 2: f(synth_2); return;
+    case 3: f(synth_3); return;
+    default: break;
+    }
+#endif  // !defined(PRA32_U2_ENGINE_M)
+    f(synth);
+  }
 };
 
 int PRA32U2Engine::getNumParameters() {
@@ -364,9 +386,45 @@ PRA32U2Engine::PRA32U2Engine(bool m)
   }
 #else
   (void) m;
+  m_impl->synth_1.initialize();
+  m_impl->synth_2.initialize();
+  m_impl->synth_3.initialize();
 #endif  // defined(PRA32_U2_ENGINE_M)
   m_impl->synth.initialize();
 }
+
+#if !defined(PRA32_U2_ENGINE_M)
+int PRA32U2Engine::getSynthId() const {
+  return m_impl->synth_id;
+}
+
+// The current values of the sound parameters and of the performance controllers go to the new synth, and the notes of the
+// old one are turned off
+void PRA32U2Engine::setSynthId(int synthId) {
+  synthId &= 3;
+  if (synthId == m_impl->synth_id) {
+    return;
+  }
+  uint8_t values[128] = {};
+  m_impl->with_synth([&](auto& s) {
+    for (uint8_t number = 0; number < 128; ++number) {
+      values[number] = s.current_controller_value(number);
+    }
+    s.all_notes_off(true);
+  });
+  m_impl->synth_id = synthId;
+  m_impl->with_synth([&](auto& s) {
+    for (int i = 0; i < NUM_ALL_PARAMETERS; ++i) {
+      const uint8_t number = s_program_table_parameters[i];
+      s.control_change(number, values[number]);
+    }
+    static const uint8_t PERFORMANCE_CONTROLLERS[] = { MODULATION, BTH_CONTROLLER, EXPRESSION, PORTAMENTO_SW };
+    for (uint8_t number : PERFORMANCE_CONTROLLERS) {
+      s.control_change(number, values[number]);
+    }
+  });
+}
+#endif  // !defined(PRA32_U2_ENGINE_M)
 
 PRA32U2Engine::~PRA32U2Engine() = default;
 
@@ -414,31 +472,31 @@ void PRA32U2Engine::handleMidiMessage(const uint8_t* data, int size) {
 
   switch (status) {
   case 0x80:
-    if (size >= 3) { m_impl->synth.note_off(data_1, data_2); }
+    if (size >= 3) { m_impl->with_synth([&](auto& s) { s.note_off(data_1, data_2); }); }
     break;
   case 0x90:
     if (size >= 3) {
       if (data_2 == 0) {
-        m_impl->synth.note_off(data_1, 64);
+        m_impl->with_synth([&](auto& s) { s.note_off(data_1, 64); });
       } else {
-        m_impl->synth.note_on(data_1, data_2);
+        m_impl->with_synth([&](auto& s) { s.note_on(data_1, data_2); });
       }
     }
     break;
   case 0xA0:
-    if (size >= 3) { m_impl->synth.after_touch_poly(data_1, data_2); }
+    if (size >= 3) { m_impl->with_synth([&](auto& s) { s.after_touch_poly(data_1, data_2); }); }
     break;
   case 0xB0:
-    if (size >= 3) { m_impl->synth.control_change(data_1, data_2); }
+    if (size >= 3) { m_impl->with_synth([&](auto& s) { s.control_change(data_1, data_2); }); }
     break;
   case 0xC0:
-    if (size >= 2) { m_impl->synth.program_change(data_1); }
+    if (size >= 2) { m_impl->with_synth([&](auto& s) { s.program_change(data_1); }); }
     break;
   case 0xD0:
-    if (size >= 2) { m_impl->synth.after_touch_channel(data_1); }
+    if (size >= 2) { m_impl->with_synth([&](auto& s) { s.after_touch_channel(data_1); }); }
     break;
   case 0xE0:
-    if (size >= 3) { m_impl->synth.pitch_bend(data_1, data_2); }
+    if (size >= 3) { m_impl->with_synth([&](auto& s) { s.pitch_bend(data_1, data_2); }); }
     break;
   default:
     break;
@@ -453,7 +511,7 @@ void PRA32U2Engine::controlChange(uint8_t controlNumber, uint8_t value) {
     return;
   }
 #endif  // defined(PRA32_U2_ENGINE_M)
-  m_impl->synth.control_change(controlNumber & 0x7F, value & 0x7F);
+  m_impl->with_synth([&](auto& s) { s.control_change(controlNumber & 0x7F, value & 0x7F); });
 }
 
 uint8_t PRA32U2Engine::getControllerValue(uint8_t controlNumber) const {
@@ -462,7 +520,9 @@ uint8_t PRA32U2Engine::getControllerValue(uint8_t controlNumber) const {
     return g_synth.current_controller_value(controlNumber & 0x7F);
   }
 #endif  // defined(PRA32_U2_ENGINE_M)
-  return m_impl->synth.current_controller_value(controlNumber & 0x7F);
+  uint8_t value = 0;
+  m_impl->with_synth([&](auto& s) { value = s.current_controller_value(controlNumber & 0x7F); });
+  return value;
 }
 
 void PRA32U2Engine::process(float& left, float& right) {
@@ -507,7 +567,8 @@ void PRA32U2Engine::process(float& left, float& right) {
     return;
   }
 #endif  // defined(PRA32_U2_ENGINE_M)
-  PRA32_U2_StereoSample output = m_impl->synth.process(0, 0);
+  PRA32_U2_StereoSample output;
+  m_impl->with_synth([&](auto& s) { output = s.process(0, 0); });
   left  = static_cast<float>(output.left)  * OUTPUT_SCALE;
   right = static_cast<float>(output.right) * OUTPUT_SCALE;
 }

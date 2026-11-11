@@ -48,6 +48,13 @@ public:
   // Processes 1 sample at 48 kHz (-1.0 to +1.0)
   void process(float& left, float& right);
 
+#if !defined(PRA32_U2_ENGINE_M)
+  // PRA32-U2 Native: the Synth ID (0-3, as the Main Synth and the Sub Synths 1-3 of PRA32-U2/M: their own drift,
+  // start phases, LFOs, and noise), for the instances layered in the host; the parameters are kept when it changes
+  int  getSynthId() const;
+  void setSynthId(int synthId);
+#endif  // !defined(PRA32_U2_ENGINE_M)
+
 private:
   struct Impl;
   std::unique_ptr<Impl> m_impl;
