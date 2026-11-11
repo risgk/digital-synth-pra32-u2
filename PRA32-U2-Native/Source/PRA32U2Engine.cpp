@@ -4,7 +4,7 @@
 #define PRA32_U2_ENABLE_POLY_ON_1_CORE
 
 #if defined(PRA32_U2_ENGINE_M)
-// PRA32-U2/M/P Web (PRA32_U2_ENGINE_M) has the panel parameters and the Step Sequencer of PRA32-U2/M/P (Experimental),
+// PRA32-U2/M/P Web (PRA32_U2_ENGINE_M) has the panel parameters and the Step Sequencer of PRA32-U2/M/P,
 // as PRA32-U2/M/P without the panel (no keys, no knobs, and no display), controlled by the Panel Channel
 // (the Basic Channel + 14); the Native (without PRA32_U2_ENGINE_M) does not
 #define PRA32_U2_USE_CONTROL_PANEL
@@ -129,9 +129,14 @@ const PRA32U2Engine::ParameterInfo s_parameter_names[] = {
   { DELAY_FEEDBACK , "Delay Feedback"                         },
 };
 
-const int NUM_PARAMETERS = static_cast<int>(sizeof(s_program_table_parameters) / sizeof(s_program_table_parameters[0]));
+const int NUM_ALL_PARAMETERS = static_cast<int>(sizeof(s_program_table_parameters) / sizeof(s_program_table_parameters[0]));
+#if defined(PRA32_U2_ENGINE_M)
+const int NUM_PARAMETERS = NUM_ALL_PARAMETERS;
+#else  // defined(PRA32_U2_ENGINE_M)
+const int NUM_PARAMETERS = NUM_ALL_PARAMETERS - 1;  // Not Voice Group Mode, which only PRA32-U2/M uses
+#endif  // defined(PRA32_U2_ENGINE_M)
 
-static_assert(sizeof(s_parameter_names) / sizeof(s_parameter_names[0]) == NUM_PARAMETERS,
+static_assert(sizeof(s_parameter_names) / sizeof(s_parameter_names[0]) == NUM_ALL_PARAMETERS,
               "s_parameter_names must have the names of all the parameters of s_program_table_parameters");
 
 const char* parameterNameFor(uint8_t controlNumber) {
@@ -147,9 +152,15 @@ const char* parameterNameFor(uint8_t controlNumber) {
 const std::array<PRA32U2Engine::ParameterInfo, NUM_PARAMETERS>& parameterInfos() {
   static const std::array<PRA32U2Engine::ParameterInfo, NUM_PARAMETERS> infos = [] {
     std::array<PRA32U2Engine::ParameterInfo, NUM_PARAMETERS> result {};
-    for (int i = 0; i < NUM_PARAMETERS; ++i) {
+    int n = 0;
+    for (int i = 0; i < NUM_ALL_PARAMETERS; ++i) {
       const uint8_t controlNumber = s_program_table_parameters[i];
-      result[static_cast<size_t>(i)] = { controlNumber, parameterNameFor(controlNumber) };
+#if !defined(PRA32_U2_ENGINE_M)
+      if (controlNumber == VOICE_GRP_MODE) {
+        continue;
+      }
+#endif  // !defined(PRA32_U2_ENGINE_M)
+      result[static_cast<size_t>(n++)] = { controlNumber, parameterNameFor(controlNumber) };
     }
     return result;
   }();

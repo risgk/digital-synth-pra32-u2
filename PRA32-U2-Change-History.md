@@ -26,7 +26,7 @@
         - Not compatible: the Round Robin on + 6 to + 8, + 11, and + 12, and the Layering on + 13 and + 14 are now by Voice Group Mode
         - `PRA32_U2_ENABLE_ROUND_ROBIN` removed: the Round Robin is with the Layering (`PRA32_U2_ENABLE_LAYERING`)
     - PRA32-U2/P: Fix that the Basic Channel was 1 or 2 at first (with no panel parameters written), when `PRA32_U2_MIDI_CH` is not 0 (Channel 1)
-    - PRA32-U2/P: Add the **Panel Channel** (Experimental, enabled by default): the Control Changes on the Basic Channel + 14 control the Panel and Step Sequencer Parameters and the operations (see README-PRA32-U2-P.md)
+    - PRA32-U2/P: Add the **Panel Channel** (enabled by default): the Control Changes on the Basic Channel + 14 control the Panel and Step Sequencer Parameters and the operations (see README-PRA32-U2-P.md)
         - Also without the panel: with `PRA32_U2_USE_CONTROL_PANEL`, the keys, the VRs, and the OLED display can each be left out
         - The Basic Channel can be set by it too (MIDI Basic Ch and Set Basic Ch), as by the panel; "Set Basic Ch (to Device)" of PRA32-U2 Editor, whose Export keeps it
         - PRA32-U2 Editor: Add **"Panel & Step Sequencer"** (hidden by default); and the MIDI Implementation Chart of the Panel Channel, and "pra32-u2-panel-initial.json"

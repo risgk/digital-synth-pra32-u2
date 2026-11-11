@@ -2010,7 +2010,7 @@ INLINE void PRA32_U2_ControlPanel_update_display(uint32_t loop_counter) {
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 }
 
-// A Control Change on the Panel Channel (the Basic Channel + 14, Experimental), so that the panel parameters and the Step
+// A Control Change on the Panel Channel (the Basic Channel + 14), so that the panel parameters and the Step
 // Sequencer can be controlled by MIDI (e.g. without the panel); see README-PRA32-U2-P.md. The CC numbers are
 // only those that the synth parameters use (the others are left for them), and avoid those that a DAW or a
 // keyboard may send by itself (e.g. Bank Select, RPN/NRPN, Data Entry, Modulation, Breath, Pan, Expression,

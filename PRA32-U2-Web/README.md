@@ -27,7 +27,7 @@ PRA32-U2 Web: a software synthesizer version of Digital Synth PRA32-U2 that runs
         - Select the synth in "MIDI Ch" of PRA32-U2 Editor: e.g. 2 for the Sub Synth 1 (see PRA32-U2/M in the README.md of PRA32-U2)
         - The Main Synth starts with the program #0 and the Sub Synths 1-3 with #1-3; the Sub Synths sound only while the Main Synth is not in Poly
         - PRA32-U2 Web and PRA32-U2/M/P Web keep their own states; the one selected sounds
-        - Experimental: with the Panel Channel of PRA32-U2/M/P, for "Panel & Step Sequencer" of PRA32-U2 Editor (see "Panel Channel" in README-PRA32-U2-P.md)
+        - With the Panel Channel of PRA32-U2/M/P, for "Panel & Step Sequencer" of PRA32-U2 Editor (see "Panel Channel" in README-PRA32-U2-P.md)
     - The user programs (#0-15) start as they are at first on PRA32-U2 (the same as the Presets #16-31) at each load of the page:
       not those of PRA32-U2, nor the User Presets of PRA32-U2 Editor; those written by "Write" are kept until the page is closed
 - Play the keyboard of PRA32-U2 Editor, or a MIDI keyboard selected in "MIDI In 1-4"

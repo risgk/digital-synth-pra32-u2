@@ -377,7 +377,7 @@
     - 102 (90-115): RR3, + 4 is the Round Robin (3 notes) of 1, 2, and 3
     - 127 (116-127): RR4, + 4 is the Round Robin (4 notes) of 0, 1, 2, and 3
     - NOTE: Not Off: Voice Mode Pol of the Main Synth acts as Mon (as the Sub Synths sound only then), and the Basic Channel + 15 is the Layering of all
-    - NOTE: Not changed by "Randomize Synth"; nothing in PRA32-U2 (not /M), nor without the Layering
+    - NOTE: Not changed by "Randomize Synth"; nothing in PRA32-U2 (not /M), nor without the Layering; not in PRA32-U2 Native
 - LFO Trig Mode [Aut|Off|On|VOn|VOf|VAu]: How a note on restarts the LFO (its phase, and the LFO Fade Time), and whether the Voices share the LFO
     - 0 (0-12): Auto (Aut, the Presets), The LFO of all the Voices; the phase of Saw, S&H, and Square, and the fade, restart at the first note on (Polyphonic and Legato) or every note on (Monophonic), as before (see Voice Mode and LFO Wave)
     - 26 (13-38): Off, The LFO of all the Voices, free running; the fade restarts as in Aut

@@ -82,7 +82,7 @@ for (const samplingRate of [48000, 44100, 96000]) {
   }
 }
 
-// PRA32-U2/M/P Web with the panel parameters (Experimental): the Step Sequencer sounds by the Panel Channel (Basic Channel 1 + 14:
+// PRA32-U2/M/P Web with the panel parameters: the Step Sequencer sounds by the Panel Channel (Basic Channel 1 + 14:
 // Channel 15), started by Panel Play (CC #111) in Seq Mode (Panel Play Mode, CC #53), and is almost silent after it is stopped
 {
   const stub = () => 0;

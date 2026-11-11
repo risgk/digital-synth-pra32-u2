@@ -12,7 +12,7 @@
     - Playing by panel operation
     - Built-in monophonic 8-step sequencer
     - Panel and Step Sequencer Parameters
-    - Experimental: [Panel Channel](#panel-channel-experimental), to control them by MIDI, with the panel or without it
+    - [Panel Channel](#panel-channel), to control them by MIDI, with the panel or without it
 - This option requires 2 to 6 SWs (tactile switches), 2 to 3 VRs (ADCs), and a monochrome 128x64 OLED Display based on SSD1306 series drivers
     - SWs: Prev and Next, and optionally Play, Prog -, Prog +, and Shift (see Inputs)
     - OLED Display: I2C1, SDA: GP6, SCL: GP7, Address: 0x3C (by default)
@@ -124,7 +124,7 @@
         - Only the last Write and the last Read, of the synth selected then, until the power is turned off
 
 
-### Panel Channel (Experimental)
+### Panel Channel
 
 - The Control Changes on the Panel Channel (the Basic Channel + 14, 15 by default) control the Panel and Step Sequencer Parameters
   and the operations (Write Panel Prms, Seq Rand Pitch, etc.), as the panel does: see the [MIDI Implementation Chart of the Panel Channel](./PRA32-U2-P-Panel-Channel-MIDI-Implementation-Chart.md)

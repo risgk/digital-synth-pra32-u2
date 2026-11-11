@@ -74,7 +74,7 @@
 ////////////////////////////////////////////////////////////////
 
 //#define PRA32_U2_USE_CONTROL_PANEL               // PRA32-U2/P (PRA32-U2 with Panel)
-#define PRA32_U2_USE_PANEL_CHANNEL               // The Panel Channel (the Basic Channel + 14) of PRA32-U2/P (Experimental, see README-PRA32-U2-P.md)
+#define PRA32_U2_USE_PANEL_CHANNEL               // The Panel Channel (the Basic Channel + 14) of PRA32-U2/P (see README-PRA32-U2-P.md)
 
 #define PRA32_U2_USE_CONTROL_PANEL_KEY_INPUT     // Use tactile switches
 #define PRA32_U2_KEY_INPUT_ACTIVE_LEVEL          (LOW)

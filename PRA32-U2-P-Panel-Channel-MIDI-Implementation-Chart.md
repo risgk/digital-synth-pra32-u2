@@ -1,5 +1,5 @@
 ```
-  [Panel Channel]                                                 Experimental                           
+  [Panel Channel]                                                                                        
   Model: Digital Synth PRA32-U2/P   MIDI Implementation Chart                                            
 +-------------------------------+---------------+---------------+---------------------------------------+
 | Function...                   | Transmitted   | Recognized    | Remarks                               |

@@ -168,7 +168,7 @@ graph LR
 - Undo: back to the parameters before the last change (a preset, Randomize, Import, or a move of a slider), up to 200 steps; Redo: forward again (also by Ctrl+Z and Ctrl+Y or Ctrl+Shift+Z, or Command on a Mac)
 - "MIDI", "Actions & Presets", "Store & File", and "Write & Program Change" can each be hidden, to give the parameters more of the window (Send Current is on the heading of "MIDI", shown while it is hidden too)
 - "Synth Parameters" (the first 32), "More Synth Parameters" (the others), and "FX Parameters" can each be hidden too
-- "Panel & Step Sequencer" for PRA32-U2/P (see [Panel Channel](./README-PRA32-U2-P.md#panel-channel-experimental))
+- "Panel & Step Sequencer" for PRA32-U2/P (see [Panel Channel](./README-PRA32-U2-P.md#panel-channel))
 - The controls look the same in every Web browser and OS (as in Chrome); on a touch screen, the thumbs of the sliders are larger, and the buttons taller
 - Software Keyboard
     - Below the parameters, it stays at the bottom of the window while they scroll above it, so that they can be changed while playing; it can be hidden (Panic stays shown; hiding turns Hold off)
