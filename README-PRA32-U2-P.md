@@ -12,7 +12,7 @@
     - Playing by panel operation
     - Built-in monophonic 8-step sequencer
     - Panel and Step Sequencer Parameters
-    - [Panel Channel](#panel-channel), to control them by MIDI, with the panel or without it
+    - [Panel Channel](#panel-channel), to control them by MIDI, with the panel or without it ([PRA32-U2/P Headless](#pra32-u2p-headless))
 - This option requires 2 to 6 SWs (tactile switches), 2 to 3 VRs (ADCs), and a monochrome 128x64 OLED Display based on SSD1306 series drivers
     - SWs: Prev and Next, and optionally Play, Prog -, Prog +, and Shift (see Inputs)
     - OLED Display: I2C1, SDA: GP6, SCL: GP7, Address: 0x3C (by default)
@@ -135,9 +135,16 @@
     - "Basic Ch": that of PRA32-U2 (not "MIDI Ch" of the editor); "Set Basic Ch (to Device)" changes it on PRA32-U2 too (kept by Write)
     - PRA32-U2 sends nothing back: "Send Panel" sends the values that the editor keeps ("pra32-u2-panel-initial.json": the initial ones);
       Export keeps the Basic Ch too, which Import sets on PRA32-U2 if asked
-- Without the panel: comment out `#define PRA32_U2_USE_CONTROL_PANEL_KEY_INPUT`, `#define PRA32_U2_USE_CONTROL_PANEL_ANALOG_INPUT`,
-  and `#define PRA32_U2_USE_CONTROL_PANEL_OLED_DISPLAY` (with `#define PRA32_U2_USE_CONTROL_PANEL` uncommented)
+
+### PRA32-U2/P Headless
+
+- PRA32-U2/P (or PRA32-U2/M/P) without the panel (no SWs, VRs, nor OLED Display): the Step Sequencer and the Panel Parameters
+  by the Panel Channel, e.g. from "Panel & Step Sequencer" of PRA32-U2 Editor
+- How to build: in "Digital-Synth-PRA32-U2.ino" (or "Digital-Synth-PRA32-U2-M.ino"), uncomment `//#define PRA32_U2_USE_CONTROL_PANEL`,
+  and comment out `#define PRA32_U2_USE_CONTROL_PANEL_KEY_INPUT`, `#define PRA32_U2_USE_CONTROL_PANEL_ANALOG_INPUT`,
+  and `#define PRA32_U2_USE_CONTROL_PANEL_OLED_DISPLAY`
     - The Basic Channel is `PRA32_U2_MIDI_CH`, or that written by Write Panel Prms (e.g. after Set Basic Ch of the editor)
+    - With Debug Print, the texts of the display are printed (of the first page, as no keys turn it)
 
 
 ### Circuit Diagram

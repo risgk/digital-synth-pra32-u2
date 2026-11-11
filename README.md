@@ -22,6 +22,7 @@
     - PRA32-U2: "Digital-Synth-PRA32-U2-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico 2 and Pimoroni Pico Audio Pack
 - Modifiable with Arduino IDE and Arduino-Pico (by Earle F. Philhower, III): see [Modification Guide](./PRA32-U2-Modification-Guide.md) (e.g. for other I2S DACs, PWM Audio, or the panel)
 - Optional: **[PRA32-U2/P](./README-PRA32-U2-P.md)** (PRA32-U2 with Panel) and **PRA32-U2/M/P** (PRA32-U2 Multi-Timbre Edition with Panel) can also be configured by adding certain parts
+    - Or **[PRA32-U2/P Headless](./README-PRA32-U2-P.md#pra32-u2p-headless)** without the panel: the Step Sequencer by MIDI (e.g. from PRA32-U2 Editor), with no extra parts
 - **[PRA32-U2 Native](./PRA32-U2-Native/README.md)**: a software synthesizer (VST3 plugin and standalone application) version of PRA32-U2 for PCs
 - **[PRA32-U2 Web](./PRA32-U2-Web/README.md)**: a software synthesizer version of PRA32-U2 that runs in a Web browser, built into PRA32-U2 Editor
 
