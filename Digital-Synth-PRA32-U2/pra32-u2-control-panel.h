@@ -2016,7 +2016,8 @@ INLINE void PRA32_U2_ControlPanel_update_display(uint32_t loop_counter) {
 // keyboard may send by itself (e.g. Bank Select, RPN/NRPN, Data Entry, Modulation, Breath, Pan, Expression,
 // the pedals, and the Channel Mode Messages), not to change a parameter, nor to write to the flash, by chance:
 // - Parameters (set as by the panel): Seq Pitch 0-7 (#16-23), Seq Velo 0-7 (#70-77), the Panel Parameters
-//   (#51-56: Scale, Transpose, Play Mode, Play Pitch, Play Velo, and Pitch Ofst), and the other Step Sequencer Parameters (#85-94, the number + 37); Panel Target Ch (#58, PRA32-U2/M/P: the channel
+//   (#51-56: Scale, Transpose, Play Mode, Play Pitch, Play Velo, and Pitch Ofst), and the other Step Sequencer Parameters (#85-90 and #92-94, the number + 37,
+//   and Seq Pitch Ofst #95); Panel Target Ch (#58, PRA32-U2/M/P: the channel
 //   that the panel selects, as the Basic Channel + the value) is only for the Panel Channel
 // - MIDI Basic Ch (#57, 0-15 as 1-16) is only kept, and set by Set Basic Ch (#114, as an operation), so that the channels
 //   (the Panel Channel too) do not move by one Control Change; kept in the flash by Write Panel Prms, as by the panel
@@ -2047,7 +2048,8 @@ static uint8_t PRA32_U2_ControlPanel_panel_ch_target(uint8_t number) {
   case 113: return SEQ_RAND_VELO  ;
   }
 
-  if ((number >= 85) && (number <= 94)) { return 128 + (number - 37); }  // SEQ_TEMPO to SEQ_TRX_ST_SP
+  if ((number >= 85) && (number <= 94) && (number != 91)) { return 128 + (number - 37); }  // SEQ_TEMPO to SEQ_TRX_ST_SP
+  if (number == 95) { return SEQ_PIT_OFST; }  // not #91 (Effects 1 Depth, which a DAW or a keyboard may send)
 
   return 0xFF;
 }

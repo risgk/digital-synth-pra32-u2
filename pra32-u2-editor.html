@@ -3848,7 +3848,7 @@ const PANEL_PARAM_GROUPS = [
   // B-04 to B-08
   [["Seq", "Step Note",  "[4|8|16]",                  92, 64,  v => ["4", "8", "16"][(v * 4 + 128) >> 8],       "soft-markers-3"],
    ["Seq", "Clock Src",  "[Int|Ext]",                 86, 0,   v => ["Int", "Ext"][(v * 2 + 128) >> 8],         "soft-markers-2"],
-   ["Seq", "Pitch Ofst", "[-|+]",                     91, 64,  v => panelSigned(panelClamp(v - 64, -60, 60)),   "soft-marker-c"],
+   ["Seq", "Pitch Ofst", "[-|+]",                     95, 64,  v => panelSigned(panelClamp(v - 64, -60, 60)),   "soft-marker-c"],
    ["Seq", "T/Rx St/Sp", "[Off|On]",                  94, 0,   v => ["Off", "On"][(v * 2 + 128) >> 8],          "soft-markers-2"],
    ["Seq", "Tempo",      "",                          85, 64,  v => String(panelClamp(v * 2 - 8, 30, 240)),     ""],
    ["Seq", "Gate Time",  "[1/6|2/6|3/6|4/6|5/6|6/6]", 87, 51,  v => ((v * 10 + 128) >> 8) + 1 + "/6",           "soft-markers-6"],
@@ -3895,7 +3895,7 @@ function panelPitchName(pitch) {
   if (pitch === 0) { return "Off"; }
   pitch = panelClamp(pitch, 4, 124);
   const indexScale = (panelValues[51] * 10 + 128) >> 8;
-  const p = Math.floor((((pitch + panelClamp(panelValues[56] - 64, -60, 60) + panelClamp(panelValues[91] - 64, -60, 60) + 3) * 2) + 1) / 5) - 3 + 24;
+  const p = Math.floor((((pitch + panelClamp(panelValues[56] - 64, -60, 60) + panelClamp(panelValues[95] - 64, -60, 60) + 3) * 2) + 1) / 5) - 3 + 24;
   const note = PANEL_SCALE_TABLES[indexScale][p % 24] + Math.floor(p / 24) * 12 - 24;
   const n = panelClamp(note + (panelValues[52] - 64), 0, 127);
   const octave = Math.floor(n / 12) - 1;
@@ -3923,18 +3923,19 @@ function panelSave() {
   try { localStorage.setItem(PANEL_STORAGE_KEY, JSON.stringify({ ccs: PANEL_CCS_VERSION, values: panelValues, settings: panelSettings })); } catch (e) {}
 }
 
-// The values of the data kept (in the browser) or exported, by the CC numbers of the Panel Channel now ("ccs": 2);
-// the data before them (with no "ccs") renumbered (e.g. Seq Velo 0-7 #24-31 to #70-77)
-const PANEL_CCS_VERSION = 2;
+// The values of the data kept (in the browser) or exported, by the CC numbers of the Panel Channel now ("ccs": 3);
+// the data before them renumbered: with no "ccs" (e.g. Seq Velo 0-7 #24-31 to #70-77), and "ccs": 2 (Seq Pitch Ofst #91 to #95)
+const PANEL_CCS_VERSION = 3;
 const PANEL_OLD_CCS = { 40: 51, 41: 52, 42: 53, 44: 54, 45: 55, 46: 56,
   24: 70, 25: 71, 26: 72, 27: 73, 28: 74, 29: 75, 30: 76, 31: 77,
-  48: 85, 49: 86, 50: 87, 51: 88, 52: 89, 53: 90, 54: 91, 55: 92, 56: 93, 57: 94 };
+  48: 85, 49: 86, 50: 87, 51: 88, 52: 89, 53: 90, 54: 95, 55: 92, 56: 93, 57: 94 };
+const PANEL_CCS_2 = { 91: 95 };
 
 function panelValuesOf(data) {
   const values = panelDefaultValues();
-  const old = (data.ccs !== PANEL_CCS_VERSION);
+  const renumber = (data.ccs === PANEL_CCS_VERSION) ? {} : (data.ccs === 2) ? PANEL_CCS_2 : PANEL_OLD_CCS;
   for (const key in data.values || {}) {
-    const cc = old ? (PANEL_OLD_CCS[key] || Number(key)) : Number(key);
+    const cc = renumber[key] || Number(key);
     if (cc in values) { values[cc] = panelClamp(parseInt(data.values[key]) || 0, 0, 127); }
   }
   return values;
@@ -4034,7 +4035,7 @@ function onClickPanelPlay() {
 function sendPanelCurrent() {
   panelSendCC(58, PANEL_TARGETS[panelSettings.target][1]);
   // The Panel Parameters first (the Scale and the offsets that the pitches need), and then the others
-  [51, 52, 53, 54, 55, 56, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94].forEach(cc => panelSendCC(cc, panelValues[cc]));
+  [51, 52, 53, 54, 55, 56, 85, 86, 87, 88, 89, 90, 92, 93, 94, 95].forEach(cc => panelSendCC(cc, panelValues[cc]));
   for (let i = 0; i < 8; i++) { panelSendCC(16 + i, panelValues[16 + i]); panelSendCC(70 + i, panelValues[70 + i]); }
 }
 

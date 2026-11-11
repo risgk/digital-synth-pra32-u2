@@ -42,10 +42,10 @@
 |                            88 | x             | o             | Seq Num Steps                         |
 |                            89 | x             | o             | Seq Mode [Fwd|Rvs|Bnc]                |
 |                            90 | x             | o             | Seq Act Steps                         |
-|                            91 | x             | o             | Seq Pitch Ofst [-|+]                  |
 |                            92 | x             | o             | Seq Step Note [4|8|16]                |
 |                            93 | x             | o             | Seq On Steps                          |
 |                            94 | x             | o             | Seq T/Rx St/Sp [Off|On]               |
+|                            95 | x             | o             | Seq Pitch Ofst [-|+]                  |
 |                               |               |               |                                       |
 |                           102 | x             | o             | Write Panel Prms $3                   |
 |                           103 | x             | o             | Read Panel Prms $3                    |
