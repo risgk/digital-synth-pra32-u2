@@ -4,16 +4,16 @@
   and keeps the estimate of the latest version below, so that a change that makes PRA32-U2 heavier is seen
   (replaced at each release; the earlier ones are in the history of this file)
 - "pra32-u2-load-estimate.sh" builds PRA32-U2, PRA32-U2/M, PRA32-U2/P, and PRA32-U2/M/P with arduino-cli (as the GitHub Actions workflow builds the UF2 files),
-  estimates the load of PRA32-U2 (the lightest) and PRA32-U2/M/P (which has all of the editions) with "pra32-u2-load-estimate.py", and prints the tables below with the RAM of all 4;
+  estimates the load of PRA32-U2 (the lightest) and PRA32-U2/M/P (which has all of the editions) with "pra32-u2-load-estimate.py", and prints the tables below with the RAM of all 6 (the 4 and the Lite);
   PRA32-U2/M and PRA32-U2/P differ from these little (as estimated at v3.17.1)
     - And the Lite of the Customization Examples, PRA32-U2 (Lite) and PRA32-U2/M (Lite), Core 0 Only, which process the synth on one core;
       the Core 1 Only ones, without MIDI, cannot be played by the estimate, and process the synth the same.
       In the cases of #5 Sync Lead, the Lite have Osc 1 Wave Sin instead of Sqr, the heaviest there (Sqr is lighter without its Shape and Morph)
     - All of them are built with Debug Print (USB Serial), as measured on the device, so their RAM is a little more than that of the UF2 files (the buffer of Debug Print);
-      PRA32-U2/P and PRA32-U2/M/P with all of the keys of the panel (SW1-6, with SW3-5 that the sketch leaves out by default), released
+      PRA32-U2/P and PRA32-U2/M/P with all of the keys of the panel (SW0-5, with SW3-5 that the sketch leaves out by default), released
     - The paths of the files of the core in the asserts are built as "/rp2040/..." (`-ffile-prefix-map`), so that the estimate is the same wherever it is built
       (the length of the path shifts it by about 1%)
-    - The builds and the estimates run in parallel, as many at a time as the CPUs (about 10 min with 4 CPUs)
+    - The builds run in parallel (all at once), and the estimates as many at a time as the CPUs (about 10 min with 4 CPUs)
 
     ```
     sh PRA32-U2-Load-Estimate/pra32-u2-load-estimate.sh
@@ -47,7 +47,7 @@
     - The notes are 60, 64, 67, and 71 (velocity 100), held; the loops are measured after 8 of warm-up
     - Osc 1 Wave Sqr and Delay Mode Rev are the heaviest of the waves and the Delay Modes, as in #5 Sync Lead (Osc 1 Wave Sqr) with Delay Mode Rev (CC #35 = 127)
     - "Poly": #5 Sync Lead in Poly (Voice Mode, CC #18 = 0), the heaviest for PRA32-U2
-    - "4 Synths" (PRA32-U2/M/P only): the Main Synth and the 3 Sub Synths (Channels 1-4) with #5 Sync Lead in Mono, played together by MIDI Channel 16 (Layering),
+    - "4 Synths" (PRA32-U2/M/P only): the Main Synth and the 3 Sub Synths (Channels 1-4) with #5 Sync Lead in Mono, played together by MIDI Channel 16 (Layering, with Voice Group Mode Ly2, CC #80 = 26),
       the heaviest for PRA32-U2/M/P
     - "by UART MIDI (Running Status) and USB MIDI": the bytes arrive over and over, with no gap, while the loops run, by UART MIDI at 31250 bps (about 4.2 bytes a loop)
       with Running Status (the status byte once, and a Note Off as a Note On of velocity 0), the most messages a loop, and by USB MIDI

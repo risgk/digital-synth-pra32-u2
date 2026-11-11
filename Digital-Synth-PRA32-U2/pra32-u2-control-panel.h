@@ -2059,7 +2059,7 @@ void PRA32_U2_ControlPanel_on_panel_ch_control_change(uint8_t number, uint8_t va
   static_cast<void>(value);
 
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
-  if (number == 58) {  // Panel Target Ch: the Basic Channel + the value (0-15, e.g. 11 for the Round Robin of 3 notes), one of those
+  if (number == 58) {  // Panel Target Ch: the Basic Channel + the value (0-15, e.g. 4 for the group by Voice Group Mode, or 15 for the Layering), one of those
                        // that the panel selects (the synths, the Round Robin, and the Layering); the others do nothing
 #if (PRA32_U2_NUMBER_OF_SYNTHS > 1)
     for (uint32_t synth = 0; synth < PRA32_U2_NUMBER_OF_SYNTHS; ++synth) {

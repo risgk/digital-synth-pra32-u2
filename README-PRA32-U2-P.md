@@ -130,8 +130,8 @@
   and the operations (Write Panel Prms, Seq Rand Pitch, etc.), as the panel does: see the [MIDI Implementation Chart of the Panel Channel](./PRA32-U2-P-Panel-Channel-MIDI-Implementation-Chart.md)
     - Enabled by default: comment out `#define PRA32_U2_USE_PANEL_CHANNEL` not to use it
     - The CC numbers are only those that the synth parameters use (the others are left free), except those that a DAW or a keyboard may send by itself
-- "Panel & Step Sequencer" of [PRA32-U2 Editor](./README.md#pra32-u2-editor) (hidden by default) edits them by the Panel Channel,
-  also of PRA32-U2/M/P Web (Built-in)
+- "Panel & Step Sequencer" of [PRA32-U2 Editor](./README.md#pra32-u2-editor) (hidden by default) edits them by the Panel Channel
+  (also those of PRA32-U2/M/P Web (Built-in))
     - "Basic Ch": that of PRA32-U2 (not "MIDI Ch" of the editor); "Set Basic Ch (to Device)" changes it on PRA32-U2 too (kept by Write)
     - PRA32-U2 sends nothing back: "Send Panel" sends the values that the editor keeps ("pra32-u2-panel-initial.json": the initial ones);
       Export keeps the Basic Ch too, which Import sets on PRA32-U2 if asked
@@ -145,7 +145,7 @@
   and comment out `#define PRA32_U2_USE_CONTROL_PANEL_KEY_INPUT`, `#define PRA32_U2_USE_CONTROL_PANEL_ANALOG_INPUT`,
   and `#define PRA32_U2_USE_CONTROL_PANEL_OLED_DISPLAY`
     - The Basic Channel is `PRA32_U2_MIDI_CH`, or that written by Write Panel Prms (e.g. after Set Basic Ch of the editor)
-    - With Debug Print, the texts of the display are printed (of the first page, as no keys turn it)
+    - With Debug Print, the texts of the display are printed (of Page A-11 Filter a, the page at the start, as no keys turn it)
 
 
 ### Circuit Diagram

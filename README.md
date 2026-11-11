@@ -17,7 +17,7 @@
 - Prebuilt UF2 files (in the "bin" folder): Arduino IDE is not required to use PRA32-U2 without modification
     - Connect Raspberry Pi Pico 2 to a PC while pressing the BOOTSEL button, and copy a UF2 file to the "RP2350" drive
     - PRA32-U2/M (Recommended): "Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico 2 and Pimoroni Pico Audio Pack
-        - A superset of PRA32-U2: the Main Synth works the same as PRA32-U2, and the Sub Synths and Layering are added (see [PRA32-U2/M](#pra32-u2m-pra32-u2-multi-timbre-edition))
+        - A superset of PRA32-U2: the Main Synth works the same as PRA32-U2, and the Sub Synths, the Layering, and the Round Robin (by Voice Group Mode) are added (see [PRA32-U2/M](#pra32-u2m-pra32-u2-multi-timbre-edition))
         - NOTE: It also responds to MIDI Channels 2-4 (by default; and 5, 6, and 16 by Voice Group Mode, Off in the presets); use PRA32-U2 if these channels are used for other devices
     - PRA32-U2/M/P Headless: "Digital-Synth-PRA32-U2-M-P-Headless-Pimoroni-Pico-Audio-Pack.uf2", PRA32-U2/M with the Step Sequencer and the Panel Parameters
       ([PRA32-U2/P Headless](./README-PRA32-U2-P.md#pra32-u2p-headless)), e.g. from "Panel & Step Sequencer" of PRA32-U2 Editor
@@ -36,7 +36,7 @@
 
 1. Plug Raspberry Pi Pico 2 H into Pico Audio Pack, and connect the line output of Pico Audio Pack to an amplifier or an active speaker
 2. Copy a UF2 file to Raspberry Pi Pico 2 (see the prebuilt UF2 files above)
-3. Connect it to a PC by USB: it appears as a USB MIDI device "PRA32-U2" ("PRA32-U2/M" for PRA32-U2/M)
+3. Connect it to a PC by USB: it appears as a USB MIDI device "PRA32-U2" ("PRA32-U2/M" for PRA32-U2/M, and "PRA32-U2/M/P" for PRA32-U2/M/P Headless)
 4. Open [PRA32-U2 Editor](#pra32-u2-editor) in Google Chrome or Microsoft Edge, select "PRA32-U2" in "MIDI Out", and play the Software Keyboard (MIDI Channel 1)
 
 
@@ -153,7 +153,7 @@ graph LR
 - The Program Change buttons (in "Write & Program Change") of PRA32-U2 Editor also send Program Changes to PRA32-U2 directly
   (NOTE: The parameters shown in PRA32-U2 Editor are not updated)
 - "Randomize Synth": processed when Program Change #127 is entered or Control Change #111 is changed from Off (63 or lower) to On (64 or higher);
-  also by PRA32-U2 itself, when they are sent to it directly
+  also by PRA32-U2 itself, when they are sent to it directly; it changes the first 32 parameters except Voice Mode and Amp Gain
 
 
 ### Without PRA32-U2 Editor

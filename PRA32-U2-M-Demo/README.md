@@ -4,7 +4,7 @@
 - "pra32-u2-m-demo-ode-to-joy.mid": "Ode to Joy" (Beethoven, Symphony No. 9; public domain), arranged for PRA32-U2/M (about 55 s)
     - MIDI Channel 1 (Main Synth): Melody, #20 Saw Lead up to the theme, #21 Sync Lead in the middle and the theme, and #28 Fifth Lead in them again
       (Program Changes in the song), with the Modulation Wheel up to 64 from the middle of each long note
-    - MIDI Channel 2 (Sub Synth 1): Bass, #22 Synth Bass, with FX Routing Comp
+    - MIDI Channel 2 (Sub Synth 1): Bass, #22 Synth Bass, with FX Routing Cmp
     - MIDI Channel 3 (Sub Synth 2): Arpeggio, #18 FM Piano, with FX Routing Cho
     - MIDI Channel 4 (Sub Synth 3): Rhythm, #23 Initial made a drum by CCs: a sine with a pitch drop and noise, whose sound changes with the note,
       the higher the brighter (Filter Key Track) and the shorter (EG Att/Dec Key Track): the kick (note 36), the snare (55), and the hats (108)
@@ -15,7 +15,8 @@
 - "pra32-u2-m-demo-ode-to-joy.json": the sounds of the song as the user programs #0-11 for PRA32-U2 Editor ("Import All"; #12-15 are Initial)
     - #0-3: Saw Lead, Synth Bass, FM Piano, and Drums (up to the theme); #4-7: Sync Lead and the same (the middle and the theme);
       #8-11: Fifth Lead and the same (them again)
-    - With the Layering of PRA32-U2/M, Program Change #0 (or #4, or #8) by MIDI Channel 16 sets the 4 synths to #0-3 (or #4-7, or #8-11) at once
+    - With the Layering of PRA32-U2/M (Voice Group Mode of the Main Synth not Off, e.g. Ly2 by CC #80 on MIDI Channel 1; Off in these programs),
+      Program Change #0 (or #4, or #8) by MIDI Channel 16 sets the 4 synths to #0-3 (or #4-7, or #8-11) at once
 - "pra32-u2-m-demo-ode-to-joy.mp3": "pra32-u2-m-demo-ode-to-joy.mid" rendered by "pra32-u2-m-make-wav-file-from-smf.cc",
   and converted by [FFmpeg](https://ffmpeg.org/) (6.1.1), with the silence at the end cut
 
@@ -34,6 +35,6 @@
     - GCC (g++) for PC with C++17 is required (no other library); "pra32-u2-m-make-wav-file-from-smf-cc.bat" makes "pra32-u2-m-demo-ode-to-joy.wav" (on Windows, e.g. with g++ of MinGW-w64)
     - The WAV file is in whole seconds, with 1 s or more of silence at the end
     - The synths are processed for each frame in the order of "Digital-Synth-PRA32-U2-M.ino" (on one core), and the Sub Synths only while the Main Synth is not in Poly
-    - The MIDI messages are read at the start of each loop (64 frames), as on the device; MIDI Channels 1-4 are for the Main Synth and the Sub Synths 1-3, and 14-16 for the Layering
+    - The MIDI messages are read at the start of each loop (64 frames), as on the device; MIDI Channels 1-4 are for the Main Synth and the Sub Synths 1-3, and 5, 6, and 16 by Voice Group Mode (Off at first), as on the device
     - Unlike the device, a Program Change (or one by CC #111-119) is processed at once (the device processes it in one of the next loops), and the output fader is not used
     - It takes about 1 s for a song of 1 min; it can also be used to check that a change of PRA32-U2/M keeps the sound (compare the WAV files)

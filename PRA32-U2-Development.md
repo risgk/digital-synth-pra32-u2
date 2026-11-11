@@ -42,7 +42,7 @@
       not in Poly, core 0 processes the back of a frame whose front is done, one a frame, before the (Main) Synth, and the rest (a few) at the end
       (so a loop takes a little more or less with how many are left; making core 0 wait for the fronts, one a frame, took more, with core 1 doing them first)
     - In PRA32-U2/M with the 4 Synths, the two cores do not wait for each other at every frame, but each goes on as far as what it needs is done
-      (at v3.20.0, with a request and a wait at every frame, core 0 waited for core 1 for about 11% of a loop, also while core 1 finished a front of
+      (at v3.18.0, with a request and a wait at every frame, core 0 waited for core 1 for about 11% of a loop, also while core 1 finished a front of
       the FX that it had started: 87% / 75% estimated, and on the device `max(loop)` 1272 us; now 76% / 74% estimated, and on the device
       `max(loop)` 1083 us, `min(loop)` 1064 us). What the work is, and when it is done, are the same; the RAM is about 3 KB more (the buffer below)
         - The Main Synth does not request its Voices 2 and 3 of core 1 when not in Poly (`PRA32_U2_SECONDARY_CORE_IN_POLY_ONLY`, which PRA32-U2/M defines)
@@ -113,7 +113,7 @@
     ./pra32-u2-m-make-wav-file-from-smf ../pra32-u2-sample.mid pra32-u2-sample.wav
     ```
 
-- GitHub Actions "PRA32-U2 Build" (".github/workflows/pra32-u2.yml", manual runs): builds the UF2 files and PRA32-U2 Web, and PRA32-U2 Native
+- GitHub Actions "PRA32-U2 Build (UF2, Native, and Web)" (".github/workflows/pra32-u2.yml", manual runs): builds the UF2 files and PRA32-U2 Web, and PRA32-U2 Native
   only with `native` or `release_tag` (it takes the longest, about 10 min); commits the UF2 files and PRA32-U2 Web to the selected branch
   with `commit_package`, and attaches the PRA32-U2 Native packages to the GitHub Release of `release_tag` (they are not committed, as each is about 22 MB in the history; those of every run are in the artifacts of the run)
 
@@ -122,10 +122,10 @@
 
 Basically, a release goes as follows:
 
-1. Check it on the device: PRA32-U2 and PRA32-U2/M, whose UF2 files are released (/P and /M/P are built by the users)
+1. Check it on the device: PRA32-U2, PRA32-U2/M, and PRA32-U2/M/P Headless, whose UF2 files are released (/P and /M/P with the panel are built by the users)
 2. In PRA32-U2-Change-History.md, set the date of the version (instead of "2026-??-??"), and "Tested with Arduino-Pico version"
 3. Change the version: `PRA32_U2_VERSION` in "Digital-Synth-PRA32-U2.ino", "Digital-Synth-PRA32-U2-M.ino", and the 4 files in "customization-examples";
-   `APP_NAME_VERSION` in "pra32-u2-editor.html"; `_version` in the 2 preset JSON files; the headings of README.md and README.ja.md,
+   `APP_NAME_VERSION` in "pra32-u2-editor.html"; `_version` in the 3 program JSON files (the 2 preset files and "PRA32-U2-M-Demo/pra32-u2-m-demo-ode-to-joy.json"); the headings of README.md and README.ja.md,
    and the dates under them ("YYYY-MM-DD ISGK Instruments"); the License of README.md; the Info page in README-PRA32-U2-P.md;
    and the Version and the Date of PRA32-U2-MIDI-Implementation-Chart.md, all of them at every release
    (the other documents have no version or date)

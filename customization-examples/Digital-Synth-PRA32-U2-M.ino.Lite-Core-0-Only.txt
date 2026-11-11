@@ -1,10 +1,7 @@
 /*
  * Digital Synth PRA32-U2/M (Lite)
  *
- * - Basic Channel + 0 to + 3: Osc 1 Shape and Morph are disabled in Saw, Sqr, and WT
- * - Basic Channel - 3: Control Basic Channel + 0 and + 1 simultaneously
- * - Basic Channel - 2: Control Basic Channel + 2 and + 3 simultaneously
- * - Basic Channel - 1: Control Basic Channel + 0, + 1, + 2, and + 3 simultaneously
+ * - Osc 1 Shape and Morph are disabled in Saw, Sqr, and WT
  */
 
 #define PRA32_U2_VERSION                       "v3.20.0   "
@@ -76,6 +73,7 @@
 ////////////////////////////////////////////////////////////////
 
 //#define PRA32_U2_USE_CONTROL_PANEL               // PRA32-U2/P (PRA32-U2 with Panel)
+#define PRA32_U2_USE_PANEL_CHANNEL               // The Panel Channel (the Basic Channel + 14) of PRA32-U2/P (see README-PRA32-U2-P.md)
 
 #define PRA32_U2_USE_CONTROL_PANEL_KEY_INPUT     // Use tactile switches
 #define PRA32_U2_KEY_INPUT_ACTIVE_LEVEL          (LOW)

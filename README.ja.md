@@ -20,7 +20,7 @@
 - ビルド済みの UF2 ファイル ("bin" フォルダー内): 改造せずに使うだけなら、Arduino IDE は不要です
     - BOOTSEL ボタンを押しながら Raspberry Pi Pico 2 を PC につなぎ、UF2 ファイルを "RP2350" ドライブにコピーしてください
     - PRA32-U2/M (推奨): "Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2" は Raspberry Pi Pico 2 と Pimoroni Pico Audio Pack 用です
-        - PRA32-U2 の上位互換です: Main Synth は PRA32-U2 と同じように動き、Sub Synth と Layering が加わります ([PRA32-U2/M](#pra32-u2m-pra32-u2-multi-timbre-edition) を参照)
+        - PRA32-U2 の上位互換です: Main Synth は PRA32-U2 と同じように動き、Sub Synth、Layering、Round Robin (Voice Group Mode による) が加わります ([PRA32-U2/M](#pra32-u2m-pra32-u2-multi-timbre-edition) を参照)
         - 注意: MIDI チャンネル 2-4 にも反応します (初期設定。Voice Group Mode によっては 5、6、16 にも。プリセットでは Off)。これらのチャンネルを他の機器に使う場合は、PRA32-U2 を使ってください
     - PRA32-U2/M/P Headless: "Digital-Synth-PRA32-U2-M-P-Headless-Pimoroni-Pico-Audio-Pack.uf2" は、PRA32-U2/M にステップ・シーケンサーとパネルのパラメーターを加えたものです
       ([PRA32-U2/P Headless](./README-PRA32-U2-P.md#pra32-u2p-headless)、英語)。PRA32-U2 Editor の "Panel & Step Sequencer" などから使います
@@ -39,7 +39,7 @@
 
 1. Raspberry Pi Pico 2 H を Pico Audio Pack に差し込み、Pico Audio Pack のライン出力をアンプかアクティブ・スピーカーにつなぎます
 2. UF2 ファイルを Raspberry Pi Pico 2 にコピーします (上記のビルド済みの UF2 ファイルを参照)
-3. USB で PC につなぐと、USB MIDI デバイス "PRA32-U2" (PRA32-U2/M では "PRA32-U2/M") として見えます
+3. USB で PC につなぐと、USB MIDI デバイス "PRA32-U2" (PRA32-U2/M では "PRA32-U2/M"、PRA32-U2/M/P Headless では "PRA32-U2/M/P") として見えます
 4. Google Chrome か Microsoft Edge で [PRA32-U2 Editor](#pra32-u2-editor) を開き、"MIDI Out" で "PRA32-U2" を選んで、ソフトウェア・キーボードを弾きます (MIDI チャンネル 1)
 
 
@@ -132,6 +132,7 @@
 - PRA32-U2 は、PRA32-U2 Editor を使わずに MIDI で制御することもできます (例えば DAW や MIDI キーボードから)
 - 電源を入れたときのプログラムは #0 です。Write で書き込んだプログラムは、プログラム・チェンジ #0-15 で呼び出せます (上記)
 - 対応している機能は [MIDI Implementation Chart](./PRA32-U2-MIDI-Implementation-Chart.md) (英語) を参照してください
+- プログラム #0-31 は "pra32-u2-program-table.h" を編集して変更できます
 
 
 ### 主な機能
@@ -163,6 +164,7 @@
     - Off では Ch 1-4 の 4 台だけを使います。Off 以外では、Main Synth の Voice Mode の Pol は Mon として動き、Basic Channel + 15 の Layering も使えます
     - 例: RR4 では、Ch 5 で 4 音の Round Robin、Ch 16 で 4 台重ねのリードを弾けます
     - PRA32-U2 Editor のスライダーは、"MIDI Ch" に関係なく Basic Channel (Panel & Step Sequencer の Basic Ch、初期値 1) で送ります
+- 改造するには、"Digital-Synth-PRA32-U2" フォルダーの "Digital-Synth-PRA32-U2.ino" 以外のすべてのファイルを "Digital-Synth-PRA32-U2-M" フォルダーにコピーし、"Digital-Synth-PRA32-U2-M.ino" をスケッチとして使います
 - 詳しくは英語版の [PRA32-U2/M](./README.md#pra32-u2m-pra32-u2-multi-timbre-edition) を参照してください
 
 

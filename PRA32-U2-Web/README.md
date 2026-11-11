@@ -58,8 +58,8 @@ PRA32-U2 Web: a software synthesizer version of Digital Synth PRA32-U2 that runs
 - "Write Parameters to Program" (CC #87 and #106) writes the program to the memory only,
   so the written programs are lost when the window is closed or reloaded
     - PRA32-U2 Editor stores the user programs in the Web browser
-- The control panel (PRA32-U2/P) and the step sequencer are not supported
-- PRA32-U2/M (Multi-Timbre Edition) is not supported
+- The control panel of PRA32-U2/P (the keys, the VRs, and the display) is not supported; the Panel and Step Sequencer Parameters only by the Panel Channel of PRA32-U2/M/P Web
+- PRA32-U2/M (Multi-Timbre Edition): only as PRA32-U2/M/P Web (Built-in)
 
 
 ## How to Build
@@ -96,7 +96,8 @@ node pra32-u2-web-test.js
     - "pra32-u2-web-synth-main.js": the main thread part (the virtual MIDI output for PRA32-U2 Editor)
     - "pra32-u2-web-build.js": the build script
     - "pra32-u2-web-test.js": the test of the built file with Node.js (plays the Factory Presets
-      at 48 kHz, 44.1 kHz, and 96 kHz, and checks that they are silent after the note off)
+      at 48 kHz, 44.1 kHz, and 96 kHz, and checks that they are silent after the note off; and PRA32-U2/M/P Web by the channels,
+      and its Step Sequencer by the Panel Channel)
 
 
 ## License
