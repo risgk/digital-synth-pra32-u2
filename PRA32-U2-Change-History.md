@@ -7,7 +7,7 @@
     - PRA32-U2 Editor and PRA32-U2 Native: "Randomize FX" changes Distortion Drive too
     - Osc/Filter Drift drifts by 2 times as much at a value (about 1.4 cent RMS at 32, 2.8 cent at 64, and 5.6 cent at 127); the Presets are 32 (64 before), drifting by as much as before;
       it wanders about 4 times as slowly (a time constant of about 44 s, from about 11 s), and starts from a random value of the same spread (the same at every start), not from 0;
-      the drift of the cutoff is no longer reset to 0 by All Sound Off (and a change of Voice Mode or Voice Assign Mode), as that of the pitch
+      the drifts of the pitch and the cutoff go back to the start values at All Sound Off (and a change of Voice Mode or Voice Assign Mode), the cutoff to 0 and the pitch not at all before
         - Not compatible: a user program with Osc/Filter Drift (written before) drifts by 2 times as much (e.g. 64, the Presets before, is now 2.8 cent: set it to 32)
     - Filter: The self-oscillation 0.3 at most (0.25 before): 0.15 at the Resonance 123 (as before), 0.21 at 124, 0.25 at 125, 0.28 at 126, and 0.3 at 127, with the output of the Filter lowered less at a high Resonance (-4.4 dB at 127, from -6.0 dB) and more at each step up
     - Add **LFO Trig Mode** [Aut|Off|On|VOn|VOf|VAu] (Control Change #88): how a note on restarts the LFO, and an LFO for each Voice (VOn, VOf, and VAu); Aut (the Presets) as before

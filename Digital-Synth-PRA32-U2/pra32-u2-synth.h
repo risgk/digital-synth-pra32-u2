@@ -372,9 +372,10 @@ public:
     m_lfo_osc_amt = 64;
   }
 
-  // Not in RAM, as it runs only at the start (initialize() is in RAM)
+  // Not in RAM, as it runs only at the start and at All Sound Off (initialize() is in RAM)
   __attribute__((noinline)) void start_drifts() {
-    // The drifts start from random values, the same at every start (see PRA32_U2_Osc::start_drift()),
+    // The drifts start from random values, the same at every start and at All Sound Off (see
+    // PRA32_U2_Osc::start_drift()),
     // by a generator of their own (not the noise of the synth), with a seed apart from those of the synths:
     // 84 + SYNTH_ID, with which the start values of the 4 synths are as spread as the drift (about
     // 1.3 cent RMS at 32) and none of them far out (within 2.6 cent at 32), those of the 1st voice within
@@ -1007,6 +1008,7 @@ public:
     if (all_sound_off) {
       m_lfo.reset();
 
+      start_drifts();
       start_osc_phases();
 
       m_filter[0].reset();
