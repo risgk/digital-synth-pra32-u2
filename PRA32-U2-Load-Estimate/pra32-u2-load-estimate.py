@@ -164,13 +164,21 @@ def store_not_to_stack(insn):
         return insn.operands[0].type != ARM_OP_REG or insn.operands[0].reg != ARM_REG_SP  # stm: the base first
     return False
 
+def branch(insn):
+    """An instruction that may change the PC (a branch, a call, a return, or a load or a move to the PC)"""
+    if insn is None:
+        return False
+    if any(insn.group(g) for g in (CS_GRP_JUMP, CS_GRP_CALL, CS_GRP_RET, CS_GRP_BRANCH_RELATIVE)):
+        return True
+    return any(op.type == ARM_OP_REG and op.reg == ARM_REG_PC for op in insn.operands)
+
 def decode(uc, addr, size):
     d = decoded.get(addr)
     if d is None:
         insn = next(md.disasm(bytes(uc.mem_read(addr, size)), addr), None)
         # An IT block is not broken by the end of a slice, as a resumed run would lose its state
         it = len(insn.mnemonic) - 1 if insn and re.fullmatch(r'it[te]{0,3}', insn.mnemonic) else 0
-        d = (cost(insn) if insn else 1, it, store_not_to_stack(insn))
+        d = (cost(insn) if insn else 1, it, store_not_to_stack(insn), branch(insn), size)
         decoded[addr] = d
     return d
 
@@ -316,6 +324,7 @@ for n, fn in [('_ZN10SerialUART9availableEv', midi_available('uart')), ('_ZN10Se
         stubs[func_names[n][0]] = fn
 
 SPIN_CYCLES = 400
+taken_from = [None, None]  # where a branch just run goes on if not taken
 clock = [0, 0]
 target = [0, 0]
 it_left = [0, 0]
@@ -327,9 +336,13 @@ def make_hook(c):
     def hook(uc, addr, size, _):
         fn = stubs.get(addr)
         if fn:
+            taken_from[c] = None
             fn(uc)
             return
-        cycles, it, store = decode(uc, addr, size)
+        cycles, it, store, br, isize = decode(uc, addr, size)
+        if taken_from[c] is not None and addr != taken_from[c]:
+            cycles += 2  # the branch before was taken (the refill of the pipeline)
+        taken_from[c] = addr + isize if br else None
         clock[c] += cycles
         if c == 1:
             busy_1['pending'] += cycles
@@ -434,6 +447,7 @@ while len(loops) < args.loops:
         loop_start, busy_start = clock[0], busy_1['total']
         uc.reg_write(UC_ARM_REG_SP, STACK[0])
         uc.reg_write(UC_ARM_REG_LR, RETURN[0] | 1)
+        taken_from[0] = None
         p = loop
     pc[c] = p | 1
 

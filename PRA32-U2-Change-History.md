@@ -35,6 +35,7 @@
         - PRA32-U2 Web: "PRA32-U2/M Web (Built-in)" is now **"PRA32-U2/M/P Web (Built-in)"**, with the Panel Channel
         - Seq Tempo: 120 BPM (64) at first, and by Init Panel Prms (56 BPM, 32, before); Seq Gate Time: 51 (3/6, 60 before), on its marker
         - About 2.8 KB less of the RAM with the panel
+    - PRA32-U2 Load Estimate: A taken branch (and a call and a return) takes 2 more cycles, as the comment of the cost model said but the script did not count; the estimates are a few % more (e.g. PRA32-U2, #0 Synth Pad, 62% to 65%), nearer to the device
     - Tested with Arduino-Pico version 6.3.0
 - v3.20.0 (2026-11-06):
     - PRA32-U2 Web: Add **"PRA32-U2/M Web (Built-in)"** (and with "+6 dB") to MIDI Out: PRA32-U2/M (the 4 synths) by the MIDI channels (the Basic Channel 1), with the Layering and the Round Robin

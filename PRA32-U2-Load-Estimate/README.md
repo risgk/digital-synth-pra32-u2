@@ -37,7 +37,7 @@
 - How it works
     - The sketch runs on two instances of Unicorn (an instruction emulator: Cortex-M33, Thumb-2, and the FPU), as core 0 and core 1, which share the flash and the SRAM;
       the cores run by turns, a few hundred cycles at a time, so that one waits for the other as on the device
-    - The cycles are counted by a first-order cost model of Cortex-M33 (1 for most instructions, 2 for a load, ...), at 153.6 MHz
+    - The cycles are counted by a first-order cost model of Cortex-M33 (1 for most instructions, 2 for a load, 2 more after a taken branch, ...), at 153.6 MHz
     - Core 0: the cycles of `loop()`, from its start to its return, against the 1333 us that a loop (64 frames at 48 kHz) lasts; the output never blocks
     - Core 1: the cycles it is busy, but while it waits for core 0
     - The estimate is for comparison: it leaves out the waits of the flash (XIP), the contention of the cores on the bus, the interrupts (e.g. USB),
