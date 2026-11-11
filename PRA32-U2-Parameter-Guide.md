@@ -150,7 +150,7 @@
     - 126: Self-oscillation (peak level 0.28 out of the Filter; 0.45 in the loop)
     - 127: Self-oscillation (peak level 0.30 out of the Filter; 0.50 in the loop) (max)
         - NOTE: The full scale is 1.0 (e.g. the peak level of the Osc 1 Saw Wave is 0.25)
-    - Above 96, the output of the Filter is lowered with the Resonance (-1.3 dB at 108, -2.8 dB at 122, -3.5 dB at 123, -3.8 dB at 125, and -4.4 dB at 127), so that a high Resonance is about as loud as 96; how readily the self-oscillation holds against the input follows its level in the loop, as before
+    - Above 96, the output of the Filter is lowered with the Resonance (-1.3 dB at 108, -2.8 dB at 122, -3.5 dB at 123, -3.8 dB at 125, and -4.4 dB at 127), so that a high Resonance is about as loud as 96; how readily the self-oscillation holds against the input follows its level in the loop
     - The self-oscillation fades out as the cutoff (including the modulation) rises from the Cutoff 111 (f = 7.9 kHz) to 116 (f = 10.5 kHz), and above that the Resonance 123-127 acts as 122
     - A loud input near the cutoff (e.g. the Square or the Multi Saw) weakens or stops the self-oscillation, and an input harmonic near it pulls it to the pitch of that harmonic
     - NOTE: With a high Resonance (about 112 or above), chords can still get louder, and the Output Compressor lowers the level; if it is too much, lower the "Amp Gain"
@@ -379,7 +379,7 @@
     - NOTE: Not Off: Voice Mode Pol of the Main Synth acts as Mon (as the Sub Synths sound only then), and the Basic Channel + 15 is the Layering of all
     - NOTE: Not changed by "Randomize Synth"; nothing in PRA32-U2 (not /M), nor without the Layering; not in PRA32-U2 Native
 - LFO Trig Mode [Aut|Off|On|VOn|VOf|VAu]: How a note on restarts the LFO (its phase, and the LFO Fade Time), and whether the Voices share the LFO
-    - 0 (0-12): Auto (Aut, the Presets), The LFO of all the Voices; the phase of Saw, S&H, and Square, and the fade, restart at the first note on (Polyphonic and Legato) or every note on (Monophonic), as before (see Voice Mode and LFO Wave)
+    - 0 (0-12): Auto (Aut, the Presets), The LFO of all the Voices; the phase of Saw, S&H, and Square, and the fade, restart at the first note on (Polyphonic, Legato Portamento, and Legato) or every note on (Monophonic) (see Voice Mode and LFO Wave)
     - 26 (13-38): Off, The LFO of all the Voices, free running; the fade restarts as in Aut
     - 51 (39-63): On, The LFO of all the Voices; every note on restarts the phase (of every wave) and the fade
     - 77 (64-89): Voice On (VOn), An LFO for each Voice; the note on of the Voice restarts its phase (of every wave) and its fade
@@ -512,12 +512,12 @@
 - The EG and LFO modulations themselves are not smoothed (not delayed)
 - 2 stages (5.3 ms average delay, 99% in 18 ms), which round off the corners of the steps, for the amounts and the balances below
 - The amounts (of the tone, the level, or a modulation), whose steps are easily heard
-    - Filter Cutoff, Filter Resonance, Filter EG Amt, LFO Filter Amt, Breath Filter Amt
+    - Filter Cutoff, Filter Resonance, Filter EG Amt, LFO Filter Amt, Breath Filter Amt, Filter Drive, and the gains of the Filter Mode
     - Osc 1 Shape
     - EG Mod Amt and LFO Mod Amt, when EG Mod Dst and LFO Mod Dst are F (Filter Cutoff) or 1S (Osc 1 Shape)
     - Amp Gain
     - LFO Depth (with LFO Fade Time, Modulation Wheel, and After Touch)
-    - Chorus Level, Chorus Depth, Delay Level, Delay Feedback
+    - Distortion Drive, Chorus Level, Chorus Depth, Delay Level, Delay Feedback
 - The balances (between two sounds, or left and right), which keep the total amount about the same
     - Osc 1 Morph, Mixer Osc Mix, Mixer Noise/Sub Osc, Pan
     - For the Sine Wave and the Wave Tables, the smoothed Osc 1 Morph is rounded to the controller value, as it switches the ratio or the table step by step

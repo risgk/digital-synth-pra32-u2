@@ -85,7 +85,7 @@
 |                               |               |               |                                       |
 |                            16 | x             | o             | EG Att/Dec Key Track [-|+]            |
 |                           110 | x             | o             | Voice Assign Mode [1|1|3|3|4|2]       |
-|                            80 | x             | o             | Voice Group Mode [Off|...] (/M)       |
+|                            80 | x             | o             | Voice Group Mode $10                  |
 |                            88 | x             | o $9          | LFO Trig Mode [Aut|Off|On|VOn|VOf|VAu]|
 |                               |               |               |                                       |
 |                            60 | x             | o             | Breath Filter Amt [-|+]               |
@@ -155,6 +155,8 @@
 |                               | $8 : Change to the program when changed from 0-63 to 64-127           |
 |                               | $9 : Not High Resolution Velocity Prefix: on a keyboard that sends    |
 |                               |   it (e.g. Hi-Res Velocity Out), turn it off                          |
+|                               | $10: PRA32-U2/M only, by the value of the Main Synth:                 |
+|                               |   [Off|Ly2|RLy|RR2|RR3|RR4]                                           |
 +-------------------------------+-----------------------------------------------------------------------+
   Mode 1: Omni On,  Poly          Mode 2: Omni On,  Mono          o: Yes                                 
   Mode 3: Omni Off, Poly          Mode 4: Omni Off, Mono          x: No                                  

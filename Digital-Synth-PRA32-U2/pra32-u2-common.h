@@ -125,6 +125,7 @@ static INLINE int32_t approach_exp_wide(int32_t current_value, int32_t target_va
 //   - Osc: Osc 1 Shape, EG/LFO Mod Amt (Dst: 1S)
 //   - Amp: Amp Gain
 //   - LFO: LFO Depth (the sum with the LFO Fade, the Modulation Wheel, and the After Touch, per voice)
+//   - Distortion FX: Distortion Drive
 //   - Chorus FX: Chorus Level, Chorus Depth, the base delay time (internal)
 //   - Delay FX: Delay Level, Delay Feedback (with the Reverb table interpolated)
 // - Slow (in the odd periods): approach_exp_slow(), the same as above,

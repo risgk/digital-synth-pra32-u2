@@ -31,7 +31,7 @@ flowchart LR
     SUB --> NS["Mixer Noise/Sub Osc<br/>−: Noise, +: Sub Osc"]
     NG([Noise Gen]) --> NS
     NG --> O2
-    NG -.-> DR
+    DNG([Drift Noise Gen<br/>its own]) -.-> DR
     G1 --> SUM((Σ))
     G2 --> SUM
     NS --> SUM
@@ -44,8 +44,9 @@ flowchart LR
 - The Sub Osc is a sine wave read at half the phase of Osc 1, so that it stays locked to Osc 1
   one octave below; the Mixer Noise/Sub Osc sets the level of the Sub Osc on the plus side, and
   of the noise on the minus side, apart from the Mixer Osc Mix
-- The Osc/Filter Drift drifts the frequency of each oscillator by a slow random signal, a
-  low-passed noise of its own
+- The Osc/Filter Drift drifts the frequency of each oscillator (and the Filter Cutoff of each
+  voice by the same amount) by a slow random signal, a low-passed noise of a generator of its own;
+  it starts from a random value (the same at every start), and goes back to it at All Sound Off
 
 How each Osc 1 Wave is made, and what the Osc 1 Shape and the Osc 1 Morph do:
 
@@ -86,7 +87,7 @@ flowchart LR
     DRV --> SUM((Σ))
     SUM -->|HP| I1["Integrator 1<br/>BP, state s1"]
     I1 -->|BP| I2["Integrator 2<br/>LP, state s2"]
-    SUM -->|HP| MS["Filter Mode<br/>LP / BP / HP / BR, mixed"]
+    SUM -->|HP| MS["Filter Mode<br/>LP / BR / HP / BP, crossfaded"]
     I1 -->|BP| MS
     I2 -->|LP| MS
     MS --> DC["DC blocker<br/>7.5 Hz"]
@@ -112,7 +113,7 @@ flowchart LR
     A1 -->|HP| A2["Integrator ∫<br/>C1"]
     D["Diode pair<br/>asymmetric"] -.-|across C1| A2
     A2 -->|BP| A3["Integrator ∫<br/>C2, linear"]
-    A1 -->|HP| MS["Filter Mode<br/>LP / BP / HP / BR, mixed"]
+    A1 -->|HP| MS["Filter Mode<br/>LP / BR / HP / BP, crossfaded"]
     A2 -->|BP| MS
     A3 -->|LP| MS
     MS --> CC["Coupling capacitor"]
@@ -339,9 +340,8 @@ flowchart LR
     C2([MIDI Ch 2]) -.-> S1["Sub Synth 1<br/>Mono"]
     C3([MIDI Ch 3]) -.-> S2["Sub Synth 2<br/>Mono"]
     C4([MIDI Ch 4]) -.-> S3["Sub Synth 3<br/>Mono"]
-    C14([MIDI Ch 14<br/>Layering]) -.-> MS & S1
-    C15([MIDI Ch 15<br/>Layering]) -.-> S2 & S3
-    C16([MIDI Ch 16<br/>Layering]) -.-> MS & S1 & S2 & S3
+    C5([MIDI Ch 5, 6<br/>by Voice Group Mode]) -.-> MS & S1 & S2 & S3
+    C16([MIDI Ch 16<br/>Layering, Voice Group Mode not Off]) -.-> MS & S1 & S2 & S3
     MS & S1 & S2 & S3 ==> FR{"FX Routing<br/>of each synth"}
     FR ==>|Dst| DS[Distortion FX] ==> C
     FR ==>|Cho| C[Chorus FX] ==> D[Delay/Reverb FX] ==> OC[Output Compressor] ==> OG["x 0.75<br/>Soft Clip"] ==> AO[Audio Out]
@@ -352,8 +352,12 @@ flowchart LR
 
 - The Sub Synths are processed only while the Main Synth is in the Mono modes (the Main Synth in
   the Poly modes uses the processing time of all of them)
-- Layering: a Note On (and the other messages) on MIDI Ch 14, 15, or 16 goes to 2 or 4 synths at
-  once; a Program Change selects the Program # + 0, + 1, + 2, and + 3 for them, in this order
+- Voice Group Mode (Control Change #80, of the Main Synth): MIDI Ch 5 and 6 are the Layering or the
+  Round Robin of 2-4 synths, and MIDI Ch 16 the Layering of all 4 (none of them while it is Off);
+  while it is not Off, Voice Mode Pol of the Main Synth acts as Mon
+    - Layering: a Note On (and the other messages) goes to 2 or 4 synths at once; a Program Change
+      selects the Program # + 0, + 1, + 2, and + 3 for them, in this order
+    - Round Robin: the notes go to the synths in turn
 - The outputs of the synths are added together at the inputs of the FX, by the FX Routing of each
   synth
 
