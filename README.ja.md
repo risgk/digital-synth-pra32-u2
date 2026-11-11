@@ -139,7 +139,7 @@
 - Undo: 直前の変更 (プリセット、Randomize、Import、スライダーの操作) の前のパラメーターに戻します (200 段階まで)。Redo で進めます (Ctrl+Z と、Ctrl+Y または Ctrl+Shift+Z でも。Mac では Command)
 - "MIDI"、"Actions & Presets"、"Store & File"、"Write & Program Change" はそれぞれ隠せるので、パラメーターに画面を広く使えます ("MIDI" の見出しの Send Current は、隠している間も使えます)
 - "Synth Parameters" (最初の 32 個)、"More Synth Parameters" (残り)、"FX Parameters" も、それぞれ隠せます
-- 実験的: PRA32-U2/P 向けの "Panel & Step Sequencer" (英語版の [Panel Channel](./README-PRA32-U2-P.md#panel-channel-experimental) を参照)
+- PRA32-U2/P 向けの "Panel & Step Sequencer" (英語版の [Panel Channel](./README-PRA32-U2-P.md#panel-channel-experimental) を参照)
 - ボタンやスライダーなどは、どのブラウザーや OS でも同じ見た目 (Chrome 相当) です。タッチ画面では、スライダーのつまみが大きく、ボタンが高くなります
 - Software Keyboard: マウス、タッチ、PC のキーボード (A - K が C - C、W - U が黒鍵、Z / X がオクターブ) で弾けます
     - パラメーターの下にあり、パラメーターをスクロールしても画面の下に残るので、弾きながらパラメーターを変えられます。隠すこともできます (Panic は表示されたまま。隠すと Hold はオフになります)
@@ -155,7 +155,7 @@
     - Sub Synth は、Main Synth が Mono 系のモードのときだけ処理されます
 - Layering: Basic Channel + 15 (初期値 16) で、4 台のシンセを同時に制御します (Voice Group Mode が Off 以外のとき)
     - プログラム・チェンジ #n で、4 台に #n から #n+3 を読み込みます。4 台の音色を連続したユーザー・プログラム (例: #4-7) に保存しておけば、まとめて呼び出せます
-- Voice Group Mode (実験的、CC #80): Basic Channel + 4、+ 5 (初期値 5、6) で、Round Robin や 2 台ずつの Layering を使えます (Main Synth のプログラムのパラメーター。プリセットは Off)
+- Voice Group Mode (CC #80): Basic Channel + 4、+ 5 (初期値 5、6) で、Round Robin や 2 台ずつの Layering を使えます (Main Synth のプログラムのパラメーター。プリセットは Off)
     - Off では Ch 1-4 の 4 台だけを使います。Off 以外では、Main Synth の Voice Mode の Pol は Mon として動き、Basic Channel + 15 の Layering も使えます
     - 例: RR4 では、Ch 5 で 4 音の Round Robin、Ch 16 で 4 台重ねのリードを弾けます
     - PRA32-U2 Editor のスライダーは、"MIDI Ch" に関係なく Basic Channel (Panel & Step Sequencer の Basic Ch、初期値 1) で送ります

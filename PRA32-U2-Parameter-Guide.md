@@ -369,7 +369,7 @@
     - 77 (64-89): Mode 3, Reuse note-off voices, Free voice with next number has priority (Round Robin), Release and polyphonic after touch are effective
     - 102 (90-115): Mode 4, Reuse note-off voices, Free voice with small number has priority, Portamento and polyphonic after touch are effective
     - 127 (116-127): Mode 2, Free voice with small number has priority, Portamento is effective
-- Voice Group Mode [Off|Ly2|RLy|RR2|RR3|RR4] (PRA32-U2/M, Experimental): What the Basic Channel + 4 and + 5 do (see PRA32-U2/M in README.md), and + 15 too (the Layering, not while it is Off), by the value of the Main Synth (that of the Sub Synths is not used); the notes of the synths are turned off when it changes
+- Voice Group Mode [Off|Ly2|RLy|RR2|RR3|RR4] (PRA32-U2/M): What the Basic Channel + 4 and + 5 do (see PRA32-U2/M in README.md), and + 15 too (the Layering, not while it is Off), by the value of the Main Synth (that of the Sub Synths is not used); the notes of the synths are turned off when it changes
     - 0 (0-12): Off, None
     - 26 (13-38): Ly2, + 4 is the Layering of the synths 0 and 1, and + 5 that of 2 and 3
     - 51 (39-63): RLy, + 4 is the Round Robin (2 notes) of 0 and 1 and that of 2 and 3, layered

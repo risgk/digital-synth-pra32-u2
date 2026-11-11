@@ -304,7 +304,7 @@ static void __not_in_flash_func(roundRobinControlChange)(uint32_t first, uint32_
 
 #endif  // defined(PRA32_U2_ENABLE_LAYERING)
 
-// The Voice Group Mode (Experimental, Control Change #80): what the Basic Channel + 4 and + 5 do (see README.md), by the
+// The Voice Group Mode (Control Change #80): what the Basic Channel + 4 and + 5 do (see README.md), by the
 // value of the Main Synth, a parameter of its programs (those of the Sub Synths are not used):
 // 0: Off (none), 1: Ly2 (+ 4: the Layering of the synths 0-1, + 5: 2-3), 2: RLy (+ 4: the Round Robin of 0-1 and
 // of 2-3, layered), 3: RR2 (+ 4: the Round Robin of 0-1, + 5: 2-3), 4: RR3 (+ 4: 1-3), and 5: RR4 (+ 4: 0-3), in the

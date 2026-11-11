@@ -790,7 +790,7 @@ span.cc {
   color: var(--pra32-color-dark);
   font-weight: bold;
 }
-/* ---- Panel & Step Sequencer (Experimental) ---- */
+/* ---- Panel & Step Sequencer ---- */
 /* Amber, not the orange of PRA32-U2, so that this section (of the panel, not of the synth) is told apart */
 #panelDetails {
   --pra32-color: rgb(255,191,0);
@@ -3728,7 +3728,7 @@ function getStoredCCValueString(index, number) {
 </details>
 
 <details class="section params-details" id="panelDetails">
-<summary>Panel &amp; Step Sequencer (Experimental) <span class="cc">for PRA32-U2/P and PRA32-U2/M/P</span></summary>
+<summary>Panel &amp; Step Sequencer <span class="cc">for PRA32-U2/P and PRA32-U2/M/P</span></summary>
 <details class="section panel-sub" id="panelCtrlDetails" open>
 <summary>Panel &amp; Operations <span class="panel-summary-buttons" onclick="event.preventDefault()"><button type="button" onclick="sendPanelCurrent()">Send Panel</button>
 <button type="button" id="buttonPanelPlay" onclick="onClickPanelPlay()" title="Panel Play (CC#111): Normal Mode: holds the note; Seq Mode: starts and stops the sequencer">Play</button></span></summary>
@@ -3823,7 +3823,7 @@ Off <input type="number" id="inputNoteOffVelocity" min="1" max="127" step="1"></
 </div>
 
 <script>
-// ---- Panel & Step Sequencer (Experimental): the panel parameters of PRA32-U2/P (and PRA32-U2/M/P), and of PRA32-U2/M/P Web,
+// ---- Panel & Step Sequencer: the panel parameters of PRA32-U2/P (and PRA32-U2/M/P), and of PRA32-U2/M/P Web,
 // by the Control Changes on the Panel Channel (the Basic Channel + 10; see "Panel Channel" in README-PRA32-U2-P.md).
 // The editor keeps the values (in the browser), and sends them (nothing comes back);
 // the panel parameters have an Undo of their own (Ctrl+Z with the focus in this section) ----

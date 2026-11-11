@@ -168,7 +168,7 @@ graph LR
 - Undo: back to the parameters before the last change (a preset, Randomize, Import, or a move of a slider), up to 200 steps; Redo: forward again (also by Ctrl+Z and Ctrl+Y or Ctrl+Shift+Z, or Command on a Mac)
 - "MIDI", "Actions & Presets", "Store & File", and "Write & Program Change" can each be hidden, to give the parameters more of the window (Send Current is on the heading of "MIDI", shown while it is hidden too)
 - "Synth Parameters" (the first 32), "More Synth Parameters" (the others), and "FX Parameters" can each be hidden too
-- Experimental: "Panel & Step Sequencer" for PRA32-U2/P (see [Panel Channel](./README-PRA32-U2-P.md#panel-channel-experimental))
+- "Panel & Step Sequencer" for PRA32-U2/P (see [Panel Channel](./README-PRA32-U2-P.md#panel-channel-experimental))
 - The controls look the same in every Web browser and OS (as in Chrome); on a touch screen, the thumbs of the sliders are larger, and the buttons taller
 - Software Keyboard
     - Below the parameters, it stays at the bottom of the window while they scroll above it, so that they can be changed while playing; it can be hidden (Panic stays shown; hiding turns Hold off)
@@ -198,7 +198,7 @@ graph LR
         | 5, 6 | + 4, + 5 | By Voice Group Mode (below), none by default | | |
         | 16 | + 15 | Layering (with Voice Group Mode not Off) | 0, 1, 2, 3 | 0, 1, 2, 3 |
 
-    - Voice Group Mode (Experimental, CC #80): what the Basic Channel + 4 and + 5 do, and + 15 too (the Layering), by the value of the Main Synth
+    - Voice Group Mode (CC #80): what the Basic Channel + 4 and + 5 do, and + 15 too (the Layering), by the value of the Main Synth
       (a parameter of its programs, Off in the presets); the other channels are free (e.g. for other instruments of a sequencer)
 
         | Voice Group Mode (CC #80) | + 4 (Channel 5) | + 5 (Channel 6) | Program Change (Program # +) |
