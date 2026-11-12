@@ -15,9 +15,10 @@
     - Filter Drive among the main parameters, swapped with Pitch Bend Range (in PRA32-U2 Editor, the chart, the JSON files, the Parameter Guide, and PRA32-U2 Native)
         - "Randomize Synth" (Program Change #127) changes Filter Drive, no longer Pitch Bend Range; "Randomize FX" of PRA32-U2 Editor and PRA32-U2 Native changes Distortion Drive too
     - Presets: Stretch Tune +8 (72), half the stretch of before (+16, 80)
-    - PRA32-U2/M: Add **Voice Group Mode** [Off|Ly2|RLy|RR2|RR3|RR4] (Control Change #80, a parameter of the programs of the Main Synth): the Layering and the Round Robin, on fewer channels
-        - The 4 synths on the Basic Channel + 0 to + 3, and the groups on + 4, + 5, and + 15 (the Layering of all)
-        - Not Off: Voice Mode Pol of the Main Synth acts as Mon
+    - PRA32-U2/M: Add **Voice Group Mode** [Off|Ly2|RLy|RR2|RR4|RR3] (Control Change #80, a parameter of the programs of the Main Synth): the Layering and the Round Robin, on fewer channels
+        - The 4 synths on the Basic Channel + 0 to + 3, and the groups on + 4, + 5, and + 15 (the Layering of all, not while it is Off)
+        - RR3 (+ 4: the Round Robin of the Sub Synths) in the Presets: Channels 5 and 16 too, by default
+        - While the Main Synth is in Poly (the Sub Synths not processed, as before), a group has only the Main Synth
         - Not compatible: the Round Robin on + 6 to + 8, + 11, and + 12, and the Layering on + 13 and + 14 are now by Voice Group Mode
         - `PRA32_U2_ENABLE_ROUND_ROBIN` removed: the Round Robin is with the Layering (`PRA32_U2_ENABLE_LAYERING`)
     - PRA32-U2/P: Add the **Panel Channel** (the Basic Channel + 14, enabled by default): Control Changes for the Panel and Step Sequencer Parameters and the operations (see README-PRA32-U2-P.md)

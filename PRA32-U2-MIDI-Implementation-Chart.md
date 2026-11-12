@@ -156,7 +156,7 @@
 |                               | $9 : Not High Resolution Velocity Prefix: on a keyboard that sends    |
 |                               |   it (e.g. Hi-Res Velocity Out), turn it off                          |
 |                               | $10: PRA32-U2/M only, by the value of the Main Synth:                 |
-|                               |   [Off|Ly2|RLy|RR2|RR3|RR4]                                           |
+|                               |   [Off|Ly2|RLy|RR2|RR4|RR3]                                           |
 +-------------------------------+-----------------------------------------------------------------------+
   Mode 1: Omni On,  Poly          Mode 2: Omni On,  Mono          o: Yes                                 
   Mode 3: Omni Off, Poly          Mode 4: Omni Off, Mono          x: No                                  

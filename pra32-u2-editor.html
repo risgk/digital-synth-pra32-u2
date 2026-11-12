@@ -1251,7 +1251,7 @@ presetControllers[AMP_VEL_SENS   ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   
 
 presetControllers[A_D_KEY_TRK    ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 presetControllers[VOICE_ASGN_MODE] = [76 , 76 , 76 , 76 , 76 , 76 , 76 , 76 ,   76 , 76 , 76 , 76 , 76 , 76 , 76 , 76 ];
-presetControllers[VOICE_GRP_MODE ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+presetControllers[VOICE_GRP_MODE ] = [127, 127, 127, 127, 127, 127, 127, 127,   127, 127, 127, 127, 127, 127, 127, 127];
 presetControllers[LFO_TRIG_MODE  ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 
 presetControllers[BTH_FILTER_AMT ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
@@ -1940,7 +1940,7 @@ function updateDisplayOfControl(number, value) {
     break;
   case VOICE_GRP_MODE  :
     {
-      var ary = ["Off","Ly2","RLy","RR2","RR3","RR4"];
+      var ary = ["Off","Ly2","RLy","RR2","RR4","RR3"];
       var index = Math.floor(((value * 10) + 128) >> 8);
       dispValue = ary[index];
     }
@@ -3639,7 +3639,7 @@ function getStoredCCValueString(index, number) {
   <div class="param-ctrl soft-markers-6"><input  id="inputVOICE_ASGN_MODE"  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(VOICE_ASGN_MODE, value)"><span    id="spanVOICE_ASGN_MODE" >-</span><span   id="span2VOICE_ASGN_MODE" >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>Voice</b> Group Mode <span class="sup">[Off|Ly2|RLy|RR2|RR3|RR4]</span> <span class="cc">CC#80</span></div>
+  <div class="param-name"><b>Voice</b> Group Mode <span class="sup">[Off|Ly2|RLy|RR2|RR4|RR3]</span> <span class="cc">CC#80</span></div>
   <div class="param-ctrl soft-markers-6"><input  id="inputVOICE_GRP_MODE "  type="range" min="0" max="127" step="1" oninput="onChangeVoiceGroupMode(value)"><span    id="spanVOICE_GRP_MODE " >-</span><span   id="span2VOICE_GRP_MODE " >-</span></div>
 </div>
 <div class="param">

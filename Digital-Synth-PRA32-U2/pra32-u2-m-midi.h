@@ -307,33 +307,25 @@ static void __not_in_flash_func(roundRobinControlChange)(uint32_t first, uint32_
 // The Voice Group Mode (Control Change #80): what the Basic Channel + 4 and + 5 do (see README.md), by the
 // value of the Main Synth, a parameter of its programs (those of the Sub Synths are not used):
 // 0: Off (none), 1: Ly2 (+ 4: the Layering of the synths 0-1, + 5: 2-3), 2: RLy (+ 4: the Round Robin of 0-1 and
-// of 2-3, layered), 3: RR2 (+ 4: the Round Robin of 0-1, + 5: 2-3), 4: RR3 (+ 4: 1-3), and 5: RR4 (+ 4: 0-3), in the
-// order of the notes at once on + 4; the Basic Channel + 15 is the Layering of the synths 0-3 too, and Voice Mode Pol of
-// the Main Synth acts as Mon, while it is not Off
+// of 2-3, layered), 3: RR2 (+ 4: the Round Robin of 0-1, + 5: 2-3), 4: RR4 (+ 4: 0-3), and 5: RR3 (+ 4: 1-3, the Presets),
+// in the order of the notes at once on + 4; the Basic Channel + 15 is the Layering of the synths 0-3 too, while it is not
+// Off. While the Main Synth is in Poly (the Sub Synths are not processed), a group has only the Main Synth (none without it)
 #if defined(PRA32_U2_ENABLE_LAYERING)  // none without the Layering
-static uint8_t s_group_mode = 0;  // Off
+static uint8_t s_group_mode = 0;  // Off, and 8 while the Main Synth is in Poly
 
-// The Voice Group Mode by the value of the Main Synth (0-127, 6 ways), at each MIDI message (after a Program Change too);
-// the notes of the synths turned off when it changes
+// The Voice Group Mode by the value of the Main Synth (0-127, 6 ways), with whether the Main Synth is in Poly, at each MIDI
+// message (after a Program Change too); the notes of the synths turned off when it changes
 static void __not_in_flash_func(updateGroupMode)() {
   uint8_t mode = ((g_synth.current_controller_value(VOICE_GRP_MODE) * 10) + 128) >> 8;
+  if (g_synth.is_in_polyphonic_mode()) {
+    mode |= 8;
+  }
   if (mode == s_group_mode) {
     return;
   }
   s_group_mode = mode;
   for (uint32_t s = 0; s < 4; s++) {
     controlChange(s, ALL_NOTES_OFF, 0);
-  }
-
-  // Voice Mode Pol of the Main Synth as Mon while it is not Off, and the Sub Synths reset at once when the Main Synth
-  // goes in or out of Poly (as the sketch does after the MIDI messages), so that a note right after it sounds
-  g_synth.set_poly_as_mono(mode != 0);
-  boolean poly = g_synth.is_in_polyphonic_mode();
-  if (g_synth_is_in_polyphonic_mode != poly) {
-    g_synth_is_in_polyphonic_mode = poly;
-    g_sub_1_synth.all_notes_off(true);
-    g_sub_2_synth.all_notes_off(true);
-    g_sub_3_synth.all_notes_off(true);
   }
   roundRobinReset();
   for (uint32_t i = 0; i < 6; i++) {
@@ -357,32 +349,43 @@ static ChannelRoute __not_in_flash_func(channelRoute)(byte channel, uint32_t& fi
     return ROUTE_SYNTH;
   }
 #if defined(PRA32_U2_ENABLE_LAYERING)
-  if ((offset == 15) && (s_group_mode != 0)) {  // not while Voice Group Mode is Off
+  uint32_t mode = s_group_mode & 7;
+  ChannelRoute route = ROUTE_NONE;
+  if ((offset == 15) && (mode != 0)) {  // not while Voice Group Mode is Off
     first = 0;
     last  = 3;
-    return ROUTE_LAYERING;
-  }
-  if ((offset == 4) || (offset == 5)) {
-    switch (s_group_mode) {
+    route = ROUTE_LAYERING;
+  } else if ((offset == 4) || (offset == 5)) {
+    switch (mode) {
     case 1:  // Ly2 (x 2)
       first = (offset - 4) * 2;
       last  = first + 1;
-      return ROUTE_LAYERING;
+      route = ROUTE_LAYERING;
+      break;
     case 2:  // RLy (RR2 layered)
-      if (offset == 4) { first = 0; last = 3; return ROUTE_ROUND_ROBIN_LAYERED; }
+      if (offset == 4) { first = 0; last = 3; route = ROUTE_ROUND_ROBIN_LAYERED; }
       break;
     case 3:  // RR2 (x 2)
       first = (offset - 4) * 2;
       last  = first + 1;
-      return ROUTE_ROUND_ROBIN;
-    case 4:  // RR3
-      if (offset == 4) { first = 1; last = 3; return ROUTE_ROUND_ROBIN; }
+      route = ROUTE_ROUND_ROBIN;
       break;
-    case 5:  // RR4
-      if (offset == 4) { first = 0; last = 3; return ROUTE_ROUND_ROBIN; }
+    case 4:  // RR4
+      if (offset == 4) { first = 0; last = 3; route = ROUTE_ROUND_ROBIN; }
+      break;
+    case 5:  // RR3
+      if (offset == 4) { first = 1; last = 3; route = ROUTE_ROUND_ROBIN; }
       break;
     }
   }
+  if ((route != ROUTE_NONE) && (s_group_mode & 8)) {  // the Main Synth in Poly: the Main Synth alone, if in the group
+    if (first != 0) {
+      return ROUTE_NONE;
+    }
+    last = 0;
+    return ROUTE_SYNTH;
+  }
+  return route;
 #endif  // defined(PRA32_U2_ENABLE_LAYERING)
   return ROUTE_NONE;
 }

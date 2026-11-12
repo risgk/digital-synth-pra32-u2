@@ -18,7 +18,7 @@
     - Connect Raspberry Pi Pico 2 to a PC while pressing the BOOTSEL button, and copy a UF2 file to the "RP2350" drive
     - PRA32-U2/M (Recommended): "Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico 2 and Pimoroni Pico Audio Pack
         - A superset of PRA32-U2: the Main Synth works the same as PRA32-U2, and the Sub Synths, the Layering, and the Round Robin (by Voice Group Mode) are added (see [PRA32-U2/M](#pra32-u2m-pra32-u2-multi-timbre-edition))
-        - NOTE: It also responds to MIDI Channels 2-4 (by default; and 5, 6, and 16 by Voice Group Mode, Off in the presets); use PRA32-U2 if these channels are used for other devices
+        - NOTE: It also responds to MIDI Channels 2-5 and 16 (by default, by Voice Group Mode RR3 of the presets; 6 too by Ly2 and RR2); use PRA32-U2 if these channels are used for other devices
     - PRA32-U2/M/P Headless: "Digital-Synth-PRA32-U2-M-P-Headless-Pimoroni-Pico-Audio-Pack.uf2", PRA32-U2/M with the Step Sequencer and the Panel Parameters
       ([PRA32-U2/P Headless](./README-PRA32-U2-P.md#pra32-u2p-headless)), e.g. from "Panel & Step Sequencer" of PRA32-U2 Editor
         - NOTE: It also responds to the Control Changes on MIDI Channel 15 (the Panel Channel, by default)
@@ -199,11 +199,11 @@ graph LR
         | 2 | + 1 | Sub Synth 1 | 1 | 0 |
         | 3 | + 2 | Sub Synth 2 | 2 | 0 |
         | 4 | + 3 | Sub Synth 3 | 3 | 0 |
-        | 5, 6 | + 4, + 5 | By Voice Group Mode (below), none by default | | |
+        | 5, 6 | + 4, + 5 | By Voice Group Mode (below; RR3, + 4, in the presets) | | |
         | 16 | + 15 | Layering (with Voice Group Mode not Off) | 0, 1, 2, 3 | 0, 1, 2, 3 |
 
     - Voice Group Mode (CC #80): what the Basic Channel + 4 and + 5 do, and + 15 too (the Layering), by the value of the Main Synth
-      (a parameter of its programs, Off in the presets); the other channels are free (e.g. for other instruments of a sequencer)
+      (a parameter of its programs, RR3 in the presets); the other channels are free (e.g. for other instruments of a sequencer)
 
         | Voice Group Mode (CC #80) | + 4 (Channel 5) | + 5 (Channel 6) | Program Change (Program # +) |
         | :-- | :-- | :-- | :-- |
@@ -211,11 +211,13 @@ graph LR
         | Ly2 (26) | Layering of 0, 1 | Layering of 2, 3 | 0, 1 / 0, 1 |
         | RLy (51) | Round Robin (2 notes) of 0, 1 and of 2, 3, layered | - | 0, 0 / 1, 1 |
         | RR2 (77) | Round Robin (2 notes) of 0, 1 | Round Robin (2 notes) of 2, 3 | 0, 0 / 0, 0 |
-        | RR3 (102) | Round Robin (3 notes) of 1, 2, 3 | - | 0, 0, 0 |
-        | RR4 (127) | Round Robin (4 notes) of 0, 1, 2, 3 | - | 0, 0, 0, 0 |
+        | RR4 (102) | Round Robin (4 notes) of 0, 1, 2, 3 | - | 0, 0, 0, 0 |
+        | RR3 (127, the presets) | Round Robin (3 notes) of 1, 2, 3 | - | 0, 0, 0 |
 
-        - Off: the 4 synths only (Channels 1-4), with the Main Synth in Poly or Mono
-        - The others: Voice Mode Pol of the Main Synth acts as Mon (as the Sub Synths sound only then), and + 15 is the Layering of all
+        - Off: the 4 synths only (Channels 1-4); the others: + 15 is the Layering of all too
+        - The Sub Synths sound only while the Main Synth is in the Mono modes: while it is in Poly, a group has only the Main Synth
+          (e.g. + 15 and RR4 play the Main Synth in Poly), and none without it (e.g. RR3)
+        - E.g. RR3 (the presets) with the Main Synth in Mono: Channel 1 plays a lead, and Channel 5 3 notes (the Round Robin of the Sub Synths)
         - E.g. RR4: Channel 5 plays 4 notes (the Round Robin), and Channel 16 a lead of the 4 synths layered, with the sounds of one program
           (+ 15 sets #n to #n + 3, and + 4 sets #n to all)
         - In PRA32-U2 Editor, its slider sends it on the Basic Channel (Basic Ch of "Panel & Step Sequencer", 1 by default), whatever "MIDI Ch" is

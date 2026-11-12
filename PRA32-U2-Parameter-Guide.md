@@ -369,14 +369,15 @@
     - 77 (64-89): Mode 3, Reuse note-off voices, Free voice with next number has priority (Round Robin), Release and polyphonic after touch are effective
     - 102 (90-115): Mode 4, Reuse note-off voices, Free voice with small number has priority, Portamento and polyphonic after touch are effective
     - 127 (116-127): Mode 2, Free voice with small number has priority, Portamento is effective
-- Voice Group Mode [Off|Ly2|RLy|RR2|RR3|RR4] (PRA32-U2/M): What the Basic Channel + 4 and + 5 do (see PRA32-U2/M in README.md), and + 15 too (the Layering, not while it is Off), by the value of the Main Synth (that of the Sub Synths is not used); the notes of the synths are turned off when it changes
+- Voice Group Mode [Off|Ly2|RLy|RR2|RR4|RR3] (PRA32-U2/M): What the Basic Channel + 4 and + 5 do (see PRA32-U2/M in README.md), and + 15 too (the Layering, not while it is Off), by the value of the Main Synth (that of the Sub Synths is not used); the notes of the synths are turned off when it changes
     - 0 (0-12): Off, None
     - 26 (13-38): Ly2, + 4 is the Layering of the synths 0 and 1, and + 5 that of 2 and 3
     - 51 (39-63): RLy, + 4 is the Round Robin (2 notes) of 0 and 1 and that of 2 and 3, layered
     - 77 (64-89): RR2, + 4 is the Round Robin (2 notes) of 0 and 1, and + 5 that of 2 and 3
-    - 102 (90-115): RR3, + 4 is the Round Robin (3 notes) of 1, 2, and 3
-    - 127 (116-127): RR4, + 4 is the Round Robin (4 notes) of 0, 1, 2, and 3
-    - NOTE: Not Off: Voice Mode Pol of the Main Synth acts as Mon (as the Sub Synths sound only then), and the Basic Channel + 15 is the Layering of all
+    - 102 (90-115): RR4, + 4 is the Round Robin (4 notes) of 0, 1, 2, and 3
+    - 127 (116-127): RR3, + 4 is the Round Robin (3 notes) of 1, 2, and 3 (the Presets)
+    - NOTE: Not Off: the Basic Channel + 15 is the Layering of all too
+    - NOTE: The Sub Synths sound only while the Main Synth is in the Mono modes: while it is in Poly, a group has only the Main Synth (none without it, e.g. RR3)
     - NOTE: Not changed by "Randomize Synth"; nothing in PRA32-U2 (not /M), nor without the Layering; not in PRA32-U2 Native
 - LFO Trig Mode [Aut|Off|On|VOn|VOf|VAu]: How a note on restarts the LFO (its phase, and the LFO Fade Time), and whether the Voices share the LFO
     - 0 (0-12): Auto (Aut, the Presets), The LFO of all the Voices; the phase of Saw, S&H, and Square, and the fade, restart at the first note on (Polyphonic, Legato Portamento, and Legato) or every note on (Monophonic) (see Voice Mode and LFO Wave)

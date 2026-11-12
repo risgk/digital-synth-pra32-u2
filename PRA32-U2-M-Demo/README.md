@@ -15,7 +15,7 @@
 - "pra32-u2-m-demo-ode-to-joy.json": the sounds of the song as the user programs #0-11 for PRA32-U2 Editor ("Import All"; #12-15 are Initial)
     - #0-3: Saw Lead, Synth Bass, FM Piano, and Drums (up to the theme); #4-7: Sync Lead and the same (the middle and the theme);
       #8-11: Fifth Lead and the same (them again)
-    - With the Layering of PRA32-U2/M (Voice Group Mode of the Main Synth not Off, e.g. Ly2 by CC #80 on MIDI Channel 1; Off in these programs),
+    - With the Layering of PRA32-U2/M (Voice Group Mode of the Main Synth not Off, e.g. Ly2 by CC #80 on MIDI Channel 1; Off in these programs; with the Main Synth in Mono),
       Program Change #0 (or #4, or #8) by MIDI Channel 16 sets the 4 synths to #0-3 (or #4-7, or #8-11) at once
 - "pra32-u2-m-demo-ode-to-joy.mp3": "pra32-u2-m-demo-ode-to-joy.mid" rendered by "pra32-u2-m-make-wav-file-from-smf.cc",
   and converted by [FFmpeg](https://ffmpeg.org/) (6.1.1), with the silence at the end cut

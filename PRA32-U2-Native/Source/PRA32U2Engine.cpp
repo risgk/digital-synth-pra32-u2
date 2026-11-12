@@ -105,7 +105,7 @@ const PRA32U2Engine::ParameterInfo s_parameter_names[] = {
 
   { A_D_KEY_TRK    , "EG Att/Dec Key Track [-|+]"             },
   { VOICE_ASGN_MODE, "Voice Assign Mode [1|1|3|3|4|2]"        },
-  { VOICE_GRP_MODE , "Voice Group Mode [Off|Ly2|RLy|RR2|RR3|RR4]" },
+  { VOICE_GRP_MODE , "Voice Group Mode [Off|Ly2|RLy|RR2|RR4|RR3]" },
   { LFO_TRIG_MODE  , "LFO Trig Mode [Aut|Off|On|VOn|VOf|VAu]" },
 
   { BTH_FILTER_AMT , "Breath Filter Amt [-|+]"                },
@@ -309,7 +309,7 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value) {
   static const char* const FX_ROUTINGS[6]  = { "Dst", "Cho", "Dly", "Dly", "Cmp", "Dry" };
   static const char* const ASGN_MODES[6]   = { "1", "1", "3", "3", "4", "2" };
   static const char* const DELAY_MODES[3]  = { "Ste", "PP", "Rev" };
-  static const char* const GROUP_MODES[6]  = { "Off", "Ly2", "RLy", "RR2", "RR3", "RR4" };
+  static const char* const GROUP_MODES[6]  = { "Off", "Ly2", "RLy", "RR2", "RR4", "RR3" };
 
   switch (controlNumber) {
   case OSC_2_COARSE    :

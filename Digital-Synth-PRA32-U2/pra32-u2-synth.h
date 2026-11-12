@@ -262,7 +262,6 @@ class PRA32_U2_Synth {
   uint8_t           m_last_note_on_index;
   boolean           m_sustain_pedal;
   uint8_t           m_voice_mode;
-  boolean           m_poly_as_mono;
   uint8_t           m_voice_asgn_mode;
 
   uint8_t           m_output_error;
@@ -319,7 +318,6 @@ public:
   , m_last_note_on_index(3)
   , m_sustain_pedal()
   , m_voice_mode(0xFF)
-  , m_poly_as_mono()
   , m_voice_asgn_mode(1)
 
   , m_output_error()
@@ -2071,14 +2069,6 @@ if (m_voice_mode == VOICE_POLYPHONIC) {
     return (m_voice_mode == VOICE_POLYPHONIC);
   }
 
-  // PRA32-U2/M: Voice Mode Pol as Mon (while Voice Group Mode is not Off, so that the Sub Synths sound too)
-  INLINE void set_poly_as_mono(boolean poly_as_mono) {
-    if (m_poly_as_mono != poly_as_mono) {
-      m_poly_as_mono = poly_as_mono;
-      set_voice_mode(m_current_controller_value_table[VOICE_MODE]);
-    }
-  }
-
 #if defined(PRA32_U2_USE_LEGACY_OUTPUT_LIMITER)
   // Not assigned to a Control Change; 0: Off, 127: full limiting (default)
   INLINE void set_output_limiter_depth(uint8_t controller_value) {
@@ -2153,9 +2143,6 @@ if constexpr (RESTRICT_POLY_AND_CORES == false) {
     int32_t index = ((controller_value * 10) + 128) >> 8;
 
     uint8_t new_voice_mode = voice_mode_table[index];
-    if (m_poly_as_mono && (new_voice_mode == VOICE_POLYPHONIC)) {
-      new_voice_mode = VOICE_MONOPHONIC;
-    }
     if (m_voice_mode != new_voice_mode) {
       m_voice_mode = new_voice_mode;
       all_notes_off(true);

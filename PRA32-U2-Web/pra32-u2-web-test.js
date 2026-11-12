@@ -53,7 +53,7 @@ for (const samplingRate of [48000, 44100, 96000]) {
 }
 
 // PRA32-U2/M/P Web (selected by pra32u2_web_select(1)): with the Main Synth in Mono (#20 Saw Lead), a note sounds on the
-// channels of the 4 synths (Basic Channel 1), and not on the others (e.g. 5 and 16, with Voice Group Mode Off);
+// channels of the 4 synths (Basic Channel 1), and not on the others (e.g. 5 and 16, with Voice Group Mode Off, RR3 in the presets);
 // then on Channel 5 and 16 too, with Voice Group Mode RR4 (CC #80 on the Basic Channel)
 {
   const stub = () => 0;
@@ -62,12 +62,13 @@ for (const samplingRate of [48000, 44100, 96000]) {
   wasm.pra32u2_web_prepare(48000);
   wasm.pra32u2_web_select(1);
   wasm.pra32u2_web_midi(0, 0xC0, 20, 0, 2);
+  wasm.pra32u2_web_midi(0, 0xB0, 80, 0, 3);    // Voice Group Mode: Off
   peakOf(wasm, 4800);
   const cases = [[1, true], [2, true], [3, true], [4, true], [5, false], [6, false], [7, false], [12, false], [16, false],
                  ["RR4", null], [5, true], [6, false], [16, true]];
   for (const [channel, sounds] of cases) {
     if (channel === "RR4") {
-      wasm.pra32u2_web_midi(0, 0xB0, 80, 127, 3); // Voice Group Mode: RR4
+      wasm.pra32u2_web_midi(0, 0xB0, 80, 102, 3); // Voice Group Mode: RR4
       peakOf(wasm, 4800);
       continue;
     }

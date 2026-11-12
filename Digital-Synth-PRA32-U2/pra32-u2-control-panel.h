@@ -1162,7 +1162,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
     break;
   case VOICE_GRP_MODE :
     {
-      static const char ary[6][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"Off","Ly2","RLy","RR2","RR3","RR4"};
+      static const char ary[6][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"Off","Ly2","RLy","RR2","RR4","RR3"};
       uint32_t index = ((controller_value * 10) + 128) >> 8;
       PRA32_U2_ControlPanel_copy_text(value_display_text, ary[index]);
       result = true;
