@@ -1371,6 +1371,14 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
     return;
   }
 
+#if (PRA32_U2_NUMBER_OF_SYNTHS > 1)
+  // Back to the Main Synth when the channel selected goes to no synth now (e.g. a group without the Main Synth after the
+  // Main Synth went in Poly), checked here, after the MIDI messages, where the synths have taken the changes
+  if (!PRA32_U2_ControlPanel_target_usable(s_current_synth)) {
+    g_synth.control_change(PANEL_TARGET_CH, 0);
+  }
+#endif  // (PRA32_U2_NUMBER_OF_SYNTHS > 1)
+
   PRA32_U2_ControlPanel_update_control_seq();
 
   boolean processed = PRA32_U2_ControlPanel_process_note_off_on();
