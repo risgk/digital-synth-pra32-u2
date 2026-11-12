@@ -135,16 +135,19 @@ extern uint8_t getCurrentControllerValue(byte channel, byte number);
 extern void getRandUint8Rrray(byte channel, uint8_t array[8]);
 extern void writeParametersToProgram(byte channel, byte number);
 extern byte getTargetMIDICh(byte synth);
+#if (PRA32_U2_NUMBER_OF_SYNTHS > 1)
+extern boolean isChannelRouted(byte channel);
+#endif  // (PRA32_U2_NUMBER_OF_SYNTHS > 1)
 extern void getCurrentValues(byte channel, uint8_t values[128 + 128]);
 extern void setValues(byte channel, boolean panel, const uint8_t values[128 + 128]);
 extern void getProgramValues(byte channel, byte number, uint8_t values[128 + 128]);
 extern void writeValuesToProgram(byte channel, byte number, const uint8_t values[128 + 128]);
 
-// Whether the panel can select a synth (channel) now: only the Main Synth ("$0") while Voice Group Mode is Off
-// (PRA32-U2/M, with the Layering), as only the Basic Channel is used then
+// Whether the panel can select a synth (channel) now: one that goes to a synth (e.g. only the Main Synth, "$0", while
+// Voice Group Mode is Off, and not a group without the Main Synth while the Main Synth is in Poly)
 static INLINE boolean PRA32_U2_ControlPanel_target_usable(uint32_t synth) {
-#if (PRA32_U2_NUMBER_OF_SYNTHS > 1) && defined(PRA32_U2_ENABLE_LAYERING)
-  return (synth == 0) || (((g_synth.current_controller_value(VOICE_GRP_MODE) * 10) + 128) >> 8) != 0;
+#if (PRA32_U2_NUMBER_OF_SYNTHS > 1)
+  return (synth == 0) || isChannelRouted(getTargetMIDICh(synth));
 #else
   static_cast<void>(synth);
   return true;
@@ -164,28 +167,47 @@ struct PRA32_U2_ControlPanelUndo {
 static PRA32_U2_ControlPanelUndo s_undo_read;
 static PRA32_U2_ControlPanelUndo s_undo_write;
 
+// The values of a channel that goes to no synth (e.g. by Voice Group Mode) are not got: 255 left at Voice Mode (or at
+// Panel Scale, for the panel parameters in the flash) tells it, and the Undo is not kept nor done then. The panel
+// parameters are of the Main Synth, whose channel is taken at the time (the Basic Channel may have moved)
+static const uint8_t PRA32_U2_CONTROL_PANEL_UNDO_CHECK = PANEL_SCALE;
+
+static boolean PRA32_U2_ControlPanel_get_current_values(byte channel, uint8_t values[128 + 128]) {
+  values[VOICE_MODE] = 255;
+  getCurrentValues(channel, values);
+  return values[VOICE_MODE] <= 127;
+}
+
+static boolean PRA32_U2_ControlPanel_get_program_values(byte channel, byte program_number, uint8_t values[128 + 128]) {
+  uint8_t check = (program_number == 128) ? PRA32_U2_CONTROL_PANEL_UNDO_CHECK : VOICE_MODE;
+  values[check] = 255;
+  getProgramValues(channel, program_number, values);
+  return values[check] <= 127;
+}
+
 static void PRA32_U2_ControlPanel_keep_for_undo_read(byte channel, boolean panel) {
-  getCurrentValues(channel, s_undo_read.values);
   s_undo_read.channel = channel;
   s_undo_read.panel   = panel;
-  s_undo_read.valid   = true;
+  s_undo_read.valid   = PRA32_U2_ControlPanel_get_current_values(channel, s_undo_read.values);
 }
 
 static void PRA32_U2_ControlPanel_keep_for_undo_write(byte channel, byte program_number) {
-  getProgramValues(channel, program_number, s_undo_write.values);
   s_undo_write.channel        = channel;
   s_undo_write.program_number = program_number;
   s_undo_write.panel          = (program_number == 128);
-  s_undo_write.valid          = true;
+  s_undo_write.valid          = PRA32_U2_ControlPanel_get_program_values(channel, program_number, s_undo_write.values);
 }
 
 static void PRA32_U2_ControlPanel_undo_read() {
   if (s_undo_read.valid == false) {
     return;
   }
+  byte channel = s_undo_read.panel ? getTargetMIDICh(0) : s_undo_read.channel;
   uint8_t current_values[128 + 128];
-  getCurrentValues(s_undo_read.channel, current_values);
-  setValues(s_undo_read.channel, s_undo_read.panel, s_undo_read.values);
+  if (PRA32_U2_ControlPanel_get_current_values(channel, current_values) == false) {
+    return;
+  }
+  setValues(channel, s_undo_read.panel, s_undo_read.values);
   std::memcpy(s_undo_read.values, current_values, sizeof(current_values));
 }
 
@@ -193,9 +215,12 @@ static void PRA32_U2_ControlPanel_undo_write() {
   if (s_undo_write.valid == false) {
     return;
   }
+  byte channel = s_undo_write.panel ? getTargetMIDICh(0) : s_undo_write.channel;
   uint8_t program_values[128 + 128];
-  getProgramValues(s_undo_write.channel, s_undo_write.program_number, program_values);
-  writeValuesToProgram(s_undo_write.channel, s_undo_write.program_number, s_undo_write.values);
+  if (PRA32_U2_ControlPanel_get_program_values(channel, s_undo_write.program_number, program_values) == false) {
+    return;
+  }
+  writeValuesToProgram(channel, s_undo_write.program_number, s_undo_write.values);
   std::memcpy(s_undo_write.values, program_values, sizeof(program_values));
 }
 
@@ -1188,7 +1213,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
 
 INLINE void PRA32_U2_ControlPanel_setup() {
   for (uint32_t i = 0; i < PRA32_U2_NUMBER_OF_SYNTHS; ++i) {
-    s_current_program[i] = (i + PROGRAM_NUMBER_DEFAULT + s_current_synth) & USER_PROGRAM_NUMBER_MAX;
+    s_current_program[i] = (i + PROGRAM_NUMBER_DEFAULT) & USER_PROGRAM_NUMBER_MAX;
   }
 
 #if defined(PRA32_U2_KEY_INPUT_PREV_KEY_PIN)

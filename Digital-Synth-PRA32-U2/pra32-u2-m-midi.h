@@ -324,9 +324,19 @@ static void __not_in_flash_func(updateGroupMode)() {
   if (mode == s_group_mode) {
     return;
   }
+  boolean poly_changed = ((mode ^ s_group_mode) & 8) != 0;
   s_group_mode = mode;
   for (uint32_t s = 0; s < 4; s++) {
     controlChange(s, ALL_NOTES_OFF, 0);
+  }
+
+  // The Sub Synths reset at once when the Main Synth goes in or out of Poly (as the sketch does after the MIDI messages),
+  // so that a note right after it (e.g. by a Program Change before it at once) sounds
+  if (poly_changed) {
+    g_synth_is_in_polyphonic_mode = ((mode & 8) != 0);
+    g_sub_1_synth.all_notes_off(true);
+    g_sub_2_synth.all_notes_off(true);
+    g_sub_3_synth.all_notes_off(true);
   }
   roundRobinReset();
   for (uint32_t i = 0; i < 6; i++) {
@@ -339,13 +349,11 @@ static void __not_in_flash_func(updateGroupMode)() {
 // with the first and the last synth
 enum ChannelRoute { ROUTE_NONE, ROUTE_SYNTH, ROUTE_LAYERING, ROUTE_ROUND_ROBIN, ROUTE_ROUND_ROBIN_LAYERED };
 
-static ChannelRoute __not_in_flash_func(channelRoute)(byte channel, uint32_t& first, uint32_t& last) {
+// The route of the Basic Channel + offset, by Voice Group Mode (mode: 0-5) and whether the Main Synth is in Poly
+static ChannelRoute __not_in_flash_func(routeOf)(uint32_t offset, uint32_t mode, boolean poly, uint32_t& first, uint32_t& last) {
+  static_cast<void>(mode);
+  static_cast<void>(poly);
 #if defined(PRA32_U2_ENABLE_LAYERING)
-  updateGroupMode();
-#endif  // defined(PRA32_U2_ENABLE_LAYERING)
-  uint32_t offset = ((channel - 1) - g_midi_ch) & 0x0F;
-#if defined(PRA32_U2_ENABLE_LAYERING)
-  uint32_t mode = s_group_mode & 7;
   if ((offset >= 1) && (offset <= 3) && (mode == 0)) {  // Off: the Basic Channel alone, the others free (e.g. for a sequencer)
     return ROUTE_NONE;
   }
@@ -384,7 +392,7 @@ static ChannelRoute __not_in_flash_func(channelRoute)(byte channel, uint32_t& fi
       break;
     }
   }
-  if ((route != ROUTE_NONE) && (s_group_mode & 8)) {  // the Main Synth in Poly: the Main Synth alone, if in the group
+  if ((route != ROUTE_NONE) && poly) {  // the Main Synth in Poly: the Main Synth alone, if in the group
     if (first != 0) {
       return ROUTE_NONE;
     }
@@ -395,6 +403,26 @@ static ChannelRoute __not_in_flash_func(channelRoute)(byte channel, uint32_t& fi
 #endif  // defined(PRA32_U2_ENABLE_LAYERING)
   return ROUTE_NONE;
 }
+
+static ChannelRoute __not_in_flash_func(channelRoute)(byte channel, uint32_t& first, uint32_t& last) {
+#if defined(PRA32_U2_ENABLE_LAYERING)
+  updateGroupMode();
+  return routeOf(((channel - 1) - g_midi_ch) & 0x0F, s_group_mode & 7, (s_group_mode & 8) != 0, first, last);
+#else  // defined(PRA32_U2_ENABLE_LAYERING)
+  return routeOf(((channel - 1) - g_midi_ch) & 0x0F, 0, false, first, last);
+#endif  // defined(PRA32_U2_ENABLE_LAYERING)
+}
+
+#if defined(PRA32_U2_USE_CONTROL_PANEL)
+// Whether a channel goes to a synth now (for the panel, which selects only such a channel), by the values of the
+// Main Synth at once (not by the state kept at the MIDI messages)
+boolean isChannelRouted(byte channel)
+{
+  uint32_t first, last;
+  uint32_t mode = ((g_synth.current_controller_value(VOICE_GRP_MODE) * 10) + 128) >> 8;
+  return routeOf(((channel - 1) - g_midi_ch) & 0x0F, mode, g_synth.is_in_polyphonic_mode(), first, last) != ROUTE_NONE;
+}
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 
 void __not_in_flash_func(handleNoteOn)(byte channel, byte pitch, byte velocity)
 {
