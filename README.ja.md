@@ -21,7 +21,7 @@
     - BOOTSEL ボタンを押しながら Raspberry Pi Pico 2 を PC につなぎ、UF2 ファイルを "RP2350" ドライブにコピーしてください
     - PRA32-U2/M (推奨): "Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2" は Raspberry Pi Pico 2 と Pimoroni Pico Audio Pack 用です
         - PRA32-U2 の上位互換です: Main Synth は PRA32-U2 と同じように動き、Sub Synth、Layering、Round Robin (Voice Group Mode による) が加わります ([PRA32-U2/M](#pra32-u2m-pra32-u2-multi-timbre-edition) を参照)
-        - 注意: MIDI チャンネル 2-5 と 16 にも反応します (初期設定。プリセットの Voice Group Mode RR3 による。Ly2 と RR2 では 6 にも)。これらのチャンネルを他の機器に使う場合は、PRA32-U2 を使ってください
+        - 注意: MIDI チャンネル 2-5 と 16 にも反応します (初期設定。プリセットの Voice Group Mode RR3 による。Ly2 と RR2 では 6 にも)。Voice Group Mode が Off なら、ノートを鳴らすのは Ch 1 だけです (下記)。これらのチャンネルを他の機器に使う場合は、PRA32-U2 を使ってください
     - PRA32-U2/M/P Headless: "Digital-Synth-PRA32-U2-M-P-Headless-Pimoroni-Pico-Audio-Pack.uf2" は、PRA32-U2/M にステップ・シーケンサーとパネルのパラメーターを加えたものです
       ([PRA32-U2/P Headless](./README-PRA32-U2-P.md#pra32-u2p-headless)、英語)。PRA32-U2 Editor の "Panel & Step Sequencer" などから使います
         - 注意: MIDI チャンネル 15 (Panel Channel、初期設定) のコントロール・チェンジにも反応します
@@ -161,7 +161,8 @@
 - Layering: Basic Channel + 15 (初期値 16) で、4 台のシンセを同時に制御します (Voice Group Mode が Off 以外のとき)
     - プログラム・チェンジ #n で、4 台に #n から #n+3 を読み込みます。4 台の音色を連続したユーザー・プログラム (例: #4-7) に保存しておけば、まとめて呼び出せます
 - Voice Group Mode (CC #80): Basic Channel + 4、+ 5 (初期値 5、6) で、Round Robin や 2 台ずつの Layering を使えます (Main Synth のプログラムのパラメーター。プリセットは RR3)
-    - Off では Ch 1-4 の 4 台だけを使います。Off 以外では、Basic Channel + 15 の Layering も使えます
+    - Off では、ノートを鳴らすのは Basic Channel だけです (PRA32-U2 と同じ。シーケンサーなどで他のチャンネルを使えます)。Sub Synth (+ 1 から + 3) は、CC やプログラム・チェンジなどは受け付けるので、事前に設定しておけます
+    - Off 以外では、Sub Synth は + 1 から + 3 で鳴り、Basic Channel + 15 の Layering も使えます
     - Sub Synth が鳴るのは Main Synth が Mono 系のときだけです。Poly のときは、グループは Main Synth だけになります (例: + 15 や RR4 は Poly の Main Synth を鳴らし、RR3 は鳴りません)
     - 例: RR3 (プリセット) で Main Synth が Mono 系なら、Ch 1 でリード、Ch 5 で 3 音 (Sub Synth の Round Robin) を弾けます
     - 例: RR4 では、Ch 5 で 4 音の Round Robin、Ch 16 で 4 台重ねのリードを弾けます

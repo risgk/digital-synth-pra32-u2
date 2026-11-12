@@ -353,8 +353,9 @@ flowchart LR
 - The Sub Synths are processed only while the Main Synth is in the Mono modes (the Main Synth in
   the Poly modes uses the processing time of all of them)
 - Voice Group Mode (Control Change #80, of the Main Synth): MIDI Ch 5 and 6 are the Layering or the
-  Round Robin of 2-4 synths, and MIDI Ch 16 the Layering of all 4 (none of them while it is Off);
-  while the Main Synth is in the Poly modes, a group has only the Main Synth
+  Round Robin of 2-4 synths, and MIDI Ch 16 the Layering of all 4 (none of them while it is Off,
+  when MIDI Ch 2-4 do not play notes either); while the Main Synth is in the Poly modes, a group
+  has only the Main Synth
     - Layering: a Note On (and the other messages) goes to 2 or 4 synths at once; a Program Change
       selects the Program # + 0, + 1, + 2, and + 3 for them, in this order
     - Round Robin: the notes go to the synths in turn

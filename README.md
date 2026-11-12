@@ -18,7 +18,7 @@
     - Connect Raspberry Pi Pico 2 to a PC while pressing the BOOTSEL button, and copy a UF2 file to the "RP2350" drive
     - PRA32-U2/M (Recommended): "Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico 2 and Pimoroni Pico Audio Pack
         - A superset of PRA32-U2: the Main Synth works the same as PRA32-U2, and the Sub Synths, the Layering, and the Round Robin (by Voice Group Mode) are added (see [PRA32-U2/M](#pra32-u2m-pra32-u2-multi-timbre-edition))
-        - NOTE: It also responds to MIDI Channels 2-5 and 16 (by default, by Voice Group Mode RR3 of the presets; 6 too by Ly2 and RR2); use PRA32-U2 if these channels are used for other devices
+        - NOTE: It also responds to MIDI Channels 2-5 and 16 (by default, by Voice Group Mode RR3 of the presets; 6 too by Ly2 and RR2); with Voice Group Mode Off, only Channel 1 plays notes (see below)
     - PRA32-U2/M/P Headless: "Digital-Synth-PRA32-U2-M-P-Headless-Pimoroni-Pico-Audio-Pack.uf2", PRA32-U2/M with the Step Sequencer and the Panel Parameters
       ([PRA32-U2/P Headless](./README-PRA32-U2-P.md#pra32-u2p-headless)), e.g. from "Panel & Step Sequencer" of PRA32-U2 Editor
         - NOTE: It also responds to the Control Changes on MIDI Channel 15 (the Panel Channel, by default)
@@ -214,7 +214,9 @@ graph LR
         | RR4 (102) | Round Robin (4 notes) of 0, 1, 2, 3 | - | 0, 0, 0, 0 |
         | RR3 (127, the presets) | Round Robin (3 notes) of 1, 2, 3 | - | 0, 0, 0 |
 
-        - Off: the 4 synths only (Channels 1-4); the others: + 15 is the Layering of all too
+        - Off: only the Basic Channel plays notes (as PRA32-U2), so that the other channels are free (e.g. for a sequencer);
+          the Sub Synths (+ 1 to + 3) still take the other messages (e.g. Control Changes and Program Changes), to be set up before
+        - The others: the Sub Synths play on + 1 to + 3, and + 15 is the Layering of all too
         - The Sub Synths sound only while the Main Synth is in the Mono modes: while it is in Poly, a group has only the Main Synth
           (e.g. + 15 and RR4 play the Main Synth in Poly), and none without it (e.g. RR3)
         - E.g. RR3 (the presets) with the Main Synth in Mono: Channel 1 plays a lead, and Channel 5 3 notes (the Round Robin of the Sub Synths)
