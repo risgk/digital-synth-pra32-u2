@@ -19,6 +19,7 @@
         - The 4 synths on the Basic Channel + 0 to + 3, and the groups on + 4, + 5, and + 15 (the Layering of all, not while it is Off)
         - Off: the Basic Channel alone (not + 1 to + 3 either), so that the other channels are free (e.g. for a sequencer)
         - RR3 (+ 4: the Round Robin of the Sub Synths) in the Presets and the user programs at first: Channels 5 and 16 too, by default
+          (the user programs written before too, which have no Voice Group Mode: set it to Off to use only Channel 1)
         - While the Main Synth is in Poly (the Sub Synths not processed, as before), a group has only the Main Synth
         - Not compatible: the Round Robin on + 6 to + 8, + 11, and + 12, and the Layering on + 13 and + 14 are now by Voice Group Mode
         - `PRA32_U2_ENABLE_ROUND_ROBIN` removed: the Round Robin is with the Layering (`PRA32_U2_ENABLE_LAYERING`)
