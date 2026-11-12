@@ -636,12 +636,12 @@ static __attribute__((noinline, unused)) void PRA32_U2_ControlPanel_execute_oper
     uint8_t program_number_to_write = control_target - WR_PROGRAM_0;
     PRA32_U2_ControlPanel_keep_for_undo_write(getTargetMIDICh(s_current_synth), program_number_to_write);
     writeParametersToProgram(getTargetMIDICh(s_current_synth), program_number_to_write);
-  } else if (control_target == RD_PANEL_PRMS) {
-    PRA32_U2_ControlPanel_keep_for_undo_read(getTargetMIDICh(s_current_synth), true);
-    handleProgramChange(getTargetMIDICh(s_current_synth), 128);
+  } else if (control_target == RD_PANEL_PRMS) {  // the panel parameters are of the Main Synth (as Write), whatever the panel selects
+    PRA32_U2_ControlPanel_keep_for_undo_read(getTargetMIDICh(0), true);
+    handleProgramChange(getTargetMIDICh(0), 128);
   } else if (control_target == IN_PANEL_PRMS) {
-    PRA32_U2_ControlPanel_keep_for_undo_read(getTargetMIDICh(s_current_synth), true);
-    handleProgramChange(getTargetMIDICh(s_current_synth), 129);
+    PRA32_U2_ControlPanel_keep_for_undo_read(getTargetMIDICh(0), true);
+    handleProgramChange(getTargetMIDICh(0), 129);
   } else if (control_target == WR_PANEL_PRMS) {
     PRA32_U2_ControlPanel_keep_for_undo_write(getTargetMIDICh(0), 128);
     g_synth.write_parameters_to_program(128);
@@ -1417,6 +1417,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
 
           s_current_synth = (s_current_synth + 1) >= PRA32_U2_NUMBER_OF_SYNTHS ? 0 : (s_current_synth + 1);
           s_display_buffer[0][14] = s_hex_chars[getTargetMIDICh(s_current_synth) - 1];
+          g_synth.control_change(PANEL_TARGET_CH, ((getTargetMIDICh(s_current_synth) - 1) - g_midi_ch) & 0x0F);  // kept by Write Panel Prms
 
           s_prev_key_long_pressed = true;
           s_next_key_long_pressed = true;
@@ -1500,6 +1501,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
 
           s_current_synth = (s_current_synth + 1) >= PRA32_U2_NUMBER_OF_SYNTHS ? 0 : (s_current_synth + 1);
           s_display_buffer[0][14] = s_hex_chars[getTargetMIDICh(s_current_synth) - 1];
+          g_synth.control_change(PANEL_TARGET_CH, ((getTargetMIDICh(s_current_synth) - 1) - g_midi_ch) & 0x0F);  // kept by Write Panel Prms
 
           s_prev_key_long_pressed = true;
           s_next_key_long_pressed = true;
@@ -1934,6 +1936,28 @@ INLINE void PRA32_U2_ControlPanel_update_display(uint32_t loop_counter) {
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 }
 
+// Panel Target Ch (PANEL_TARGET_CH, also by CC #58 on the Panel Channel, and kept by Write Panel Prms): the synth of the
+// channel of the Basic Channel + the offset (0-15, e.g. 4 for the group by Voice Group Mode, or 15 for the Layering), one of
+// those that the panel selects (the synths, the Round Robin, and the Layering); the others do nothing, the selection kept
+static void PRA32_U2_ControlPanel_select_target(uint8_t offset) {
+  static_cast<void>(offset);
+#if (PRA32_U2_NUMBER_OF_SYNTHS > 1)
+  for (uint32_t synth = 0; synth < PRA32_U2_NUMBER_OF_SYNTHS; ++synth) {
+    if ((((getTargetMIDICh(synth) - 1) - g_midi_ch) & 0x0F) == (offset & 0x0F)) {
+      if (synth != s_current_synth) {
+        if (s_panel_playing_note_pitch <= 127) {
+          handleNoteOff(getTargetMIDICh(s_current_synth), s_panel_playing_note_pitch, 64);
+        }
+        s_current_synth = synth;
+        s_display_buffer[0][14] = s_hex_chars[getTargetMIDICh(s_current_synth) - 1];
+        PRA32_U2_ControlPanel_update_page();
+      }
+      break;
+    }
+  }
+#endif  // (PRA32_U2_NUMBER_OF_SYNTHS > 1)
+}
+
 /* INLINE */ void __not_in_flash_func(PRA32_U2_ControlPanel_on_control_change)(uint8_t control_number)
 {
   static_cast<void>(control_number);
@@ -1999,6 +2023,8 @@ INLINE void PRA32_U2_ControlPanel_update_display(uint32_t loop_counter) {
     s_seq_on_steps = g_synth.current_controller_value(SEQ_ON_STEPS   );
   } else if (control_number == SEQ_ACT_STEPS  ) {
     s_seq_act_steps = g_synth.current_controller_value(SEQ_ACT_STEPS  );
+  } else if (control_number == PANEL_TARGET_CH) {
+    PRA32_U2_ControlPanel_select_target(g_synth.current_controller_value(PANEL_TARGET_CH));
   } else if (control_number == PANEL_MIDI_CH  ) {
     uint8_t midi_ch = g_synth.current_controller_value(PANEL_MIDI_CH  ) >> 3;
     g_midi_ch = midi_ch;
@@ -2061,22 +2087,8 @@ void PRA32_U2_ControlPanel_on_panel_ch_control_change(uint8_t number, uint8_t va
   static_cast<void>(value);
 
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
-  if (number == 58) {  // Panel Target Ch: the Basic Channel + the value (0-15, e.g. 4 for the group by Voice Group Mode, or 15 for the Layering), one of those
-                       // that the panel selects (the synths, the Round Robin, and the Layering); the others do nothing
-#if (PRA32_U2_NUMBER_OF_SYNTHS > 1)
-    for (uint32_t synth = 0; synth < PRA32_U2_NUMBER_OF_SYNTHS; ++synth) {
-      if ((((getTargetMIDICh(synth) - 1) - g_midi_ch) & 0x0F) == (value & 0x0F)) {
-        if (synth != s_current_synth) {
-          if (s_panel_playing_note_pitch <= 127) {
-            handleNoteOff(getTargetMIDICh(s_current_synth), s_panel_playing_note_pitch, 64);
-          }
-          s_current_synth = synth;
-          s_display_buffer[0][14] = s_hex_chars[getTargetMIDICh(s_current_synth) - 1];
-        }
-        break;
-      }
-    }
-#endif  // (PRA32_U2_NUMBER_OF_SYNTHS > 1)
+  if (number == 58) {  // Panel Target Ch (PANEL_TARGET_CH, see PRA32_U2_ControlPanel_select_target())
+    g_synth.control_change(PANEL_TARGET_CH, value & 0x0F);
     return;
   }
 

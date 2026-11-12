@@ -213,6 +213,7 @@ const uint8_t   PANEL_MIDI_CH   = 128 + 11;
 const uint8_t   PANEL_PLAY_PIT  = 128 + 12;
 const uint8_t   PANEL_PLAY_VELO = 128 + 13;
 const uint8_t   PANEL_PIT_OFST  = 128 + 14;
+const uint8_t   PANEL_TARGET_CH = 128 + 15;
 
 
 const uint8_t   SEQ_PITCH_0     = 128 + 16;

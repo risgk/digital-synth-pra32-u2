@@ -3875,7 +3875,7 @@ const PANEL_TARGETS = [
 const PANEL_STORAGE_KEY = "keyPRA32U2EditorPanel";
 
 let panelValues = {};
-let panelSettings = { basicCh: 0, target: 0 };  // the Basic Ch - 1 (the Panel CC Ch is it + 14)
+let panelSettings = { basicCh: 0 };  // the Basic Ch - 1 (the Panel CC Ch is it + 14); Panel Target Ch is a value (#58)
 let panelPlaying = false;
 let panelUndoStack = [];
 let panelRedoStack = [];
@@ -3905,6 +3905,7 @@ function panelPitchName(pitch) {
 function panelDefaultValues() {
   const v = {};
   PANEL_PARAMS.forEach(p => { v[p[3]] = p[4]; });
+  v[58] = 0;  // Panel Target Ch (the Basic Channel + this), kept by Write (to Device) as on PRA32-U2/M/P
   return v;
 }
 
@@ -3952,7 +3953,10 @@ function panelLoad() {
         settings.basicCh = (settings.panelCh + 6) & 0x0F;
       }
       panelSettings.basicCh = panelClamp(parseInt(settings.basicCh) || 0, 0, 15);
-      panelSettings.target = panelClamp(parseInt(settings.target) || 0, 0, PANEL_TARGETS.length - 1);
+      if ((settings.target !== undefined) && !(data.values && ("58" in data.values))) {  // kept as a setting before
+        const t = PANEL_TARGETS[panelClamp(parseInt(settings.target) || 0, 0, PANEL_TARGETS.length - 1)];
+        panelValues[58] = t[1];
+      }
     }
   } catch (e) {}
 }
@@ -4021,6 +4025,7 @@ function panelUpdateDisplay() {
     document.getElementById("panelOn" + i).checked = (panelValues[PANEL_ON_STEPS_CC] >> (i - 1)) & 1;
     document.getElementById("panelAct" + i).checked = (panelValues[PANEL_ACT_STEPS_CC] >> (i - 1)) & 1;
   }
+  panelUpdateTargetSelected();
   const play = document.getElementById("buttonPanelPlay");
   play.classList.toggle("kbd-hold-on", panelPlaying);
   play.textContent = panelPlaying ? "Stop" : "Play";
@@ -4033,7 +4038,7 @@ function onClickPanelPlay() {
 }
 
 function sendPanelCurrent() {
-  panelSendCC(58, PANEL_TARGETS[panelSettings.target][1]);
+  panelSendCC(58, panelValues[58]);
   // The Panel Parameters first (the Scale and the offsets that the pitches need), and then the others
   [51, 52, 53, 54, 55, 56, 85, 86, 87, 88, 89, 90, 92, 93, 94, 95].forEach(cc => panelSendCC(cc, panelValues[cc]));
   for (let i = 0; i < 8; i++) { panelSendCC(16 + i, panelValues[16 + i]); panelSendCC(70 + i, panelValues[70 + i]); }
@@ -4067,9 +4072,16 @@ function onChangePanelCh() {
 }
 
 function onChangePanelTarget() {
-  panelSettings.target = document.getElementById("selectPanelTarget").selectedIndex;
-  panelSendCC(58, PANEL_TARGETS[panelSettings.target][1]);
+  panelPushUndo();
+  panelValues[58] = PANEL_TARGETS[document.getElementById("selectPanelTarget").selectedIndex][1];
+  panelSendCC(58, panelValues[58]);
   panelSave();
+}
+
+// The option of Panel Target Ch by the value (#58), the first if none
+function panelUpdateTargetSelected() {
+  const index = PANEL_TARGETS.findIndex(t => t[1] === panelValues[58]);
+  document.getElementById("selectPanelTarget").selectedIndex = (index >= 0) ? index : 0;
 }
 
 // The channels of Panel Target Ch, by the Basic Channel (the Panel Channel - 10)
@@ -4083,7 +4095,7 @@ function panelUpdateTargetOptions() {
     o.textContent = `Basic Ch + ${offset}: ${name} (Ch ${((basicCh + offset) & 0x0F) + 1})`;
     select.appendChild(o);
   });
-  select.selectedIndex = panelSettings.target;
+  panelUpdateTargetSelected();
 }
 
 // The panel parameters kept in the browser (one set): Store keeps the current ones, and User Preset sets them in the editor
