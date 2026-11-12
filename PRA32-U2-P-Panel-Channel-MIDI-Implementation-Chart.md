@@ -85,7 +85,8 @@
 |                               | $2 : PRA32-U2/M/P: the channel that the panel selects, as the Basic   |
 |                               |   Channel + the value (0-15, e.g. 1 for Sub Synth 1); a panel         |
 |                               |   parameter, kept by Write Panel Prms; a channel that the panel does  |
-|                               |   not select keeps the selection (and the value)                      |
+|                               |   not select keeps the selection (and the value); with Voice Group    |
+|                               |   Mode Off, only + 0 (the Basic Channel)                              |
 |                               | $3 : Done when changed from 0-31 to 96-127 (as by the panel)          |
 |                               | $4 : 64-127: as the Play key pressed (Normal Mode) or the Step        |
 |                               |   Sequencer started (Seq Mode); 0-63: as released or stopped          |

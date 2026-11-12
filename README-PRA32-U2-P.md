@@ -49,7 +49,7 @@
     - The MIDI channel - 1, in hex: "$0" to "$3" the synths, "$4" and "$5" by Voice Group Mode, and "$F" the Layering (see [PRA32-U2/M](./README.md#pra32-u2m-pra32-u2-multi-timbre-edition));
       with the Basic Channel 1 (default), the digit is the Basic Channel + n in hex (e.g. "$F" for the Basic Channel + 15, Channel 16)
     - On the Round Robin and the Layering, the current values (and Write) are those of the first synth of the channel
-    - With Voice Group Mode Off, only "$0" is used: the others do nothing (their values are shown as 0)
+    - With Voice Group Mode Off, only "$0" can be selected (as only the Basic Channel is used): back to it when Voice Group Mode becomes Off
     - The channel selected (Panel Target Ch) is a panel parameter: kept by Write Panel Prms (selected again at the start), and back to "$0" by Init Panel Prms
 
 

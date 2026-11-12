@@ -140,6 +140,17 @@ extern void setValues(byte channel, boolean panel, const uint8_t values[128 + 12
 extern void getProgramValues(byte channel, byte number, uint8_t values[128 + 128]);
 extern void writeValuesToProgram(byte channel, byte number, const uint8_t values[128 + 128]);
 
+// Whether the panel can select a synth (channel) now: only the Main Synth ("$0") while Voice Group Mode is Off
+// (PRA32-U2/M, with the Layering), as only the Basic Channel is used then
+static INLINE boolean PRA32_U2_ControlPanel_target_usable(uint32_t synth) {
+#if (PRA32_U2_NUMBER_OF_SYNTHS > 1) && defined(PRA32_U2_ENABLE_LAYERING)
+  return (synth == 0) || (((g_synth.current_controller_value(VOICE_GRP_MODE) * 10) + 128) >> 8) != 0;
+#else
+  static_cast<void>(synth);
+  return true;
+#endif
+}
+
 // Undo Read and Undo Write (Page D-17): what the last Read (or Init Panel Prms) and the last Write of
 // the panel replaced, kept until the next one (not in the flash); undoing one swaps it back in, so
 // that a second Undo redoes it
@@ -1416,6 +1427,9 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
           }
 
           s_current_synth = (s_current_synth + 1) >= PRA32_U2_NUMBER_OF_SYNTHS ? 0 : (s_current_synth + 1);
+          if (!PRA32_U2_ControlPanel_target_usable(s_current_synth)) {
+            s_current_synth = 0;
+          }
           s_display_buffer[0][14] = s_hex_chars[getTargetMIDICh(s_current_synth) - 1];
           g_synth.control_change(PANEL_TARGET_CH, ((getTargetMIDICh(s_current_synth) - 1) - g_midi_ch) & 0x0F);  // kept by Write Panel Prms
 
@@ -1500,6 +1514,9 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
           }
 
           s_current_synth = (s_current_synth + 1) >= PRA32_U2_NUMBER_OF_SYNTHS ? 0 : (s_current_synth + 1);
+          if (!PRA32_U2_ControlPanel_target_usable(s_current_synth)) {
+            s_current_synth = 0;
+          }
           s_display_buffer[0][14] = s_hex_chars[getTargetMIDICh(s_current_synth) - 1];
           g_synth.control_change(PANEL_TARGET_CH, ((getTargetMIDICh(s_current_synth) - 1) - g_midi_ch) & 0x0F);  // kept by Write Panel Prms
 
@@ -1938,11 +1955,12 @@ INLINE void PRA32_U2_ControlPanel_update_display(uint32_t loop_counter) {
 
 // Panel Target Ch (PANEL_TARGET_CH, also by CC #58 on the Panel Channel, and kept by Write Panel Prms): the synth of the
 // channel of the Basic Channel + the offset (0-15, e.g. 4 for the group by Voice Group Mode, or 15 for the Layering), one of
-// those that the panel selects (the synths, the Round Robin, and the Layering); another keeps the selection, and the value
-// goes back to it, so that the value is always that of the selection (and Write Panel Prms keeps it)
+// those that the panel selects (the synths, the Round Robin, and the Layering; only the Main Synth while Voice Group Mode is
+// Off); another keeps the selection, and the value goes back to it, so that the value is always that of the selection
+// (and Write Panel Prms keeps it)
 static void PRA32_U2_ControlPanel_select_target(uint8_t offset) {
   for (uint32_t synth = 0; synth < PRA32_U2_NUMBER_OF_SYNTHS; ++synth) {
-    if ((((getTargetMIDICh(synth) - 1) - g_midi_ch) & 0x0F) == (offset & 0x0F)) {
+    if (((((getTargetMIDICh(synth) - 1) - g_midi_ch) & 0x0F) == (offset & 0x0F)) && PRA32_U2_ControlPanel_target_usable(synth)) {
 #if (PRA32_U2_NUMBER_OF_SYNTHS > 1)
       if (synth != s_current_synth) {
         if (s_panel_playing_note_pitch <= 127) {
@@ -2025,6 +2043,10 @@ static void PRA32_U2_ControlPanel_select_target(uint8_t offset) {
     s_seq_on_steps = g_synth.current_controller_value(SEQ_ON_STEPS   );
   } else if (control_number == SEQ_ACT_STEPS  ) {
     s_seq_act_steps = g_synth.current_controller_value(SEQ_ACT_STEPS  );
+  } else if (control_number == VOICE_GRP_MODE ) {  // Off: back to the Main Synth, the only one that the panel can select then
+    if (!PRA32_U2_ControlPanel_target_usable(s_current_synth)) {
+      g_synth.control_change(PANEL_TARGET_CH, 0);
+    }
   } else if (control_number == PANEL_TARGET_CH) {
     PRA32_U2_ControlPanel_select_target(g_synth.current_controller_value(PANEL_TARGET_CH));
   } else if (control_number == PANEL_MIDI_CH  ) {
