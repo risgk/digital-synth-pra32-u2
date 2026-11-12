@@ -24,7 +24,7 @@ PRA32-U2 Web: a software synthesizer version of Digital Synth PRA32-U2 that runs
     - PRA32-U2 Web starts with the program #0, as PRA32-U2 does; "Send Current" sends the current parameters of PRA32-U2 Editor to it
     - Or "PRA32-U2/M/P Web (Built-in)" (or with "+6 dB"): PRA32-U2/M, the 4 synths by the MIDI channels (the Basic Channel 1 at first),
       with the Layering and the Round Robin, as "Digital-Synth-PRA32-U2-M.ino" (by "pra32-u2-m-midi.h" of the core)
-        - Select the synth in "MIDI Ch" of PRA32-U2 Editor: e.g. 2 for the Sub Synth 1 (see PRA32-U2/M in the README.md of PRA32-U2)
+        - Select the synth in "MIDI Ch" of PRA32-U2 Editor: e.g. 2 for the Sub Synth 1, with Voice Group Mode not Off (RR3 in the presets) (see PRA32-U2/M in the README.md of PRA32-U2)
         - The Main Synth starts with the program #0 and the Sub Synths 1-3 with #1-3; the Sub Synths sound only while the Main Synth is not in Poly
         - PRA32-U2 Web and PRA32-U2/M/P Web keep their own states; the one selected sounds
         - With the Panel Channel of PRA32-U2/M/P, for "Panel & Step Sequencer" of PRA32-U2 Editor (see "Panel Channel" in README-PRA32-U2-P.md)

@@ -18,7 +18,7 @@
     - Connect Raspberry Pi Pico 2 to a PC while pressing the BOOTSEL button, and copy a UF2 file to the "RP2350" drive
     - PRA32-U2/M (Recommended): "Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico 2 and Pimoroni Pico Audio Pack
         - A superset of PRA32-U2: the Main Synth works the same as PRA32-U2, and the Sub Synths, the Layering, and the Round Robin (by Voice Group Mode) are added (see [PRA32-U2/M](#pra32-u2m-pra32-u2-multi-timbre-edition))
-        - NOTE: It also responds to MIDI Channels 2-5 and 16 (by default, by Voice Group Mode RR3 of the presets; 6 too by Ly2 and RR2); with Voice Group Mode Off, only Channel 1 (see below)
+        - NOTE: It also responds to MIDI Channels 2-5 and 16 (by default, by Voice Group Mode RR3 of the presets; 6 too by Ly2 and RR2); with Voice Group Mode Off (a parameter of the programs of the Main Synth), only Channel 1 (see below); use PRA32-U2 if these channels are used for other devices
     - PRA32-U2/M/P Headless: "Digital-Synth-PRA32-U2-M-P-Headless-Pimoroni-Pico-Audio-Pack.uf2", PRA32-U2/M with the Step Sequencer and the Panel Parameters
       ([PRA32-U2/P Headless](./README-PRA32-U2-P.md#pra32-u2p-headless)), e.g. from "Panel & Step Sequencer" of PRA32-U2 Editor
         - NOTE: It also responds to the Control Changes on MIDI Channel 15 (the Panel Channel, by default)
@@ -130,7 +130,7 @@ graph LR
             - Without "+6 dB", it sounds as PRA32-U2 does (e.g. to compare with it)
             - With a high Amp Gain, the peaks rounded off can be heard as a little distortion
     - Select "PRA32-U2/M/P Web (Built-in)" (or with "+6 dB") to use PRA32-U2/M (the 4 synths) in PRA32-U2 Web
-        - The Basic Channel is 1 at first: select the synth to edit in "MIDI Ch" (see the channels of PRA32-U2/M below)
+        - The Basic Channel is 1 at first: select the synth to edit in "MIDI Ch" (see the channels of PRA32-U2/M below; 2-4 with Voice Group Mode not Off, RR3 in the presets)
         - The Main Synth starts with the program #0 and the Sub Synths 1-3 with #1-3, as PRA32-U2/M does;
           the Sub Synths sound only while the Main Synth is not in Poly
     - Nothing is sent when an output is selected (PRA32-U2 Web too): "Send Current" (on the heading of "MIDI") sends the parameters of PRA32-U2 Editor (one set) to the synth of "MIDI Ch"
@@ -196,13 +196,13 @@ graph LR
         | Channel (Default) | Basic Channel | Function | Synths (Basic Channel +) | Program Change (Program # +) |
         | :-- | :-- | :-- | :-- | :-- |
         | 1 | + 0 | Main Synth | 0 | 0 |
-        | 2 | + 1 | Sub Synth 1 | 1 | 0 |
-        | 3 | + 2 | Sub Synth 2 | 2 | 0 |
-        | 4 | + 3 | Sub Synth 3 | 3 | 0 |
+        | 2 | + 1 | Sub Synth 1 (with Voice Group Mode not Off) | 1 | 0 |
+        | 3 | + 2 | Sub Synth 2 (with Voice Group Mode not Off) | 2 | 0 |
+        | 4 | + 3 | Sub Synth 3 (with Voice Group Mode not Off) | 3 | 0 |
         | 5, 6 | + 4, + 5 | By Voice Group Mode (below; RR3, + 4, in the presets) | | |
         | 16 | + 15 | Layering (with Voice Group Mode not Off) | 0, 1, 2, 3 | 0, 1, 2, 3 |
 
-    - Voice Group Mode (CC #80): what the Basic Channel + 4 and + 5 do, and + 15 too (the Layering), by the value of the Main Synth
+    - Voice Group Mode (CC #80): whether the Basic Channel + 1 to + 3 are used, and what + 4, + 5, and + 15 do (the groups and the Layering), by the value of the Main Synth
       (a parameter of its programs, RR3 in the presets); the other channels are free (e.g. for other instruments of a sequencer)
 
         | Voice Group Mode (CC #80) | + 4 (Channel 5) | + 5 (Channel 6) | Program Change (Program # +) |
@@ -215,11 +215,11 @@ graph LR
         | RR3 (127, the presets) | Round Robin (3 notes) of 1, 2, 3 | - | 0, 0, 0 |
 
         - Off: only the Basic Channel (as PRA32-U2; not + 1 to + 3 either), so that the other channels are free (e.g. for a sequencer;
-          with the panel, the Panel Channel, + 14, too)
+          with PRA32-U2/M/P, Headless too, the Panel Channel, + 14, too)
         - The others: the Sub Synths play on + 1 to + 3, and + 15 is the Layering of all too
         - The Sub Synths sound only while the Main Synth is in the Mono modes: while it is in Poly, a group has only the Main Synth
           (e.g. + 15 and RR4 play the Main Synth in Poly), and none without it (e.g. RR3)
-        - E.g. RR3 (the presets) with the Main Synth in Mono: Channel 1 plays a lead, and Channel 5 3 notes (the Round Robin of the Sub Synths)
+        - E.g. RR3 (the presets) with the Main Synth in Mono: Channel 1 plays a lead, and Channel 5 plays 3 notes (the Round Robin of the Sub Synths)
         - E.g. RR4: Channel 5 plays 4 notes (the Round Robin), and Channel 16 a lead of the 4 synths layered, with the sounds of one program
           (+ 15 sets #n to #n + 3, and + 4 sets #n to all)
         - In PRA32-U2 Editor, its slider sends it on the Basic Channel (Basic Ch of "Panel & Step Sequencer", 1 by default), whatever "MIDI Ch" is
@@ -228,10 +228,13 @@ graph LR
         - Program # + 1 to + 3 wrap around in the user programs (#0-15) and in the presets (#16-31) each; Program Change #127 (Randomize Synth) is for all the synths
         - So the 4 sounds stored as the user programs in a row (e.g. #4-7) are set at once by a Program Change on the Basic Channel + 15 (e.g. #4), as a setup of the 4 synths
           (with Voice Group Mode not Off)
+        - The Program Change sets the Main Synth too, and so Voice Group Mode (that of #n): keep it not Off in #n to use + 1 to + 5 and + 15 after it;
+          while the Main Synth is in Poly, it sets the Main Synth alone (#n)
     - Round Robin: the notes go to the synths of the channel in turn, as the voices of a polyphonic synth (the other messages go to all of them)
         - The synths are assigned by the Voice Assign Mode of the first synth, as the voices of the Polyphonic Mode, and kept by the Sustain Pedal
         - Unlike the Polyphonic Mode, each synth has its own LFO, and a note is as loud as a voice of the Polyphonic Mode
     - MPE (MIDI Polyphonic Expression) controllers: each synth works as a member channel, with its own pitch bend, pressure, and CC #74 (Filter Cutoff) (not fully supported)
+        - With Voice Group Mode not Off (e.g. RR3 of the presets) and the Main Synth in the Mono modes (the Sub Synths sound only then)
         - Basic Channel 1 (default): Channels 2-4 play 3 notes
         - Basic Channel 2: Channels 2-5 play 4 notes, and Channel 1 (the Layering of all, with Voice Group Mode not Off) works as the Master Channel
         - Set Pitch Bend Range to that of the controller (e.g. 48 semitones)

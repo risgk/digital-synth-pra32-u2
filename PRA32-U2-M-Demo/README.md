@@ -16,7 +16,7 @@
     - #0-3: Saw Lead, Synth Bass, FM Piano, and Drums (up to the theme); #4-7: Sync Lead and the same (the middle and the theme);
       #8-11: Fifth Lead and the same (them again)
     - With the Layering of PRA32-U2/M (Voice Group Mode of the Main Synth not Off: RR3 in these programs, as in the Presets),
-      Program Change #0 (or #4, or #8) by MIDI Channel 16 sets the 4 synths to #0-3 (or #4-7, or #8-11) at once
+      Program Change #0 (or #4, or #8) by MIDI Channel 16 sets the 4 synths to #0-3 (or #4-7, or #8-11) at once, while the Main Synth is in Mono (as in #0, #4, and #8)
 - "pra32-u2-m-demo-ode-to-joy.mp3": "pra32-u2-m-demo-ode-to-joy.mid" rendered by "pra32-u2-m-make-wav-file-from-smf.cc",
   and converted by [FFmpeg](https://ffmpeg.org/) (6.1.1), with the silence at the end cut
 
@@ -35,6 +35,6 @@
     - GCC (g++) for PC with C++17 is required (no other library); "pra32-u2-m-make-wav-file-from-smf-cc.bat" makes "pra32-u2-m-demo-ode-to-joy.wav" (on Windows, e.g. with g++ of MinGW-w64)
     - The WAV file is in whole seconds, with 1 s or more of silence at the end
     - The synths are processed for each frame in the order of "Digital-Synth-PRA32-U2-M.ino" (on one core), and the Sub Synths only while the Main Synth is not in Poly
-    - The MIDI messages are read at the start of each loop (64 frames), as on the device; MIDI Channels 1-4 are for the Main Synth and the Sub Synths 1-3, and 5, 6, and 16 by Voice Group Mode (RR3 in the Presets), as on the device
+    - The MIDI messages are read at the start of each loop (64 frames), as on the device; MIDI Channels 1-4 are for the Main Synth and the Sub Synths 1-3 (2-4 not while Voice Group Mode is Off), and 5, 6, and 16 by Voice Group Mode (RR3 in the Presets), as on the device
     - Unlike the device, a Program Change (or one by CC #111-119) is processed at once (the device processes it in one of the next loops), and the output fader is not used
     - It takes about 1 s for a song of 1 min; it can also be used to check that a change of PRA32-U2/M keeps the sound (compare the WAV files)

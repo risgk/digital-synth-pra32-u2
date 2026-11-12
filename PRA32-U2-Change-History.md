@@ -18,7 +18,7 @@
     - PRA32-U2/M: Add **Voice Group Mode** [Off|Ly2|RLy|RR2|RR4|RR3] (Control Change #80, a parameter of the programs of the Main Synth): the Layering and the Round Robin, on fewer channels
         - The 4 synths on the Basic Channel + 0 to + 3, and the groups on + 4, + 5, and + 15 (the Layering of all, not while it is Off)
         - Off: the Basic Channel alone (not + 1 to + 3 either), so that the other channels are free (e.g. for a sequencer)
-        - RR3 (+ 4: the Round Robin of the Sub Synths) in the Presets: Channels 5 and 16 too, by default
+        - RR3 (+ 4: the Round Robin of the Sub Synths) in the Presets and the user programs at first: Channels 5 and 16 too, by default
         - While the Main Synth is in Poly (the Sub Synths not processed, as before), a group has only the Main Synth
         - Not compatible: the Round Robin on + 6 to + 8, + 11, and + 12, and the Layering on + 13 and + 14 are now by Voice Group Mode
         - `PRA32_U2_ENABLE_ROUND_ROBIN` removed: the Round Robin is with the Layering (`PRA32_U2_ENABLE_LAYERING`)
@@ -27,7 +27,7 @@
         - PRA32-U2 Editor: Add **"Panel & Step Sequencer"** (hidden by default); and the MIDI Implementation Chart of the Panel Channel, and "pra32-u2-panel-initial.json"
         - PRA32-U2 Web: "PRA32-U2/M Web (Built-in)" is now **"PRA32-U2/M/P Web (Built-in)"**, with the Panel Channel
         - **PRA32-U2/P Headless**: the keys, the VRs, and the OLED display can each be left out; "Digital-Synth-PRA32-U2-M-P-Headless-Pimoroni-Pico-Audio-Pack.uf2" added to the "bin" folder
-    - PRA32-U2/M/P: The synth (channel) that the panel selects (**Panel Target Ch**, also CC #58 on the Panel Channel) is a panel parameter: kept by Write Panel Prms, and Store and Export of PRA32-U2 Editor
+    - PRA32-U2/M/P: The synth (channel) that the panel selects (**Panel Target Ch**, also CC #58 on the Panel Channel) is a panel parameter: kept by Write Panel Prms, and Store and Export of PRA32-U2 Editor; only the Main Synth while Voice Group Mode is Off
     - PRA32-U2/P: Seq Tempo 120 BPM (64) at first and by Init Panel Prms (56 BPM, 32, before), and Seq Gate Time 51 (60 before); about 2.8 KB less of the RAM
     - PRA32-U2/P: Fix that the Basic Channel was 1 or 2 at first, when `PRA32_U2_MIDI_CH` is not 0 (Channel 1)
     - PRA32-U2/M/P: Fix that Read Panel Prms and Init Panel Prms did nothing (or another Read) while the panel selected a Sub Synth, the Round Robin, or the Layering

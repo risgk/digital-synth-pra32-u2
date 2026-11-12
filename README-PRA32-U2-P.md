@@ -50,7 +50,8 @@
       with the Basic Channel 1 (default), the digit is the Basic Channel + n in hex (e.g. "$F" for the Basic Channel + 15, Channel 16)
     - On the Round Robin and the Layering, the current values (and Write) are those of the first synth of the channel
     - With Voice Group Mode Off, only "$0" can be selected (as only the Basic Channel is used): back to it when Voice Group Mode becomes Off
-    - The channel selected (Panel Target Ch) is a panel parameter: kept by Write Panel Prms (selected again at the start), and back to "$0" by Init Panel Prms
+    - The channel selected (Panel Target Ch, CC #58 on the Panel Channel) is a panel parameter: kept by Write Panel Prms (selected again at the start, and by Read Panel Prms)
+      and by Store and Export of PRA32-U2 Editor, and back to "$0" by Init Panel Prms
 
 
 ### GUI Pages

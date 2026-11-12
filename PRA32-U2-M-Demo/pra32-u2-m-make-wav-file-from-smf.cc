@@ -6,7 +6,8 @@
 //   (or one by CC #111-119) is processed at once, where the device processes it in one of the next loops
 // - The output fader is not used (the output is at full level from the start)
 // - Basic Channel 1: the MIDI messages are handled by "pra32-u2-m-midi.h", the same as the device: Channels 1-4 for
-//   the Main Synth and the Sub Synths 1-3, 16 for the Layering, and 5 and 6 by the Voice Group Mode (Off at first)
+//   the Main Synth and the Sub Synths 1-3 (2-4 not while it is Off), 16 for the Layering, and 5 and 6 by the Voice Group
+//   Mode (RR3 in the Presets)
 //
 // g++ -O2 -std=gnu++17 pra32-u2-m-make-wav-file-from-smf.cc -o pra32-u2-m-make-wav-file-from-smf
 // ./pra32-u2-m-make-wav-file-from-smf input.mid output.wav

@@ -21,7 +21,7 @@
     - BOOTSEL ボタンを押しながら Raspberry Pi Pico 2 を PC につなぎ、UF2 ファイルを "RP2350" ドライブにコピーしてください
     - PRA32-U2/M (推奨): "Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2" は Raspberry Pi Pico 2 と Pimoroni Pico Audio Pack 用です
         - PRA32-U2 の上位互換です: Main Synth は PRA32-U2 と同じように動き、Sub Synth、Layering、Round Robin (Voice Group Mode による) が加わります ([PRA32-U2/M](#pra32-u2m-pra32-u2-multi-timbre-edition) を参照)
-        - 注意: MIDI チャンネル 2-5 と 16 にも反応します (初期設定。プリセットの Voice Group Mode RR3 による。Ly2 と RR2 では 6 にも)。Voice Group Mode が Off なら、Ch 1 だけです (下記)。これらのチャンネルを他の機器に使う場合は、PRA32-U2 を使ってください
+        - 注意: MIDI チャンネル 2-5 と 16 にも反応します (初期設定。プリセットの Voice Group Mode RR3 による。Ly2 と RR2 では 6 にも)。Voice Group Mode (Main Synth のプログラムのパラメーター) が Off なら、Ch 1 だけです (下記)。これらのチャンネルを他の機器に使う場合は、PRA32-U2 を使ってください
     - PRA32-U2/M/P Headless: "Digital-Synth-PRA32-U2-M-P-Headless-Pimoroni-Pico-Audio-Pack.uf2" は、PRA32-U2/M にステップ・シーケンサーとパネルのパラメーターを加えたものです
       ([PRA32-U2/P Headless](./README-PRA32-U2-P.md#pra32-u2p-headless)、英語)。PRA32-U2 Editor の "Panel & Step Sequencer" などから使います
         - 注意: MIDI チャンネル 15 (Panel Channel、初期設定) のコントロール・チェンジにも反応します
@@ -105,7 +105,7 @@
             - "+6 dB" なしは PRA32-U2 と同じ音です (実機と比べるときなど)
             - Amp Gain が高いと、丸めたピークが少し歪んで聞こえることがあります
     - PRA32-U2 Web で PRA32-U2/M (4 台のシンセ) を使うには、"PRA32-U2/M/P Web (Built-in)" (または "+6 dB" 付き) を選んでください
-        - Basic Channel は最初は 1 です。編集するシンセは "MIDI Ch" で選んでください (チャンネルは PRA32-U2/M の説明を参照)
+        - Basic Channel は最初は 1 です。編集するシンセは "MIDI Ch" で選んでください (チャンネルは PRA32-U2/M の説明を参照。2-4 は Voice Group Mode が Off 以外のとき。プリセットは RR3)
         - PRA32-U2/M と同じく、Main Synth はプログラム #0、Sub Synth 1-3 は #1-3 で始まります。Sub Synth は Main Synth が Poly でないときだけ鳴ります
     - 出力を選んでも何も送りません (PRA32-U2 Web も同じ)。"MIDI" の見出しの "Send Current" で PRA32-U2 Editor のパラメーター (1 組) を "MIDI Ch" のシンセに送ります
 
@@ -156,12 +156,13 @@
 ## PRA32-U2/M (PRA32-U2 Multi-Timbre Edition)
 
 - Basic Channel は PRA32-U2 の MIDI チャンネル (初期値 1、`PRA32_U2_MIDI_CH`) で、各シンセのチャンネルはそれを基準に決まります
-- Basic Channel + 0 (初期値 1) が Main Synth、+ 1 から + 3 (初期値 2-4) が Sub Synth 1-3 (Mono) です
+- Basic Channel + 0 (初期値 1) が Main Synth、+ 1 から + 3 (初期値 2-4) が Sub Synth 1-3 (Mono) です (+ 1 から + 3 は Voice Group Mode が Off 以外のとき)
     - Sub Synth は、Main Synth が Mono 系のモードのときだけ処理されます
 - Layering: Basic Channel + 15 (初期値 16) で、4 台のシンセを同時に制御します (Voice Group Mode が Off 以外のとき)
     - プログラム・チェンジ #n で、4 台に #n から #n+3 を読み込みます。4 台の音色を連続したユーザー・プログラム (例: #4-7) に保存しておけば、まとめて呼び出せます
+    - Main Synth にも #n が入るので、Voice Group Mode も #n の値になります (以後も使うなら #n を Off 以外に)。Main Synth が Poly の間は、Main Synth だけに #n が入ります
 - Voice Group Mode (CC #80): Basic Channel + 4、+ 5 (初期値 5、6) で、Round Robin や 2 台ずつの Layering を使えます (Main Synth のプログラムのパラメーター。プリセットは RR3)
-    - Off では、Basic Channel だけに反応します (PRA32-U2 と同じ。+ 1 から + 3 も使いません)。シーケンサーなどで他のチャンネルを使えます (パネルありでは Panel Channel、+ 14 も使います)
+    - Off では、Basic Channel だけに反応します (PRA32-U2 と同じ。+ 1 から + 3 も使いません)。シーケンサーなどで他のチャンネルを使えます (PRA32-U2/M/P では、Headless も、Panel Channel、+ 14 も使います)
     - Off 以外では、Sub Synth は + 1 から + 3 で鳴り、Basic Channel + 15 の Layering も使えます
     - Sub Synth が鳴るのは Main Synth が Mono 系のときだけです。Poly のときは、グループは Main Synth だけになります (例: + 15 や RR4 は Poly の Main Synth を鳴らし、RR3 は鳴りません)
     - 例: RR3 (プリセット) で Main Synth が Mono 系なら、Ch 1 でリード、Ch 5 で 3 音 (Sub Synth の Round Robin) を弾けます
