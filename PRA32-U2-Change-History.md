@@ -27,7 +27,8 @@
         - PRA32-U2 Editor: Add **"Panel & Step Sequencer"** (hidden by default); and the MIDI Implementation Chart of the Panel Channel, and "pra32-u2-panel-initial.json"
         - PRA32-U2 Web: "PRA32-U2/M Web (Built-in)" is now **"PRA32-U2/M/P Web (Built-in)"**, with the Panel Channel
         - **PRA32-U2/P Headless**: the keys, the VRs, and the OLED display can each be left out; "Digital-Synth-PRA32-U2-M-P-Headless-Pimoroni-Pico-Audio-Pack.uf2" added to the "bin" folder
-    - PRA32-U2/M/P: The synth (channel) that the panel selects (**Panel Target Ch**, also CC #58 on the Panel Channel) is a panel parameter: kept by Write Panel Prms, and Store and Export of PRA32-U2 Editor; only the Main Synth while Voice Group Mode is Off
+    - PRA32-U2/M/P: The synth (channel) that the panel selects (**Panel Target Ch**, also CC #58 on the Panel Channel) is a panel parameter: kept by Write Panel Prms, and Store and Export of PRA32-U2 Editor;
+      only a channel that goes to a synth (only the Main Synth while Voice Group Mode is Off, and not a group without it while it is in Poly), and back to the Main Synth when the channel selected goes to none
     - PRA32-U2/P: Seq Tempo 120 BPM (64) at first and by Init Panel Prms (56 BPM, 32, before), and Seq Gate Time 51 (60 before); about 2.8 KB less of the RAM
     - PRA32-U2/P: Fix that the Basic Channel was 1 or 2 at first, when `PRA32_U2_MIDI_CH` is not 0 (Channel 1)
     - PRA32-U2/M/P: Fix that Read Panel Prms and Init Panel Prms did nothing (or another Read) while the panel selected a Sub Synth, the Round Robin, or the Layering
