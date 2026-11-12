@@ -309,7 +309,8 @@ static void __not_in_flash_func(roundRobinControlChange)(uint32_t first, uint32_
 // 0: Off (none), 1: Ly2 (+ 4: the Layering of the synths 0-1, + 5: 2-3), 2: RLy (+ 4: the Round Robin of 0-1 and
 // of 2-3, layered), 3: RR2 (+ 4: the Round Robin of 0-1, + 5: 2-3), 4: RR4 (+ 4: 0-3), and 5: RR3 (+ 4: 1-3, the Presets),
 // in the order of the notes at once on + 4; the Basic Channel + 15 is the Layering of the synths 0-3 too, while it is not
-// Off. While the Main Synth is in Poly (the Sub Synths are not processed), a group has only the Main Synth (none without it)
+// Off. While the Main Synth is in Poly (the Sub Synths are not processed), a group has only the Main Synth (none without it).
+// Off: the Basic Channel alone (not + 1 to + 3 either), so that the other channels are free (e.g. for a sequencer)
 #if defined(PRA32_U2_ENABLE_LAYERING)  // none without the Layering
 static uint8_t s_group_mode = 0;  // Off, and 8 while the Main Synth is in Poly
 
@@ -343,13 +344,18 @@ static ChannelRoute __not_in_flash_func(channelRoute)(byte channel, uint32_t& fi
   updateGroupMode();
 #endif  // defined(PRA32_U2_ENABLE_LAYERING)
   uint32_t offset = ((channel - 1) - g_midi_ch) & 0x0F;
+#if defined(PRA32_U2_ENABLE_LAYERING)
+  uint32_t mode = s_group_mode & 7;
+  if ((offset >= 1) && (offset <= 3) && (mode == 0)) {  // Off: the Basic Channel alone, the others free (e.g. for a sequencer)
+    return ROUTE_NONE;
+  }
+#endif  // defined(PRA32_U2_ENABLE_LAYERING)
   if (offset <= 3) {
     first = offset;
     last  = offset;
     return ROUTE_SYNTH;
   }
 #if defined(PRA32_U2_ENABLE_LAYERING)
-  uint32_t mode = s_group_mode & 7;
   ChannelRoute route = ROUTE_NONE;
   if ((offset == 15) && (mode != 0)) {  // not while Voice Group Mode is Off
     first = 0;
@@ -390,18 +396,6 @@ static ChannelRoute __not_in_flash_func(channelRoute)(byte channel, uint32_t& fi
   return ROUTE_NONE;
 }
 
-// While Voice Group Mode is Off, the notes of the Sub Synths (the Basic Channel + 1 to + 3) are not played, so that only
-// the Basic Channel plays (the others are free for a sequencer); their other messages (e.g. Control Changes and Program
-// Changes) are taken, so that the channels can be set up before
-static INLINE boolean subSynthNotesOff(uint32_t first) {
-#if defined(PRA32_U2_ENABLE_LAYERING)
-  return ((s_group_mode & 7) == 0) && (first != 0);
-#else  // defined(PRA32_U2_ENABLE_LAYERING)
-  static_cast<void>(first);
-  return false;
-#endif  // defined(PRA32_U2_ENABLE_LAYERING)
-}
-
 void __not_in_flash_func(handleNoteOn)(byte channel, byte pitch, byte velocity)
 {
   processPendingProgramChanges();
@@ -409,10 +403,6 @@ void __not_in_flash_func(handleNoteOn)(byte channel, byte pitch, byte velocity)
   uint32_t first, last;
   switch (channelRoute(channel, first, last)) {
   case ROUTE_SYNTH:
-    if (subSynthNotesOff(first)) {
-      break;
-    }
-    // fall through
   case ROUTE_LAYERING:
     for (uint32_t s = first; s <= last; s++) {
       noteOnOf(s, pitch, velocity);
@@ -439,10 +429,6 @@ void __not_in_flash_func(handleNoteOff)(byte channel, byte pitch, byte velocity)
   uint32_t first, last;
   switch (channelRoute(channel, first, last)) {
   case ROUTE_SYNTH:
-    if (subSynthNotesOff(first)) {
-      break;
-    }
-    // fall through
   case ROUTE_LAYERING:
     for (uint32_t s = first; s <= last; s++) {
       noteOffOf(s, pitch, velocity);
