@@ -31,6 +31,7 @@
     - PRA32-U2/M/P: The synth (channel) that the panel selects (**Panel Target Ch**, also CC #58 on the Panel Channel) is a panel parameter: kept by Write Panel Prms, and Store and Export of PRA32-U2 Editor;
       only a channel that goes to a synth (only the Main Synth while Voice Group Mode is Off, and not a group without it while it is in Poly), and back to the Main Synth when the channel selected goes to none
     - PRA32-U2/P: Seq Tempo 120 BPM (64) at first and by Init Panel Prms (56 BPM, 32, before), and Seq Gate Time 51 (60 before); about 2.8 KB less of the RAM
+    - PRA32-U2/P: Shift + Play Key: Panic; PRA32-U2/M/P: Shift + Prev Key + Next Key: the previous synth (channel)
     - PRA32-U2/P: Fix that the Basic Channel was 1 or 2 at first, when `PRA32_U2_MIDI_CH` is not 0 (Channel 1)
     - PRA32-U2/M/P: Fix that Read Panel Prms and Init Panel Prms did nothing (or another Read) while the panel selected a Sub Synth, the Round Robin, or the Layering
     - PRA32-U2 Editor

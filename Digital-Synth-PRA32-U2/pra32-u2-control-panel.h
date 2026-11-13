@@ -25,6 +25,9 @@ static volatile boolean  s_adc_control_catched[3];
 static          uint32_t s_prev_key_current_value;
 static          uint32_t s_next_key_current_value;
 static          uint32_t s_play_key_current_value;
+#if defined(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN)
+static          boolean  s_play_key_with_shift = false;  // Shift + Play (Panic)
+#endif  // defined(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN)
 
 static          uint32_t s_prog_minus_key_current_value;
 static          uint32_t s_prog_plus_key_current_value;
@@ -152,6 +155,27 @@ static INLINE boolean PRA32_U2_ControlPanel_target_usable(uint32_t synth) {
   static_cast<void>(synth);
   return true;
 #endif
+}
+
+// Prev key + Next key: the next synth (channel) that the panel can select, or the previous one with the Shift key
+// (Shift + Prev + Next), skipping those that it cannot select now
+static __attribute__((unused)) void PRA32_U2_ControlPanel_step_target() {
+#if (PRA32_U2_NUMBER_OF_SYNTHS > 1)
+  uint32_t step = 1;
+#if defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
+  if (digitalRead(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL) {
+    step = PRA32_U2_NUMBER_OF_SYNTHS - 1;  // back by one
+  }
+#endif  // defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
+  uint32_t synth = s_current_synth;
+  for (uint32_t i = 0; i < PRA32_U2_NUMBER_OF_SYNTHS; ++i) {
+    synth = (synth + step) % PRA32_U2_NUMBER_OF_SYNTHS;
+    if (PRA32_U2_ControlPanel_target_usable(synth)) {
+      break;
+    }
+  }
+  s_current_synth = synth;
+#endif  // (PRA32_U2_NUMBER_OF_SYNTHS > 1)
 }
 
 // Undo Read and Undo Write (Page D-17): what the last Read (or Init Panel Prms) and the last Write of
@@ -1459,10 +1483,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
             handleNoteOff(getTargetMIDICh(s_current_synth), s_panel_playing_note_pitch, 64);
           }
 
-          s_current_synth = (s_current_synth + 1) >= PRA32_U2_NUMBER_OF_SYNTHS ? 0 : (s_current_synth + 1);
-          if (!PRA32_U2_ControlPanel_target_usable(s_current_synth)) {
-            s_current_synth = 0;
-          }
+          PRA32_U2_ControlPanel_step_target();
           s_display_buffer[0][14] = s_hex_chars[getTargetMIDICh(s_current_synth) - 1];
           g_synth.control_change(PANEL_TARGET_CH, ((getTargetMIDICh(s_current_synth) - 1) - g_midi_ch) & 0x0F);  // kept by Write Panel Prms
 
@@ -1546,10 +1567,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
             handleNoteOff(getTargetMIDICh(s_current_synth), s_panel_playing_note_pitch, 64);
           }
 
-          s_current_synth = (s_current_synth + 1) >= PRA32_U2_NUMBER_OF_SYNTHS ? 0 : (s_current_synth + 1);
-          if (!PRA32_U2_ControlPanel_target_usable(s_current_synth)) {
-            s_current_synth = 0;
-          }
+          PRA32_U2_ControlPanel_step_target();
           s_display_buffer[0][14] = s_hex_chars[getTargetMIDICh(s_current_synth) - 1];
           g_synth.control_change(PANEL_TARGET_CH, ((getTargetMIDICh(s_current_synth) - 1) - g_midi_ch) & 0x0F);  // kept by Write Panel Prms
 
@@ -1593,6 +1611,12 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
 
     if (s_play_key_current_value == 1) {
       // Play key pressed
+#if defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
+      if (digitalRead(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL) {
+        s_play_key_with_shift = true;  // Shift + Play: Panic, when released
+        return;
+      }
+#endif  // defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
       if (s_play_mode == 0) {  // Normal Mode
         s_playing_status = PlayingStatus_Playing;
         s_display_buffer[0][20] = '*';
@@ -1601,6 +1625,11 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
       }
     } else {
       // Play key released
+      if (s_play_key_with_shift) {
+        s_play_key_with_shift = false;
+        PRA32_U2_ControlPanel_execute_operation(PANIC_OP);
+        return;
+      }
       if (s_play_mode == 0) {  // Normal Mode
         s_playing_status = PlayingStatus_Stop;
         s_display_buffer[0][20] = ' ';

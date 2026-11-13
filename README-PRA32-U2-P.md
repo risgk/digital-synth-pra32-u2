@@ -31,6 +31,8 @@
         - Shift + Prev/Next Key: Go to the previous/next group without long-pressing
         - Shift + Prog -/+ Key: Change to the previous/next user program without long-pressing
         - Shift + VR0/1/2: Prevent values from changing across 64
+        - Shift + Play Key: Panic (All Sound Off and Reset All Controllers of the synth, as Panic on Page B-22)
+        - Shift + Prev Key + Next Key (PRA32-U2/M/P): Go to the previous synth (channel)
         - To use this key, uncomment `//#define PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN         (21)` in "Digital-Synth-PRA32-U2.ino"
     - VR0 (ADC0): Parameter A
     - VR1 (ADC1): Parameter B
@@ -44,7 +46,7 @@
 
 - Copy all files in the "Digital-Synth-PRA32-U2" folder, except for "Digital-Synth-PRA32-U2.ino", to the "Digital-Synth-PRA32-U2-M" folder
 - Uncomment `//#define PRA32_U2_USE_CONTROL_PANEL` in "Digital-Synth-PRA32-U2-M.ino"
-- Prev Key + Next Key: Push to go to the next synth (channel)
+- Prev Key + Next Key: Push to go to the next synth (channel), or to the previous one with the Shift Key (Shift + Prev + Next)
     - "$0" -> "$1" -> "$2" -> "$3" -> "$4" -> "$5" -> "$F" -> "$0"
     - The MIDI channel - 1, in hex: "$0" to "$3" the synths, "$4" and "$5" by Voice Group Mode, and "$F" the Layering (see [PRA32-U2/M](./README.md#pra32-u2m-pra32-u2-multi-timbre-edition));
       with the Basic Channel 1 (default), the digit is the Basic Channel + n in hex (e.g. "$F" for the Basic Channel + 15, Channel 16)
