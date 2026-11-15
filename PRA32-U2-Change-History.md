@@ -1,6 +1,6 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v3.21.0 (2026-??-??):
+- v3.21.0 (2026-11-15):
     - **Filter Mode** [LP|BR|HP|BP|LP] changes smoothly: Low Pass (0 and 127), Band Reject (32), High Pass (64), and Band Pass (96), crossfaded in between
         - Not compatible: a user program with Filter Mode other than LP sounds otherwise (e.g. the High Pass, 127, is now LP: set it to 64); the Presets are LP, as before
     - Add **LFO Trig Mode** [Aut|Off|On|VOn|VOf|VAu] (Control Change #88): how a note on restarts the LFO, and an LFO for each Voice (VOn, VOf, and VAu); Aut (the Presets) as before

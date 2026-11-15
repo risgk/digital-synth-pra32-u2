@@ -184,7 +184,7 @@
 
 | Page           | Parameter A          | Parameter B          |
 | :------------- | :------------------- | :------------------- |
-| A-00 Info      | PRA32-U2/P           | v3.20.0              |
+| A-00 Info      | PRA32-U2/P           | v3.21.0              |
 | A-01 Voice a   | Voice Mode           | Voice Asgn Mode      |
 | A-02 Voice b   | Voice Group Mode     |                      |
 | A-03 Pitch a   | Portamento Time      | Portamento Mode      |
