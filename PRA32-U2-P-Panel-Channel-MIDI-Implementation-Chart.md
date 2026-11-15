@@ -26,7 +26,7 @@
 |                               |               |               |                                       |
 | Change                     51 | x             | o             | Panel Scale [Maj|Min|Mel|MaP|MiP|Chr] |
 |                            52 | x             | o             | Panel Transpose [-|+]                 |
-|                            53 | x             | o             | Panel Play Mode [Nrm|Seq]             |
+|                            53 | x             | o             | Panel Play Mode [Nrm|S+P|Seq]         |
 |                            54 | x             | o             | Panel Play Pitch                      |
 |                            55 | x             | o             | Panel Play Velo                       |
 |                            56 | x             | o             | Panel Pitch Ofst [-|+]                |
@@ -34,6 +34,7 @@
 |                               |               |               |                                       |
 |                            58 | x             | o             | Panel Target Ch $2                    |
 |                            59 | x             | o             | Panel MIDI Tx $6                      |
+|                            60 | x             | o             | Seq Ch Ofst [+0-+F]                   |
 |                               |               |               |                                       |
 |                         70-77 | x             | o             | Seq Velo 0-7                          |
 |                               |               |               |                                       |
@@ -90,7 +91,8 @@
 |                               |   Mode Off, only + 0 (the Basic Channel)                              |
 |                               | $3 : Done when changed from 0-31 to 96-127 (as by the panel)          |
 |                               | $4 : 64-127: as the Play key pressed (Normal Mode) or the Step        |
-|                               |   Sequencer started (Seq Mode); 0-63: as released or stopped          |
+|                               |   Sequencer started (Seq Mode and Seq + Play Mode); 0-63: as released |
+|                               |   or stopped                                                          |
 |                               | $5 : MIDI Basic Ch is only kept, and set (as 1-16) by Set Basic Ch;   |
 |                               |   the Panel Channel moves with it; Write Panel Prms keeps it          |
 |                               | $6 : [Off|Clk|All|Nte|C+N|A+N]: MIDI Clock (Clk, C+N, and A+N), Start |
