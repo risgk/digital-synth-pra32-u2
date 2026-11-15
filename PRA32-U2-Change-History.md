@@ -4,7 +4,7 @@
     - PRA32-U2/M: Voice Group Mode: While the Main Synth is in Poly, the notes of a group go only to the Main Synth, as before (none without it, e.g. RR3);
       the other messages (e.g. Control Changes and Program Changes) go to all of the group (to the Main Synth alone before), so that the Sub Synths can be set up then too
         - PRA32-U2/M/P: The panel can select such a group then too, for its parameters
-    - PRA32-U2/P: Seq Clock Src [Int|Ext|Aut]: Add **Aut** (Auto; at first and by Init Panel Prms, Int before): Internal at first, External at a MIDI Clock, and Internal when Seq Tempo is changed while no MIDI Clock comes (External again at the next one)
+    - PRA32-U2/P: Seq Clock Src [Int|Ext|Aut]: Add **Aut** (Auto; at first and by Init Panel Prms, Int before): Internal at first, External at a MIDI Clock, and Internal when Seq Tempo is changed (External again at the next MIDI Clock)
         - Not compatible: Ext written before at 96-127 (e.g. 127) is now Aut: set it to 64
     - Tested with Arduino-Pico version 6.3.0
 - v3.21.0 (2026-11-15):
