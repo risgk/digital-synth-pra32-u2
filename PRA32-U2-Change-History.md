@@ -1,5 +1,7 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v3.22.0 (2026-??-??):
+    - Tested with Arduino-Pico version 6.3.0
 - v3.21.0 (2026-11-15):
     - **Filter Mode** [LP|BR|HP|BP|LP] changes smoothly: Low Pass (0 and 127), Band Reject (32), High Pass (64), and Band Pass (96), crossfaded in between
         - Not compatible: a user program with Filter Mode other than LP sounds otherwise (e.g. the High Pass, 127, is now LP: set it to 64); the Presets are LP, as before
