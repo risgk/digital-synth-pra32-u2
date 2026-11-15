@@ -160,11 +160,11 @@
     - Sub Synth は、Main Synth が Mono 系のモードのときだけ処理されます
 - Layering: Basic Channel + 15 (初期値 16) で、4 台のシンセを同時に制御します (Voice Group Mode が Off 以外のとき)
     - プログラム・チェンジ #n で、4 台に #n から #n+3 を読み込みます。4 台の音色を連続したユーザー・プログラム (例: #4-7) に保存しておけば、まとめて呼び出せます
-    - Main Synth にも #n が入るので、Voice Group Mode も #n の値になります (以後も使うなら #n を Off 以外に)。Main Synth が Poly の間は、Main Synth だけに #n が入ります
+    - Main Synth にも #n が入るので、Voice Group Mode も #n の値になります (以後も使うなら #n を Off 以外に)。Main Synth が Poly の間も同じです
 - Voice Group Mode (CC #80): Basic Channel + 4、+ 5 (初期値 5、6) で、Round Robin や 2 台ずつの Layering を使えます (Main Synth のプログラムのパラメーター。プリセットは RR3)
     - Off では、Basic Channel だけに反応します (PRA32-U2 と同じ。+ 1 から + 3 も使いません)。シーケンサーなどで他のチャンネルを使えます (PRA32-U2/M/P では、Headless も、Panel Channel、+ 14 も使います)
     - Off 以外では、Sub Synth は + 1 から + 3 で鳴り、Basic Channel + 15 の Layering も使えます
-    - Sub Synth が鳴るのは Main Synth が Mono 系のときだけです。Poly のときは、グループは Main Synth だけになります (例: + 15 や RR4 は Poly の Main Synth を鳴らし、RR3 は鳴りません)
+    - Sub Synth が鳴るのは Main Synth が Mono 系のときだけです。Poly のときは、グループのノートは Main Synth だけに届きます (例: + 15 や RR4 は Poly の Main Synth を鳴らし、RR3 は鳴りません)。CC などノート以外はグループ全体に届くので、Poly の間も Sub Synth を設定できます
     - 例: RR3 (プリセット) で Main Synth が Mono 系なら、Ch 1 でリード、Ch 5 で 3 音 (Sub Synth の Round Robin) を弾けます
     - 例: RR4 では、Ch 5 で 4 音の Round Robin、Ch 16 で 4 台重ねのリードを弾けます
     - PRA32-U2 Editor のスライダーは、"MIDI Ch" に関係なく Basic Channel (Panel & Step Sequencer の Basic Ch、初期値 1) で送ります

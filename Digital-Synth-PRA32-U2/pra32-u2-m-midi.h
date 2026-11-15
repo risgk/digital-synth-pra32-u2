@@ -309,7 +309,8 @@ static void __not_in_flash_func(roundRobinControlChange)(uint32_t first, uint32_
 // 0: Off (none), 1: Ly2 (+ 4: the Layering of the synths 0-1, + 5: 2-3), 2: RLy (+ 4: the Round Robin of 0-1 and
 // of 2-3, layered), 3: RR2 (+ 4: the Round Robin of 0-1, + 5: 2-3), 4: RR4 (+ 4: 0-3), and 5: RR3 (+ 4: 1-3, the Presets),
 // in the order of the notes at once on + 4; the Basic Channel + 15 is the Layering of the synths 0-3 too, while it is not
-// Off. While the Main Synth is in Poly (the Sub Synths are not processed), a group has only the Main Synth (none without it).
+// Off. While the Main Synth is in Poly (the Sub Synths are not processed), the notes of a group go only to the Main Synth
+// (none without it), and the other messages to all of the group, as on + 1 to + 3 (e.g. to set up the Sub Synths then).
 // Off: the Basic Channel alone (not + 1 to + 3 either), so that the other channels are free (e.g. for a sequencer)
 #if defined(PRA32_U2_ENABLE_LAYERING)  // none without the Layering
 static uint8_t s_group_mode = 0;  // Off, and 8 while the Main Synth is in Poly
@@ -350,9 +351,8 @@ static void __not_in_flash_func(updateGroupMode)() {
 enum ChannelRoute { ROUTE_NONE, ROUTE_SYNTH, ROUTE_LAYERING, ROUTE_ROUND_ROBIN, ROUTE_ROUND_ROBIN_LAYERED };
 
 // The route of the Basic Channel + offset, by Voice Group Mode (mode: 0-5) and whether the Main Synth is in Poly
-static ChannelRoute __not_in_flash_func(routeOf)(uint32_t offset, uint32_t mode, boolean poly, uint32_t& first, uint32_t& last) {
+static ChannelRoute __not_in_flash_func(routeOf)(uint32_t offset, uint32_t mode, uint32_t& first, uint32_t& last) {
   static_cast<void>(mode);
-  static_cast<void>(poly);
 #if defined(PRA32_U2_ENABLE_LAYERING)
   if ((offset >= 1) && (offset <= 3) && (mode == 0)) {  // Off: the Basic Channel alone, the others free (e.g. for a sequencer)
     return ROUTE_NONE;
@@ -392,13 +392,6 @@ static ChannelRoute __not_in_flash_func(routeOf)(uint32_t offset, uint32_t mode,
       break;
     }
   }
-  if ((route != ROUTE_NONE) && poly) {  // the Main Synth in Poly: the Main Synth alone, if in the group
-    if (first != 0) {
-      return ROUTE_NONE;
-    }
-    last = 0;
-    return ROUTE_SYNTH;
-  }
   return route;
 #endif  // defined(PRA32_U2_ENABLE_LAYERING)
   return ROUTE_NONE;
@@ -407,10 +400,26 @@ static ChannelRoute __not_in_flash_func(routeOf)(uint32_t offset, uint32_t mode,
 static ChannelRoute __not_in_flash_func(channelRoute)(byte channel, uint32_t& first, uint32_t& last) {
 #if defined(PRA32_U2_ENABLE_LAYERING)
   updateGroupMode();
-  return routeOf(((channel - 1) - g_midi_ch) & 0x0F, s_group_mode & 7, (s_group_mode & 8) != 0, first, last);
+  return routeOf(((channel - 1) - g_midi_ch) & 0x0F, s_group_mode & 7, first, last);
 #else  // defined(PRA32_U2_ENABLE_LAYERING)
-  return routeOf(((channel - 1) - g_midi_ch) & 0x0F, 0, false, first, last);
+  return routeOf(((channel - 1) - g_midi_ch) & 0x0F, 0, first, last);
 #endif  // defined(PRA32_U2_ENABLE_LAYERING)
+}
+
+// The route of the notes: while the Main Synth is in Poly (the Sub Synths are not processed), those of a group go only to
+// the Main Synth, if it is in the group (none without it, e.g. RR3)
+static ChannelRoute __not_in_flash_func(noteRoute)(byte channel, uint32_t& first, uint32_t& last) {
+  ChannelRoute route = channelRoute(channel, first, last);
+#if defined(PRA32_U2_ENABLE_LAYERING)
+  if ((s_group_mode & 8) && (route != ROUTE_NONE) && (route != ROUTE_SYNTH)) {
+    if (first != 0) {
+      return ROUTE_NONE;
+    }
+    last = 0;
+    return ROUTE_SYNTH;
+  }
+#endif  // defined(PRA32_U2_ENABLE_LAYERING)
+  return route;
 }
 
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
@@ -420,7 +429,7 @@ boolean isChannelRouted(byte channel)
 {
   uint32_t first, last;
   uint32_t mode = ((g_synth.current_controller_value(VOICE_GRP_MODE) * 10) + 128) >> 8;
-  return routeOf(((channel - 1) - g_midi_ch) & 0x0F, mode, g_synth.is_in_polyphonic_mode(), first, last) != ROUTE_NONE;
+  return routeOf(((channel - 1) - g_midi_ch) & 0x0F, mode, first, last) != ROUTE_NONE;
 }
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 
@@ -429,7 +438,7 @@ void __not_in_flash_func(handleNoteOn)(byte channel, byte pitch, byte velocity)
   processPendingProgramChanges();
 
   uint32_t first, last;
-  switch (channelRoute(channel, first, last)) {
+  switch (noteRoute(channel, first, last)) {
   case ROUTE_SYNTH:
   case ROUTE_LAYERING:
     for (uint32_t s = first; s <= last; s++) {
@@ -455,7 +464,7 @@ void __not_in_flash_func(handleNoteOff)(byte channel, byte pitch, byte velocity)
   processPendingProgramChanges();
 
   uint32_t first, last;
-  switch (channelRoute(channel, first, last)) {
+  switch (noteRoute(channel, first, last)) {
   case ROUTE_SYNTH:
   case ROUTE_LAYERING:
     for (uint32_t s = first; s <= last; s++) {

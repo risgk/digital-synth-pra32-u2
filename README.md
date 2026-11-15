@@ -217,8 +217,9 @@ graph LR
         - Off: only the Basic Channel (as PRA32-U2; not + 1 to + 3 either), so that the other channels are free (e.g. for a sequencer;
           with PRA32-U2/M/P, Headless too, the Panel Channel, + 14, too)
         - The others: the Sub Synths play on + 1 to + 3, and + 15 is the Layering of all too
-        - The Sub Synths sound only while the Main Synth is in the Mono modes: while it is in Poly, a group has only the Main Synth
-          (e.g. + 15 and RR4 play the Main Synth in Poly), and none without it (e.g. RR3)
+        - The Sub Synths sound only while the Main Synth is in the Mono modes: while it is in Poly, the notes of a group go only to the Main Synth
+          (e.g. + 15 and RR4 play the Main Synth in Poly), and none without it (e.g. RR3); the other messages (e.g. Control Changes) go to all of the group,
+          so that the Sub Synths can be set up then too
         - E.g. RR3 (the presets) with the Main Synth in Mono: Channel 1 plays a lead, and Channel 5 plays 3 notes (the Round Robin of the Sub Synths)
         - E.g. RR4: Channel 5 plays 4 notes (the Round Robin), and Channel 16 a lead of the 4 synths layered, with the sounds of one program
           (+ 15 sets #n to #n + 3, and + 4 sets #n to all)
@@ -229,7 +230,7 @@ graph LR
         - So the 4 sounds stored as the user programs in a row (e.g. #4-7) are set at once by a Program Change on the Basic Channel + 15 (e.g. #4), as a setup of the 4 synths
           (with Voice Group Mode not Off)
         - The Program Change sets the Main Synth too, and so Voice Group Mode (that of #n): keep it not Off in #n to use + 1 to + 5 and + 15 after it;
-          while the Main Synth is in Poly, it sets the Main Synth alone (#n)
+          (while the Main Synth is in Poly too)
     - Round Robin: the notes go to the synths of the channel in turn, as the voices of a polyphonic synth (the other messages go to all of them)
         - The synths are assigned by the Voice Assign Mode of the first synth, as the voices of the Polyphonic Mode, and kept by the Sustain Pedal
         - Unlike the Polyphonic Mode, each synth has its own LFO, and a note is as loud as a voice of the Polyphonic Mode

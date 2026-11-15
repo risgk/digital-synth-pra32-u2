@@ -147,7 +147,7 @@ extern void getProgramValues(byte channel, byte number, uint8_t values[128 + 128
 extern void writeValuesToProgram(byte channel, byte number, const uint8_t values[128 + 128]);
 
 // Whether the panel can select a synth (channel) now: one that goes to a synth (e.g. only the Main Synth, "$0", while
-// Voice Group Mode is Off, and not a group without the Main Synth while the Main Synth is in Poly)
+// Voice Group Mode is Off; a group without the Main Synth too while the Main Synth is in Poly, for its parameters)
 static INLINE boolean PRA32_U2_ControlPanel_target_usable(uint32_t synth) {
 #if (PRA32_U2_NUMBER_OF_SYNTHS > 1)
   return (synth == 0) || isChannelRouted(getTargetMIDICh(synth));
@@ -1396,8 +1396,8 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
   }
 
 #if (PRA32_U2_NUMBER_OF_SYNTHS > 1)
-  // Back to the Main Synth when the channel selected goes to no synth now (e.g. a group without the Main Synth after the
-  // Main Synth went in Poly), checked here, after the MIDI messages, where the synths have taken the changes
+  // Back to the Main Synth when the channel selected goes to no synth now (e.g. after Voice Group Mode went Off by a
+  // Program Change), checked here, after the MIDI messages, where the synths have taken the changes
   if (!PRA32_U2_ControlPanel_target_usable(s_current_synth)) {
     g_synth.control_change(PANEL_TARGET_CH, 0);
   }

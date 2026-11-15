@@ -1,6 +1,9 @@
 ## Digital Synth PRA32-U2 Change History
 
-- v3.22.0 (2026-??-??):
+- v3.21.1 (2026-??-??):
+    - PRA32-U2/M: Voice Group Mode: While the Main Synth is in Poly, the notes of a group go only to the Main Synth, as before (none without it, e.g. RR3);
+      the other messages (e.g. Control Changes and Program Changes) go to all of the group (to the Main Synth alone before), so that the Sub Synths can be set up then too
+        - PRA32-U2/M/P: The panel can select such a group then too, for its parameters
     - Tested with Arduino-Pico version 6.3.0
 - v3.21.0 (2026-11-15):
     - **Filter Mode** [LP|BR|HP|BP|LP] changes smoothly: Low Pass (0 and 127), Band Reject (32), High Pass (64), and Band Pass (96), crossfaded in between

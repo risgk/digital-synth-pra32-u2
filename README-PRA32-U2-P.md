@@ -51,8 +51,8 @@
     - The MIDI channel - 1, in hex: "$0" to "$3" the synths, "$4" and "$5" by Voice Group Mode, and "$F" the Layering (see [PRA32-U2/M](./README.md#pra32-u2m-pra32-u2-multi-timbre-edition));
       with the Basic Channel 1 (default), the digit is the Basic Channel + n in hex (e.g. "$F" for the Basic Channel + 15, Channel 16)
     - On the Round Robin and the Layering, the current values (and Write) are those of the first synth of the channel
-    - Only a channel that goes to a synth now can be selected: "$0" only with Voice Group Mode Off (as only the Basic Channel is used),
-      and not a group without the Main Synth (e.g. "$4" of RR3) while the Main Synth is in Poly; back to "$0" when the channel selected goes to none
+    - Only a channel that goes to a synth now can be selected: "$0" only with Voice Group Mode Off (as only the Basic Channel is used);
+      back to "$0" when the channel selected goes to none. While the Main Synth is in Poly, a group without it (e.g. "$4" of RR3) does not play notes
     - The channel selected (Panel Target Ch, CC #58 on the Panel Channel) is a panel parameter: kept by Write Panel Prms (selected again at the start, and by Read Panel Prms)
       and by Store and Export of PRA32-U2 Editor, and back to "$0" by Init Panel Prms
 
