@@ -41,6 +41,7 @@ static          boolean  s_key_held                 = false;  // the Play key (o
 static          int8_t   s_panel_transpose          = 0;
 static          int8_t   s_panel_pit_ofst           = 0;
 static          int8_t   s_seq_pit_ofst             = 0;
+static          int8_t   s_seq_transpose            = 0;  // Seq Transpose, added to Panel Transpose (the Step Sequencer)
 static          uint8_t  s_seq_step_clock_candidate = 12;
 static          uint8_t  s_seq_step_clock           = 12;
 static          uint8_t  s_seq_gate_time            = 6;
@@ -680,7 +681,7 @@ static __attribute__((noinline)) void __not_in_flash_func(PRA32_U2_ControlPanel_
     return;
   }
 
-  new_pitch = PRA32_U2_ControlPanel_calc_transposed_pitch(new_pitch, s_panel_transpose);
+  new_pitch = PRA32_U2_ControlPanel_calc_transposed_pitch(new_pitch, s_panel_transpose + s_seq_transpose);
 
   s_panel_play_note_velocity[NOTE_SEQ] = new_velocity;
   s_panel_play_note_pitch[NOTE_SEQ]    = new_pitch;
@@ -778,6 +779,7 @@ static INLINE void PRA32_U2_ControlPanel_seq_clock() {
       s_panel_pit_ofst  = g_synth.current_controller_value(PANEL_PIT_OFST ) - 64;
       s_panel_transpose = g_synth.current_controller_value(PANEL_TRANSPOSE) - 64;
       s_seq_pit_ofst    = g_synth.current_controller_value(SEQ_PIT_OFST   ) - 64;
+      s_seq_transpose   = g_synth.current_controller_value(SEQ_TRANSPOSE  ) - 64;
     }
 
     PRA32_U2_ControlPanel_update_pitch(true);
@@ -1061,6 +1063,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case A_D_VEL_SENS    :
   case REL_VEL_SENS    :
   case PANEL_TRANSPOSE :
+  case SEQ_TRANSPOSE   :
   case PITCH_BEND_MSB  :
     {
       PRA32_U2_ControlPanel_format_decimal(value_display_text, static_cast<int>(controller_value) - 64, true);
@@ -2362,7 +2365,7 @@ static void PRA32_U2_ControlPanel_select_target(uint8_t offset) {
 // the pedals, and the Channel Mode Messages), not to change a parameter, nor to write to the flash, by chance:
 // - Parameters (set as by the panel): Seq Pitch 0-7 (#16-23), Seq Velo 0-7 (#70-77), the Panel Parameters
 //   (#51-56: Scale, Transpose, Play Mode, Play Pitch, Play Velo, and Pitch Ofst), and the other Step Sequencer Parameters (#85-90 and #92-94, the number + 37,
-//   Seq Pitch Ofst #95, Panel MIDI Tx #59, and Seq Ch Ofst #60); Panel Target Ch (#58, PRA32-U2/M/P: the channel
+//   Seq Pitch Ofst #95, Panel MIDI Tx #59, Seq Ch Ofst #60, and Seq Transpose #61); Panel Target Ch (#58, PRA32-U2/M/P: the channel
 //   that the panel selects, as the Basic Channel + the value) is only for the Panel Channel
 // - MIDI Basic Ch (#57, 0-15 as 1-16) is only kept, and set by Set Basic Ch (#114, as an operation), so that the channels
 //   (the Panel Channel too) do not move by one Control Change; kept in the flash by Write Panel Prms, as by the panel
@@ -2386,6 +2389,7 @@ static uint8_t PRA32_U2_ControlPanel_panel_ch_target(uint8_t number) {
   case  56: return PANEL_PIT_OFST ;
   case  59: return PANEL_MIDI_TX  ;
   case  60: return SEQ_CH_OFST    ;
+  case  61: return SEQ_TRANSPOSE  ;
   case 102: return WR_PANEL_PRMS  ;  // Write and then Read, as the pages of the panel (C and D)
   case 103: return RD_PANEL_PRMS  ;
   case 104: return IN_PANEL_PRMS  ;

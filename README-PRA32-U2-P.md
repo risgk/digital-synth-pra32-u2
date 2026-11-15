@@ -101,7 +101,8 @@
         - In Seq Mode and S+P, MIDI Clocks are sent by UART MIDI and USB MIDI (by Panel MIDI Tx): those of the internal clock, and with Ext (and Aut),
           those received, passed on (e.g. to the next device of a chain)
         - NOTE: Connecting UART MIDI IN and OUT both ways to a device that sends MIDI Clocks back (e.g. one synced to them) may keep the Clocks going round
-    - Seq Pitch Ofst (Offset) [-|+]: Offset Seq Pitch 0-7 (min -60 to max +60)
+    - Seq Pitch Ofst (Offset) [-|+]: Offset Seq Pitch 0-7 (min -60 to max +60), added to Panel Pitch Ofst
+    - Seq Transpose [-|+]: Transpose Seq Pitch 0-7, added to Panel Transpose (e.g. -12 for the Step Sequencer an octave lower than the Play Key)
     - Seq Rx St/Sp (Receive Start/Stop): Off, On
     - Seq Tempo: 30-240 BPM (in steps of 2 BPM)
     - Seq Gate Time [1/6|2/6|3/6|4/6|5/6|6/6]
@@ -245,11 +246,11 @@
 | B-02 Panel c   | Panel Scale          | Panel Pitch Ofst     |
 | B-03 Panel d   | Panel Transpose      | Panel MIDI Tx        |
 | B-04 Seq a     | Seq Step Note        | Seq Clock Src        |
-| B-05 Seq b     | Seq Pitch Ofst       | Seq Rx St/Sp         |
+| B-05 Seq b     | Seq Pitch Ofst       | Seq Transpose        |
 | B-06 Seq c     | Seq Tempo            | Seq Gate Time        |
 | B-07 Seq d     | Seq Mode             | Seq Num Steps        |
 | B-08 Seq e     | Seq On Steps         | Seq Act Steps        |
-| B-09 Seq f     | Seq Ch Ofst          |                      |
+| B-09 Seq f     | Seq Ch Ofst          | Seq Rx St/Sp         |
 | B-10 Seq g     | Seq Rand Pitch       | Seq Rand Velo        |
 | B-11 Seq 0     | Seq Pitch 0          | Seq Velo 0           |
 | B-12 Seq 1     | Seq Pitch 1          | Seq Velo 1           |

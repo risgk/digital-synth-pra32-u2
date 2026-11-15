@@ -271,6 +271,7 @@ SEQ_RX_ST_SP    = 128 + 57
 
 PANEL_MIDI_TX   = 128 + 58
 SEQ_CH_OFST     = 128 + 59
+SEQ_TRANSPOSE   = 128 + 60
 
 
 

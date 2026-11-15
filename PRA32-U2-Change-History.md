@@ -15,6 +15,8 @@
         - Not compatible: Seq written before at 32-95 (e.g. 64 by the panel) is now S+P: set it to 127
     - PRA32-U2/P: Add **Seq Ch Ofst** [+0-+F] (Channel Offset, Page B-09, and Control Change #60 on the Panel Channel): the channel of the Step Sequencer,
       as the channel that the panel selects + the offset (+0, the default, as before); Seq Rand Pitch and the pages after it are one page later (e.g. Seq 0 on Page B-11)
+    - PRA32-U2/P: Add **Seq Transpose** [-|+] (Page B-05, and Control Change #61 on the Panel Channel): added to Panel Transpose, for the Step Sequencer alone;
+      Seq Rx St/Sp is now on Page B-09
     - Tested with Arduino-Pico version 6.3.0
 - v3.21.0 (2026-11-15):
     - **Filter Mode** [LP|BR|HP|BP|LP] changes smoothly: Low Pass (0 and 127), Band Reject (32), High Pass (64), and Band Pass (96), crossfaded in between

@@ -35,6 +35,7 @@
 |                            58 | x             | o             | Panel Target Ch $2                    |
 |                            59 | x             | o             | Panel MIDI Tx $6                      |
 |                            60 | x             | o             | Seq Ch Ofst [+0-+F]                   |
+|                            61 | x             | o             | Seq Transpose [-|+]                   |
 |                               |               |               |                                       |
 |                         70-77 | x             | o             | Seq Velo 0-7                          |
 |                               |               |               |                                       |
