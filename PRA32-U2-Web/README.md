@@ -1,6 +1,5 @@
-# PRA32-U2 Web v3.20.0
+# PRA32-U2 Web
 
-- 2026-11-06 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 PRA32-U2 Web: a software synthesizer version of Digital Synth PRA32-U2 that runs in a Web browser, built into PRA32-U2 Editor
@@ -23,11 +22,12 @@ PRA32-U2 Web: a software synthesizer version of Digital Synth PRA32-U2 that runs
         - Without "+6 dB", it sounds as PRA32-U2 does (e.g. to compare with it)
         - With a high Amp Gain, the peaks rounded off can be heard as a little distortion
     - PRA32-U2 Web starts with the program #0, as PRA32-U2 does; "Send Current" sends the current parameters of PRA32-U2 Editor to it
-    - Or "PRA32-U2/M Web (Built-in)" (or with "+6 dB"): PRA32-U2/M, the 4 synths by the MIDI channels (the Basic Channel 1, which cannot be changed),
+    - Or "PRA32-U2/M/P Web (Built-in)" (or with "+6 dB"): PRA32-U2/M, the 4 synths by the MIDI channels (the Basic Channel 1 at first),
       with the Layering and the Round Robin, as "Digital-Synth-PRA32-U2-M.ino" (by "pra32-u2-m-midi.h" of the core)
-        - Select the synth in "MIDI Ch" of PRA32-U2 Editor: e.g. 2 for the Sub Synth 1 (see PRA32-U2/M in the README.md of PRA32-U2)
+        - Select the synth in "MIDI Ch" of PRA32-U2 Editor: e.g. 2 for the Sub Synth 1, with Voice Group Mode not Off (RR3 in the presets) (see PRA32-U2/M in the README.md of PRA32-U2)
         - The Main Synth starts with the program #0 and the Sub Synths 1-3 with #1-3; the Sub Synths sound only while the Main Synth is not in Poly
-        - PRA32-U2 Web and PRA32-U2/M Web keep their own states; the one selected sounds
+        - PRA32-U2 Web and PRA32-U2/M/P Web keep their own states; the one selected sounds
+        - With the Panel Channel of PRA32-U2/M/P, for "Panel & Step Sequencer" of PRA32-U2 Editor (see "Panel Channel" in README-PRA32-U2-P.md)
     - The user programs (#0-15) start as they are at first on PRA32-U2 (the same as the Presets #16-31) at each load of the page:
       not those of PRA32-U2, nor the User Presets of PRA32-U2 Editor; those written by "Write" are kept until the page is closed
 - Play the keyboard of PRA32-U2 Editor, or a MIDI keyboard selected in "MIDI In 1-4"
@@ -58,8 +58,8 @@ PRA32-U2 Web: a software synthesizer version of Digital Synth PRA32-U2 that runs
 - "Write Parameters to Program" (CC #87 and #106) writes the program to the memory only,
   so the written programs are lost when the window is closed or reloaded
     - PRA32-U2 Editor stores the user programs in the Web browser
-- The control panel (PRA32-U2/P) and the step sequencer are not supported
-- PRA32-U2/M (Multi-Timbre Edition) is not supported
+- The control panel of PRA32-U2/P (the keys, the VRs, and the display) is not supported; the Panel and Step Sequencer Parameters only by the Panel Channel of PRA32-U2/M/P Web
+- PRA32-U2/M (Multi-Timbre Edition): only as PRA32-U2/M/P Web (Built-in)
 
 
 ## How to Build
@@ -96,7 +96,8 @@ node pra32-u2-web-test.js
     - "pra32-u2-web-synth-main.js": the main thread part (the virtual MIDI output for PRA32-U2 Editor)
     - "pra32-u2-web-build.js": the build script
     - "pra32-u2-web-test.js": the test of the built file with Node.js (plays the Factory Presets
-      at 48 kHz, 44.1 kHz, and 96 kHz, and checks that they are silent after the note off)
+      at 48 kHz, 44.1 kHz, and 96 kHz, and checks that they are silent after the note off; and PRA32-U2/M/P Web by the channels,
+      and its Step Sequencer by the Panel Channel)
 
 
 ## License

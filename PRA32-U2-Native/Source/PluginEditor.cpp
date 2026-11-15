@@ -120,6 +120,13 @@ PRA32U2NativeAudioProcessorEditor::PRA32U2NativeAudioProcessorEditor(PRA32U2Nati
 
     m_randomizeFxButton.onClick = [this] { m_processor.randomizeFx(); };
     addAndMakeVisible(m_randomizeFxButton);
+
+    // The same style as the "Program Change" button
+    m_synthIdButton.setTriggeredOnMouseDown(true);
+    m_synthIdButton.onClick = [this] { showSynthIdMenu(); };
+    addAndMakeVisible(m_synthIdButton);
+    updateSynthIdButton();
+    startTimerHz(4);
   }
 
   const auto& parameters = processor.getSoundParameters();
@@ -184,6 +191,8 @@ void PRA32U2NativeAudioProcessorEditor::resized() {
     m_randomizeSynthButton.setBounds(header.removeFromLeft(110).reduced(0, 5));
     header.removeFromLeft(HEADER_MARGIN);
     m_randomizeFxButton.setBounds(header.removeFromLeft(100).reduced(0, 5));
+    header.removeFromLeft(HEADER_MARGIN * 2);
+    m_synthIdButton.setBounds(header.removeFromLeft(80).reduced(0, 5));
   }
   m_viewport.setBounds(area.withTrimmedRight(RIGHT_MARGIN));
 }
@@ -201,4 +210,33 @@ void PRA32U2NativeAudioProcessorEditor::showProgramChangeMenu() {
   }
 
   menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(&m_programChangeButton));
+}
+
+void PRA32U2NativeAudioProcessorEditor::showSynthIdMenu() {
+  // The items refer to the processor, which outlives the editor
+  PRA32U2NativeAudioProcessor& processor = m_processor;
+
+  static const char* const NAMES[PRA32U2NativeAudioProcessor::kNumSynthIds] = {
+    "Synth ID 0 (as the Main Synth of PRA32-U2/M)",
+    "Synth ID 1 (as Sub Synth 1)",
+    "Synth ID 2 (as Sub Synth 2)",
+    "Synth ID 3 (as Sub Synth 3)",
+  };
+  juce::PopupMenu menu;
+  for (int id = 0; id < PRA32U2NativeAudioProcessor::kNumSynthIds; ++id) {
+    menu.addItem(NAMES[id], true, processor.getSynthId() == id, [&processor, id] { processor.setSynthId(id); });
+  }
+
+  menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(&m_synthIdButton));
+}
+
+void PRA32U2NativeAudioProcessorEditor::updateSynthIdButton() {
+  const juce::String text = "Synth ID " + juce::String(m_processor.getSynthId());
+  if (m_synthIdButton.getButtonText() != text) {
+    m_synthIdButton.setButtonText(text);
+  }
+}
+
+void PRA32U2NativeAudioProcessorEditor::timerCallback() {
+  updateSynthIdButton();
 }

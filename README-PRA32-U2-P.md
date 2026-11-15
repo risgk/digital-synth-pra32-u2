@@ -1,6 +1,5 @@
-# Digital Synth PRA32-U2/P v3.20.0
+# Digital Synth PRA32-U2/P
 
-- 2026-11-06 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 
@@ -13,6 +12,7 @@
     - Playing by panel operation
     - Built-in monophonic 8-step sequencer
     - Panel and Step Sequencer Parameters
+    - [Panel Channel](#panel-channel), to control them by MIDI, with the panel or without it ([PRA32-U2/P Headless](#pra32-u2p-headless))
 - This option requires 2 to 6 SWs (tactile switches), 2 to 3 VRs (ADCs), and a monochrome 128x64 OLED Display based on SSD1306 series drivers
     - SWs: Prev and Next, and optionally Play, Prog -, Prog +, and Shift (see Inputs)
     - OLED Display: I2C1, SDA: GP6, SCL: GP7, Address: 0x3C (by default)
@@ -31,6 +31,8 @@
         - Shift + Prev/Next Key: Go to the previous/next group without long-pressing
         - Shift + Prog -/+ Key: Change to the previous/next user program without long-pressing
         - Shift + VR0/1/2: Prevent values from changing across 64
+        - Shift + Play Key: Panic (All Sound Off and Reset All Controllers of the synth, as Panic on Page B-22)
+        - Shift + Prev Key + Next Key (PRA32-U2/M/P): Go to the previous synth (channel)
         - To use this key, uncomment `//#define PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN         (21)` in "Digital-Synth-PRA32-U2.ino"
     - VR0 (ADC0): Parameter A
     - VR1 (ADC1): Parameter B
@@ -44,10 +46,15 @@
 
 - Copy all files in the "Digital-Synth-PRA32-U2" folder, except for "Digital-Synth-PRA32-U2.ino", to the "Digital-Synth-PRA32-U2-M" folder
 - Uncomment `//#define PRA32_U2_USE_CONTROL_PANEL` in "Digital-Synth-PRA32-U2-M.ino"
-- Prev Key + Next Key: Push to go to the next synth (channel)
-    - "$0" -> "$1" -> "$2" -> "$3" -> "$6" -> "$7" -> "$8" -> "$B" -> "$C" -> "$D" -> "$E" -> "$F" -> "$0"
-    - The MIDI channel - 1, in hex: "$0" to "$3" the synths, "$6" to "$C" the Round Robin, and "$D" to "$F" the Layering (see [PRA32-U2/M](./README.md#pra32-u2m-pra32-u2-multi-timbre-edition))
+- Prev Key + Next Key: Push to go to the next synth (channel), or to the previous one with the Shift Key (Shift + Prev + Next)
+    - "$0" -> "$1" -> "$2" -> "$3" -> "$4" -> "$5" -> "$F" -> "$0"
+    - The MIDI channel - 1, in hex: "$0" to "$3" the synths, "$4" and "$5" by Voice Group Mode, and "$F" the Layering (see [PRA32-U2/M](./README.md#pra32-u2m-pra32-u2-multi-timbre-edition));
+      with the Basic Channel 1 (default), the digit is the Basic Channel + n in hex (e.g. "$F" for the Basic Channel + 15, Channel 16)
     - On the Round Robin and the Layering, the current values (and Write) are those of the first synth of the channel
+    - Only a channel that goes to a synth now can be selected: "$0" only with Voice Group Mode Off (as only the Basic Channel is used),
+      and not a group without the Main Synth (e.g. "$4" of RR3) while the Main Synth is in Poly; back to "$0" when the channel selected goes to none
+    - The channel selected (Panel Target Ch, CC #58 on the Panel Channel) is a panel parameter: kept by Write Panel Prms (selected again at the start, and by Read Panel Prms)
+      and by Store and Export of PRA32-U2 Editor, and back to "$0" by Init Panel Prms
 
 
 ### GUI Pages
@@ -116,11 +123,36 @@
 - Read Operations
     - Read #0-15 (User), #16-31 (Factory Presets), Read Panel Prms, Init Panel Prms
         - Change the value from 0-31 [Rdy] to 96-127 [Exe] to read from the flash
+        - Read Panel Prms and Init Panel Prms are for the panel parameters, whatever synth (channel) the panel selects
 - Undo Operations (also on Page C-09, after the Write Operations)
     - Undo Write: Brings back the user program (or the panel parameters) in the flash that the last Write replaced
     - Undo Read: Brings back the parameters (or the panel parameters) that the last Read (or Init Panel Prms) replaced
         - Change the value from 0-31 [Rdy] to 96-127 [Exe] to undo; doing it again redoes it
         - Only the last Write and the last Read, of the synth selected then, until the power is turned off
+
+
+### Panel Channel
+
+- The Control Changes on the Panel Channel (the Basic Channel + 14, 15 by default) control the Panel and Step Sequencer Parameters
+  and the operations (Write Panel Prms, Seq Rand Pitch, etc.), as the panel does: see the [MIDI Implementation Chart of the Panel Channel](./PRA32-U2-P-Panel-Channel-MIDI-Implementation-Chart.md)
+    - Enabled by default: comment out `#define PRA32_U2_USE_PANEL_CHANNEL` not to use it
+    - The CC numbers are only those that the synth parameters use (the others are left free), except those that a DAW or a keyboard may send by itself
+- "Panel & Step Sequencer" of [PRA32-U2 Editor](./README.md#pra32-u2-editor) (hidden by default) edits them by the Panel Channel
+  (also those of PRA32-U2/M/P Web (Built-in))
+    - "Basic Ch": that of PRA32-U2 (not "MIDI Ch" of the editor); "Set Basic Ch (to Device)" changes it on PRA32-U2 too (kept by Write)
+    - PRA32-U2 sends nothing back: "Send Panel" sends the values that the editor keeps ("pra32-u2-panel-initial.json": the initial ones);
+      Export keeps the Basic Ch too, which Import sets on PRA32-U2 if asked
+
+### PRA32-U2/P Headless
+
+- PRA32-U2/P (or PRA32-U2/M/P) without the panel (no SWs, VRs, nor OLED Display): the Step Sequencer and the Panel Parameters
+  by the Panel Channel, e.g. from "Panel & Step Sequencer" of PRA32-U2 Editor
+- Prebuilt: "Digital-Synth-PRA32-U2-M-P-Headless-Pimoroni-Pico-Audio-Pack.uf2" (PRA32-U2/M/P Headless) in the "bin" folder
+- How to build: in "Digital-Synth-PRA32-U2.ino" (or "Digital-Synth-PRA32-U2-M.ino"), uncomment `//#define PRA32_U2_USE_CONTROL_PANEL`,
+  and comment out `#define PRA32_U2_USE_CONTROL_PANEL_KEY_INPUT`, `#define PRA32_U2_USE_CONTROL_PANEL_ANALOG_INPUT`,
+  and `#define PRA32_U2_USE_CONTROL_PANEL_OLED_DISPLAY`
+    - The Basic Channel is `PRA32_U2_MIDI_CH`, or that written by Write Panel Prms (e.g. after Set Basic Ch of the editor)
+    - With Debug Print, the texts of the display are printed (of Page A-11 Filter a, the page at the start, as no keys turn it)
 
 
 ### Circuit Diagram
@@ -152,41 +184,42 @@
 
 | Page           | Parameter A          | Parameter B          |
 | :------------- | :------------------- | :------------------- |
-| A-00 Info      | PRA32-U2/P           | v3.20.0              |
-| A-01 Voice     | Voice Mode           | Voice Asgn Mode      |
-| A-02 Pitch a   | Portamento Time      | Portamento Mode      |
-| A-03 Pitch b   | Pitch Bend Range     | Stretch Tune         |
-| A-04 Pitch c   | Coarse Tune          | Fine Tune            |
-| A-05 Osc a     | Osc 1 Wave           | Mixer Noise/Sub      |
-| A-06 Osc b     | Osc 1 Shape          | Osc 1 Morph          |
-| A-07 Osc c     | Osc 2 Wave           | Mixer Osc Mix        |
-| A-08 Osc d     | Osc 2 Coarse         | Osc 2 Pitch          |
-| A-09 Osc e     | Osc/Filter Drift     | Osc Saw W Mode       |
-| A-10 Filter a  | Filter Cutoff        | Filter Resonance     |
-| A-11 Filter b  | Filter EG Amt        | Filter Key Track     |
-| A-12 Filter c  | Filter Mode          | Filter Drive         |
-| A-13 EG a      | EG Attack            | EG Decay             |
-| A-14 EG b      | EG Sustain           | EG Release           |
-| A-15 EG c      | EG Amp Mod           | EG/Amp Rel = Dec     |
-| A-16 EG d      | EG Mod Amt           | EG Mod Dst           |
-| A-17 EG e      | EG Filter Amt        | EG Level Velo Sens   |
-| A-18 EG f      | EG Att/Dec Velo Sens | EG Rel Velo Sens     |
-| A-19 EG g      | EG Att/Dec Key Track |                      |
-| A-20 Amp a     | Amp Attack           | Amp Decay            |
-| A-21 Amp b     | Amp Sustain          | Amp Release          |
-| A-22 Amp c     | Amp Gain             | Amp Level Velo Sens  |
-| A-23 Panner    | Pan                  |                      |
-| A-24 LFO a     | LFO Wave             | LFO Fade Time        |
-| A-25 LFO b     | LFO Rate             | LFO Depth            |
-| A-26 LFO c     | LFO Mod Amt          | LFO Mod Dst          |
-| A-27 LFO d     | LFO Filter Amt       |                      |
-| A-28 Breath    | Breath Filter Amt    | Breath Amp Mode      |
-| A-29 Aft Touch | Aft Touch LFO Amt    |                      |
-| A-30 FX        | Distortion Drive     | FX Routing           |
-| A-31 Chorus a  | Chorus Level         |                      |
-| A-32 Chorus b  | Chorus Rate          | Chorus Depth         |
-| A-33 Delay a   | Delay Level          | Delay Mode           |
-| A-34 Delay b   | Delay Time           | Delay Feedback       |
+| A-00 Info      | PRA32-U2/P           | v3.21.0              |
+| A-01 Voice a   | Voice Mode           | Voice Asgn Mode      |
+| A-02 Voice b   | Voice Group Mode     |                      |
+| A-03 Pitch a   | Portamento Time      | Portamento Mode      |
+| A-04 Pitch b   | Pitch Bend Range     | Stretch Tune         |
+| A-05 Pitch c   | Coarse Tune          | Fine Tune            |
+| A-06 Osc a     | Osc 1 Wave           | Mixer Noise/Sub      |
+| A-07 Osc b     | Osc 1 Shape          | Osc 1 Morph          |
+| A-08 Osc c     | Osc 2 Wave           | Mixer Osc Mix        |
+| A-09 Osc d     | Osc 2 Coarse         | Osc 2 Pitch          |
+| A-10 Osc e     | Osc/Filter Drift     | Osc Saw W Mode       |
+| A-11 Filter a  | Filter Cutoff        | Filter Resonance     |
+| A-12 Filter b  | Filter EG Amt        | Filter Key Track     |
+| A-13 Filter c  | Filter Mode          | Filter Drive         |
+| A-14 EG a      | EG Attack            | EG Decay             |
+| A-15 EG b      | EG Sustain           | EG Release           |
+| A-16 EG c      | EG Amp Mod           | EG/Amp Rel = Dec     |
+| A-17 EG d      | EG Mod Amt           | EG Mod Dst           |
+| A-18 EG e      | EG Filter Amt        | EG Level Velo Sens   |
+| A-19 EG f      | EG Att/Dec Velo Sens | EG Rel Velo Sens     |
+| A-20 EG g      | EG Att/Dec Key Track |                      |
+| A-21 Amp a     | Amp Attack           | Amp Decay            |
+| A-22 Amp b     | Amp Sustain          | Amp Release          |
+| A-23 Amp c     | Amp Gain             | Amp Level Velo Sens  |
+| A-24 Panner    | Pan                  |                      |
+| A-25 LFO a     | LFO Wave             | LFO Fade Time        |
+| A-26 LFO b     | LFO Rate             | LFO Depth            |
+| A-27 LFO c     | LFO Mod Amt          | LFO Mod Dst          |
+| A-28 LFO d     | LFO Filter Amt       | LFO Trig Mode        |
+| A-29 Breath    | Breath Filter Amt    | Breath Amp Mode      |
+| A-30 Aft Touch | Aft Touch LFO Amt    |                      |
+| A-31 FX        | Distortion Drive     | FX Routing           |
+| A-32 Chorus a  | Chorus Level         |                      |
+| A-33 Chorus b  | Chorus Rate          | Chorus Depth         |
+| A-34 Delay a   | Delay Level          | Delay Mode           |
+| A-35 Delay b   | Delay Time           | Delay Feedback       |
 | B-00 Panel a   | Panel Play Mode      | MIDI Basic Ch        |
 | B-01 Panel b   | Panel Play Pitch     | Panel Play Velo      |
 | B-02 Panel c   | Panel Scale          | Panel Pitch Ofst     |

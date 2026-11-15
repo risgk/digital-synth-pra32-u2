@@ -173,7 +173,18 @@ class PRA32_U2_Filter {
   int32_t m_cutoff_lfo_amt_stage_1[2];
   int32_t m_cutoff_lfo_amt_current[2];  // Q16
   int16_t m_cutoff_pitch_amt;
-  uint8_t m_filter_mode;               // 0: Low Pass, 1: Band Pass, 2: High Pass, 3: Band Reject (Notch)
+  int32_t m_mode_lp_gain;              // Filter Mode: the gains of the low pass, the high pass, and the band pass (Q16),
+  int32_t m_mode_hp_gain;              // the smoothed ones of m_filter[0] (see update_smoothing())
+  int32_t m_mode_bp_gain;
+  int32_t m_mode_lp_target;            // Their targets, by the Filter Mode
+  int32_t m_mode_hp_target;
+  int32_t m_mode_bp_target;
+  int32_t m_mode_lp_stage_1;           // Smooth state variables (of m_filter[0])
+  int32_t m_mode_hp_stage_1;
+  int32_t m_mode_bp_stage_1;
+  int32_t m_mode_lp_current;
+  int32_t m_mode_hp_current;
+  int32_t m_mode_bp_current;
   int16_t m_cutoff_breath_amt;
   int16_t m_breath_controller;
   int16_t m_breath_controller_current;
@@ -217,7 +228,18 @@ public:
   , m_cutoff_lfo_amt_stage_1()
   , m_cutoff_lfo_amt_current()
   , m_cutoff_pitch_amt()
-  , m_filter_mode()
+  , m_mode_lp_gain(1 << 16)
+  , m_mode_hp_gain()
+  , m_mode_bp_gain()
+  , m_mode_lp_target(1 << 16)
+  , m_mode_hp_target()
+  , m_mode_bp_target()
+  , m_mode_lp_stage_1(1 << 16)
+  , m_mode_hp_stage_1()
+  , m_mode_bp_stage_1()
+  , m_mode_lp_current(1 << 16)
+  , m_mode_hp_current()
+  , m_mode_bp_current()
   , m_cutoff_breath_amt()
   , m_breath_controller()
   , m_breath_controller_current()
@@ -255,6 +277,7 @@ public:
     m_cutoff_current = m_cutoff_base_current;
     m_resonance_stage_1 = m_resonance_current = static_cast<int32_t>(m_resonance_target) << 16;
     m_drive_stage_1 = m_drive_current = static_cast<int32_t>(m_drive_target) << 16;
+    jump_mode_gains();
 
     update_coefs(0, 0, 60 << 16, *this);
     m_g                 = m_g_last;
@@ -312,14 +335,37 @@ public:
     m_cutoff_pitch_amt = ((controller_value - 64) + 4) >> 3;
   }
 
-  // [LP|LP|BP|BP|BR|HP], so that 0, 64, and 127 stay LP, BP, and HP
+  // [LP|BR|HP|BP|LP]: 0 Low Pass, 32 Band Reject (Notch), 64 High Pass, 96 Band Pass, and 127 (taken as 128)
+  // Low Pass again, in between crossfaded: LP to BR to HP by the high pass added to the low pass and then the low
+  // pass taken away (the notch comes down from the top to the cutoff, and on down to none), as the Notch of a
+  // multimode filter; HP to BP to LP by a crossfade of two, which are 90 degrees apart at every frequency, so
+  // that no notch comes in between (the resonant peak stays as high, at the cutoff each is Q times). Toward 127,
+  // the band pass, which falls above the cutoff too, leaves the low pass smoothly
   INLINE void set_filter_mode(uint8_t controller_value) {
-    static const uint8_t filter_mode_table[6] PRA32_U2_TABLE_IN_RAM(filter_mode_table) = { 0, 0, 1, 1, 3, 2 };
-    m_filter_mode = filter_mode_table[((controller_value * 10) + 128) >> 8];
+    int32_t x = (controller_value >= 127) ? 128 : controller_value;
+    int32_t lp = 0, hp = 0, bp = 0;  // In 32nds
+    if (x <= 32) {
+      lp = 32;      hp = x;
+    } else if (x <= 64) {
+      lp = 64 - x;  hp = 32;
+    } else if (x <= 96) {
+      hp = 96 - x;  bp = x - 64;
+    } else {
+      bp = 128 - x; lp = x - 96;
+    }
+    m_mode_lp_target = lp << 11;
+    m_mode_hp_target = hp << 11;
+    m_mode_bp_target = bp << 11;
   }
 
   INLINE void set_cutoff_breath_amt(uint8_t controller_value) {
     m_cutoff_breath_amt = get_cutoff_mod_amt(controller_value) << 1;
+  }
+
+  // The drift of the cutoff starts from a random value, as PRA32_U2_Osc::start_drift(), and goes on
+  // through reset() (not back to 0), as that of the Osc
+  INLINE void start_drift(int32_t drift_noise) {
+    m_cutoff_drift_noise = drift_noise;
   }
 
   INLINE void set_breath_controller(uint8_t controller_value) {
@@ -336,7 +382,6 @@ public:
     m_s_1 = 0;
     m_s_2 = 0;
     m_dc_blocker = 0;
-    m_cutoff_drift_noise = 0;
     // The smoothing states jump to their targets while the sound is off, so
     // that the next note does not start with a slow filter sweep
     m_cutoff_target_stage_1 = m_cutoff_target_current = m_cutoff_target;
@@ -347,6 +392,14 @@ public:
     m_cutoff_eg_amt_stage_1[1] = m_cutoff_eg_amt_current[1] = static_cast<int32_t>(m_cutoff_eg_amt_target[1]) << 16;
     m_cutoff_lfo_amt_stage_1[0] = m_cutoff_lfo_amt_current[0] = static_cast<int32_t>(m_cutoff_lfo_amt[0]) << 16;
     m_cutoff_lfo_amt_stage_1[1] = m_cutoff_lfo_amt_current[1] = static_cast<int32_t>(m_cutoff_lfo_amt[1]) << 16;
+    jump_mode_gains();
+  }
+
+  // The gains of the Filter Mode at their targets (at the start, and while the sound is off)
+  INLINE void jump_mode_gains() {
+    m_mode_lp_stage_1 = m_mode_lp_current = m_mode_lp_gain = m_mode_lp_target;
+    m_mode_hp_stage_1 = m_mode_hp_current = m_mode_hp_gain = m_mode_hp_target;
+    m_mode_bp_stage_1 = m_mode_bp_current = m_mode_bp_gain = m_mode_bp_target;
   }
 
   // The base cutoff, the Resonance, and the Amt parameters are the same for
@@ -363,6 +416,10 @@ public:
     approach_exp_slow(m_resonance_stage_1, m_resonance_current, static_cast<int32_t>(m_resonance_target) << 16);
     approach_exp_slow(m_drive_stage_1, m_drive_current, static_cast<int32_t>(m_drive_target) << 16);
     update_drive_gain();
+    // The gains of the Filter Mode, slow as a balance (they land on their targets exactly)
+    approach_exp_slow(m_mode_lp_stage_1, m_mode_lp_current, m_mode_lp_target);
+    approach_exp_slow(m_mode_hp_stage_1, m_mode_hp_current, m_mode_hp_target);
+    approach_exp_slow(m_mode_bp_stage_1, m_mode_bp_current, m_mode_bp_target);
     for (int i = 0; i < 2; ++i) {
       approach_exp_slow(m_cutoff_eg_amt_stage_1[i],  m_cutoff_eg_amt_current[i],  static_cast<int32_t>(m_cutoff_eg_amt_target[i]) << 16);
       approach_exp_slow(m_cutoff_lfo_amt_stage_1[i], m_cutoff_lfo_amt_current[i], static_cast<int32_t>(m_cutoff_lfo_amt[i])       << 16);
@@ -391,12 +448,12 @@ public:
 
   template <uint8_t N>
   INLINE void process_at_low_rate(uint8_t count, int32_t eg_input, int32_t lfo_input, int32_t osc_pitch, int32_t noise_int23,
-                                  const PRA32_U2_Filter& smoothed) {
+                                  int32_t drift_noise_int23, const PRA32_U2_Filter& smoothed) {
     // Pick up the noise once every 8 counts, like PRA32_U2_Osc does, but at a
     // phase none of the 8 oscillators uses, so that the drift of this voice is
     // not correlated with the drift of its oscillators
     if ((count & 0x07) == ((N + 2) & 0x07)) {
-      m_cutoff_drift_noise += ((noise_int23 << 8) - m_cutoff_drift_noise) >> 14;
+      m_cutoff_drift_noise += ((drift_noise_int23 << 8) - m_cutoff_drift_noise) >> 16;  // as PRA32_U2_Osc (about 44 s)
     }
 
     m_s_1 += noise_int23 >> SELF_OSC_NOISE_SHIFT;
@@ -466,20 +523,14 @@ public:
     m_s_1 = band_pass + band_pass - s_1;
     m_s_2 = low_pass  + low_pass  - s_2;
 
-    int32_t y_0 = low_pass;
-    if (m_filter_mode == 1) {
-      y_0 = band_pass;
-    } else if (m_filter_mode >= 2) {
-      // The high pass of the linear solution: the exact one,
-      // x_0 - s_2 - (g + k) * band_pass, differs by (g + k) times the chord
-      // step's correction, which is small at the levels the High Pass passes
-      y_0 = high_pass_lin;
-      if (m_filter_mode == 3) {
-        // The band reject (notch), the low pass plus the high pass: x_0 - k * band_pass,
-        // less the same difference, so the notch is slightly shallower at a high level
-        y_0 += low_pass;
-      }
-    }
+    // The mix by the Filter Mode, the same work at any value, so that the load does not change with it (the low
+    // pass alone, at 0 and 127, e.g. the Presets, comes out exactly as it is). The high pass of the linear solution:
+    // the exact one, x_0 - s_2 - (g + k) * band_pass, differs by (g + k) times the chord step's correction, which is
+    // small at the levels the High Pass passes (and the Band Reject, the low pass plus the high pass,
+    // x_0 - k * band_pass less the same difference, is slightly shallower at a high level)
+    int32_t y_0 = multiply_shift_right(low_pass,      m_mode_lp_gain, 16)
+                + multiply_shift_right(high_pass_lin, m_mode_hp_gain, 16)
+                + multiply_shift_right(band_pass,     m_mode_bp_gain, 16);
 
     // Remove the DC from the biased leak of the band pass
     m_dc_blocker += (y_0 - m_dc_blocker) >> DC_BLOCKER_SHIFT;
@@ -505,6 +556,9 @@ private:
     // so that the smoothing is not lost by rounding them to integers
     const int32_t resonance_current = smoothed.m_resonance_current;
     m_drive_gain = smoothed.m_drive_gain;
+    m_mode_lp_gain = smoothed.m_mode_lp_current;
+    m_mode_hp_gain = smoothed.m_mode_hp_current;
+    m_mode_bp_gain = smoothed.m_mode_bp_current;
 
     // 2. Add the LFO and Pitch modulations
     int32_t lfo_mod_target = 0;
@@ -520,7 +574,7 @@ private:
     eg_mod_target += (eg_input * (smoothed.m_cutoff_eg_amt_current[1] >> 9)) >> 7;
 
     // 4. Bound and lock final composite values into active controller value registers
-    int32_t drift_mod = multiply_shift_right((m_cutoff_drift_noise >> 16) * m_cutoff_drift, DRIFT_SCALE, 24);
+    int32_t drift_mod = multiply_shift_right((m_cutoff_drift_noise >> 14) * m_cutoff_drift, DRIFT_SCALE, 24);
     m_cutoff_current = clamp(smoothed.m_cutoff_base_current + lfo_mod_target + pitch_mod + eg_mod_target + drift_mod, 0, CONTROLLER_VALUE_Q16_MAX);
 
     // 5. Interpolate the coefficient tables and solve the zero-delay feedback

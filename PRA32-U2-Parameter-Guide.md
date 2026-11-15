@@ -1,6 +1,5 @@
-# Digital Synth PRA32-U2 Parameter Guide v3.20.0
+# Digital Synth PRA32-U2 Parameter Guide
 
-- 2026-11-06 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 ## Main Parameters
@@ -12,9 +11,9 @@
     - "#19 Plain Poly" is a plain Saw Wave sound (Osc 1 Wave: Pulse Wave, with Osc 1 Morph: Saw 100%) in Poly, with the FX on (Chorus, and Reverb), while "#23 Initial" is in Mono, with the FX off
     - In "#19 Plain Poly", Osc 1 Morph changes the wave from the Saw: lower to a Pulse, higher to 2 Saws, with the pulse width (or the phase of the 2nd Saw) set by Osc 1 Shape (Osc 1 Shape has no effect while Osc 1 Morph is 64)
     - In both, EG Amp Mod is On: the EG also works as the Amp EG, so the Amp Attack/Decay/Sustain/Release are not used
-- Voice and Pitch: Voice Mode, Portamento Time, Pitch Bend Range
+- Voice and Pitch: Voice Mode, Portamento Time
 - Osc: Osc 1 Wave, Mixer Noise/Sub Osc, Osc 1 Shape, Osc 1 Morph, Osc 2 Wave, Mixer Osc Mix, Osc 2 Coarse, Osc 2 Pitch
-- Filter: Filter Cutoff, Filter Resonance, Filter EG Amt, Filter Key Track, Filter Mode
+- Filter: Filter Cutoff, Filter Resonance, Filter EG Amt, Filter Key Track, Filter Mode, Filter Drive
 - Amp: Amp Gain
 - EG: EG Attack, EG Decay, EG Sustain, EG Release, EG Mod Amt, EG Mod Dst, EG Amp Mod, EG/Amp Rel = Dec
 - LFO: LFO Wave, LFO Fade Time, LFO Rate, LFO Depth, LFO Mod Amt, LFO Mod Dst, LFO Filter Amt
@@ -146,10 +145,12 @@
     - 120: Q = 152
     - 122: Q = 256
     - 123: Self-oscillation (peak level 0.15 out of the Filter; 0.22 in the loop)
-    - 125: Self-oscillation (peak level 0.20 out of the Filter; 0.39 in the loop)
-    - 127: Self-oscillation (peak level 0.25 out of the Filter; 0.50 in the loop) (max)
+    - 124: Self-oscillation (peak level 0.21 out of the Filter; 0.32 in the loop)
+    - 125: Self-oscillation (peak level 0.25 out of the Filter; 0.39 in the loop)
+    - 126: Self-oscillation (peak level 0.28 out of the Filter; 0.45 in the loop)
+    - 127: Self-oscillation (peak level 0.30 out of the Filter; 0.50 in the loop) (max)
         - NOTE: The full scale is 1.0 (e.g. the peak level of the Osc 1 Saw Wave is 0.25)
-    - Above 96, the output of the Filter is lowered with the Resonance (-1.3 dB at 108, -2.8 dB at 122, -3.5 dB at 123, and -6.0 dB at 127), so that a high Resonance is about as loud as 96; how readily the self-oscillation holds against the input follows its level in the loop, as before
+    - Above 96, the output of the Filter is lowered with the Resonance (-1.3 dB at 108, -2.8 dB at 122, -3.5 dB at 123, -3.8 dB at 125, and -4.4 dB at 127), so that a high Resonance is about as loud as 96; how readily the self-oscillation holds against the input follows its level in the loop
     - The self-oscillation fades out as the cutoff (including the modulation) rises from the Cutoff 111 (f = 7.9 kHz) to 116 (f = 10.5 kHz), and above that the Resonance 123-127 acts as 122
     - A loud input near the cutoff (e.g. the Square or the Multi Saw) weakens or stops the self-oscillation, and an input harmonic near it pulls it to the pitch of that harmonic
     - NOTE: With a high Resonance (about 112 or above), chords can still get louder, and the Output Compressor lowers the level; if it is too much, lower the "Amp Gain"
@@ -248,6 +249,7 @@
     - 77 (64-89): Monophonic (EG & LFO Multi Trigger)
     - 102 (90-115): Legato Portamento (Monophonic, EG & LFO Single Trigger, Auto Portamento)
     - 127 (116-127): Legato (Monophonic, EG & LFO Single Trigger)
+    - NOTE: The LFO triggers as above with "LFO Trig Mode" Aut (the Presets); see it for the others
 - Portamento Time
     - 0: 0 ms
     - 1: 1.07 ms
@@ -261,6 +263,7 @@
     - 77 (64-89): Saw Wave (Key Trigger On, -0.5 to +0.5)
     - 102 (90-115): Sample & Hold (Key Trigger On, -0.5 to +0.5)
     - 127 (116-127): Square Wave (Key Trigger On, 0.0 to 1.0)
+    - NOTE: Key Trigger On/Off is with "LFO Trig Mode" Aut (the Presets) and VAu; with On and VOn, every wave is key triggered
 - LFO Fade Time
     - 0: 0 ms (min)
     - 32: 309 ms
@@ -292,27 +295,16 @@
     - NOTE: The actual LFO depth is the "LFO Depth" value plus the "Modulation Wheel" value and the after touch effect (up to 100%)
 - Amp Gain
     - NOTE: The Output Compressor (after the FX) compresses the peaks above -6 dB (0.5 of full scale) at its input by 2:1 (with a soft knee from -9 dB to -3 dB), limits the peaks so that they do not go above 1.0 (full scale) at its input (reached at +6 dB), and lowers the output by 2.5 dB (x 0.75) (with the Presets, the peaks of chords are lowered by about 0.5 dB)
-- Filter Mode [LP|LP|BP|BP|BR|HP]
-    - 0 (0-12): Low Pass
-    - 26 (13-38): Low Pass
-    - 51 (39-63): Band Pass
-    - 77 (64-89): Band Pass
-    - 102 (90-115): Band Reject (Notch)
-    - 127 (116-127): High Pass
-- Pitch Bend Range
-    - 0: 0 semitone (min)
-    - 64 (64-127): 64 semitone (max)
-- EG Amp Mod [Off|On]
-    - 0 (0-63): Off
-    - 127 (64-127): On
-- EG/Amp Rel = Dec [Off|On]
-    - 0 (0-63): Off
-    - 127 (64-127): On, EG Release = EG Decay and Amp Release = Amp Decay
-- Osc/Filter Drift: Randomly drifts the pitch of each oscillator, and the Filter Cutoff of each voice by the same amount (100 cent = 1 Cutoff value)
-    - 0: Off
-    - 32: About 0.7 cent (RMS)
-    - 64: About 1.4 cent (RMS)
-    - 127: About 2.8 cent (RMS)
+- Filter Mode [LP|BR|HP|BP|LP]: The response of the Filter, changing smoothly in between (127 is taken as 128)
+    - 0: Low Pass (min, the Presets)
+    - 1-31 (L-R): Low Pass to Band Reject (the High Pass added: the notch comes down from the top to the cutoff)
+    - 32: Band Reject (Notch)
+    - 33-63 (R-H): Band Reject to High Pass (the Low Pass taken away: the notch goes on down and away)
+    - 64: High Pass
+    - 65-95 (H-B): High Pass to Band Pass (crossfaded; no notch in between)
+    - 96: Band Pass
+    - 97-126 (B-L): Band Pass to Low Pass (crossfaded; no notch in between)
+    - 127: Low Pass (max, the same as 0)
 - Filter Drive: The gain into the Filter, 2^(value / 24) (6 dB every 24 values; x 4 at 48, x 32 at 120, x 39.2 at 127), which drives the loop (the leak, at a high Resonance or near the cutoff) harder; what leaves the loop is lowered by the same ahead of the output clip, so that the level stays and the Drive changes the tone alone (the self-oscillation comes out lower by it, and a high Drive holds the resonant peak down; at a low Resonance it does little)
     - 0: x 1.00 (0 dB, min, the Presets: the Filter as it was)
     - 24: x 2.00 (+6 dB)
@@ -321,6 +313,20 @@
     - 96: x 16.0 (+24 dB)
     - 120: x 32.0 (+30 dB)
     - 127: x 39.2 (+31.9 dB, max)
+- EG Amp Mod [Off|On]
+    - 0 (0-63): Off, the Amp EG (Amp Attack/Decay/Sustain/Release, in the More Synth Parameters of PRA32-U2 Editor) changes the level (as a gate in the Presets: Amp Attack 0, Amp Decay 0, Amp Sustain 127, and Amp Release 0)
+    - 127 (64-127): On, the EG also works as the Amp EG (the Amp Attack/Decay/Sustain/Release are not used)
+- EG/Amp Rel = Dec [Off|On]
+    - 0 (0-63): Off
+    - 127 (64-127): On, EG Release = EG Decay and Amp Release = Amp Decay
+- Osc/Filter Drift: Randomly drifts the pitch of each oscillator, and the Filter Cutoff of each voice by the same amount (100 cent = 1 Cutoff value), wandering very slowly (a time constant of about 44 s), as a slight difference of each oscillator that changes over a piece; it starts from a random value of the same spread (the same at every start, and goes back to it at All Sound Off, going the same way from there), not from 0
+    - 0: Off
+    - 32: About 1.4 cent (RMS) (the Presets)
+    - 64: About 2.8 cent (RMS)
+    - 127: About 5.6 cent (RMS) (max)
+- Pitch Bend Range
+    - 0: 0 semitone (min)
+    - 64 (64-127): 64 semitone (max)
     - NOTE: Not changed by "Randomize Synth"
 - Coarse Tune [-|+]
     - -64 (0): -64 semitone
@@ -363,19 +369,26 @@
     - 77 (64-89): Mode 3, Reuse note-off voices, Free voice with next number has priority (Round Robin), Release and polyphonic after touch are effective
     - 102 (90-115): Mode 4, Reuse note-off voices, Free voice with small number has priority, Portamento and polyphonic after touch are effective
     - 127 (116-127): Mode 2, Free voice with small number has priority, Portamento is effective
-- Pan: Constant power panning
-    - -64 (0-1): Left (L +3.0 dB, R Off) (min)
-    - -32 (32): L +2.3 dB, R -5.5 dB
-    - +0 (64): Center (L 0 dB, R 0 dB)
-    - +32 (96): L -5.5 dB, R +2.3 dB
-    - +63 (127): Right (L Off, R +3.0 dB) (max)
-- Stretch Tune [-|+]
-    - -64 (0): -37.5 cent at note number 108 (+37.5 cent at note number 12) (min)
-    - -32 (32): -18.8 cent at note number 108 (+18.8 cent at note number 12)
-    - +0 (64): +0 cent
-    - +16 (80): +9.4 cent at note number 108 (-9.4 cent at note number 12)
-    - +32 (96): +18.8 cent at note number 108 (-18.8 cent at note number 12)
-    - +63 (127): +36.9 cent at note number 108 (-36.9 cent at note number 12) (max)
+- Voice Group Mode [Off|Ly2|RLy|RR2|RR4|RR3] (PRA32-U2/M): Whether the Basic Channel + 1 to + 3 are used, and what + 4, + 5, and + 15 (the Layering) do (see PRA32-U2/M in README.md), by the value of the Main Synth (that of the Sub Synths is not used); the notes of the synths are turned off when it changes
+    - 0 (0-12): Off, the Basic Channel alone, as PRA32-U2 (+ 1 to + 5 and + 15 not used; with PRA32-U2/M/P, the Panel Channel too)
+    - 26 (13-38): Ly2, + 4 is the Layering of the synths 0 and 1, and + 5 that of 2 and 3
+    - 51 (39-63): RLy, + 4 is the Round Robin (2 notes) of 0 and 1 and that of 2 and 3, layered
+    - 77 (64-89): RR2, + 4 is the Round Robin (2 notes) of 0 and 1, and + 5 that of 2 and 3
+    - 102 (90-115): RR4, + 4 is the Round Robin (4 notes) of 0, 1, 2, and 3
+    - 127 (116-127): RR3, + 4 is the Round Robin (3 notes) of 1, 2, and 3 (the Presets)
+    - NOTE: Not Off: the Basic Channel + 15 is the Layering of all too
+    - NOTE: The Sub Synths sound only while the Main Synth is in the Mono modes: while it is in Poly, a group has only the Main Synth (none without it, e.g. RR3)
+    - NOTE: Not changed by "Randomize Synth"; nothing in PRA32-U2 (not /M), nor without the Layering; not in PRA32-U2 Native
+- LFO Trig Mode [Aut|Off|On|VOn|VOf|VAu]: How a note on restarts the LFO (its phase, and the LFO Fade Time), and whether the Voices share the LFO
+    - 0 (0-12): Auto (Aut, the Presets), The LFO of all the Voices; the phase of Saw, S&H, and Square, and the fade, restart at the first note on (Polyphonic, Legato Portamento, and Legato) or every note on (Monophonic) (see Voice Mode and LFO Wave)
+    - 26 (13-38): Off, The LFO of all the Voices, free running; the fade restarts as in Aut
+    - 51 (39-63): On, The LFO of all the Voices; every note on restarts the phase (of every wave) and the fade
+    - 77 (64-89): Voice On (VOn), An LFO for each Voice; the note on of the Voice restarts its phase (of every wave) and its fade
+    - 102 (90-115): Voice Off (VOf), An LFO for each Voice, free running; the note on of the Voice restarts its fade
+    - 127 (116-127): Voice Auto (VAu), An LFO for each Voice; the note on of the Voice restarts its phase of Saw, S&H, and Square, and its fade (Triangle and Sine run on)
+    - NOTE: A restarted phase starts from the center going up (Triangle and Sine), or from the top (Saw and Square); S&H takes a new value
+    - NOTE: The LFOs of the Voices start a quarter apart (at the start, and at All Sound Off), and the LFO of Voice N (1-4) runs a little faster, by about 0.0007 Hz x (N - 1), so that they drift apart over minutes; the Red Noise is shared. The 4 Synths of PRA32-U2/M are the same: Sub Synth N (1-3) starts at N / 4 and runs faster by about 0.0007 Hz x N, as Voice N + 1 of the Main Synth
+    - NOTE: In the Monophonic modes (Voice Mode: Mon, LP, and Lgt), which play Voice 1, VOn, VOf, and VAu work as On, Off, and Aut
 - Breath Filter Amt [-|+]: 2x the other Amt parameters (e.g. Filter EG Amt), so that a weak breath also opens the Filter
     - -60 (0-4): -240 (min)
     - +30 (94): +120, the Cutoff +120 with the max breath
@@ -405,6 +418,20 @@
 - Osc Saw Wave Mode [Str|Cur]
     - 0 (0-63): Straight Saw Wave
     - 127 (64-127): Curved Saw Wave, This does not affect the Pulse Wave
+- Stretch Tune [-|+]
+    - -64 (0): -37.5 cent at note number 108 (+37.5 cent at note number 12) (min)
+    - -32 (32): -18.8 cent at note number 108 (+18.8 cent at note number 12)
+    - +0 (64): +0 cent
+    - +8 (72): +4.7 cent at note number 108 (-4.7 cent at note number 12) (the Presets)
+    - +16 (80): +9.4 cent at note number 108 (-9.4 cent at note number 12)
+    - +32 (96): +18.8 cent at note number 108 (-18.8 cent at note number 12)
+    - +63 (127): +36.9 cent at note number 108 (-36.9 cent at note number 12) (max)
+- Pan: Constant power panning
+    - -64 (0-1): Left (L +3.0 dB, R Off) (min)
+    - -32 (32): L +2.3 dB, R -5.5 dB
+    - +0 (64): Center (L 0 dB, R 0 dB)
+    - +32 (96): L -5.5 dB, R +2.3 dB
+    - +63 (127): Right (L Off, R +3.0 dB) (max)
 - Distortion Drive: The drive into the Distortion FX, 2^(value / 24) (6 dB every 24 values; x 4 at 48, x 32 at 120, x 39.2 at 127), for the synths whose FX Routing is Dst; the output is lowered by 15/16 of the drive in dB up to 96 (x 16), and by as much as there above it, where most of a sound is past the shoulder already, so that the level stays within about 2 dB as the drive goes up (a single quiet note gets a few dB louder at the top) (a little up halfway, and a little down where it saturates hard). The shoulder below zero is shorter than above (even harmonics too), the aliasing is reduced by ADAA (antiderivative anti-aliasing), and a tone (a 1-pole low pass) after it takes the edge off the harmonics, more with more drive (none at 0, about 10 kHz at 64, 5 kHz at 127)
     - NOTE: On a single note of the Saw Wave, which has every harmonic already, the Distortion changes the tone little; it is heard best on a chord (from a Distortion Drive of about 30 up, with the Presets), with a high Filter Resonance (about 110 or above, from a Distortion Drive of about 72 up), or with the Sine or the Triangle Wave
     - 0: x 1.00 (0 dB, min, the Presets: a sound below full scale passes as it is)
@@ -414,7 +441,7 @@
     - 96: x 16.0 (+24 dB)
     - 120: x 32.0 (+30 dB)
     - 127: x 39.2 (+31.9 dB, max)
-    - NOTE: Not changed by "Randomize Synth" or "Randomize FX"
+    - NOTE: Changed by "Randomize FX" (of PRA32-U2 Editor and PRA32-U2 Native), not by "Randomize Synth"
 - FX Routing [Dst|Cho|Dly|Dly|Cmp|Dry]: Where the output is input to the FX (connected in series: Distortion -> Chorus -> Delay -> Output Compressor)
     - 0 (0-12): Dst (through the Distortion, the Chorus, the Delay, and the Output Compressor)
     - 26 (13-38): Chorus (through the Chorus, the Delay, and the Output Compressor, not the Distortion)
@@ -486,12 +513,12 @@
 - The EG and LFO modulations themselves are not smoothed (not delayed)
 - 2 stages (5.3 ms average delay, 99% in 18 ms), which round off the corners of the steps, for the amounts and the balances below
 - The amounts (of the tone, the level, or a modulation), whose steps are easily heard
-    - Filter Cutoff, Filter Resonance, Filter EG Amt, LFO Filter Amt, Breath Filter Amt
+    - Filter Cutoff, Filter Resonance, Filter EG Amt, LFO Filter Amt, Breath Filter Amt, Filter Drive, and the gains of the Filter Mode
     - Osc 1 Shape
     - EG Mod Amt and LFO Mod Amt, when EG Mod Dst and LFO Mod Dst are F (Filter Cutoff) or 1S (Osc 1 Shape)
     - Amp Gain
     - LFO Depth (with LFO Fade Time, Modulation Wheel, and After Touch)
-    - Chorus Level, Chorus Depth, Delay Level, Delay Feedback
+    - Distortion Drive, Chorus Level, Chorus Depth, Delay Level, Delay Feedback
 - The balances (between two sounds, or left and right), which keep the total amount about the same
     - Osc 1 Morph, Mixer Osc Mix, Mixer Noise/Sub Osc, Pan
     - For the Sine Wave and the Wave Tables, the smoothed Osc 1 Morph is rounded to the controller value, as it switches the ratio or the table step by step

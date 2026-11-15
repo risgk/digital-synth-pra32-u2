@@ -73,7 +73,7 @@ static uint8_t s_program_table_parameters[] = {
   AMP_GAIN       ,
 
   FILTER_MODE    ,
-  P_BEND_RANGE   ,
+  FILTER_DRIVE   ,
   EG_AMP_MOD     ,
   REL_EQ_DECAY   ,
 
@@ -83,7 +83,7 @@ static uint8_t s_program_table_parameters[] = {
   AMP_RELEASE    ,
 
   OSC_DRIFT      ,
-  FILTER_DRIVE   ,
+  P_BEND_RANGE   ,
   COARSE_TUNE    ,
   FINE_TUNE      ,
 
@@ -94,14 +94,16 @@ static uint8_t s_program_table_parameters[] = {
 
   A_D_KEY_TRK    ,
   VOICE_ASGN_MODE,
-  PAN            ,
-  STRETCH_TUNE   ,
+  VOICE_GRP_MODE ,
+  LFO_TRIG_MODE  ,
 
   BTH_FILTER_AMT ,
   BTH_AMP_MOD    ,
   AFT_T_LFO_AMT  ,
   PORTA_MODE     ,
   OSC_SAW_W_MODE ,
+  STRETCH_TUNE   ,
+  PAN            ,
 
   DISTORTION     ,
   FX_ROUTING     ,
@@ -126,6 +128,7 @@ static uint8_t s_program_table_panel_parameters[] = {
   PANEL_PLAY_PIT ,
   PANEL_PLAY_VELO,
   PANEL_PIT_OFST ,
+  PANEL_TARGET_CH,
 
 
   SEQ_PITCH_0    ,
@@ -172,6 +175,7 @@ const uint8_t   DEFAULT_PANEL_PLAY_MODE = 0  ;
 const uint8_t   DEFAULT_PANEL_PLAY_PIT  = 0  ;
 const uint8_t   DEFAULT_PANEL_PLAY_VELO = 100;
 const uint8_t   DEFAULT_PANEL_PIT_OFST  = 64 ;
+const uint8_t   DEFAULT_PANEL_TARGET_CH = 0  ;
 
 
 const uint8_t   DEFAULT_SEQ_PITCH_0     = 4  ;
@@ -194,9 +198,9 @@ const uint8_t   DEFAULT_SEQ_VELO_5      = 100;
 const uint8_t   DEFAULT_SEQ_VELO_6      = 100;
 const uint8_t   DEFAULT_SEQ_VELO_7      = 100;
 
-const uint8_t   DEFAULT_SEQ_TEMPO       = 32 ;
+const uint8_t   DEFAULT_SEQ_TEMPO       = 64 ;  // 120 BPM
 const uint8_t   DEFAULT_SEQ_CLOCK_SRC   = 0  ;
-const uint8_t   DEFAULT_SEQ_GATE_TIME   = 60 ;
+const uint8_t   DEFAULT_SEQ_GATE_TIME   = 51 ;  // 3/6, on its marker
 const uint8_t   DEFAULT_SEQ_NUM_STEPS   = 32 ;
 
 const uint8_t   DEFAULT_SEQ_MODE        = 0  ;
@@ -231,6 +235,7 @@ class PRA32_U2_Synth {
   PRA32_U2_Amp      m_amp[4];
   PRA32_U2_Panner   m_panner;
   PRA32_U2_NoiseGen m_noise_gen;
+  PRA32_U2_NoiseGen m_drift_noise_gen;
   PRA32_U2_LFO      m_lfo;
   PRA32_U2_EG       m_eg[2 * 4];
 
@@ -295,6 +300,7 @@ public:
   , m_amp()
   , m_panner()
   , m_noise_gen(SYNTH_ID)
+  , m_drift_noise_gen(84 + SYNTH_ID)
   , m_lfo()
   , m_eg()
   , m_distortion_fx()
@@ -368,7 +374,34 @@ public:
     m_lfo_osc_amt = 64;
   }
 
+  // Not in RAM, as it runs only at the start and at All Sound Off (initialize() is in RAM)
+  __attribute__((noinline)) void start_drifts() {
+    // The drifts start from random values (see PRA32_U2_Osc::start_drift()) and go on by a generator
+    // of their own (not the noise of the synth), which goes back to the same state at every start and
+    // at All Sound Off, so that the drifts go the same way from there, whenever the synth was started.
+    // The seed is apart from those of the synths: 84 + SYNTH_ID, with which the start values of the
+    // 4 synths are as spread as the drift (about 1.3 cent RMS at 32) and none of them far out (within
+    // 2.6 cent at 32), those of the 1st voice within 0.7 cent (the voice of the Mono modes)
+    m_drift_noise_gen = PRA32_U2_NoiseGen(84 + SYNTH_ID);
+    m_osc.start_drift(m_drift_noise_gen);
+    m_filter[0].start_drift(PRA32_U2_Osc::random_drift_noise(m_drift_noise_gen));
+    m_filter[1].start_drift(PRA32_U2_Osc::random_drift_noise(m_drift_noise_gen));
+    m_filter[2].start_drift(PRA32_U2_Osc::random_drift_noise(m_drift_noise_gen));
+    m_filter[3].start_drift(PRA32_U2_Osc::random_drift_noise(m_drift_noise_gen));
+  }
+
+  // The phases of the Osc from random values, the same at every start and at All Sound Off (see
+  // PRA32_U2_Osc::start_phases()), by a generator of their own (apart from that of the drifts)
+  __attribute__((noinline)) void start_osc_phases() {
+    PRA32_U2_NoiseGen phase_noise_gen(92 + SYNTH_ID);
+    m_osc.start_phases(phase_noise_gen);
+  }
+
   /* INLINE */ void __not_in_flash_func(initialize)() {
+    m_lfo.set_synth_id<SYNTH_ID>();
+    start_drifts();
+    start_osc_phases();
+
     std::memcpy(m_program_table[OSC_1_WAVE     ], g_preset_table_OSC_1_WAVE     , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[MIXER_SUB_OSC  ], g_preset_table_MIXER_SUB_OSC  , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[OSC_1_SHAPE    ], g_preset_table_OSC_1_SHAPE    , sizeof(m_program_table[0]));
@@ -405,7 +438,7 @@ public:
     std::memcpy(m_program_table[AMP_GAIN       ], g_preset_table_AMP_GAIN       , sizeof(m_program_table[0]));
 
     std::memcpy(m_program_table[FILTER_MODE    ], g_preset_table_FILTER_MODE    , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[P_BEND_RANGE   ], g_preset_table_P_BEND_RANGE   , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[FILTER_DRIVE   ], g_preset_table_FILTER_DRIVE   , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[EG_AMP_MOD     ], g_preset_table_EG_AMP_MOD     , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[REL_EQ_DECAY   ], g_preset_table_REL_EQ_DECAY   , sizeof(m_program_table[0]));
 
@@ -415,7 +448,7 @@ public:
     std::memcpy(m_program_table[AMP_RELEASE    ], g_preset_table_AMP_RELEASE    , sizeof(m_program_table[0]));
 
     std::memcpy(m_program_table[OSC_DRIFT      ], g_preset_table_OSC_DRIFT      , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[FILTER_DRIVE   ], g_preset_table_FILTER_DRIVE   , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[P_BEND_RANGE   ], g_preset_table_P_BEND_RANGE   , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[COARSE_TUNE    ], g_preset_table_COARSE_TUNE    , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[FINE_TUNE      ], g_preset_table_FINE_TUNE      , sizeof(m_program_table[0]));
 
@@ -426,14 +459,16 @@ public:
 
     std::memcpy(m_program_table[A_D_KEY_TRK    ], g_preset_table_A_D_KEY_TRK    , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[VOICE_ASGN_MODE], g_preset_table_VOICE_ASGN_MODE, sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[PAN            ], g_preset_table_PAN            , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[STRETCH_TUNE   ], g_preset_table_STRETCH_TUNE   , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[VOICE_GRP_MODE ], g_preset_table_VOICE_GRP_MODE , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[LFO_TRIG_MODE  ], g_preset_table_LFO_TRIG_MODE  , sizeof(m_program_table[0]));
 
     std::memcpy(m_program_table[BTH_FILTER_AMT ], g_preset_table_BTH_FILTER_AMT , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[BTH_AMP_MOD    ], g_preset_table_BTH_AMP_MOD    , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[AFT_T_LFO_AMT  ], g_preset_table_AFT_T_LFO_AMT  , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[PORTA_MODE     ], g_preset_table_PORTA_MODE     , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[OSC_SAW_W_MODE ], g_preset_table_OSC_SAW_W_MODE , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[STRETCH_TUNE   ], g_preset_table_STRETCH_TUNE   , sizeof(m_program_table[0]));
+    std::memcpy(m_program_table[PAN            ], g_preset_table_PAN            , sizeof(m_program_table[0]));
 
     std::memcpy(m_program_table[DISTORTION     ], g_preset_table_DISTORTION     , sizeof(m_program_table[0]));
     std::memcpy(m_program_table[FX_ROUTING     ], g_preset_table_FX_ROUTING     , sizeof(m_program_table[0]));
@@ -451,11 +486,12 @@ public:
       m_program_table_panel[i][PANEL_SCALE    ] = DEFAULT_PANEL_SCALE    ;
       m_program_table_panel[i][PANEL_TRANSPOSE] = DEFAULT_PANEL_TRANSPOSE;
       m_program_table_panel[i][PANEL_PLAY_MODE] = DEFAULT_PANEL_PLAY_MODE;
-      m_program_table_panel[i][PANEL_MIDI_CH  ] = g_midi_ch              ;
+      m_program_table_panel[i][PANEL_MIDI_CH  ] = g_midi_ch << 3         ;  // as the panel sets it (the value >> 3)
 
       m_program_table_panel[i][PANEL_PLAY_PIT ] = DEFAULT_PANEL_PLAY_PIT ;
       m_program_table_panel[i][PANEL_PLAY_VELO] = DEFAULT_PANEL_PLAY_VELO;
       m_program_table_panel[i][PANEL_PIT_OFST ] = DEFAULT_PANEL_PIT_OFST ;
+      m_program_table_panel[i][PANEL_TARGET_CH] = DEFAULT_PANEL_TARGET_CH;
 
 
       m_program_table_panel[i][SEQ_PITCH_0    ] = DEFAULT_SEQ_PITCH_0    ;
@@ -590,7 +626,7 @@ public:
             m_osc.set_portamento<0>(m_portamento);
           }
           m_osc.note_on<0>(note_number);
-          m_lfo.trigger_lfo();
+          m_lfo.note_on_monophonic(true);
           int32_t osc_pitch_0 = m_osc.get_osc_pitch(0);
           m_eg[0].note_on(velocity, osc_pitch_0);
           m_eg[1].note_on(velocity, osc_pitch_0);
@@ -607,6 +643,7 @@ public:
 
           m_osc.set_portamento<0>(m_portamento);
           m_osc.note_on<0>(note_number);
+          m_lfo.note_on_monophonic(false);
         }
       } else {
         ++m_note_on_total_count;
@@ -624,7 +661,7 @@ public:
 
         m_osc.set_portamento<0>(m_portamento);
         m_osc.note_on<0>(note_number);
-        m_lfo.trigger_lfo();
+        m_lfo.note_on_monophonic(true);
         int32_t osc_pitch_0 = m_osc.get_osc_pitch(0);
         m_eg[0].note_on(velocity, osc_pitch_0);
         m_eg[1].note_on(velocity, osc_pitch_0);
@@ -635,6 +672,7 @@ public:
 
       m_osc.set_portamento<0>(m_portamento);
       m_osc.note_on<0>(note_number);
+      m_lfo.note_on_polyphonic(0, false);
       m_last_note_on_index = 0;
 
       int32_t osc_pitch_0 = m_osc.get_osc_pitch(0);
@@ -646,6 +684,7 @@ public:
 
       m_osc.set_portamento<1>(m_portamento);
       m_osc.note_on<1>(note_number);
+      m_lfo.note_on_polyphonic(1, false);
       m_last_note_on_index = 1;
 
       if (m_voice_mode == VOICE_POLYPHONIC) {
@@ -663,6 +702,7 @@ public:
 
       m_osc.set_portamento<2>(m_portamento);
       m_osc.note_on<2>(note_number);
+      m_lfo.note_on_polyphonic(2, false);
       m_last_note_on_index = 2;
 
       if (m_voice_mode == VOICE_POLYPHONIC) {
@@ -680,6 +720,7 @@ public:
 
       m_osc.set_portamento<3>(m_portamento);
       m_osc.note_on<3>(note_number);
+      m_lfo.note_on_polyphonic(3, false);
       m_last_note_on_index = 3;
 
       if (m_voice_mode == VOICE_POLYPHONIC) {
@@ -811,9 +852,7 @@ public:
         break;
       }
 
-      if (prev_note_on_total_count == 0) {
-        m_lfo.trigger_lfo();
-      }
+      m_lfo.note_on_polyphonic(note_on_osc_index, (prev_note_on_total_count == 0));
 
       if (m_voice_mode == VOICE_POLYPHONIC) {
         int32_t osc_pitch = m_osc.get_osc_pitch(note_on_osc_index);
@@ -869,7 +908,7 @@ public:
           m_osc.note_on<0>(m_note_on_number[0]);
 
           if (m_voice_mode == VOICE_MONOPHONIC) {
-            m_lfo.trigger_lfo();
+            m_lfo.note_on_monophonic(true);
             int32_t osc_pitch_0 = m_osc.get_osc_pitch(0);
             m_eg[0].note_on(255, osc_pitch_0);
             m_eg[1].note_on(255, osc_pitch_0);
@@ -972,10 +1011,8 @@ public:
     if (all_sound_off) {
       m_lfo.reset();
 
-      m_osc.reset<0>();
-      m_osc.reset<1>();
-      m_osc.reset<2>();
-      m_osc.reset<3>();
+      start_drifts();
+      start_osc_phases();
 
       m_filter[0].reset();
       m_filter[1].reset();
@@ -1198,6 +1235,10 @@ if constexpr (NO_FX == false) {
     case PORTA_MODE     :
       m_portamento_mode_cc = (controller_value < 64);
       update_portamento();
+      break;
+
+    case LFO_TRIG_MODE  :
+      m_lfo.set_lfo_trig_mode(controller_value);
       break;
 
     case MIXER_OSC_MIX  :
@@ -1558,7 +1599,7 @@ if constexpr (NO_FX == false) {
       uint32_t control_number = s_program_table_parameters[i];
       if ((control_number != VOICE_MODE     ) &&
           (control_number != AMP_GAIN       ) &&
-          (control_number != FILTER_DRIVE   ) &&
+          (control_number != P_BEND_RANGE   ) &&
           (control_number != DISTORTION     ) &&
           (control_number != CHORUS_MIX     ) &&
           (control_number != FX_ROUTING     ) &&
@@ -1575,6 +1616,7 @@ if constexpr (NO_FX == false) {
           (control_number != VOICE_ASGN_MODE) &&
           (control_number != A_D_KEY_TRK    ) &&
           (control_number != PAN            ) &&
+          (control_number != VOICE_GRP_MODE ) &&
           (control_number != STRETCH_TUNE   ) &&
           (control_number != OSC_DRIFT      ) &&
           (control_number != OSC_SAW_W_MODE ) &&
@@ -1584,6 +1626,7 @@ if constexpr (NO_FX == false) {
           (control_number != BTH_AMP_MOD    ) &&
           (control_number != AFT_T_LFO_AMT  ) &&
           (control_number != PORTA_MODE     ) &&
+          (control_number != LFO_TRIG_MODE  ) &&
           (control_number != AMP_ATTACK     ) &&
           (control_number != AMP_DECAY      ) &&
           (control_number != AMP_SUSTAIN    ) &&
@@ -1714,14 +1757,15 @@ if constexpr (BYPASS_SYNTH == false) {
         m_eg[0].process_at_low_rate();
         m_eg[1].process_at_low_rate();
         int32_t lfo_output = m_lfo.get_output<0>();
-        m_osc.process_at_low_rate<0, RESTRICT_SQR_WT>(m_count >> 2, lfo_output, m_eg[0].get_output(), noise_int23);
+        int32_t drift_noise_int23 = m_drift_noise_gen.process();
+        m_osc.process_at_low_rate<0, RESTRICT_SQR_WT>(m_count >> 2, lfo_output, m_eg[0].get_output(), drift_noise_int23);
         // The smoothing of the Filter and Amp parameters is the same for all voices,
         // so it is done once by m_filter[0] and m_amp[0], and read by all voices
         if (is_slow_smoothing_period(m_count >> 2)) {
           m_filter[0].update_smoothing();
           m_amp[0].update_smoothing();
         }
-        m_filter[0].template process_at_low_rate<0>(m_count >> 2, m_eg[0].get_output(), lfo_output, m_osc.get_osc_pitch(0), noise_int23, m_filter[0]);
+        m_filter[0].template process_at_low_rate<0>(m_count >> 2, m_eg[0].get_output(), lfo_output, m_osc.get_osc_pitch(0), noise_int23, drift_noise_int23, m_filter[0]);
         m_amp[0].process_at_low_rate(branchless_conditional(m_controller_value_eg_amp_mod >= 64, m_eg[0].get_output(), m_eg[1].get_output()), m_amp[0]);
       }
       break;
@@ -1734,9 +1778,11 @@ if constexpr (RESTRICT_POLY_AND_CORES == false) {
 if (m_voice_mode == VOICE_POLYPHONIC) {
         m_eg[2].process_at_low_rate();
         m_eg[3].process_at_low_rate();
+        m_lfo.process_voice_at_low_rate(1);
         int32_t lfo_output = m_lfo.get_output<1>();
-        m_osc.process_at_low_rate<1, RESTRICT_SQR_WT>(m_count >> 2, lfo_output, m_eg[2].get_output(), noise_int23);
-        m_filter[1].template process_at_low_rate<1>(m_count >> 2, m_eg[2].get_output(), lfo_output, m_osc.get_osc_pitch(1), noise_int23, m_filter[0]);
+        int32_t drift_noise_int23 = m_drift_noise_gen.process();
+        m_osc.process_at_low_rate<1, RESTRICT_SQR_WT>(m_count >> 2, lfo_output, m_eg[2].get_output(), drift_noise_int23);
+        m_filter[1].template process_at_low_rate<1>(m_count >> 2, m_eg[2].get_output(), lfo_output, m_osc.get_osc_pitch(1), noise_int23, drift_noise_int23, m_filter[0]);
         m_amp[1].process_at_low_rate(branchless_conditional(m_controller_value_eg_amp_mod >= 64, m_eg[2].get_output(), m_eg[3].get_output()), m_amp[0]);
 }
 }
@@ -1752,9 +1798,11 @@ if constexpr (RESTRICT_POLY_AND_CORES == false) {
 if (m_voice_mode == VOICE_POLYPHONIC) {
         m_eg[4].process_at_low_rate();
         m_eg[5].process_at_low_rate();
+        m_lfo.process_voice_at_low_rate(2);
         int32_t lfo_output = m_lfo.get_output<2>();
-        m_osc.process_at_low_rate<2, RESTRICT_SQR_WT>(m_count >> 2, lfo_output, m_eg[4].get_output(), noise_int23);
-        m_filter[2].template process_at_low_rate<2>(m_count >> 2, m_eg[4].get_output(), lfo_output, m_osc.get_osc_pitch(2), noise_int23, m_filter[0]);
+        int32_t drift_noise_int23 = m_drift_noise_gen.process();
+        m_osc.process_at_low_rate<2, RESTRICT_SQR_WT>(m_count >> 2, lfo_output, m_eg[4].get_output(), drift_noise_int23);
+        m_filter[2].template process_at_low_rate<2>(m_count >> 2, m_eg[4].get_output(), lfo_output, m_osc.get_osc_pitch(2), noise_int23, drift_noise_int23, m_filter[0]);
         m_amp[2].process_at_low_rate(branchless_conditional(m_controller_value_eg_amp_mod >= 64, m_eg[4].get_output(), m_eg[5].get_output()), m_amp[0]);
 }
 }
@@ -1769,9 +1817,11 @@ if constexpr (RESTRICT_POLY_AND_CORES == false) {
 if (m_voice_mode == VOICE_POLYPHONIC) {
         m_eg[6].process_at_low_rate();
         m_eg[7].process_at_low_rate();
+        m_lfo.process_voice_at_low_rate(3);
         int32_t lfo_output = m_lfo.get_output<3>();
-        m_osc.process_at_low_rate<3, RESTRICT_SQR_WT>(m_count >> 2, lfo_output, m_eg[6].get_output(), noise_int23);
-        m_filter[3].template process_at_low_rate<3>(m_count >> 2, m_eg[6].get_output(), lfo_output, m_osc.get_osc_pitch(3), noise_int23, m_filter[0]);
+        int32_t drift_noise_int23 = m_drift_noise_gen.process();
+        m_osc.process_at_low_rate<3, RESTRICT_SQR_WT>(m_count >> 2, lfo_output, m_eg[6].get_output(), drift_noise_int23);
+        m_filter[3].template process_at_low_rate<3>(m_count >> 2, m_eg[6].get_output(), lfo_output, m_osc.get_osc_pitch(3), noise_int23, drift_noise_int23, m_filter[0]);
         m_amp[3].process_at_low_rate(branchless_conditional(m_controller_value_eg_amp_mod >= 64, m_eg[6].get_output(), m_eg[7].get_output()), m_amp[0]);
 }
 }

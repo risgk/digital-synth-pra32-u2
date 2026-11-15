@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 v3.20.0
+# Digital Synth PRA32-U2 v3.21.0
 
-- 2026-11-06 ISGK Instruments
+- 2026-11-15 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 - [日本語版 README (抄訳)](./README.ja.md)
 
@@ -17,11 +17,15 @@
 - Prebuilt UF2 files (in the "bin" folder): Arduino IDE is not required to use PRA32-U2 without modification
     - Connect Raspberry Pi Pico 2 to a PC while pressing the BOOTSEL button, and copy a UF2 file to the "RP2350" drive
     - PRA32-U2/M (Recommended): "Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico 2 and Pimoroni Pico Audio Pack
-        - A superset of PRA32-U2: the Main Synth works the same as PRA32-U2, and the Sub Synths and Layering are added (see [PRA32-U2/M](#pra32-u2m-pra32-u2-multi-timbre-edition))
-        - NOTE: It also responds to MIDI Channels 2-4 and 14-16 (by default); use PRA32-U2 if these channels are used for other devices
+        - A superset of PRA32-U2: the Main Synth works the same as PRA32-U2, and the Sub Synths, the Layering, and the Round Robin (by Voice Group Mode) are added (see [PRA32-U2/M](#pra32-u2m-pra32-u2-multi-timbre-edition))
+        - NOTE: It also responds to MIDI Channels 2-5 and 16 (by default, by Voice Group Mode RR3 of the presets; 6 too by Ly2 and RR2); with Voice Group Mode Off (a parameter of the programs of the Main Synth), only Channel 1 (see below); use PRA32-U2 if these channels are used for other devices
+    - PRA32-U2/M/P Headless: "Digital-Synth-PRA32-U2-M-P-Headless-Pimoroni-Pico-Audio-Pack.uf2", PRA32-U2/M with the Step Sequencer and the Panel Parameters
+      ([PRA32-U2/P Headless](./README-PRA32-U2-P.md#pra32-u2p-headless)), e.g. from "Panel & Step Sequencer" of PRA32-U2 Editor
+        - NOTE: It also responds to the Control Changes on MIDI Channel 15 (the Panel Channel, by default)
     - PRA32-U2: "Digital-Synth-PRA32-U2-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico 2 and Pimoroni Pico Audio Pack
 - Modifiable with Arduino IDE and Arduino-Pico (by Earle F. Philhower, III): see [Modification Guide](./PRA32-U2-Modification-Guide.md) (e.g. for other I2S DACs, PWM Audio, or the panel)
 - Optional: **[PRA32-U2/P](./README-PRA32-U2-P.md)** (PRA32-U2 with Panel) and **PRA32-U2/M/P** (PRA32-U2 Multi-Timbre Edition with Panel) can also be configured by adding certain parts
+    - Or **[PRA32-U2/P Headless](./README-PRA32-U2-P.md#pra32-u2p-headless)** without the panel: the Step Sequencer by MIDI (e.g. from PRA32-U2 Editor), with no extra parts
 - **[PRA32-U2 Native](./PRA32-U2-Native/README.md)**: a software synthesizer (VST3 plugin and standalone application) version of PRA32-U2 for PCs
 - **[PRA32-U2 Web](./PRA32-U2-Web/README.md)**: a software synthesizer version of PRA32-U2 that runs in a Web browser, built into PRA32-U2 Editor
 
@@ -32,7 +36,7 @@
 
 1. Plug Raspberry Pi Pico 2 H into Pico Audio Pack, and connect the line output of Pico Audio Pack to an amplifier or an active speaker
 2. Copy a UF2 file to Raspberry Pi Pico 2 (see the prebuilt UF2 files above)
-3. Connect it to a PC by USB: it appears as a USB MIDI device "PRA32-U2" ("PRA32-U2/M" for PRA32-U2/M)
+3. Connect it to a PC by USB: it appears as a USB MIDI device "PRA32-U2" ("PRA32-U2/M" for PRA32-U2/M, and "PRA32-U2/M/P" for PRA32-U2/M/P Headless)
 4. Open [PRA32-U2 Editor](#pra32-u2-editor) in Google Chrome or Microsoft Edge, select "PRA32-U2" in "MIDI Out", and play the Software Keyboard (MIDI Channel 1)
 
 
@@ -50,6 +54,8 @@
 ## Synthesizer Block Diagram
 
 Thick arrows carry the stereo audio (L / R), from the Panner on.
+Each Voice has its own LFO; the LFO of Voice 1 drives all the Voices with LFO Trig Mode Aut, Off, or On,
+and the LFO of each Voice drives the Voice with VOn, VOf, or VAu.
 
 ```mermaid
 graph LR
@@ -60,12 +66,13 @@ graph LR
         V1F --> V1A[Amp]
         E[EG] -.-> V1O1 & V1O2 & V1F & V1A
         V1AE[Amp EG] -.-> V1A
+        L["LFO w/ S/H<br/>(also Voices 2-4 in<br/>Aut / Off / On)"] -.-> V1O1 & V1O2 & V1F
     end
     V1A --> VM[Voice Mixer]
     V2[Voice 2] & V3[Voice 3] & V4[Voice 4] --> VM
     N[Noise Gen]  --> V1O2 & V1OM & V2 & V3 & V4
-    N -.-> L[LFO w/ S/H]
-    L -.-> V1O1 & V1O2 & V1F & V2 & V3 & V4
+    N -.-> L
+    L -.-> V2 & V3 & V4
     VM --> J1((A))
 ```
 
@@ -122,11 +129,11 @@ graph LR
         - "PRA32-U2 Web (Built-in, +6 dB)": 6 dB louder, closer to other sounds (the peaks above -2 dBFS rounded off)
             - Without "+6 dB", it sounds as PRA32-U2 does (e.g. to compare with it)
             - With a high Amp Gain, the peaks rounded off can be heard as a little distortion
-    - Select "PRA32-U2/M Web (Built-in)" (or with "+6 dB") to use PRA32-U2/M (the 4 synths) in PRA32-U2 Web
-        - The Basic Channel is 1 (it cannot be changed): select the synth to edit in "MIDI Ch" (see the channels of PRA32-U2/M below)
+    - Select "PRA32-U2/M/P Web (Built-in)" (or with "+6 dB") to use PRA32-U2/M (the 4 synths) in PRA32-U2 Web
+        - The Basic Channel is 1 at first: select the synth to edit in "MIDI Ch" (see the channels of PRA32-U2/M below; 2-4 with Voice Group Mode not Off, RR3 in the presets)
         - The Main Synth starts with the program #0 and the Sub Synths 1-3 with #1-3, as PRA32-U2/M does;
           the Sub Synths sound only while the Main Synth is not in Poly
-    - Nothing is sent when an output is selected (PRA32-U2 Web too): "Send Current" sends the parameters of PRA32-U2 Editor (one set) to the synth of "MIDI Ch"
+    - Nothing is sent when an output is selected (PRA32-U2 Web too): "Send Current" (on the heading of "MIDI") sends the parameters of PRA32-U2 Editor (one set) to the synth of "MIDI Ch"
 
 
 ### Programs and Presets
@@ -137,16 +144,16 @@ graph LR
     - #0-15: the user presets of PRA32-U2 Editor (stored in the Web browser), not the programs #0-15 of PRA32-U2 (written by Write)
     - #16-31: the factory presets (the same as the programs #16-31 of PRA32-U2)
     - To select the programs of PRA32-U2 itself, send Program Changes to PRA32-U2 directly (without PRA32-U2 Editor),
-      or use the Program Change buttons (in "Save & Load")
+      or use the Program Change buttons (in "Write & Program Change")
 - Sounds made with PRA32-U2 Editor can be written to PRA32-U2, and recalled later without PRA32-U2 Editor
-    1. Write: press a Write button (#0-15, in "Save & Load") of PRA32-U2 Editor, to write the current parameters
+    1. Write: press a Write button (#0-15, in "Write & Program Change") of PRA32-U2 Editor, to write the current parameters
        to the program of PRA32-U2 (also to the flash, so that they are kept after the power is turned off);
        the parameters shown in PRA32-U2 Editor are sent again before writing
     2. Send Program Change #0-15 to PRA32-U2 directly (not via PRA32-U2 Editor) to recall the program
-- The Program Change buttons (in "Save & Load") of PRA32-U2 Editor also send Program Changes to PRA32-U2 directly
+- The Program Change buttons (in "Write & Program Change") of PRA32-U2 Editor also send Program Changes to PRA32-U2 directly
   (NOTE: The parameters shown in PRA32-U2 Editor are not updated)
 - "Randomize Synth": processed when Program Change #127 is entered or Control Change #111 is changed from Off (63 or lower) to On (64 or higher);
-  also by PRA32-U2 itself, when they are sent to it directly
+  also by PRA32-U2 itself, when they are sent to it directly; it changes the first 32 parameters except Voice Mode and Amp Gain
 
 
 ### Without PRA32-U2 Editor
@@ -161,9 +168,11 @@ graph LR
 
 - PRA32-U2 Editor stores the current control values and the user presets (#0-15) in a Web browser (localStorage)
 - Current parameter values and user presets (#0-15) can be imported/exported from/to JSON files
-- User presets: a name of up to 10 ASCII letters, digits, and symbols can be given by Store (shown on the User Preset buttons)
+- User presets: a name of up to 10 ASCII letters, digits, and symbols can be given by Store (shown on the User Preset buttons and the Store buttons)
 - Undo: back to the parameters before the last change (a preset, Randomize, Import, or a move of a slider), up to 200 steps; Redo: forward again (also by Ctrl+Z and Ctrl+Y or Ctrl+Shift+Z, or Command on a Mac)
-- "MIDI" and "Actions & Presets" (with "Save & Load" under it) can each be hidden, to give the parameters more of the window
+- "MIDI", "Actions & Presets", "Store & File", and "Write & Program Change" can each be hidden, to give the parameters more of the window (Send Current is on the heading of "MIDI", shown while it is hidden too)
+- "Synth Parameters" (the first 32), "More Synth Parameters" (the others), and "FX Parameters" can each be hidden too
+- "Panel & Step Sequencer" for PRA32-U2/P (see [Panel Channel](./README-PRA32-U2-P.md#panel-channel))
 - The controls look the same in every Web browser and OS (as in Chrome); on a touch screen, the thumbs of the sliders are larger, and the buttons taller
 - Software Keyboard
     - Below the parameters, it stays at the bottom of the window while they scroll above it, so that they can be changed while playing; it can be hidden (Panic stays shown; hiding turns Hold off)
@@ -187,30 +196,50 @@ graph LR
         | Channel (Default) | Basic Channel | Function | Synths (Basic Channel +) | Program Change (Program # +) |
         | :-- | :-- | :-- | :-- | :-- |
         | 1 | + 0 | Main Synth | 0 | 0 |
-        | 2 | + 1 | Sub Synth 1 | 1 | 0 |
-        | 3 | + 2 | Sub Synth 2 | 2 | 0 |
-        | 4 | + 3 | Sub Synth 3 | 3 | 0 |
-        | 7 | + 6 | Round Robin (2 notes) * | 0, 1 | 0, 0 |
-        | 8 | + 7 | Round Robin (2 notes) * | 2, 3 | 0, 0 |
-        | 9 | + 8 | Round Robin (2 notes) x 2, layered * | 0, 1 / 2, 3 | 0, 0 / 1, 1 |
-        | 12 | - 5 | Round Robin (3 notes) * | 1, 2, 3 | 0, 0, 0 |
-        | 13 | - 4 | Round Robin (4 notes) * | 0, 1, 2, 3 | 0, 0, 0, 0 |
-        | 14 | - 3 | Layering | 0, 1 | 0, 1 |
-        | 15 | - 2 | Layering | 2, 3 | 0, 1 |
-        | 16 | - 1 | Layering | 0, 1, 2, 3 | 0, 1, 2, 3 |
+        | 2 | + 1 | Sub Synth 1 (with Voice Group Mode not Off) | 1 | 0 |
+        | 3 | + 2 | Sub Synth 2 (with Voice Group Mode not Off) | 2 | 0 |
+        | 4 | + 3 | Sub Synth 3 (with Voice Group Mode not Off) | 3 | 0 |
+        | 5, 6 | + 4, + 5 | By Voice Group Mode (below; RR3, + 4, in the presets) | | |
+        | 16 | + 15 | Layering (with Voice Group Mode not Off) | 0, 1, 2, 3 | 0, 1, 2, 3 |
 
-        - \* With both the Layering and the Round Robin enabled (by default)
+    - Voice Group Mode (CC #80): whether the Basic Channel + 1 to + 3 are used, and what + 4, + 5, and + 15 do (the groups and the Layering), by the value of the Main Synth
+      (a parameter of its programs, RR3 in the presets); the other channels are free (e.g. for other instruments of a sequencer)
+
+        | Voice Group Mode (CC #80) | + 4 (Channel 5) | + 5 (Channel 6) | Program Change (Program # +) |
+        | :-- | :-- | :-- | :-- |
+        | Off (0) | - | - | - |
+        | Ly2 (26) | Layering of 0, 1 | Layering of 2, 3 | 0, 1 / 0, 1 |
+        | RLy (51) | Round Robin (2 notes) of 0, 1 and of 2, 3, layered | - | 0, 0 / 1, 1 |
+        | RR2 (77) | Round Robin (2 notes) of 0, 1 | Round Robin (2 notes) of 2, 3 | 0, 0 / 0, 0 |
+        | RR4 (102) | Round Robin (4 notes) of 0, 1, 2, 3 | - | 0, 0, 0, 0 |
+        | RR3 (127, the presets) | Round Robin (3 notes) of 1, 2, 3 | - | 0, 0, 0 |
+
+        - Off: only the Basic Channel (as PRA32-U2; not + 1 to + 3 either), so that the other channels are free (e.g. for a sequencer;
+          with PRA32-U2/M/P, Headless too, the Panel Channel, + 14, too)
+        - The others: the Sub Synths play on + 1 to + 3, and + 15 is the Layering of all too
+        - The Sub Synths sound only while the Main Synth is in the Mono modes: while it is in Poly, a group has only the Main Synth
+          (e.g. + 15 and RR4 play the Main Synth in Poly), and none without it (e.g. RR3)
+        - E.g. RR3 (the presets) with the Main Synth in Mono: Channel 1 plays a lead, and Channel 5 plays 3 notes (the Round Robin of the Sub Synths)
+        - E.g. RR4: Channel 5 plays 4 notes (the Round Robin), and Channel 16 a lead of the 4 synths layered, with the sounds of one program
+          (+ 15 sets #n to #n + 3, and + 4 sets #n to all)
+        - In PRA32-U2 Editor, its slider sends it on the Basic Channel (Basic Ch of "Panel & Step Sequencer", 1 by default), whatever "MIDI Ch" is
+
     - Layering: a note (and every other message) goes to all the synths of the channel
         - Program # + 1 to + 3 wrap around in the user programs (#0-15) and in the presets (#16-31) each; Program Change #127 (Randomize Synth) is for all the synths
+        - So the 4 sounds stored as the user programs in a row (e.g. #4-7) are set at once by a Program Change on the Basic Channel + 15 (e.g. #4), as a setup of the 4 synths
+          (with Voice Group Mode not Off)
+        - The Program Change sets the Main Synth too, and so Voice Group Mode (that of #n): keep it not Off in #n to use + 1 to + 5 and + 15 after it;
+          while the Main Synth is in Poly, it sets the Main Synth alone (#n)
     - Round Robin: the notes go to the synths of the channel in turn, as the voices of a polyphonic synth (the other messages go to all of them)
         - The synths are assigned by the Voice Assign Mode of the first synth, as the voices of the Polyphonic Mode, and kept by the Sustain Pedal
         - Unlike the Polyphonic Mode, each synth has its own LFO, and a note is as loud as a voice of the Polyphonic Mode
     - MPE (MIDI Polyphonic Expression) controllers: each synth works as a member channel, with its own pitch bend, pressure, and CC #74 (Filter Cutoff) (not fully supported)
+        - With Voice Group Mode not Off (e.g. RR3 of the presets) and the Main Synth in the Mono modes (the Sub Synths sound only then)
         - Basic Channel 1 (default): Channels 2-4 play 3 notes
-        - Basic Channel 2: Channels 2-5 play 4 notes, and Channel 1 (the Layering of all) works as the Master Channel
+        - Basic Channel 2: Channels 2-5 play 4 notes, and Channel 1 (the Layering of all, with Voice Group Mode not Off) works as the Master Channel
         - Set Pitch Bend Range to that of the controller (e.g. 48 semitones)
-    - With the panel (PRA32-U2/M/P), all the channels above can be selected (see [PRA32-U2/P](./README-PRA32-U2-P.md))
-    - Not to use the Layering or the Round Robin, comment out `#define PRA32_U2_ENABLE_LAYERING` or `#define PRA32_U2_ENABLE_ROUND_ROBIN` in "Digital-Synth-PRA32-U2-M.ino"
+    - With the panel (PRA32-U2/M/P), the channels above can be selected (see [PRA32-U2/P](./README-PRA32-U2-P.md))
+    - Not to use the Layering and the Round Robin, comment out `#define PRA32_U2_ENABLE_LAYERING` in "Digital-Synth-PRA32-U2-M.ino" (the Basic Channel + 4, + 5, and + 15 not used, with no Voice Group Mode)
 - How to modify (with Arduino IDE)
     - Copy all files in the "Digital-Synth-PRA32-U2" folder, except for "Digital-Synth-PRA32-U2.ino", to the "Digital-Synth-PRA32-U2-M" folder
     - "Digital-Synth-PRA32-U2-M.ino" is an Arduino sketch
@@ -264,11 +293,11 @@ graph LR
 
 ![CC0](http://i.creativecommons.org/p/zero/1.0/88x31.png)
 
-**Digital Synth PRA32-U2 v3.20.0 by ISGK Instruments (Ryo Ishigaki)**
+**Digital Synth PRA32-U2 v3.21.0 by ISGK Instruments (Ryo Ishigaki)**
 
 To the extent possible under law, ISGK Instruments (Ryo Ishigaki)
 has waived all copyright and related or neighboring rights
-to Digital Synth PRA32-U2 v3.20.0.
+to Digital Synth PRA32-U2 v3.21.0.
 
 You should have received a copy of the CC0 legalcode along with this
 work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.

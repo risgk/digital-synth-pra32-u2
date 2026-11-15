@@ -2,7 +2,7 @@
  * Digital Synth PRA32-U2/M
  */
 
-#define PRA32_U2_VERSION                       "v3.20.0   "
+#define PRA32_U2_VERSION                       "v3.21.0   "
 
 //#define PRA32_U2_USE_DEBUG_PRINT
 
@@ -57,33 +57,24 @@
 //#define PRA32_U2_DISABLE_DISTORTION_FX         // The Distortion FX passes its input through (Dst as Cho), for the load
 //#define PRA32_U2_DISABLE_REVERB                // Delay Mode Rev is the Stereo Delay (Ste), for the load
 
-#define PRA32_U2_ENABLE_LAYERING
-#define PRA32_U2_ENABLE_ROUND_ROBIN              // Only with the Layering (see README.md)
-
-#if !defined(PRA32_U2_ENABLE_LAYERING)
-#undef PRA32_U2_ENABLE_ROUND_ROBIN
-#endif
+#define PRA32_U2_ENABLE_LAYERING                 // The Layering and the Round Robin (the Basic Channel + 4, + 5, and + 15; see README.md)
 
 #if defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
 #define PRA32_U2_SECONDARY_CORE_IN_POLY_ONLY     // The 4 Synths without waiting at every frame (see loop())
 #endif  // defined(PRA32_U2_USE_2_CORES_FOR_SIGNAL_PROCESSING)
 
-// The channels that the panel can select: the 4 synths, the Round Robin, and the Layering
+// The channels that the panel can select: the 4 synths, the Basic Channel + 4 and + 5 (the Voice Group Mode), and + 15 (the Layering)
 #if defined(PRA32_U2_ENABLE_LAYERING)
-#define PRA32_U2_NUMBER_OF_LAYERING_CHS        (3)
+#define PRA32_U2_NUMBER_OF_GROUP_CHS           (3)
 #else
-#define PRA32_U2_NUMBER_OF_LAYERING_CHS        (0)
+#define PRA32_U2_NUMBER_OF_GROUP_CHS           (0)
 #endif
-#if defined(PRA32_U2_ENABLE_ROUND_ROBIN)
-#define PRA32_U2_NUMBER_OF_ROUND_ROBIN_CHS     (5)
-#else
-#define PRA32_U2_NUMBER_OF_ROUND_ROBIN_CHS     (0)
-#endif
-#define PRA32_U2_NUMBER_OF_SYNTHS              (4 + PRA32_U2_NUMBER_OF_ROUND_ROBIN_CHS + PRA32_U2_NUMBER_OF_LAYERING_CHS)
+#define PRA32_U2_NUMBER_OF_SYNTHS              (4 + PRA32_U2_NUMBER_OF_GROUP_CHS)
 
 ////////////////////////////////////////////////////////////////
 
 //#define PRA32_U2_USE_CONTROL_PANEL               // PRA32-U2/P (PRA32-U2 with Panel)
+#define PRA32_U2_USE_PANEL_CHANNEL               // The Panel Channel (the Basic Channel + 14) of PRA32-U2/P (see README-PRA32-U2-P.md)
 
 #define PRA32_U2_USE_CONTROL_PANEL_KEY_INPUT     // Use tactile switches
 #define PRA32_U2_KEY_INPUT_ACTIVE_LEVEL          (LOW)
@@ -588,9 +579,9 @@ void __not_in_flash_func(loop)() {
     g_sub_1_synth.all_notes_off(true);
     g_sub_2_synth.all_notes_off(true);
     g_sub_3_synth.all_notes_off(true);
-#if defined(PRA32_U2_ENABLE_ROUND_ROBIN)
+#if defined(PRA32_U2_ENABLE_LAYERING)
     roundRobinReset();
-#endif  // defined(PRA32_U2_ENABLE_ROUND_ROBIN)
+#endif  // defined(PRA32_U2_ENABLE_LAYERING)
   }
 
 #if defined(PRA32_U2_USE_DEBUG_PRINT)
@@ -771,190 +762,4 @@ void __not_in_flash_func(handleStop)()
 }
 
 
-#if defined(PRA32_U2_USE_CONTROL_PANEL)
-
-uint8_t __not_in_flash_func(getCurrentControllerValue)(byte channel, byte number)
-{
-  if ((channel - 1) == g_midi_ch) {
-    return g_synth.current_controller_value(number);
-  } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
-    return g_sub_1_synth.current_controller_value(number);
-  } else if ((channel - 1) == ((g_midi_ch + 2) & 0x0F)) {
-    return g_sub_2_synth.current_controller_value(number);
-  } else if ((channel - 1) == ((g_midi_ch + 3) & 0x0F)) {
-    return g_sub_3_synth.current_controller_value(number);
-#if defined(PRA32_U2_ENABLE_LAYERING)
-  } else if ((channel - 1) == ((g_midi_ch - 3) & 0x0F)) {
-    return g_synth.current_controller_value(number);
-  } else if ((channel - 1) == ((g_midi_ch - 2) & 0x0F)) {
-    return g_sub_2_synth.current_controller_value(number);
-  } else if ((channel - 1) == ((g_midi_ch - 1) & 0x0F)) {
-    return g_synth.current_controller_value(number);
-#endif  // defined(PRA32_U2_ENABLE_LAYERING)
-#if defined(PRA32_U2_ENABLE_ROUND_ROBIN)
-  // The Round Robin: its first synth
-  } else if ((channel - 1) == ((g_midi_ch - 4) & 0x0F)) {
-    return g_synth.current_controller_value(number);
-  } else if ((channel - 1) == ((g_midi_ch - 5) & 0x0F)) {
-    return g_sub_1_synth.current_controller_value(number);
-  } else if ((channel - 1) == ((g_midi_ch + 6) & 0x0F)) {
-    return g_synth.current_controller_value(number);
-  } else if ((channel - 1) == ((g_midi_ch + 7) & 0x0F)) {
-    return g_sub_2_synth.current_controller_value(number);
-  } else if ((channel - 1) == ((g_midi_ch + 8) & 0x0F)) {
-    return g_synth.current_controller_value(number);
-#endif  // defined(PRA32_U2_ENABLE_ROUND_ROBIN)
-  }
-
-  return 0;
-}
-
-void __not_in_flash_func(getRandUint8Rrray)(byte channel, uint8_t array[8])
-{
-  if ((channel - 1) == g_midi_ch) {
-    g_synth.get_rand_uint8_array(array);
-  } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
-    g_sub_1_synth.get_rand_uint8_array(array);
-  } else if ((channel - 1) == ((g_midi_ch + 2) & 0x0F)) {
-    g_sub_2_synth.get_rand_uint8_array(array);
-  } else if ((channel - 1) == ((g_midi_ch + 3) & 0x0F)) {
-    g_sub_3_synth.get_rand_uint8_array(array);
-#if defined(PRA32_U2_ENABLE_LAYERING)
-  } else if ((channel - 1) == ((g_midi_ch - 3) & 0x0F)) {
-    g_synth.get_rand_uint8_array(array);
-  } else if ((channel - 1) == ((g_midi_ch - 2) & 0x0F)) {
-    g_sub_2_synth.get_rand_uint8_array(array);
-  } else if ((channel - 1) == ((g_midi_ch - 1) & 0x0F)) {
-    g_synth.get_rand_uint8_array(array);
-#endif  // defined(PRA32_U2_ENABLE_LAYERING)
-#if defined(PRA32_U2_ENABLE_ROUND_ROBIN)
-  // The Round Robin: its first synth
-  } else if ((channel - 1) == ((g_midi_ch - 4) & 0x0F)) {
-    g_synth.get_rand_uint8_array(array);
-  } else if ((channel - 1) == ((g_midi_ch - 5) & 0x0F)) {
-    g_sub_1_synth.get_rand_uint8_array(array);
-  } else if ((channel - 1) == ((g_midi_ch + 6) & 0x0F)) {
-    g_synth.get_rand_uint8_array(array);
-  } else if ((channel - 1) == ((g_midi_ch + 7) & 0x0F)) {
-    g_sub_2_synth.get_rand_uint8_array(array);
-  } else if ((channel - 1) == ((g_midi_ch + 8) & 0x0F)) {
-    g_synth.get_rand_uint8_array(array);
-#endif  // defined(PRA32_U2_ENABLE_ROUND_ROBIN)
-  }
-}
-
-void __not_in_flash_func(writeParametersToProgram)(byte channel, byte number)
-{
-  processPendingProgramChanges();
-
-  if ((channel - 1) == g_midi_ch) {
-    g_synth.write_parameters_to_program(number);
-  } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
-    g_sub_1_synth.write_parameters_to_program(number);
-  } else if ((channel - 1) == ((g_midi_ch + 2) & 0x0F)) {
-    g_sub_2_synth.write_parameters_to_program(number);
-  } else if ((channel - 1) == ((g_midi_ch + 3) & 0x0F)) {
-    g_sub_3_synth.write_parameters_to_program(number);
-#if defined(PRA32_U2_ENABLE_LAYERING)
-  } else if ((channel - 1) == ((g_midi_ch - 3) & 0x0F)) {
-    g_synth.write_parameters_to_program(number);
-  } else if ((channel - 1) == ((g_midi_ch - 2) & 0x0F)) {
-    g_sub_2_synth.write_parameters_to_program(number);
-  } else if ((channel - 1) == ((g_midi_ch - 1) & 0x0F)) {
-    g_synth.write_parameters_to_program(number);
-#endif  // defined(PRA32_U2_ENABLE_LAYERING)
-#if defined(PRA32_U2_ENABLE_ROUND_ROBIN)
-  // The Round Robin: its first synth
-  } else if ((channel - 1) == ((g_midi_ch - 4) & 0x0F)) {
-    g_synth.write_parameters_to_program(number);
-  } else if ((channel - 1) == ((g_midi_ch - 5) & 0x0F)) {
-    g_sub_1_synth.write_parameters_to_program(number);
-  } else if ((channel - 1) == ((g_midi_ch + 6) & 0x0F)) {
-    g_synth.write_parameters_to_program(number);
-  } else if ((channel - 1) == ((g_midi_ch + 7) & 0x0F)) {
-    g_sub_2_synth.write_parameters_to_program(number);
-  } else if ((channel - 1) == ((g_midi_ch + 8) & 0x0F)) {
-    g_synth.write_parameters_to_program(number);
-#endif  // defined(PRA32_U2_ENABLE_ROUND_ROBIN)
-  }
-}
-
-// The MIDI channel of a synth that the panel selects (see README.md)
-byte __not_in_flash_func(getTargetMIDICh)(byte synth)
-{
-  if (synth < 4) {
-    return (((g_midi_ch + synth) & 0x0F) + 1);
-  }
-  static const int8_t s_offsets[PRA32_U2_NUMBER_OF_SYNTHS - 4 + 1] = {
-    6, 7, 8,
-#if defined(PRA32_U2_ENABLE_ROUND_ROBIN)
-    -5, -4,
-#endif  // defined(PRA32_U2_ENABLE_ROUND_ROBIN)
-#if defined(PRA32_U2_ENABLE_LAYERING)
-    -3, -2, -1,
-#endif  // defined(PRA32_U2_ENABLE_LAYERING)
-    0,
-  };
-  return (((g_midi_ch + s_offsets[synth - 4]) & 0x0F) + 1);
-}
-
-// The synth of a MIDI channel, for the functions below
-template <typename F>
-static void forSynthOfChannel(byte channel, F f)
-{
-  if ((channel - 1) == g_midi_ch) {
-    f(g_synth);
-  } else if ((channel - 1) == ((g_midi_ch + 1) & 0x0F)) {
-    f(g_sub_1_synth);
-  } else if ((channel - 1) == ((g_midi_ch + 2) & 0x0F)) {
-    f(g_sub_2_synth);
-  } else if ((channel - 1) == ((g_midi_ch + 3) & 0x0F)) {
-    f(g_sub_3_synth);
-#if defined(PRA32_U2_ENABLE_LAYERING)
-  } else if ((channel - 1) == ((g_midi_ch - 3) & 0x0F)) {
-    f(g_synth);
-  } else if ((channel - 1) == ((g_midi_ch - 2) & 0x0F)) {
-    f(g_sub_2_synth);
-  } else if ((channel - 1) == ((g_midi_ch - 1) & 0x0F)) {
-    f(g_synth);
-#endif  // defined(PRA32_U2_ENABLE_LAYERING)
-#if defined(PRA32_U2_ENABLE_ROUND_ROBIN)
-  // The Round Robin: its first synth
-  } else if ((channel - 1) == ((g_midi_ch - 4) & 0x0F)) {
-    f(g_synth);
-  } else if ((channel - 1) == ((g_midi_ch - 5) & 0x0F)) {
-    f(g_sub_1_synth);
-  } else if ((channel - 1) == ((g_midi_ch + 6) & 0x0F)) {
-    f(g_synth);
-  } else if ((channel - 1) == ((g_midi_ch + 7) & 0x0F)) {
-    f(g_sub_2_synth);
-  } else if ((channel - 1) == ((g_midi_ch + 8) & 0x0F)) {
-    f(g_synth);
-#endif  // defined(PRA32_U2_ENABLE_ROUND_ROBIN)
-  }
-}
-
-// For Undo Read and Undo Write of the control panel
-void getCurrentValues(byte channel, uint8_t values[128 + 128])
-{
-  processPendingProgramChanges();
-  forSynthOfChannel(channel, [&](auto& synth) { synth.get_current_values(values); });
-}
-
-void setValues(byte channel, boolean panel, const uint8_t values[128 + 128])
-{
-  processPendingProgramChanges();
-  forSynthOfChannel(channel, [&](auto& synth) { synth.set_values(panel, values); });
-}
-
-void getProgramValues(byte channel, byte number, uint8_t values[128 + 128])
-{
-  forSynthOfChannel(channel, [&](auto& synth) { synth.get_program_values(number, values); });
-}
-
-void writeValuesToProgram(byte channel, byte number, const uint8_t values[128 + 128])
-{
-  forSynthOfChannel(channel, [&](auto& synth) { synth.write_values_to_program(number, values); });
-}
-
-#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
+// The functions for the control panel (getCurrentControllerValue(), getTargetMIDICh(), etc.) are in "pra32-u2-m-midi.h"

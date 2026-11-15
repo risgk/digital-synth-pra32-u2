@@ -1,6 +1,5 @@
-# PRA32-U2 Native v3.20.0
+# PRA32-U2 Native
 
-- 2026-11-06 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 
 PRA32-U2 Native: a software synthesizer (VST3 plugin and standalone application) version of Digital Synth PRA32-U2
@@ -37,6 +36,12 @@ PRA32-U2 Native: a software synthesizer (VST3 plugin and standalone application)
           to itself (not the host's presets, so that the host does not change the sound when it loads the project)
         - The "Randomize Synth" and "Randomize FX" buttons in the header work as in PRA32-U2 Editor
           ("Randomize Synth" sends Program Change #127 to itself)
+        - The "Synth ID" button in the header selects the Synth ID (0-3, 0 by default) of the instance, as the Main Synth and
+          the Sub Synths 1-3 of PRA32-U2/M: their own drift, start phases, LFOs, and noise, so that the instances layered in the host
+          are not all the same; kept in the plugin state (not a parameter), with the parameters kept when it changes
+        - All Sound Off (e.g. "Panic" of PRA32-U2 Editor) brings the drift, the start phases, and the LFOs of the instance back to the start,
+          so that the instances layered in the host go the same way from there, however apart they were started
+          (nearly: not the FX, e.g. the Chorus and the Delay, nor the noise, nor in the Open modes of Breath Amp Mode; the host's effect plugins may be used instead)
         - The parameters named "---" can be moved in the host's generic parameter editor, but do nothing
         - The host's generic parameter editor can also be used (the parameters are in the order of the control numbers)
     - Standalone: the "Options" menu (JUCE's): "Audio/MIDI Settings...", "Save current state...", "Load a saved state...",
@@ -68,6 +73,8 @@ PRA32-U2 Native: a software synthesizer (VST3 plugin and standalone application)
     - The parameter changes by the host are sent to the synth as Control Changes
     - The values changed by MIDI (Control Changes, Program Changes, PRA32-U2 Editor) are reflected to the parameters
     - The parameters are saved in the host's project (the plugin state)
+    - One synth, as PRA32-U2 (not PRA32-U2/M): no Voice Group Mode (CC#80 is "---");
+      for a unison or layers, use 2-4 instances with the same MIDI in the host, each with its own "Synth ID" (and e.g. Fine Tune and Pan a little apart)
 - Sampling rate: the signal processing runs at 48 kHz only, and its output is resampled to the host sampling rate
     - At 48 kHz, no resampling (no latency)
     - At other sampling rates, a windowed sinc resampler (48 taps at 48 kHz) is used,

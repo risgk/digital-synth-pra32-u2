@@ -102,7 +102,7 @@ const uint8_t   LFO_FILTER_AMT  = 25;
 const uint8_t   AMP_GAIN        = 15;
 
 const uint8_t   FILTER_MODE     = 39;
-const uint8_t   P_BEND_RANGE    = 57;
+const uint8_t   FILTER_DRIVE    = 31;
 const uint8_t   EG_AMP_MOD      = 36;
 const uint8_t   REL_EQ_DECAY    = 105;
 
@@ -119,6 +119,7 @@ const uint8_t   AMP_VEL_SENS    = 63;
 const uint8_t   A_D_KEY_TRK     = 16;
 const uint8_t   VOICE_ASGN_MODE = 110;
 const uint8_t   PAN             = 10;
+const uint8_t   VOICE_GRP_MODE  = 80;  // PRA32-U2/M: of the Main Synth (see "pra32-u2-m-midi.h")
 const uint8_t   STRETCH_TUNE    = 22;
 
 const uint8_t   OSC_DRIFT       = 82;
@@ -130,7 +131,8 @@ const uint8_t   BTH_FILTER_AMT  = 60;
 const uint8_t   BTH_AMP_MOD     = 61;
 const uint8_t   AFT_T_LFO_AMT   = 37;
 const uint8_t   PORTA_MODE      = 34;
-const uint8_t   FILTER_DRIVE    = 31;
+const uint8_t   LFO_TRIG_MODE   = 88;
+const uint8_t   P_BEND_RANGE    = 57;
 
 const uint8_t   DISTORTION      = 95;
 const uint8_t   FX_ROUTING      = 77;
@@ -211,6 +213,7 @@ const uint8_t   PANEL_MIDI_CH   = 128 + 11;
 const uint8_t   PANEL_PLAY_PIT  = 128 + 12;
 const uint8_t   PANEL_PLAY_VELO = 128 + 13;
 const uint8_t   PANEL_PIT_OFST  = 128 + 14;
+const uint8_t   PANEL_TARGET_CH = 128 + 15;
 
 
 const uint8_t   SEQ_PITCH_0     = 128 + 16;

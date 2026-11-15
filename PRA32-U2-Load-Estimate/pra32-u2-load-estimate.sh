@@ -2,7 +2,7 @@
 # PRA32-U2 Load Estimate: builds PRA32-U2, PRA32-U2/M, PRA32-U2/P, and PRA32-U2/M/P with arduino-cli,
 # as the GitHub Actions workflow builds the UF2 files, into "build" here, and estimates the load of
 # PRA32-U2 and PRA32-U2/M/P in the cases below with pra32-u2-load-estimate.py, and prints the tables
-# of README.md, with the RAM of all 4
+# of README.md, with the RAM of all 6 (the 4 and the Lite)
 #
 #   sh PRA32-U2-Load-Estimate/pra32-u2-load-estimate.sh
 #
@@ -37,7 +37,7 @@ for v in $VARIANTS; do
   # With Debug Print (USB Serial), as measured on the device; without "sed -i", which differs between GNU and BSD (macOS)
   sed 's|^//#define PRA32_U2_USE_DEBUG_PRINT$|#define PRA32_U2_USE_DEBUG_PRINT|' $src/Digital-Synth-PRA32-U2.ino > $src/ino.tmp
   mv $src/ino.tmp $src/Digital-Synth-PRA32-U2.ino
-  case $v in p|mp)  # With all of the keys (SW1-6)
+  case $v in p|mp)  # With all of the keys (SW0-5)
     sed -e 's|^//#define PRA32_U2_USE_CONTROL_PANEL |#define PRA32_U2_USE_CONTROL_PANEL |' \
         -e 's|^//#define PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN |#define PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN |' \
         -e 's|^//#define PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN |#define PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN |' \
@@ -88,10 +88,10 @@ row() {  # case, variants, options
 }
 
 # The heaviest: #5 Sync Lead (Osc 1 Wave Sqr) with Delay Mode Rev, in Poly (PRA32-U2), and as the
-# 4 Synths in Mono by MIDI Channel 16 (Layering, PRA32-U2/M/P); for the Program Changes, written to
-# the user programs #0 (and #1-3 for the Sub Synths) for the time of the estimate
+# 4 Synths in Mono by MIDI Channel 16 (Layering, with Voice Group Mode Ly2 of the Main Synth, PRA32-U2/M/P);
+# for the Program Changes, written to the user programs #0 (and #1-3 for the Sub Synths) for the time of the estimate
 POLY='--program 5 --cc 18=0,35=127 --write 0'
-SYNTHS='--program 1:5,2:5,3:5,4:5 --cc 1:35=127 --write 1:0,2:1,3:2,4:3 --notes 16:60,16:64,16:67,16:71'
+SYNTHS='--program 1:5,2:5,3:5,4:5 --cc 1:35=127,1:80=26 --write 1:0,2:1,3:2,4:3 --notes 16:60,16:64,16:67,16:71'
 # By UART MIDI with Running Status, the fastest (the status byte once, then the data bytes over and over,
 # a Note Off as a Note On of velocity 0); USB MIDI has the status byte in every packet
 NOTE_ON_OFF='904864804840'  # Note On and Off of the note 72

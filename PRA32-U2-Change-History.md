@@ -1,5 +1,42 @@
 ## Digital Synth PRA32-U2 Change History
 
+- v3.21.0 (2026-11-15):
+    - **Filter Mode** [LP|BR|HP|BP|LP] changes smoothly: Low Pass (0 and 127), Band Reject (32), High Pass (64), and Band Pass (96), crossfaded in between
+        - Not compatible: a user program with Filter Mode other than LP sounds otherwise (e.g. the High Pass, 127, is now LP: set it to 64); the Presets are LP, as before
+    - Add **LFO Trig Mode** [Aut|Off|On|VOn|VOf|VAu] (Control Change #88): how a note on restarts the LFO, and an LFO for each Voice (VOn, VOf, and VAu); Aut (the Presets) as before
+        - Also in PRA32-U2 Editor, PRA32-U2 Native, and the panel of PRA32-U2/P (Page A-28); PRA32-U2/M: the LFOs of the 4 Synths start a quarter apart, as those of the Voices
+    - **Osc/Filter Drift** drifts by 2 times as much at a value (about 1.4 cent RMS at 32), and wanders about 4 times as slowly (a time constant of about 44 s); the Presets are 32 (64 before), drifting as before
+        - Not compatible: a user program with Osc/Filter Drift drifts by 2 times as much (e.g. 64 is now 2.8 cent: set it to 32)
+    - Osc/Filter Drift and the phases of Osc 1 and Osc 2 start from random values (the same at every start), not 0, and go back to them at All Sound Off
+    - Filter: The self-oscillation 0.3 at most (0.25 before), and the output lowered less at a high Resonance (-4.4 dB at 127, from -6.0 dB)
+    - Filter Drive among the main parameters, swapped with Pitch Bend Range; "Randomize Synth" (Program Change #127) changes it, no longer Pitch Bend Range, and "Randomize FX" changes Distortion Drive too
+    - Presets: Stretch Tune 72 (80 before), half the stretch
+    - PRA32-U2/M: Add **Voice Group Mode** [Off|Ly2|RLy|RR2|RR4|RR3] (Control Change #80, a parameter of the programs of the Main Synth): the channels used
+        - Off: the Basic Channel alone, so that the other channels are free (e.g. for a sequencer)
+        - The others: the Sub Synths on the Basic Channel + 1 to + 3, the groups (the Layering or the Round Robin) on + 4 and + 5, and the Layering of all on + 15;
+          a group has only the Main Synth while the Main Synth is in Poly (the Sub Synths not processed, as before)
+        - RR3 (+ 4: the Round Robin of the Sub Synths) in the Presets and the user programs (those written before too): Channels 2-5 and 16 by default
+        - Not compatible: the Round Robin on + 6 to + 8, + 11, and + 12, and the Layering on + 13 and + 14 are now by Voice Group Mode;
+          `PRA32_U2_ENABLE_ROUND_ROBIN` removed (the Round Robin is with `PRA32_U2_ENABLE_LAYERING`)
+    - PRA32-U2/P: Add the **Panel Channel** (the Basic Channel + 14, enabled by default): Control Changes for the Panel and Step Sequencer Parameters and the operations (see README-PRA32-U2-P.md)
+        - Also the Basic Channel ("Set Basic Ch (to Device)" of PRA32-U2 Editor), and Panel Target Ch (PRA32-U2/M/P)
+        - PRA32-U2 Editor: Add **"Panel & Step Sequencer"** (hidden by default); the MIDI Implementation Chart of the Panel Channel, and "pra32-u2-panel-initial.json"
+        - PRA32-U2 Web: "PRA32-U2/M Web (Built-in)" is now **"PRA32-U2/M/P Web (Built-in)"**, with the Panel Channel
+        - **PRA32-U2/P Headless**: the keys, the VRs, and the OLED display can each be left out; "Digital-Synth-PRA32-U2-M-P-Headless-Pimoroni-Pico-Audio-Pack.uf2" added to the "bin" folder
+    - PRA32-U2/M/P: The synth (channel) that the panel selects (Panel Target Ch) is kept by Write Panel Prms (and Store and Export of PRA32-U2 Editor); only a channel that goes to a synth now
+    - PRA32-U2/P: Shift + Play Key: Panic; Shift + Prev Key + Next Key (PRA32-U2/M/P): the previous synth (channel)
+    - PRA32-U2/P: Seq Tempo 120 BPM (64) at first and by Init Panel Prms (56 BPM, 32, before), and Seq Gate Time 51 (60 before); about 2.8 KB less of the RAM
+    - PRA32-U2/P: Fix that the Basic Channel was 1 or 2 at first, when `PRA32_U2_MIDI_CH` is not 0 (Channel 1);
+      PRA32-U2/M/P: Fix that Read Panel Prms and Init Panel Prms did nothing (or another Read) while the panel selected a Sub Synth, the Round Robin, or the Layering
+    - PRA32-U2 Editor
+        - "Synth Parameters", "More Synth Parameters", and "FX Parameters" can each be hidden (shown by default)
+        - "Save & Load" is now "Store & File", and "Write & Program Change" (to the device) is apart from it (hidden by default), laid out as User Preset
+        - "Send Current" moved to the heading of "MIDI"; "Panic" removed from Actions (on the bar of the Software Keyboard, as before)
+        - The sliders of the switches snap to their markers when dragged near them, as before v3.17.0
+        - Fix that the parameters were sent to PRA32-U2 Web (chosen in MIDI Out the last time) when the editor started
+    - PRA32-U2 Native: Add **"Synth ID"** (0-3) in the header, as the synths of PRA32-U2/M, so that the instances layered in the host differ
+    - PRA32-U2 Load Estimate: 2 more cycles after a taken branch, as the cost model said; the estimates are 2-5% more, nearer to the device
+    - Tested with Arduino-Pico version 6.3.0
 - v3.20.0 (2026-11-06):
     - PRA32-U2 Web: Add **"PRA32-U2/M Web (Built-in)"** (and with "+6 dB") to MIDI Out: PRA32-U2/M (the 4 synths) by the MIDI channels (the Basic Channel 1), with the Layering and the Round Robin
         - "pra32-u2-m-midi.h": the MIDI messages of PRA32-U2/M, shared by "Digital-Synth-PRA32-U2-M.ino", PRA32-U2/M Web, and PRA32-U2/M Demo (now with the Round Robin)

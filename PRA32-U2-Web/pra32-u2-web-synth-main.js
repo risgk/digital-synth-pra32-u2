@@ -88,7 +88,7 @@
   }
 
   let outputGain = 1;      // That of the output that sent last
-  let outputIsM  = false;  // PRA32-U2/M Web, or PRA32-U2 Web
+  let outputIsM  = false;  // PRA32-U2/M/P Web, or PRA32-U2 Web
 
   function post(message) {
     if (node) {
@@ -99,9 +99,9 @@
   }
 
   // The outputs for MIDI Out: as PRA32-U2 sounds, and 6 dB louder (x 2, with a soft clip above -2 dBFS),
-  // for a level closer to that of other sounds (e.g. of a Web browser); and PRA32-U2/M Web (the 4 synths by the MIDI
+  // for a level closer to that of other sounds (e.g. of a Web browser); and PRA32-U2/M/P Web (the 4 synths by the MIDI
   // channels, with the Basic Channel 1), the same. The one that sends sets the gain and selects the synth (each of
-  // PRA32-U2 Web and PRA32-U2/M Web keeps its own state)
+  // PRA32-U2 Web and PRA32-U2/M/P Web keeps its own state)
   function makeOutput(name, gain, m) {
     return {
       name: name,
@@ -124,8 +124,8 @@
 
   const output      = makeOutput("PRA32-U2 Web (Built-in)", 1, false);
   const outputLoud  = makeOutput("PRA32-U2 Web (Built-in, +6 dB)", 2, false);
-  const outputM     = makeOutput("PRA32-U2/M Web (Built-in)", 1, true);
-  const outputMLoud = makeOutput("PRA32-U2/M Web (Built-in, +6 dB)", 2, true);
+  const outputM     = makeOutput("PRA32-U2/M/P Web (Built-in)", 1, true);
+  const outputMLoud = makeOutput("PRA32-U2/M/P Web (Built-in, +6 dB)", 2, true);
 
   window.PRA32U2WebSynth = { version: PRA32_U2_WEB_VERSION, output: output, outputs: [output, outputLoud, outputM, outputMLoud] };
 })();

@@ -3,6 +3,20 @@
 
 #define PRA32_U2_ENABLE_POLY_ON_1_CORE
 
+#if defined(PRA32_U2_ENGINE_M)
+// PRA32-U2/M/P Web (PRA32_U2_ENGINE_M) has the panel parameters and the Step Sequencer of PRA32-U2/M/P,
+// as PRA32-U2/M/P without the panel (no keys, no knobs, and no display), controlled by the Panel Channel
+// (the Basic Channel + 14); the Native (without PRA32_U2_ENGINE_M) does not
+#define PRA32_U2_USE_CONTROL_PANEL
+#define PRA32_U2_USE_PANEL_CHANNEL
+#define PRA32_U2_ENABLE_LAYERING
+#define PRA32_U2_NUMBER_OF_SYNTHS              (4 + 3)      // The 4 synths, the Voice Group Mode (+ 4 and + 5), and the Layering (+ 15)
+#define PRA32_U2_ANALOG_INPUT_DENOMINATOR      (480)        // Not used (no knobs)
+#if !defined(PRA32_U2_VERSION)
+#define PRA32_U2_VERSION                       "v?.?.?    "  // On the Info page (not shown without the display)
+#endif  // !defined(PRA32_U2_VERSION)
+#endif  // defined(PRA32_U2_ENGINE_M)
+
 #include "PRA32U2NativeCompat.h"
 
 uint8_t g_midi_ch = 0;  // Used by the core (only for the panel); the engine receives all channels
@@ -15,7 +29,7 @@ uint8_t g_midi_ch = 0;  // Used by the core (only for the panel); the engine rec
 #include <array>
 
 #if defined(PRA32_U2_ENGINE_M)
-// PRA32-U2/M (PRA32-U2/M Web): the 4 synths (the Main Synth and the Sub Synths 1-3), as "Digital-Synth-PRA32-U2-M.ino",
+// PRA32-U2/M (PRA32-U2/M/P Web): the 4 synths (the Main Synth and the Sub Synths 1-3), as "Digital-Synth-PRA32-U2-M.ino",
 // with the MIDI messages by "pra32-u2-m-midi.h" (the Basic Channel 1, the Layering, and the Round Robin).
 // They are global variables, as "pra32-u2-m-midi.h" uses them, so there is one of them at most in a process
 typedef uint8_t byte;
@@ -26,8 +40,7 @@ PRA32_U2_Synth<true,  false, true, 2, true>  g_sub_2_synth;
 PRA32_U2_Synth<true,  false, true, 3, true>  g_sub_3_synth;
 boolean g_synth_is_in_polyphonic_mode = true;
 
-#define PRA32_U2_ENABLE_LAYERING
-#define PRA32_U2_ENABLE_ROUND_ROBIN
+#include "pra32-u2-control-panel.h"
 #include "pra32-u2-m-midi.h"
 #endif  // defined(PRA32_U2_ENGINE_M)
 
@@ -70,8 +83,8 @@ const PRA32U2Engine::ParameterInfo s_parameter_names[] = {
   { LFO_FILTER_AMT , "LFO Filter Amt [-|+]"                   },
   { AMP_GAIN       , "Amp Gain"                               },
 
-  { FILTER_MODE    , "Filter Mode [LP|LP|BP|BP|BR|HP]"        },
-  { P_BEND_RANGE   , "Pitch Bend Range"                       },
+  { FILTER_MODE    , "Filter Mode [LP|BR|HP|BP|LP]"           },
+  { FILTER_DRIVE   , "Filter Drive"                           },
   { EG_AMP_MOD     , "EG Amp Mod [Off|On]"                    },
   { REL_EQ_DECAY   , "EG/Amp Rel = Dec [Off|On]"              },
 
@@ -81,7 +94,7 @@ const PRA32U2Engine::ParameterInfo s_parameter_names[] = {
   { AMP_RELEASE    , "Amp Release"                            },
 
   { OSC_DRIFT      , "Osc/Filter Drift"                       },
-  { FILTER_DRIVE   , "Filter Drive"                           },
+  { P_BEND_RANGE   , "Pitch Bend Range"                       },
   { COARSE_TUNE    , "Coarse Tune [-|+]"                      },
   { FINE_TUNE      , "Fine Tune [-|+]"                        },
 
@@ -92,14 +105,16 @@ const PRA32U2Engine::ParameterInfo s_parameter_names[] = {
 
   { A_D_KEY_TRK    , "EG Att/Dec Key Track [-|+]"             },
   { VOICE_ASGN_MODE, "Voice Assign Mode [1|1|3|3|4|2]"        },
-  { PAN            , "Pan"                                    },
-  { STRETCH_TUNE   , "Stretch Tune [-|+]"                     },
+  { VOICE_GRP_MODE , "Voice Group Mode [Off|Ly2|RLy|RR2|RR4|RR3]" },
+  { LFO_TRIG_MODE  , "LFO Trig Mode [Aut|Off|On|VOn|VOf|VAu]" },
 
   { BTH_FILTER_AMT , "Breath Filter Amt [-|+]"                },
   { BTH_AMP_MOD    , "Breath Amp Mode [Off|Q|L|LO|QO|Opn]"    },
   { AFT_T_LFO_AMT  , "After Touch LFO Amt"                    },
   { PORTA_MODE     , "Portamento Mode [Sw|Aut]"               },
   { OSC_SAW_W_MODE , "Osc Saw Wave Mode [Str|Cur]"            },
+  { STRETCH_TUNE   , "Stretch Tune [-|+]"                     },
+  { PAN            , "Pan"                                    },
 
   { DISTORTION     , "Distortion Drive"                       },
   { FX_ROUTING     , "FX Routing [Dst|Cho|Dly|Dly|Cmp|Dry]"   },
@@ -114,9 +129,14 @@ const PRA32U2Engine::ParameterInfo s_parameter_names[] = {
   { DELAY_FEEDBACK , "Delay Feedback"                         },
 };
 
-const int NUM_PARAMETERS = static_cast<int>(sizeof(s_program_table_parameters) / sizeof(s_program_table_parameters[0]));
+const int NUM_ALL_PARAMETERS = static_cast<int>(sizeof(s_program_table_parameters) / sizeof(s_program_table_parameters[0]));
+#if defined(PRA32_U2_ENGINE_M)
+const int NUM_PARAMETERS = NUM_ALL_PARAMETERS;
+#else  // defined(PRA32_U2_ENGINE_M)
+const int NUM_PARAMETERS = NUM_ALL_PARAMETERS - 1;  // Not Voice Group Mode, which only PRA32-U2/M uses
+#endif  // defined(PRA32_U2_ENGINE_M)
 
-static_assert(sizeof(s_parameter_names) / sizeof(s_parameter_names[0]) == NUM_PARAMETERS,
+static_assert(sizeof(s_parameter_names) / sizeof(s_parameter_names[0]) == NUM_ALL_PARAMETERS,
               "s_parameter_names must have the names of all the parameters of s_program_table_parameters");
 
 const char* parameterNameFor(uint8_t controlNumber) {
@@ -132,9 +152,15 @@ const char* parameterNameFor(uint8_t controlNumber) {
 const std::array<PRA32U2Engine::ParameterInfo, NUM_PARAMETERS>& parameterInfos() {
   static const std::array<PRA32U2Engine::ParameterInfo, NUM_PARAMETERS> infos = [] {
     std::array<PRA32U2Engine::ParameterInfo, NUM_PARAMETERS> result {};
-    for (int i = 0; i < NUM_PARAMETERS; ++i) {
+    int n = 0;
+    for (int i = 0; i < NUM_ALL_PARAMETERS; ++i) {
       const uint8_t controlNumber = s_program_table_parameters[i];
-      result[static_cast<size_t>(i)] = { controlNumber, parameterNameFor(controlNumber) };
+#if !defined(PRA32_U2_ENGINE_M)
+      if (controlNumber == VOICE_GRP_MODE) {
+        continue;
+      }
+#endif  // !defined(PRA32_U2_ENGINE_M)
+      result[static_cast<size_t>(n++)] = { controlNumber, parameterNameFor(controlNumber) };
     }
     return result;
   }();
@@ -147,8 +173,30 @@ const float OUTPUT_SCALE = 1.0f / static_cast<float>(1 << 23);  // The output of
 
 struct PRA32U2Engine::Impl {
   PRA32_U2_Synth<false, false, true> synth;  // The same as Digital-Synth-PRA32-U2.ino
+#if !defined(PRA32_U2_ENGINE_M)
+  // PRA32-U2 Native: the synths of the Synth IDs 1-3 too (as the Sub Synths 1-3 of PRA32-U2/M, with their own drift,
+  // start phases, LFOs, and noise), so that the instances layered in the host are not all the same
+  PRA32_U2_Synth<false, false, true, 1> synth_1;
+  PRA32_U2_Synth<false, false, true, 2> synth_2;
+  PRA32_U2_Synth<false, false, true, 3> synth_3;
+  int      synth_id = 0;
+#endif  // !defined(PRA32_U2_ENGINE_M)
   bool     m = false;   // PRA32-U2/M (with PRA32_U2_ENGINE_M only)
   uint32_t frame = 0;   // In a loop of 64 frames of "Digital-Synth-PRA32-U2-M.ino"
+
+  // The synth of the Synth ID (0 without PRA32-U2 Native)
+  template <typename F>
+  void with_synth(F f) {
+#if !defined(PRA32_U2_ENGINE_M)
+    switch (synth_id) {
+    case 1: f(synth_1); return;
+    case 2: f(synth_2); return;
+    case 3: f(synth_3); return;
+    default: break;
+    }
+#endif  // !defined(PRA32_U2_ENGINE_M)
+    f(synth);
+  }
 };
 
 int PRA32U2Engine::getNumParameters() {
@@ -163,6 +211,7 @@ const PRA32U2Engine::ParameterInfo& PRA32U2Engine::getParameterInfo(int index) {
 int PRA32U2Engine::getMarkers(uint8_t controlNumber, const uint8_t** markerValues) {
   static const uint8_t MARKERS_6[]   = { 0, 26, 51, 77, 102, 127 };
   static const uint8_t MARKERS_3[]   = { 0, 64, 127 };
+  static const uint8_t MARKERS_5[]   = { 0, 32, 64, 96, 127 };
   static const uint8_t MARKERS_2[]   = { 0, 127 };
   static const uint8_t MARKERS_C[]   = { 64 };  // The center, for [-|+] and [N|S]
   static const uint8_t MARKERS_6_C[] = { 0, 26, 51, 64, 77, 102, 127 };  // The 6 markers and the center
@@ -173,13 +222,17 @@ int PRA32U2Engine::getMarkers(uint8_t controlNumber, const uint8_t** markerValue
   case EG_OSC_DST      :
   case VOICE_MODE      :
   case LFO_WAVE        :
+  case LFO_TRIG_MODE   :
   case LFO_OSC_DST     :
   case VOICE_ASGN_MODE :
   case BTH_AMP_MOD     :
-  case FILTER_MODE     :
   case FX_ROUTING      :
+  case VOICE_GRP_MODE  :
     *markerValues = MARKERS_6;
     return 6;
+  case FILTER_MODE     :  // LP, BR, HP, BP, and LP
+    *markerValues = MARKERS_5;
+    return 5;
   case OSC_1_MORPH     :  // Can be used as a 6-way switch (the markers of the sliders do not pull the values)
     *markerValues = MARKERS_6_C;
     return 7;
@@ -218,6 +271,7 @@ int PRA32U2Engine::getMarkers(uint8_t controlNumber, const uint8_t** markerValue
 // The same as setRandomChorus() of PRA32-U2 Editor (pra32-u2-editor.html)
 bool PRA32U2Engine::isRandomizedAsFx(uint8_t controlNumber) {
   switch (controlNumber) {
+  case DISTORTION      :
   case CHORUS_MIX      :
   case CHORUS_RATE     :
   case CHORUS_DEPTH    :
@@ -246,14 +300,16 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value) {
   static const char* const MOD_DSTS[6]     = { "P", "P", "2P", "2P", "F", "1S" };
   static const char* const VOICE_MODES[6]  = { "Pol", "Pol", "Mon", "Mon", "LP", "Lgt" };
   static const char* const LFO_WAVES[6]    = { "Tri", "Sin", "Nos", "Saw", "S&H", "Sqr" };
-  static const char* const FILTER_MODES[6] = { "LP", "LP", "BP", "BP", "BR", "HP" };
+  static const char* const FILTER_MODES[9] = { "LP", "L-R", "BR", "R-H", "HP", "H-B", "BP", "B-L", "LP" };
   static const char* const OFF_ON[2]       = { "Off", "On" };
   static const char* const SAW_W_MODES[2]  = { "Str", "Cur" };
   static const char* const PORTA_MODES[2]  = { "Sw", "Aut" };
   static const char* const BTH_AMP_MODS[6] = { "Off", "Q", "L", "LO", "QO", "Opn" };
+  static const char* const LFO_TRIG_MODES[6] = { "Aut", "Off", "On", "VOn", "VOf", "VAu" };
   static const char* const FX_ROUTINGS[6]  = { "Dst", "Cho", "Dly", "Dly", "Cmp", "Dry" };
   static const char* const ASGN_MODES[6]   = { "1", "1", "3", "3", "4", "2" };
   static const char* const DELAY_MODES[3]  = { "Ste", "PP", "Rev" };
+  static const char* const GROUP_MODES[6]  = { "Off", "Ly2", "RLy", "RR2", "RR4", "RR3" };
 
   switch (controlNumber) {
   case OSC_2_COARSE    :
@@ -274,15 +330,21 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value) {
   case MIXER_SUB_OSC   : dispValue = (v >= 64) ? ("S" + std::to_string(v - 64)) : ("N" + std::to_string(64 - v)); break;
   case OSC_1_WAVE      : dispValue = select6(v, OSC_1_WAVES);        break;
   case OSC_2_WAVE      : dispValue = select6(v, OSC_2_WAVES);        break;
+  case VOICE_GRP_MODE  : dispValue = select6(v, GROUP_MODES);        break;
   case EG_OSC_DST      :
   case LFO_OSC_DST     : dispValue = select6(v, MOD_DSTS);           break;
   case VOICE_MODE      : dispValue = select6(v, VOICE_MODES);        break;
   case LFO_WAVE        : dispValue = select6(v, LFO_WAVES);          break;
-  case FILTER_MODE     : dispValue = select6(v, FILTER_MODES);       break;
+  case FILTER_MODE     : {  // LP, BR, HP, BP, and LP at 0, 32, 64, 96, and 127 (taken as 128); the two ends in between
+    int x = (v >= 127) ? 128 : v;
+    dispValue = std::string(FILTER_MODES[((x % 32) == 0) ? (x / 16) : ((x / 32) * 2 + 1)]);
+    break;
+  }
   case EG_AMP_MOD      :
   case REL_EQ_DECAY    : dispValue = select2(v, OFF_ON);             break;
   case OSC_SAW_W_MODE  : dispValue = select2(v, SAW_W_MODES);        break;
   case PORTA_MODE      : dispValue = select2(v, PORTA_MODES);        break;
+  case LFO_TRIG_MODE   : dispValue = select6(v, LFO_TRIG_MODES);      break;
   case BTH_AMP_MOD     : dispValue = select6(v, BTH_AMP_MODS);       break;
   case FX_ROUTING      : dispValue = select6(v, FX_ROUTINGS);        break;
   case VOICE_ASGN_MODE : dispValue = select6(v, ASGN_MODES);         break;
@@ -318,13 +380,51 @@ PRA32U2Engine::PRA32U2Engine(bool m)
     g_sub_1_synth.initialize();
     g_sub_2_synth.initialize();
     g_sub_3_synth.initialize();
+    PRA32_U2_ControlPanel_setup();
+    PRA32_U2_ControlPanel_initialize_parameters();
     return;
   }
 #else
   (void) m;
+  m_impl->synth_1.initialize();
+  m_impl->synth_2.initialize();
+  m_impl->synth_3.initialize();
 #endif  // defined(PRA32_U2_ENGINE_M)
   m_impl->synth.initialize();
 }
+
+#if !defined(PRA32_U2_ENGINE_M)
+int PRA32U2Engine::getSynthId() const {
+  return m_impl->synth_id;
+}
+
+// The current values of the sound parameters and of the performance controllers go to the new synth, and the notes of the
+// old one are turned off
+void PRA32U2Engine::setSynthId(int synthId) {
+  synthId &= 3;
+  if (synthId == m_impl->synth_id) {
+    return;
+  }
+  uint8_t values[128] = {};
+  m_impl->with_synth([&](auto& s) {
+    for (uint8_t number = 0; number < 128; ++number) {
+      values[number] = s.current_controller_value(number);
+    }
+    s.all_notes_off(true);
+  });
+  m_impl->synth_id = synthId;
+  m_impl->with_synth([&](auto& s) {
+    for (int i = 0; i < NUM_ALL_PARAMETERS; ++i) {
+      const uint8_t number = s_program_table_parameters[i];
+      s.control_change(number, values[number]);
+    }
+    static const uint8_t PERFORMANCE_CONTROLLERS[] = { MODULATION, BTH_CONTROLLER, EXPRESSION, PORTAMENTO_SW };
+    for (uint8_t number : PERFORMANCE_CONTROLLERS) {
+      s.control_change(number, values[number]);
+    }
+  });
+}
+#endif  // !defined(PRA32_U2_ENGINE_M)
 
 PRA32U2Engine::~PRA32U2Engine() = default;
 
@@ -339,6 +439,17 @@ void PRA32U2Engine::handleMidiMessage(const uint8_t* data, int size) {
 
 #if defined(PRA32_U2_ENGINE_M)
   if (m_impl->m) {
+    // MIDI Clock, Start, and Stop, for the Step Sequencer with Seq Clock Src Ext, as "Digital-Synth-PRA32-U2-M.ino"
+    if (data[0] == 0xF8) {
+      PRA32_U2_ControlPanel_on_clock();
+      return;
+    } else if ((data[0] == 0xFA) || (data[0] == 0xFC)) {
+      if (g_synth.current_controller_value(SEQ_TRX_ST_SP  ) >= 64) {
+        if (data[0] == 0xFA) { PRA32_U2_ControlPanel_on_start(); } else { PRA32_U2_ControlPanel_on_stop(); }
+      }
+      return;
+    }
+
     // By the channel, as "Digital-Synth-PRA32-U2-M.ino" (a Program Change is processed in one of the next loops)
     byte channel = (data[0] & 0x0F) + 1;
     switch (status) {
@@ -361,31 +472,31 @@ void PRA32U2Engine::handleMidiMessage(const uint8_t* data, int size) {
 
   switch (status) {
   case 0x80:
-    if (size >= 3) { m_impl->synth.note_off(data_1, data_2); }
+    if (size >= 3) { m_impl->with_synth([&](auto& s) { s.note_off(data_1, data_2); }); }
     break;
   case 0x90:
     if (size >= 3) {
       if (data_2 == 0) {
-        m_impl->synth.note_off(data_1, 64);
+        m_impl->with_synth([&](auto& s) { s.note_off(data_1, 64); });
       } else {
-        m_impl->synth.note_on(data_1, data_2);
+        m_impl->with_synth([&](auto& s) { s.note_on(data_1, data_2); });
       }
     }
     break;
   case 0xA0:
-    if (size >= 3) { m_impl->synth.after_touch_poly(data_1, data_2); }
+    if (size >= 3) { m_impl->with_synth([&](auto& s) { s.after_touch_poly(data_1, data_2); }); }
     break;
   case 0xB0:
-    if (size >= 3) { m_impl->synth.control_change(data_1, data_2); }
+    if (size >= 3) { m_impl->with_synth([&](auto& s) { s.control_change(data_1, data_2); }); }
     break;
   case 0xC0:
-    if (size >= 2) { m_impl->synth.program_change(data_1); }
+    if (size >= 2) { m_impl->with_synth([&](auto& s) { s.program_change(data_1); }); }
     break;
   case 0xD0:
-    if (size >= 2) { m_impl->synth.after_touch_channel(data_1); }
+    if (size >= 2) { m_impl->with_synth([&](auto& s) { s.after_touch_channel(data_1); }); }
     break;
   case 0xE0:
-    if (size >= 3) { m_impl->synth.pitch_bend(data_1, data_2); }
+    if (size >= 3) { m_impl->with_synth([&](auto& s) { s.pitch_bend(data_1, data_2); }); }
     break;
   default:
     break;
@@ -400,7 +511,7 @@ void PRA32U2Engine::controlChange(uint8_t controlNumber, uint8_t value) {
     return;
   }
 #endif  // defined(PRA32_U2_ENGINE_M)
-  m_impl->synth.control_change(controlNumber & 0x7F, value & 0x7F);
+  m_impl->with_synth([&](auto& s) { s.control_change(controlNumber & 0x7F, value & 0x7F); });
 }
 
 uint8_t PRA32U2Engine::getControllerValue(uint8_t controlNumber) const {
@@ -409,7 +520,9 @@ uint8_t PRA32U2Engine::getControllerValue(uint8_t controlNumber) const {
     return g_synth.current_controller_value(controlNumber & 0x7F);
   }
 #endif  // defined(PRA32_U2_ENGINE_M)
-  return m_impl->synth.current_controller_value(controlNumber & 0x7F);
+  uint8_t value = 0;
+  m_impl->with_synth([&](auto& s) { value = s.current_controller_value(controlNumber & 0x7F); });
+  return value;
 }
 
 void PRA32U2Engine::process(float& left, float& right) {
@@ -419,6 +532,7 @@ void PRA32U2Engine::process(float& left, float& right) {
     // the Sub Synths only while the Main Synth is not in Poly
     if (m_impl->frame == 0) {
       processOnePendingProgramChange();
+      PRA32_U2_ControlPanel_update_control();  // The Step Sequencer and the panel play, a loop (as loop() of the sketch)
       boolean mode = g_synth.is_in_polyphonic_mode();
       if (g_synth_is_in_polyphonic_mode != mode) {
         g_synth_is_in_polyphonic_mode = mode;
@@ -453,7 +567,8 @@ void PRA32U2Engine::process(float& left, float& right) {
     return;
   }
 #endif  // defined(PRA32_U2_ENGINE_M)
-  PRA32_U2_StereoSample output = m_impl->synth.process(0, 0);
+  PRA32_U2_StereoSample output;
+  m_impl->with_synth([&](auto& s) { output = s.process(0, 0); });
   left  = static_cast<float>(output.left)  * OUTPUT_SCALE;
   right = static_cast<float>(output.right) * OUTPUT_SCALE;
 }

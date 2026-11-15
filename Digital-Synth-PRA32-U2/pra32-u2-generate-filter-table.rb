@@ -114,16 +114,16 @@ end
 # Initial, and Saw Lead) against the Resonance: the harmonic near the cutoff that the
 # resonance brings up. From 123 the self-oscillation takes over, SELF_OSC_LEVEL * sqrt(t) in
 # the loop (0.22 at 123, 0.39 at 125, and 0.5 at 127), and the level is set so that it comes
-# out at SELF_OSC_OUTPUT_MIN at 123 rising in a line to SELF_OSC_OUTPUT_MAX at 127: still
-# louder with the Resonance, but by less, while how readily it holds against the input
-# follows the level in the loop as before
+# out at SELF_OSC_OUTPUT_LEVELS (0.15 at 123, as the output level at 122, -2.8 dB, goes on to
+# -3.5 dB there, 0.25 at 125, and 0.3 at 127, with the output level going down with the
+# Resonance all the way, to -4.4 dB at 127): still louder with the Resonance, but by less, while
+# how readily it holds against the input follows the level in the loop as before
 RESONANCE_LEVEL_POINTS = [[0, 0.0], [96, 0.0], [108, -1.3], [116, -2.5], [122, -2.8]]
-SELF_OSC_OUTPUT_MIN = 0.15
-SELF_OSC_OUTPUT_MAX = 0.25
+SELF_OSC_OUTPUT_LEVELS = { 123 => 0.15, 124 => 0.21, 125 => 0.25, 126 => 0.28, 127 => 0.3 }
 
 def self_osc_output_level(controller_value)
   t = (controller_value - 122) / 5.0
-  target = SELF_OSC_OUTPUT_MIN + ((SELF_OSC_OUTPUT_MAX - SELF_OSC_OUTPUT_MIN) * (controller_value - 123) / 4.0)
+  target = SELF_OSC_OUTPUT_LEVELS[controller_value]
   target / (SELF_OSC_LEVEL * Math.sqrt(t))
 end
 

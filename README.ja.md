@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 v3.20.0
+# Digital Synth PRA32-U2 v3.21.0
 
-- 2026-11-06 ISGK Instruments
+- 2026-11-15 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 - [English README](./README.md) の抄訳です (英語版が正です)。詳しい仕様は英語版を参照してください
     - 英語のドキュメントは、必要に応じて Web ブラウザーなどの自動翻訳を使ってお読みください
@@ -20,11 +20,15 @@
 - ビルド済みの UF2 ファイル ("bin" フォルダー内): 改造せずに使うだけなら、Arduino IDE は不要です
     - BOOTSEL ボタンを押しながら Raspberry Pi Pico 2 を PC につなぎ、UF2 ファイルを "RP2350" ドライブにコピーしてください
     - PRA32-U2/M (推奨): "Digital-Synth-PRA32-U2-M-Pimoroni-Pico-Audio-Pack.uf2" は Raspberry Pi Pico 2 と Pimoroni Pico Audio Pack 用です
-        - PRA32-U2 の上位互換です: Main Synth は PRA32-U2 と同じように動き、Sub Synth と Layering が加わります ([PRA32-U2/M](#pra32-u2m-pra32-u2-multi-timbre-edition) を参照)
-        - 注意: MIDI チャンネル 2-4 と 14-16 にも反応します (初期設定)。これらのチャンネルを他の機器に使う場合は、PRA32-U2 を使ってください
+        - PRA32-U2 の上位互換です: Main Synth は PRA32-U2 と同じように動き、Sub Synth、Layering、Round Robin (Voice Group Mode による) が加わります ([PRA32-U2/M](#pra32-u2m-pra32-u2-multi-timbre-edition) を参照)
+        - 注意: MIDI チャンネル 2-5 と 16 にも反応します (初期設定。プリセットの Voice Group Mode RR3 による。Ly2 と RR2 では 6 にも)。Voice Group Mode (Main Synth のプログラムのパラメーター) が Off なら、Ch 1 だけです (下記)。これらのチャンネルを他の機器に使う場合は、PRA32-U2 を使ってください
+    - PRA32-U2/M/P Headless: "Digital-Synth-PRA32-U2-M-P-Headless-Pimoroni-Pico-Audio-Pack.uf2" は、PRA32-U2/M にステップ・シーケンサーとパネルのパラメーターを加えたものです
+      ([PRA32-U2/P Headless](./README-PRA32-U2-P.md#pra32-u2p-headless)、英語)。PRA32-U2 Editor の "Panel & Step Sequencer" などから使います
+        - 注意: MIDI チャンネル 15 (Panel Channel、初期設定) のコントロール・チェンジにも反応します
     - PRA32-U2: "Digital-Synth-PRA32-U2-Pimoroni-Pico-Audio-Pack.uf2" は Raspberry Pi Pico 2 と Pimoroni Pico Audio Pack 用です
 - Arduino IDE と Arduino-Pico (Earle F. Philhower, III 氏による) で改造できます: [改造の準備](#改造の準備) を参照してください (例えば他の I2S DAC、PWM Audio、パネルを使う場合)
 - オプション: 部品を追加することで、**[PRA32-U2/P](./README-PRA32-U2-P.md)** (PRA32-U2 with Panel、英語) と **PRA32-U2/M/P** も構成できます
+    - パネルなしの **[PRA32-U2/P Headless](./README-PRA32-U2-P.md#pra32-u2p-headless)** (英語) も作れます。部品の追加なしで、ステップ・シーケンサーを MIDI (PRA32-U2 Editor など) から使えます
 - **[PRA32-U2 Native](./PRA32-U2-Native/README.md)** (英語): PC 用のソフトウェア・シンセサイザー版 PRA32-U2 (VST3 プラグインとスタンドアロン・アプリケーション)
 - **[PRA32-U2 Web](./PRA32-U2-Web/README.md)** (英語): Web ブラウザーで動くソフトウェア・シンセサイザー版 PRA32-U2 (PRA32-U2 Editor に内蔵)
 
@@ -35,7 +39,7 @@
 
 1. Raspberry Pi Pico 2 H を Pico Audio Pack に差し込み、Pico Audio Pack のライン出力をアンプかアクティブ・スピーカーにつなぎます
 2. UF2 ファイルを Raspberry Pi Pico 2 にコピーします (上記のビルド済みの UF2 ファイルを参照)
-3. USB で PC につなぐと、USB MIDI デバイス "PRA32-U2" (PRA32-U2/M では "PRA32-U2/M") として見えます
+3. USB で PC につなぐと、USB MIDI デバイス "PRA32-U2" (PRA32-U2/M では "PRA32-U2/M"、PRA32-U2/M/P Headless では "PRA32-U2/M/P") として見えます
 4. Google Chrome か Microsoft Edge で [PRA32-U2 Editor](#pra32-u2-editor) を開き、"MIDI Out" で "PRA32-U2" を選んで、ソフトウェア・キーボードを弾きます (MIDI チャンネル 1)
 
 
@@ -100,10 +104,10 @@
         - "PRA32-U2 Web (Built-in, +6 dB)": 6 dB 大きく、他の音源に近い音量です (-2 dBFS を超えるピークは丸めます)
             - "+6 dB" なしは PRA32-U2 と同じ音です (実機と比べるときなど)
             - Amp Gain が高いと、丸めたピークが少し歪んで聞こえることがあります
-    - PRA32-U2 Web で PRA32-U2/M (4 台のシンセ) を使うには、"PRA32-U2/M Web (Built-in)" (または "+6 dB" 付き) を選んでください
-        - Basic Channel は 1 です (変更できません)。編集するシンセは "MIDI Ch" で選んでください (チャンネルは PRA32-U2/M の説明を参照)
+    - PRA32-U2 Web で PRA32-U2/M (4 台のシンセ) を使うには、"PRA32-U2/M/P Web (Built-in)" (または "+6 dB" 付き) を選んでください
+        - Basic Channel は最初は 1 です。編集するシンセは "MIDI Ch" で選んでください (チャンネルは PRA32-U2/M の説明を参照。2-4 は Voice Group Mode が Off 以外のとき。プリセットは RR3)
         - PRA32-U2/M と同じく、Main Synth はプログラム #0、Sub Synth 1-3 は #1-3 で始まります。Sub Synth は Main Synth が Poly でないときだけ鳴ります
-    - 出力を選んでも何も送りません (PRA32-U2 Web も同じ)。"Send Current" で PRA32-U2 Editor のパラメーター (1 組) を "MIDI Ch" のシンセに送ります
+    - 出力を選んでも何も送りません (PRA32-U2 Web も同じ)。"MIDI" の見出しの "Send Current" で PRA32-U2 Editor のパラメーター (1 組) を "MIDI Ch" のシンセに送ります
 
 
 ### プログラムとプリセット
@@ -113,9 +117,9 @@
     - "MIDI In" から (Editor の MIDI Ch で) 届いたプログラム・チェンジは PRA32-U2 に送らず、Editor がプリセットを読み込んで、そのパラメーターをコントロール・チェンジで送ります
     - #0-15 は Editor のユーザー・プリセット (ブラウザーに保存) で、PRA32-U2 のプログラム #0-15 (Write で書き込んだもの) ではありません
     - #16-31 はファクトリー・プリセットです (PRA32-U2 のプログラム #16-31 と同じ)
-    - PRA32-U2 自身のプログラムを選ぶには、Editor を経由せずにプログラム・チェンジを送るか、"Save & Load" の Program Change ボタンを使ってください
+    - PRA32-U2 自身のプログラムを選ぶには、Editor を経由せずにプログラム・チェンジを送るか、"Write & Program Change" の Program Change ボタンを使ってください
 - Editor で作った音を PRA32-U2 に書き込んでおけば、後で Editor なしで呼び出せます
-    1. Write: Editor の "Save & Load" にある Write ボタン (#0-15) で、現在のパラメーターを PRA32-U2 のプログラムに書き込みます
+    1. Write: Editor の "Write & Program Change" にある Write ボタン (#0-15) で、現在のパラメーターを PRA32-U2 のプログラムに書き込みます
        (フラッシュにも書き込まれるので、電源を切っても残ります)。書き込みの前に、Editor に表示されているパラメーターを送り直します
     2. Editor を経由せずに、PRA32-U2 にプログラム・チェンジ #0-15 を直接送ると、そのプログラムを呼び出せます
 - Randomize Synth: シンセのパラメーターをランダムに設定します (プログラム・チェンジ #127、またはコントロール・チェンジ #111 を Off (63 以下) から On (64 以上) に)
@@ -128,16 +132,19 @@
 - PRA32-U2 は、PRA32-U2 Editor を使わずに MIDI で制御することもできます (例えば DAW や MIDI キーボードから)
 - 電源を入れたときのプログラムは #0 です。Write で書き込んだプログラムは、プログラム・チェンジ #0-15 で呼び出せます (上記)
 - 対応している機能は [MIDI Implementation Chart](./PRA32-U2-MIDI-Implementation-Chart.md) (英語) を参照してください
+- プログラム #0-31 は "pra32-u2-program-table.h" を編集して変更できます
 
 
 ### 主な機能
 
 - ファクトリー・プリセット (#16-31) とユーザー・プリセット (#0-15) の読み込み
-- ユーザー・プリセットはブラウザーに保存され、Store で 10 文字までの名前 (ASCII の英数字と記号) を付けられます
+- ユーザー・プリセットはブラウザーに保存され、Store で 10 文字までの名前 (ASCII の英数字と記号) を付けられます (User Preset と Store のボタンに表示)
 - JSON ファイルへのエクスポートと、JSON ファイルからのインポート
 - Randomize Synth と Randomize FX: シンセや FX のパラメーターをランダムに設定します
 - Undo: 直前の変更 (プリセット、Randomize、Import、スライダーの操作) の前のパラメーターに戻します (200 段階まで)。Redo で進めます (Ctrl+Z と、Ctrl+Y または Ctrl+Shift+Z でも。Mac では Command)
-- "MIDI" と "Actions & Presets" ("Save & Load" を含む) はそれぞれ隠せるので、パラメーターに画面を広く使えます
+- "MIDI"、"Actions & Presets"、"Store & File"、"Write & Program Change" はそれぞれ隠せるので、パラメーターに画面を広く使えます ("MIDI" の見出しの Send Current は、隠している間も使えます)
+- "Synth Parameters" (最初の 32 個)、"More Synth Parameters" (残り)、"FX Parameters" も、それぞれ隠せます
+- PRA32-U2/P 向けの "Panel & Step Sequencer" (英語版の [Panel Channel](./README-PRA32-U2-P.md#panel-channel) を参照)
 - ボタンやスライダーなどは、どのブラウザーや OS でも同じ見た目 (Chrome 相当) です。タッチ画面では、スライダーのつまみが大きく、ボタンが高くなります
 - Software Keyboard: マウス、タッチ、PC のキーボード (A - K が C - C、W - U が黒鍵、Z / X がオクターブ) で弾けます
     - パラメーターの下にあり、パラメーターをスクロールしても画面の下に残るので、弾きながらパラメーターを変えられます。隠すこともできます (Panic は表示されたまま。隠すと Hold はオフになります)
@@ -149,9 +156,19 @@
 ## PRA32-U2/M (PRA32-U2 Multi-Timbre Edition)
 
 - Basic Channel は PRA32-U2 の MIDI チャンネル (初期値 1、`PRA32_U2_MIDI_CH`) で、各シンセのチャンネルはそれを基準に決まります
-- Basic Channel + 0 (初期値 1) が Main Synth、+ 1 から + 3 (初期値 2-4) が Sub Synth 1-3 (Mono) です
+- Basic Channel + 0 (初期値 1) が Main Synth、+ 1 から + 3 (初期値 2-4) が Sub Synth 1-3 (Mono) です (+ 1 から + 3 は Voice Group Mode が Off 以外のとき)
     - Sub Synth は、Main Synth が Mono 系のモードのときだけ処理されます
-- Layering: Basic Channel - 3 から - 1 (初期値 14-16) で、複数のシンセを同時に制御します
+- Layering: Basic Channel + 15 (初期値 16) で、4 台のシンセを同時に制御します (Voice Group Mode が Off 以外のとき)
+    - プログラム・チェンジ #n で、4 台に #n から #n+3 を読み込みます。4 台の音色を連続したユーザー・プログラム (例: #4-7) に保存しておけば、まとめて呼び出せます
+    - Main Synth にも #n が入るので、Voice Group Mode も #n の値になります (以後も使うなら #n を Off 以外に)。Main Synth が Poly の間は、Main Synth だけに #n が入ります
+- Voice Group Mode (CC #80): Basic Channel + 4、+ 5 (初期値 5、6) で、Round Robin や 2 台ずつの Layering を使えます (Main Synth のプログラムのパラメーター。プリセットは RR3)
+    - Off では、Basic Channel だけに反応します (PRA32-U2 と同じ。+ 1 から + 3 も使いません)。シーケンサーなどで他のチャンネルを使えます (PRA32-U2/M/P では、Headless も、Panel Channel、+ 14 も使います)
+    - Off 以外では、Sub Synth は + 1 から + 3 で鳴り、Basic Channel + 15 の Layering も使えます
+    - Sub Synth が鳴るのは Main Synth が Mono 系のときだけです。Poly のときは、グループは Main Synth だけになります (例: + 15 や RR4 は Poly の Main Synth を鳴らし、RR3 は鳴りません)
+    - 例: RR3 (プリセット) で Main Synth が Mono 系なら、Ch 1 でリード、Ch 5 で 3 音 (Sub Synth の Round Robin) を弾けます
+    - 例: RR4 では、Ch 5 で 4 音の Round Robin、Ch 16 で 4 台重ねのリードを弾けます
+    - PRA32-U2 Editor のスライダーは、"MIDI Ch" に関係なく Basic Channel (Panel & Step Sequencer の Basic Ch、初期値 1) で送ります
+- 改造するには、"Digital-Synth-PRA32-U2" フォルダーの "Digital-Synth-PRA32-U2.ino" 以外のすべてのファイルを "Digital-Synth-PRA32-U2-M" フォルダーにコピーし、"Digital-Synth-PRA32-U2-M.ino" をスケッチとして使います
 - 詳しくは英語版の [PRA32-U2/M](./README.md#pra32-u2m-pra32-u2-multi-timbre-edition) を参照してください
 
 

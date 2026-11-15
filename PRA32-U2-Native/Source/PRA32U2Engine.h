@@ -30,7 +30,7 @@ public:
   // The text of a controller value, the same as PRA32-U2 Editor (e.g. "26 [Sqr]", "67 [+3]", or "100")
   static std::string getValueText(uint8_t controlNumber, uint8_t value);
 
-  // m: PRA32-U2/M, the 4 synths by the MIDI channels (only if built with PRA32_U2_ENGINE_M, for PRA32-U2/M Web;
+  // m: PRA32-U2/M, the 4 synths by the MIDI channels (only if built with PRA32_U2_ENGINE_M, for PRA32-U2/M/P Web;
   // one at most in a process)
   explicit PRA32U2Engine(bool m = false);
   ~PRA32U2Engine();
@@ -47,6 +47,13 @@ public:
 
   // Processes 1 sample at 48 kHz (-1.0 to +1.0)
   void process(float& left, float& right);
+
+#if !defined(PRA32_U2_ENGINE_M)
+  // PRA32-U2 Native: the Synth ID (0-3, as the Main Synth and the Sub Synths 1-3 of PRA32-U2/M: their own drift,
+  // start phases, LFOs, and noise), for the instances layered in the host; the parameters are kept when it changes
+  int  getSynthId() const;
+  void setSynthId(int synthId);
+#endif  // !defined(PRA32_U2_ENGINE_M)
 
 private:
   struct Impl;

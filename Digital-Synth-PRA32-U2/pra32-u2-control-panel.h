@@ -4,7 +4,9 @@
 #include "pra32-u2-control-panel-font-table.h"
 #include "pra32-u2-control-panel-page-table.h"
 
+#if defined(PRA32_U2_USE_CONTROL_PANEL_OLED_DISPLAY)
 #include "hardware/i2c.h"
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL_OLED_DISPLAY)
 
 #include <cstdio>
 #include <cstring>
@@ -19,14 +21,17 @@ static volatile uint8_t  s_adc_control_value[3];
 static volatile uint8_t  s_adc_control_target[3] = { 0xFF, 0xFF, 0xFF };
 static volatile boolean  s_adc_control_catched[3];
 
-#if defined(PRA32_U2_USE_CONTROL_PANEL)
+#if defined(PRA32_U2_USE_CONTROL_PANEL_KEY_INPUT)
 static          uint32_t s_prev_key_current_value;
 static          uint32_t s_next_key_current_value;
 static          uint32_t s_play_key_current_value;
+#if defined(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN)
+static          boolean  s_play_key_with_shift = false;  // Shift + Play (Panic)
+#endif  // defined(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN)
 
 static          uint32_t s_prog_minus_key_current_value;
 static          uint32_t s_prog_plus_key_current_value;
-#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL_KEY_INPUT)
 
 static          uint8_t  s_play_mode                = 0;
 static          int8_t   s_panel_transpose          = 0;
@@ -133,10 +138,45 @@ extern uint8_t getCurrentControllerValue(byte channel, byte number);
 extern void getRandUint8Rrray(byte channel, uint8_t array[8]);
 extern void writeParametersToProgram(byte channel, byte number);
 extern byte getTargetMIDICh(byte synth);
+#if (PRA32_U2_NUMBER_OF_SYNTHS > 1)
+extern boolean isChannelRouted(byte channel);
+#endif  // (PRA32_U2_NUMBER_OF_SYNTHS > 1)
 extern void getCurrentValues(byte channel, uint8_t values[128 + 128]);
 extern void setValues(byte channel, boolean panel, const uint8_t values[128 + 128]);
 extern void getProgramValues(byte channel, byte number, uint8_t values[128 + 128]);
 extern void writeValuesToProgram(byte channel, byte number, const uint8_t values[128 + 128]);
+
+// Whether the panel can select a synth (channel) now: one that goes to a synth (e.g. only the Main Synth, "$0", while
+// Voice Group Mode is Off, and not a group without the Main Synth while the Main Synth is in Poly)
+static INLINE boolean PRA32_U2_ControlPanel_target_usable(uint32_t synth) {
+#if (PRA32_U2_NUMBER_OF_SYNTHS > 1)
+  return (synth == 0) || isChannelRouted(getTargetMIDICh(synth));
+#else
+  static_cast<void>(synth);
+  return true;
+#endif
+}
+
+// Prev key + Next key: the next synth (channel) that the panel can select, or the previous one with the Shift key
+// (Shift + Prev + Next), skipping those that it cannot select now
+static __attribute__((unused)) void PRA32_U2_ControlPanel_step_target() {
+#if (PRA32_U2_NUMBER_OF_SYNTHS > 1)
+  uint32_t step = 1;
+#if defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
+  if (digitalRead(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL) {
+    step = PRA32_U2_NUMBER_OF_SYNTHS - 1;  // back by one
+  }
+#endif  // defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
+  uint32_t synth = s_current_synth;
+  for (uint32_t i = 0; i < PRA32_U2_NUMBER_OF_SYNTHS; ++i) {
+    synth = (synth + step) % PRA32_U2_NUMBER_OF_SYNTHS;
+    if (PRA32_U2_ControlPanel_target_usable(synth)) {
+      break;
+    }
+  }
+  s_current_synth = synth;
+#endif  // (PRA32_U2_NUMBER_OF_SYNTHS > 1)
+}
 
 // Undo Read and Undo Write (Page D-17): what the last Read (or Init Panel Prms) and the last Write of
 // the panel replaced, kept until the next one (not in the flash); undoing one swaps it back in, so
@@ -151,28 +191,47 @@ struct PRA32_U2_ControlPanelUndo {
 static PRA32_U2_ControlPanelUndo s_undo_read;
 static PRA32_U2_ControlPanelUndo s_undo_write;
 
+// The values of a channel that goes to no synth (e.g. by Voice Group Mode) are not got: 255 left at Voice Mode (or at
+// Panel Scale, for the panel parameters in the flash) tells it, and the Undo is not kept nor done then. The panel
+// parameters are of the Main Synth, whose channel is taken at the time (the Basic Channel may have moved)
+static const uint8_t PRA32_U2_CONTROL_PANEL_UNDO_CHECK = PANEL_SCALE;
+
+static boolean PRA32_U2_ControlPanel_get_current_values(byte channel, uint8_t values[128 + 128]) {
+  values[VOICE_MODE] = 255;
+  getCurrentValues(channel, values);
+  return values[VOICE_MODE] <= 127;
+}
+
+static boolean PRA32_U2_ControlPanel_get_program_values(byte channel, byte program_number, uint8_t values[128 + 128]) {
+  uint8_t check = (program_number == 128) ? PRA32_U2_CONTROL_PANEL_UNDO_CHECK : VOICE_MODE;
+  values[check] = 255;
+  getProgramValues(channel, program_number, values);
+  return values[check] <= 127;
+}
+
 static void PRA32_U2_ControlPanel_keep_for_undo_read(byte channel, boolean panel) {
-  getCurrentValues(channel, s_undo_read.values);
   s_undo_read.channel = channel;
   s_undo_read.panel   = panel;
-  s_undo_read.valid   = true;
+  s_undo_read.valid   = PRA32_U2_ControlPanel_get_current_values(channel, s_undo_read.values);
 }
 
 static void PRA32_U2_ControlPanel_keep_for_undo_write(byte channel, byte program_number) {
-  getProgramValues(channel, program_number, s_undo_write.values);
   s_undo_write.channel        = channel;
   s_undo_write.program_number = program_number;
   s_undo_write.panel          = (program_number == 128);
-  s_undo_write.valid          = true;
+  s_undo_write.valid          = PRA32_U2_ControlPanel_get_program_values(channel, program_number, s_undo_write.values);
 }
 
 static void PRA32_U2_ControlPanel_undo_read() {
   if (s_undo_read.valid == false) {
     return;
   }
+  byte channel = s_undo_read.panel ? getTargetMIDICh(0) : s_undo_read.channel;
   uint8_t current_values[128 + 128];
-  getCurrentValues(s_undo_read.channel, current_values);
-  setValues(s_undo_read.channel, s_undo_read.panel, s_undo_read.values);
+  if (PRA32_U2_ControlPanel_get_current_values(channel, current_values) == false) {
+    return;
+  }
+  setValues(channel, s_undo_read.panel, s_undo_read.values);
   std::memcpy(s_undo_read.values, current_values, sizeof(current_values));
 }
 
@@ -180,9 +239,12 @@ static void PRA32_U2_ControlPanel_undo_write() {
   if (s_undo_write.valid == false) {
     return;
   }
+  byte channel = s_undo_write.panel ? getTargetMIDICh(0) : s_undo_write.channel;
   uint8_t program_values[128 + 128];
-  getProgramValues(s_undo_write.channel, s_undo_write.program_number, program_values);
-  writeValuesToProgram(s_undo_write.channel, s_undo_write.program_number, s_undo_write.values);
+  if (PRA32_U2_ControlPanel_get_program_values(channel, s_undo_write.program_number, program_values) == false) {
+    return;
+  }
+  writeValuesToProgram(channel, s_undo_write.program_number, s_undo_write.values);
   std::memcpy(s_undo_write.values, program_values, sizeof(program_values));
 }
 
@@ -625,6 +687,48 @@ static INLINE void PRA32_U2_ControlPanel_update_control_seq() {
   }
 }
 
+// Does an operation (128 + 64 and on: Read, Write, Undo, etc.), from the panel or from the Panel Channel
+static __attribute__((noinline, unused)) void PRA32_U2_ControlPanel_execute_operation(uint8_t control_target) {
+  if        ((control_target >= RD_PROGRAM_0) && (control_target <= RD_PROGRAM_31)) {
+    PRA32_U2_ControlPanel_keep_for_undo_read(getTargetMIDICh(s_current_synth), false);
+    handleProgramChange(getTargetMIDICh(s_current_synth), control_target - RD_PROGRAM_0);
+  } else if ((control_target >= WR_PROGRAM_0) && (control_target <= WR_PROGRAM_15)) {
+    uint8_t program_number_to_write = control_target - WR_PROGRAM_0;
+    PRA32_U2_ControlPanel_keep_for_undo_write(getTargetMIDICh(s_current_synth), program_number_to_write);
+    writeParametersToProgram(getTargetMIDICh(s_current_synth), program_number_to_write);
+  } else if (control_target == RD_PANEL_PRMS) {  // the panel parameters are of the Main Synth (as Write), whatever the panel selects
+    PRA32_U2_ControlPanel_keep_for_undo_read(getTargetMIDICh(0), true);
+    handleProgramChange(getTargetMIDICh(0), 128);
+  } else if (control_target == IN_PANEL_PRMS) {
+    PRA32_U2_ControlPanel_keep_for_undo_read(getTargetMIDICh(0), true);
+    handleProgramChange(getTargetMIDICh(0), 129);
+  } else if (control_target == WR_PANEL_PRMS) {
+    PRA32_U2_ControlPanel_keep_for_undo_write(getTargetMIDICh(0), 128);
+    g_synth.write_parameters_to_program(128);
+  } else if (control_target == UNDO_READ) {
+    PRA32_U2_ControlPanel_undo_read();
+  } else if (control_target == UNDO_WRITE) {
+    PRA32_U2_ControlPanel_undo_write();
+  } else if (control_target == SEQ_RAND_PITCH) {
+    uint8_t array[8] = {};
+    getRandUint8Rrray(getTargetMIDICh(s_current_synth), array);
+    for (uint32_t i = 0; i < 8; ++i) {
+      g_synth.control_change(SEQ_PITCH_0 + i, array[i] & 0x7Fu);
+    }
+  } else if (control_target == SEQ_RAND_VELO) {
+    uint8_t array[8] = {};
+    getRandUint8Rrray(getTargetMIDICh(s_current_synth), array);
+    for (uint32_t i = 0; i < 8; ++i) {
+      g_synth.control_change(SEQ_VELO_0  + i, array[i] & 0x7Fu);
+    }
+  } else if (control_target == PANIC_OP) {
+    handleControlChange(getTargetMIDICh(s_current_synth), ALL_SOUND_OFF  , 0);
+    handleControlChange(getTargetMIDICh(s_current_synth), RESET_ALL_CTRLS, 0);
+  } else if (control_target == RAND_SYNTH_OP) {
+    handleProgramChange(getTargetMIDICh(s_current_synth), 127);
+  }
+}
+
 static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_number) {
 #if !defined(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN)
   if (adc_number == 2) {
@@ -675,123 +779,17 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
       if (s_adc_control_catched[adc_number]) {
         g_synth.control_change(s_adc_control_target[adc_number], adc_control_value_new);
       }
-    } else if ((s_adc_control_target[adc_number] >= RD_PROGRAM_0) && (s_adc_control_target[adc_number] <= RD_PROGRAM_31)) {
-      static boolean s_ready_to_read[PROGRAM_NUMBER_MAX + 1] = {};
-      uint8_t program_number_to_read = s_adc_control_target[adc_number] - RD_PROGRAM_0;
-      if (s_adc_control_value[adc_number] <= 31) {
-        s_ready_to_read[program_number_to_read] = true;
-      } else if (s_ready_to_read[program_number_to_read] && (s_adc_control_value[adc_number] >= 96)) {
-        PRA32_U2_ControlPanel_keep_for_undo_read(getTargetMIDICh(s_current_synth), false);
-        handleProgramChange(getTargetMIDICh(s_current_synth), s_adc_control_target[adc_number] - RD_PROGRAM_0);
-        s_ready_to_read[program_number_to_read] = false;
-      }
-    } else if ((s_adc_control_target[adc_number] >= WR_PROGRAM_0) && (s_adc_control_target[adc_number] <= WR_PROGRAM_15)) {
-      static boolean s_ready_to_write[PROGRAM_NUMBER_MAX + 1] = {};
-      uint8_t program_number_to_write = s_adc_control_target[adc_number] - WR_PROGRAM_0;
-      if (s_adc_control_value[adc_number] <= 31) {
-        s_ready_to_write[program_number_to_write] = true;
-      } else if (s_ready_to_write[program_number_to_write] && (s_adc_control_value[adc_number] >= 96)) {
-        PRA32_U2_ControlPanel_keep_for_undo_write(getTargetMIDICh(s_current_synth), program_number_to_write);
-        writeParametersToProgram(getTargetMIDICh(s_current_synth), program_number_to_write);
-        s_ready_to_write[program_number_to_write] = false;
-      }
-    } else if (s_adc_control_target[adc_number] == RD_PANEL_PRMS) {
-      static boolean s_ready_to_read_panel_prms;
-      if (s_adc_control_value[adc_number] <= 31) {
-        s_ready_to_read_panel_prms = true;
-      } else if (s_ready_to_read_panel_prms && (s_adc_control_value[adc_number] >= 96)) {
-        PRA32_U2_ControlPanel_keep_for_undo_read(getTargetMIDICh(s_current_synth), true);
-        handleProgramChange(getTargetMIDICh(s_current_synth), 128);
-        s_ready_to_read_panel_prms = false;
-      }
-    } else if (s_adc_control_target[adc_number] == IN_PANEL_PRMS) {
-      static boolean s_ready_to_init_panel_prms;
-      if (s_adc_control_value[adc_number] <= 31) {
-        s_ready_to_init_panel_prms = true;
-      } else if (s_ready_to_init_panel_prms && (s_adc_control_value[adc_number] >= 96)) {
-        PRA32_U2_ControlPanel_keep_for_undo_read(getTargetMIDICh(s_current_synth), true);
-        handleProgramChange(getTargetMIDICh(s_current_synth), 129);
-        s_ready_to_init_panel_prms = false;
-      }
-    } else if (s_adc_control_target[adc_number] == WR_PANEL_PRMS) {
-      static boolean s_ready_to_write_panel_prms;
-      if (s_adc_control_value[adc_number] <= 31) {
-        s_ready_to_write_panel_prms = true;
-      } else if (s_ready_to_write_panel_prms && (s_adc_control_value[adc_number] >= 96)) {
-        PRA32_U2_ControlPanel_keep_for_undo_write(getTargetMIDICh(0), 128);
-        g_synth.write_parameters_to_program(128);
-        s_ready_to_write_panel_prms = false;
-      }
-    } else if (s_adc_control_target[adc_number] == UNDO_READ) {
-      static boolean s_ready_to_undo_read;
-      if (s_adc_control_value[adc_number] <= 31) {
-        s_ready_to_undo_read = true;
-      } else if (s_ready_to_undo_read && (s_adc_control_value[adc_number] >= 96)) {
-        PRA32_U2_ControlPanel_undo_read();
-        s_ready_to_undo_read = false;
-      }
-    } else if (s_adc_control_target[adc_number] == UNDO_WRITE) {
-      static boolean s_ready_to_undo_write;
-      if (s_adc_control_value[adc_number] <= 31) {
-        s_ready_to_undo_write = true;
-      } else if (s_ready_to_undo_write && (s_adc_control_value[adc_number] >= 96)) {
-        PRA32_U2_ControlPanel_undo_write();
-        s_ready_to_undo_write = false;
-      }
-    } else if (s_adc_control_target[adc_number] == SEQ_RAND_PITCH) {
-      static boolean s_ready_to_rand_pitch;
-      if (s_adc_control_value[adc_number] <= 31) {
-        s_ready_to_rand_pitch = true;
-      } else if (s_ready_to_rand_pitch && (s_adc_control_value[adc_number] >= 96)) {
-        uint8_t array[8] = {};
-        getRandUint8Rrray(getTargetMIDICh(s_current_synth), array);
-        g_synth.control_change(SEQ_PITCH_0    , array[0] & 0x7Fu);
-        g_synth.control_change(SEQ_PITCH_1    , array[1] & 0x7Fu);
-        g_synth.control_change(SEQ_PITCH_2    , array[2] & 0x7Fu);
-        g_synth.control_change(SEQ_PITCH_3    , array[3] & 0x7Fu);
-        g_synth.control_change(SEQ_PITCH_4    , array[4] & 0x7Fu);
-        g_synth.control_change(SEQ_PITCH_5    , array[5] & 0x7Fu);
-        g_synth.control_change(SEQ_PITCH_6    , array[6] & 0x7Fu);
-        g_synth.control_change(SEQ_PITCH_7    , array[7] & 0x7Fu);
-
-        s_ready_to_rand_pitch = false;
-      }
-    } else if (s_adc_control_target[adc_number] == SEQ_RAND_VELO) {
-      static boolean s_ready_to_rand_velo;
-      if (s_adc_control_value[adc_number] <= 31) {
-        s_ready_to_rand_velo = true;
-      } else if (s_ready_to_rand_velo && (s_adc_control_value[adc_number] >= 96)) {
-        uint8_t array[8] = {};
-        getRandUint8Rrray(getTargetMIDICh(s_current_synth), array);
-        g_synth.control_change(SEQ_VELO_0     , array[0] & 0x7Fu);
-        g_synth.control_change(SEQ_VELO_1     , array[1] & 0x7Fu);
-        g_synth.control_change(SEQ_VELO_2     , array[2] & 0x7Fu);
-        g_synth.control_change(SEQ_VELO_3     , array[3] & 0x7Fu);
-        g_synth.control_change(SEQ_VELO_4     , array[4] & 0x7Fu);
-        g_synth.control_change(SEQ_VELO_5     , array[5] & 0x7Fu);
-        g_synth.control_change(SEQ_VELO_6     , array[6] & 0x7Fu);
-        g_synth.control_change(SEQ_VELO_7     , array[7] & 0x7Fu);
-
-        s_ready_to_rand_velo = false;
-      }
-    } else if (s_adc_control_target[adc_number] == PANIC_OP) {
-      static boolean s_ready_to_panic;
-      if (s_adc_control_value[adc_number] <= 31) {
-        s_ready_to_panic = true;
-      } else if (s_ready_to_panic && (s_adc_control_value[adc_number] >= 96)) {
-        handleControlChange(getTargetMIDICh(s_current_synth), ALL_SOUND_OFF  , 0);
-        handleControlChange(getTargetMIDICh(s_current_synth), RESET_ALL_CTRLS, 0);
-
-        s_ready_to_panic = false;
-      }
-    } else if (s_adc_control_target[adc_number] == RAND_SYNTH_OP) {
-      static boolean s_ready_to_rand_synth;
-      if (s_adc_control_value[adc_number] <= 31) {
-        s_ready_to_rand_synth = true;
-      } else if (s_ready_to_rand_synth && (s_adc_control_value[adc_number] >= 96)) {
-        handleProgramChange(getTargetMIDICh(s_current_synth), 127);
-
-        s_ready_to_rand_synth = false;
+    } else {
+      // An operation (Read, Write, Undo, etc.): ready at 0-31 [Rdy], and done at 96-127 [Exe]
+      static boolean s_ready_to_execute[64] = {};
+      uint32_t index = s_adc_control_target[adc_number] - (128 + 64);
+      if (index < 64) {
+        if (s_adc_control_value[adc_number] <= 31) {
+          s_ready_to_execute[index] = true;
+        } else if (s_ready_to_execute[index] && (s_adc_control_value[adc_number] >= 96)) {
+          PRA32_U2_ControlPanel_execute_operation(s_adc_control_target[adc_number]);
+          s_ready_to_execute[index] = false;
+        }
       }
     }
 
@@ -801,7 +799,7 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
   return false;
 }
 
-#if defined(PRA32_U2_USE_CONTROL_PANEL)
+#if defined(PRA32_U2_USE_CONTROL_PANEL_OLED_DISPLAY)
 // Queues a short write to the OLED display into the I2C TX FIFO (16 bytes) and
 // returns without waiting for the transfer (about 180 us for 8 bytes at 400 kHz),
 // so that the secondary core is not blocked during the audio processing;
@@ -821,28 +819,28 @@ static INLINE void PRA32_U2_ControlPanel_write_to_oled_display(const uint8_t* sr
     hw->data_cmd = src[i] | ((i == (len - 1)) ? I2C_IC_DATA_CMD_STOP_BITS : 0);
   }
 }
-#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL_OLED_DISPLAY)
 
 static INLINE void PRA32_U2_ControlPanel_set_draw_position(uint8_t x, uint8_t y) {
-#if defined(PRA32_U2_USE_CONTROL_PANEL)
+#if defined(PRA32_U2_USE_CONTROL_PANEL_OLED_DISPLAY)
   uint8_t commands[] = {0x00,  static_cast<uint8_t>(0xB0 + y),
                                static_cast<uint8_t>(0x10 + ((x * 6) >> 4)),
                                static_cast<uint8_t>(0x00 + ((x * 6) & 0x0F))};
   PRA32_U2_ControlPanel_write_to_oled_display(commands, sizeof(commands));
-#else  // defined(PRA32_U2_USE_CONTROL_PANEL)
+#else  // defined(PRA32_U2_USE_CONTROL_PANEL_OLED_DISPLAY)
   static_cast<void>(x);
   static_cast<void>(y);
-#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL_OLED_DISPLAY)
 }
 
 static INLINE void PRA32_U2_ControlPanel_draw_character(uint8_t c) {
-#if defined(PRA32_U2_USE_CONTROL_PANEL)
+#if defined(PRA32_U2_USE_CONTROL_PANEL_OLED_DISPLAY)
   uint8_t data[] = {0x40,  0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
   std::memcpy(&data[1], g_control_panel_font_table[c], 6);
   PRA32_U2_ControlPanel_write_to_oled_display(data, sizeof(data));
-#else  // defined(PRA32_U2_USE_CONTROL_PANEL)
+#else  // defined(PRA32_U2_USE_CONTROL_PANEL_OLED_DISPLAY)
   static_cast<void>(c);
-#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL_OLED_DISPLAY)
 }
 
 static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_target, uint8_t controller_value, char value_display_text[5])
@@ -946,9 +944,10 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
     break;
   case FILTER_MODE     :
     {
-      static const char ary[6][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {" LP"," LP"," BP"," BP"," BR"," HP"};
-      uint32_t index = ((controller_value * 10) + 128) >> 8;
-      PRA32_U2_ControlPanel_copy_text(value_display_text, ary[index]);
+      // LP, BR, HP, BP, and LP at 0, 32, 64, 96, and 127; in between, the two ends (e.g. L-R for LP to BR)
+      static const char ary[9][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {" LP","L-R"," BR","R-H"," HP","H-B"," BP","B-L"," LP"};
+      uint32_t x = (controller_value >= 127) ? 128 : controller_value;
+      PRA32_U2_ControlPanel_copy_text(value_display_text, ary[((x & 31) == 0) ? (x >> 4) : ((x >> 5) * 2 + 1)]);
       result = true;
     }
     break;
@@ -983,6 +982,14 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case BTH_AMP_MOD     :
     {
       static const char ary[6][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"Off","Q","L","LO","QO","Opn"};
+      uint32_t index = ((controller_value * 10) + 128) >> 8;
+      PRA32_U2_ControlPanel_copy_text(value_display_text, ary[index]);
+      result = true;
+    }
+    break;
+  case LFO_TRIG_MODE   :
+    {
+      static const char ary[6][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"Aut","Off"," On","VOn","VOf","VAu"};
       uint32_t index = ((controller_value * 10) + 128) >> 8;
       PRA32_U2_ControlPanel_copy_text(value_display_text, ary[index]);
       result = true;
@@ -1213,6 +1220,14 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
       result = true;
     }
     break;
+  case VOICE_GRP_MODE :
+    {
+      static const char ary[6][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"Off","Ly2","RLy","RR2","RR4","RR3"};
+      uint32_t index = ((controller_value * 10) + 128) >> 8;
+      PRA32_U2_ControlPanel_copy_text(value_display_text, ary[index]);
+      result = true;
+    }
+    break;
   }
 
   return result;
@@ -1222,7 +1237,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
 
 INLINE void PRA32_U2_ControlPanel_setup() {
   for (uint32_t i = 0; i < PRA32_U2_NUMBER_OF_SYNTHS; ++i) {
-    s_current_program[i] = (i + PROGRAM_NUMBER_DEFAULT + s_current_synth) & USER_PROGRAM_NUMBER_MAX;
+    s_current_program[i] = (i + PROGRAM_NUMBER_DEFAULT) & USER_PROGRAM_NUMBER_MAX;
   }
 
 #if defined(PRA32_U2_KEY_INPUT_PREV_KEY_PIN)
@@ -1345,6 +1360,7 @@ INLINE void PRA32_U2_ControlPanel_update_analog_inputs(uint32_t loop_counter) {
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 }
 
+#if defined(PRA32_U2_USE_CONTROL_PANEL_KEY_INPUT)
 INLINE uint32_t PRA32_U2_ControlPanel_debounce_key(uint32_t pin, uint32_t current_value, uint32_t& stable_counter) {
   uint32_t value = digitalRead(pin) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
 
@@ -1364,6 +1380,7 @@ INLINE uint32_t PRA32_U2_ControlPanel_debounce_key(uint32_t pin, uint32_t curren
   stable_counter = 0;
   return value;
 }
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL_KEY_INPUT)
 
 INLINE void PRA32_U2_ControlPanel_update_control() {
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
@@ -1377,6 +1394,14 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL_ANALOG_INPUT)
     return;
   }
+
+#if (PRA32_U2_NUMBER_OF_SYNTHS > 1)
+  // Back to the Main Synth when the channel selected goes to no synth now (e.g. a group without the Main Synth after the
+  // Main Synth went in Poly), checked here, after the MIDI messages, where the synths have taken the changes
+  if (!PRA32_U2_ControlPanel_target_usable(s_current_synth)) {
+    g_synth.control_change(PANEL_TARGET_CH, 0);
+  }
+#endif  // (PRA32_U2_NUMBER_OF_SYNTHS > 1)
 
   PRA32_U2_ControlPanel_update_control_seq();
 
@@ -1458,8 +1483,9 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
             handleNoteOff(getTargetMIDICh(s_current_synth), s_panel_playing_note_pitch, 64);
           }
 
-          s_current_synth = (s_current_synth + 1) >= PRA32_U2_NUMBER_OF_SYNTHS ? 0 : (s_current_synth + 1);
+          PRA32_U2_ControlPanel_step_target();
           s_display_buffer[0][14] = s_hex_chars[getTargetMIDICh(s_current_synth) - 1];
+          g_synth.control_change(PANEL_TARGET_CH, ((getTargetMIDICh(s_current_synth) - 1) - g_midi_ch) & 0x0F);  // kept by Write Panel Prms
 
           s_prev_key_long_pressed = true;
           s_next_key_long_pressed = true;
@@ -1541,8 +1567,9 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
             handleNoteOff(getTargetMIDICh(s_current_synth), s_panel_playing_note_pitch, 64);
           }
 
-          s_current_synth = (s_current_synth + 1) >= PRA32_U2_NUMBER_OF_SYNTHS ? 0 : (s_current_synth + 1);
+          PRA32_U2_ControlPanel_step_target();
           s_display_buffer[0][14] = s_hex_chars[getTargetMIDICh(s_current_synth) - 1];
+          g_synth.control_change(PANEL_TARGET_CH, ((getTargetMIDICh(s_current_synth) - 1) - g_midi_ch) & 0x0F);  // kept by Write Panel Prms
 
           s_prev_key_long_pressed = true;
           s_next_key_long_pressed = true;
@@ -1584,6 +1611,12 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
 
     if (s_play_key_current_value == 1) {
       // Play key pressed
+#if defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
+      if (digitalRead(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL) {
+        s_play_key_with_shift = true;  // Shift + Play: Panic, when released
+        return;
+      }
+#endif  // defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
       if (s_play_mode == 0) {  // Normal Mode
         s_playing_status = PlayingStatus_Playing;
         s_display_buffer[0][20] = '*';
@@ -1592,6 +1625,11 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
       }
     } else {
       // Play key released
+      if (s_play_key_with_shift) {
+        s_play_key_with_shift = false;
+        PRA32_U2_ControlPanel_execute_operation(PANIC_OP);
+        return;
+      }
       if (s_play_mode == 0) {  // Normal Mode
         s_playing_status = PlayingStatus_Stop;
         s_display_buffer[0][20] = ' ';
@@ -1750,7 +1788,9 @@ INLINE void PRA32_U2_ControlPanel_on_stop()
 INLINE void PRA32_U2_ControlPanel_update_display_buffer(uint32_t loop_counter) {
   static_cast<void>(loop_counter);
 
-#if defined(PRA32_U2_USE_CONTROL_PANEL)
+// The texts of the display (the values of the page), only for the display or the debug print (not without both,
+// e.g. without the panel, to save the RAM of the code)
+#if defined(PRA32_U2_USE_CONTROL_PANEL) && (defined(PRA32_U2_USE_CONTROL_PANEL_OLED_DISPLAY) || defined(PRA32_U2_USE_DEBUG_PRINT))
   if ((loop_counter & 0x7F) == 0x00) {
     char buff[6];
 
@@ -1871,7 +1911,7 @@ INLINE void PRA32_U2_ControlPanel_update_display_buffer(uint32_t loop_counter) {
       std::memset(&s_display_buffer[3][11], ' ', 10);
     }
   }
-#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL) && (defined(PRA32_U2_USE_CONTROL_PANEL_OLED_DISPLAY) || defined(PRA32_U2_USE_DEBUG_PRINT))
 }
 
 INLINE void PRA32_U2_ControlPanel_update_display(uint32_t loop_counter) {
@@ -1975,6 +2015,31 @@ INLINE void PRA32_U2_ControlPanel_update_display(uint32_t loop_counter) {
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 }
 
+// Panel Target Ch (PANEL_TARGET_CH, also by CC #58 on the Panel Channel, and kept by Write Panel Prms): the synth of the
+// channel of the Basic Channel + the offset (0-15, e.g. 4 for the group by Voice Group Mode, or 15 for the Layering), one of
+// those that the panel selects (the synths, the Round Robin, and the Layering; only the Main Synth while Voice Group Mode is
+// Off); another keeps the selection, and the value goes back to it, so that the value is always that of the selection
+// (and Write Panel Prms keeps it)
+static void PRA32_U2_ControlPanel_select_target(uint8_t offset) {
+  for (uint32_t synth = 0; synth < PRA32_U2_NUMBER_OF_SYNTHS; ++synth) {
+    if (((((getTargetMIDICh(synth) - 1) - g_midi_ch) & 0x0F) == (offset & 0x0F)) && PRA32_U2_ControlPanel_target_usable(synth)) {
+#if (PRA32_U2_NUMBER_OF_SYNTHS > 1)
+      if (synth != s_current_synth) {
+        if (s_panel_playing_note_pitch <= 127) {
+          handleNoteOff(getTargetMIDICh(s_current_synth), s_panel_playing_note_pitch, 64);
+        }
+        s_current_synth = synth;
+        s_display_buffer[0][14] = s_hex_chars[getTargetMIDICh(s_current_synth) - 1];
+        PRA32_U2_ControlPanel_update_page();
+      }
+#endif  // (PRA32_U2_NUMBER_OF_SYNTHS > 1)
+      return;
+    }
+  }
+
+  g_synth.control_change(PANEL_TARGET_CH, ((getTargetMIDICh(s_current_synth) - 1) - g_midi_ch) & 0x0F);
+}
+
 /* INLINE */ void __not_in_flash_func(PRA32_U2_ControlPanel_on_control_change)(uint8_t control_number)
 {
   static_cast<void>(control_number);
@@ -2040,6 +2105,12 @@ INLINE void PRA32_U2_ControlPanel_update_display(uint32_t loop_counter) {
     s_seq_on_steps = g_synth.current_controller_value(SEQ_ON_STEPS   );
   } else if (control_number == SEQ_ACT_STEPS  ) {
     s_seq_act_steps = g_synth.current_controller_value(SEQ_ACT_STEPS  );
+  } else if (control_number == VOICE_GRP_MODE ) {  // Off: back to the Main Synth, the only one that the panel can select then
+    if (!PRA32_U2_ControlPanel_target_usable(s_current_synth)) {
+      g_synth.control_change(PANEL_TARGET_CH, 0);
+    }
+  } else if (control_number == PANEL_TARGET_CH) {
+    PRA32_U2_ControlPanel_select_target(g_synth.current_controller_value(PANEL_TARGET_CH));
   } else if (control_number == PANEL_MIDI_CH  ) {
     uint8_t midi_ch = g_synth.current_controller_value(PANEL_MIDI_CH  ) >> 3;
     g_midi_ch = midi_ch;
@@ -2048,7 +2119,124 @@ INLINE void PRA32_U2_ControlPanel_update_display(uint32_t loop_counter) {
 #endif  // (PRA32_U2_NUMBER_OF_SYNTHS > 1)
   }
 
-#endif  // defined(PRA32_U2_USE_CONTROL_PANEL_ANALOG_INPUT)
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
+}
+
+// A Control Change on the Panel Channel (the Basic Channel + 14), so that the panel parameters and the Step
+// Sequencer can be controlled by MIDI (e.g. without the panel); see README-PRA32-U2-P.md. The CC numbers are
+// only those that the synth parameters use (the others are left for them), and avoid those that a DAW or a
+// keyboard may send by itself (e.g. Bank Select, RPN/NRPN, Data Entry, Modulation, Breath, Pan, Expression,
+// the pedals, and the Channel Mode Messages), not to change a parameter, nor to write to the flash, by chance:
+// - Parameters (set as by the panel): Seq Pitch 0-7 (#16-23), Seq Velo 0-7 (#70-77), the Panel Parameters
+//   (#51-56: Scale, Transpose, Play Mode, Play Pitch, Play Velo, and Pitch Ofst), and the other Step Sequencer Parameters (#85-90 and #92-94, the number + 37,
+//   and Seq Pitch Ofst #95); Panel Target Ch (#58, PRA32-U2/M/P: the channel
+//   that the panel selects, as the Basic Channel + the value) is only for the Panel Channel
+// - MIDI Basic Ch (#57, 0-15 as 1-16) is only kept, and set by Set Basic Ch (#114, as an operation), so that the channels
+//   (the Panel Channel too) do not move by one Control Change; kept in the flash by Write Panel Prms, as by the panel
+// - Operations (#102-106, #112, and #113, ready at 0-31, and done at 96-127, as by the panel [Rdy] and [Exe]); not the
+//   Read and Write of the programs, which the editor does
+// - Panel Play (#111): 64-127 as the Play key pressed (Normal Mode) or the Step Sequencer started (Seq Mode),
+//   and 0-63 as released or stopped
+#if defined(PRA32_U2_USE_CONTROL_PANEL)
+static uint8_t s_panel_ch_basic_ch = 0xFF;  // MIDI Basic Ch (#57) to set by Set Basic Ch (#114), none at first
+
+static uint8_t PRA32_U2_ControlPanel_panel_ch_target(uint8_t number) {
+  if ((number >= 16) && (number <= 23)) { return SEQ_PITCH_0 + (number - 16); }
+  if ((number >= 70) && (number <= 77)) { return SEQ_VELO_0  + (number - 70); }
+
+  switch (number) {
+  case  51: return PANEL_SCALE    ;
+  case  52: return PANEL_TRANSPOSE;
+  case  53: return PANEL_PLAY_MODE;
+  case  54: return PANEL_PLAY_PIT ;
+  case  55: return PANEL_PLAY_VELO;
+  case  56: return PANEL_PIT_OFST ;
+  case 102: return WR_PANEL_PRMS  ;  // Write and then Read, as the pages of the panel (C and D)
+  case 103: return RD_PANEL_PRMS  ;
+  case 104: return IN_PANEL_PRMS  ;
+  case 105: return UNDO_WRITE     ;
+  case 106: return UNDO_READ      ;
+  case 112: return SEQ_RAND_PITCH ;
+  case 113: return SEQ_RAND_VELO  ;
+  }
+
+  if ((number >= 85) && (number <= 94) && (number != 91)) { return 128 + (number - 37); }  // SEQ_TEMPO to SEQ_TRX_ST_SP
+  if (number == 95) { return SEQ_PIT_OFST; }  // not #91 (Effects 1 Depth, which a DAW or a keyboard may send)
+
+  return 0xFF;
+}
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
+
+void PRA32_U2_ControlPanel_on_panel_ch_control_change(uint8_t number, uint8_t value)
+{
+  static_cast<void>(number);
+  static_cast<void>(value);
+
+#if defined(PRA32_U2_USE_CONTROL_PANEL)
+  if (number == 58) {  // Panel Target Ch (PANEL_TARGET_CH, see PRA32_U2_ControlPanel_select_target())
+    g_synth.control_change(PANEL_TARGET_CH, value & 0x0F);
+    return;
+  }
+
+  if (number == 57) {  // MIDI Basic Ch (0-15), set by Set Basic Ch (#114)
+    s_panel_ch_basic_ch = value & 0x0F;
+    return;
+  }
+
+  if (number == 114) {  // Set Basic Ch: as an operation (ready at 0-31, and done at 96-127); the Panel Channel moves too
+    static boolean s_set_basic_ch_ready = false;
+    if (value <= 31) {
+      s_set_basic_ch_ready = true;
+    } else if (s_set_basic_ch_ready && (value >= 96)) {
+      s_set_basic_ch_ready = false;
+      if ((s_panel_ch_basic_ch <= 15) && (s_panel_ch_basic_ch != g_midi_ch)) {
+        if (s_panel_playing_note_pitch <= 127) {  // off on the channel before
+          handleNoteOff(getTargetMIDICh(s_current_synth), s_panel_playing_note_pitch, 64);
+        }
+        g_synth.control_change(PANEL_MIDI_CH, s_panel_ch_basic_ch << 3);
+      }
+    }
+    return;
+  }
+
+  if (number == 111) {  // Panel Play: compared with the state now (which the Play key, Panel Play Mode, or
+                        // MIDI Start/Stop may have changed), so that a value repeated does nothing
+    boolean on = (value >= 64);
+    boolean playing = (s_playing_status != PlayingStatus_Stop);
+    if (on != playing) {
+      if (s_play_mode == 0) {  // Normal Mode
+        s_playing_status = on ? PlayingStatus_Playing : PlayingStatus_Stop;
+        s_display_buffer[0][20] = on ? '*' : ' ';
+        s_panel_play_note_gate    = on;
+        s_panel_play_note_trigger = on;
+      } else {  // Seq Mode
+        if (on) {
+          PRA32_U2_ControlPanel_seq_start();
+        } else {
+          PRA32_U2_ControlPanel_seq_stop();
+        }
+      }
+    }
+    return;
+  }
+
+  uint8_t control_target = PRA32_U2_ControlPanel_panel_ch_target(number);
+  if (control_target == 0xFF) {
+    return;
+  }
+
+  if (control_target < 128 + 64) {
+    g_synth.control_change(control_target, value);
+  } else {
+    static boolean s_ready_to_execute[128] = {};
+    if (value <= 31) {
+      s_ready_to_execute[number] = true;
+    } else if (s_ready_to_execute[number] && (value >= 96)) {
+      PRA32_U2_ControlPanel_execute_operation(control_target);
+      s_ready_to_execute[number] = false;
+    }
+  }
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 }
 
 INLINE void PRA32_U2_ControlPanel_debug_print(uint32_t loop_counter) {

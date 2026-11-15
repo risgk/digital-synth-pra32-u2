@@ -120,6 +120,13 @@ void PRA32U2NativeAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer,
   const int numChannels = buffer.getNumChannels();
   const int numParameters = static_cast<int>(m_parameters.size());
 
+  // The Synth ID (before the parameters, which the new synth keeps)
+  const int synthId = m_synthId.load();
+  if (synthId != m_engineSynthId) {
+    m_engineSynthId = synthId;
+    m_renderer.getEngine().setSynthId(synthId);
+  }
+
   // Parameters changed by the host -> the synth (as CCs at the start of the block)
   for (int i = 0; i < numParameters; ++i) {
     const size_t index = static_cast<size_t>(i);
@@ -207,6 +214,7 @@ void PRA32U2NativeAudioProcessor::getStateInformation(juce::MemoryBlock& destDat
   juce::XmlElement xml(STATE_TAG);
   xml.setAttribute("version", STATE_VERSION);
   xml.setAttribute("pluginVersion", JucePlugin_VersionString);  // e.g. "3.11.0", for converting the values in later versions
+  xml.setAttribute("synthId", getSynthId());
 
   for (size_t index = 0; index < m_parameters.size(); ++index) {
     const uint8_t controlNumber = PRA32U2Engine::getParameterInfo(static_cast<int>(index)).controlNumber;
@@ -221,6 +229,8 @@ void PRA32U2NativeAudioProcessor::setStateInformation(const void* data, int size
   if (xml == nullptr || !xml->hasTagName(STATE_TAG)) {
     return;
   }
+
+  setSynthId(xml->getIntAttribute("synthId", 0));  // 0 if not in the state (e.g. stored before v3.21.0)
 
   for (size_t index = 0; index < m_parameters.size(); ++index) {
     const uint8_t controlNumber = PRA32U2Engine::getParameterInfo(static_cast<int>(index)).controlNumber;

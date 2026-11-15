@@ -51,6 +51,12 @@ public:
   void randomizeSynth();
   void randomizeFx();
 
+  // The Synth ID (0-3, as the Main Synth and the Sub Synths 1-3 of PRA32-U2/M), so that the instances layered in the host
+  // are not all the same (their own drift, start phases, LFOs, and noise); kept in the plugin state, not a parameter
+  static constexpr int kNumSynthIds = 4;
+  int  getSynthId() const { return m_synthId.load(); }
+  void setSynthId(int synthId) { m_synthId.store(juce::jlimit(0, kNumSynthIds - 1, synthId)); }
+
   // The Factory Presets (#16-31), with the names of PRA32-U2 Editor (e.g. "#16 Synth Pad")
   static constexpr int kFactoryPresetFirst = 16;
   static constexpr int kNumFactoryPresets  = 16;
@@ -96,6 +102,9 @@ private:
   std::unique_ptr<std::atomic<int>[]>      m_pendingValues;
 
   std::atomic<int>                         m_requestedProgram { -1 };  // -1: none
+
+  std::atomic<int>                         m_synthId { 0 };       // See setSynthId()
+  int                                      m_engineSynthId = 0;   // That of the engine (on the audio thread)
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PRA32U2NativeAudioProcessor)
 };
