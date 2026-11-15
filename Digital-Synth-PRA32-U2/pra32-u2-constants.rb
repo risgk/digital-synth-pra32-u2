@@ -269,7 +269,7 @@ SEQ_STEP_NOTE   = 128 + 55
 SEQ_ON_STEPS    = 128 + 56
 SEQ_RX_ST_SP    = 128 + 57
 
-SEQ_TX          = 128 + 58
+PANEL_MIDI_TX   = 128 + 58
 
 
 

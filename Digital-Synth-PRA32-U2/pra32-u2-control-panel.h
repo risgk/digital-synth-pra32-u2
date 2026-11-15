@@ -462,17 +462,96 @@ static INLINE uint8_t PRA32_U2_ControlPanel_adc_control_value_candidate(uint32_t
   return adc_control_value_candidate;
 }
 
+// Panel MIDI Tx [Off|Clk|All|Nte|C+N|A+N] (index 0-5): what the panel transmits by UART MIDI and USB MIDI: MIDI Clock
+// (Clk, All, C+N, and A+N; in Seq Mode), MIDI Start and Stop (All and A+N; in Seq Mode), and the notes that the panel
+// plays (Nte, C+N, and A+N; on the channel that the panel selects, e.g. that of a group, as it is)
+static INLINE uint32_t PRA32_U2_ControlPanel_midi_tx_index() {
+  return ((g_synth.current_controller_value(PANEL_MIDI_TX  ) * 10) + 128) >> 8;
+}
+
+static INLINE boolean PRA32_U2_ControlPanel_midi_tx_clock() {
+  uint32_t index = PRA32_U2_ControlPanel_midi_tx_index();
+  return (index != 0) && (index != 3);
+}
+
+static INLINE boolean PRA32_U2_ControlPanel_midi_tx_start_stop() {
+  uint32_t index = PRA32_U2_ControlPanel_midi_tx_index();
+  return (index == 2) || (index == 5);
+}
+
+// The notes transmitted (2 at most, while a note is changed to another), and their channels, so that each Note Off
+// goes where its Note On went (even after the channel or Panel MIDI Tx is changed)
+static uint8_t s_tx_note_pitch[2] = { 0xFF, 0xFF };
+static uint8_t s_tx_note_ch[2]    = { 0, 0 };
+
+static void PRA32_U2_ControlPanel_tx_note_off(uint8_t pitch) {
+  if (pitch > 127) {
+    return;
+  }
+
+  for (uint32_t i = 0; i < 2; ++i) {
+    if (s_tx_note_pitch[i] == pitch) {
+#if defined(PRA32_U2_USE_USB_MIDI) && !defined(PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION)
+      USB_MIDI.sendNoteOff(pitch, 64, s_tx_note_ch[i]);
+#endif  // defined(PRA32_U2_USE_USB_MIDI) && !defined(PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION)
+
+#if defined(PRA32_U2_USE_UART_MIDI)
+      UART_MIDI.sendNoteOff(pitch, 64, s_tx_note_ch[i]);
+#endif  // defined(PRA32_U2_USE_UART_MIDI)
+      s_tx_note_pitch[i] = 0xFF;
+    }
+  }
+}
+
+static void PRA32_U2_ControlPanel_tx_note_on(uint8_t channel, uint8_t pitch, uint8_t velocity) {
+  if (PRA32_U2_ControlPanel_midi_tx_index() < 3) {  // Off, Clk, or All
+    return;
+  }
+
+  uint32_t i = (s_tx_note_pitch[0] == 0xFF) ? 0 : 1;
+  if (s_tx_note_pitch[i] <= 127) {
+    PRA32_U2_ControlPanel_tx_note_off(s_tx_note_pitch[i]);
+  }
+
+#if defined(PRA32_U2_USE_USB_MIDI) && !defined(PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION)
+  USB_MIDI.sendNoteOn(pitch, velocity, channel);
+#endif  // defined(PRA32_U2_USE_USB_MIDI) && !defined(PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION)
+
+#if defined(PRA32_U2_USE_UART_MIDI)
+  UART_MIDI.sendNoteOn(pitch, velocity, channel);
+#endif  // defined(PRA32_U2_USE_UART_MIDI)
+  s_tx_note_pitch[i] = pitch;
+  s_tx_note_ch[i]    = channel;
+}
+
+// The notes that the panel plays: to the synth, and transmitted by Panel MIDI Tx
+static void PRA32_U2_ControlPanel_note_on(uint8_t channel, uint8_t pitch, uint8_t velocity) {
+  handleNoteOn(channel, pitch, velocity);
+  PRA32_U2_ControlPanel_tx_note_on(channel, pitch, velocity);
+}
+
+static void PRA32_U2_ControlPanel_note_off(uint8_t channel, uint8_t pitch) {
+  handleNoteOff(channel, pitch, 64);
+  PRA32_U2_ControlPanel_tx_note_off(pitch);
+}
+
 static INLINE boolean PRA32_U2_ControlPanel_process_note_off_on() {
   if (s_panel_playing_note_pitch <= 127) {
     if (s_panel_play_note_gate == false) {
-      handleNoteOff(getTargetMIDICh(s_current_synth), s_panel_playing_note_pitch, 64);
+      PRA32_U2_ControlPanel_note_off(getTargetMIDICh(s_current_synth), s_panel_playing_note_pitch);
       s_panel_playing_note_pitch = 0xFF;
     } else {
       if (s_panel_play_note_trigger && (s_panel_play_note_pitch <= 127)) {
         s_panel_play_note_trigger = false;
 
-        handleNoteOn(getTargetMIDICh(s_current_synth), s_panel_play_note_pitch, s_panel_play_note_velocity);
+        if (s_panel_play_note_pitch == s_panel_playing_note_pitch) {
+          PRA32_U2_ControlPanel_tx_note_off(s_panel_playing_note_pitch);  // transmitted: off and then on (the same note)
+        }
+        PRA32_U2_ControlPanel_note_on(getTargetMIDICh(s_current_synth), s_panel_play_note_pitch, s_panel_play_note_velocity);
         handleNoteOff(getTargetMIDICh(s_current_synth), s_panel_playing_note_pitch, 64);
+        if (s_panel_play_note_pitch != s_panel_playing_note_pitch) {
+          PRA32_U2_ControlPanel_tx_note_off(s_panel_playing_note_pitch);
+        }
         s_panel_playing_note_pitch = s_panel_play_note_pitch;
       } else {
         s_panel_play_note_trigger = false;
@@ -482,7 +561,7 @@ static INLINE boolean PRA32_U2_ControlPanel_process_note_off_on() {
     if (s_panel_play_note_gate && (s_panel_play_note_pitch <= 127)) {
       s_panel_play_note_trigger = false;
 
-      handleNoteOn(getTargetMIDICh(s_current_synth), s_panel_play_note_pitch, s_panel_play_note_velocity);
+      PRA32_U2_ControlPanel_note_on(getTargetMIDICh(s_current_synth), s_panel_play_note_pitch, s_panel_play_note_velocity);
       s_panel_playing_note_pitch = s_panel_play_note_pitch;
     } else {
       s_panel_play_note_trigger = false;
@@ -538,10 +617,10 @@ static INLINE void PRA32_U2_ControlPanel_update_pitch(bool progress_seq_step) {
   }
 }
 
-// Seq Tx [Off|Clk|All]: Clk and All transmit MIDI Clock (of the internal clock, and that received with Ext, passed on),
-// and All transmits MIDI Start and Stop too (Seq Rx St/Sp is for receiving them)
+// MIDI Clock by Panel MIDI Tx (of the internal clock, and that received with Ext, passed on); Seq Rx St/Sp is for
+// receiving MIDI Start and Stop
 static INLINE void PRA32_U2_ControlPanel_seq_clock() {
-  if (g_synth.current_controller_value(SEQ_TX         ) >= 32) {  // Seq Tx Clk or All
+  if (PRA32_U2_ControlPanel_midi_tx_clock()) {
 #if defined(PRA32_U2_USE_USB_MIDI) && !defined(PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION)
     USB_MIDI.sendRealTime(midi::Clock);
 #endif  // defined(PRA32_U2_USE_USB_MIDI) && !defined(PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION)
@@ -640,7 +719,7 @@ static INLINE void PRA32_U2_ControlPanel_seq_clock() {
 }
 
 static INLINE void PRA32_U2_ControlPanel_seq_start() {
-  if (g_synth.current_controller_value(SEQ_TX         ) >= 96) {  // Seq Tx All
+  if (PRA32_U2_ControlPanel_midi_tx_start_stop()) {
 #if defined(PRA32_U2_USE_USB_MIDI) && !defined(PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION)
     USB_MIDI.sendRealTime(midi::Start);
 #endif  // defined(PRA32_U2_USE_USB_MIDI) && !defined(PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION)
@@ -668,7 +747,7 @@ static INLINE void PRA32_U2_ControlPanel_seq_start() {
 }
 
 static INLINE void PRA32_U2_ControlPanel_seq_stop() {
-  if (g_synth.current_controller_value(SEQ_TX         ) >= 96) {  // Seq Tx All
+  if (PRA32_U2_ControlPanel_midi_tx_start_stop()) {
 #if defined(PRA32_U2_USE_USB_MIDI) && !defined(PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION)
     USB_MIDI.sendRealTime(midi::Stop);
 #endif  // defined(PRA32_U2_USE_USB_MIDI) && !defined(PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION)
@@ -730,6 +809,8 @@ static __attribute__((noinline, unused)) void PRA32_U2_ControlPanel_execute_oper
       g_synth.control_change(SEQ_VELO_0  + i, array[i] & 0x7Fu);
     }
   } else if (control_target == PANIC_OP) {
+    PRA32_U2_ControlPanel_tx_note_off(s_tx_note_pitch[0]);  // the notes transmitted, off
+    PRA32_U2_ControlPanel_tx_note_off(s_tx_note_pitch[1]);
     handleControlChange(getTargetMIDICh(s_current_synth), ALL_SOUND_OFF  , 0);
     handleControlChange(getTargetMIDICh(s_current_synth), RESET_ALL_CTRLS, 0);
   } else if (control_target == RAND_SYNTH_OP) {
@@ -971,10 +1052,10 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
       result = true;
     }
     break;
-  case SEQ_TX          :
+  case PANEL_MIDI_TX   :
     {
-      static const char ary[3][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"Off","Clk","All"};
-      uint32_t index = ((controller_value * 4) + 128) >> 8;
+      static const char ary[6][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"Off","Clk","All","Nte","C+N","A+N"};
+      uint32_t index = ((controller_value * 10) + 128) >> 8;
       PRA32_U2_ControlPanel_copy_text(value_display_text, ary[index]);
       result = true;
     }
@@ -1500,7 +1581,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
         uint32_t next_key_pressed = digitalRead(PRA32_U2_KEY_INPUT_NEXT_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
         if (next_key_pressed) {
           if (s_panel_playing_note_pitch <= 127) {
-            handleNoteOff(getTargetMIDICh(s_current_synth), s_panel_playing_note_pitch, 64);
+            PRA32_U2_ControlPanel_note_off(getTargetMIDICh(s_current_synth), s_panel_playing_note_pitch);
           }
 
           PRA32_U2_ControlPanel_step_target();
@@ -1584,7 +1665,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
         uint32_t prev_key_pressed = digitalRead(PRA32_U2_KEY_INPUT_PREV_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
         if (prev_key_pressed) {
           if (s_panel_playing_note_pitch <= 127) {
-            handleNoteOff(getTargetMIDICh(s_current_synth), s_panel_playing_note_pitch, 64);
+            PRA32_U2_ControlPanel_note_off(getTargetMIDICh(s_current_synth), s_panel_playing_note_pitch);
           }
 
           PRA32_U2_ControlPanel_step_target();
@@ -2049,7 +2130,7 @@ static void PRA32_U2_ControlPanel_select_target(uint8_t offset) {
 #if (PRA32_U2_NUMBER_OF_SYNTHS > 1)
       if (synth != s_current_synth) {
         if (s_panel_playing_note_pitch <= 127) {
-          handleNoteOff(getTargetMIDICh(s_current_synth), s_panel_playing_note_pitch, 64);
+          PRA32_U2_ControlPanel_note_off(getTargetMIDICh(s_current_synth), s_panel_playing_note_pitch);
         }
         s_current_synth = synth;
         s_display_buffer[0][14] = s_hex_chars[getTargetMIDICh(s_current_synth) - 1];
@@ -2160,7 +2241,7 @@ static void PRA32_U2_ControlPanel_select_target(uint8_t offset) {
 // the pedals, and the Channel Mode Messages), not to change a parameter, nor to write to the flash, by chance:
 // - Parameters (set as by the panel): Seq Pitch 0-7 (#16-23), Seq Velo 0-7 (#70-77), the Panel Parameters
 //   (#51-56: Scale, Transpose, Play Mode, Play Pitch, Play Velo, and Pitch Ofst), and the other Step Sequencer Parameters (#85-90 and #92-94, the number + 37,
-//   Seq Pitch Ofst #95, and Seq Tx #59); Panel Target Ch (#58, PRA32-U2/M/P: the channel
+//   Seq Pitch Ofst #95, and Panel MIDI Tx #59); Panel Target Ch (#58, PRA32-U2/M/P: the channel
 //   that the panel selects, as the Basic Channel + the value) is only for the Panel Channel
 // - MIDI Basic Ch (#57, 0-15 as 1-16) is only kept, and set by Set Basic Ch (#114, as an operation), so that the channels
 //   (the Panel Channel too) do not move by one Control Change; kept in the flash by Write Panel Prms, as by the panel
@@ -2182,7 +2263,7 @@ static uint8_t PRA32_U2_ControlPanel_panel_ch_target(uint8_t number) {
   case  54: return PANEL_PLAY_PIT ;
   case  55: return PANEL_PLAY_VELO;
   case  56: return PANEL_PIT_OFST ;
-  case  59: return SEQ_TX         ;
+  case  59: return PANEL_MIDI_TX  ;
   case 102: return WR_PANEL_PRMS  ;  // Write and then Read, as the pages of the panel (C and D)
   case 103: return RD_PANEL_PRMS  ;
   case 104: return IN_PANEL_PRMS  ;
@@ -2223,7 +2304,7 @@ void PRA32_U2_ControlPanel_on_panel_ch_control_change(uint8_t number, uint8_t va
       s_set_basic_ch_ready = false;
       if ((s_panel_ch_basic_ch <= 15) && (s_panel_ch_basic_ch != g_midi_ch)) {
         if (s_panel_playing_note_pitch <= 127) {  // off on the channel before
-          handleNoteOff(getTargetMIDICh(s_current_synth), s_panel_playing_note_pitch, 64);
+          PRA32_U2_ControlPanel_note_off(getTargetMIDICh(s_current_synth), s_panel_playing_note_pitch);
         }
         g_synth.control_change(PANEL_MIDI_CH, s_panel_ch_basic_ch << 3);
       }

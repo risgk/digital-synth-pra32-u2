@@ -164,7 +164,7 @@ static uint8_t s_program_table_panel_parameters[] = {
   SEQ_ON_STEPS   ,
   SEQ_RX_ST_SP   ,
 
-  SEQ_TX         ,
+  PANEL_MIDI_TX  ,
 
 
 };
@@ -213,7 +213,7 @@ const uint8_t   DEFAULT_SEQ_STEP_NOTE   = 64 ;
 const uint8_t   DEFAULT_SEQ_ON_STEPS    = 127;
 const uint8_t   DEFAULT_SEQ_RX_ST_SP    = 0  ;
 
-const uint8_t   DEFAULT_SEQ_TX          = 64 ;  // Clk
+const uint8_t   DEFAULT_PANEL_MIDI_TX   = 26 ;  // Clk
 
 
 
@@ -531,7 +531,7 @@ public:
       m_program_table_panel[i][SEQ_ON_STEPS   ] = DEFAULT_SEQ_ON_STEPS   ;
       m_program_table_panel[i][SEQ_RX_ST_SP   ] = DEFAULT_SEQ_RX_ST_SP   ;
 
-      m_program_table_panel[i][SEQ_TX         ] = DEFAULT_SEQ_TX         ;
+      m_program_table_panel[i][PANEL_MIDI_TX  ] = DEFAULT_PANEL_MIDI_TX  ;
 
 
     }

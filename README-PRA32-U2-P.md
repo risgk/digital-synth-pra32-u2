@@ -82,18 +82,23 @@
         - For example, if Panel Scale is Mel and Panel Transpose is -3, the scale is A Ascending Melodic Minor (Jazz Minor)
         - For example, if Panel Scale is Min and Panel Transpose is -3, the scale is A Natural Minor
         - For example, if Panel Scale is MiP and Panel Transpose is -3, the scale is A Minor Pentatonic
+    - Panel MIDI Tx (Transmit) [Off|Clk|All|Nte|C+N|A+N]: what the panel transmits, by UART MIDI and USB MIDI
+        - Off: none, Clk: MIDI Clock (the default), All: MIDI Clock, Start, and Stop,
+          Nte: the notes (Note On and Off), C+N: MIDI Clock and the notes, A+N: MIDI Clock, Start, Stop, and the notes
+        - MIDI Clock, Start, and Stop: in Seq Mode (see Seq Clock Src); Start and Stop when the Step Sequencer starts and stops
+        - The notes: those that the panel plays (the Play key, the Step Sequencer, and Panel Play), on the channel that the panel selects, as it is
+          (e.g. that of a group, without the Round Robin to the Sub Synths)
+        - NOTE: A DAW that sends the notes back to PRA32-U2 (e.g. by the monitoring of a track) makes them sound twice
+        - Not to transmit by USB MIDI, uncomment `//#define PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION` in "Digital-Synth-PRA32-U2.ino" (or "Digital-Synth-PRA32-U2-M.ino")
 - Step Sequencer Parameters
     - Seq Step Note [4|8|16]: Quarter Note, Eighth Note, Sixteenth Note
     - Seq Clock Src [Aut|Int|Ext]: Auto (the default), Internal, External (Rx MIDI Clock)
         - Aut: Internal at first, External at a MIDI Clock, and Internal when Seq Tempo is changed (External again at the next MIDI Clock),
           so that the internal clock plays when MIDI Clocks no longer come (e.g. a DAW stopped)
-        - In Seq Mode, MIDI Clocks are sent by UART MIDI and USB MIDI (by Seq Tx Clk and All): those of the internal clock, and with Ext (and Aut),
+        - In Seq Mode, MIDI Clocks are sent by UART MIDI and USB MIDI (by Panel MIDI Tx): those of the internal clock, and with Ext (and Aut),
           those received, passed on (e.g. to the next device of a chain)
         - NOTE: Connecting UART MIDI IN and OUT both ways to a device that sends MIDI Clocks back (e.g. one synced to them) may keep the Clocks going round
     - Seq Pitch Ofst (Offset) [-|+]: Offset Seq Pitch 0-7 (min -60 to max +60)
-    - Seq Tx (Transmit) [Off|Clk|All]: the MIDI messages that the Step Sequencer transmits, by UART MIDI and USB MIDI: Off (none),
-      Clk (MIDI Clock, the default), All (MIDI Clock, Start, and Stop)
-        - Not to transmit by USB MIDI, uncomment `//#define PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION` in "Digital-Synth-PRA32-U2.ino" (or "Digital-Synth-PRA32-U2-M.ino")
     - Seq Rx St/Sp (Receive Start/Stop): Off, On
     - Seq Tempo: 30-240 BPM (in steps of 2 BPM)
     - Seq Gate Time [1/6|2/6|3/6|4/6|5/6|6/6]
@@ -231,9 +236,9 @@
 | B-00 Panel a   | Panel Play Mode      | MIDI Basic Ch        |
 | B-01 Panel b   | Panel Play Pitch     | Panel Play Velo      |
 | B-02 Panel c   | Panel Scale          | Panel Pitch Ofst     |
-| B-03 Panel d   | Panel Transpose      | Seq Pitch Ofst       |
+| B-03 Panel d   | Panel Transpose      | Panel MIDI Tx        |
 | B-04 Seq a     | Seq Step Note        | Seq Clock Src        |
-| B-05 Seq b     | Seq Tx               | Seq Rx St/Sp         |
+| B-05 Seq b     | Seq Pitch Ofst       | Seq Rx St/Sp         |
 | B-06 Seq c     | Seq Tempo            | Seq Gate Time        |
 | B-07 Seq d     | Seq Mode             | Seq Num Steps        |
 | B-08 Seq e     | Seq On Steps         | Seq Act Steps        |

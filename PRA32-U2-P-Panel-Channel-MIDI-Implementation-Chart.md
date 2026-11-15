@@ -33,7 +33,7 @@
 |                            57 | x             | o             | MIDI Basic Ch (0-15) $5               |
 |                               |               |               |                                       |
 |                            58 | x             | o             | Panel Target Ch $2                    |
-|                            59 | x             | o             | Seq Tx [Off|Clk|All]                  |
+|                            59 | x             | o             | Panel MIDI Tx $6                      |
 |                               |               |               |                                       |
 |                         70-77 | x             | o             | Seq Velo 0-7                          |
 |                               |               |               |                                       |
@@ -93,6 +93,9 @@
 |                               |   Sequencer started (Seq Mode); 0-63: as released or stopped          |
 |                               | $5 : MIDI Basic Ch is only kept, and set (as 1-16) by Set Basic Ch;   |
 |                               |   the Panel Channel moves with it; Write Panel Prms keeps it          |
+|                               | $6 : [Off|Clk|All|Nte|C+N|A+N]: MIDI Clock (Clk, C+N, and A+N), Start |
+|                               |   and Stop (All and A+N), and the notes that the panel plays (Nte,    |
+|                               |   C+N, and A+N); see README-PRA32-U2-P.md                             |
 +-------------------------------+-----------------------------------------------------------------------+
   Mode 1: Omni On,  Poly          Mode 2: Omni On,  Mono          o: Yes                                 
   Mode 3: Omni Off, Poly          Mode 4: Omni Off, Mono          x: No                                  

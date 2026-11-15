@@ -11,11 +11,11 @@
 |              Messages         | x             | x             |                                       |
 |              Altered          | ************* |               |                                       |
 +-------------------------------+---------------+---------------+---------------------------------------+
-| Note                          | x             | 0-127         |                                       |
+| Note                          | x $11         | 0-127         |                                       |
 | Number       : True Voice     | ************* | 0-127         |                                       |
 +-------------------------------+---------------+---------------+---------------------------------------+
-| Velocity     Note ON          | x             | o             |                                       |
-|              Note OFF         | x             | o             |                                       |
+| Velocity     Note ON          | x $11         | o             |                                       |
+|              Note OFF         | x $11         | o             |                                       |
 +-------------------------------+---------------+---------------+---------------------------------------+
 | After        Key's            | x             | o             |                                       |
 | Touch        Ch's             | x             | o             |                                       |
@@ -147,7 +147,7 @@
 |                               |   #16-31 are not written), and then change "Write Parameters to       |
 |                               |   Program" from 0-31 to 96-127                                        |
 |                               | $3 : Basic Channel can be changed in PRA32-U2/P                       |
-|                               | $4 : o in PRA32-U2/P by Seq Tx (Clock: Clk and All, Start/Stop: All)  |
+|                               | $4 : o in PRA32-U2/P by Panel MIDI Tx (in Seq Mode)                   |
 |                               | $5 : o in PRA32-U2/P if Seq Clock Src is External (or Auto)           |
 |                               |   (Start/Stop: by Seq Rx St/Sp On)                                    |
 |                               | $6 : Randomize the synth parameters (as "Randomize Synth" in          |
@@ -158,6 +158,8 @@
 |                               |   it (e.g. Hi-Res Velocity Out), turn it off                          |
 |                               | $10: PRA32-U2/M only, by the value of the Main Synth:                 |
 |                               |   [Off|Ly2|RLy|RR2|RR4|RR3]                                           |
+|                               | $11: o in PRA32-U2/P by Panel MIDI Tx (the notes that the panel       |
+|                               |   plays)                                                              |
 +-------------------------------+-----------------------------------------------------------------------+
   Mode 1: Omni On,  Poly          Mode 2: Omni On,  Mono          o: Yes                                 
   Mode 3: Omni Off, Poly          Mode 4: Omni Off, Mono          x: No                                  

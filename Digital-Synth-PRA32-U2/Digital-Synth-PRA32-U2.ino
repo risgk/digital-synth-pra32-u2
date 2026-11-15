@@ -91,7 +91,7 @@
 #define PRA32_U2_OLED_DISPLAY_CONTRAST           (0xFF)
 #define PRA32_U2_OLED_DISPLAY_ROTATION           (true)
 
-//#define PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION  // Not to transmit the MIDI Clock, Start, and Stop of the Step Sequencer (Seq Tx) by USB MIDI
+//#define PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION  // Not to transmit by USB MIDI what Panel MIDI Tx selects (MIDI Clock, Start, Stop, and the notes)
 
 ////////////////////////////////////////////////////////////////
 

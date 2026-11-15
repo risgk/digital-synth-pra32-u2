@@ -6,10 +6,10 @@
         - PRA32-U2/M/P: The panel can select such a group then too, for its parameters
     - PRA32-U2/P: Seq Clock Src [Aut|Int|Ext]: Add **Aut** (Auto; at first and by Init Panel Prms, Int before): Internal at first, External at a MIDI Clock, and Internal when Seq Tempo is changed (External again at the next MIDI Clock)
         - Not compatible: Int written before at 0-31 (e.g. 0, the default) is now Aut: set it to 64; Ext at 64-95 is now Int: set it to 127
-    - PRA32-U2/P: Add **Seq Tx** [Off|Clk|All] (Transmit, Page B-05, and Control Change #59 on the Panel Channel): Clk (the default) transmits MIDI Clock, as before,
-      and All transmits MIDI Start and Stop too; also by USB MIDI now (by UART MIDI alone before)
-        - Seq T/Rx St/Sp is now **Seq Rx St/Sp** (Receive Start/Stop); Seq Pitch Ofst is now on Page B-03
-        - Not compatible: Seq T/Rx St/Sp On written before no longer transmits Start and Stop: set Seq Tx to All
+    - PRA32-U2/P: Add **Panel MIDI Tx** [Off|Clk|All|Nte|C+N|A+N] (Transmit, Page B-03, and Control Change #59 on the Panel Channel): MIDI Clock (Clk, the default, as before),
+      MIDI Start and Stop (All), and the notes that the panel plays (Nte), by UART MIDI and also by USB MIDI now (by UART MIDI alone before)
+        - Seq T/Rx St/Sp is now **Seq Rx St/Sp** (Receive Start/Stop)
+        - Not compatible: Seq T/Rx St/Sp On written before no longer transmits Start and Stop: set Panel MIDI Tx to All
     - Tested with Arduino-Pico version 6.3.0
 - v3.21.0 (2026-11-15):
     - **Filter Mode** [LP|BR|HP|BP|LP] changes smoothly: Low Pass (0 and 127), Band Reject (32), High Pass (64), and Band Pass (96), crossfaded in between
