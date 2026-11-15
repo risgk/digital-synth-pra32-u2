@@ -937,7 +937,6 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   boolean result = false;
 
   switch (control_target) {
-  case OSC_2_COARSE    :
   case OSC_2_PITCH     :
   case FILTER_EG_AMT   :
   case FILTER_KEY_TRK  :
@@ -959,6 +958,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
       result = true;
     }
     break;
+  case OSC_2_COARSE    :  // -60 to +60, as it works
   case PANEL_PIT_OFST  :
   case SEQ_PIT_OFST    :
     {

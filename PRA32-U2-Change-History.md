@@ -10,6 +10,7 @@
       MIDI Start and Stop (All), and the notes that the panel plays (Nte), by UART MIDI and also by USB MIDI now (by UART MIDI alone before)
         - Seq T/Rx St/Sp is now **Seq Rx St/Sp** (Receive Start/Stop)
         - Not compatible: Seq T/Rx St/Sp On written before no longer transmits Start and Stop: set Panel MIDI Tx to All
+    - Osc 2 Coarse shows -60 to +60, as it works (-64 to +63 shown before), in PRA32-U2 Editor, PRA32-U2 Native, and the panel of PRA32-U2/P
     - Tested with Arduino-Pico version 6.3.0
 - v3.21.0 (2026-11-15):
     - **Filter Mode** [LP|BR|HP|BP|LP] changes smoothly: Low Pass (0 and 127), Band Reject (32), High Pass (64), and Band Pass (96), crossfaded in between

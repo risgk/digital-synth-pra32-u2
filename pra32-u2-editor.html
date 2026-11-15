@@ -1858,6 +1858,11 @@ function updateDisplayOfControl(number, value) {
 
   switch (number) {
   case OSC_2_COARSE    :
+    {
+      const v = Math.min(Math.max(value, 64 - 60), 64 + 60);  // -60 to +60, as it works
+      dispValue = ((v >= 64) ? "+" : "") + String(v - 64);
+    }
+    break;
   case OSC_2_PITCH     :
   case FILTER_EG_AMT   :
   case FILTER_KEY_TRK  :

@@ -26,6 +26,7 @@ uint8_t g_midi_ch = 0;  // Used by the core (only for the panel); the engine rec
 
 #include "PRA32U2Engine.h"
 
+#include <algorithm>
 #include <array>
 
 #if defined(PRA32_U2_ENGINE_M)
@@ -312,7 +313,7 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value) {
   static const char* const GROUP_MODES[6]  = { "Off", "Ly2", "RLy", "RR2", "RR4", "RR3" };
 
   switch (controlNumber) {
-  case OSC_2_COARSE    :
+  case OSC_2_COARSE    : dispValue = bipolar(std::min(std::max(v, 64 - 60), 64 + 60)); break;  // -60 to +60, as it works
   case OSC_2_PITCH     :
   case FILTER_EG_AMT   :
   case FILTER_KEY_TRK  :
