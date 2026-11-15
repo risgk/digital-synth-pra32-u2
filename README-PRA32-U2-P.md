@@ -87,11 +87,14 @@
     - Seq Clock Src [Int|Ext|Aut]: Internal, External (Rx MIDI Clock), Auto (the default)
         - Aut: Internal at first, External at a MIDI Clock, and Internal when Seq Tempo is changed (External again at the next MIDI Clock),
           so that the internal clock plays when MIDI Clocks no longer come (e.g. a DAW stopped)
-        - In Seq Mode, MIDI Clocks are sent by UART MIDI (not by USB MIDI, by default): those of the internal clock, and with Ext (and Aut),
+        - In Seq Mode, MIDI Clocks are sent by UART MIDI and USB MIDI (by Seq Tx Clk and All): those of the internal clock, and with Ext (and Aut),
           those received, passed on (e.g. to the next device of a chain)
         - NOTE: Connecting UART MIDI IN and OUT both ways to a device that sends MIDI Clocks back (e.g. one synced to them) may keep the Clocks going round
     - Seq Pitch Ofst (Offset) [-|+]: Offset Seq Pitch 0-7 (min -60 to max +60)
-    - Seq T/Rx St/Sp (Transmit/Receive Start/Stop): Off, On
+    - Seq Tx (Transmit) [Off|Clk|All]: the MIDI messages that the Step Sequencer transmits, by UART MIDI and USB MIDI: Off (none),
+      Clk (MIDI Clock, the default), All (MIDI Clock, Start, and Stop)
+        - Not to transmit by USB MIDI, uncomment `//#define PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION` in "Digital-Synth-PRA32-U2.ino" (or "Digital-Synth-PRA32-U2-M.ino")
+    - Seq Rx St/Sp (Receive Start/Stop): Off, On
     - Seq Tempo: 30-240 BPM (in steps of 2 BPM)
     - Seq Gate Time [1/6|2/6|3/6|4/6|5/6|6/6]
     - Seq Mode [Fwd|Rvs|Bnc]: Forward, Reverse, Bounce
@@ -228,9 +231,9 @@
 | B-00 Panel a   | Panel Play Mode      | MIDI Basic Ch        |
 | B-01 Panel b   | Panel Play Pitch     | Panel Play Velo      |
 | B-02 Panel c   | Panel Scale          | Panel Pitch Ofst     |
-| B-03 Panel d   | Panel Transpose      |                      |
+| B-03 Panel d   | Panel Transpose      | Seq Pitch Ofst       |
 | B-04 Seq a     | Seq Step Note        | Seq Clock Src        |
-| B-05 Seq b     | Seq Pitch Ofst       | Seq T/Rx St/Sp       |
+| B-05 Seq b     | Seq Tx               | Seq Rx St/Sp         |
 | B-06 Seq c     | Seq Tempo            | Seq Gate Time        |
 | B-07 Seq d     | Seq Mode             | Seq Num Steps        |
 | B-08 Seq e     | Seq On Steps         | Seq Act Steps        |

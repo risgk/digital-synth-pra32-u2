@@ -103,7 +103,7 @@
 #define PRA32_U2_OLED_DISPLAY_CONTRAST           (0xFF)
 #define PRA32_U2_OLED_DISPLAY_ROTATION           (true)
 
-#define PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION
+//#define PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION  // Not to transmit the MIDI Clock, Start, and Stop of the Step Sequencer (Seq Tx) by USB MIDI
 
 ////////////////////////////////////////////////////////////////
 
@@ -746,7 +746,7 @@ void __not_in_flash_func(handleClock)()
 void __not_in_flash_func(handleStart)()
 {
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
-  if (g_synth.current_controller_value(SEQ_TRX_ST_SP  ) >= 64) {
+  if (g_synth.current_controller_value(SEQ_RX_ST_SP   ) >= 64) {
     PRA32_U2_ControlPanel_on_start();
   }
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
@@ -755,7 +755,7 @@ void __not_in_flash_func(handleStart)()
 void __not_in_flash_func(handleStop)()
 {
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
-  if (g_synth.current_controller_value(SEQ_TRX_ST_SP  ) >= 64) {
+  if (g_synth.current_controller_value(SEQ_RX_ST_SP   ) >= 64) {
     PRA32_U2_ControlPanel_on_stop();
   }
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)

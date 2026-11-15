@@ -33,6 +33,7 @@
 |                            57 | x             | o             | MIDI Basic Ch (0-15) $5               |
 |                               |               |               |                                       |
 |                            58 | x             | o             | Panel Target Ch $2                    |
+|                            59 | x             | o             | Seq Tx [Off|Clk|All]                  |
 |                               |               |               |                                       |
 |                         70-77 | x             | o             | Seq Velo 0-7                          |
 |                               |               |               |                                       |
@@ -44,7 +45,7 @@
 |                            90 | x             | o             | Seq Act Steps                         |
 |                            92 | x             | o             | Seq Step Note [4|8|16]                |
 |                            93 | x             | o             | Seq On Steps                          |
-|                            94 | x             | o             | Seq T/Rx St/Sp [Off|On]               |
+|                            94 | x             | o             | Seq Rx St/Sp [Off|On]                 |
 |                            95 | x             | o             | Seq Pitch Ofst [-|+]                  |
 |                               |               |               |                                       |
 |                           102 | x             | o             | Write Panel Prms $3                   |

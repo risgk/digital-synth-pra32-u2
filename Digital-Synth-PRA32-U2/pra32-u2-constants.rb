@@ -267,7 +267,9 @@ SEQ_PIT_OFST    = 128 + 54
 SEQ_STEP_NOTE   = 128 + 55
 
 SEQ_ON_STEPS    = 128 + 56
-SEQ_TRX_ST_SP   = 128 + 57
+SEQ_RX_ST_SP    = 128 + 57
+
+SEQ_TX          = 128 + 58
 
 
 

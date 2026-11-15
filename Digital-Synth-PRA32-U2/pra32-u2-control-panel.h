@@ -538,14 +538,18 @@ static INLINE void PRA32_U2_ControlPanel_update_pitch(bool progress_seq_step) {
   }
 }
 
+// Seq Tx [Off|Clk|All]: Clk and All transmit MIDI Clock (of the internal clock, and that received with Ext, passed on),
+// and All transmits MIDI Start and Stop too (Seq Rx St/Sp is for receiving them)
 static INLINE void PRA32_U2_ControlPanel_seq_clock() {
+  if (g_synth.current_controller_value(SEQ_TX         ) >= 32) {  // Seq Tx Clk or All
 #if defined(PRA32_U2_USE_USB_MIDI) && !defined(PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION)
-  USB_MIDI.sendRealTime(midi::Clock);
+    USB_MIDI.sendRealTime(midi::Clock);
 #endif  // defined(PRA32_U2_USE_USB_MIDI) && !defined(PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION)
 
 #if defined(PRA32_U2_USE_UART_MIDI)
-  UART_MIDI.sendRealTime(midi::Clock);
+    UART_MIDI.sendRealTime(midi::Clock);
 #endif  // defined(PRA32_U2_USE_UART_MIDI)
+  }
 
   if (s_playing_status != PlayingStatus_Seq) {
     return;
@@ -636,7 +640,7 @@ static INLINE void PRA32_U2_ControlPanel_seq_clock() {
 }
 
 static INLINE void PRA32_U2_ControlPanel_seq_start() {
-  if (g_synth.current_controller_value(SEQ_TRX_ST_SP  ) >= 64) {
+  if (g_synth.current_controller_value(SEQ_TX         ) >= 96) {  // Seq Tx All
 #if defined(PRA32_U2_USE_USB_MIDI) && !defined(PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION)
     USB_MIDI.sendRealTime(midi::Start);
 #endif  // defined(PRA32_U2_USE_USB_MIDI) && !defined(PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION)
@@ -664,7 +668,7 @@ static INLINE void PRA32_U2_ControlPanel_seq_start() {
 }
 
 static INLINE void PRA32_U2_ControlPanel_seq_stop() {
-  if (g_synth.current_controller_value(SEQ_TRX_ST_SP  ) >= 64) {
+  if (g_synth.current_controller_value(SEQ_TX         ) >= 96) {  // Seq Tx All
 #if defined(PRA32_U2_USE_USB_MIDI) && !defined(PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION)
     USB_MIDI.sendRealTime(midi::Stop);
 #endif  // defined(PRA32_U2_USE_USB_MIDI) && !defined(PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION)
@@ -959,10 +963,18 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case REL_EQ_DECAY    :
   case SUSTAIN_PEDAL   :
   case PORTAMENTO_SW   :
-  case SEQ_TRX_ST_SP   :
+  case SEQ_RX_ST_SP    :
     {
       static const char ary[2][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"Off"," On"};
       uint32_t index = ((controller_value * 2) + 128) >> 8;
+      PRA32_U2_ControlPanel_copy_text(value_display_text, ary[index]);
+      result = true;
+    }
+    break;
+  case SEQ_TX          :
+    {
+      static const char ary[3][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"Off","Clk","All"};
+      uint32_t index = ((controller_value * 4) + 128) >> 8;
       PRA32_U2_ControlPanel_copy_text(value_display_text, ary[index]);
       result = true;
     }
@@ -2148,7 +2160,7 @@ static void PRA32_U2_ControlPanel_select_target(uint8_t offset) {
 // the pedals, and the Channel Mode Messages), not to change a parameter, nor to write to the flash, by chance:
 // - Parameters (set as by the panel): Seq Pitch 0-7 (#16-23), Seq Velo 0-7 (#70-77), the Panel Parameters
 //   (#51-56: Scale, Transpose, Play Mode, Play Pitch, Play Velo, and Pitch Ofst), and the other Step Sequencer Parameters (#85-90 and #92-94, the number + 37,
-//   and Seq Pitch Ofst #95); Panel Target Ch (#58, PRA32-U2/M/P: the channel
+//   Seq Pitch Ofst #95, and Seq Tx #59); Panel Target Ch (#58, PRA32-U2/M/P: the channel
 //   that the panel selects, as the Basic Channel + the value) is only for the Panel Channel
 // - MIDI Basic Ch (#57, 0-15 as 1-16) is only kept, and set by Set Basic Ch (#114, as an operation), so that the channels
 //   (the Panel Channel too) do not move by one Control Change; kept in the flash by Write Panel Prms, as by the panel
@@ -2170,6 +2182,7 @@ static uint8_t PRA32_U2_ControlPanel_panel_ch_target(uint8_t number) {
   case  54: return PANEL_PLAY_PIT ;
   case  55: return PANEL_PLAY_VELO;
   case  56: return PANEL_PIT_OFST ;
+  case  59: return SEQ_TX         ;
   case 102: return WR_PANEL_PRMS  ;  // Write and then Read, as the pages of the panel (C and D)
   case 103: return RD_PANEL_PRMS  ;
   case 104: return IN_PANEL_PRMS  ;
@@ -2179,7 +2192,7 @@ static uint8_t PRA32_U2_ControlPanel_panel_ch_target(uint8_t number) {
   case 113: return SEQ_RAND_VELO  ;
   }
 
-  if ((number >= 85) && (number <= 94) && (number != 91)) { return 128 + (number - 37); }  // SEQ_TEMPO to SEQ_TRX_ST_SP
+  if ((number >= 85) && (number <= 94) && (number != 91)) { return 128 + (number - 37); }  // SEQ_TEMPO to SEQ_RX_ST_SP
   if (number == 95) { return SEQ_PIT_OFST; }  // not #91 (Effects 1 Depth, which a DAW or a keyboard may send)
 
   return 0xFF;
