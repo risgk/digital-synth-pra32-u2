@@ -63,7 +63,7 @@ static          uint32_t s_seq_count_increment    = 0;
 static          bool     s_seq_clock_src_external = false;  // the clock now: External (Ext, or Aut after a clock)
 // Seq Clock Src Aut: Int at first, Ext at a MIDI Clock, and Int when Seq Tempo is changed (Ext again at the next MIDI
 // Clock), so that the internal clock plays when they no longer come (e.g. a DAW stopped)
-static          uint8_t  s_seq_clock_src_mode = 2;  // 0: Int, 1: Ext, 2: Aut
+static          uint8_t  s_seq_clock_src_mode = 0;  // 0: Aut, 1: Int, 2: Ext
 static          uint8_t  s_seq_tempo_last     = 0xFF;  // for the changes of Seq Tempo (not the first value)
 
 static volatile uint8_t  s_panel_play_note_pitch    = 60;
@@ -1170,16 +1170,16 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
       uint32_t index = ((controller_value * 4) + 128) >> 8;
 
       if (index == 0) {
+        value_display_text[0] = 'A';
+        value_display_text[1] = 'u';
+        value_display_text[2] = 't';
+      } else if (index == 1) {
         value_display_text[0] = 'I';
         value_display_text[1] = 'n';
         value_display_text[2] = 't';
-      } else if (index == 1) {
+      } else {
         value_display_text[0] = 'E';
         value_display_text[1] = 'x';
-        value_display_text[2] = 't';
-      } else {
-        value_display_text[0] = 'A';
-        value_display_text[1] = 'u';
         value_display_text[2] = 't';
       }
 
@@ -1776,7 +1776,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
 
 INLINE void PRA32_U2_ControlPanel_on_clock()
 {
-  if (s_seq_clock_src_mode == 2) {  // Aut: Ext at a MIDI Clock
+  if (s_seq_clock_src_mode == 0) {  // Aut: Ext at a MIDI Clock
     s_seq_clock_src_external = true;
   }
   if (s_seq_clock_src_external) {
@@ -2104,7 +2104,7 @@ static void PRA32_U2_ControlPanel_select_target(uint8_t offset) {
     uint8_t tempo = g_synth.current_controller_value(SEQ_TEMPO      );
     uint32_t bpm = PRA32_U2_ControlPanel_calc_bpm(tempo);
     s_seq_count_increment = bpm * 8192;
-    if ((s_seq_clock_src_mode == 2) && (s_seq_tempo_last <= 127) && (tempo != s_seq_tempo_last)) {  // Aut: Int, by the tempo
+    if ((s_seq_clock_src_mode == 0) && (s_seq_tempo_last <= 127) && (tempo != s_seq_tempo_last)) {  // Aut: Int, by the tempo
       s_seq_clock_src_external = false;
     }
     s_seq_tempo_last = tempo;
@@ -2113,7 +2113,7 @@ static void PRA32_U2_ControlPanel_select_target(uint8_t offset) {
     uint32_t index = ((controller_value * 4) + 128) >> 8;
     if (index != s_seq_clock_src_mode) {
       s_seq_clock_src_mode = index;
-      s_seq_clock_src_external = (index == 1);  // Aut: Int until a MIDI Clock
+      s_seq_clock_src_external = (index == 2);  // Ext (Aut: Int until a MIDI Clock)
     }
   } else if (control_number == SEQ_GATE_TIME  ) {
     uint8_t controller_value = g_synth.current_controller_value(SEQ_GATE_TIME  );

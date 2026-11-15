@@ -3847,7 +3847,7 @@ const PANEL_PARAM_GROUPS = [
    ["Seq",   "Pitch Ofst", "[-|+]",                     95, 64,  v => panelSigned(panelClamp(v - 64, -60, 60)), "soft-marker-c"]],
   // B-04 to B-08
   [["Seq", "Step Note",  "[4|8|16]",                  92, 64,  v => ["4", "8", "16"][(v * 4 + 128) >> 8],       "soft-markers-3"],
-   ["Seq", "Clock Src",  "[Int|Ext|Aut]",             86, 127, v => ["Int", "Ext", "Aut"][(v * 4 + 128) >> 8],  "soft-markers-3"],
+   ["Seq", "Clock Src",  "[Aut|Int|Ext]",             86, 0,   v => ["Aut", "Int", "Ext"][(v * 4 + 128) >> 8],  "soft-markers-3"],
    ["Seq", "Tx",         "[Off|Clk|All]",             59, 64,  v => ["Off", "Clk", "All"][(v * 4 + 128) >> 8],  "soft-markers-3"],
    ["Seq", "Rx St/Sp",   "[Off|On]",                  94, 0,   v => ["Off", "On"][(v * 2 + 128) >> 8],          "soft-markers-2"],
    ["Seq", "Tempo",      "",                          85, 64,  v => String(panelClamp(v * 2 - 8, 30, 240)),     ""],

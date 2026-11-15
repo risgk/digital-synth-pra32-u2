@@ -84,7 +84,7 @@
         - For example, if Panel Scale is MiP and Panel Transpose is -3, the scale is A Minor Pentatonic
 - Step Sequencer Parameters
     - Seq Step Note [4|8|16]: Quarter Note, Eighth Note, Sixteenth Note
-    - Seq Clock Src [Int|Ext|Aut]: Internal, External (Rx MIDI Clock), Auto (the default)
+    - Seq Clock Src [Aut|Int|Ext]: Auto (the default), Internal, External (Rx MIDI Clock)
         - Aut: Internal at first, External at a MIDI Clock, and Internal when Seq Tempo is changed (External again at the next MIDI Clock),
           so that the internal clock plays when MIDI Clocks no longer come (e.g. a DAW stopped)
         - In Seq Mode, MIDI Clocks are sent by UART MIDI and USB MIDI (by Seq Tx Clk and All): those of the internal clock, and with Ext (and Aut),

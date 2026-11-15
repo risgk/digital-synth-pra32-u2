@@ -4,8 +4,8 @@
     - PRA32-U2/M: Voice Group Mode: While the Main Synth is in Poly, the notes of a group go only to the Main Synth, as before (none without it, e.g. RR3);
       the other messages (e.g. Control Changes and Program Changes) go to all of the group (to the Main Synth alone before), so that the Sub Synths can be set up then too
         - PRA32-U2/M/P: The panel can select such a group then too, for its parameters
-    - PRA32-U2/P: Seq Clock Src [Int|Ext|Aut]: Add **Aut** (Auto; at first and by Init Panel Prms, Int before): Internal at first, External at a MIDI Clock, and Internal when Seq Tempo is changed (External again at the next MIDI Clock)
-        - Not compatible: Ext written before at 96-127 (e.g. 127) is now Aut: set it to 64
+    - PRA32-U2/P: Seq Clock Src [Aut|Int|Ext]: Add **Aut** (Auto; at first and by Init Panel Prms, Int before): Internal at first, External at a MIDI Clock, and Internal when Seq Tempo is changed (External again at the next MIDI Clock)
+        - Not compatible: Int written before at 0-31 (e.g. 0, the default) is now Aut: set it to 64; Ext at 64-95 is now Int: set it to 127
     - PRA32-U2/P: Add **Seq Tx** [Off|Clk|All] (Transmit, Page B-05, and Control Change #59 on the Panel Channel): Clk (the default) transmits MIDI Clock, as before,
       and All transmits MIDI Start and Stop too; also by USB MIDI now (by UART MIDI alone before)
         - Seq T/Rx St/Sp is now **Seq Rx St/Sp** (Receive Start/Stop); Seq Pitch Ofst is now on Page B-03
