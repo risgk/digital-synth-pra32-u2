@@ -85,8 +85,8 @@
 - Step Sequencer Parameters
     - Seq Step Note [4|8|16]: Quarter Note, Eighth Note, Sixteenth Note
     - Seq Clock Src [Int|Ext|Aut]: Internal, External (Rx MIDI Clock), Auto (the default)
-        - Aut: Internal at first, External after a MIDI Clock (or Start), and Internal again when Seq Tempo is changed,
-          until a MIDI Start (not a Clock, which a DAW may send also while stopped); shown as "A-I" or "A-E"
+        - Aut: Internal at first, and External after a MIDI Clock, from then on (Seq Tempo does not change it; back to Internal
+          when Seq Clock Src is set again, or at the start); shown as "A-I" or "A-E"
     - Seq Pitch Ofst (Offset) [-|+]: Offset Seq Pitch 0-7 (min -60 to max +60)
     - Seq T/Rx St/Sp (Transmit/Receive Start/Stop): Off, On
     - Seq Tempo: 30-240 BPM (in steps of 2 BPM)
