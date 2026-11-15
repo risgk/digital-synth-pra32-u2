@@ -3842,7 +3842,7 @@ function panelHex2(v) { return "x" + v.toString(16).toUpperCase().padStart(2, "0
 // [category, name, supplement, CC#, default, display, markers (the class of PRA32-U2 Editor)], in groups (rows of 4)
 const PANEL_PARAM_GROUPS = [
   // In the order of the pages of the panel (B-00 to B-03), 2 a page (MIDI Basic Ch of B-00 is an empty cell here)
-  [["Panel", "Play Mode",  "[Nrm|Seq]",                 53, 0,   v => ["Nrm", "Seq"][(v * 2 + 128) >> 8],       "soft-markers-2"],
+  [["Panel", "Play Mode",  "[Nrm|S+P|Seq]",             53, 0,   v => ["Nrm", "S+P", "Seq"][(v * 4 + 128) >> 8], "soft-markers-3"],
    null,
    ["Panel", "Play Pitch", "",                          54, 0,   v => panelPitchName(v),                        ""],
    ["Panel", "Play Velo",  "",                          55, 100, v => String(v),                                ""],
@@ -3850,17 +3850,19 @@ const PANEL_PARAM_GROUPS = [
    ["Panel", "Pitch Ofst", "[-|+]",                     56, 64,  v => panelSigned(panelClamp(v - 64, -60, 60)), "soft-marker-c"],
    ["Panel", "Transpose",  "[-|+]",                     52, 64,  v => panelSigned(v - 64),                      "soft-marker-c"],
    ["Panel", "MIDI Tx",    "[Off|Clk|All|Nte|C+N|A+N]", 59, 26,  v => ["Off", "Clk", "All", "Nte", "C+N", "A+N"][(v * 10 + 128) >> 8], "soft-markers-6"]],
-  // B-04 to B-08
+  // B-04 to B-09
   [["Seq", "Step Note",  "[4|8|16]",                  92, 64,  v => ["4", "8", "16"][(v * 4 + 128) >> 8],       "soft-markers-3"],
    ["Seq", "Clock Src",  "[Aut|Int|Ext]",             86, 0,   v => ["Aut", "Int", "Ext"][(v * 4 + 128) >> 8],  "soft-markers-3"],
    ["Seq", "Pitch Ofst", "[-|+]",                     95, 64,  v => panelSigned(panelClamp(v - 64, -60, 60)),   "soft-marker-c"],
-   ["Seq", "Rx St/Sp",   "[Off|On]",                  94, 0,   v => ["Off", "On"][(v * 2 + 128) >> 8],          "soft-markers-2"],
+   ["Seq", "Transpose",  "[-|+]",                     61, 64,  v => panelSigned(v - 64),                        "soft-marker-c"],
    ["Seq", "Tempo",      "",                          85, 64,  v => String(panelClamp(v * 2 - 8, 30, 240)),     ""],
    ["Seq", "Gate Time",  "[1/6|2/6|3/6|4/6|5/6|6/6]", 87, 51,  v => ((v * 10 + 128) >> 8) + 1 + "/6",           "soft-markers-6"],
    ["Seq", "Mode",       "[Fwd|Rvs|Bnc]",             89, 0,   v => ["Fwd", "Rvs", "Bnc"][(v * 4 + 128) >> 8],  "soft-markers-3"],
    ["Seq", "Num Steps",  "",                          88, 32,  v => String(Math.max((v - 2) >> 2, 0) + 1),      ""],
    ["Seq", "On Steps",   "",                          93, 127, v => panelHex2(v),                               ""],
-   ["Seq", "Act Steps",  "",                          90, 127, v => panelHex2(v),                               ""]],
+   ["Seq", "Act Steps",  "",                          90, 127, v => panelHex2(v),                               ""],
+   ["Seq", "Ch Ofst",    "[+0-+F]",                   60, 0,   v => "+" + (v >> 3).toString(16).toUpperCase(),   ""],
+   ["Seq", "Rx St/Sp",   "[Off|On]",                  94, 0,   v => ["Off", "On"][(v * 2 + 128) >> 8],          "soft-markers-2"]],
   // B-10 to B-17
   [0, 1, 2, 3, 4, 5, 6, 7].flatMap(i => [["Seq", "Pitch " + i, "", 16 + i, [4, 22, 37, 57, 72, 89, 107, 124][i], v => panelPitchName(v), ""],
                                          ["Seq", "Velo " + i,  "", 70 + i, 100, v => String(v), ""]]),
@@ -4050,7 +4052,7 @@ function onClickPanelPlay() {
 function sendPanelCurrent() {
   panelSendCC(58, panelValues[58]);
   // The Panel Parameters first (the Scale and the offsets that the pitches need), and then the others
-  [51, 52, 53, 54, 55, 56, 59, 85, 86, 87, 88, 89, 90, 92, 93, 94, 95].forEach(cc => panelSendCC(cc, panelValues[cc]));
+  [51, 52, 53, 54, 55, 56, 59, 60, 61, 85, 86, 87, 88, 89, 90, 92, 93, 94, 95].forEach(cc => panelSendCC(cc, panelValues[cc]));
   for (let i = 0; i < 8; i++) { panelSendCC(16 + i, panelValues[16 + i]); panelSendCC(70 + i, panelValues[70 + i]); }
 }
 

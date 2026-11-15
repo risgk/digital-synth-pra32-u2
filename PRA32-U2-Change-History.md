@@ -10,6 +10,13 @@
       MIDI Start and Stop (All), and the notes that the panel plays (Nte), by UART MIDI and also by USB MIDI now (by UART MIDI alone before)
         - Seq T/Rx St/Sp is now **Seq Rx St/Sp** (Receive Start/Stop)
         - Not compatible: Seq T/Rx St/Sp On written before no longer transmits Start and Stop: set Panel MIDI Tx to All
+    - PRA32-U2/P: Panel Play Mode [Nrm|S+P|Seq]: Add **S+P** (Seq + Play Mode, at 64): the Step Sequencer, and the Play Key that plays as in Normal Mode;
+      Next Key + Play Key: start/stop the Step Sequencer (Seq Mode and S+P)
+        - Not compatible: Seq written before at 32-95 (e.g. 64 by the panel) is now S+P: set it to 127
+    - PRA32-U2/P: Add **Seq Ch Ofst** [+0-+F] (Channel Offset, Page B-09, and Control Change #60 on the Panel Channel): the channel of the Step Sequencer,
+      as the channel that the panel selects + the offset (+0, the default, as before); Seq Rand Pitch and the pages after it are one page later (e.g. Seq 0 on Page B-11)
+    - PRA32-U2/P: Add **Seq Transpose** [-|+] (Page B-05, and Control Change #61 on the Panel Channel): added to Panel Transpose, for the Step Sequencer alone;
+      Seq Rx St/Sp is now on Page B-09
     - Osc 2 Coarse shows -60 to +60, as it works (-64 to +63 shown before), in PRA32-U2 Editor, PRA32-U2 Native, and the panel of PRA32-U2/P
     - Tested with Arduino-Pico version 6.3.0
 - v3.21.0 (2026-11-15):

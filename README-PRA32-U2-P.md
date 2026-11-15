@@ -21,7 +21,8 @@
 - Inputs
     - SW0: Prev Key (Push to go to the previous page, Long press to the previous group)
     - SW1: Next Key (Push to go to the next page, Long press to the next group)
-    - SW2: Play Key (Normal Mode: press to play, Sequencer Mode: push to start/stop) (Removable)
+    - SW2: Play Key (Normal Mode: press to play, Sequencer Mode: push to start/stop, Seq + Play Mode: press to play) (Removable)
+        - Next Key + Play Key: Start/stop the Step Sequencer (Seq Mode and Seq + Play Mode; press the Next Key first)
         - Not to use this key, comment out `#define PRA32_U2_KEY_INPUT_PLAY_KEY_PIN          (20)` in "Digital-Synth-PRA32-U2.ino"
     - SW3: Prog - Key (Long press to change to the previous user program) (optional)
         - To use this key, uncomment `//#define PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN    (17)` in "Digital-Synth-PRA32-U2.ino"
@@ -31,13 +32,13 @@
         - Shift + Prev/Next Key: Go to the previous/next group without long-pressing
         - Shift + Prog -/+ Key: Change to the previous/next user program without long-pressing
         - Shift + VR0/1/2: Prevent values from changing across 64
-        - Shift + Play Key: Panic (All Sound Off and Reset All Controllers of the synth, as Panic on Page B-22)
+        - Shift + Play Key: Panic (All Sound Off and Reset All Controllers of the synth, and of that of the Step Sequencer, as Panic on Page B-23)
         - Shift + Prev Key + Next Key (PRA32-U2/M/P): Go to the previous synth (channel)
         - To use this key, uncomment `//#define PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN         (21)` in "Digital-Synth-PRA32-U2.ino"
     - VR0 (ADC0): Parameter A
     - VR1 (ADC1): Parameter B
     - VR2 (ADC2): Parameter C for Play (Removable)
-        - Panel Play Pitch in Normal Mode, Seq Pitch Ofst (Offset) in Step Sequencer Mode
+        - Panel Play Pitch in Normal Mode and Seq + Play Mode, Seq Pitch Ofst (Offset) in Step Sequencer Mode
         - Not to use this, comment out `#define PRA32_U2_KEY_INPUT_PLAY_KEY_PIN          (20)` in "Digital-Synth-PRA32-U2.ino"
 - NOTE: Using a USB cable with ferrite cores is recommended to prevent ADCs from being affected by USB MIDI communication noise, and UART MIDI control is also recommended
 
@@ -67,7 +68,9 @@
 #### Group B
 
 - Panel Parameters
-    - Panel Play Mode [Nrm|Seq]: Normal Mode, Step Sequencer Mode
+    - Panel Play Mode [Nrm|S+P|Seq]: Normal Mode, Seq + Play Mode, Step Sequencer Mode
+        - S+P: the Step Sequencer (started and stopped by Next Key + Play Key, Panel Play, or MIDI Start/Stop), and the Play Key that plays
+          as in Normal Mode (e.g. the Step Sequencer on a Sub Synth by Seq Ch Ofst, and the Play Key on the synth that the panel selects)
     - MIDI Basic Ch: Basic Channel 1-16
     - Panel Play Pitch: 0 is Off, 1-4 is lowest, 124-127 is highest
     - Panel Play Velo (Velocity)
@@ -85,7 +88,7 @@
     - Panel MIDI Tx (Transmit) [Off|Clk|All|Nte|C+N|A+N]: what the panel transmits, by UART MIDI and USB MIDI
         - Off: none, Clk: MIDI Clock (the default), All: MIDI Clock, Start, and Stop,
           Nte: the notes (Note On and Off), C+N: MIDI Clock and the notes, A+N: MIDI Clock, Start, Stop, and the notes
-        - MIDI Clock, Start, and Stop: in Seq Mode (see Seq Clock Src); Start and Stop when the Step Sequencer starts and stops
+        - MIDI Clock, Start, and Stop: in Seq Mode and S+P (see Seq Clock Src); Start and Stop when the Step Sequencer starts and stops
         - The notes: those that the panel plays (the Play key, the Step Sequencer, and Panel Play), on the channel that the panel selects, as it is
           (e.g. that of a group, without the Round Robin to the Sub Synths)
         - NOTE: A DAW that sends the notes back to PRA32-U2 (e.g. by the monitoring of a track) makes them sound twice
@@ -95,10 +98,11 @@
     - Seq Clock Src [Aut|Int|Ext]: Auto (the default), Internal, External (Rx MIDI Clock)
         - Aut: Internal at first, External at a MIDI Clock, and Internal when Seq Tempo is changed (External again at the next MIDI Clock),
           so that the internal clock plays when MIDI Clocks no longer come (e.g. a DAW stopped)
-        - In Seq Mode, MIDI Clocks are sent by UART MIDI and USB MIDI (by Panel MIDI Tx): those of the internal clock, and with Ext (and Aut),
+        - In Seq Mode and S+P, MIDI Clocks are sent by UART MIDI and USB MIDI (by Panel MIDI Tx): those of the internal clock, and with Ext (and Aut),
           those received, passed on (e.g. to the next device of a chain)
         - NOTE: Connecting UART MIDI IN and OUT both ways to a device that sends MIDI Clocks back (e.g. one synced to them) may keep the Clocks going round
-    - Seq Pitch Ofst (Offset) [-|+]: Offset Seq Pitch 0-7 (min -60 to max +60)
+    - Seq Pitch Ofst (Offset) [-|+]: Offset Seq Pitch 0-7 (min -60 to max +60), added to Panel Pitch Ofst
+    - Seq Transpose [-|+]: Transpose Seq Pitch 0-7, added to Panel Transpose (e.g. -12 for the Step Sequencer an octave lower than the Play Key)
     - Seq Rx St/Sp (Receive Start/Stop): Off, On
     - Seq Tempo: 30-240 BPM (in steps of 2 BPM)
     - Seq Gate Time [1/6|2/6|3/6|4/6|5/6|6/6]
@@ -106,6 +110,10 @@
     - Seq Num Steps (Number of Steps): 1-32 (current step mod 8 is used as the index for Seq Pitch and Seq Velo)
     - Seq On Steps: bit 0 is Step 1 On, ..., bit 6 is Step 7 On (Step 0 is always On)
     - Seq Act Steps (Active Steps): bit 0 is Step 1 Active, ..., bit 6 is Step 7 Active (Step 0 is always Active)
+    - Seq Ch Ofst (Channel Offset) [+0-+F]: the channel of the Step Sequencer, as the channel that the panel selects + the offset (mod 16);
+      +0 (the default) is the channel that the panel selects, as before
+        - The display shows the channel of the Step Sequencer as "S" and the MIDI channel - 1 (as "$"), if not +0 (in Seq and S+P)
+        - A channel that goes to no synth (e.g. +8) plays no synth: with Panel MIDI Tx, the notes go to the device on the channel
     - Seq Pitch 0-7: 0 is Off, 1-4 is lowest, 124-127 is highest
     - Seq Velo 0-7 (Velocity 0-7)
 - Step Sequencer Operations
@@ -238,24 +246,25 @@
 | B-02 Panel c   | Panel Scale          | Panel Pitch Ofst     |
 | B-03 Panel d   | Panel Transpose      | Panel MIDI Tx        |
 | B-04 Seq a     | Seq Step Note        | Seq Clock Src        |
-| B-05 Seq b     | Seq Pitch Ofst       | Seq Rx St/Sp         |
+| B-05 Seq b     | Seq Pitch Ofst       | Seq Transpose        |
 | B-06 Seq c     | Seq Tempo            | Seq Gate Time        |
 | B-07 Seq d     | Seq Mode             | Seq Num Steps        |
 | B-08 Seq e     | Seq On Steps         | Seq Act Steps        |
-| B-09 Seq f     | Seq Rand Pitch       | Seq Rand Velo        |
-| B-10 Seq 0     | Seq Pitch 0          | Seq Velo 0           |
-| B-11 Seq 1     | Seq Pitch 1          | Seq Velo 1           |
-| B-12 Seq 2     | Seq Pitch 2          | Seq Velo 2           |
-| B-13 Seq 3     | Seq Pitch 3          | Seq Velo 3           |
-| B-14 Seq 4     | Seq Pitch 4          | Seq Velo 4           |
-| B-15 Seq 5     | Seq Pitch 5          | Seq Velo 5           |
-| B-16 Seq 6     | Seq Pitch 6          | Seq Velo 6           |
-| B-17 Seq 7     | Seq Pitch 7          | Seq Velo 7           |
-| B-18 Control a | Pitch Bend           | Modulation Wheel     |
-| B-19 Control b | Breath Controller    | Expression           |
-| B-20 Control c | Sustain Pedal        | Portamento Switch    |
-| B-21 Control d | Channel Pressure     |                      |
-| B-22 Control e | Panic                | Randomize Synth      |
+| B-09 Seq f     | Seq Ch Ofst          | Seq Rx St/Sp         |
+| B-10 Seq g     | Seq Rand Pitch       | Seq Rand Velo        |
+| B-11 Seq 0     | Seq Pitch 0          | Seq Velo 0           |
+| B-12 Seq 1     | Seq Pitch 1          | Seq Velo 1           |
+| B-13 Seq 2     | Seq Pitch 2          | Seq Velo 2           |
+| B-14 Seq 3     | Seq Pitch 3          | Seq Velo 3           |
+| B-15 Seq 4     | Seq Pitch 4          | Seq Velo 4           |
+| B-16 Seq 5     | Seq Pitch 5          | Seq Velo 5           |
+| B-17 Seq 6     | Seq Pitch 6          | Seq Velo 6           |
+| B-18 Seq 7     | Seq Pitch 7          | Seq Velo 7           |
+| B-19 Control a | Pitch Bend           | Modulation Wheel     |
+| B-20 Control b | Breath Controller    | Expression           |
+| B-21 Control c | Sustain Pedal        | Portamento Switch    |
+| B-22 Control d | Channel Pressure     |                      |
+| B-23 Control e | Panic                | Randomize Synth      |
 | C-00 Write 0   | Write #0 User        | Write #1 User        |
 | C-01 Write 2   | Write #2 User        | Write #3 User        |
 | C-02 Write 4   | Write #4 User        | Write #5 User        |

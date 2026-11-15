@@ -27,16 +27,21 @@ static          uint32_t s_next_key_current_value;
 static          uint32_t s_play_key_current_value;
 #if defined(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN)
 static          boolean  s_play_key_with_shift = false;  // Shift + Play (Panic)
+static          boolean  s_play_key_with_next  = false;  // Next + Play (the Step Sequencer started or stopped)
 #endif  // defined(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN)
 
 static          uint32_t s_prog_minus_key_current_value;
 static          uint32_t s_prog_plus_key_current_value;
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL_KEY_INPUT)
 
+// Panel Play Mode [Nrm|S+P|Seq] (index 0-2): s_play_mode 0: Nrm (Normal Mode), 1: Seq (Seq Mode), 2: S+P (Seq + Play:
+// the Step Sequencer, and the Play key that plays as in Normal Mode)
 static          uint8_t  s_play_mode                = 0;
+static          boolean  s_key_held                 = false;  // the Play key (or Panel Play) playing, in Nrm and S+P
 static          int8_t   s_panel_transpose          = 0;
 static          int8_t   s_panel_pit_ofst           = 0;
 static          int8_t   s_seq_pit_ofst             = 0;
+static          int8_t   s_seq_transpose            = 0;  // Seq Transpose, added to Panel Transpose (the Step Sequencer)
 static          uint8_t  s_seq_step_clock_candidate = 12;
 static          uint8_t  s_seq_step_clock           = 12;
 static          uint8_t  s_seq_gate_time            = 6;
@@ -66,12 +71,17 @@ static          bool     s_seq_clock_src_external = false;  // the clock now: Ex
 static          uint8_t  s_seq_clock_src_mode = 0;  // 0: Aut, 1: Int, 2: Ext
 static          uint8_t  s_seq_tempo_last     = 0xFF;  // for the changes of Seq Tempo (not the first value)
 
-static volatile uint8_t  s_panel_play_note_pitch    = 60;
-static volatile uint8_t  s_panel_play_note_velocity = 127;
-static volatile bool     s_panel_play_note_gate     = false;
-static volatile bool     s_panel_play_note_trigger  = false;
+// The notes that the panel plays: [0] by the Play key (Nrm and S+P), and [1] by the Step Sequencer (Seq and S+P),
+// each on its channel (the channel of the Note On kept, for its Note Off)
+static const    uint32_t NOTE_KEY = 0;
+static const    uint32_t NOTE_SEQ = 1;
+static volatile uint8_t  s_panel_play_note_pitch[2]    = { 60, 60 };
+static volatile uint8_t  s_panel_play_note_velocity[2] = { 127, 127 };
+static volatile bool     s_panel_play_note_gate[2]     = { false, false };
+static volatile bool     s_panel_play_note_trigger[2]  = { false, false };
 
-static          uint8_t  s_panel_playing_note_pitch = 0xFF;
+static          uint8_t  s_panel_playing_note_pitch[2] = { 0xFF, 0xFF };
+static          uint8_t  s_panel_playing_note_ch[2]    = { 1, 1 };
 
 static volatile int32_t s_display_draw_counter         = -1;
 
@@ -391,6 +401,26 @@ static INLINE uint32_t PRA32_U2_ControlPanel_calc_bpm(uint8_t tempo_control_valu
 }
 
 
+static INLINE boolean PRA32_U2_ControlPanel_mode_has_seq() { return s_play_mode != 0; }  // Seq and S+P
+static INLINE boolean PRA32_U2_ControlPanel_mode_has_key() { return s_play_mode != 1; }  // Nrm and S+P
+
+// The channel of the Step Sequencer: the channel that the panel selects + Seq Ch Ofst [+0-+F] (mod 16)
+static INLINE uint8_t PRA32_U2_ControlPanel_seq_ch() {
+  uint32_t ofst = g_synth.current_controller_value(SEQ_CH_OFST    ) >> 3;
+  return (((getTargetMIDICh(s_current_synth) - 1) + ofst) & 0x0F) + 1;
+}
+
+// The channel of the Step Sequencer ("S" and the MIDI channel - 1, in hex, as "$"), in Seq and S+P, if not that of the panel
+static __attribute__((noinline)) void PRA32_U2_ControlPanel_update_seq_ch_display() {
+  if (PRA32_U2_ControlPanel_mode_has_seq() && ((g_synth.current_controller_value(SEQ_CH_OFST    ) >> 3) != 0)) {
+    s_display_buffer[0][10] = 'S';
+    s_display_buffer[0][11] = s_hex_chars[PRA32_U2_ControlPanel_seq_ch() - 1];
+  } else {
+    s_display_buffer[0][10] = ' ';
+    s_display_buffer[0][11] = ' ';
+  }
+}
+
 static INLINE void PRA32_U2_ControlPanel_update_page() {
   s_adc_control_catched[0] = false;
   s_adc_control_catched[1] = false;
@@ -420,6 +450,8 @@ static INLINE void PRA32_U2_ControlPanel_update_page() {
   std::memcpy(&s_display_buffer[2][11], current_page.control_target_c_name_line_1, 10);
   s_adc_control_target[2]             = current_page.control_target_c;
 #endif  // defined(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN)
+
+  PRA32_U2_ControlPanel_update_seq_ch_display();
 
 #if (PRA32_U2_NUMBER_OF_SYNTHS > 1)
   s_display_buffer[0][13] = '$';
@@ -479,18 +511,19 @@ static INLINE boolean PRA32_U2_ControlPanel_midi_tx_start_stop() {
   return (index == 2) || (index == 5);
 }
 
-// The notes transmitted (2 at most, while a note is changed to another), and their channels, so that each Note Off
-// goes where its Note On went (even after the channel or Panel MIDI Tx is changed)
-static uint8_t s_tx_note_pitch[2] = { 0xFF, 0xFF };
-static uint8_t s_tx_note_ch[2]    = { 0, 0 };
+// The notes transmitted (2 at most for each of the Play key and the Step Sequencer, while a note is changed to another),
+// and their channels, so that each Note Off goes where its Note On went (even after the channel or Panel MIDI Tx is changed)
+static const uint32_t NUM_TX_NOTES = 4;
+static uint8_t s_tx_note_pitch[NUM_TX_NOTES] = { 0xFF, 0xFF, 0xFF, 0xFF };
+static uint8_t s_tx_note_ch[NUM_TX_NOTES]    = { 0, 0, 0, 0 };
 
-static void PRA32_U2_ControlPanel_tx_note_off(uint8_t pitch) {
+static __attribute__((noinline)) void __not_in_flash_func(PRA32_U2_ControlPanel_tx_note_off)(uint8_t channel, uint8_t pitch) {
   if (pitch > 127) {
     return;
   }
 
-  for (uint32_t i = 0; i < 2; ++i) {
-    if (s_tx_note_pitch[i] == pitch) {
+  for (uint32_t i = 0; i < NUM_TX_NOTES; ++i) {
+    if ((s_tx_note_pitch[i] == pitch) && (s_tx_note_ch[i] == channel)) {
 #if defined(PRA32_U2_USE_USB_MIDI) && !defined(PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION)
       USB_MIDI.sendNoteOff(pitch, 64, s_tx_note_ch[i]);
 #endif  // defined(PRA32_U2_USE_USB_MIDI) && !defined(PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION)
@@ -503,14 +536,17 @@ static void PRA32_U2_ControlPanel_tx_note_off(uint8_t pitch) {
   }
 }
 
-static void PRA32_U2_ControlPanel_tx_note_on(uint8_t channel, uint8_t pitch, uint8_t velocity) {
+static __attribute__((noinline)) void __not_in_flash_func(PRA32_U2_ControlPanel_tx_note_on)(uint8_t channel, uint8_t pitch, uint8_t velocity) {
   if (PRA32_U2_ControlPanel_midi_tx_index() < 3) {  // Off, Clk, or All
     return;
   }
 
-  uint32_t i = (s_tx_note_pitch[0] == 0xFF) ? 0 : 1;
-  if (s_tx_note_pitch[i] <= 127) {
-    PRA32_U2_ControlPanel_tx_note_off(s_tx_note_pitch[i]);
+  uint32_t i = 0;
+  while ((i < NUM_TX_NOTES - 1) && (s_tx_note_pitch[i] <= 127)) {
+    ++i;
+  }
+  if (s_tx_note_pitch[i] <= 127) {  // none free (not expected): the last one off
+    PRA32_U2_ControlPanel_tx_note_off(s_tx_note_ch[i], s_tx_note_pitch[i]);
   }
 
 #if defined(PRA32_U2_USE_USB_MIDI) && !defined(PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION)
@@ -525,95 +561,143 @@ static void PRA32_U2_ControlPanel_tx_note_on(uint8_t channel, uint8_t pitch, uin
 }
 
 // The notes that the panel plays: to the synth, and transmitted by Panel MIDI Tx
-static void PRA32_U2_ControlPanel_note_on(uint8_t channel, uint8_t pitch, uint8_t velocity) {
+static __attribute__((noinline)) void __not_in_flash_func(PRA32_U2_ControlPanel_note_on)(uint8_t channel, uint8_t pitch, uint8_t velocity) {
   handleNoteOn(channel, pitch, velocity);
   PRA32_U2_ControlPanel_tx_note_on(channel, pitch, velocity);
 }
 
-static void PRA32_U2_ControlPanel_note_off(uint8_t channel, uint8_t pitch) {
+static __attribute__((noinline)) void __not_in_flash_func(PRA32_U2_ControlPanel_note_off)(uint8_t channel, uint8_t pitch) {
   handleNoteOff(channel, pitch, 64);
-  PRA32_U2_ControlPanel_tx_note_off(pitch);
+  PRA32_U2_ControlPanel_tx_note_off(channel, pitch);
 }
 
-static INLINE boolean PRA32_U2_ControlPanel_process_note_off_on() {
-  if (s_panel_playing_note_pitch <= 127) {
-    if (s_panel_play_note_gate == false) {
-      PRA32_U2_ControlPanel_note_off(getTargetMIDICh(s_current_synth), s_panel_playing_note_pitch);
-      s_panel_playing_note_pitch = 0xFF;
-    } else {
-      if (s_panel_play_note_trigger && (s_panel_play_note_pitch <= 127)) {
-        s_panel_play_note_trigger = false;
+// The notes that the panel plays, off (e.g. before the channel is changed), each on the channel of its Note On
+static void PRA32_U2_ControlPanel_notes_off() {
+  for (uint32_t n = 0; n < 2; ++n) {
+    if (s_panel_playing_note_pitch[n] <= 127) {
+      PRA32_U2_ControlPanel_note_off(s_panel_playing_note_ch[n], s_panel_playing_note_pitch[n]);
+    }
+  }
+}
 
-        if (s_panel_play_note_pitch == s_panel_playing_note_pitch) {
-          PRA32_U2_ControlPanel_tx_note_off(s_panel_playing_note_pitch);  // transmitted: off and then on (the same note)
+// (in the RAM, as loop(), but noinline: one copy, not to grow the functions that call it)
+static __attribute__((noinline)) void __not_in_flash_func(PRA32_U2_ControlPanel_process_note_off_on_of)(uint32_t n, uint8_t channel) {
+  uint8_t playing_pitch = s_panel_playing_note_pitch[n];
+  uint8_t playing_ch    = s_panel_playing_note_ch[n];
+
+  if (playing_pitch <= 127) {
+    if (s_panel_play_note_gate[n] == false) {
+      PRA32_U2_ControlPanel_note_off(playing_ch, playing_pitch);
+      s_panel_playing_note_pitch[n] = 0xFF;
+    } else {
+      uint8_t pitch = s_panel_play_note_pitch[n];
+      if (s_panel_play_note_trigger[n] && (pitch <= 127)) {
+        s_panel_play_note_trigger[n] = false;
+
+        boolean same = (pitch == playing_pitch) && (channel == playing_ch);
+        if (same) {
+          PRA32_U2_ControlPanel_tx_note_off(playing_ch, playing_pitch);  // transmitted: off and then on (the same note)
         }
-        PRA32_U2_ControlPanel_note_on(getTargetMIDICh(s_current_synth), s_panel_play_note_pitch, s_panel_play_note_velocity);
-        handleNoteOff(getTargetMIDICh(s_current_synth), s_panel_playing_note_pitch, 64);
-        if (s_panel_play_note_pitch != s_panel_playing_note_pitch) {
-          PRA32_U2_ControlPanel_tx_note_off(s_panel_playing_note_pitch);
+        PRA32_U2_ControlPanel_note_on(channel, pitch, s_panel_play_note_velocity[n]);
+        handleNoteOff(playing_ch, playing_pitch, 64);
+        if (!same) {
+          PRA32_U2_ControlPanel_tx_note_off(playing_ch, playing_pitch);
         }
-        s_panel_playing_note_pitch = s_panel_play_note_pitch;
+        s_panel_playing_note_pitch[n] = pitch;
+        s_panel_playing_note_ch[n]    = channel;
       } else {
-        s_panel_play_note_trigger = false;
+        s_panel_play_note_trigger[n] = false;
       }
     }
   } else {
-    if (s_panel_play_note_gate && (s_panel_play_note_pitch <= 127)) {
-      s_panel_play_note_trigger = false;
+    uint8_t pitch = s_panel_play_note_pitch[n];
+    if (s_panel_play_note_gate[n] && (pitch <= 127)) {
+      s_panel_play_note_trigger[n] = false;
 
-      PRA32_U2_ControlPanel_note_on(getTargetMIDICh(s_current_synth), s_panel_play_note_pitch, s_panel_play_note_velocity);
-      s_panel_playing_note_pitch = s_panel_play_note_pitch;
+      PRA32_U2_ControlPanel_note_on(channel, pitch, s_panel_play_note_velocity[n]);
+      s_panel_playing_note_pitch[n] = pitch;
+      s_panel_playing_note_ch[n]    = channel;
     } else {
-      s_panel_play_note_trigger = false;
+      s_panel_play_note_trigger[n] = false;
     }
   }
+}
 
+static INLINE boolean PRA32_U2_ControlPanel_process_note_off_on() {
+  PRA32_U2_ControlPanel_process_note_off_on_of(NOTE_KEY, getTargetMIDICh(s_current_synth));
+  PRA32_U2_ControlPanel_process_note_off_on_of(NOTE_SEQ, PRA32_U2_ControlPanel_seq_ch());
   return false;
 }
 
-static INLINE void PRA32_U2_ControlPanel_update_pitch(bool progress_seq_step) {
-  uint8_t new_pitch    = 60;
-  uint8_t new_velocity = 127;
+// The pitch of the Play key (Nrm and S+P): by the panel parameters now (in Nrm, kept for the Step Sequencer too, as before)
+static __attribute__((noinline)) void __not_in_flash_func(PRA32_U2_ControlPanel_update_key_pitch)() {
+  uint8_t  new_pitch         = g_synth.current_controller_value(PANEL_PLAY_PIT );
+  uint8_t  new_velocity      = g_synth.current_controller_value(PANEL_PLAY_VELO);
+  uint32_t index_scale       = PRA32_U2_ControlPanel_get_index_scale();
+  int8_t   panel_pit_ofst    = g_synth.current_controller_value(PANEL_PIT_OFST ) - 64;
+  int8_t   panel_transpose   = g_synth.current_controller_value(PANEL_TRANSPOSE) - 64;
 
   if (s_play_mode == 0) {  // Normal Mode
-    new_pitch         = g_synth.current_controller_value(PANEL_PLAY_PIT );
-    new_velocity      = g_synth.current_controller_value(PANEL_PLAY_VELO);
-
-    s_index_scale     = PRA32_U2_ControlPanel_get_index_scale();
-    s_panel_pit_ofst  = g_synth.current_controller_value(PANEL_PIT_OFST ) - 64;
-    s_panel_transpose = g_synth.current_controller_value(PANEL_TRANSPOSE) - 64;
+    s_index_scale     = index_scale;
+    s_panel_pit_ofst  = panel_pit_ofst;
+    s_panel_transpose = panel_transpose;
     s_seq_pit_ofst    = 0;
-  } else {  // Seq Mode
-    new_pitch         = g_synth.current_controller_value(SEQ_PITCH_0      + (s_seq_step & 0x07));
-    new_velocity      = g_synth.current_controller_value(SEQ_VELO_0       + (s_seq_step & 0x07));
-    if (((s_seq_step & 0x07) != 0) && ((1 << ((s_seq_step & 0x07) - 1)) & s_seq_on_steps) == 0) {
-      new_velocity = 0;
+  }
+
+  new_pitch = PRA32_U2_ControlPanel_calc_scaled_pitch(index_scale, new_pitch, panel_pit_ofst, 0);
+
+  if (new_pitch == 0xFF) {
+    s_panel_play_note_pitch[NOTE_KEY] = 0xFF;
+    s_panel_play_note_gate[NOTE_KEY]  = false;
+    return;
+  }
+
+  new_pitch = PRA32_U2_ControlPanel_calc_transposed_pitch(new_pitch, panel_transpose);
+
+  s_panel_play_note_velocity[NOTE_KEY] = new_velocity;
+
+  if (s_panel_play_note_pitch[NOTE_KEY] != new_pitch) {
+    s_panel_play_note_pitch[NOTE_KEY] = new_pitch;
+    if (s_key_held) {
+      s_panel_play_note_gate[NOTE_KEY]    = true;
+      s_panel_play_note_trigger[NOTE_KEY] = true;
     }
+  }
+}
+
+// The pitch of the Step Sequencer (Seq and S+P): by the panel parameters at the start of the loop
+static __attribute__((noinline)) void __not_in_flash_func(PRA32_U2_ControlPanel_update_seq_pitch)(bool progress_seq_step) {
+  uint8_t new_pitch    = g_synth.current_controller_value(SEQ_PITCH_0      + (s_seq_step & 0x07));
+  uint8_t new_velocity = g_synth.current_controller_value(SEQ_VELO_0       + (s_seq_step & 0x07));
+  if (((s_seq_step & 0x07) != 0) && ((1 << ((s_seq_step & 0x07) - 1)) & s_seq_on_steps) == 0) {
+    new_velocity = 0;
   }
 
   new_pitch = PRA32_U2_ControlPanel_calc_scaled_pitch(s_index_scale, new_pitch, s_panel_pit_ofst, s_seq_pit_ofst);
 
   if (new_pitch == 0xFF) {
-    s_panel_play_note_pitch = 0xFF;
-    s_panel_play_note_gate  = false;
+    s_panel_play_note_pitch[NOTE_SEQ] = 0xFF;
+    s_panel_play_note_gate[NOTE_SEQ]  = false;
     return;
   }
 
-  new_pitch = PRA32_U2_ControlPanel_calc_transposed_pitch(new_pitch, s_panel_transpose);
+  new_pitch = PRA32_U2_ControlPanel_calc_transposed_pitch(new_pitch, s_panel_transpose + s_seq_transpose);
 
-  s_panel_play_note_velocity = new_velocity;
+  s_panel_play_note_velocity[NOTE_SEQ] = new_velocity;
+  s_panel_play_note_pitch[NOTE_SEQ]    = new_pitch;
 
-  bool panel_play_note_number_changed = false;
-
-  if (s_panel_play_note_pitch != new_pitch) {
-    s_panel_play_note_pitch = new_pitch;
-    panel_play_note_number_changed = true;
+  if ((s_playing_status == PlayingStatus_Seq) && progress_seq_step) {
+    s_panel_play_note_gate[NOTE_SEQ]    = true;
+    s_panel_play_note_trigger[NOTE_SEQ] = true;
   }
+}
 
-  if (((s_playing_status == PlayingStatus_Playing) && panel_play_note_number_changed) ||
-      ((s_playing_status == PlayingStatus_Seq) && progress_seq_step)) {
-    s_panel_play_note_gate    = true;
-    s_panel_play_note_trigger = true;
+static INLINE void PRA32_U2_ControlPanel_update_pitch(bool progress_seq_step) {
+  if (PRA32_U2_ControlPanel_mode_has_key()) {
+    PRA32_U2_ControlPanel_update_key_pitch();
+  }
+  if (PRA32_U2_ControlPanel_mode_has_seq()) {
+    PRA32_U2_ControlPanel_update_seq_pitch(progress_seq_step);
   }
 }
 
@@ -695,6 +779,7 @@ static INLINE void PRA32_U2_ControlPanel_seq_clock() {
       s_panel_pit_ofst  = g_synth.current_controller_value(PANEL_PIT_OFST ) - 64;
       s_panel_transpose = g_synth.current_controller_value(PANEL_TRANSPOSE) - 64;
       s_seq_pit_ofst    = g_synth.current_controller_value(SEQ_PIT_OFST   ) - 64;
+      s_seq_transpose   = g_synth.current_controller_value(SEQ_TRANSPOSE  ) - 64;
     }
 
     PRA32_U2_ControlPanel_update_pitch(true);
@@ -713,7 +798,7 @@ static INLINE void PRA32_U2_ControlPanel_seq_clock() {
     }
 
     if ((s_seq_sub_step % s_seq_step_clock) >= seq_gate_time_corrected) {
-      s_panel_play_note_gate = false;
+      s_panel_play_note_gate[NOTE_SEQ] = false;
     }
   }
 }
@@ -743,7 +828,7 @@ static INLINE void PRA32_U2_ControlPanel_seq_start() {
   }
 
   s_seq_sub_step = 23;
-  s_panel_play_note_gate = false;
+  s_panel_play_note_gate[NOTE_SEQ] = false;
 }
 
 static INLINE void PRA32_U2_ControlPanel_seq_stop() {
@@ -759,11 +844,30 @@ static INLINE void PRA32_U2_ControlPanel_seq_stop() {
 
   s_playing_status = PlayingStatus_Stop;
   s_display_buffer[0][20] = ' ';
-  s_panel_play_note_gate = false;
+  s_panel_play_note_gate[NOTE_SEQ] = false;
+}
+
+static INLINE void PRA32_U2_ControlPanel_seq_start_stop() {
+  if (s_playing_status == PlayingStatus_Stop) {
+    PRA32_U2_ControlPanel_seq_start();
+  } else {
+    PRA32_U2_ControlPanel_seq_stop();
+  }
+}
+
+// The Play key (or Panel Play) in Nrm and S+P: the note on while pressed
+static INLINE void PRA32_U2_ControlPanel_key_play(boolean on) {
+  s_key_held = on;
+  if (s_play_mode == 0) {  // Normal Mode
+    s_playing_status = on ? PlayingStatus_Playing : PlayingStatus_Stop;
+    s_display_buffer[0][20] = on ? '*' : ' ';
+  }
+  s_panel_play_note_gate[NOTE_KEY]    = on;
+  s_panel_play_note_trigger[NOTE_KEY] = on;
 }
 
 static INLINE void PRA32_U2_ControlPanel_update_control_seq() {
-  if ((s_play_mode == 1) && (s_seq_clock_src_external == false)) {  // Seq Mode
+  if (PRA32_U2_ControlPanel_mode_has_seq() && (s_seq_clock_src_external == false)) {  // Seq and S+P
     s_seq_count += s_seq_count_increment;
 
     if (s_seq_count >= 7680000 * 2) {
@@ -809,10 +913,16 @@ static __attribute__((noinline, unused)) void PRA32_U2_ControlPanel_execute_oper
       g_synth.control_change(SEQ_VELO_0  + i, array[i] & 0x7Fu);
     }
   } else if (control_target == PANIC_OP) {
-    PRA32_U2_ControlPanel_tx_note_off(s_tx_note_pitch[0]);  // the notes transmitted, off
-    PRA32_U2_ControlPanel_tx_note_off(s_tx_note_pitch[1]);
+    for (uint32_t i = 0; i < NUM_TX_NOTES; ++i) {  // the notes transmitted, off
+      PRA32_U2_ControlPanel_tx_note_off(s_tx_note_ch[i], s_tx_note_pitch[i]);
+    }
     handleControlChange(getTargetMIDICh(s_current_synth), ALL_SOUND_OFF  , 0);
     handleControlChange(getTargetMIDICh(s_current_synth), RESET_ALL_CTRLS, 0);
+    uint8_t seq_ch = PRA32_U2_ControlPanel_seq_ch();
+    if (PRA32_U2_ControlPanel_mode_has_seq() && (seq_ch != getTargetMIDICh(s_current_synth))) {  // that of the Step Sequencer too
+      handleControlChange(seq_ch, ALL_SOUND_OFF  , 0);
+      handleControlChange(seq_ch, RESET_ALL_CTRLS, 0);
+    }
   } else if (control_target == RAND_SYNTH_OP) {
     handleProgramChange(getTargetMIDICh(s_current_synth), 127);
   }
@@ -952,6 +1062,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case A_D_VEL_SENS    :
   case REL_VEL_SENS    :
   case PANEL_TRANSPOSE :
+  case SEQ_TRANSPOSE   :
   case PITCH_BEND_MSB  :
     {
       PRA32_U2_ControlPanel_format_decimal(value_display_text, static_cast<int>(controller_value) - 64, true);
@@ -1049,6 +1160,15 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
       static const char ary[2][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"Off"," On"};
       uint32_t index = ((controller_value * 2) + 128) >> 8;
       PRA32_U2_ControlPanel_copy_text(value_display_text, ary[index]);
+      result = true;
+    }
+    break;
+  case SEQ_CH_OFST     :
+    {
+      uint32_t ofst = controller_value >> 3;
+      value_display_text[0] = ' ';
+      value_display_text[1] = '+';
+      value_display_text[2] = s_hex_chars[ofst];
       result = true;
     }
     break;
@@ -1233,8 +1353,8 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
     break;
   case PANEL_PLAY_MODE:
     {
-      static const char ary[2][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"Nrm","Seq"};
-      uint32_t index = ((controller_value * 2) + 128) >> 8;
+      static const char ary[3][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"Nrm","S+P","Seq"};
+      uint32_t index = ((controller_value * 4) + 128) >> 8;
       PRA32_U2_ControlPanel_copy_text(value_display_text, ary[index]);
       result = true;
     }
@@ -1580,9 +1700,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
 #if defined(PRA32_U2_KEY_INPUT_NEXT_KEY_PIN)
         uint32_t next_key_pressed = digitalRead(PRA32_U2_KEY_INPUT_NEXT_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
         if (next_key_pressed) {
-          if (s_panel_playing_note_pitch <= 127) {
-            PRA32_U2_ControlPanel_note_off(getTargetMIDICh(s_current_synth), s_panel_playing_note_pitch);
-          }
+          PRA32_U2_ControlPanel_notes_off();
 
           PRA32_U2_ControlPanel_step_target();
           s_display_buffer[0][14] = s_hex_chars[getTargetMIDICh(s_current_synth) - 1];
@@ -1664,9 +1782,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
 #if defined(PRA32_U2_KEY_INPUT_PREV_KEY_PIN)
         uint32_t prev_key_pressed = digitalRead(PRA32_U2_KEY_INPUT_PREV_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
         if (prev_key_pressed) {
-          if (s_panel_playing_note_pitch <= 127) {
-            PRA32_U2_ControlPanel_note_off(getTargetMIDICh(s_current_synth), s_panel_playing_note_pitch);
-          }
+          PRA32_U2_ControlPanel_notes_off();
 
           PRA32_U2_ControlPanel_step_target();
           s_display_buffer[0][14] = s_hex_chars[getTargetMIDICh(s_current_synth) - 1];
@@ -1718,11 +1834,18 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
         return;
       }
 #endif  // defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
-      if (s_play_mode == 0) {  // Normal Mode
-        s_playing_status = PlayingStatus_Playing;
-        s_display_buffer[0][20] = '*';
-        s_panel_play_note_gate    = true;
-        s_panel_play_note_trigger = true;
+#if defined(PRA32_U2_KEY_INPUT_NEXT_KEY_PIN)
+      if (digitalRead(PRA32_U2_KEY_INPUT_NEXT_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL) {
+        s_play_key_with_next = true;     // Next + Play: the Step Sequencer started or stopped (Seq and S+P)
+        s_next_key_long_pressed = true;  // not the next page, when the Next key is released
+        if (PRA32_U2_ControlPanel_mode_has_seq()) {
+          PRA32_U2_ControlPanel_seq_start_stop();
+        }
+        return;
+      }
+#endif  // defined(PRA32_U2_KEY_INPUT_NEXT_KEY_PIN)
+      if (PRA32_U2_ControlPanel_mode_has_key()) {  // Nrm and S+P
+        PRA32_U2_ControlPanel_key_play(true);
       }
     } else {
       // Play key released
@@ -1731,16 +1854,14 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
         PRA32_U2_ControlPanel_execute_operation(PANIC_OP);
         return;
       }
-      if (s_play_mode == 0) {  // Normal Mode
-        s_playing_status = PlayingStatus_Stop;
-        s_display_buffer[0][20] = ' ';
-        s_panel_play_note_gate = false;
+      if (s_play_key_with_next) {
+        s_play_key_with_next = false;
+        return;
+      }
+      if (PRA32_U2_ControlPanel_mode_has_key()) {  // Nrm and S+P
+        PRA32_U2_ControlPanel_key_play(false);
       } else {  // Seq Mode
-        if (s_playing_status == PlayingStatus_Stop) {
-          PRA32_U2_ControlPanel_seq_start();
-        } else {
-          PRA32_U2_ControlPanel_seq_stop();
-        }
+        PRA32_U2_ControlPanel_seq_start_stop();
       }
     }
 
@@ -1861,7 +1982,7 @@ INLINE void PRA32_U2_ControlPanel_on_clock()
     s_seq_clock_src_external = true;
   }
   if (s_seq_clock_src_external) {
-    if (s_play_mode == 1) {  // Seq Mode
+    if (PRA32_U2_ControlPanel_mode_has_seq()) {  // Seq and S+P
       PRA32_U2_ControlPanel_seq_clock();
     }
   }
@@ -1870,7 +1991,7 @@ INLINE void PRA32_U2_ControlPanel_on_clock()
 INLINE void PRA32_U2_ControlPanel_on_start()
 {
   if (s_seq_clock_src_external) {
-    if (s_play_mode == 1) {  // Seq Mode
+    if (PRA32_U2_ControlPanel_mode_has_seq()) {  // Seq and S+P
       if (s_playing_status == PlayingStatus_Stop) {
         PRA32_U2_ControlPanel_seq_start();
       }
@@ -1881,7 +2002,7 @@ INLINE void PRA32_U2_ControlPanel_on_start()
 INLINE void PRA32_U2_ControlPanel_on_stop()
 {
   if (s_seq_clock_src_external) {
-    if (s_play_mode == 1) {  // Seq Mode
+    if (PRA32_U2_ControlPanel_mode_has_seq()) {  // Seq and S+P
       if (s_playing_status != PlayingStatus_Stop) {
         PRA32_U2_ControlPanel_seq_stop();
       }
@@ -2129,9 +2250,7 @@ static void PRA32_U2_ControlPanel_select_target(uint8_t offset) {
     if (((((getTargetMIDICh(synth) - 1) - g_midi_ch) & 0x0F) == (offset & 0x0F)) && PRA32_U2_ControlPanel_target_usable(synth)) {
 #if (PRA32_U2_NUMBER_OF_SYNTHS > 1)
       if (synth != s_current_synth) {
-        if (s_panel_playing_note_pitch <= 127) {
-          PRA32_U2_ControlPanel_note_off(getTargetMIDICh(s_current_synth), s_panel_playing_note_pitch);
-        }
+        PRA32_U2_ControlPanel_notes_off();
         s_current_synth = synth;
         s_display_buffer[0][14] = s_hex_chars[getTargetMIDICh(s_current_synth) - 1];
         PRA32_U2_ControlPanel_update_page();
@@ -2169,14 +2288,17 @@ static void PRA32_U2_ControlPanel_select_target(uint8_t offset) {
     PRA32_U2_ControlPanel_update_pitch(false);
   } else if (control_number == PANEL_PLAY_MODE) {
     uint8_t controller_value = g_synth.current_controller_value(PANEL_PLAY_MODE);
-    uint8_t index = ((controller_value * 2) + 128) >> 8;
+    static const uint8_t modes[3] = { 0, 2, 1 };  // Nrm, S+P, and Seq
+    uint8_t mode = modes[((controller_value * 4) + 128) >> 8];
 
-    if (s_play_mode != index) {
-      s_play_mode = index;
+    if (s_play_mode != mode) {
+      s_play_mode = mode;
 
       s_playing_status = PlayingStatus_Stop;
       s_display_buffer[0][20] = ' ';
-      s_panel_play_note_gate = false;
+      s_key_held = false;
+      s_panel_play_note_gate[NOTE_KEY] = false;
+      s_panel_play_note_gate[NOTE_SEQ] = false;
 
       PRA32_U2_ControlPanel_update_pitch(false);
       PRA32_U2_ControlPanel_update_page();
@@ -2221,6 +2343,8 @@ static void PRA32_U2_ControlPanel_select_target(uint8_t offset) {
     if (!PRA32_U2_ControlPanel_target_usable(s_current_synth)) {
       g_synth.control_change(PANEL_TARGET_CH, 0);
     }
+  } else if (control_number == SEQ_CH_OFST    ) {
+    PRA32_U2_ControlPanel_update_seq_ch_display();
   } else if (control_number == PANEL_TARGET_CH) {
     PRA32_U2_ControlPanel_select_target(g_synth.current_controller_value(PANEL_TARGET_CH));
   } else if (control_number == PANEL_MIDI_CH  ) {
@@ -2241,7 +2365,7 @@ static void PRA32_U2_ControlPanel_select_target(uint8_t offset) {
 // the pedals, and the Channel Mode Messages), not to change a parameter, nor to write to the flash, by chance:
 // - Parameters (set as by the panel): Seq Pitch 0-7 (#16-23), Seq Velo 0-7 (#70-77), the Panel Parameters
 //   (#51-56: Scale, Transpose, Play Mode, Play Pitch, Play Velo, and Pitch Ofst), and the other Step Sequencer Parameters (#85-90 and #92-94, the number + 37,
-//   Seq Pitch Ofst #95, and Panel MIDI Tx #59); Panel Target Ch (#58, PRA32-U2/M/P: the channel
+//   Seq Pitch Ofst #95, Panel MIDI Tx #59, Seq Ch Ofst #60, and Seq Transpose #61); Panel Target Ch (#58, PRA32-U2/M/P: the channel
 //   that the panel selects, as the Basic Channel + the value) is only for the Panel Channel
 // - MIDI Basic Ch (#57, 0-15 as 1-16) is only kept, and set by Set Basic Ch (#114, as an operation), so that the channels
 //   (the Panel Channel too) do not move by one Control Change; kept in the flash by Write Panel Prms, as by the panel
@@ -2264,6 +2388,8 @@ static uint8_t PRA32_U2_ControlPanel_panel_ch_target(uint8_t number) {
   case  55: return PANEL_PLAY_VELO;
   case  56: return PANEL_PIT_OFST ;
   case  59: return PANEL_MIDI_TX  ;
+  case  60: return SEQ_CH_OFST    ;
+  case  61: return SEQ_TRANSPOSE  ;
   case 102: return WR_PANEL_PRMS  ;  // Write and then Read, as the pages of the panel (C and D)
   case 103: return RD_PANEL_PRMS  ;
   case 104: return IN_PANEL_PRMS  ;
@@ -2303,9 +2429,7 @@ void PRA32_U2_ControlPanel_on_panel_ch_control_change(uint8_t number, uint8_t va
     } else if (s_set_basic_ch_ready && (value >= 96)) {
       s_set_basic_ch_ready = false;
       if ((s_panel_ch_basic_ch <= 15) && (s_panel_ch_basic_ch != g_midi_ch)) {
-        if (s_panel_playing_note_pitch <= 127) {  // off on the channel before
-          PRA32_U2_ControlPanel_note_off(getTargetMIDICh(s_current_synth), s_panel_playing_note_pitch);
-        }
+        PRA32_U2_ControlPanel_notes_off();  // off on the channels before
         g_synth.control_change(PANEL_MIDI_CH, s_panel_ch_basic_ch << 3);
       }
     }
@@ -2315,14 +2439,11 @@ void PRA32_U2_ControlPanel_on_panel_ch_control_change(uint8_t number, uint8_t va
   if (number == 111) {  // Panel Play: compared with the state now (which the Play key, Panel Play Mode, or
                         // MIDI Start/Stop may have changed), so that a value repeated does nothing
     boolean on = (value >= 64);
-    boolean playing = (s_playing_status != PlayingStatus_Stop);
+    boolean playing = (s_play_mode == 0) ? s_key_held : (s_playing_status != PlayingStatus_Stop);
     if (on != playing) {
       if (s_play_mode == 0) {  // Normal Mode
-        s_playing_status = on ? PlayingStatus_Playing : PlayingStatus_Stop;
-        s_display_buffer[0][20] = on ? '*' : ' ';
-        s_panel_play_note_gate    = on;
-        s_panel_play_note_trigger = on;
-      } else {  // Seq Mode
+        PRA32_U2_ControlPanel_key_play(on);
+      } else {  // Seq and S+P: the Step Sequencer
         if (on) {
           PRA32_U2_ControlPanel_seq_start();
         } else {

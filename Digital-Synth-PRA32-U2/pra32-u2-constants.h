@@ -270,6 +270,8 @@ const uint8_t   SEQ_ON_STEPS    = 128 + 56;
 const uint8_t   SEQ_RX_ST_SP    = 128 + 57;
 
 const uint8_t   PANEL_MIDI_TX   = 128 + 58;
+const uint8_t   SEQ_CH_OFST     = 128 + 59;
+const uint8_t   SEQ_TRANSPOSE   = 128 + 60;
 
 
 
