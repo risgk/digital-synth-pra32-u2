@@ -148,7 +148,7 @@
 |                               |   Program" from 0-31 to 96-127                                        |
 |                               | $3 : Basic Channel can be changed in PRA32-U2/P                       |
 |                               | $4 : o in PRA32-U2/P (No transmission via USB MIDI)                   |
-|                               | $5 : o in PRA32-U2/P if Seq Clock Src is External                     |
+|                               | $5 : o in PRA32-U2/P if Seq Clock Src is External (or Auto)           |
 |                               | $6 : Randomize the synth parameters (as "Randomize Synth" in          |
 |                               |   PRA32-U2 Editor) when changed from 0-63 to 64-127                   |
 |                               | $7 : Effective only if Portamento Mode is Sw                          |

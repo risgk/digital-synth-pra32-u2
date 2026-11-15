@@ -84,7 +84,9 @@
         - For example, if Panel Scale is MiP and Panel Transpose is -3, the scale is A Minor Pentatonic
 - Step Sequencer Parameters
     - Seq Step Note [4|8|16]: Quarter Note, Eighth Note, Sixteenth Note
-    - Seq Clock Src [Int|Ext]: Internal, External (Rx MIDI Clock)
+    - Seq Clock Src [Int|Ext|Aut]: Internal, External (Rx MIDI Clock), Auto (the default)
+        - Aut: Internal at first, External after a MIDI Clock (or Start), and Internal again when Seq Tempo is changed,
+          until a MIDI Start (not a Clock, which a DAW may send also while stopped); shown as "A-I" or "A-E"
     - Seq Pitch Ofst (Offset) [-|+]: Offset Seq Pitch 0-7 (min -60 to max +60)
     - Seq T/Rx St/Sp (Transmit/Receive Start/Stop): Off, On
     - Seq Tempo: 30-240 BPM (in steps of 2 BPM)

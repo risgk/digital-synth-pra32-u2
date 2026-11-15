@@ -199,7 +199,7 @@ const uint8_t   DEFAULT_SEQ_VELO_6      = 100;
 const uint8_t   DEFAULT_SEQ_VELO_7      = 100;
 
 const uint8_t   DEFAULT_SEQ_TEMPO       = 64 ;  // 120 BPM
-const uint8_t   DEFAULT_SEQ_CLOCK_SRC   = 0  ;
+const uint8_t   DEFAULT_SEQ_CLOCK_SRC   = 127;  // Aut
 const uint8_t   DEFAULT_SEQ_GATE_TIME   = 51 ;  // 3/6, on its marker
 const uint8_t   DEFAULT_SEQ_NUM_STEPS   = 32 ;
 

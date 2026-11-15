@@ -37,7 +37,7 @@
 |                         70-77 | x             | o             | Seq Velo 0-7                          |
 |                               |               |               |                                       |
 |                            85 | x             | o             | Seq Tempo                             |
-|                            86 | x             | o             | Seq Clock Src [Int|Ext]               |
+|                            86 | x             | o             | Seq Clock Src [Int|Ext|Aut]           |
 |                            87 | x             | o             | Seq Gate Time [1/6|...|6/6]           |
 |                            88 | x             | o             | Seq Num Steps                         |
 |                            89 | x             | o             | Seq Mode [Fwd|Rvs|Bnc]                |

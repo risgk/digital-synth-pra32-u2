@@ -444,9 +444,7 @@ void PRA32U2Engine::handleMidiMessage(const uint8_t* data, int size) {
       PRA32_U2_ControlPanel_on_clock();
       return;
     } else if ((data[0] == 0xFA) || (data[0] == 0xFC)) {
-      if (g_synth.current_controller_value(SEQ_TRX_ST_SP  ) >= 64) {
-        if (data[0] == 0xFA) { PRA32_U2_ControlPanel_on_start(); } else { PRA32_U2_ControlPanel_on_stop(); }
-      }
+      if (data[0] == 0xFA) { PRA32_U2_ControlPanel_on_start(); } else { PRA32_U2_ControlPanel_on_stop(); }  // by Seq T/Rx St/Sp
       return;
     }
 

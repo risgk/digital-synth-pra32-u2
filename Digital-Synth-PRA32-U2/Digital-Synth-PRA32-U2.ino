@@ -682,18 +682,14 @@ void __not_in_flash_func(handleClock)()
 void __not_in_flash_func(handleStart)()
 {
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
-  if (g_synth.current_controller_value(SEQ_TRX_ST_SP  ) >= 64) {
-    PRA32_U2_ControlPanel_on_start();
-  }
+  PRA32_U2_ControlPanel_on_start();  // by Seq T/Rx St/Sp (see it)
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 }
 
 void __not_in_flash_func(handleStop)()
 {
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
-  if (g_synth.current_controller_value(SEQ_TRX_ST_SP  ) >= 64) {
-    PRA32_U2_ControlPanel_on_stop();
-  }
+  PRA32_U2_ControlPanel_on_stop();  // by Seq T/Rx St/Sp (see it)
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 }
 
