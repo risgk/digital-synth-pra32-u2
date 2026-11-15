@@ -516,7 +516,7 @@ static const uint32_t NUM_TX_NOTES = 4;
 static uint8_t s_tx_note_pitch[NUM_TX_NOTES] = { 0xFF, 0xFF, 0xFF, 0xFF };
 static uint8_t s_tx_note_ch[NUM_TX_NOTES]    = { 0, 0, 0, 0 };
 
-static void PRA32_U2_ControlPanel_tx_note_off(uint8_t channel, uint8_t pitch) {
+static __attribute__((noinline)) void __not_in_flash_func(PRA32_U2_ControlPanel_tx_note_off)(uint8_t channel, uint8_t pitch) {
   if (pitch > 127) {
     return;
   }
@@ -535,7 +535,7 @@ static void PRA32_U2_ControlPanel_tx_note_off(uint8_t channel, uint8_t pitch) {
   }
 }
 
-static void PRA32_U2_ControlPanel_tx_note_on(uint8_t channel, uint8_t pitch, uint8_t velocity) {
+static __attribute__((noinline)) void __not_in_flash_func(PRA32_U2_ControlPanel_tx_note_on)(uint8_t channel, uint8_t pitch, uint8_t velocity) {
   if (PRA32_U2_ControlPanel_midi_tx_index() < 3) {  // Off, Clk, or All
     return;
   }
@@ -560,12 +560,12 @@ static void PRA32_U2_ControlPanel_tx_note_on(uint8_t channel, uint8_t pitch, uin
 }
 
 // The notes that the panel plays: to the synth, and transmitted by Panel MIDI Tx
-static void PRA32_U2_ControlPanel_note_on(uint8_t channel, uint8_t pitch, uint8_t velocity) {
+static __attribute__((noinline)) void __not_in_flash_func(PRA32_U2_ControlPanel_note_on)(uint8_t channel, uint8_t pitch, uint8_t velocity) {
   handleNoteOn(channel, pitch, velocity);
   PRA32_U2_ControlPanel_tx_note_on(channel, pitch, velocity);
 }
 
-static void PRA32_U2_ControlPanel_note_off(uint8_t channel, uint8_t pitch) {
+static __attribute__((noinline)) void __not_in_flash_func(PRA32_U2_ControlPanel_note_off)(uint8_t channel, uint8_t pitch) {
   handleNoteOff(channel, pitch, 64);
   PRA32_U2_ControlPanel_tx_note_off(channel, pitch);
 }
@@ -579,8 +579,8 @@ static void PRA32_U2_ControlPanel_notes_off() {
   }
 }
 
-// (noinline: not to grow the functions in the RAM that call it)
-static __attribute__((noinline)) void PRA32_U2_ControlPanel_process_note_off_on_of(uint32_t n, uint8_t channel) {
+// (in the RAM, as loop(), but noinline: one copy, not to grow the functions that call it)
+static __attribute__((noinline)) void __not_in_flash_func(PRA32_U2_ControlPanel_process_note_off_on_of)(uint32_t n, uint8_t channel) {
   uint8_t playing_pitch = s_panel_playing_note_pitch[n];
   uint8_t playing_ch    = s_panel_playing_note_ch[n];
 
@@ -629,7 +629,7 @@ static INLINE boolean PRA32_U2_ControlPanel_process_note_off_on() {
 }
 
 // The pitch of the Play key (Nrm and S+P): by the panel parameters now (in Nrm, kept for the Step Sequencer too, as before)
-static __attribute__((noinline)) void PRA32_U2_ControlPanel_update_key_pitch() {
+static __attribute__((noinline)) void __not_in_flash_func(PRA32_U2_ControlPanel_update_key_pitch)() {
   uint8_t  new_pitch         = g_synth.current_controller_value(PANEL_PLAY_PIT );
   uint8_t  new_velocity      = g_synth.current_controller_value(PANEL_PLAY_VELO);
   uint32_t index_scale       = PRA32_U2_ControlPanel_get_index_scale();
@@ -665,7 +665,7 @@ static __attribute__((noinline)) void PRA32_U2_ControlPanel_update_key_pitch() {
 }
 
 // The pitch of the Step Sequencer (Seq and S+P): by the panel parameters at the start of the loop
-static __attribute__((noinline)) void PRA32_U2_ControlPanel_update_seq_pitch(bool progress_seq_step) {
+static __attribute__((noinline)) void __not_in_flash_func(PRA32_U2_ControlPanel_update_seq_pitch)(bool progress_seq_step) {
   uint8_t new_pitch    = g_synth.current_controller_value(SEQ_PITCH_0      + (s_seq_step & 0x07));
   uint8_t new_velocity = g_synth.current_controller_value(SEQ_VELO_0       + (s_seq_step & 0x07));
   if (((s_seq_step & 0x07) != 0) && ((1 << ((s_seq_step & 0x07) - 1)) & s_seq_on_steps) == 0) {
