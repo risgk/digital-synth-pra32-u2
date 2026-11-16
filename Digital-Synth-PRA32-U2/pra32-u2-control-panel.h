@@ -861,6 +861,8 @@ static INLINE void PRA32_U2_ControlPanel_key_play(boolean on) {
   if (s_play_mode == 0) {  // Normal Mode
     s_playing_status = on ? PlayingStatus_Playing : PlayingStatus_Stop;
     s_display_buffer[0][20] = on ? '*' : ' ';
+  } else {  // S+P: on the left of the step of the Step Sequencer
+    s_display_buffer[0][19] = on ? '*' : ' ';
   }
   s_panel_play_note_gate[NOTE_KEY]    = on;
   s_panel_play_note_trigger[NOTE_KEY] = on;
@@ -2295,6 +2297,7 @@ static void PRA32_U2_ControlPanel_select_target(uint8_t offset) {
       s_play_mode = mode;
 
       s_playing_status = PlayingStatus_Stop;
+      s_display_buffer[0][19] = ' ';
       s_display_buffer[0][20] = ' ';
       s_key_held = false;
       s_panel_play_note_gate[NOTE_KEY] = false;

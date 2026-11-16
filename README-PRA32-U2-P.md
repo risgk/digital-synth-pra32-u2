@@ -71,6 +71,7 @@
     - Panel Play Mode [Nrm|S+P|Seq]: Normal Mode, Seq + Play Mode, Step Sequencer Mode
         - S+P: the Step Sequencer (started and stopped by Next Key + Play Key, Panel Play, or MIDI Start/Stop), and the Play Key that plays
           as in Normal Mode (e.g. the Step Sequencer on a Sub Synth by Seq Ch Ofst, and the Play Key on the synth that the panel selects)
+        - The display shows the step of the Step Sequencer at the right end of the top line, as in Seq Mode, and "*" on its left while the Play Key plays
     - MIDI Basic Ch: Basic Channel 1-16
     - Panel Play Pitch: 0 is Off, 1-4 is lowest, 124-127 is highest
     - Panel Play Velo (Velocity)
