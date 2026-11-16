@@ -27,8 +27,11 @@
         - Not compatible: the values kept (in the browser, Store, and the files of Export) before are not read: the initial values instead
     - **Filter Drive** shared between the input and the loop: the input soft-clipped (biased, the even harmonics too), and the loop driven by the square root of the gain,
       so that the Drive puts in harmonics at any Resonance while the Resonance (and the squelch of a Filter EG) is kept more (e.g. at the Resonance 110 and the Drive 96,
-      the resonant peak about 6 dB down, from about 18 dB down before), with a make-up gain (the level within about 1.5 dB with a Saw at the Resonance 110)
-        - Not compatible: a sound with Filter Drive above 0 sounds otherwise (more harmonics, the Resonance less held down); 0 (the Presets) is as before
+      the resonant peak about 3 dB down, from about 18 dB down before), with a make-up gain (the level within about 0.5 dB with a Saw at the Resonance 110)
+        - The gain is now x 1 to x 8 (x 39.2 at 127 before; 0-127 now as 0-72 before), so that the top stops short of a square wave: a strong distortion is
+          for the Distortion FX (after the Filter); the input clip has no oversampling, which folded back much more further up, and a single note through
+          the Chorus sounded broken up there
+        - Not compatible: a sound with Filter Drive above 0 sounds otherwise (more harmonics, the Resonance less held down, and less distortion at the top); 0 (the Presets) is as before
         - About 2% more load (estimated: 80.5% to 83.1% for PRA32-U2/M/P with the 4 Synths), and about 0.7 KB (PRA32-U2) to 1.5 KB (PRA32-U2/M/P) more of the RAM
     - PRA32-U2/P: Fix the wrong pitches (e.g. C#1 in Maj) of the Step Sequencer when Panel Pitch Ofst and Seq Pitch Ofst are both near -60 with a low Seq Pitch
     - Osc 1 Shape and Osc 1 Morph show their meanings by Osc 1 Wave (3 characters at most): Shape: the pulse width (Pls, e.g. "25%");
