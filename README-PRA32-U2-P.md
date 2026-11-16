@@ -112,7 +112,7 @@
     - Seq Gate Time [1/6|2/6|3/6|4/6|5/6|6/6]
     - Seq Direction [Fwd|Rvs|Bnc]: Forward, Reverse, Bounce (Seq Mode before)
     - Seq Num Steps (Number of Steps): 1-32 (current step mod 8 is used as the index for Seq Pitch and Seq Velo; with Seq Pattern 4x4, the length of each shift)
-    - Seq Pattern [Std|4x4]: Standard (0-31, the default), 4x4 (32-127; 64-127 for the future)
+    - Seq Pattern [Std|4x4]: Standard (0-63, the default), 4x4 (64-127)
         - 4x4: Seq Pitch 0-7 and Seq Velo 0-7 as the pattern (0-3) and the shifts (4-7): the pattern is played again and again,
           shifted by Seq Pitch 4, 5, 6, and 7 in turn (each added to the offsets, as Seq Pitch Ofst, -60 to +60), and Seq Velo 4-7 (each added to
           the velocity, 64 as 0; 1-127); Seq Num Steps is the length of each shift (e.g. 8 for the pattern twice)

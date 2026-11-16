@@ -1475,7 +1475,7 @@ static __attribute__((noinline)) boolean __not_in_flash_func(PRA32_U2_ControlPan
   case  SEQ_PATTERN    :
     {
       static const char ary[2][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"Std","4x4"};
-      PRA32_U2_ControlPanel_copy_text(value_display_text, ary[(controller_value >= 32) ? 1 : 0]);
+      PRA32_U2_ControlPanel_copy_text(value_display_text, ary[(controller_value >= 64) ? 1 : 0]);
       result = true;
     }
     break;
@@ -2468,7 +2468,7 @@ static void PRA32_U2_ControlPanel_select_target(uint8_t offset) {
     if (last_step < 0) { last_step = 0; }
     s_seq_last_step = last_step;
   } else if (control_number == SEQ_PATTERN    ) {
-    s_seq_pattern_4x4 = (g_synth.current_controller_value(SEQ_PATTERN    ) >= 32);  // Std at 0-31, 4x4 at 32 and more
+    s_seq_pattern_4x4 = (g_synth.current_controller_value(SEQ_PATTERN    ) >= 64);  // Std at 0-63, 4x4 at 64-127
     PRA32_U2_ControlPanel_update_play_display();
   } else if (control_number == SEQ_DIRECTION  ) {
     uint8_t controller_value = g_synth.current_controller_value(SEQ_DIRECTION  );
