@@ -34,10 +34,10 @@ static          uint32_t s_prog_minus_key_current_value;
 static          uint32_t s_prog_plus_key_current_value;
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL_KEY_INPUT)
 
-// Panel Play Mode [Nrm|S+P|Seq] (index 0-2): s_play_mode 0: Nrm (Normal Mode), 1: Seq (Seq Mode), 2: S+P (Seq + Play:
-// the Step Sequencer, and the Play key that plays as in Normal Mode)
+// Panel Play Mode [Key|K+S|Seq] (index 0-2): s_play_mode 0: Key (Key Mode), 1: Seq (Seq Mode), 2: K+S (Key + Seq Mode:
+// the Step Sequencer, and the Play key that plays as in Key Mode)
 static          uint8_t  s_play_mode                = 0;
-static          boolean  s_key_held                 = false;  // the Play key (or Panel Play) playing, in Nrm and S+P
+static          boolean  s_key_held                 = false;  // the Play key (or Panel Play) playing, in Key and K+S
 static          int8_t   s_panel_transpose          = 0;
 static          int8_t   s_panel_pit_ofst           = 0;
 static          int8_t   s_seq_pit_ofst             = 0;
@@ -75,7 +75,7 @@ static          bool     s_seq_clock_src_external = false;  // the clock now: Ex
 static          uint8_t  s_seq_clock_src_mode = 0;  // 0: Aut, 1: Int, 2: Ext
 static          uint8_t  s_seq_tempo_last     = 0xFF;  // for the changes of Seq Tempo (not the first value)
 
-// The notes that the panel plays: [0] by the Play key (Nrm and S+P), and [1] by the Step Sequencer (Seq and S+P),
+// The notes that the panel plays: [0] by the Play key (Key and K+S), and [1] by the Step Sequencer (Seq and K+S),
 // each on its channel (the channel of the Note On kept, for its Note Off)
 static const    uint32_t NOTE_KEY = 0;
 static const    uint32_t NOTE_SEQ = 1;
@@ -391,8 +391,8 @@ static INLINE uint32_t PRA32_U2_ControlPanel_calc_bpm(uint8_t tempo_control_valu
 }
 
 
-static INLINE boolean PRA32_U2_ControlPanel_mode_has_seq() { return s_play_mode != 0; }  // Seq and S+P
-static INLINE boolean PRA32_U2_ControlPanel_mode_has_key() { return s_play_mode != 1; }  // Nrm and S+P
+static INLINE boolean PRA32_U2_ControlPanel_mode_has_seq() { return s_play_mode != 0; }  // Seq and K+S
+static INLINE boolean PRA32_U2_ControlPanel_mode_has_key() { return s_play_mode != 1; }  // Key and K+S
 
 // The channel of the Step Sequencer: the channel that the panel selects + Seq Ch Ofst [+0-+F] (mod 16)
 static INLINE uint8_t PRA32_U2_ControlPanel_seq_ch() {
@@ -400,7 +400,7 @@ static INLINE uint8_t PRA32_U2_ControlPanel_seq_ch() {
   return (((getTargetMIDICh(s_current_synth) - 1) + ofst) & 0x0F) + 1;
 }
 
-// The right end of the top line (columns 18-20), right-aligned: "*" while the Play key plays (Nrm and S+P), the shift
+// The right end of the top line (columns 18-20), right-aligned: "*" while the Play key plays (Key and K+S), the shift
 // (4-7, Seq Pattern 4x4), and the step (0-3 in 4x4, 0-7 in Std) while the Step Sequencer plays (e.g. "*53")
 static __attribute__((noinline)) void __not_in_flash_func(PRA32_U2_ControlPanel_update_play_display)() {
   char text[3];
@@ -424,7 +424,7 @@ static __attribute__((noinline)) void __not_in_flash_func(PRA32_U2_ControlPanel_
   }
 }
 
-// The channel of the Step Sequencer ("S" and the MIDI channel - 1, in hex, as "$"), in Seq and S+P, if not that of the panel
+// The channel of the Step Sequencer ("S" and the MIDI channel - 1, in hex, as "$"), in Seq and K+S, if not that of the panel
 static __attribute__((noinline)) void PRA32_U2_ControlPanel_update_seq_ch_display() {
   if (PRA32_U2_ControlPanel_mode_has_seq() && ((g_synth.current_controller_value(SEQ_CH_OFST    ) >> 3) != 0)) {
     s_display_buffer[0][ 8] = 'S';
@@ -643,7 +643,7 @@ static INLINE boolean PRA32_U2_ControlPanel_process_note_off_on() {
   return false;
 }
 
-// The pitch of the Play key (Nrm and S+P): by the panel parameters now (in Nrm, kept for the Step Sequencer too, as before)
+// The pitch of the Play key (Key and K+S): by the panel parameters now (in Key Mode, kept for the Step Sequencer too, as before)
 static __attribute__((noinline)) void __not_in_flash_func(PRA32_U2_ControlPanel_update_key_pitch)() {
   uint8_t  new_pitch         = g_synth.current_controller_value(PANEL_PLAY_PIT );
   uint8_t  new_velocity      = g_synth.current_controller_value(PANEL_PLAY_VELO);
@@ -651,7 +651,7 @@ static __attribute__((noinline)) void __not_in_flash_func(PRA32_U2_ControlPanel_
   int8_t   panel_pit_ofst    = g_synth.current_controller_value(PANEL_PIT_OFST ) - 64;
   int8_t   panel_transpose   = g_synth.current_controller_value(PANEL_TRANSPOSE) - 64;
 
-  if (s_play_mode == 0) {  // Normal Mode
+  if (s_play_mode == 0) {  // Key Mode
     s_index_scale     = index_scale;
     s_panel_pit_ofst  = panel_pit_ofst;
     s_panel_transpose = panel_transpose;
@@ -679,7 +679,7 @@ static __attribute__((noinline)) void __not_in_flash_func(PRA32_U2_ControlPanel_
   }
 }
 
-// The pitch of the Step Sequencer (Seq and S+P): by the panel parameters at the start of the loop
+// The pitch of the Step Sequencer (Seq and K+S): by the panel parameters at the start of the loop
 static __attribute__((noinline)) void __not_in_flash_func(PRA32_U2_ControlPanel_update_seq_pitch)(bool progress_seq_step) {
   uint32_t index = s_seq_step & (s_seq_pattern_4x4 ? 0x03 : 0x07);
   uint8_t new_pitch    = g_synth.current_controller_value(SEQ_PITCH_0      + index);
@@ -888,10 +888,10 @@ static INLINE void PRA32_U2_ControlPanel_seq_start_stop() {
   }
 }
 
-// The Play key (or Panel Play) in Nrm and S+P: the note on while pressed
+// The Play key (or Panel Play) in Key and K+S: the note on while pressed
 static INLINE void PRA32_U2_ControlPanel_key_play(boolean on) {
   s_key_held = on;
-  if (s_play_mode == 0) {  // Normal Mode
+  if (s_play_mode == 0) {  // Key Mode
     s_playing_status = on ? PlayingStatus_Playing : PlayingStatus_Stop;
   }
   PRA32_U2_ControlPanel_update_play_display();
@@ -900,7 +900,7 @@ static INLINE void PRA32_U2_ControlPanel_key_play(boolean on) {
 }
 
 static INLINE void PRA32_U2_ControlPanel_update_control_seq() {
-  if (PRA32_U2_ControlPanel_mode_has_seq() && (s_seq_clock_src_external == false)) {  // Seq and S+P
+  if (PRA32_U2_ControlPanel_mode_has_seq() && (s_seq_clock_src_external == false)) {  // Seq and K+S
     s_seq_count += s_seq_count_increment;
 
     if (s_seq_count >= 7680000 * 2) {
@@ -1489,7 +1489,7 @@ static __attribute__((noinline)) boolean __not_in_flash_func(PRA32_U2_ControlPan
     break;
   case PANEL_PLAY_MODE:
     {
-      static const char ary[3][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"Nrm","S+P","Seq"};
+      static const char ary[3][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"Key","K+S","Seq"};
       uint32_t index = ((controller_value * 4) + 128) >> 8;
       PRA32_U2_ControlPanel_copy_text(value_display_text, ary[index]);
       result = true;
@@ -1972,7 +1972,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
 #endif  // defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
 #if defined(PRA32_U2_KEY_INPUT_NEXT_KEY_PIN)
       if (digitalRead(PRA32_U2_KEY_INPUT_NEXT_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL) {
-        s_play_key_with_next = true;     // Next + Play: the Step Sequencer started or stopped (Seq and S+P)
+        s_play_key_with_next = true;     // Next + Play: the Step Sequencer started or stopped (Seq and K+S)
         s_next_key_long_pressed = true;  // not the next page, when the Next key is released
         if (PRA32_U2_ControlPanel_mode_has_seq()) {
           PRA32_U2_ControlPanel_seq_start_stop();
@@ -1980,7 +1980,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
         return;
       }
 #endif  // defined(PRA32_U2_KEY_INPUT_NEXT_KEY_PIN)
-      if (PRA32_U2_ControlPanel_mode_has_key()) {  // Nrm and S+P
+      if (PRA32_U2_ControlPanel_mode_has_key()) {  // Key and K+S
         PRA32_U2_ControlPanel_key_play(true);
       }
     } else {
@@ -1994,7 +1994,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
         s_play_key_with_next = false;
         return;
       }
-      if (PRA32_U2_ControlPanel_mode_has_key()) {  // Nrm and S+P
+      if (PRA32_U2_ControlPanel_mode_has_key()) {  // Key and K+S
         PRA32_U2_ControlPanel_key_play(false);
       } else {  // Seq Mode
         PRA32_U2_ControlPanel_seq_start_stop();
@@ -2118,7 +2118,7 @@ INLINE void PRA32_U2_ControlPanel_on_clock()
     s_seq_clock_src_external = true;
   }
   if (s_seq_clock_src_external) {
-    if (PRA32_U2_ControlPanel_mode_has_seq()) {  // Seq and S+P
+    if (PRA32_U2_ControlPanel_mode_has_seq()) {  // Seq and K+S
       PRA32_U2_ControlPanel_seq_clock();
     }
   }
@@ -2127,7 +2127,7 @@ INLINE void PRA32_U2_ControlPanel_on_clock()
 INLINE void PRA32_U2_ControlPanel_on_start()
 {
   if (s_seq_clock_src_external) {
-    if (PRA32_U2_ControlPanel_mode_has_seq()) {  // Seq and S+P
+    if (PRA32_U2_ControlPanel_mode_has_seq()) {  // Seq and K+S
       if (s_playing_status == PlayingStatus_Stop) {
         PRA32_U2_ControlPanel_seq_start();
       }
@@ -2138,7 +2138,7 @@ INLINE void PRA32_U2_ControlPanel_on_start()
 INLINE void PRA32_U2_ControlPanel_on_stop()
 {
   if (s_seq_clock_src_external) {
-    if (PRA32_U2_ControlPanel_mode_has_seq()) {  // Seq and S+P
+    if (PRA32_U2_ControlPanel_mode_has_seq()) {  // Seq and K+S
       if (s_playing_status != PlayingStatus_Stop) {
         PRA32_U2_ControlPanel_seq_stop();
       }
@@ -2424,7 +2424,7 @@ static void PRA32_U2_ControlPanel_select_target(uint8_t offset) {
     PRA32_U2_ControlPanel_update_pitch(false);
   } else if (control_number == PANEL_PLAY_MODE) {
     uint8_t controller_value = g_synth.current_controller_value(PANEL_PLAY_MODE);
-    static const uint8_t modes[3] = { 0, 2, 1 };  // Nrm, S+P, and Seq
+    static const uint8_t modes[3] = { 0, 2, 1 };  // Key, K+S, and Seq
     uint8_t mode = modes[((controller_value * 4) + 128) >> 8];
 
     if (s_play_mode != mode) {
@@ -2510,7 +2510,9 @@ static void PRA32_U2_ControlPanel_select_target(uint8_t offset) {
 //   (the Panel Channel too) do not move by one Control Change; kept in the flash by Write Panel Prms, as by the panel
 // - Operations (#102-106, #112, and #113, ready at 0-31, and done at 96-127, as by the panel [Rdy] and [Exe]); not the
 //   Read and Write of the programs, which the editor does
-// - Panel Play (#111): 64-127 as the Play key pressed (Normal Mode) or the Step Sequencer started (Seq Mode),
+// - Panel Key (#110): 64-127 as the Play key pressed, and 0-63 as released, in Key Mode and K+S (Key + Seq Mode);
+//   nothing in Seq Mode
+// - Panel Play (#111): 64-127 as the Play key pressed (Key Mode) or the Step Sequencer started (Seq and K+S),
 //   and 0-63 as released or stopped
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
 static uint8_t s_panel_ch_basic_ch = 0xFF;  // MIDI Basic Ch (#57) to set by Set Basic Ch (#114), none at first
@@ -2576,14 +2578,22 @@ void PRA32_U2_ControlPanel_on_panel_ch_control_change(uint8_t number, uint8_t va
     return;
   }
 
+  if (number == 110) {  // Panel Key: compared with the state now, so that a value repeated does nothing
+    boolean on = (value >= 64);
+    if (PRA32_U2_ControlPanel_mode_has_key() && (on != s_key_held)) {  // Key and K+S
+      PRA32_U2_ControlPanel_key_play(on);
+    }
+    return;
+  }
+
   if (number == 111) {  // Panel Play: compared with the state now (which the Play key, Panel Play Mode, or
                         // MIDI Start/Stop may have changed), so that a value repeated does nothing
     boolean on = (value >= 64);
     boolean playing = (s_play_mode == 0) ? s_key_held : (s_playing_status != PlayingStatus_Stop);
     if (on != playing) {
-      if (s_play_mode == 0) {  // Normal Mode
+      if (s_play_mode == 0) {  // Key Mode
         PRA32_U2_ControlPanel_key_play(on);
-      } else {  // Seq and S+P: the Step Sequencer
+      } else {  // Seq and K+S: the Step Sequencer
         if (on) {
           PRA32_U2_ControlPanel_seq_start();
         } else {

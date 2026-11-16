@@ -2,7 +2,7 @@
 
 const uint8_t   PAGE_GROUP_DEFAULT   = 0;
 const uint8_t   PAGE_INDEX_DEFAULT_A = 11;  // A-11 Filter a
-const uint8_t   PAGE_INDEX_DEFAULT_B = 2;
+const uint8_t   PAGE_INDEX_DEFAULT_B = 0;  // B-00 Panel a
 const uint8_t   PAGE_INDEX_DEFAULT_C = 0;
 const uint8_t   PAGE_INDEX_DEFAULT_D = 0;
 
@@ -64,17 +64,17 @@ static const PRA32_U2_ControlPanelPage g_control_panel_page_table_a[] = {
 };
 
 static const PRA32_U2_ControlPanelPage g_control_panel_page_table_b[] = {
-  { "Page=B-00 ", "Panel a   ",   "Panel     ", "Play Mode ", PANEL_PLAY_MODE,   "MIDI      ", "Basic Ch  ", PANEL_MIDI_CH  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=B-01 ", "Panel b   ",   "Panel     ", "Play Pitch", PANEL_PLAY_PIT ,   "Panel     ", "Play Velo ", PANEL_PLAY_VELO,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=B-02 ", "Panel c   ",   "Panel     ", "Scale     ", PANEL_SCALE    ,   "Panel     ", "Pitch Ofst", PANEL_PIT_OFST ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=B-03 ", "Panel d   ",   "Panel     ", "Transpose ", PANEL_TRANSPOSE,   "Panel     ", "MIDI Tx   ", PANEL_MIDI_TX  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=B-04 ", "Seq a     ",   "Seq       ", "Step Note ", SEQ_STEP_NOTE  ,   "Seq       ", "Clock Src ", SEQ_CLOCK_SRC  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=B-05 ", "Seq b     ",   "Seq       ", "Pitch Ofst", SEQ_PIT_OFST   ,   "Seq       ", "Transpose ", SEQ_TRANSPOSE  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=B-00 ", "Panel a   ",   "Panel     ", "Play Mode ", PANEL_PLAY_MODE,   "Panel     ", "Scale     ", PANEL_SCALE    ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=B-01 ", "Panel b   ",   "Panel     ", "Pitch Ofst", PANEL_PIT_OFST ,   "Panel     ", "Transpose ", PANEL_TRANSPOSE,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=B-02 ", "Panel c   ",   "Panel     ", "Play Pitch", PANEL_PLAY_PIT ,   "Panel     ", "Play Velo ", PANEL_PLAY_VELO,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=B-03 ", "Panel d   ",   "MIDI      ", "Basic Ch  ", PANEL_MIDI_CH  ,   "Panel     ", "MIDI Tx   ", PANEL_MIDI_TX  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=B-04 ", "Seq a     ",   "Seq       ", "Rx St/Sp  ", SEQ_RX_ST_SP   ,   "Seq       ", "Ch Ofst   ", SEQ_CH_OFST    ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=B-05 ", "Seq b     ",   "Seq       ", "Step Note ", SEQ_STEP_NOTE  ,   "Seq       ", "Clock Src ", SEQ_CLOCK_SRC  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=B-06 ", "Seq c     ",   "Seq       ", "Tempo     ", SEQ_TEMPO      ,   "Seq       ", "Gate Time ", SEQ_GATE_TIME  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=B-07 ", "Seq d     ",   "Seq       ", "Direction ", SEQ_DIRECTION  ,   "Seq       ", "Num Steps ", SEQ_NUM_STEPS  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=B-08 ", "Seq e     ",   "Seq       ", "On Steps  ", SEQ_ON_STEPS   ,   "Seq       ", "Act Steps ", SEQ_ACT_STEPS  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=B-09 ", "Seq f     ",   "Seq       ", "Ch Ofst   ", SEQ_CH_OFST    ,   "Seq       ", "Rx St/Sp  ", SEQ_RX_ST_SP   ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page=B-10 ", "Seq g     ",   "Seq       ", "Pattern   ", SEQ_PATTERN    ,   "          ", "          ", 0xFF           ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=B-08 ", "Seq e     ",   "Seq       ", "Pattern   ", SEQ_PATTERN    ,   "          ", "          ", 0xFF           ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=B-09 ", "Seq f     ",   "Seq       ", "On Steps  ", SEQ_ON_STEPS   ,   "Seq       ", "Act Steps ", SEQ_ACT_STEPS  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page=B-10 ", "Seq g     ",   "Seq       ", "Pitch Ofst", SEQ_PIT_OFST   ,   "Seq       ", "Transpose ", SEQ_TRANSPOSE  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=B-11 ", "Seq h     ",   "Seq       ", "Rand Pitch", SEQ_RAND_PITCH ,   "Seq       ", "Rand Velo ", SEQ_RAND_VELO  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=B-12 ", "Seq 0     ",   "Seq       ", "Pitch 0   ", SEQ_PITCH_0    ,   "Seq       ", "Velo 0    ", SEQ_VELO_0     ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page=B-13 ", "Seq 1     ",   "Seq       ", "Pitch 1   ", SEQ_PITCH_1    ,   "Seq       ", "Velo 1    ", SEQ_VELO_1     ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },

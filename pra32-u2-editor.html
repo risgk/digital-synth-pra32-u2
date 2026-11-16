@@ -3788,7 +3788,8 @@ function getStoredCCValueString(index, number) {
 <summary>Panel &amp; Step Sequencer <span class="cc">for PRA32-U2/P and PRA32-U2/M/P</span></summary>
 <details class="section panel-sub" id="panelCtrlDetails" open>
 <summary>Panel &amp; Operations <span class="panel-summary-buttons" onclick="event.preventDefault()"><button type="button" onclick="sendPanelCurrent()">Send Panel</button>
-<button type="button" id="buttonPanelPlay" onclick="onClickPanelPlay()" title="Panel Play (CC#111): Normal Mode: holds the note; Seq Mode: starts and stops the sequencer">Play</button></span></summary>
+<button type="button" id="buttonPanelKey" title="Panel Key (CC#110): plays Panel Play Pitch while pressed (Key and K+S)">Key</button>
+<button type="button" id="buttonPanelPlay" onclick="onClickPanelPlay()" title="Panel Play (CC#111): Key: holds the note; K+S and Seq: starts and stops the sequencer">Play</button></span></summary>
 <div class="section misc">
 <div class="misc-group"><span>Basic Ch</span><div class="misc-buttons">
 <select id="selectPanelCh" onchange="onChangePanelCh()" aria-label="Basic Ch"></select><span class="cc" id="spanPanelCCCh"></span>
@@ -3893,31 +3894,34 @@ function panelHex2(v) { return "x" + v.toString(16).toUpperCase().padStart(2, "0
 
 // [category, name, supplement, CC#, default, display, markers (the class of PRA32-U2 Editor)], in groups (rows of 4)
 const PANEL_PARAM_GROUPS = [
-  // In the order of the pages of the panel (B-00 to B-03), 2 a page (MIDI Basic Ch of B-00 is an empty cell here)
-  [["Panel", "Play Mode",  "[Nrm|S+P|Seq]",             53, 0,   v => ["Nrm", "S+P", "Seq"][(v * 4 + 128) >> 8], "soft-markers-3"],
-   null,
-   ["Panel", "Play Pitch", "",                          54, 0,   v => panelPitchName(v),                        ""],
-   ["Panel", "Play Velo",  "",                          55, 64,  v => String(v),                                ""],
+  // In the order of the pages of the panel (B-00 to B-03), 2 a page (MIDI Basic Ch of B-03 is an empty cell here)
+  [["Panel", "Play Mode",  "[Key|K+S|Seq]",             53, 0,   v => ["Key", "K+S", "Seq"][(v * 4 + 128) >> 8], "soft-markers-3"],
    ["Panel", "Scale",      "[Maj|Min|Mel|MaP|MiP|Chr]", 51, 0,   v => PANEL_SCALES[(v * 10 + 128) >> 8],        "soft-markers-6"],
    ["Panel", "Pitch Ofst", "[-|+]",                     56, 64,  v => panelSigned(panelClamp(v - 64, -60, 60)), "soft-marker-c"],
    ["Panel", "Transpose",  "[-|+]",                     52, 64,  v => panelSigned(v - 64),                      "soft-marker-c"],
+   ["Panel", "Play Pitch", "",                          54, 0,   v => panelPitchName(v),                        ""],
+   ["Panel", "Play Velo",  "",                          55, 64,  v => String(v),                                ""],
+   null,
    ["Panel", "MIDI Tx",    "[Off|Clk|All|Nte|C+N|A+N]", 59, 26,  v => ["Off", "Clk", "All", "Nte", "C+N", "A+N"][(v * 10 + 128) >> 8], "soft-markers-6"]],
-  // B-04 to B-10 (the empty one of B-10 is an empty cell here)
-  [["Seq", "Step Note",  "[4|8|16]",                  92, 64,  v => ["4", "8", "16"][(v * 4 + 128) >> 8],       "soft-markers-3"],
+  // B-04 to B-10 (the empty one of B-08, and 2 more empty cells so that Seq On Steps and Seq Act Steps, each with the
+  // check boxes of the steps beside it, take a row)
+  [["Seq", "Rx St/Sp",   "[Off|On]",                  94, 0,   v => ["Off", "On"][(v * 2 + 128) >> 8],          "soft-markers-2"],
+   ["Seq", "Ch Ofst",    "[+0-+F]",                   60, 0,   v => "+" + (v >> 3).toString(16).toUpperCase(),   ""],
+   ["Seq", "Step Note",  "[4|8|16]",                  92, 64,  v => ["4", "8", "16"][(v * 4 + 128) >> 8],       "soft-markers-3"],
    ["Seq", "Clock Src",  "[Aut|Int|Ext]",             86, 0,   v => ["Aut", "Int", "Ext"][(v * 4 + 128) >> 8],  "soft-markers-3"],
-   ["Seq", "Pitch Ofst", "[-|+]",                     95, 64,  v => panelSigned(panelClamp(v - 64, -60, 60)),   "soft-marker-c"],
-   ["Seq", "Transpose",  "[-|+]",                     61, 64,  v => panelSigned(v - 64),                        "soft-marker-c"],
    ["Seq", "Tempo",      "",                          85, 64,  v => String(panelClamp(v * 2 - 8, 30, 240)),     ""],
    ["Seq", "Gate Time",  "[1/6|2/6|3/6|4/6|5/6|6/6]", 87, 51,  v => ((v * 10 + 128) >> 8) + 1 + "/6",           "soft-markers-6"],
    ["Seq", "Direction",  "[Fwd|Rvs|Bnc]",             89, 0,   v => ["Fwd", "Rvs", "Bnc"][(v * 4 + 128) >> 8],  "soft-markers-3"],
    ["Seq", "Num Steps",  "",                          88, 32,  v => String(Math.max((v - 2) >> 2, 0) + 1),      ""],
+   ["Seq", "Pattern",    "[Std|4x4]",                 62, 0,   v => (v >= 32) ? "4x4" : "Std",                   ""],
+   null,
+   null,
+   null,
    ["Seq", "On Steps",   "",                          93, 127, v => panelHex2(v),                               ""],
    ["Seq", "Act Steps",  "",                          90, 127, v => panelHex2(v),                               ""],
-   ["Seq", "Ch Ofst",    "[+0-+F]",                   60, 0,   v => "+" + (v >> 3).toString(16).toUpperCase(),   ""],
-   ["Seq", "Rx St/Sp",   "[Off|On]",                  94, 0,   v => ["Off", "On"][(v * 2 + 128) >> 8],          "soft-markers-2"],
-   ["Seq", "Pattern",    "[Std|4x4]",                 62, 0,   v => (v >= 32) ? "4x4" : "Std",                   ""],
-   null],
-  // B-10 to B-17
+   ["Seq", "Pitch Ofst", "[-|+]",                     95, 64,  v => panelSigned(panelClamp(v - 64, -60, 60)),   "soft-marker-c"],
+   ["Seq", "Transpose",  "[-|+]",                     61, 64,  v => panelSigned(v - 64),                        "soft-marker-c"]],
+  // B-12 to B-19
   // (Seq Pattern 4x4: Pitch 4-7 and Velo 4-7 are the shifts, added to the offsets and to the velocity)
   [0, 1, 2, 3, 4, 5, 6, 7].flatMap(i => [["Seq", "Pitch " + i, "", 16 + i, [4, 22, 37, 57, 72, 89, 107, 124][i],
                                           v => ((i >= 4) && panelPattern4x4()) ? panelSigned(panelClamp(v - 64, -60, 60)) : panelPitchName(v), ""],
@@ -4101,8 +4105,25 @@ function panelUpdateDisplay() {
   panelUpdateTargetSelected();
   const play = document.getElementById("buttonPanelPlay");
   play.classList.toggle("kbd-hold-on", panelPlaying);
-  play.textContent = panelPlaying ? "Stop" : "Play";
+  const seqText = (panelValues[53] >= 32) ? "Seq " : "";  // K+S and Seq: the Step Sequencer
+  play.textContent = seqText + (panelPlaying ? "Stop" : "Play");
 }
+
+function panelSetKey(on) {
+  const key = document.getElementById("buttonPanelKey");
+  if (key.classList.contains("kbd-hold-on") === on) { return; }
+  key.classList.toggle("kbd-hold-on", on);
+  panelSendCC(110, on ? 127 : 0);
+}
+
+(function() {
+  const key = document.getElementById("buttonPanelKey");
+  key.addEventListener("pointerdown", function(event) { key.setPointerCapture(event.pointerId); panelSetKey(true); });
+  ["pointerup", "pointercancel", "lostpointercapture"].forEach(type => key.addEventListener(type, () => panelSetKey(false)));
+  key.addEventListener("keydown", function(event) { if ((event.key === " " || event.key === "Enter") && !event.repeat) { event.preventDefault(); panelSetKey(true); } });
+  key.addEventListener("keyup", function(event) { if (event.key === " " || event.key === "Enter") { panelSetKey(false); } });
+  key.addEventListener("blur", () => panelSetKey(false));
+})();
 
 function onClickPanelPlay() {
   panelPlaying = !panelPlaying;

@@ -21,8 +21,8 @@
 - Inputs
     - SW0: Prev Key (Push to go to the previous page, Long press to the previous group)
     - SW1: Next Key (Push to go to the next page, Long press to the next group)
-    - SW2: Play Key (Normal Mode: press to play, Sequencer Mode: push to start/stop, Seq + Play Mode: press to play) (Removable)
-        - Next Key + Play Key: Start/stop the Step Sequencer (Seq Mode and Seq + Play Mode; press the Next Key first)
+    - SW2: Play Key (Key Mode: press to play, Step Sequencer Mode: push to start/stop, Key + Seq Mode: press to play) (Removable)
+        - Next Key + Play Key: Start/stop the Step Sequencer (Seq Mode and Key + Seq Mode; press the Next Key first)
         - Not to use this key, comment out `#define PRA32_U2_KEY_INPUT_PLAY_KEY_PIN          (20)` in "Digital-Synth-PRA32-U2.ino"
     - SW3: Prog - Key (Long press to change to the previous user program) (optional)
         - To use this key, uncomment `//#define PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN    (17)` in "Digital-Synth-PRA32-U2.ino"
@@ -38,7 +38,7 @@
     - VR0 (ADC0): Parameter A
     - VR1 (ADC1): Parameter B
     - VR2 (ADC2): Parameter C for Play (Removable)
-        - Panel Play Pitch in Normal Mode and Seq + Play Mode, Seq Pitch Ofst (Offset) in Step Sequencer Mode
+        - Panel Play Pitch in Key Mode and Key + Seq Mode, Seq Pitch Ofst (Offset) in Step Sequencer Mode
         - Not to use this, comment out `#define PRA32_U2_KEY_INPUT_PLAY_KEY_PIN          (20)` in "Digital-Synth-PRA32-U2.ino"
 - NOTE: Using a USB cable with ferrite cores is recommended to prevent ADCs from being affected by USB MIDI communication noise, and UART MIDI control is also recommended
 
@@ -68,14 +68,11 @@
 #### Group B
 
 - Panel Parameters
-    - Panel Play Mode [Nrm|S+P|Seq]: Normal Mode, Seq + Play Mode, Step Sequencer Mode
-        - S+P: the Step Sequencer (started and stopped by Next Key + Play Key, Panel Play, or MIDI Start/Stop), and the Play Key that plays
-          as in Normal Mode (e.g. the Step Sequencer on a Sub Synth by Seq Ch Ofst, and the Play Key on the synth that the panel selects)
+    - Panel Play Mode [Key|K+S|Seq]: Key Mode, Key + Seq Mode, Step Sequencer Mode
+        - K+S: the Step Sequencer (started and stopped by Next Key + Play Key, Panel Play, or MIDI Start/Stop), and the Play Key that plays
+          as in Key Mode (and Panel Key) (e.g. the Step Sequencer on a Sub Synth by Seq Ch Ofst, and the Play Key on the synth that the panel selects)
         - The display shows the step of the Step Sequencer at the right end of the top line, as in Seq Mode, and "*" on its left while the Play Key plays
           (e.g. "*3", or "*53" with Seq Pattern 4x4: the shift 5 and the step 3)
-    - MIDI Basic Ch: Basic Channel 1-16
-    - Panel Play Pitch: 0 is Off, 1-4 is lowest, 124-127 is highest
-    - Panel Play Velo (Velocity)
     - Panel Scale [Maj|Min|Mel|MaP|MiP|Chr]: Major, Natural Minor, Ascending Melodic Minor (Jazz Minor), Major Pentatonic, Minor Pentatonic, Chromatic (2 octaves)
     - Panel Pitch Ofst (Offset) [-|+]: Offset Panel Play Pitch and Seq Pitch 0-7 (min -60 to max +60)
         - For example, if Panel Scale is Maj and Panel Pitch Ofst is -25, the scale is G Mixolydian
@@ -87,35 +84,34 @@
         - For example, if Panel Scale is Mel and Panel Transpose is -3, the scale is A Ascending Melodic Minor (Jazz Minor)
         - For example, if Panel Scale is Min and Panel Transpose is -3, the scale is A Natural Minor
         - For example, if Panel Scale is MiP and Panel Transpose is -3, the scale is A Minor Pentatonic
+    - Panel Play Pitch: 0 is Off, 1-4 is lowest, 124-127 is highest
+    - Panel Play Velo (Velocity)
+    - MIDI Basic Ch: Basic Channel 1-16
     - Panel MIDI Tx (Transmit) [Off|Clk|All|Nte|C+N|A+N]: what the panel transmits, by UART MIDI and USB MIDI
         - Off: none, Clk: MIDI Clock (the default), All: MIDI Clock, Start, and Stop,
           Nte: the notes (Note On and Off), C+N: MIDI Clock and the notes, A+N: MIDI Clock, Start, Stop, and the notes
-        - MIDI Clock, Start, and Stop: in Seq Mode and S+P (see Seq Clock Src); Start and Stop when the Step Sequencer starts and stops
-        - The notes: those that the panel plays (the Play key, the Step Sequencer, and Panel Play), on the channel that the panel selects, as it is
+        - MIDI Clock, Start, and Stop: in Seq Mode and K+S (see Seq Clock Src); Start and Stop when the Step Sequencer starts and stops
+        - The notes: those that the panel plays (the Play key, the Step Sequencer, Panel Key, and Panel Play), on the channel that the panel selects, as it is
           (e.g. that of a group, without the Round Robin to the Sub Synths)
         - NOTE: A DAW that sends the notes back to PRA32-U2 (e.g. by the monitoring of a track) makes them sound twice
         - Not to transmit by USB MIDI, uncomment `//#define PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION` in "Digital-Synth-PRA32-U2.ino" (or "Digital-Synth-PRA32-U2-M.ino")
 - Step Sequencer Parameters
+    - Seq Rx St/Sp (Receive Start/Stop): Off, On
+    - Seq Ch Ofst (Channel Offset) [+0-+F]: the channel of the Step Sequencer, as the channel that the panel selects + the offset (mod 16);
+      +0 (the default) is the channel that the panel selects, as before
+        - The display shows the channel of the Step Sequencer as "S" and the MIDI channel - 1 (as "$"), if not +0 (in Seq and K+S)
+        - A channel that goes to no synth (e.g. +8) plays no synth: with Panel MIDI Tx, the notes go to the device on the channel
     - Seq Step Note [4|8|16]: Quarter Note, Eighth Note, Sixteenth Note
     - Seq Clock Src [Aut|Int|Ext]: Auto (the default), Internal, External (Rx MIDI Clock)
         - Aut: Internal at first, External at a MIDI Clock, and Internal when Seq Tempo is changed (External again at the next MIDI Clock),
           so that the internal clock plays when MIDI Clocks no longer come (e.g. a DAW stopped)
-        - In Seq Mode and S+P, MIDI Clocks are sent by UART MIDI and USB MIDI (by Panel MIDI Tx): those of the internal clock, and with Ext (and Aut),
+        - In Seq Mode and K+S, MIDI Clocks are sent by UART MIDI and USB MIDI (by Panel MIDI Tx): those of the internal clock, and with Ext (and Aut),
           those received, passed on (e.g. to the next device of a chain)
         - NOTE: Connecting UART MIDI IN and OUT both ways to a device that sends MIDI Clocks back (e.g. one synced to them) may keep the Clocks going round
-    - Seq Pitch Ofst (Offset) [-|+]: Offset Seq Pitch 0-7 (min -60 to max +60), added to Panel Pitch Ofst
-    - Seq Transpose [-|+]: Transpose Seq Pitch 0-7, added to Panel Transpose (e.g. -12 for the Step Sequencer an octave lower than the Play Key)
-    - Seq Rx St/Sp (Receive Start/Stop): Off, On
     - Seq Tempo: 30-240 BPM (in steps of 2 BPM)
     - Seq Gate Time [1/6|2/6|3/6|4/6|5/6|6/6]
     - Seq Direction [Fwd|Rvs|Bnc]: Forward, Reverse, Bounce (Seq Mode before)
     - Seq Num Steps (Number of Steps): 1-32 (current step mod 8 is used as the index for Seq Pitch and Seq Velo; with Seq Pattern 4x4, the length of each shift)
-    - Seq On Steps: bit 0 is Step 1 On, ..., bit 6 is Step 7 On (Step 0 is always On)
-    - Seq Act Steps (Active Steps): bit 0 is Step 1 Active, ..., bit 6 is Step 7 Active (Step 0 is always Active)
-    - Seq Ch Ofst (Channel Offset) [+0-+F]: the channel of the Step Sequencer, as the channel that the panel selects + the offset (mod 16);
-      +0 (the default) is the channel that the panel selects, as before
-        - The display shows the channel of the Step Sequencer as "S" and the MIDI channel - 1 (as "$"), if not +0 (in Seq and S+P)
-        - A channel that goes to no synth (e.g. +8) plays no synth: with Panel MIDI Tx, the notes go to the device on the channel
     - Seq Pattern [Std|4x4]: Standard (0-31, the default), 4x4 (32-127; 64-127 for the future)
         - 4x4: Seq Pitch 0-7 and Seq Velo 0-7 as the pattern (0-3) and the shifts (4-7): the pattern is played again and again,
           shifted by Seq Pitch 4, 5, 6, and 7 in turn (each added to the offsets, as Seq Pitch Ofst, -60 to +60), and Seq Velo 4-7 (each added to
@@ -125,6 +121,10 @@
           Seq Rand Pitch randomizes Seq Pitch 0-3 (the pattern) alone
         - NOTE: The shifts move the pitches of the pattern in the steps of the pitch values (as Panel Pitch Ofst), not by the degrees of the scale:
           a chord of the pattern is not kept (e.g. C, E, G, and C shifted by -30 in Maj are G, A, C, and G)
+    - Seq On Steps: bit 0 is Step 1 On, ..., bit 6 is Step 7 On (Step 0 is always On)
+    - Seq Act Steps (Active Steps): bit 0 is Step 1 Active, ..., bit 6 is Step 7 Active (Step 0 is always Active)
+    - Seq Pitch Ofst (Offset) [-|+]: Offset Seq Pitch 0-7 (min -60 to max +60), added to Panel Pitch Ofst
+    - Seq Transpose [-|+]: Transpose Seq Pitch 0-7, added to Panel Transpose (e.g. -12 for the Step Sequencer an octave lower than the Play Key)
     - Seq Pitch 0-7: 0 is Off, 1-4 is lowest, 124-127 is highest
     - Seq Velo 0-7 (Velocity 0-7)
 - Step Sequencer Operations
@@ -175,6 +175,8 @@
     - PRA32-U2 sends nothing back: "Send Panel" sends the values that the editor keeps ("pra32-u2-panel-initial.json": the initial ones);
       Export keeps the Basic Ch too, which Import sets on PRA32-U2 if asked
     - The values are kept (in the browser, and in the files of Export) by the names of the panel parameters (e.g. "SEQ_TEMPO"), as the synth parameters are
+    - "Key" plays Panel Play Pitch while pressed (Panel Key, CC #110), as the Play Key in Key Mode and K+S; "Play" ("Seq Play" in K+S and Seq Mode)
+      starts and stops (Panel Play, CC #111) the note in Key Mode, or the Step Sequencer in K+S and Seq Mode
 
 ### PRA32-U2/P Headless
 
@@ -253,17 +255,17 @@
 | A-33 Chorus b  | Chorus Rate          | Chorus Depth         |
 | A-34 Delay a   | Delay Level          | Delay Mode           |
 | A-35 Delay b   | Delay Time           | Delay Feedback       |
-| B-00 Panel a   | Panel Play Mode      | MIDI Basic Ch        |
-| B-01 Panel b   | Panel Play Pitch     | Panel Play Velo      |
-| B-02 Panel c   | Panel Scale          | Panel Pitch Ofst     |
-| B-03 Panel d   | Panel Transpose      | Panel MIDI Tx        |
-| B-04 Seq a     | Seq Step Note        | Seq Clock Src        |
-| B-05 Seq b     | Seq Pitch Ofst       | Seq Transpose        |
+| B-00 Panel a   | Panel Play Mode      | Panel Scale          |
+| B-01 Panel b   | Panel Pitch Ofst     | Panel Transpose      |
+| B-02 Panel c   | Panel Play Pitch     | Panel Play Velo      |
+| B-03 Panel d   | MIDI Basic Ch        | Panel MIDI Tx        |
+| B-04 Seq a     | Seq Rx St/Sp         | Seq Ch Ofst          |
+| B-05 Seq b     | Seq Step Note        | Seq Clock Src        |
 | B-06 Seq c     | Seq Tempo            | Seq Gate Time        |
 | B-07 Seq d     | Seq Direction        | Seq Num Steps        |
-| B-08 Seq e     | Seq On Steps         | Seq Act Steps        |
-| B-09 Seq f     | Seq Ch Ofst          | Seq Rx St/Sp         |
-| B-10 Seq g     | Seq Pattern          |                      |
+| B-08 Seq e     | Seq Pattern          |                      |
+| B-09 Seq f     | Seq On Steps         | Seq Act Steps        |
+| B-10 Seq g     | Seq Pitch Ofst       | Seq Transpose        |
 | B-11 Seq h     | Seq Rand Pitch       | Seq Rand Velo        |
 | B-12 Seq 0     | Seq Pitch 0          | Seq Velo 0           |
 | B-13 Seq 1     | Seq Pitch 1          | Seq Velo 1           |

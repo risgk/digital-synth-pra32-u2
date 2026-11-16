@@ -26,7 +26,7 @@
 |                               |               |               |                                       |
 | Change                     51 | x             | o             | Panel Scale [Maj|Min|Mel|MaP|MiP|Chr] |
 |                            52 | x             | o             | Panel Transpose [-|+]                 |
-|                            53 | x             | o             | Panel Play Mode [Nrm|S+P|Seq]         |
+|                            53 | x             | o             | Panel Play Mode [Key|K+S|Seq]         |
 |                            54 | x             | o             | Panel Play Pitch                      |
 |                            55 | x             | o             | Panel Play Velo                       |
 |                            56 | x             | o             | Panel Pitch Ofst [-|+]                |
@@ -57,6 +57,7 @@
 |                           105 | x             | o             | Undo Write $3                         |
 |                           106 | x             | o             | Undo Read $3                          |
 |                               |               |               |                                       |
+|                           110 | x             | o             | Panel Key [Off|On] $7                 |
 |                           111 | x             | o             | Panel Play [Off|On] $4                |
 |                           112 | x             | o             | Seq Rand Pitch $3                     |
 |                           113 | x             | o             | Seq Rand Velo $3                      |
@@ -92,14 +93,15 @@
 |                               |   not select keeps the selection (and the value); with Voice Group    |
 |                               |   Mode Off, only + 0 (the Basic Channel)                              |
 |                               | $3 : Done when changed from 0-31 to 96-127 (as by the panel)          |
-|                               | $4 : 64-127: as the Play key pressed (Normal Mode) or the Step        |
-|                               |   Sequencer started (Seq Mode and Seq + Play Mode); 0-63: as released |
-|                               |   or stopped                                                          |
+|                               | $4 : 64-127: as the Play key pressed (Key Mode) or the Step Sequencer |
+|                               |   started (K+S and Seq Mode); 0-63: as released or stopped            |
 |                               | $5 : MIDI Basic Ch is only kept, and set (as 1-16) by Set Basic Ch;   |
 |                               |   the Panel Channel moves with it; Write Panel Prms keeps it          |
 |                               | $6 : [Off|Clk|All|Nte|C+N|A+N]: MIDI Clock (Clk, C+N, and A+N), Start |
 |                               |   and Stop (All and A+N), and the notes that the panel plays (Nte,    |
 |                               |   C+N, and A+N); see README-PRA32-U2-P.md                             |
+|                               | $7 : 64-127: as the Play key pressed (Key Mode and K+S); 0-63: as     |
+|                               |   released; nothing in Seq Mode                                       |
 +-------------------------------+-----------------------------------------------------------------------+
   Mode 1: Omni On,  Poly          Mode 2: Omni On,  Mono          o: Yes                                 
   Mode 3: Omni Off, Poly          Mode 4: Omni Off, Mono          x: No                                  

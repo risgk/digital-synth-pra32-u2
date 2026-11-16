@@ -10,14 +10,19 @@
       MIDI Start and Stop (All), and the notes that the panel plays (Nte), by UART MIDI and also by USB MIDI now (by UART MIDI alone before)
         - Seq T/Rx St/Sp is now **Seq Rx St/Sp** (Receive Start/Stop)
         - Not compatible: Seq T/Rx St/Sp On written before no longer transmits Start and Stop: set Panel MIDI Tx to All
-    - PRA32-U2/P: Panel Play Mode [Nrm|S+P|Seq]: Add **S+P** (Seq + Play Mode, at 64): the Step Sequencer, and the Play Key that plays as in Normal Mode;
-      Next Key + Play Key: start/stop the Step Sequencer (Seq Mode and S+P)
-        - Not compatible: Seq written before at 32-95 (e.g. 64 by the panel) is now S+P: set it to 127
-    - PRA32-U2/P: Add **Seq Ch Ofst** [+0-+F] (Channel Offset, Page B-09, and Control Change #60 on the Panel Channel): the channel of the Step Sequencer,
-      as the channel that the panel selects + the offset (+0, the default, as before); Seq Rand Pitch and the pages after it are two pages later, with Seq Pattern (e.g. Seq 0 on Page B-12)
-    - PRA32-U2/P: Add **Seq Transpose** [-|+] (Page B-05, and Control Change #61 on the Panel Channel): added to Panel Transpose, for the Step Sequencer alone;
-      Seq Rx St/Sp is now on Page B-09
-    - PRA32-U2/P: Add **Seq Pattern** [Std|4x4] (Page B-10, and Control Change #62 on the Panel Channel): 4x4 plays Seq Pitch/Velo 0-3 (the pattern)
+    - PRA32-U2/P: Panel Play Mode [Key|K+S|Seq] (Nrm, Normal Mode before, is now **Key**, Key Mode): Add **K+S** (Key + Seq Mode, at 64): the Step Sequencer,
+      and the Play Key that plays as in Key Mode; Next Key + Play Key: start/stop the Step Sequencer (Seq Mode and K+S)
+        - Not compatible: Seq written before at 32-95 (e.g. 64 by the panel) is now K+S: set it to 127
+    - PRA32-U2/P: Add **Panel Key** (Control Change #110 on the Panel Channel): as the Play Key pressed (64-127) and released (0-63) in Key Mode and K+S;
+      PRA32-U2 Editor: Add the "Key" button (Panel Key, while pressed), and "Play" is "Seq Play" in K+S and Seq Mode
+    - PRA32-U2/P: The pages of Group B: B-00 Panel Play Mode and Panel Scale, B-01 Panel Pitch Ofst and Panel Transpose, B-02 Panel Play Pitch and Panel Play Velo,
+      B-03 MIDI Basic Ch and Panel MIDI Tx, B-04 Seq Rx St/Sp and Seq Ch Ofst, B-05 Seq Step Note and Seq Clock Src, B-06 and B-07 as before,
+      B-08 Seq Pattern, B-09 Seq On Steps and Seq Act Steps, B-10 Seq Pitch Ofst and Seq Transpose; Seq Rand Pitch and the pages after it are two pages later
+      (e.g. Seq 0 on Page B-12); the same order in "Panel & Step Sequencer" of PRA32-U2 Editor; the page of Group B at first is B-00 (B-02 before)
+    - PRA32-U2/P: Add **Seq Ch Ofst** [+0-+F] (Channel Offset, Page B-04, and Control Change #60 on the Panel Channel): the channel of the Step Sequencer,
+      as the channel that the panel selects + the offset (+0, the default, as before)
+    - PRA32-U2/P: Add **Seq Transpose** [-|+] (Page B-10, and Control Change #61 on the Panel Channel): added to Panel Transpose, for the Step Sequencer alone
+    - PRA32-U2/P: Add **Seq Pattern** [Std|4x4] (Page B-08, and Control Change #62 on the Panel Channel): 4x4 plays Seq Pitch/Velo 0-3 (the pattern)
       again and again, shifted by Seq Pitch/Velo 4, 5, 6, and 7 in turn (added to the offsets and to the velocity); Seq Num Steps is the length of each shift
         - Seq Mode is now **Seq Direction** [Fwd|Rvs|Bnc] (the same Control Change #89 and values)
     - PRA32-U2/P: The top line of the display: "S", "$", and "#" moved to the left (from columns 10, 13, and 16 to 8, 11, and 15), and on the right end,
