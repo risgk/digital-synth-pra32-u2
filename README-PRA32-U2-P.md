@@ -32,7 +32,7 @@
         - Shift + Prev/Next Key: Go to the previous/next group without long-pressing
         - Shift + Prog -/+ Key: Change to the previous/next user program without long-pressing
         - Shift + VR0/1/2: Prevent values from changing across 64
-        - Shift + Play Key: Panic (All Sound Off and Reset All Controllers of the synth, and of that of the Step Sequencer, as Panic on Page B-23)
+        - Shift + Play Key: Panic (All Sound Off and Reset All Controllers of the synth, and of that of the Step Sequencer, as Panic on Page B-24)
         - Shift + Prev Key + Next Key (PRA32-U2/M/P): Go to the previous synth (channel)
         - To use this key, uncomment `//#define PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN         (21)` in "Digital-Synth-PRA32-U2.ino"
     - VR0 (ADC0): Parameter A
@@ -72,6 +72,7 @@
         - S+P: the Step Sequencer (started and stopped by Next Key + Play Key, Panel Play, or MIDI Start/Stop), and the Play Key that plays
           as in Normal Mode (e.g. the Step Sequencer on a Sub Synth by Seq Ch Ofst, and the Play Key on the synth that the panel selects)
         - The display shows the step of the Step Sequencer at the right end of the top line, as in Seq Mode, and "*" on its left while the Play Key plays
+          (e.g. "*3", or "*53" with Seq Pattern 4x4: the shift 5 and the step 3)
     - MIDI Basic Ch: Basic Channel 1-16
     - Panel Play Pitch: 0 is Off, 1-4 is lowest, 124-127 is highest
     - Panel Play Velo (Velocity)
@@ -107,18 +108,27 @@
     - Seq Rx St/Sp (Receive Start/Stop): Off, On
     - Seq Tempo: 30-240 BPM (in steps of 2 BPM)
     - Seq Gate Time [1/6|2/6|3/6|4/6|5/6|6/6]
-    - Seq Mode [Fwd|Rvs|Bnc]: Forward, Reverse, Bounce
-    - Seq Num Steps (Number of Steps): 1-32 (current step mod 8 is used as the index for Seq Pitch and Seq Velo)
+    - Seq Direction [Fwd|Rvs|Bnc]: Forward, Reverse, Bounce (Seq Mode before)
+    - Seq Num Steps (Number of Steps): 1-32 (current step mod 8 is used as the index for Seq Pitch and Seq Velo; with Seq Pattern 4x4, the length of each shift)
     - Seq On Steps: bit 0 is Step 1 On, ..., bit 6 is Step 7 On (Step 0 is always On)
     - Seq Act Steps (Active Steps): bit 0 is Step 1 Active, ..., bit 6 is Step 7 Active (Step 0 is always Active)
     - Seq Ch Ofst (Channel Offset) [+0-+F]: the channel of the Step Sequencer, as the channel that the panel selects + the offset (mod 16);
       +0 (the default) is the channel that the panel selects, as before
         - The display shows the channel of the Step Sequencer as "S" and the MIDI channel - 1 (as "$"), if not +0 (in Seq and S+P)
         - A channel that goes to no synth (e.g. +8) plays no synth: with Panel MIDI Tx, the notes go to the device on the channel
+    - Seq Pattern [Std|4x4]: Standard (0-31, the default), 4x4 (32-127; 64-127 for the future)
+        - 4x4: Seq Pitch 0-7 and Seq Velo 0-7 as the pattern (0-3) and the shifts (4-7): the pattern is played again and again,
+          shifted by Seq Pitch 4, 5, 6, and 7 in turn (each added to the offsets, as Seq Pitch Ofst, -60 to +60), and Seq Velo 4-7 (each added to
+          the velocity, 64 as 0; 1-127); Seq Num Steps is the length of each shift (e.g. 8 for the pattern twice)
+        - 4x4: Seq On Steps and Seq Act Steps (Step 1-3) work on the pattern; Seq Act Steps (Step 5-7) on the shifts (the shift by Seq Pitch 4 is always Active);
+          Seq Direction works on the pattern; Panel Scale, Panel Pitch Ofst, Panel Transpose, Seq Pitch Ofst, and Seq Transpose take effect at each shift;
+          Seq Rand Pitch randomizes Seq Pitch 0-3 (the pattern) alone
+        - NOTE: The shifts move the pitches of the pattern in the steps of the pitch values (as Panel Pitch Ofst), not by the degrees of the scale:
+          a chord of the pattern is not kept (e.g. C, E, G, and C shifted by -30 in Maj are G, A, C, and G)
     - Seq Pitch 0-7: 0 is Off, 1-4 is lowest, 124-127 is highest
     - Seq Velo 0-7 (Velocity 0-7)
 - Step Sequencer Operations
-    - Seq Rand Pitch (Randomize Pitch 0-7): Change the value from 0-31 [Rdy] to 96-127 [Exe]
+    - Seq Rand Pitch (Randomize Pitch 0-7, or 0-3 with Seq Pattern 4x4): Change the value from 0-31 [Rdy] to 96-127 [Exe]
     - Seq Rand Velo (Randomize Velo 0-7): Change the value from 0-31 [Rdy] to 96-127 [Exe]
 - Control Parameters (see [Performance Controllers](./PRA32-U2-Parameter-Guide.md#performance-controllers) in the Parameter Guide)
     - Pitch Bend: the MSB only (64 is the center, and 127 is the max, +8191)
@@ -249,23 +259,24 @@
 | B-04 Seq a     | Seq Step Note        | Seq Clock Src        |
 | B-05 Seq b     | Seq Pitch Ofst       | Seq Transpose        |
 | B-06 Seq c     | Seq Tempo            | Seq Gate Time        |
-| B-07 Seq d     | Seq Mode             | Seq Num Steps        |
+| B-07 Seq d     | Seq Direction        | Seq Num Steps        |
 | B-08 Seq e     | Seq On Steps         | Seq Act Steps        |
 | B-09 Seq f     | Seq Ch Ofst          | Seq Rx St/Sp         |
-| B-10 Seq g     | Seq Rand Pitch       | Seq Rand Velo        |
-| B-11 Seq 0     | Seq Pitch 0          | Seq Velo 0           |
-| B-12 Seq 1     | Seq Pitch 1          | Seq Velo 1           |
-| B-13 Seq 2     | Seq Pitch 2          | Seq Velo 2           |
-| B-14 Seq 3     | Seq Pitch 3          | Seq Velo 3           |
-| B-15 Seq 4     | Seq Pitch 4          | Seq Velo 4           |
-| B-16 Seq 5     | Seq Pitch 5          | Seq Velo 5           |
-| B-17 Seq 6     | Seq Pitch 6          | Seq Velo 6           |
-| B-18 Seq 7     | Seq Pitch 7          | Seq Velo 7           |
-| B-19 Control a | Pitch Bend           | Modulation Wheel     |
-| B-20 Control b | Breath Controller    | Expression           |
-| B-21 Control c | Sustain Pedal        | Portamento Switch    |
-| B-22 Control d | Channel Pressure     |                      |
-| B-23 Control e | Panic                | Randomize Synth      |
+| B-10 Seq g     | Seq Pattern          |                      |
+| B-11 Seq h     | Seq Rand Pitch       | Seq Rand Velo        |
+| B-12 Seq 0     | Seq Pitch 0          | Seq Velo 0           |
+| B-13 Seq 1     | Seq Pitch 1          | Seq Velo 1           |
+| B-14 Seq 2     | Seq Pitch 2          | Seq Velo 2           |
+| B-15 Seq 3     | Seq Pitch 3          | Seq Velo 3           |
+| B-16 Seq 4     | Seq Pitch 4          | Seq Velo 4           |
+| B-17 Seq 5     | Seq Pitch 5          | Seq Velo 5           |
+| B-18 Seq 6     | Seq Pitch 6          | Seq Velo 6           |
+| B-19 Seq 7     | Seq Pitch 7          | Seq Velo 7           |
+| B-20 Control a | Pitch Bend           | Modulation Wheel     |
+| B-21 Control b | Breath Controller    | Expression           |
+| B-22 Control c | Sustain Pedal        | Portamento Switch    |
+| B-23 Control d | Channel Pressure     |                      |
+| B-24 Control e | Panic                | Randomize Synth      |
 | C-00 Write 0   | Write #0 User        | Write #1 User        |
 | C-01 Write 2   | Write #2 User        | Write #3 User        |
 | C-02 Write 4   | Write #4 User        | Write #5 User        |

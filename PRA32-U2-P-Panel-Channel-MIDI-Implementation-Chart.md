@@ -36,6 +36,7 @@
 |                            59 | x             | o             | Panel MIDI Tx $6                      |
 |                            60 | x             | o             | Seq Ch Ofst [+0-+F]                   |
 |                            61 | x             | o             | Seq Transpose [-|+]                   |
+|                            62 | x             | o             | Seq Pattern [Std|4x4]                 |
 |                               |               |               |                                       |
 |                         70-77 | x             | o             | Seq Velo 0-7                          |
 |                               |               |               |                                       |
@@ -43,7 +44,7 @@
 |                            86 | x             | o             | Seq Clock Src [Aut|Int|Ext]           |
 |                            87 | x             | o             | Seq Gate Time [1/6|...|6/6]           |
 |                            88 | x             | o             | Seq Num Steps                         |
-|                            89 | x             | o             | Seq Mode [Fwd|Rvs|Bnc]                |
+|                            89 | x             | o             | Seq Direction [Fwd|Rvs|Bnc]           |
 |                            90 | x             | o             | Seq Act Steps                         |
 |                            92 | x             | o             | Seq Step Note [4|8|16]                |
 |                            93 | x             | o             | Seq On Steps                          |

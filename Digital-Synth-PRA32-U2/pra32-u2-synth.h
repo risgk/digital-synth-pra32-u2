@@ -156,7 +156,7 @@ static uint8_t s_program_table_panel_parameters[] = {
   SEQ_GATE_TIME  ,
   SEQ_NUM_STEPS  ,
 
-  SEQ_MODE       ,
+  SEQ_DIRECTION  ,
   SEQ_ACT_STEPS  ,
   SEQ_PIT_OFST   ,
   SEQ_STEP_NOTE  ,
@@ -167,6 +167,7 @@ static uint8_t s_program_table_panel_parameters[] = {
   PANEL_MIDI_TX  ,
   SEQ_CH_OFST    ,
   SEQ_TRANSPOSE  ,
+  SEQ_PATTERN    ,
 
 
 };
@@ -207,7 +208,7 @@ const uint8_t   DEFAULT_SEQ_CLOCK_SRC   = 0  ;  // Aut
 const uint8_t   DEFAULT_SEQ_GATE_TIME   = 51 ;  // 3/6, on its marker
 const uint8_t   DEFAULT_SEQ_NUM_STEPS   = 32 ;
 
-const uint8_t   DEFAULT_SEQ_MODE        = 0  ;
+const uint8_t   DEFAULT_SEQ_DIRECTION   = 0  ;
 const uint8_t   DEFAULT_SEQ_ACT_STEPS   = 127;
 const uint8_t   DEFAULT_SEQ_PIT_OFST    = 64 ;
 const uint8_t   DEFAULT_SEQ_STEP_NOTE   = 64 ;
@@ -218,6 +219,7 @@ const uint8_t   DEFAULT_SEQ_RX_ST_SP    = 0  ;
 const uint8_t   DEFAULT_PANEL_MIDI_TX   = 26 ;  // Clk
 const uint8_t   DEFAULT_SEQ_CH_OFST     = 0  ;  // +0
 const uint8_t   DEFAULT_SEQ_TRANSPOSE   = 64 ;  // 0
+const uint8_t   DEFAULT_SEQ_PATTERN     = 0  ;  // Std
 
 
 
@@ -527,7 +529,7 @@ public:
       m_program_table_panel[i][SEQ_GATE_TIME  ] = DEFAULT_SEQ_GATE_TIME  ;
       m_program_table_panel[i][SEQ_NUM_STEPS  ] = DEFAULT_SEQ_NUM_STEPS  ;
 
-      m_program_table_panel[i][SEQ_MODE       ] = DEFAULT_SEQ_MODE       ;
+      m_program_table_panel[i][SEQ_DIRECTION  ] = DEFAULT_SEQ_DIRECTION  ;
       m_program_table_panel[i][SEQ_ACT_STEPS  ] = DEFAULT_SEQ_ACT_STEPS  ;
       m_program_table_panel[i][SEQ_PIT_OFST   ] = DEFAULT_SEQ_PIT_OFST   ;
       m_program_table_panel[i][SEQ_STEP_NOTE  ] = DEFAULT_SEQ_STEP_NOTE  ;
@@ -538,6 +540,7 @@ public:
       m_program_table_panel[i][PANEL_MIDI_TX  ] = DEFAULT_PANEL_MIDI_TX  ;
       m_program_table_panel[i][SEQ_CH_OFST    ] = DEFAULT_SEQ_CH_OFST    ;
       m_program_table_panel[i][SEQ_TRANSPOSE  ] = DEFAULT_SEQ_TRANSPOSE  ;
+      m_program_table_panel[i][SEQ_PATTERN    ] = DEFAULT_SEQ_PATTERN    ;
 
 
     }

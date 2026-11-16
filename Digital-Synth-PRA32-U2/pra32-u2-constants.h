@@ -261,7 +261,7 @@ const uint8_t   SEQ_CLOCK_SRC   = 128 + 49;
 const uint8_t   SEQ_GATE_TIME   = 128 + 50;
 const uint8_t   SEQ_NUM_STEPS   = 128 + 51;
 
-const uint8_t   SEQ_MODE        = 128 + 52;
+const uint8_t   SEQ_DIRECTION   = 128 + 52;
 const uint8_t   SEQ_ACT_STEPS   = 128 + 53;
 const uint8_t   SEQ_PIT_OFST    = 128 + 54;
 const uint8_t   SEQ_STEP_NOTE   = 128 + 55;
@@ -272,6 +272,7 @@ const uint8_t   SEQ_RX_ST_SP    = 128 + 57;
 const uint8_t   PANEL_MIDI_TX   = 128 + 58;
 const uint8_t   SEQ_CH_OFST     = 128 + 59;
 const uint8_t   SEQ_TRANSPOSE   = 128 + 60;
+const uint8_t   SEQ_PATTERN     = 128 + 61;
 
 
 

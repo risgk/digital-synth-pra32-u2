@@ -14,9 +14,15 @@
       Next Key + Play Key: start/stop the Step Sequencer (Seq Mode and S+P)
         - Not compatible: Seq written before at 32-95 (e.g. 64 by the panel) is now S+P: set it to 127
     - PRA32-U2/P: Add **Seq Ch Ofst** [+0-+F] (Channel Offset, Page B-09, and Control Change #60 on the Panel Channel): the channel of the Step Sequencer,
-      as the channel that the panel selects + the offset (+0, the default, as before); Seq Rand Pitch and the pages after it are one page later (e.g. Seq 0 on Page B-11)
+      as the channel that the panel selects + the offset (+0, the default, as before); Seq Rand Pitch and the pages after it are two pages later, with Seq Pattern (e.g. Seq 0 on Page B-12)
     - PRA32-U2/P: Add **Seq Transpose** [-|+] (Page B-05, and Control Change #61 on the Panel Channel): added to Panel Transpose, for the Step Sequencer alone;
       Seq Rx St/Sp is now on Page B-09
+    - PRA32-U2/P: Add **Seq Pattern** [Std|4x4] (Page B-10, and Control Change #62 on the Panel Channel): 4x4 plays Seq Pitch/Velo 0-3 (the pattern)
+      again and again, shifted by Seq Pitch/Velo 4, 5, 6, and 7 in turn (added to the offsets and to the velocity); Seq Num Steps is the length of each shift
+        - Seq Mode is now **Seq Direction** [Fwd|Rvs|Bnc] (the same Control Change #89 and values)
+    - PRA32-U2/P: The top line of the display: "S", "$", and "#" moved to the left (from columns 10, 13, and 16 to 8, 11, and 15), and on the right end,
+      "*" (the Play Key), the shift (4x4), and the step, right-aligned
+    - PRA32-U2/P: Fix the wrong pitches (e.g. C#1 in Maj) of the Step Sequencer when Panel Pitch Ofst and Seq Pitch Ofst are both near -60 with a low Seq Pitch
     - Osc 2 Coarse shows -60 to +60, as it works (-64 to +63 shown before), in PRA32-U2 Editor, PRA32-U2 Native, and the panel of PRA32-U2/P
     - The Note On Velocity at first is 64 (100 before): Panel Play Velo and Seq Velo 0-7 of PRA32-U2/P (and by Init Panel Prms), the Software Keyboard
       and "Panel & Step Sequencer" of PRA32-U2 Editor, "pra32-u2-panel-initial.json", and "pra32-u2-sample.mid"; the values written before stay

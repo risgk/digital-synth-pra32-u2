@@ -46,7 +46,11 @@ static          uint8_t  s_seq_step_clock_candidate = 12;
 static          uint8_t  s_seq_step_clock           = 12;
 static          uint8_t  s_seq_gate_time            = 6;
 static          int32_t  s_seq_last_step            = 7;
-static          uint8_t  s_seq_mode                 = 0;
+static          uint8_t  s_seq_mode                 = 0;  // Seq Direction: 0: Forward, 1: Reverse, 2: Bounce
+// Seq Pattern [Std|4x4]: 4x4 plays Seq Pitch/Velo 0-3 (the pattern), shifted by Seq Pitch/Velo 4-7 in turn (the shifts,
+// added to the offsets, and to the velocity); Seq Num Steps is the length of each shift
+static          boolean  s_seq_pattern_4x4          = false;
+static          uint8_t  s_seq_shift                = 3;  // 0-3: the shift by Seq Pitch/Velo 4-7 (4x4)
 static          int8_t   s_seq_mode_dir             = +1;
 static          uint8_t  s_seq_on_steps             = 127;
 static          uint8_t  s_seq_act_steps            = 127;
@@ -271,8 +275,27 @@ static INLINE uint8_t PRA32_U2_ControlPanel_get_index_scale()
   return index_scale;
 }
 
-static INLINE uint8_t PRA32_U2_ControlPanel_calc_scaled_pitch(uint32_t index_scale, uint8_t pitch, int panel_pit_ofst, int seq_pit_ofst)
+// The pitch by Panel Scale: the pitch value (1-4 lowest, 124-127 highest) and the offsets (Panel Pitch Ofst, Seq Pitch
+// Ofst, and Seq Pitch 4-7 of Seq Pattern 4x4, each -60 to +60) added, in 24 steps an octave; in signed integers and by
+// the floor, so that a sum below the lowest goes on down by the octaves (not round to a wrong note), and clamped to 0-127
+// (in the RAM, but noinline: one copy for the Step Sequencer, the Play key, and the display)
+static __attribute__((noinline)) uint8_t __not_in_flash_func(PRA32_U2_ControlPanel_calc_scaled_pitch)(uint32_t index_scale, uint8_t pitch, int panel_pit_ofst, int seq_pit_ofst, int shift_ofst = 0)
 {
+  static const uint8_t ary_scales[6][25] PRA32_U2_TABLE_IN_RAM(panel_scale) = {
+    { 60, 60, 62, 62, 62, 62, 64, 64, 64, 65, 65, 65,    // Major
+      67, 67, 67, 67, 69, 69, 69, 69, 71, 71, 71, 72, 72 },
+    { 60, 60, 62, 62, 62, 63, 63, 63, 65, 65, 65, 65,    // Natural Minor
+      67, 67, 67, 68, 68, 68, 70, 70, 70, 70, 72, 72, 72 },
+    { 60, 60, 62, 62, 62, 63, 63, 63, 65, 65, 65, 65,    // Ascending Melodic Minor
+      67, 67, 67, 67, 69, 69, 69, 69, 71, 71, 71, 72, 72 },
+    { 60, 60, 62, 62, 62, 62, 64, 64, 64, 64, 64, 67,    // Major Pentatonic
+      67, 67, 67, 67, 69, 69, 69, 69, 69, 72, 72, 72, 72 },
+    { 60, 60, 60, 63, 63, 63, 63, 63, 65, 65, 65, 65,    // Minor Pentatonic
+      67, 67, 67, 67, 67, 70, 70, 70, 70, 70, 72, 72, 72 },
+    { 60, 61, 61, 62, 62, 63, 63, 64, 64, 65, 65, 66,    // Chromatic
+      66, 67, 67, 68, 68, 69, 69, 70, 70, 71, 71, 72, 72 },
+  };
+
   if (pitch == 0) {
     return 0xFF;
   }
@@ -283,61 +306,28 @@ static INLINE uint8_t PRA32_U2_ControlPanel_calc_scaled_pitch(uint32_t index_sca
     pitch = 124;
   }
 
-  if (panel_pit_ofst < -60) {
-    panel_pit_ofst = -60;
-  } else if (panel_pit_ofst > +60) {
-    panel_pit_ofst = +60;
+  if (panel_pit_ofst < -60) { panel_pit_ofst = -60; } else if (panel_pit_ofst > +60) { panel_pit_ofst = +60; }
+  if (seq_pit_ofst   < -60) { seq_pit_ofst   = -60; } else if (seq_pit_ofst   > +60) { seq_pit_ofst   = +60; }
+  if (shift_ofst     < -60) { shift_ofst     = -60; } else if (shift_ofst     > +60) { shift_ofst     = +60; }
+
+  int32_t t            = ((pitch + panel_pit_ofst + seq_pit_ofst + shift_ofst + 3) * 2) + 1;
+  int32_t step         = ((t >= 0) ? (t / 5) : -((-t + 4) / 5)) - 3 + 24;           // floor(t / 5) - 3 + 24
+  int32_t index_octave = (step >= 0) ? (step / 24) : -((-step + 23) / 24);         // floor(step / 24)
+  int32_t index_pitch  = step - (index_octave * 24);
+
+  if (index_scale > 5) {
+    index_scale = 5;
   }
 
-  if (seq_pit_ofst < -60) {
-    seq_pit_ofst = -60;
-  } else if (seq_pit_ofst > +60) {
-    seq_pit_ofst = +60;
+  int32_t new_pitch = ary_scales[index_scale][index_pitch] + (index_octave * 12) - 24;
+
+  if (new_pitch < 0) {
+    new_pitch = 0;
+  } else if (new_pitch > 127) {
+    new_pitch = 127;
   }
 
-  uint32_t new_pitch    = ((((pitch + panel_pit_ofst + seq_pit_ofst + 3) * 2) + 1) / 5) - 3 + 24;
-  uint32_t index_pitch  = new_pitch % 24;
-  uint32_t index_octave = new_pitch / 24;
-
-  if        (index_scale == 0) {
-    static const uint8_t ary_major[25] PRA32_U2_TABLE_IN_RAM(panel_scale) =
-      { 60, 60, 62, 62, 62, 62, 64, 64, 64, 65, 65, 65,
-        67, 67, 67, 67, 69, 69, 69, 69, 71, 71, 71, 72, 72 };
-    new_pitch  = ary_major[index_pitch];
-    new_pitch += index_octave * 12 - 24;
-  } else if (index_scale == 1) {
-    static const uint8_t ary_natural_minor[25] PRA32_U2_TABLE_IN_RAM(panel_scale) =
-      { 60, 60, 62, 62, 62, 63, 63, 63, 65, 65, 65, 65,
-        67, 67, 67, 68, 68, 68, 70, 70, 70, 70, 72, 72, 72 };
-    new_pitch  = ary_natural_minor[index_pitch];
-    new_pitch += index_octave * 12 - 24;
-  } else if (index_scale == 2) {
-    static const uint8_t ary_melodic_minor[25] PRA32_U2_TABLE_IN_RAM(panel_scale) =
-      { 60, 60, 62, 62, 62, 63, 63, 63, 65, 65, 65, 65,
-        67, 67, 67, 67, 69, 69, 69, 69, 71, 71, 71, 72, 72 };
-    new_pitch  = ary_melodic_minor[index_pitch];
-    new_pitch += index_octave * 12 - 24;
-  } else if (index_scale == 3) {
-    static const uint8_t ary_major_pentatonic[25] PRA32_U2_TABLE_IN_RAM(panel_scale) =
-      { 60, 60, 62, 62, 62, 62, 64, 64, 64, 64, 64, 67,
-        67, 67, 67, 67, 69, 69, 69, 69, 69, 72, 72, 72, 72 };
-    new_pitch  = ary_major_pentatonic[index_pitch];
-    new_pitch += index_octave * 12 - 24;
-  } else if (index_scale == 4) {
-    static const uint8_t ary_minor_pentatonic[25] PRA32_U2_TABLE_IN_RAM(panel_scale) =
-      { 60, 60, 60, 63, 63, 63, 63, 63, 65, 65, 65, 65,
-        67, 67, 67, 67, 67, 70, 70, 70, 70, 70, 72, 72, 72 };
-    new_pitch  = ary_minor_pentatonic[index_pitch];
-    new_pitch += index_octave * 12 - 24;
-  } else if (index_scale == 5) {
-    static const uint8_t ary_chromatic[25] PRA32_U2_TABLE_IN_RAM(panel_scale) =
-      { 60, 61, 61, 62, 62, 63, 63, 64, 64, 65, 65, 66,
-        66, 67, 67, 68, 68, 69, 69, 70, 70, 71, 71, 72, 72 };
-    new_pitch  = ary_chromatic[index_pitch];
-    new_pitch += index_octave * 12 - 24;
-  }
-
-  return new_pitch;
+  return static_cast<uint8_t>(new_pitch);
 }
 
 static INLINE uint8_t PRA32_U2_ControlPanel_calc_transposed_pitch(uint8_t pitch, int32_t transpose)
@@ -410,14 +400,38 @@ static INLINE uint8_t PRA32_U2_ControlPanel_seq_ch() {
   return (((getTargetMIDICh(s_current_synth) - 1) + ofst) & 0x0F) + 1;
 }
 
+// The right end of the top line (columns 18-20), right-aligned: "*" while the Play key plays (Nrm and S+P), the shift
+// (4-7, Seq Pattern 4x4), and the step (0-3 in 4x4, 0-7 in Std) while the Step Sequencer plays (e.g. "*53")
+static __attribute__((noinline)) void __not_in_flash_func(PRA32_U2_ControlPanel_update_play_display)() {
+  char text[3];
+  uint32_t length = 0;
+
+  if (s_key_held && PRA32_U2_ControlPanel_mode_has_key()) {
+    text[length++] = '*';
+  }
+
+  if (s_playing_status == PlayingStatus_Seq) {
+    if (s_seq_pattern_4x4) {
+      text[length++] = s_hex_chars[4 + s_seq_shift];
+      text[length++] = s_hex_chars[s_seq_step & 0x03];
+    } else {
+      text[length++] = s_hex_chars[s_seq_step & 0x07];
+    }
+  }
+
+  for (uint32_t i = 0; i < 3; ++i) {
+    s_display_buffer[0][18 + i] = (i >= 3 - length) ? text[i - (3 - length)] : ' ';
+  }
+}
+
 // The channel of the Step Sequencer ("S" and the MIDI channel - 1, in hex, as "$"), in Seq and S+P, if not that of the panel
 static __attribute__((noinline)) void PRA32_U2_ControlPanel_update_seq_ch_display() {
   if (PRA32_U2_ControlPanel_mode_has_seq() && ((g_synth.current_controller_value(SEQ_CH_OFST    ) >> 3) != 0)) {
-    s_display_buffer[0][10] = 'S';
-    s_display_buffer[0][11] = s_hex_chars[PRA32_U2_ControlPanel_seq_ch() - 1];
+    s_display_buffer[0][ 8] = 'S';
+    s_display_buffer[0][ 9] = s_hex_chars[PRA32_U2_ControlPanel_seq_ch() - 1];
   } else {
-    s_display_buffer[0][10] = ' ';
-    s_display_buffer[0][11] = ' ';
+    s_display_buffer[0][ 8] = ' ';
+    s_display_buffer[0][ 9] = ' ';
   }
 }
 
@@ -454,13 +468,13 @@ static INLINE void PRA32_U2_ControlPanel_update_page() {
   PRA32_U2_ControlPanel_update_seq_ch_display();
 
 #if (PRA32_U2_NUMBER_OF_SYNTHS > 1)
-  s_display_buffer[0][13] = '$';
-  s_display_buffer[0][14] = s_hex_chars[getTargetMIDICh(s_current_synth) - 1];
+  s_display_buffer[0][11] = '$';
+  s_display_buffer[0][12] = s_hex_chars[getTargetMIDICh(s_current_synth) - 1];
 #endif  // (PRA32_U2_NUMBER_OF_SYNTHS > 1)
 
 #if defined(PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN) || defined(PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN)
-  s_display_buffer[0][16] = '#';
-  s_display_buffer[0][17] = s_hex_chars[s_current_program[s_current_synth]];
+  s_display_buffer[0][15] = '#';
+  s_display_buffer[0][16] = s_hex_chars[s_current_program[s_current_synth]];
 #endif  // defined(PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN) || defined(PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN)
 
   // The secondary core draws the display from the start again, after the characters above are written
@@ -667,13 +681,23 @@ static __attribute__((noinline)) void __not_in_flash_func(PRA32_U2_ControlPanel_
 
 // The pitch of the Step Sequencer (Seq and S+P): by the panel parameters at the start of the loop
 static __attribute__((noinline)) void __not_in_flash_func(PRA32_U2_ControlPanel_update_seq_pitch)(bool progress_seq_step) {
-  uint8_t new_pitch    = g_synth.current_controller_value(SEQ_PITCH_0      + (s_seq_step & 0x07));
-  uint8_t new_velocity = g_synth.current_controller_value(SEQ_VELO_0       + (s_seq_step & 0x07));
-  if (((s_seq_step & 0x07) != 0) && ((1 << ((s_seq_step & 0x07) - 1)) & s_seq_on_steps) == 0) {
+  uint32_t index = s_seq_step & (s_seq_pattern_4x4 ? 0x03 : 0x07);
+  uint8_t new_pitch    = g_synth.current_controller_value(SEQ_PITCH_0      + index);
+  int32_t new_velocity = g_synth.current_controller_value(SEQ_VELO_0       + index);
+  if ((index != 0) && ((1 << (index - 1)) & s_seq_on_steps) == 0) {
     new_velocity = 0;
   }
 
-  new_pitch = PRA32_U2_ControlPanel_calc_scaled_pitch(s_index_scale, new_pitch, s_panel_pit_ofst, s_seq_pit_ofst);
+  int32_t shift_ofst = 0;
+  if (s_seq_pattern_4x4) {
+    shift_ofst = g_synth.current_controller_value(SEQ_PITCH_4 + s_seq_shift) - 64;
+    if (new_velocity > 0) {
+      new_velocity += g_synth.current_controller_value(SEQ_VELO_4 + s_seq_shift) - 64;
+      if (new_velocity < 1) { new_velocity = 1; } else if (new_velocity > 127) { new_velocity = 127; }
+    }
+  }
+
+  new_pitch = PRA32_U2_ControlPanel_calc_scaled_pitch(s_index_scale, new_pitch, s_panel_pit_ofst, s_seq_pit_ofst, shift_ofst);
 
   if (new_pitch == 0xFF) {
     s_panel_play_note_pitch[NOTE_SEQ] = 0xFF;
@@ -770,9 +794,17 @@ static INLINE void PRA32_U2_ControlPanel_seq_clock() {
           }
         }
       }
-    } while (((s_seq_step & 0x07) != 0) && (((1 << ((s_seq_step & 0x07) - 1)) & s_seq_act_steps) == 0));
+    } while (((s_seq_step & (s_seq_pattern_4x4 ? 0x03 : 0x07)) != 0) &&
+             (((1 << ((s_seq_step & (s_seq_pattern_4x4 ? 0x03 : 0x07)) - 1)) & s_seq_act_steps) == 0));
 
-    s_display_buffer[0][20] = s_hex_chars[s_seq_step & 0x07];
+    if (update_scale && s_seq_pattern_4x4) {
+      // The next shift: Seq Pitch/Velo 4 always, and 5-7 if their steps are active (Seq Act Steps)
+      do {
+        s_seq_shift = (s_seq_shift + 1) & 0x03;
+      } while ((s_seq_shift != 0) && (((1 << (s_seq_shift + 3)) & s_seq_act_steps) == 0));
+    }
+
+    PRA32_U2_ControlPanel_update_play_display();
 
     if (update_scale) {
       s_index_scale     = PRA32_U2_ControlPanel_get_index_scale();
@@ -828,6 +860,7 @@ static INLINE void PRA32_U2_ControlPanel_seq_start() {
   }
 
   s_seq_sub_step = 23;
+  s_seq_shift = 3;  // to 0 (Seq Pitch/Velo 4) at the first step
   s_panel_play_note_gate[NOTE_SEQ] = false;
 }
 
@@ -843,7 +876,7 @@ static INLINE void PRA32_U2_ControlPanel_seq_stop() {
   }
 
   s_playing_status = PlayingStatus_Stop;
-  s_display_buffer[0][20] = ' ';
+  PRA32_U2_ControlPanel_update_play_display();
   s_panel_play_note_gate[NOTE_SEQ] = false;
 }
 
@@ -860,10 +893,8 @@ static INLINE void PRA32_U2_ControlPanel_key_play(boolean on) {
   s_key_held = on;
   if (s_play_mode == 0) {  // Normal Mode
     s_playing_status = on ? PlayingStatus_Playing : PlayingStatus_Stop;
-    s_display_buffer[0][20] = on ? '*' : ' ';
-  } else {  // S+P: on the left of the step of the Step Sequencer
-    s_display_buffer[0][19] = on ? '*' : ' ';
   }
+  PRA32_U2_ControlPanel_update_play_display();
   s_panel_play_note_gate[NOTE_KEY]    = on;
   s_panel_play_note_trigger[NOTE_KEY] = on;
 }
@@ -905,7 +936,7 @@ static __attribute__((noinline, unused)) void PRA32_U2_ControlPanel_execute_oper
   } else if (control_target == SEQ_RAND_PITCH) {
     uint8_t array[8] = {};
     getRandUint8Rrray(getTargetMIDICh(s_current_synth), array);
-    for (uint32_t i = 0; i < 8; ++i) {
+    for (uint32_t i = 0; i < (s_seq_pattern_4x4 ? 4u : 8u); ++i) {  // 4x4: the pattern (0-3), not the shifts
       g_synth.control_change(SEQ_PITCH_0 + i, array[i] & 0x7Fu);
     }
   } else if (control_target == SEQ_RAND_VELO) {
@@ -1044,7 +1075,8 @@ static INLINE void PRA32_U2_ControlPanel_draw_character(uint8_t c) {
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL_OLED_DISPLAY)
 }
 
-static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_target, uint8_t controller_value, char value_display_text[5])
+// (in the RAM, but noinline: one copy for the values of the page, not one for each)
+static __attribute__((noinline)) boolean __not_in_flash_func(PRA32_U2_ControlPanel_calc_value_display)(uint8_t control_target, uint8_t controller_value, char value_display_text[5])
 {
   boolean result = false;
 
@@ -1336,12 +1368,37 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
   case  SEQ_PITCH_1    :
   case  SEQ_PITCH_2    :
   case  SEQ_PITCH_3    :
+    {
+      PRA32_U2_ControlPanel_calc_value_display_pitch(controller_value, value_display_text);
+      result = true;
+    }
+    break;
   case  SEQ_PITCH_4    :
   case  SEQ_PITCH_5    :
   case  SEQ_PITCH_6    :
   case  SEQ_PITCH_7    :
-    {
+    if (s_seq_pattern_4x4) {  // the shifts, added to the offsets (-60 to +60)
+      int shift_ofst = controller_value - 64;
+      if (shift_ofst < -60) { shift_ofst = -60; } else if (shift_ofst > +60) { shift_ofst = +60; }
+      PRA32_U2_ControlPanel_format_decimal(value_display_text, shift_ofst, true);
+    } else {
       PRA32_U2_ControlPanel_calc_value_display_pitch(controller_value, value_display_text);
+    }
+    result = true;
+    break;
+  case  SEQ_VELO_4     :
+  case  SEQ_VELO_5     :
+  case  SEQ_VELO_6     :
+  case  SEQ_VELO_7     :
+    if (s_seq_pattern_4x4) {  // the shifts, added to the velocity
+      PRA32_U2_ControlPanel_format_decimal(value_display_text, static_cast<int>(controller_value) - 64, true);
+      result = true;
+    }
+    break;
+  case  SEQ_PATTERN    :
+    {
+      static const char ary[2][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"Std","4x4"};
+      PRA32_U2_ControlPanel_copy_text(value_display_text, ary[(controller_value >= 32) ? 1 : 0]);
       result = true;
     }
     break;
@@ -1414,7 +1471,7 @@ static INLINE boolean PRA32_U2_ControlPanel_calc_value_display(uint8_t control_t
       result = true;
     }
     break;
-  case SEQ_MODE       :
+  case SEQ_DIRECTION  :
     {
       static const char ary[3][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"Fwd","Rvs","Bnc"};
       uint32_t index = ((controller_value * 4) + 128) >> 8;
@@ -1705,7 +1762,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
           PRA32_U2_ControlPanel_notes_off();
 
           PRA32_U2_ControlPanel_step_target();
-          s_display_buffer[0][14] = s_hex_chars[getTargetMIDICh(s_current_synth) - 1];
+          s_display_buffer[0][12] = s_hex_chars[getTargetMIDICh(s_current_synth) - 1];
           g_synth.control_change(PANEL_TARGET_CH, ((getTargetMIDICh(s_current_synth) - 1) - g_midi_ch) & 0x0F);  // kept by Write Panel Prms
 
           s_prev_key_long_pressed = true;
@@ -1787,7 +1844,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
           PRA32_U2_ControlPanel_notes_off();
 
           PRA32_U2_ControlPanel_step_target();
-          s_display_buffer[0][14] = s_hex_chars[getTargetMIDICh(s_current_synth) - 1];
+          s_display_buffer[0][12] = s_hex_chars[getTargetMIDICh(s_current_synth) - 1];
           g_synth.control_change(PANEL_TARGET_CH, ((getTargetMIDICh(s_current_synth) - 1) - g_midi_ch) & 0x0F);  // kept by Write Panel Prms
 
           s_prev_key_long_pressed = true;
@@ -1888,7 +1945,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
             --s_current_program[s_current_synth];
           }
           handleProgramChange(getTargetMIDICh(s_current_synth), s_current_program[s_current_synth]);
-          s_display_buffer[0][17] = s_hex_chars[s_current_program[s_current_synth]];
+          s_display_buffer[0][16] = s_hex_chars[s_current_program[s_current_synth]];
         }
 #endif  // defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
       }
@@ -1906,7 +1963,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
           --s_current_program[s_current_synth];
         }
         handleProgramChange(getTargetMIDICh(s_current_synth), s_current_program[s_current_synth]);
-        s_display_buffer[0][17] = s_hex_chars[s_current_program[s_current_synth]];
+        s_display_buffer[0][16] = s_hex_chars[s_current_program[s_current_synth]];
         return;
       }
     }
@@ -1930,7 +1987,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
             ++s_current_program[s_current_synth];
           }
           handleProgramChange(getTargetMIDICh(s_current_synth), s_current_program[s_current_synth]);
-          s_display_buffer[0][17] = s_hex_chars[s_current_program[s_current_synth]];
+          s_display_buffer[0][16] = s_hex_chars[s_current_program[s_current_synth]];
         }
 #endif  // defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
       }
@@ -1948,7 +2005,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
           ++s_current_program[s_current_synth];
         }
         handleProgramChange(getTargetMIDICh(s_current_synth), s_current_program[s_current_synth]);
-        s_display_buffer[0][17] = s_hex_chars[s_current_program[s_current_synth]];
+        s_display_buffer[0][16] = s_hex_chars[s_current_program[s_current_synth]];
         return;
       }
     }
@@ -2254,7 +2311,7 @@ static void PRA32_U2_ControlPanel_select_target(uint8_t offset) {
       if (synth != s_current_synth) {
         PRA32_U2_ControlPanel_notes_off();
         s_current_synth = synth;
-        s_display_buffer[0][14] = s_hex_chars[getTargetMIDICh(s_current_synth) - 1];
+        s_display_buffer[0][12] = s_hex_chars[getTargetMIDICh(s_current_synth) - 1];
         PRA32_U2_ControlPanel_update_page();
       }
 #endif  // (PRA32_U2_NUMBER_OF_SYNTHS > 1)
@@ -2297,9 +2354,8 @@ static void PRA32_U2_ControlPanel_select_target(uint8_t offset) {
       s_play_mode = mode;
 
       s_playing_status = PlayingStatus_Stop;
-      s_display_buffer[0][19] = ' ';
-      s_display_buffer[0][20] = ' ';
       s_key_held = false;
+      PRA32_U2_ControlPanel_update_play_display();
       s_panel_play_note_gate[NOTE_KEY] = false;
       s_panel_play_note_gate[NOTE_SEQ] = false;
 
@@ -2334,8 +2390,11 @@ static void PRA32_U2_ControlPanel_select_target(uint8_t offset) {
     last_step = (last_step - 2) >> 2;
     if (last_step < 0) { last_step = 0; }
     s_seq_last_step = last_step;
-  } else if (control_number == SEQ_MODE       ) {
-    uint8_t controller_value = g_synth.current_controller_value(SEQ_MODE       );
+  } else if (control_number == SEQ_PATTERN    ) {
+    s_seq_pattern_4x4 = (g_synth.current_controller_value(SEQ_PATTERN    ) >= 32);  // Std at 0-31, 4x4 at 32 and more
+    PRA32_U2_ControlPanel_update_play_display();
+  } else if (control_number == SEQ_DIRECTION  ) {
+    uint8_t controller_value = g_synth.current_controller_value(SEQ_DIRECTION  );
     uint32_t index = ((controller_value * 4) + 128) >> 8;
     s_seq_mode = index;
   } else if (control_number == SEQ_ON_STEPS   ) {
@@ -2354,7 +2413,7 @@ static void PRA32_U2_ControlPanel_select_target(uint8_t offset) {
     uint8_t midi_ch = g_synth.current_controller_value(PANEL_MIDI_CH  ) >> 3;
     g_midi_ch = midi_ch;
 #if (PRA32_U2_NUMBER_OF_SYNTHS > 1)
-    s_display_buffer[0][14] = s_hex_chars[getTargetMIDICh(s_current_synth) - 1];
+    s_display_buffer[0][12] = s_hex_chars[getTargetMIDICh(s_current_synth) - 1];
 #endif  // (PRA32_U2_NUMBER_OF_SYNTHS > 1)
   }
 
@@ -2368,7 +2427,7 @@ static void PRA32_U2_ControlPanel_select_target(uint8_t offset) {
 // the pedals, and the Channel Mode Messages), not to change a parameter, nor to write to the flash, by chance:
 // - Parameters (set as by the panel): Seq Pitch 0-7 (#16-23), Seq Velo 0-7 (#70-77), the Panel Parameters
 //   (#51-56: Scale, Transpose, Play Mode, Play Pitch, Play Velo, and Pitch Ofst), and the other Step Sequencer Parameters (#85-90 and #92-94, the number + 37,
-//   Seq Pitch Ofst #95, Panel MIDI Tx #59, Seq Ch Ofst #60, and Seq Transpose #61); Panel Target Ch (#58, PRA32-U2/M/P: the channel
+//   Seq Pitch Ofst #95, Panel MIDI Tx #59, Seq Ch Ofst #60, Seq Transpose #61, and Seq Pattern #62); Panel Target Ch (#58, PRA32-U2/M/P: the channel
 //   that the panel selects, as the Basic Channel + the value) is only for the Panel Channel
 // - MIDI Basic Ch (#57, 0-15 as 1-16) is only kept, and set by Set Basic Ch (#114, as an operation), so that the channels
 //   (the Panel Channel too) do not move by one Control Change; kept in the flash by Write Panel Prms, as by the panel
@@ -2393,6 +2452,7 @@ static uint8_t PRA32_U2_ControlPanel_panel_ch_target(uint8_t number) {
   case  59: return PANEL_MIDI_TX  ;
   case  60: return SEQ_CH_OFST    ;
   case  61: return SEQ_TRANSPOSE  ;
+  case  62: return SEQ_PATTERN    ;
   case 102: return WR_PANEL_PRMS  ;  // Write and then Read, as the pages of the panel (C and D)
   case 103: return RD_PANEL_PRMS  ;
   case 104: return IN_PANEL_PRMS  ;
