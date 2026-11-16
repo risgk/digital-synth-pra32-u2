@@ -3908,8 +3908,8 @@ const PANEL_PARAM_GROUPS = [
    ["Panel", "Play Velo",  "",                          55, 64,  v => String(v),                                ""],
    null,
    ["Panel", "MIDI Tx",    "[Off|Clk|All|Nte|C+N|A+N]", 59, 26,  v => ["Off", "Clk", "All", "Nte", "C+N", "A+N"][(v * 10 + 128) >> 8], "soft-markers-6"]],
-  // B-04 to B-10 (the empty one of B-08, and 2 more empty cells so that Seq On Steps and Seq Act Steps, each with the
-  // check boxes of the steps beside it, take a row)
+  // B-04 to B-10 (the empty one of B-08; Seq On Steps and Seq Act Steps, each with the check boxes of the steps beside it,
+  // take the last row)
   [["Seq", "Rx St/Sp",   "[Off|On]",                  94, 0,   v => ["Off", "On"][(v * 2 + 128) >> 8],          "soft-markers-2"],
    ["Seq", "Ch Ofst",    "[+0-+F]",                   60, 0,   v => "+" + (v >> 3).toString(16).toUpperCase(),   ""],
    ["Seq", "Step Note",  "[4|8|16]",                  92, 64,  v => ["4", "8", "16"][(v * 4 + 128) >> 8],       "soft-markers-3"],
@@ -3920,12 +3920,10 @@ const PANEL_PARAM_GROUPS = [
    ["Seq", "Num Steps",  "",                          88, 32,  v => String(Math.max((v - 2) >> 2, 0) + 1),      ""],
    ["Seq", "Pattern",    "[Std|4x4]",                 62, 0,   v => (v >= 32) ? "4x4" : "Std",                   ""],
    null,
-   null,
-   null,
-   ["Seq", "On Steps",   "",                          93, 127, v => panelHex2(v),                               ""],
-   ["Seq", "Act Steps",  "",                          90, 127, v => panelHex2(v),                               ""],
    ["Seq", "Pitch Ofst", "[-|+]",                     95, 64,  v => panelSigned(panelClamp(v - 64, -60, 60)),   "soft-marker-c"],
-   ["Seq", "Transpose",  "[-|+]",                     61, 64,  v => panelSigned(v - 64),                        "soft-marker-c"]],
+   ["Seq", "Transpose",  "[-|+]",                     61, 64,  v => panelSigned(v - 64),                        "soft-marker-c"],
+   ["Seq", "On Steps",   "",                          93, 127, v => panelHex2(v),                               ""],
+   ["Seq", "Act Steps",  "",                          90, 127, v => panelHex2(v),                               ""]],
   // B-12 to B-19
   // (Seq Pattern 4x4: Pitch 4-7 and Velo 4-7 are the shifts, added to the offsets and to the velocity)
   [0, 1, 2, 3, 4, 5, 6, 7].flatMap(i => [["Seq", "Pitch " + i, "", 16 + i, [4, 22, 37, 57, 72, 89, 107, 124][i],

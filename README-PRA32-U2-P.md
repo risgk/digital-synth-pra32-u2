@@ -121,10 +121,10 @@
           Seq Rand Pitch randomizes Seq Pitch 0-3 (the pattern) alone
         - NOTE: The shifts move the pitches of the pattern in the steps of the pitch values (as Panel Pitch Ofst), not by the degrees of the scale:
           a chord of the pattern is not kept (e.g. C, E, G, and C shifted by -30 in Maj are G, A, C, and G)
-    - Seq On Steps: bit 0 is Step 1 On, ..., bit 6 is Step 7 On (Step 0 is always On)
-    - Seq Act Steps (Active Steps): bit 0 is Step 1 Active, ..., bit 6 is Step 7 Active (Step 0 is always Active)
     - Seq Pitch Ofst (Offset) [-|+]: Offset Seq Pitch 0-7 (min -60 to max +60), added to Panel Pitch Ofst
     - Seq Transpose [-|+]: Transpose Seq Pitch 0-7, added to Panel Transpose (e.g. -12 for the Step Sequencer an octave lower than the Play Key)
+    - Seq On Steps: bit 0 is Step 1 On, ..., bit 6 is Step 7 On (Step 0 is always On)
+    - Seq Act Steps (Active Steps): bit 0 is Step 1 Active, ..., bit 6 is Step 7 Active (Step 0 is always Active)
     - Seq Pitch 0-7: 0 is Off, 1-4 is lowest, 124-127 is highest
     - Seq Velo 0-7 (Velocity 0-7)
 - Step Sequencer Operations
@@ -264,8 +264,8 @@
 | B-06 Seq c     | Seq Tempo            | Seq Gate Time        |
 | B-07 Seq d     | Seq Direction        | Seq Num Steps        |
 | B-08 Seq e     | Seq Pattern          |                      |
-| B-09 Seq f     | Seq On Steps         | Seq Act Steps        |
-| B-10 Seq g     | Seq Pitch Ofst       | Seq Transpose        |
+| B-09 Seq f     | Seq Pitch Ofst       | Seq Transpose        |
+| B-10 Seq g     | Seq On Steps         | Seq Act Steps        |
 | B-11 Seq h     | Seq Rand Pitch       | Seq Rand Velo        |
 | B-12 Seq 0     | Seq Pitch 0          | Seq Velo 0           |
 | B-13 Seq 1     | Seq Pitch 1          | Seq Velo 1           |
