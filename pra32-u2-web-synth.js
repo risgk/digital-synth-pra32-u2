@@ -88,6 +88,14 @@
     console.log(PRA32_U2_WEB_VERSION + " ready (" + context.sampleRate + " Hz)");
   }
 
+  // Prepares the audio without sending anything (e.g. when PRA32-U2 Editor opens, or MIDI Out is changed, with
+  // PRA32-U2 Web chosen in MIDI Out), so that the notice is shown at once while the audio is not started
+  function prepare() {
+    if (!context) {
+      start().catch(function(e) { console.log("Failed to start PRA32-U2 Web - " + e); });
+    }
+  }
+
   let outputGain = 1;      // That of the output that sent last
   let outputIsM  = false;  // PRA32-U2/M/P Web, or PRA32-U2 Web
 
@@ -115,9 +123,7 @@
         }
         post(Array.from(data).slice(0, 3));
 
-        if (!context) {
-          start().catch(function(e) { console.log("Failed to start PRA32-U2 Web - " + e); });
-        }
+        prepare();
         resume();
       },
     };
@@ -128,5 +134,5 @@
   const outputM     = makeOutput("PRA32-U2/M/P Web (Built-in)", 1, true);
   const outputMLoud = makeOutput("PRA32-U2/M/P Web (Built-in, +6 dB)", 2, true);
 
-  window.PRA32U2WebSynth = { version: PRA32_U2_WEB_VERSION, output: output, outputs: [output, outputLoud, outputM, outputMLoud] };
+  window.PRA32U2WebSynth = { version: PRA32_U2_WEB_VERSION, output: output, outputs: [output, outputLoud, outputM, outputMLoud], prepare: prepare };
 })();
