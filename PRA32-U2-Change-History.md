@@ -1,46 +1,32 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v3.22.0 (2026-??-??):
-    - PRA32-U2/M: Voice Group Mode: While the Main Synth is in Poly, the notes of a group go only to the Main Synth, as before (none without it, e.g. RR3);
-      the other messages (e.g. Control Changes and Program Changes) go to all of the group (to the Main Synth alone before), so that the Sub Synths can be set up then too
-        - PRA32-U2/M/P: The panel can select such a group then too, for its parameters
-    - PRA32-U2/P: Seq Clock Src [Aut|Int|Ext]: Add **Aut** (Auto; at first and by Init Panel Prms, Int before): Internal at first, External at a MIDI Clock, and Internal when Seq Tempo is changed (External again at the next MIDI Clock)
-        - Not compatible: Int written before at 0-31 (e.g. 0, the default) is now Aut: set it to 64; Ext at 64-95 is now Int: set it to 127
-    - PRA32-U2/P: Add **Panel MIDI Tx** [Off|Clk|All|Nte|C+N|A+N] (Transmit, Page B-03, and Control Change #59 on the Panel Channel): MIDI Clock (Clk, the default, as before),
-      MIDI Start and Stop (All), and the notes that the panel plays (Nte), by UART MIDI and also by USB MIDI now (by UART MIDI alone before)
-        - Seq T/Rx St/Sp is now **Seq Rx St/Sp** (Receive Start/Stop)
-        - Not compatible: Seq T/Rx St/Sp On written before no longer transmits Start and Stop: set Panel MIDI Tx to All
-    - PRA32-U2/P: Panel Play Mode [Key|K+S|Seq] (Nrm, Normal Mode before, is now **Key**, Key Mode): Add **K+S** (Key + Seq Mode, at 64): the Step Sequencer,
-      and the Play Key that plays as in Key Mode; Next Key + Play Key: start/stop the Step Sequencer (Seq Mode and K+S)
+    - The values shown as they work, in PRA32-U2 Editor, PRA32-U2 Native, and the panel: Osc 1 Shape and Osc 1 Morph by Osc 1 Wave (e.g. "25%", "1.5", "WT2", "S64"),
+      Mixer Noise/Sub Osc ("N64" to "0" to "S64"), Pan ("L63" to "C" to "R63"), and Osc 2 Coarse (-60 to +60)
+    - The Note On Velocity at first is 64 (100 before): Panel Play Velo, Seq Velo 0-7, the Software Keyboard, and "pra32-u2-sample.mid" (the values written before stay)
+    - PRA32-U2/M: Voice Group Mode: While the Main Synth is in Poly, the messages other than the notes go to all of the group (to the Main Synth alone before);
+      the panel of PRA32-U2/M/P can select such a group too
+    - PRA32-U2/P: Panel Play Mode is now [Key|K+S|Seq]: Nrm is now **Key**, and Add **K+S** (Key + Seq, at 64): the Step Sequencer, and the Play Key that plays as in Key;
+      Next Key + Play Key: start/stop the Step Sequencer (Seq and K+S)
         - Not compatible: Seq written before at 32-95 (e.g. 64 by the panel) is now K+S: set it to 127
-    - PRA32-U2/P: Add **Panel Key** (Control Change #110 on the Panel Channel): as the Play Key pressed (64-127) and released (0-63) in Key Mode and K+S;
-      PRA32-U2 Editor: Add the "Key" button (Panel Key, while pressed), and "Play" is "Seq Play" in K+S and Seq Mode
-    - PRA32-U2/P: The pages of Group B: B-00 Panel Play Mode and Panel Scale, B-01 Panel Pitch Ofst and Panel Transpose, B-02 Panel Play Pitch and Panel Play Velo,
-      B-03 MIDI Basic Ch and Panel MIDI Tx, B-04 Seq Rx St/Sp and Seq Ch Ofst, B-05 Seq Step Note and Seq Clock Src, B-06 and B-07 as before,
-      B-08 Seq Pattern, B-09 Seq On Steps and Seq Act Steps, B-10 Seq Pitch Ofst and Seq Transpose; Seq Rand Pitch and the pages after it are two pages later
-      (e.g. Seq 0 on Page B-12); the same order in "Panel & Step Sequencer" of PRA32-U2 Editor; the page of Group B at first is B-00 (B-02 before)
-    - PRA32-U2/P: Add **Seq Ch Ofst** [+0-+F] (Channel Offset, Page B-04, and Control Change #60 on the Panel Channel): the channel of the Step Sequencer,
-      as the channel that the panel selects + the offset (+0, the default, as before)
-    - PRA32-U2/P: Add **Seq Transpose** [-|+] (Page B-10, and Control Change #61 on the Panel Channel): added to Panel Transpose, for the Step Sequencer alone
-    - PRA32-U2/P: Add **Seq Pattern** [Std|4x4] (Page B-08, and Control Change #62 on the Panel Channel): 4x4 plays Seq Pitch/Velo 0-3 (the pattern)
-      again and again, shifted by Seq Pitch/Velo 4, 5, 6, and 7 in turn (added to the offsets and to the velocity); Seq Num Steps is the length of each shift
-        - Seq Mode is now **Seq Direction** [Fwd|Rvs|Bnc] (the same Control Change #89 and values)
-    - PRA32-U2/P: The top line of the display: "S", "$", and "#" moved to the left (from columns 10, 13, and 16 to 8, 11, and 15), and on the right end,
-      "*" (the Play Key), the shift (4x4), and the step, right-aligned
-    - PRA32-U2 Editor: "Panel & Step Sequencer" keeps the values by the names of the panel parameters (e.g. "SEQ_TEMPO"), as the synth parameters,
-      not by the CC numbers of the Panel Channel; "pra32-u2-panel-initial.json" too
-        - Not compatible: the values kept (in the browser, Store, and the files of Export) before are not read: the initial values instead
-    - PRA32-U2/P: Fix the wrong pitches (e.g. C#1 in Maj) of the Step Sequencer when Panel Pitch Ofst and Seq Pitch Ofst are both near -60 with a low Seq Pitch
-    - Osc 1 Shape and Osc 1 Morph show their meanings by Osc 1 Wave (3 characters at most): Shape: the pulse width (Pls, e.g. "25%");
-      Morph: the frequency ratio (Sin, e.g. "1.5", and "16." for 16.5), the wave table (WT, e.g. "WT2"), and the Pulse or the 2nd Saw as it works (Pls, "P64" to "0" to "S64",
-      2 values a step); Mixer Noise/Sub Osc shows "N64" to "0" to "S64" as it works (2 values a step, "S63" at 127 before); and Pan shows "L63" (0 and 1)
-      to "C" (64) to "R63" (127) (-64 to +63 before), with the marker of the center in PRA32-U2 Editor and PRA32-U2 Native; in PRA32-U2 Editor, PRA32-U2 Native, and the panel of PRA32-U2/P
-        - PRA32-U2 Editor: The slider of Osc 1 Morph snaps to the wave tables (0, 26, 51, 77, 102, and 127) with Osc 1 Wave WT
-    - Osc 2 Coarse shows -60 to +60, as it works (-64 to +63 shown before), in PRA32-U2 Editor, PRA32-U2 Native, and the panel of PRA32-U2/P
-    - PRA32-U2 Web: "Click (or tap) to start the audio" is shown as soon as PRA32-U2 Web is chosen in MIDI Out (e.g. as PRA32-U2 Editor opens with it chosen),
-      not only after something is sent to it; nothing is sent then, as before
-    - The Note On Velocity at first is 64 (100 before): Panel Play Velo and Seq Velo 0-7 of PRA32-U2/P (and by Init Panel Prms), the Software Keyboard
-      and "Panel & Step Sequencer" of PRA32-U2 Editor, "pra32-u2-panel-initial.json", and "pra32-u2-sample.mid"; the values written before stay
+    - PRA32-U2/P: Add **Panel Key** (Control Change #110 on the Panel Channel): as the Play Key pressed and released, in Key and K+S
+    - PRA32-U2/P: Add **Panel MIDI Tx** [Off|Clk|All|Nte|C+N|A+N] (#59): MIDI Clock (Clk, the default, as before), Start and Stop, and the notes that the panel plays,
+      by UART MIDI and also by USB MIDI now
+        - Seq T/Rx St/Sp is now **Seq Rx St/Sp**; not compatible: it no longer transmits Start and Stop (set Panel MIDI Tx to All)
+    - PRA32-U2/P: Seq Clock Src [Aut|Int|Ext]: Add **Aut** (the default): Internal at first, External at a MIDI Clock, and Internal again when Seq Tempo is changed
+        - Not compatible: Int written before at 0-31 is now Aut (set it to 64), and Ext at 64-95 is now Int (set it to 127)
+    - PRA32-U2/P: Add **Seq Ch Ofst** [+0-+F] (#60) and **Seq Transpose** [-|+] (#61), the channel and the transposition of the Step Sequencer alone;
+      and **Seq Pattern** [Std|4x4] (#62): 4x4 plays Seq Pitch/Velo 0-3 again and again, shifted by Seq Pitch/Velo 4-7 in turn
+        - Seq Mode is now **Seq Direction** (the same Control Change #89 and values)
+    - PRA32-U2/P: The pages of Group B reordered (Seq Rand Pitch and the pages after it two pages later, e.g. Seq 0 on B-12), with B-00 at first;
+      the same order in "Panel & Step Sequencer" of PRA32-U2 Editor
+    - PRA32-U2/P: The top line of the display: "S", "$", and "#" to the left, and "*" (the Play Key), the shift (4x4), and the step on the right end
+    - PRA32-U2/P: Fix the wrong pitches of the Step Sequencer with Panel Pitch Ofst and Seq Pitch Ofst both near -60
+    - PRA32-U2 Editor
+        - Add the "Key" button (Panel Key); "Play" is "Seq Play" in K+S and Seq Mode
+        - "Panel & Step Sequencer" keeps the values by the names (e.g. "SEQ_TEMPO"), as the synth parameters; not compatible: the values kept before are not read
+        - The marker of the center on Pan (PRA32-U2 Native too), and the slider of Osc 1 Morph snaps to the wave tables with Osc 1 Wave WT
+        - PRA32-U2 Web: "Click (or tap) to start the audio" is shown as soon as it is chosen in MIDI Out (nothing sent then, as before)
     - Tested with Arduino-Pico version 6.3.0
 - v3.21.0 (2026-11-15):
     - **Filter Mode** [LP|BR|HP|BP|LP] changes smoothly: Low Pass (0 and 127), Band Reject (32), High Pass (64), and Band Pass (96), crossfaded in between
