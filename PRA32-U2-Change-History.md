@@ -18,6 +18,8 @@
     - PRA32-U2/P: Add **Seq Transpose** [-|+] (Page B-05, and Control Change #61 on the Panel Channel): added to Panel Transpose, for the Step Sequencer alone;
       Seq Rx St/Sp is now on Page B-09
     - Osc 2 Coarse shows -60 to +60, as it works (-64 to +63 shown before), in PRA32-U2 Editor, PRA32-U2 Native, and the panel of PRA32-U2/P
+    - The Note On Velocity at first is 64 (100 before): Panel Play Velo and Seq Velo 0-7 of PRA32-U2/P (and by Init Panel Prms), the Software Keyboard
+      and "Panel & Step Sequencer" of PRA32-U2 Editor, "pra32-u2-panel-initial.json", and "pra32-u2-sample.mid"; the values written before stay
     - Tested with Arduino-Pico version 6.3.0
 - v3.21.0 (2026-11-15):
     - **Filter Mode** [LP|BR|HP|BP|LP] changes smoothly: Low Pass (0 and 127), Band Reject (32), High Pass (64), and Band Pass (96), crossfaded in between

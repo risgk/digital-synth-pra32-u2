@@ -179,7 +179,7 @@ graph LR
     - While Hold is on, the keys released keep their notes on (pressing a key held again, turning Hold off, or Panic, turns them off)
     - The PC keyboard can also be played while it is shown (A - K for C - C, W - U for the black keys, and Z / X for the octave);
       some PC keyboards cannot take many keys at the same time (e.g. a chord of 4 notes)
-    - The velocities of Note On and Note Off can be entered (1-127, 100 and 64 by default)
+    - The velocities of Note On and Note Off can be entered (1-127, 64 and 64 by default)
     - Pitch Bend (springs back to the center), Modulation Wheel, Breath Controller, Expression, Sustain Pedal, Portamento Switch,
       and Channel Pressure can be sent from the sliders below the keyboard (Performance Controls, which can be hidden apart from the keyboard,
       e.g. on a phone)

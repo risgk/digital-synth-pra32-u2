@@ -177,7 +177,7 @@ const uint8_t   DEFAULT_PANEL_TRANSPOSE = 64 ;
 const uint8_t   DEFAULT_PANEL_PLAY_MODE = 0  ;
 
 const uint8_t   DEFAULT_PANEL_PLAY_PIT  = 0  ;
-const uint8_t   DEFAULT_PANEL_PLAY_VELO = 100;
+const uint8_t   DEFAULT_PANEL_PLAY_VELO = 64 ;
 const uint8_t   DEFAULT_PANEL_PIT_OFST  = 64 ;
 const uint8_t   DEFAULT_PANEL_TARGET_CH = 0  ;
 
@@ -192,15 +192,15 @@ const uint8_t   DEFAULT_SEQ_PITCH_5     = 89 ;
 const uint8_t   DEFAULT_SEQ_PITCH_6     = 107;
 const uint8_t   DEFAULT_SEQ_PITCH_7     = 124;
 
-const uint8_t   DEFAULT_SEQ_VELO_0      = 100;
-const uint8_t   DEFAULT_SEQ_VELO_1      = 100;
-const uint8_t   DEFAULT_SEQ_VELO_2      = 100;
-const uint8_t   DEFAULT_SEQ_VELO_3      = 100;
+const uint8_t   DEFAULT_SEQ_VELO_0      = 64 ;
+const uint8_t   DEFAULT_SEQ_VELO_1      = 64 ;
+const uint8_t   DEFAULT_SEQ_VELO_2      = 64 ;
+const uint8_t   DEFAULT_SEQ_VELO_3      = 64 ;
 
-const uint8_t   DEFAULT_SEQ_VELO_4      = 100;
-const uint8_t   DEFAULT_SEQ_VELO_5      = 100;
-const uint8_t   DEFAULT_SEQ_VELO_6      = 100;
-const uint8_t   DEFAULT_SEQ_VELO_7      = 100;
+const uint8_t   DEFAULT_SEQ_VELO_4      = 64 ;
+const uint8_t   DEFAULT_SEQ_VELO_5      = 64 ;
+const uint8_t   DEFAULT_SEQ_VELO_6      = 64 ;
+const uint8_t   DEFAULT_SEQ_VELO_7      = 64 ;
 
 const uint8_t   DEFAULT_SEQ_TEMPO       = 64 ;  // 120 BPM
 const uint8_t   DEFAULT_SEQ_CLOCK_SRC   = 0  ;  // Aut

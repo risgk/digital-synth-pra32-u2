@@ -6,7 +6,7 @@ require_relative 'Digital-Synth-PRA32-U2/pra32-u2-constants'
 # 38400 bps, and each message takes the ticks of its bytes, as the sample MIDI stream did (until v3.17.4)
 
 PRA32_U2_MIDI_CH  = 0  # 0-based
-NOTE_ON_VELOCITY  = 100
+NOTE_ON_VELOCITY  = 64 
 NOTE_OFF_VELOCITY = 64
 
 PPQ   = 480

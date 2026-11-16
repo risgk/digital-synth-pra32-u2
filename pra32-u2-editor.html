@@ -901,8 +901,8 @@ const USER_PROGRAM_NUMBER_MAX      = 15;
 const PROGRAM_NUMBER_MAX           = 31;
 
 const PRA32_U2_MIDI_CH  = 0;  // 0-based
-// The velocities of the Software Keyboard (selected in its bar, 100 and 64 by default)
-var noteOnVelocity  = 100;
+// The velocities of the Software Keyboard (selected in its bar, 64 and 64 by default)
+var noteOnVelocity  = 64;
 var noteOffVelocity = 64;
 
 
@@ -2895,7 +2895,7 @@ function resetPerformanceControls() {
 // and "127"), and the value entered (by Enter, leaving the field, or the spin buttons) is set to the range (1-127),
 // or back to the last valid one if not a number (e.g. empty)
 function createVelocityInputs() {
-  [["inputNoteOnVelocity", "keyNoteOnVelocity", 100], ["inputNoteOffVelocity", "keyNoteOffVelocity", 64]].forEach(function(item) {
+  [["inputNoteOnVelocity", "keyNoteOnVelocity", 64], ["inputNoteOffVelocity", "keyNoteOffVelocity", 64]].forEach(function(item) {
     var input = document.getElementById(item[0]);
     var key = item[1];
     var value = parseVelocity(localStorage.getItem(key));
@@ -3845,7 +3845,7 @@ const PANEL_PARAM_GROUPS = [
   [["Panel", "Play Mode",  "[Nrm|S+P|Seq]",             53, 0,   v => ["Nrm", "S+P", "Seq"][(v * 4 + 128) >> 8], "soft-markers-3"],
    null,
    ["Panel", "Play Pitch", "",                          54, 0,   v => panelPitchName(v),                        ""],
-   ["Panel", "Play Velo",  "",                          55, 100, v => String(v),                                ""],
+   ["Panel", "Play Velo",  "",                          55, 64,  v => String(v),                                ""],
    ["Panel", "Scale",      "[Maj|Min|Mel|MaP|MiP|Chr]", 51, 0,   v => PANEL_SCALES[(v * 10 + 128) >> 8],        "soft-markers-6"],
    ["Panel", "Pitch Ofst", "[-|+]",                     56, 64,  v => panelSigned(panelClamp(v - 64, -60, 60)), "soft-marker-c"],
    ["Panel", "Transpose",  "[-|+]",                     52, 64,  v => panelSigned(v - 64),                      "soft-marker-c"],
@@ -3865,7 +3865,7 @@ const PANEL_PARAM_GROUPS = [
    ["Seq", "Rx St/Sp",   "[Off|On]",                  94, 0,   v => ["Off", "On"][(v * 2 + 128) >> 8],          "soft-markers-2"]],
   // B-10 to B-17
   [0, 1, 2, 3, 4, 5, 6, 7].flatMap(i => [["Seq", "Pitch " + i, "", 16 + i, [4, 22, 37, 57, 72, 89, 107, 124][i], v => panelPitchName(v), ""],
-                                         ["Seq", "Velo " + i,  "", 70 + i, 100, v => String(v), ""]]),
+                                         ["Seq", "Velo " + i,  "", 70 + i, 64, v => String(v), ""]]),
 ];
 const PANEL_PARAMS = PANEL_PARAM_GROUPS.flat().filter(p => p);
 const PANEL_ON_STEPS_CC = 93, PANEL_ACT_STEPS_CC = 90;
