@@ -1870,7 +1870,7 @@ function osc1DispValue(number, value) {
   var indexOsc1Wave = ((parseInt(localStorage.getItem("keyOSC_1_WAVE     ")) || 0) * 10 + 128) >> 8;
   if (number == OSC_1_SHAPE) {
     if (indexOsc1Wave == 5) {
-      return String((value >= 127) ? 0 : Math.floor((50 * (128 - value) + 64) / 128));
+      return String((value >= 127) ? 0 : Math.floor((50 * (128 - value) + 64) / 128)) + "%";
     }
   } else {
     if (indexOsc1Wave == 3) {
@@ -1926,7 +1926,7 @@ function updateDisplayOfControl(number, value) {
       var osc1Text = osc1DispValue(number, parseInt(value));
       if (osc1Text !== null) {
         dispValue = osc1Text;
-        alwaysShown = true;  // e.g. "36 [36]" (the pulse width 36% at 36), as the panel
+        alwaysShown = true;  // shown even if the same as the value, as the panel
       }
     }
     break;
@@ -3731,7 +3731,7 @@ function getStoredCCValueString(index, number) {
 </div>
 <div class="param">
   <div class="param-name">Pan <span class="cc">CC#10</span></div>
-  <div class="param-ctrl"><input  id="inputPAN            "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(PAN            , value)"><span    id="spanPAN            " >-</span><span   id="span2PAN            " >-</span></div>
+  <div class="param-ctrl soft-marker-c"><input  id="inputPAN            "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(PAN            , value)"><span    id="spanPAN            " >-</span><span   id="span2PAN            " >-</span></div>
 </div>
 </div>
 </div>

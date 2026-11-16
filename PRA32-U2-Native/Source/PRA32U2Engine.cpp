@@ -214,7 +214,7 @@ int PRA32U2Engine::getMarkers(uint8_t controlNumber, const uint8_t** markerValue
   static const uint8_t MARKERS_3[]   = { 0, 64, 127 };
   static const uint8_t MARKERS_5[]   = { 0, 32, 64, 96, 127 };
   static const uint8_t MARKERS_2[]   = { 0, 127 };
-  static const uint8_t MARKERS_C[]   = { 64 };  // The center, for [-|+] and [N|S]
+  static const uint8_t MARKERS_C[]   = { 64 };  // The center, for [-|+], [N|S], and Pan
   static const uint8_t MARKERS_6_C[] = { 0, 26, 51, 64, 77, 102, 127 };  // The 6 markers and the center
 
   switch (controlNumber) {
@@ -261,6 +261,7 @@ int PRA32U2Engine::getMarkers(uint8_t controlNumber, const uint8_t** markerValue
   case COARSE_TUNE     :
   case FINE_TUNE       :
   case BTH_FILTER_AMT  :
+  case PAN             :
     *markerValues = MARKERS_C;
     return 1;
   default:
@@ -340,7 +341,7 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value, ui
     const int wave = ((osc1Wave * 10) + 128) >> 8;
     std::string text;
     if (controlNumber == OSC_1_SHAPE) {
-      if (wave == 5) { text = std::to_string((v >= 127) ? 0 : ((50 * (128 - v) + 64) / 128)); }
+      if (wave == 5) { text = std::to_string((v >= 127) ? 0 : ((50 * (128 - v) + 64) / 128)) + "%"; }
     } else if (wave == 3) {
       const int halves = ((v + 2) >> 2) + 1;  // the ratio (0.5 to 16.5) * 2: "0.5" to "9.5", and "10" to "16." ("." for .5)
       text = ((halves >> 1) < 10) ? (std::to_string(halves >> 1) + "." + ((halves & 1) ? "5" : "0"))
@@ -351,7 +352,7 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value, ui
       text = twoSides(v, "P", "S");
     }
     if (!text.empty()) {
-      return std::to_string(v) + " [" + text + "]";  // shown even if the same as the value (e.g. "36 [36]"), as the panel
+      return std::to_string(v) + " [" + text + "]";  // shown even if the same as the value, as the panel
     }
     break;
   }

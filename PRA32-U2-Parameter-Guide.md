@@ -53,7 +53,7 @@
         - 96: Pulse Width 12.5%, or 2nd Saw Phase 87.5%
         - 126: Pulse Width 0.8%, or 2nd Saw Phase 99.2%
         - 127: Pulse Width 0%, or 2nd Saw Phase 100%
-        - Shown as the pulse width in % (e.g. "25" at 64; "36" at 36 too, shown even if the same as the value)
+        - Shown as the pulse width (e.g. "25%" at 64)
 - Osc 1 Morph $1
     - Saw Wave:
         - 0: Normal Saw 100% (min)
