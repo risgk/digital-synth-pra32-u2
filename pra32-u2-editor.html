@@ -1848,6 +1848,11 @@ function onChangeInputPort4(){
 function onChangeOutputPort() {
   var selectOutputPort = document.getElementById("selectOutputPort");
   midiOutput = midiOutputs[selectOutputPort.selectedIndex];
+  // PRA32-U2 Web: the audio prepared (nothing sent), so that its notice ("Click (or tap) to start the audio") is shown
+  // at once while the Web browser holds the audio (e.g. Chrome, until the page is clicked)
+  if (midiOutput && midiOutput.isPRA32U2WebSynth && window.PRA32U2WebSynth && window.PRA32U2WebSynth.prepare) {
+    window.PRA32U2WebSynth.prepare();
+  }
 }
 
 function onChangeMIDICh() {
