@@ -138,31 +138,16 @@ class PRA32_U2_Filter {
   // high pass at about f_s / (2 * pi * 2^10), i.e. 7.5 Hz at 48 kHz
   static const uint8_t DC_BLOCKER_SHIFT = 10;
 
-  // Filter Drive: the gain G = 2^(d / 24), d = v * DRIVE_RANGE / 128 (the value v taken as 0 to 72 of the table, at 128:
-  // 1.0 at 0, 2.0 at 43, 4.0 at 85, 7.87 at 127, 6 dB every 42.7 values), so that the top stops short of a square wave
-  // (which a Chorus breaks up, as it cancels the fundamental from time to time) and of the aliasing of the input clip
-  // (no oversampling: 32 times or so folds back about 25 dB more), leaving a strong distortion to the Distortion FX;
-  // shared between the input and the loop, so that the Drive puts in harmonics while the Resonance is kept more:
-  // - The input is multiplied by G, and by 2 (INPUT_CLIP_PRE_GAIN_SHIFT) into a soft clip, biased as the leak (the
-  //   even harmonics too), and taken back by the 2; the clip is faded in by the Drive (none at 0, all at
-  //   d = INPUT_CLIP_FADE_END and above), so that a Drive of 0 (the Presets) is exactly as before
-  // - It is then taken back to G^m (m = LOOP_DRIVE_SHARE_Q8 / 256 = 0.5), which drives the loop and its leak harder,
-  //   as the whole Drive did before (the Resonance held down, in effect the leak's ceiling down by G^m), and what
-  //   leaves the loop is divided by G^m ahead of the output clip; the rest of the Drive, G^(1 - m), works at the input
-  //   clip alone (the Resonance kept)
-  // - A make-up gain of the output, for the level that the input clip takes: 2^(x / 24) with
-  //   x = (d - MAKEUP_START) * MAKEUP_SLOPE_Q8 / 256 (none below MAKEUP_START); with a Saw at the Resonance 110,
-  //   the level stays within about 0.5 dB from 0 to 127
-  // The self-oscillation, set inside the loop, comes out lower by G^m (0.5 at the Presets' Drive 0). The gains and
-  // their reciprocals are computed from the smoothed value at the low rate by m_filter[0], a division each time
-  // whatever the value, so the load is constant
+  // Filter Drive: the input is multiplied by 2^(v / 24) (1.0 at 0, 4.0 at 48, 32.0 at
+  // 120, 39.2 at 127: 6 dB every 24 values), which drives the loop and its leak harder, and what
+  // leaves the loop is divided by the same ahead of the output clip, so that
+  // the level stays and the Drive changes the tone alone: in effect the leak's
+  // ceiling comes down by the Drive, and the output clip stays where it is.
+  // The self-oscillation, set inside the loop, comes out lower by the Drive
+  // too (0.5 at the Presets' Drive 0). The gain and its reciprocal
+  // are computed from the smoothed value at the low rate by m_filter[0], a
+  // division each time whatever the value, so the load is constant
   static const int32_t DRIVE_UNITY_Q16 = 1 << 16;
-  static const int32_t DRIVE_RANGE = 72;
-  static const int32_t LOOP_DRIVE_SHARE_Q8 = 128;
-  static const uint8_t INPUT_CLIP_PRE_GAIN_SHIFT = 1;
-  static const int32_t INPUT_CLIP_FADE_END = 24;
-  static const int32_t MAKEUP_START = 40;
-  static const int32_t MAKEUP_SLOPE_Q8 = 40;
 
   int32_t m_g;                        // g = tan(pi * f_0 / f_s), Q26
   int32_t m_one_over_a_0;              // 1 / a_0, Q30, where a_0 = 1 + g * (g + k)
@@ -215,11 +200,7 @@ class PRA32_U2_Filter {
   int32_t m_drive_current;             // Q16 controller value, smoothed
   int32_t m_drive_gain;                // Q16, 2^(Drive / 24)
   int32_t m_drive_comp;                // Q16, 1 / m_drive_gain, at most 1.0
-  int32_t m_output_gain;               // Q16, 1 / G^m, the make-up gain, and the output level by the Resonance
-  int32_t m_loop_comp;                 // Q16, 1 / G^m (the loop's share of the Drive)
-  int32_t m_input_post;                // Q16, G^m / G, the gain after the input clip
-  int32_t m_clip_mix;                  // Q16, how much of the clipped input (by the Drive)
-  int32_t m_makeup;                    // Q16, the make-up gain of the output
+  int32_t m_output_gain;               // Q16, m_drive_comp times the output level by the Resonance
 
 public:
   PRA32_U2_Filter()
@@ -275,10 +256,6 @@ public:
   , m_drive_gain(DRIVE_UNITY_Q16)
   , m_drive_comp(DRIVE_UNITY_Q16)
   , m_output_gain(DRIVE_UNITY_Q16)
-  , m_loop_comp(DRIVE_UNITY_Q16)
-  , m_input_post(DRIVE_UNITY_Q16)
-  , m_clip_mix()
-  , m_makeup(DRIVE_UNITY_Q16)
   {
     set_cutoff(127);
     set_resonance(0);
@@ -449,26 +426,16 @@ public:
     }
   }
 
-  // The Drive's gain, 2^(d / 24) in Q16 interpolated from its table at the
-  // smoothed v scaled to d (see DRIVE_RANGE), and its reciprocal: the 32-bit division is a single
+  // The Drive's gain, 2^(v / 24) in Q16 interpolated from its table at the
+  // smoothed v, and its reciprocal: the 32-bit division is a single
   // instruction, taken every time so that the load does not depend on the
   // value; + 1 lands exactly on 1.0 at a Drive of 0, and is a 1/65536 past it.
-  // At the top, the input, held within +-0.8 (see process()), times 7.87 is 6.3, within the
+  // At the top, the input, held within +-0.8 (see process()), times 39.2 is 31.4, within the
   // headroom of 32 of the loop
   INLINE void update_drive_gain() {
-    const int32_t drive = (m_drive_current >> 7) * DRIVE_RANGE;  // d, Q16
-    m_drive_gain = interpolate_filter_table(g_filter_drive_gain_table, drive);
+    m_drive_gain = interpolate_filter_table(g_filter_drive_gain_table, m_drive_current);
     uint32_t reciprocal = (0xFFFFFFFFu / static_cast<uint32_t>(m_drive_gain)) + 1;
     m_drive_comp = (reciprocal < static_cast<uint32_t>(DRIVE_UNITY_Q16)) ? static_cast<int32_t>(reciprocal) : DRIVE_UNITY_Q16;
-    // The loop's share of the Drive, G^m, and its reciprocal; the input after the clip is multiplied by G^m / G
-    int32_t loop_gain = interpolate_filter_table(g_filter_drive_gain_table, (drive * LOOP_DRIVE_SHARE_Q8) >> 8);
-    uint32_t loop_reciprocal = (0xFFFFFFFFu / static_cast<uint32_t>(loop_gain)) + 1;
-    m_loop_comp  = (loop_reciprocal < static_cast<uint32_t>(DRIVE_UNITY_Q16)) ? static_cast<int32_t>(loop_reciprocal) : DRIVE_UNITY_Q16;
-    m_input_post = multiply_shift_right(loop_gain, m_drive_comp, 16);
-    m_clip_mix   = clamp(drive / INPUT_CLIP_FADE_END, 0, DRIVE_UNITY_Q16);
-    int32_t makeup_x = ((drive - (MAKEUP_START << 16)) >> 8) * MAKEUP_SLOPE_Q8;
-    m_makeup = (makeup_x > 0) ? interpolate_filter_table(g_filter_drive_gain_table, clamp(makeup_x, 0, CONTROLLER_VALUE_Q16_MAX))
-                              : DRIVE_UNITY_Q16;
   }
 
   // (m_breath_controller_current * (m_cutoff_breath_amt_current >> 8)) >> 6 is
@@ -497,19 +464,11 @@ public:
   INLINE int32_t process(int32_t audio_input_int24) {
 #if 1
     // ZDF (Zero-Delay Feedback) / TPT (Topology-Preserving Transform) State Variable Filter (with a nonlinear leak on the band pass integrator, solved by one step of the simplified Newton method)
-    // The Drive's gain G on the input (see DRIVE_UNITY_Q16), with the scaling shift folded in
-    // (the input held within +-0.8 first, far above what an Osc puts out, so that 7.87 times it
-    // stays well within the headroom of 32)
+    // The Drive's gain on the input (see DRIVE_UNITY_Q16), with the scaling shift folded in
+    // (the input held within +-0.8 first, far above what an Osc puts out, so that 39.2 times it
+    // stays within the headroom of 32)
     const int32_t input_held = clamp(audio_input_int24, -6710886, 6710886);  // 0.8 * 2^23
     int32_t x_0 = multiply_shift_right(input_held, m_drive_gain, 16 - FILTER_CALC_SCALING_BITS);
-
-    // The input clip (biased, at most about +-1.3 after the pre-gain taken back), faded in by the Drive (none at 0, as
-    // before), and the input taken back to G^m for the loop (the pre-gain held first within what the clip passes, so
-    // that the shift does not overflow)
-    int32_t x_pre  = saturate_to_ceiling<SOFT_CLIP_CEILING_BITS - INPUT_CLIP_PRE_GAIN_SHIFT>(x_0) << INPUT_CLIP_PRE_GAIN_SHIFT;
-    int32_t x_clip = soft_clip_biased(x_pre) >> INPUT_CLIP_PRE_GAIN_SHIFT;
-    x_0 += multiply_shift_right(x_clip - x_0, m_clip_mix, 16);
-    x_0  = multiply_shift_right(x_0, m_input_post, 16);
 
     // Ramp the coefficients toward the ones computed at the last update
     m_g                 += m_g_slope;
@@ -580,7 +539,7 @@ public:
     int32_t y_0 = audio_input_int24 << FILTER_CALC_SCALING_BITS;
 #endif
 
-    // The loop's share of the Drive (G^m) taken back off ahead of the output clip, with the make-up gain and the output level by the Resonance
+    // The Drive's gain taken back off ahead of the output clip, with the output level by the Resonance
     return soft_clip_output(multiply_shift_right(y_0, m_output_gain, 16 + FILTER_CALC_SCALING_BITS));
   }
 
@@ -597,8 +556,6 @@ private:
     // so that the smoothing is not lost by rounding them to integers
     const int32_t resonance_current = smoothed.m_resonance_current;
     m_drive_gain = smoothed.m_drive_gain;
-    m_input_post = smoothed.m_input_post;
-    m_clip_mix   = smoothed.m_clip_mix;
     m_mode_lp_gain = smoothed.m_mode_lp_current;
     m_mode_hp_gain = smoothed.m_mode_hp_current;
     m_mode_bp_gain = smoothed.m_mode_bp_current;
@@ -633,12 +590,11 @@ private:
                       + multiply_shift_right(self_osc_over, self_osc_weight, FILTER_TABLE_FRACTION_BITS);
     int32_t k = interpolate_filter_table(g_filter_k_table, resonance);
 
-    // The output level by the Resonance (1.0 up to 96), on the loop's share of the Drive (G^m) taken back off and the make-up gain, so
+    // The output level by the Resonance (1.0 up to 96), on the Drive's gain taken back off, so
     // that a high Resonance is about as loud as 96 while the loop is as it was: the
     // self-oscillation starts and holds against the input as before, and comes out lower
     // (by the Resonance after the fade at a high cutoff, so it follows the self-oscillation)
-    m_output_gain = multiply_shift_right(multiply_shift_right(smoothed.m_loop_comp, smoothed.m_makeup, 16),
-                                         interpolate_filter_table(g_filter_resonance_level_table, resonance), 16);
+    m_output_gain = multiply_shift_right(smoothed.m_drive_comp, interpolate_filter_table(g_filter_resonance_level_table, resonance), 16);
 
     // k -= t * kappa / g, where t = (Resonance - 122) / 5, clamped to 0 .. 1,
     // and the table holds kappa / g / 5
