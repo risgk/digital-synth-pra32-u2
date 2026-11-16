@@ -310,7 +310,7 @@
     - 96: Band Pass
     - 97-126 (B-L): Band Pass to Low Pass (crossfaded; no notch in between)
     - 127: Low Pass (max, the same as 0)
-- Filter Drive: The gain into the Filter, 2^(value / 24) (6 dB every 24 values; x 4 at 48, x 32 at 120, x 39.2 at 127), which drives the loop (the leak, at a high Resonance or near the cutoff) harder; what leaves the loop is lowered by the same ahead of the output clip, so that the level stays and the Drive changes the tone alone (the self-oscillation comes out lower by it, and a high Drive holds the resonant peak down; at a low Resonance it does little)
+- Filter Drive: The gain into the Filter, G = 2^(value / 24) (6 dB every 24 values; x 4 at 48, x 32 at 120, x 39.2 at 127), shared between the input and the loop: the input goes into a soft clip (biased, the even harmonics too, faded in from 0 to 24), which puts in harmonics at any Resonance, and the square root of the gain, G^0.5, drives the loop (the leak, at a high Resonance or near the cutoff) harder, which holds the resonant peak down (half as much as the whole gain did up to v3.21.0: the resonance, and the squelch of a Filter EG, is kept more as the Drive goes up); what leaves the loop is lowered by G^0.5 ahead of the output clip, with a make-up gain from 40 up, so that the level stays within about 1.5 dB (a Saw at the Resonance 110) and the Drive changes the tone alone (the self-oscillation comes out lower by G^0.5); 0 (the Presets) is as before
     - 0: x 1.00 (0 dB, min, the Presets: the Filter as it was)
     - 24: x 2.00 (+6 dB)
     - 48: x 4.00 (+12 dB)

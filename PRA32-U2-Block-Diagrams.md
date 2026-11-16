@@ -74,24 +74,30 @@ harmonics as the band pass is driven (at a high Resonance or near the cutoff), w
 small-signal gain made up for, so that the resonance is kept; a DC blocker on the output
 removes the DC that comes with it. The output clip comes last. Above the Filter
 Resonance 122, k turns negative and the loop oscillates. Filter Drive multiplies the input by
-2^(value / 24), 1.0 at 0, 4.0 at 48, 32.0 at 120, and 39.2 at 127, which drives the loop and its leak harder, and divides
-what leaves the loop by the same ahead of the output clip, so that the level stays and the Drive
-changes the tone alone; the Presets are at 0 (1.0). With it, the output is lowered by the
+G = 2^(value / 24), 1.0 at 0, 4.0 at 48, 32.0 at 120, and 39.2 at 127, shared between the input and the loop: the input,
+x 2 more, goes into a soft clip, biased as the leak, and back by the 2 (faded in by the Drive: none at 0, all at 24 and
+above), and is then taken back to G^m (m = 0.5), which drives the loop and its leak harder (the resonance held down),
+while the rest of the Drive, G^(1 - m), works at the input clip alone (the resonance kept); what leaves the loop is
+divided by G^m ahead of the output clip, with a make-up gain for the level that the input clip takes (from 40 up),
+so that the level stays within about 1.5 dB (a Saw at the Resonance 110); the Presets are at 0 (1.0, as before).
+With it, the output is lowered by the
 Resonance above 96 (-2.8 dB at 122, and -4.4 dB at 127, where the self-oscillation, 0.5 in the
 loop, comes out at 0.3), so that a high Resonance is about as loud as 96, while the loop is as
 it was.
 
 ```mermaid
 flowchart LR
-    IN([Input]) --> DRV["× Drive<br/>2^(value / 24), 1.0 at 0"]
-    DRV --> SUM((Σ))
+    IN([Input]) --> DRV["× Drive G<br/>2^(value / 24), 1.0 at 0"]
+    DRV --> ICL["Input clip<br/>× 2, biased 1/8, ÷ 2<br/>faded in by the Drive"]
+    ICL --> PST["× G^m / G<br/>m = 0.5"]
+    PST --> SUM((Σ))
     SUM -->|HP| I1["Integrator 1<br/>BP, state s1"]
     I1 -->|BP| I2["Integrator 2<br/>LP, state s2"]
     SUM -->|HP| MS["Filter Mode<br/>LP / BR / HP / BP, crossfaded"]
     I1 -->|BP| MS
     I2 -->|LP| MS
     MS --> DC["DC blocker<br/>7.5 Hz"]
-    DC --> DIV["÷ Drive<br/>× level by the Resonance"]
+    DC --> DIV["÷ G^m, × make-up<br/>× level by the Resonance"]
     DIV --> OC["Output clip<br/>linear up to 0.75"]
     OC --> OUT([Output])
     SC["Nonlinear leak<br/>biased 1/8, ceiling 4.0, one-step simplified Newton"] -.- I1
@@ -99,7 +105,7 @@ flowchart LR
     I1 -->|"−k·BP"| SUM
     I2 -->|"−LP"| SUM
     classDef nl fill:#FAECE7,stroke:#D85A30,color:#712B13
-    class SC,OC nl
+    class SC,ICL,OC nl
 ```
 
 The same structure redrawn as an op-amp integrator filter. The asymmetric diode pair stands for
@@ -109,7 +115,9 @@ output clip. It is an interpretation, not a reproduction of an actual circuit.
 ```mermaid
 flowchart LR
     IN([Input]) --> IA["Input amp<br/>gain = Drive"]
-    IA --> A1["Summing amp Σ"]
+    IA --> ID["Diode pair<br/>asymmetric, to ground"]
+    ID --> IB["Attenuator<br/>G^m / G"]
+    IB --> A1["Summing amp Σ"]
     A1 -->|HP| A2["Integrator ∫<br/>C1"]
     D["Diode pair<br/>asymmetric"] -.-|across C1| A2
     A2 -->|BP| A3["Integrator ∫<br/>C2, linear"]
@@ -117,7 +125,7 @@ flowchart LR
     A2 -->|BP| MS
     A3 -->|LP| MS
     MS --> CC["Coupling capacitor"]
-    CC --> OA["Attenuator<br/>1 / Drive, lower at a high Resonance"]
+    CC --> OA["Attenuator<br/>1 / G^m, make-up, lower at a high Resonance"]
     OA --> LIM["Output clipper"]
     LIM --> OUT([Output])
     A2 -->|"R/k (resonance)"| A1
