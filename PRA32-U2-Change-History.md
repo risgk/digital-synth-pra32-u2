@@ -22,6 +22,9 @@
         - Seq Mode is now **Seq Direction** [Fwd|Rvs|Bnc] (the same Control Change #89 and values)
     - PRA32-U2/P: The top line of the display: "S", "$", and "#" moved to the left (from columns 10, 13, and 16 to 8, 11, and 15), and on the right end,
       "*" (the Play Key), the shift (4x4), and the step, right-aligned
+    - PRA32-U2 Editor: "Panel & Step Sequencer" keeps the values by the names of the panel parameters (e.g. "SEQ_TEMPO"), as the synth parameters,
+      not by the CC numbers of the Panel Channel; "pra32-u2-panel-initial.json" too
+        - Not compatible: the values kept (in the browser, Store, and the files of Export) before are not read: the initial values instead
     - PRA32-U2/P: Fix the wrong pitches (e.g. C#1 in Maj) of the Step Sequencer when Panel Pitch Ofst and Seq Pitch Ofst are both near -60 with a low Seq Pitch
     - Osc 2 Coarse shows -60 to +60, as it works (-64 to +63 shown before), in PRA32-U2 Editor, PRA32-U2 Native, and the panel of PRA32-U2/P
     - The Note On Velocity at first is 64 (100 before): Panel Play Velo and Seq Velo 0-7 of PRA32-U2/P (and by Init Panel Prms), the Software Keyboard

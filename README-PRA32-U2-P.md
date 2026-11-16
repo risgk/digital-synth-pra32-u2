@@ -174,6 +174,7 @@
     - "Basic Ch": that of PRA32-U2 (not "MIDI Ch" of the editor); "Set Basic Ch (to Device)" changes it on PRA32-U2 too (kept by Write)
     - PRA32-U2 sends nothing back: "Send Panel" sends the values that the editor keeps ("pra32-u2-panel-initial.json": the initial ones);
       Export keeps the Basic Ch too, which Import sets on PRA32-U2 if asked
+    - The values are kept (in the browser, and in the files of Export) by the names of the panel parameters (e.g. "SEQ_TEMPO"), as the synth parameters are
 
 ### PRA32-U2/P Headless
 

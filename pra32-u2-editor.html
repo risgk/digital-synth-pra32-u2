@@ -3936,28 +3936,36 @@ function panelSendCC(number, value) {
 }
 
 function panelSave() {
-  try { localStorage.setItem(PANEL_STORAGE_KEY, JSON.stringify({ ccs: PANEL_CCS_VERSION, values: panelValues, settings: panelSettings })); } catch (e) {}
+  try { localStorage.setItem(PANEL_STORAGE_KEY, JSON.stringify({ values: panelNamedValues(panelValues), settings: panelSettings })); } catch (e) {}
 }
 
-// The values of the data kept (in the browser) or exported, by the CC numbers of the Panel Channel now ("ccs": 3);
-// the data before them renumbered: with no "ccs" (e.g. Seq Velo 0-7 #24-31 to #70-77), and "ccs": 2 (Seq Pitch Ofst #91 to #95)
-const PANEL_CCS_VERSION = 3;
-const PANEL_OLD_CCS = { 40: 51, 41: 52, 42: 53, 44: 54, 45: 55, 46: 56,
-  24: 70, 25: 71, 26: 72, 27: 73, 28: 74, 29: 75, 30: 76, 31: 77,
-  48: 85, 49: 86, 50: 87, 51: 88, 52: 89, 53: 90, 54: 95, 55: 92, 56: 93, 57: 94 };
-const PANEL_CCS_2 = { 91: 95 };
+// The values of the data kept (in the browser) or exported: by the names of the panel parameters (as those of PRA32-U2,
+// e.g. "SEQ_TEMPO"), as the synth parameters are kept, not by the CC numbers of the Panel Channel (which the editor uses
+// to send them); the data by the CC numbers (before) is not read (the initial values instead)
+const PANEL_PARAM_NAMES = [
+  [51, "PANEL_SCALE"    ], [52, "PANEL_TRANSPOSE"], [53, "PANEL_PLAY_MODE"], [54, "PANEL_PLAY_PIT" ],
+  [55, "PANEL_PLAY_VELO"], [56, "PANEL_PIT_OFST" ], [58, "PANEL_TARGET_CH"], [59, "PANEL_MIDI_TX"  ],
+  [85, "SEQ_TEMPO"      ], [86, "SEQ_CLOCK_SRC"  ], [87, "SEQ_GATE_TIME"  ], [88, "SEQ_NUM_STEPS"  ],
+  [89, "SEQ_DIRECTION"  ], [90, "SEQ_ACT_STEPS"  ], [92, "SEQ_STEP_NOTE"  ], [93, "SEQ_ON_STEPS"   ],
+  [94, "SEQ_RX_ST_SP"   ], [95, "SEQ_PIT_OFST"   ], [60, "SEQ_CH_OFST"    ], [61, "SEQ_TRANSPOSE"  ],
+  [62, "SEQ_PATTERN"    ],
+  ...[0, 1, 2, 3, 4, 5, 6, 7].map(i => [16 + i, "SEQ_PITCH_" + i]),
+  ...[0, 1, 2, 3, 4, 5, 6, 7].map(i => [70 + i, "SEQ_VELO_" + i]),
+];
+
+function panelNamedValues(values) {
+  const named = {};
+  PANEL_PARAM_NAMES.forEach(([cc, name]) => { named[name] = values[cc]; });
+  return named;
+}
 
 function panelValuesOf(data) {
   const values = panelDefaultValues();
-  const renumber = (data.ccs === PANEL_CCS_VERSION) ? {} : (data.ccs === 2) ? PANEL_CCS_2 : PANEL_OLD_CCS;
-  for (const key in data.values || {}) {
-    const cc = renumber[key] || Number(key);
-    if (cc in values) { values[cc] = panelClamp(parseInt(data.values[key]) || 0, 0, 127); }
-  }
-  // Panel Target Ch (#58): one of PANEL_TARGETS (the Main Synth if not); the current one kept for the data without it (before)
-  if (!(data.values && ("58" in data.values))) {
-    values[58] = (58 in panelValues) ? panelValues[58] : 0;
-  }
+  const named = data.values || {};
+  PANEL_PARAM_NAMES.forEach(([cc, name]) => {
+    if (name in named) { values[cc] = panelClamp(parseInt(named[name]) || 0, 0, 127); }
+  });
+  // Panel Target Ch (#58): one of PANEL_TARGETS (the Main Synth if not)
   if (!PANEL_TARGETS.some(t => t[1] === values[58])) { values[58] = 0; }
   return values;
 }
@@ -3969,14 +3977,7 @@ function panelLoad() {
     if (data) {
       panelValues = panelValuesOf(data);
       const settings = data.settings || {};
-      if ((settings.basicCh === undefined) && (settings.panelCh !== undefined)) {  // kept as the Panel CC Ch (+ 10) before
-        settings.basicCh = (settings.panelCh + 6) & 0x0F;
-      }
       panelSettings.basicCh = panelClamp(parseInt(settings.basicCh) || 0, 0, 15);
-      if ((settings.target !== undefined) && !(data.values && ("58" in data.values))) {  // kept as a setting before
-        const t = PANEL_TARGETS[panelClamp(parseInt(settings.target) || 0, 0, PANEL_TARGETS.length - 1)];
-        panelValues[58] = t[1];
-      }
     }
   } catch (e) {}
 }
@@ -4142,7 +4143,7 @@ function panelRecall() {
 }
 
 function panelStore() {
-  try { localStorage.setItem(PANEL_MEMORY_KEY, JSON.stringify({ ccs: PANEL_CCS_VERSION, values: panelValues })); } catch (e) {}
+  try { localStorage.setItem(PANEL_MEMORY_KEY, JSON.stringify({ values: panelNamedValues(panelValues) })); } catch (e) {}
   panelUpdateMemoryButtons();
 }
 
@@ -4177,7 +4178,7 @@ function panelSetBasicChAsked() {
 }
 
 function panelExport() {
-  const data = { format: "PRA32-U2 Panel Parameters", ccs: PANEL_CCS_VERSION, values: panelValues, basicCh: panelBasicCh() };
+  const data = { format: "PRA32-U2 Panel Parameters", values: panelNamedValues(panelValues), basicCh: panelBasicCh() };
   const blob = new Blob([JSON.stringify(data, null, 2) + "\n"], { type: "application/json" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
