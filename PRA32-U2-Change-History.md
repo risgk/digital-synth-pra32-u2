@@ -33,7 +33,7 @@
     - **Filter Drive** shared between the input and the loop: the input soft-clipped (biased, the even harmonics too), and the loop driven by the square root of the gain,
       so that the Drive puts in harmonics at any Resonance while the Resonance (and the squelch of a Filter EG) is kept more (e.g. at the Resonance 110 and the Drive 96,
       the resonant peak about 3 dB down, from about 18 dB down before), with a make-up gain (the level within about 0.5 dB with a Saw at the Resonance 110)
-        - The gain is now x 1 to x 8 (x 39.2 at 127 before; 0-127 now as 0-72 before), so that the top stops short of a square wave: a strong distortion is
+        - The gain is now x 1 to x 7.87 (x 39.2 at 127 before; 0-128 now as 0-72 before), so that the top stops short of a square wave: a strong distortion is
           for the Distortion FX (after the Filter); the input clip has no oversampling, which folded back much more further up, and a single note through
           the Chorus sounded broken up there
         - Not compatible: a sound with Filter Drive above 0 sounds otherwise (more harmonics, the Resonance less held down, and less distortion at the top); 0 (the Presets) is as before

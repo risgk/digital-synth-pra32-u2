@@ -138,8 +138,8 @@ class PRA32_U2_Filter {
   // high pass at about f_s / (2 * pi * 2^10), i.e. 7.5 Hz at 48 kHz
   static const uint8_t DC_BLOCKER_SHIFT = 10;
 
-  // Filter Drive: the gain G = 2^(d / 24), d = v * DRIVE_RANGE / 127 (the value v taken as 0 to 72 of the table:
-  // 1.0 at 0, 2.0 at 42, 4.0 at 85, 8.0 at 127, 6 dB every 42.3 values), so that the top stops short of a square wave
+  // Filter Drive: the gain G = 2^(d / 24), d = v * DRIVE_RANGE / 128 (the value v taken as 0 to 72 of the table, at 128:
+  // 1.0 at 0, 2.0 at 43, 4.0 at 85, 7.87 at 127, 6 dB every 42.7 values), so that the top stops short of a square wave
   // (which a Chorus breaks up, as it cancels the fundamental from time to time) and of the aliasing of the input clip
   // (no oversampling: 32 times or so folds back about 25 dB more), leaving a strong distortion to the Distortion FX;
   // shared between the input and the loop, so that the Drive puts in harmonics while the Resonance is kept more:
@@ -453,10 +453,10 @@ public:
   // smoothed v scaled to d (see DRIVE_RANGE), and its reciprocal: the 32-bit division is a single
   // instruction, taken every time so that the load does not depend on the
   // value; + 1 lands exactly on 1.0 at a Drive of 0, and is a 1/65536 past it.
-  // At the top, the input, held within +-0.8 (see process()), times 8.0 is 6.4, within the
+  // At the top, the input, held within +-0.8 (see process()), times 7.87 is 6.3, within the
   // headroom of 32 of the loop
   INLINE void update_drive_gain() {
-    const int32_t drive = (m_drive_current / 127) * DRIVE_RANGE;  // d, Q16
+    const int32_t drive = (m_drive_current >> 7) * DRIVE_RANGE;  // d, Q16
     m_drive_gain = interpolate_filter_table(g_filter_drive_gain_table, drive);
     uint32_t reciprocal = (0xFFFFFFFFu / static_cast<uint32_t>(m_drive_gain)) + 1;
     m_drive_comp = (reciprocal < static_cast<uint32_t>(DRIVE_UNITY_Q16)) ? static_cast<int32_t>(reciprocal) : DRIVE_UNITY_Q16;
@@ -498,7 +498,7 @@ public:
 #if 1
     // ZDF (Zero-Delay Feedback) / TPT (Topology-Preserving Transform) State Variable Filter (with a nonlinear leak on the band pass integrator, solved by one step of the simplified Newton method)
     // The Drive's gain G on the input (see DRIVE_UNITY_Q16), with the scaling shift folded in
-    // (the input held within +-0.8 first, far above what an Osc puts out, so that 8.0 times it
+    // (the input held within +-0.8 first, far above what an Osc puts out, so that 7.87 times it
     // stays well within the headroom of 32)
     const int32_t input_held = clamp(audio_input_int24, -6710886, 6710886);  // 0.8 * 2^23
     int32_t x_0 = multiply_shift_right(input_held, m_drive_gain, 16 - FILTER_CALC_SCALING_BITS);

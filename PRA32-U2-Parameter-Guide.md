@@ -310,16 +310,16 @@
     - 96: Band Pass
     - 97-126 (B-L): Band Pass to Low Pass (crossfaded; no notch in between)
     - 127: Low Pass (max, the same as 0)
-- Filter Drive: The gain into the Filter, G = 2^(value * 3 / 127) (6 dB every 42.3 values; x 2 at 42, x 4 at 85, x 8 at 127), shared between the input and the loop: the input goes into a soft clip (biased, the even harmonics too, faded in from 0 to 42), which puts in harmonics at any Resonance, and the square root of the gain, G^0.5, drives the loop (the leak, at a high Resonance or near the cutoff) harder, which holds the resonant peak down (the resonance, and the squelch of a Filter EG, is kept more than up to v3.21.0 as the Drive goes up); what leaves the loop is lowered by G^0.5 ahead of the output clip, with a make-up gain from 71 up, so that the level stays within about 0.5 dB (a Saw at the Resonance 110) and the Drive changes the tone alone (the self-oscillation comes out lower by G^0.5); 0 (the Presets) is as before
-    - The top stops at x 8, short of a square wave (a stronger distortion is for the Distortion FX, after the Filter): further up, the input clip, without oversampling, folded back much more, and a single note through the Chorus sounded broken up, as the Chorus cancelled the fundamental from time to time
+- Filter Drive: The gain into the Filter, G = 2^(value * 3 / 128) (6 dB every 42.7 values; x 2 at 43, x 4 at 85, x 7.87 at 127), shared between the input and the loop: the input goes into a soft clip (biased, the even harmonics too, faded in from 0 to 43), which puts in harmonics at any Resonance, and the square root of the gain, G^0.5, drives the loop (the leak, at a high Resonance or near the cutoff) harder, which holds the resonant peak down (the resonance, and the squelch of a Filter EG, is kept more than up to v3.21.0 as the Drive goes up); what leaves the loop is lowered by G^0.5 ahead of the output clip, with a make-up gain from 71 up, so that the level stays within about 0.5 dB (a Saw at the Resonance 110) and the Drive changes the tone alone (the self-oscillation comes out lower by G^0.5); 0 (the Presets) is as before
+    - The top stops at about x 8, short of a square wave (a stronger distortion is for the Distortion FX, after the Filter): further up, the input clip, without oversampling, folded back much more, and a single note through the Chorus sounded broken up, as the Chorus cancelled the fundamental from time to time
     - NOTE: The Drive takes the squelch of a Filter EG down a little as it goes up (e.g. at the Resonance 96, the resonant peak about 3 dB down at 127);
-      for the most squelch (e.g. a 303-like bass), 0 to about 42, with the Distortion FX for the grit
+      for the most squelch (e.g. a 303-like bass), 0 to about 43, with the Distortion FX for the grit
     - 0: x 1.00 (0 dB, min, the Presets: the Filter as it was)
-    - 42: x 1.99 (+6.0 dB)
-    - 64: x 2.85 (+9.1 dB)
-    - 85: x 4.02 (+12.1 dB)
-    - 106: x 5.67 (+15.1 dB)
-    - 127: x 8.00 (+18.1 dB, max)
+    - 43: x 2.01 (+6.1 dB)
+    - 64: x 2.83 (+9.0 dB)
+    - 85: x 3.98 (+12.0 dB)
+    - 107: x 5.69 (+15.1 dB)
+    - 127: x 7.87 (+17.9 dB, max)
 - EG Amp Mod [Off|On]
     - 0 (0-63): Off, the Amp EG (Amp Attack/Decay/Sustain/Release, in the More Synth Parameters of PRA32-U2 Editor) changes the level (as a gate in the Presets: Amp Attack 0, Amp Decay 0, Amp Sustain 127, and Amp Release 0)
     - 127 (64-127): On, the EG also works as the Amp EG (the Amp Attack/Decay/Sustain/Release are not used)
