@@ -1075,6 +1075,88 @@ static INLINE void PRA32_U2_ControlPanel_draw_character(uint8_t c) {
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL_OLED_DISPLAY)
 }
 
+// Osc 1 Shape and Osc 1 Morph, by Osc 1 Wave of the synth that the panel selects (3 characters at most, right-aligned;
+// the same as osc1DispValue() of PRA32-U2 Editor): Shape: the pulse width in % (Pls); Morph: the frequency ratio (Sin,
+// e.g. "1.5", "16." for 16.5), the wave table (WT), and the Pulse (P) or the 2nd Saw (S) as it works (Pls)
+// The text (3 characters at most) right-aligned in 3 characters
+static INLINE void PRA32_U2_ControlPanel_copy_right_aligned(char value_display_text[5], const char* buff, uint32_t length) {
+  for (uint32_t i = 0; i < 3; ++i) {
+    value_display_text[i] = (i >= 3 - length) ? buff[i - (3 - length)] : ' ';
+  }
+  value_display_text[3] = '\0';
+}
+
+static INLINE void PRA32_U2_ControlPanel_append_decimal(char* buff, uint32_t& length, uint32_t value) {
+  if (value >= 100) { buff[length++] = '0' + (value / 100); }
+  if (value >= 10)  { buff[length++] = '0' + ((value / 10) % 10); }
+  buff[length++] = '0' + (value % 10);
+}
+
+// A value of two sides as it works, 2 controller values a step: -64 (0), -62 (1-2), ..., 0 (63-64), ..., +62 (125-126),
+// and +64 (127), shown as the letter of the side and the amount (e.g. "N64", "0", "S64"), right-aligned
+static void PRA32_U2_ControlPanel_calc_value_display_two_sides(uint8_t controller_value, char minus, char plus, char value_display_text[5]) {
+  int32_t  x      = static_cast<int32_t>(controller_value) - 63;
+  int32_t  amount = (x >= 0) ? ((x / 2) * 2) : -(((-x + 1) / 2) * 2);  // floor(x / 2) * 2
+  char     buff[4];
+  uint32_t length = 0;
+  if (amount == 0) {
+    buff[length++] = '0';
+  } else {
+    buff[length++] = (amount > 0) ? plus : minus;
+    PRA32_U2_ControlPanel_append_decimal(buff, length, (amount > 0) ? amount : -amount);
+  }
+  PRA32_U2_ControlPanel_copy_right_aligned(value_display_text, buff, length);
+}
+
+static boolean PRA32_U2_ControlPanel_calc_value_display_osc_1(uint8_t control_target, uint8_t controller_value, char value_display_text[5]) {
+  uint32_t wave = ((getCurrentControllerValue(getTargetMIDICh(s_current_synth), OSC_1_WAVE) * 10) + 128) >> 8;
+  uint32_t v    = controller_value;
+  char     buff[4];
+  uint32_t length = 0;
+
+  if (control_target == OSC_1_SHAPE) {
+    if (wave != 5) {
+      return false;
+    }
+    PRA32_U2_ControlPanel_append_decimal(buff, length, (v >= 127) ? 0 : ((50 * (128 - v) + 64) / 128));
+  } else if (wave == 3) {
+    uint32_t halves = ((v + 2) >> 2) + 1;  // the ratio (0.5 to 16.5) * 2: "0.5" to "9.5", and "10" to "16." ("." for .5)
+    PRA32_U2_ControlPanel_append_decimal(buff, length, halves >> 1);
+    if ((halves >> 1) < 10) {
+      buff[length++] = '.';
+      buff[length++] = (halves & 1) ? '5' : '0';
+    } else if (halves & 1) {
+      buff[length++] = '.';
+    }
+  } else if (wave == 4) {
+    buff[length++] = 'W';
+    buff[length++] = 'T';
+    buff[length++] = '0' + (((v * 10) + 128) >> 8);
+  } else if (wave == 5) {  // P64 (Pulse 100%) to 0 (Saw) to S64 (2nd Saw 100%), as it works
+    PRA32_U2_ControlPanel_calc_value_display_two_sides(v, 'P', 'S', value_display_text);
+    return true;
+  } else {
+    return false;
+  }
+
+  PRA32_U2_ControlPanel_copy_right_aligned(value_display_text, buff, length);
+  return true;
+}
+
+// Pan: L63 (0 and 1, the same) to C (64) to R63 (127), right-aligned (the same as PRA32-U2 Editor)
+static void PRA32_U2_ControlPanel_calc_value_display_pan(uint8_t controller_value, char value_display_text[5]) {
+  char     buff[4];
+  uint32_t length = 0;
+  if (controller_value == 64) {
+    buff[length++] = 'C';
+  } else {
+    buff[length++] = (controller_value > 64) ? 'R' : 'L';
+    PRA32_U2_ControlPanel_append_decimal(buff, length, (controller_value > 64) ? (controller_value - 64) :
+                                                       ((controller_value <= 1) ? 63 : (64 - controller_value)));
+  }
+  PRA32_U2_ControlPanel_copy_right_aligned(value_display_text, buff, length);
+}
+
 // (in the RAM, but noinline: one copy for the values of the page, not one for each)
 static __attribute__((noinline)) boolean __not_in_flash_func(PRA32_U2_ControlPanel_calc_value_display)(uint8_t control_target, uint8_t controller_value, char value_display_text[5])
 {
@@ -1089,7 +1171,6 @@ static __attribute__((noinline)) boolean __not_in_flash_func(PRA32_U2_ControlPan
   case LFO_FILTER_AMT  :
   case BTH_FILTER_AMT  :
   case A_D_KEY_TRK     :
-  case PAN             :
   case STRETCH_TUNE    :
   case COARSE_TUNE     :
   case FINE_TUNE       :
@@ -1118,22 +1199,17 @@ static __attribute__((noinline)) boolean __not_in_flash_func(PRA32_U2_ControlPan
       result = true;
     }
     break;
-  case MIXER_SUB_OSC   :
-    {
-      PRA32_U2_ControlPanel_format_decimal(value_display_text, static_cast<int>(controller_value) - 64, true);
-
-      if        (controller_value < 55) {
-        value_display_text[0] = 'N';
-      } else if (controller_value < 64) {
-        value_display_text[1] = 'N';
-      } else if (controller_value < 74) {
-        value_display_text[1] = 'S';
-      } else {
-        value_display_text[0] = 'S';
-      }
-
-      result = true;
-    }
+  case OSC_1_SHAPE     :
+  case OSC_1_MORPH     :
+    result = PRA32_U2_ControlPanel_calc_value_display_osc_1(control_target, controller_value, value_display_text);
+    break;
+  case PAN             :
+    PRA32_U2_ControlPanel_calc_value_display_pan(controller_value, value_display_text);
+    result = true;
+    break;
+  case MIXER_SUB_OSC   :  // N64 (Noise 100%) to 0 to S64 (Sub Osc 100%), as it works
+    PRA32_U2_ControlPanel_calc_value_display_two_sides(controller_value, 'N', 'S', value_display_text);
+    result = true;
     break;
   case OSC_1_WAVE      :
     {

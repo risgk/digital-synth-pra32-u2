@@ -1590,6 +1590,13 @@ function updateDimmedParameters() {
   var indexOsc1Wave = Math.floor(((localStorage.getItem("keyOSC_1_WAVE     ") * 10) + 128) >> 8);
   setParameterDimmed(OSC_1_SHAPE, indexOsc1Wave == 2);
   setParameterDimmed(OSC_1_MORPH, indexOsc1Wave == 2);
+  // and their values shown by Osc 1 Wave
+  [OSC_1_SHAPE, OSC_1_MORPH].forEach(function(number) {
+    var value = localStorage.getItem("key" + controlNumberToStringMap.get(number));
+    if (value !== null) {
+      updateDisplayOfControl(number, value);
+    }
+  });
 
   // Amp Attack, Amp Decay, Amp Sustain, and Amp Release: not used if EG Amp Mod is On,
   // and EG Release and Amp Release: not used if EG/Amp Rel = Dec is On
@@ -1849,12 +1856,43 @@ function onChangeMIDICh() {
   localStorage.setItem("keyMIDICh", midi_ch);
 }
 
+// A value of two sides as it works, 2 controller values a step: -64 (0), -62 (1-2), ..., 0 (63-64), ..., +62 (125-126),
+// and +64 (127), as the letter of the side and the amount (e.g. "N64", "0", "S64"); the same as PRA32-U2 Native and the panel
+function twoSidesDispValue(value, minus, plus) {
+  var amount = ((value - 63) >> 1) << 1;
+  return (amount == 0) ? "0" : (amount > 0) ? (plus + String(amount)) : (minus + String(-amount));
+}
+
+// Osc 1 Shape and Osc 1 Morph, by Osc 1 Wave (3 characters at most, as the panel of PRA32-U2/P), or null (the value alone):
+// Shape: the pulse width in % (Pls); Morph: the frequency ratio (Sin, e.g. "1.5", "16."), the wave table (WT), and the Pulse (P)
+// or the 2nd Saw (S) as it works (Pls); the same as PRA32-U2 Native and the panel (shown even if the same as the value)
+function osc1DispValue(number, value) {
+  var indexOsc1Wave = ((parseInt(localStorage.getItem("keyOSC_1_WAVE     ")) || 0) * 10 + 128) >> 8;
+  if (number == OSC_1_SHAPE) {
+    if (indexOsc1Wave == 5) {
+      return String((value >= 127) ? 0 : Math.floor((50 * (128 - value) + 64) / 128));
+    }
+  } else {
+    if (indexOsc1Wave == 3) {
+      var halves = ((value + 2) >> 2) + 1;  // the ratio (0.5 to 16.5) * 2: "0.5" to "9.5", and "10" to "16." ("." for .5)
+      return ((halves >> 1) < 10) ? (String(halves >> 1) + "." + ((halves & 1) ? "5" : "0"))
+                                  : (String(halves >> 1) + ((halves & 1) ? "." : ""));
+    } else if (indexOsc1Wave == 4) {
+      return "WT" + String((value * 10 + 128) >> 8);
+    } else if (indexOsc1Wave == 5) {
+      return twoSidesDispValue(value, "P", "S");
+    }
+  }
+  return null;
+}
+
 function updateDisplayOfControl(number, value) {
   var input = document.getElementById("input" + controlNumberToStringMap.get(number));
   input.value = parseInt(value);
   updateSliderFill(input);
 
   dispValue = String(value);
+  var alwaysShown = false;
 
   switch (number) {
   case OSC_2_COARSE    :
@@ -1872,7 +1910,6 @@ function updateDisplayOfControl(number, value) {
   case A_D_VEL_SENS    :
   case REL_VEL_SENS    :
   case A_D_KEY_TRK     :
-  case PAN             :
   case STRETCH_TUNE    :
   case COARSE_TUNE     :
   case FINE_TUNE       :
@@ -1883,12 +1920,21 @@ function updateDisplayOfControl(number, value) {
       dispValue = String(value - 64);
     }
     break;
-  case MIXER_SUB_OSC   :
-    if (value >= 64) {
-      dispValue = "S" + String(value - 64);
-    } else {
-      dispValue = "N" + String(64 - value);
+  case OSC_1_SHAPE     :
+  case OSC_1_MORPH     :
+    {
+      var osc1Text = osc1DispValue(number, parseInt(value));
+      if (osc1Text !== null) {
+        dispValue = osc1Text;
+        alwaysShown = true;  // e.g. "36 [36]" (the pulse width 36% at 36), as the panel
+      }
     }
+    break;
+  case PAN             :  // L63 (0 and 1, the same) to C (64) to R63 (127), as the panel and PRA32-U2 Native
+    dispValue = (value > 64) ? ("R" + String(value - 64)) : (value == 64) ? "C" : ("L" + String(Math.min(64 - value, 63)));
+    break;
+  case MIXER_SUB_OSC   :  // N64 (Noise 100%) to 0 to S64 (Sub Osc 100%), as it works
+    dispValue = twoSidesDispValue(parseInt(value), "N", "S");
     break;
   case OSC_1_WAVE      :
     {
@@ -2015,13 +2061,13 @@ function updateDisplayOfControl(number, value) {
   }
 
   document.getElementById("span" + controlNumberToStringMap.get(number)).innerHTML = value;
-  if (String(value) != dispValue) {
+  if (alwaysShown || (String(value) != dispValue)) {
     document.getElementById("span2" + controlNumberToStringMap.get(number)).innerHTML = "[" + dispValue + "]";
   } else {
     document.getElementById("span2" + controlNumberToStringMap.get(number)).innerHTML = "";
   }
   // For a screen reader, the value with its meaning (e.g. "0 Saw"), as shown
-  input.setAttribute("aria-valuetext", (String(value) != dispValue) ? value + " " + dispValue : String(value));
+  input.setAttribute("aria-valuetext", (alwaysShown || (String(value) != dispValue)) ? value + " " + dispValue : String(value));
 
   localStorage.setItem("key" + controlNumberToStringMap.get(number), value);
 }
@@ -2295,7 +2341,8 @@ function updateSliderFill(input) {
 // The sliders of the switches of 2, 3, and 6 choices (e.g. [Off|On], [Fwd|Rvs|Bnc], and [Saw|Sqr|Tri|Sin|WT|Pls]):
 // the thumb dragged near a marker (within SLIDER_SNAP_DISTANCE) goes to it, as a datalist of Chrome did, so that
 // the values of the choices are easy to take. Not by the keys (a step a key), nor for the other markers (e.g. the
-// center of [-|+], and Filter Mode and Osc 1 Morph, which change smoothly between them)
+// center of [-|+], and Filter Mode and Osc 1 Morph, which change smoothly between them; but Osc 1 Morph with Osc 1 Wave
+// WT, the wave tables)
 const SLIDER_SNAP_DISTANCE = 4;
 const SLIDER_SNAP_MARKERS = {
   "soft-markers-2": [0, 127],
@@ -2308,6 +2355,11 @@ function sliderSnapMarkers(input) {
   var ctrl = input.parentElement;
   if (!ctrl || !ctrl.classList) {
     return null;
+  }
+  // Osc 1 Morph with Osc 1 Wave WT: the wave tables (0-5), as the 6 choices
+  if ((input.id == "input" + controlNumberToStringMap.get(OSC_1_MORPH)) &&
+      ((((parseInt(localStorage.getItem("keyOSC_1_WAVE     ")) || 0) * 10 + 128) >> 8) == 4)) {
+    return SLIDER_SNAP_MARKERS["soft-markers-6"];
   }
   for (var name in SLIDER_SNAP_MARKERS) {
     if (ctrl.classList.contains(name)) {

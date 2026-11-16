@@ -40,6 +40,7 @@
     - +60 (123-124): Sub Osc 93.8%
     - +62 (125-126): Sub Osc 96.9%
     - +63 (127): Sub Osc 100% (max)
+    - Shown as it works, 2 values a step: "N64" (0), "N62" (1-2), ..., "0" (63-64), ..., "S62" (125-126), and "S64" (127)
 - Osc 1 Shape $1
     - Saw Wave: Multi Saw Detune
     - Square Wave: Sync Square Pitch
@@ -52,6 +53,7 @@
         - 96: Pulse Width 12.5%, or 2nd Saw Phase 87.5%
         - 126: Pulse Width 0.8%, or 2nd Saw Phase 99.2%
         - 127: Pulse Width 0%, or 2nd Saw Phase 100%
+        - Shown as the pulse width in % (e.g. "25" at 64; "36" at 36 too, shown even if the same as the value)
 - Osc 1 Morph $1
     - Saw Wave:
         - 0: Normal Saw 100% (min)
@@ -71,6 +73,7 @@
         - 108 (106-109): Ratio 14.0
         - 124 (122-125): Ratio 16.0
         - 127 (126-127): Ratio 16.5 (max)
+        - Shown as the ratio in 3 characters: "0.5" to "9.5", and "10" to "16." ("." for .5, e.g. "16." for 16.5)
     - Wave Tables with Constraints
         - 0 (0-12): Wave Table 0 (Sync Pulse 1/8)
         - 26 (13-38): Wave Table 1 (Sync Pulse 1/4)
@@ -78,12 +81,14 @@
         - 77 (64-89): Wave Table 3 (Sync & Ring)
         - 102 (90-115): Wave Table 4 (8+0 to 0+8)
         - 127 (116-127): Wave Table 5 (6+0 to 0+10)
+        - Shown as "WT0" to "WT5"; the slider of PRA32-U2 Editor snaps to the 6 tables (0, 26, 51, 77, 102, and 127)
     - Pulse Wave
         - 0: Pulse 100% = Saw 100% + Reverse Saw 100% (min)
         - 32 (31-32): Pulse 50% + Saw 50% = Saw 100% + Reverse Saw 50%
         - 64 (63-64): Saw 100%
         - 96 (95-96): Saw 100% + Saw 50%
         - 127: Saw 100% + Saw 100% (max)
+        - Shown as it works, 2 values a step: "P64" (0, the Pulse), "P62" (1-2), ..., "0" (63-64, the Saw), ..., "S62" (125-126), and "S64" (127, the 2nd Saw)
         - NOTE: With a high "Osc 1 Shape" and a high "Osc 1 Morph", the output gets louder (up to about +6 dB), and the Output Compressor may make chords waver; if so, lower the "Amp Gain"
 - Osc 2 Wave [Saw|Sqr|Tri|Sin|O1|Nos]
     - 0 (0-12): Saw Wave
@@ -432,6 +437,7 @@
     - +0 (64): Center (L 0 dB, R 0 dB)
     - +32 (96): L -5.5 dB, R +2.3 dB
     - +63 (127): Right (L Off, R +3.0 dB) (max)
+    - Shown as "L63" (0 and 1), ..., "L1" (63), "C" (64), "R1" (65), ..., and "R63" (127)
 - Distortion Drive: The drive into the Distortion FX, 2^(value / 24) (6 dB every 24 values; x 4 at 48, x 32 at 120, x 39.2 at 127), for the synths whose FX Routing is Dst; the output is lowered by 15/16 of the drive in dB up to 96 (x 16), and by as much as there above it, where most of a sound is past the shoulder already, so that the level stays within about 2 dB as the drive goes up (a single quiet note gets a few dB louder at the top) (a little up halfway, and a little down where it saturates hard). The shoulder below zero is shorter than above (even harmonics too), the aliasing is reduced by ADAA (antiderivative anti-aliasing), and a tone (a 1-pole low pass) after it takes the edge off the harmonics, more with more drive (none at 0, about 10 kHz at 64, 5 kHz at 127)
     - NOTE: On a single note of the Saw Wave, which has every harmonic already, the Distortion changes the tone little; it is heard best on a chord (from a Distortion Drive of about 30 up, with the Presets), with a high Filter Resonance (about 110 or above, from a Distortion Drive of about 72 up), or with the Sine or the Triangle Wave
     - 0: x 1.00 (0 dB, min, the Presets: a sound below full scale passes as it is)

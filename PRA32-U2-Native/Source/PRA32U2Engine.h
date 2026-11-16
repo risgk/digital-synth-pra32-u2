@@ -27,8 +27,12 @@ public:
   // Whether a sound parameter is randomized by "Randomize FX", the same as PRA32-U2 Editor (e.g. "Chorus Level")
   static bool isRandomizedAsFx(uint8_t controlNumber);
 
-  // The text of a controller value, the same as PRA32-U2 Editor (e.g. "26 [Sqr]", "67 [+3]", or "100")
-  static std::string getValueText(uint8_t controlNumber, uint8_t value);
+  // The text of a controller value, the same as PRA32-U2 Editor (e.g. "26 [Sqr]", "67 [+3]", or "100"); osc1Wave is
+  // the value of Osc 1 Wave, by which Osc 1 Shape and Osc 1 Morph are shown (e.g. "64 [25%]" with Pls)
+  static std::string getValueText(uint8_t controlNumber, uint8_t value, uint8_t osc1Wave = 0);
+
+  // The value of Osc 1 Wave now (for getValueText())
+  uint8_t getOsc1Wave() const;
 
   // m: PRA32-U2/M, the 4 synths by the MIDI channels (only if built with PRA32_U2_ENGINE_M, for PRA32-U2/M/P Web;
   // one at most in a process)

@@ -26,6 +26,11 @@
       not by the CC numbers of the Panel Channel; "pra32-u2-panel-initial.json" too
         - Not compatible: the values kept (in the browser, Store, and the files of Export) before are not read: the initial values instead
     - PRA32-U2/P: Fix the wrong pitches (e.g. C#1 in Maj) of the Step Sequencer when Panel Pitch Ofst and Seq Pitch Ofst are both near -60 with a low Seq Pitch
+    - Osc 1 Shape and Osc 1 Morph show their meanings by Osc 1 Wave (3 characters at most): Shape: the pulse width in % (Pls, e.g. "25");
+      Morph: the frequency ratio (Sin, e.g. "1.5", and "16." for 16.5), the wave table (WT, e.g. "WT2"), and the Pulse or the 2nd Saw as it works (Pls, "P64" to "0" to "S64",
+      2 values a step); Mixer Noise/Sub Osc shows "N64" to "0" to "S64" as it works (2 values a step, "S63" at 127 before); and Pan shows "L63" (0 and 1)
+      to "C" (64) to "R63" (127) (-64 to +63 before); in PRA32-U2 Editor, PRA32-U2 Native, and the panel of PRA32-U2/P
+        - PRA32-U2 Editor: The slider of Osc 1 Morph snaps to the wave tables (0, 26, 51, 77, 102, and 127) with Osc 1 Wave WT
     - Osc 2 Coarse shows -60 to +60, as it works (-64 to +63 shown before), in PRA32-U2 Editor, PRA32-U2 Native, and the panel of PRA32-U2/P
     - The Note On Velocity at first is 64 (100 before): Panel Play Velo and Seq Velo 0-7 of PRA32-U2/P (and by Init Panel Prms), the Software Keyboard
       and "Panel & Step Sequencer" of PRA32-U2 Editor, "pra32-u2-panel-initial.json", and "pra32-u2-sample.mid"; the values written before stay

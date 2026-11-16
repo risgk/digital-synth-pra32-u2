@@ -287,11 +287,16 @@ bool PRA32U2Engine::isRandomizedAsFx(uint8_t controlNumber) {
 }
 
 // The same as updateDisplayOfControl() of PRA32-U2 Editor (pra32-u2-editor.html)
-std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value) {
+std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value, uint8_t osc1Wave) {
   const int v = value;
   std::string dispValue = std::to_string(v);
 
   auto bipolar = [](int x) { return (x >= 64) ? ("+" + std::to_string(x - 64)) : std::to_string(x - 64); };
+  // Two sides as it works, 2 values a step: -64 (0), -62 (1-2), ..., 0 (63-64), ..., +64 (127), e.g. "N64", "0", "S64"
+  auto twoSides = [](int x, const char* minus, const char* plus) {
+    const int amount = ((x - 63) >= 0) ? (((x - 63) / 2) * 2) : -((((63 - x) + 1) / 2) * 2);
+    return (amount == 0) ? std::string("0") : (amount > 0) ? (plus + std::to_string(amount)) : (minus + std::to_string(-amount));
+  };
   auto select6 = [](int x, const char* const (&labels)[6]) { return std::string(labels[((x * 10) + 128) >> 8]); };
   auto select3 = [](int x, const char* const (&labels)[3]) { return std::string(labels[((x * 4) + 128) >> 8]); };
   auto select2 = [](int x, const char* const (&labels)[2]) { return std::string(labels[((x * 2) + 128) >> 8]); };
@@ -323,12 +328,33 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value) {
   case A_D_VEL_SENS    :
   case REL_VEL_SENS    :
   case A_D_KEY_TRK     :
-  case PAN             :
   case STRETCH_TUNE    :
   case COARSE_TUNE     :
   case FINE_TUNE       :
   case BTH_FILTER_AMT  : dispValue = bipolar(v);                     break;
-  case MIXER_SUB_OSC   : dispValue = (v >= 64) ? ("S" + std::to_string(v - 64)) : ("N" + std::to_string(64 - v)); break;
+  case PAN             : dispValue = (v > 64) ? ("R" + std::to_string(v - 64)) : (v == 64) ? std::string("C")
+                                                  : ("L" + std::to_string(std::min(64 - v, 63)));  break;  // L63 (0 and 1) to R63
+  case MIXER_SUB_OSC   : dispValue = twoSides(v, "N", "S");                   break;  // N64 to 0 to S64, as it works
+  case OSC_1_SHAPE     :
+  case OSC_1_MORPH     : {  // by Osc 1 Wave, as osc1DispValue() of PRA32-U2 Editor (3 characters at most)
+    const int wave = ((osc1Wave * 10) + 128) >> 8;
+    std::string text;
+    if (controlNumber == OSC_1_SHAPE) {
+      if (wave == 5) { text = std::to_string((v >= 127) ? 0 : ((50 * (128 - v) + 64) / 128)); }
+    } else if (wave == 3) {
+      const int halves = ((v + 2) >> 2) + 1;  // the ratio (0.5 to 16.5) * 2: "0.5" to "9.5", and "10" to "16." ("." for .5)
+      text = ((halves >> 1) < 10) ? (std::to_string(halves >> 1) + "." + ((halves & 1) ? "5" : "0"))
+                                  : (std::to_string(halves >> 1) + ((halves & 1) ? "." : ""));
+    } else if (wave == 4) {
+      text = "WT" + std::to_string(((v * 10) + 128) >> 8);
+    } else if (wave == 5) {
+      text = twoSides(v, "P", "S");
+    }
+    if (!text.empty()) {
+      return std::to_string(v) + " [" + text + "]";  // shown even if the same as the value (e.g. "36 [36]"), as the panel
+    }
+    break;
+  }
   case OSC_1_WAVE      : dispValue = select6(v, OSC_1_WAVES);        break;
   case OSC_2_WAVE      : dispValue = select6(v, OSC_2_WAVES);        break;
   case VOICE_GRP_MODE  : dispValue = select6(v, GROUP_MODES);        break;
@@ -513,6 +539,10 @@ void PRA32U2Engine::controlChange(uint8_t controlNumber, uint8_t value) {
   }
 #endif  // defined(PRA32_U2_ENGINE_M)
   m_impl->with_synth([&](auto& s) { s.control_change(controlNumber & 0x7F, value & 0x7F); });
+}
+
+uint8_t PRA32U2Engine::getOsc1Wave() const {
+  return getControllerValue(OSC_1_WAVE);
 }
 
 uint8_t PRA32U2Engine::getControllerValue(uint8_t controlNumber) const {
