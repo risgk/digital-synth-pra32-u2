@@ -74,12 +74,12 @@ harmonics as the band pass is driven (at a high Resonance or near the cutoff), w
 small-signal gain made up for, so that the resonance is kept; a DC blocker on the output
 removes the DC that comes with it. The output clip comes last. Above the Filter
 Resonance 122, k turns negative and the loop oscillates. Filter Drive multiplies the input by
-G = 2^(value / 24), 1.0 at 0, 4.0 at 48, 32.0 at 120, and 39.2 at 127, shared between the input and the loop: the input,
-x 2 more, goes into a soft clip, biased as the leak, and back by the 2 (faded in by the Drive: none at 0, all at 24 and
+G = 2^(value * 3 / 127), 1.0 at 0, 2.0 at 42, 4.0 at 85, and 8.0 at 127 (short of a square wave), shared between the input and the loop: the input,
+x 2 more, goes into a soft clip, biased as the leak, and back by the 2 (faded in by the Drive: none at 0, all at 42 and
 above), and is then taken back to G^m (m = 0.5), which drives the loop and its leak harder (the resonance held down),
 while the rest of the Drive, G^(1 - m), works at the input clip alone (the resonance kept); what leaves the loop is
-divided by G^m ahead of the output clip, with a make-up gain for the level that the input clip takes (from 40 up),
-so that the level stays within about 1.5 dB (a Saw at the Resonance 110); the Presets are at 0 (1.0, as before).
+divided by G^m ahead of the output clip, with a make-up gain for the level that the input clip takes (from 71 up),
+so that the level stays within about 0.5 dB (a Saw at the Resonance 110); the Presets are at 0 (1.0, as before).
 With it, the output is lowered by the
 Resonance above 96 (-2.8 dB at 122, and -4.4 dB at 127, where the self-oscillation, 0.5 in the
 loop, comes out at 0.3), so that a high Resonance is about as loud as 96, while the loop is as
@@ -87,7 +87,7 @@ it was.
 
 ```mermaid
 flowchart LR
-    IN([Input]) --> DRV["× Drive G<br/>2^(value / 24), 1.0 at 0"]
+    IN([Input]) --> DRV["× Drive G<br/>2^(value * 3 / 127), 1.0 at 0, 8.0 at 127"]
     DRV --> ICL["Input clip<br/>× 2, biased 1/8, ÷ 2<br/>faded in by the Drive"]
     ICL --> PST["× G^m / G<br/>m = 0.5"]
     PST --> SUM((Σ))
