@@ -258,7 +258,7 @@ graph LR
 ## Customization Examples
 
 - Files in the "customization-examples" folder: each is a sketch, to be used in place of "Digital-Synth-PRA32-U2.ino" (or "Digital-Synth-PRA32-U2-M.ino" for PRA32-U2/M)
-- **Digital Synth PRA32-U2 (Lite)** and **Digital Synth PRA32-U2/M (Lite)**: Osc 1 Shape and Morph are disabled in Saw, Sqr, and WT, the Distortion FX passes its input through (Dst as Cho), Delay Mode Rev is the Stereo Delay (Ste), and the synth is processed on a single core (core 0)
+- **Digital Synth PRA32-U2 (Lite)** and **Digital Synth PRA32-U2/M (Lite)**: Osc 1 Shape and Morph are disabled in Saw, Sqr, Tri, and WT, the Distortion FX passes its input through (Dst as Cho), Delay Mode Rev is the Stereo Delay (Ste), and the synth is processed on a single core (core 0)
     - "Digital-Synth-PRA32-U2.ino.Lite-Core-0-Only.txt" and "Digital-Synth-PRA32-U2-M.ino.Lite-Core-0-Only.txt":
       with MIDI (USB MIDI and UART MIDI), the panel, and Debug Print, as the sketch; core 1 only updates the panel and prints the debug print
     - "Digital-Synth-PRA32-U2.ino.Lite-Core-1-Only.txt" and "Digital-Synth-PRA32-U2-M.ino.Lite-Core-1-Only.txt":

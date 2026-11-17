@@ -175,7 +175,7 @@
 ## 改造サンプル
 
 - "customization-examples" フォルダーのファイルです。それぞれがスケッチで、"Digital-Synth-PRA32-U2.ino" (PRA32-U2/M では "Digital-Synth-PRA32-U2-M.ino") の代わりに使います
-- **Digital Synth PRA32-U2 (Lite)** と **Digital Synth PRA32-U2/M (Lite)**: Saw、Sqr、WT で Osc 1 Shape と Morph が効かず、Distortion FX は入力をそのまま通し (Dst は Cho と同じ)、Delay Mode の Rev は Stereo Delay (Ste) になる代わりに、シンセを 1 つのコア (コア 0) で処理します
+- **Digital Synth PRA32-U2 (Lite)** と **Digital Synth PRA32-U2/M (Lite)**: Saw、Sqr、Tri、WT で Osc 1 Shape と Morph が効かず、Distortion FX は入力をそのまま通し (Dst は Cho と同じ)、Delay Mode の Rev は Stereo Delay (Ste) になる代わりに、シンセを 1 つのコア (コア 0) で処理します
     - "...Lite-Core-0-Only.txt": 通常のスケッチと同じく、MIDI (USB MIDI と UART MIDI)、パネル、デバッグプリントがあります。コア 1 はパネルの更新とデバッグプリントだけを行います
     - "...Lite-Core-1-Only.txt": シンセと音声出力だけで、MIDI、パネル、デバッグプリントはありません (このままでは音が出ません)。`loop()` の `// TODO` に自分のコードを書いて、シンセを鳴らすための雛形です
 - 詳しくは英語版の [Customization Examples](./README.md#customization-examples) を参照してください
