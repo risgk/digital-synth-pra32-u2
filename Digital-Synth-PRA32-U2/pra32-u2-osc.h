@@ -1,7 +1,7 @@
 #pragma once
 
-// refs https://dafx.de/paper-archive/details/xRM0GiuF-JmeN0_aaP9VNg (Rounding Corners with BLAMP, DAFx-16)
-// refs https://doi.org/10.1109/TSP.2016.2585091 (Aliasing Reduction in Clipped Signals, the B-spline polyBLAMP)
+// refs https://www.research.ed.ac.uk/files/28180097/18_DAFx_16_paper_33_PN.pdf (Rounding Corners with BLAMP, DAFx-16)
+// refs https://www.pure.ed.ac.uk/ws/files/26997332/07499828.pdf (Aliasing Reduction in Clipped Signals, the B-spline polyBLAMP)
 // refs https://dafx2020.mdw.ac.at/proceedings/papers/DAFx20in22_paper_3.pdf (A General Antialiasing Method for Sine Hard Sync)
 
 #include "pra32-u2-common.h"
