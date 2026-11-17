@@ -126,6 +126,7 @@
     - Seq On Steps: bit 0 is Step 1 On, ..., bit 6 is Step 7 On (Step 0 is always On)
     - Seq Act Steps (Active Steps): bit 0 is Step 1 Active, ..., bit 6 is Step 7 Active (Step 0 is always Active)
     - Seq Pitch 0-7: 0 is Off, 1-4 is lowest, 124-127 is highest
+      (with Seq Pattern 4x4, Seq Pitch 4-7 are the shifts, 64 as 0: 0-4 is -60, not Off)
     - Seq Velo 0-7 (Velocity 0-7)
 - Step Sequencer Operations
     - Seq Rand Pitch (Randomize Pitch 0-7, or 0-3 with Seq Pattern 4x4): Change the value from 0-31 [Rdy] to 96-127 [Exe]
