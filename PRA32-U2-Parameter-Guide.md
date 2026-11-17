@@ -42,7 +42,7 @@
 - Osc 1 Shape
     - Saw Wave: Multi Saw Detune
     - Square Wave: Sync Square Pitch
-    - Triangle Wave: Fold Gain (+1 every 16 values)
+    - Triangle Wave: Fold Gain (a wavefolder: the wave beyond ±1 folded back; +1 every 16 values)
         - 0: x1 (min)
         - 16: x2
         - 32: x3

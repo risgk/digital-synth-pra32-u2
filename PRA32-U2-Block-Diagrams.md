@@ -59,6 +59,10 @@ How each Osc 1 Wave is made, and what the Osc 1 Shape and the Osc 1 Morph do:
 | WT | 16 Saws, alternately added and subtracted at the phases in a wave table | The position in the wave table | The wave table |
 | Pls | A Saw, and a second Saw at a shifted phase, added or subtracted (a subtracted one makes a pulse) | The phase of the second Saw (the pulse width) | The level of the second Saw (−100% to +100%) |
 
+The fold of Tri: folding at +1 and -1 is itself a Triangle of the input (a period of 4), so the Triangle x folded by a gain g
+is the Triangle read at the phase g x / 4, which turns back at each peak of x (a reverse sync); the Triangle Wave tables
+band-limit the folds, and only the 2 turns a period are corrected (the polyBLAMP, and the 3rd derivative)
+
 
 ## Filter
 
