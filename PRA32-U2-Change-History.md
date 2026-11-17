@@ -17,6 +17,7 @@
       by UART MIDI and also by USB MIDI now
         - Seq T/Rx St/Sp is now **Seq Rx St/Sp**; not compatible: it no longer transmits Start and Stop (set Panel MIDI Tx to All)
     - PRA32-U2/P: Seq Clock Src [Aut|Int|Ext]: Add **Aut** (the default): Internal at first, External at a MIDI Clock, and Internal again when Seq Tempo is changed
+      (with a device that keeps sending MIDI Clocks, e.g. some MIDI keyboards, set it to Int)
         - Not compatible: Int written before at 0-31 is now Aut (set it to 64), and Ext at 64-95 is now Int (set it to 127)
     - PRA32-U2/P: Add **Seq Ch Ofst** [+0-+F] (#60) and **Seq Transpose** [-|+] (#61), the channel and the transposition of the Step Sequencer alone;
       and **Seq Pattern** [Std|4x4] (#62): 4x4 plays Seq Pitch/Velo 0-3 again and again, shifted by Seq Pitch/Velo 4-7 in turn

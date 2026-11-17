@@ -108,6 +108,7 @@
         - In Seq Mode and K+S, MIDI Clocks are sent by UART MIDI and USB MIDI (by Panel MIDI Tx): those of the internal clock, and with Ext (and Aut),
           those received, passed on (e.g. to the next device of a chain)
         - NOTE: Connecting UART MIDI IN and OUT both ways to a device that sends MIDI Clocks back (e.g. one synced to them) may keep the Clocks going round
+        - NOTE: With a device that keeps sending MIDI Clocks (e.g. some MIDI keyboards), Aut plays at its tempo: set it to Int to play at Seq Tempo
     - Seq Tempo: 30-240 BPM (in steps of 2 BPM)
     - Seq Gate Time [1/6|2/6|3/6|4/6|5/6|6/6]
     - Seq Direction [Fwd|Rvs|Bnc]: Forward, Reverse, Bounce (Seq Mode before)
