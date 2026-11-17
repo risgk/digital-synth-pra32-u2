@@ -1586,11 +1586,7 @@ function setParameterDimmed(number, dimmed) {
 }
 
 function updateDimmedParameters() {
-  // Osc 1 Shape and Osc 1 Morph: disabled if Osc 1 Wave is Tri
-  var indexOsc1Wave = Math.floor(((localStorage.getItem("keyOSC_1_WAVE     ") * 10) + 128) >> 8);
-  setParameterDimmed(OSC_1_SHAPE, indexOsc1Wave == 2);
-  setParameterDimmed(OSC_1_MORPH, indexOsc1Wave == 2);
-  // and their values shown by Osc 1 Wave
+  // Osc 1 Shape and Osc 1 Morph: their values shown by Osc 1 Wave
   [OSC_1_SHAPE, OSC_1_MORPH].forEach(function(number) {
     var value = localStorage.getItem("key" + controlNumberToStringMap.get(number));
     if (value !== null) {

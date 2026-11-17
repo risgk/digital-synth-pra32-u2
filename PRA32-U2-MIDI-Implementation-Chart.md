@@ -30,8 +30,8 @@
 |                               |               |               |                                       |
 |                           102 | x             | o             | Osc 1 Wave [Saw|Sqr|Tri|Sin|WT|Pls]   |
 |                            23 | x             | o             | Mixer Noise/Sub Osc [N|S]             |
-|                            19 | x             | o             | Osc 1 Shape $1                        |
-|                            20 | x             | o             | Osc 1 Morph $1                        |
+|                            19 | x             | o             | Osc 1 Shape                           |
+|                            20 | x             | o             | Osc 1 Morph                           |
 |                               |               |               |                                       |
 |                           104 | x             | o             | Osc 2 Wave [Saw|Sqr|Tri|Sin|O1|Nos]   |
 |                            21 | x             | o             | Mixer Osc Mix [1|2]                   |
@@ -141,8 +141,7 @@
 |              : Active Sense   | x             | x             |                                       |
 |              : Reset          | x             | x             |                                       |
 +-------------------------------+---------------+---------------+---------------------------------------+
-| Notes                         | $1 : Disabled if Osc 1 Wave is Tri (Triangle Wave)                    |
-|                               | $2 : To write the current parameters to Program #0-15 and the         |
+| Notes                         | $2 : To write the current parameters to Program #0-15 and the         |
 |                               |   flash, set "Program Number to Write to" (# is the value mod 32;     |
 |                               |   #16-31 are not written), and then change "Write Parameters to       |
 |                               |   Program" from 0-31 to 96-127                                        |

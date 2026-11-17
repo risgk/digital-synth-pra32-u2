@@ -54,7 +54,7 @@ How each Osc 1 Wave is made, and what the Osc 1 Shape and the Osc 1 Morph do:
 | ---------- | ------- | ----------- | ----------- |
 | Saw | A Saw, and a Multi Saw (7 Saws, detuned) | The detune of the Multi Saw | The mix of the Saw and the Multi Saw |
 | Sqr | A Square, and a Sync Square (16 Saws, alternately added and subtracted at shifted phases) | The pitch of the Sync Square | The mix of the Square and the Sync Square |
-| Tri | A Triangle | - | - |
+| Tri | A Triangle, and a Folded Triangle (a Triangle of the gain times the frequency, whose phase follows the Triangle, and so turns back at its peaks) | The gain of the fold (x1 to x9) | The mix of the Triangle and the Folded Triangle |
 | Sin | A Sine (the carrier), whose phase is modulated by another Sine (the modulator) | The modulation depth | The frequency ratio of the modulator |
 | WT | 16 Saws, alternately added and subtracted at the phases in a wave table | The position in the wave table | The wave table |
 | Pls | A Saw, and a second Saw at a shifted phase, added or subtracted (a subtracted one makes a pulse) | The phase of the second Saw (the pulse width) | The level of the second Saw (−100% to +100%) |

@@ -21,8 +21,6 @@
 
 ## Control Change Parameters
 
-- Notes
-    - $1 : Disabled if Osc 1 Wave is Tri (Triangle Wave)
 - Osc 1 Wave [Saw|Sqr|Tri|Sin|WT|Pls]
     - 0 (0-12): Saw Wave
     - 26 (13-38): Square Wave
@@ -41,9 +39,18 @@
     - +62 (125-126): Sub Osc 96.9%
     - +63 (127): Sub Osc 100% (max)
     - Shown as it works, 2 values a step: "N64" (0), "N62" (1-2), ..., "0" (63-64), ..., "S62" (125-126), and "S64" (127)
-- Osc 1 Shape $1
+- Osc 1 Shape
     - Saw Wave: Multi Saw Detune
     - Square Wave: Sync Square Pitch
+    - Triangle Wave: Fold Gain (+1 every 16 values)
+        - 0: x1 (min)
+        - 16: x2
+        - 32: x3
+        - 64: x5
+        - 96: x7
+        - 127: x9 (max)
+        - At an odd gain (32, 64, 96, and 127), the folded wave is the Triangle Wave of the gain times the pitch
+        - Lowered at a high pitch, so that the gain times the frequency stays within 12 kHz (e.g. x5.7 at C7)
     - Sine Wave (Frequency Modulation or Phase Modulation): Modulation Depth
     - Wave Tables with Constraints: Position
     - Pulse Wave (= 1st Saw + Phase Shifted 2nd Saw)
@@ -54,7 +61,7 @@
         - 126: Pulse Width 0.8%, or 2nd Saw Phase 99.2%
         - 127: Pulse Width 0%, or 2nd Saw Phase 100%
         - Shown as the pulse width (e.g. "25%" at 64)
-- Osc 1 Morph $1
+- Osc 1 Morph
     - Saw Wave:
         - 0: Normal Saw 100% (min)
         - 64 (63-64): Normal Saw 50% + Multi Saw 50%
@@ -63,6 +70,10 @@
         - 0: Normal Square 100% (min)
         - 64 (63-64): Normal Square 50% + Sync Square 50%
         - 127: Sync Square 100% (max)
+    - Triangle Wave:
+        - 0: Normal Triangle 100% (min)
+        - 64 (63-64): Normal Triangle 50% + Folded Triangle 50%
+        - 127: Folded Triangle 100% (max)
     - Sine Wave (Frequency Modulation or Phase Modulation): Frequency Ratio of Modulator
         - 0 (0-1): Ratio 0.5 (min)
         - 4 (2-5): Ratio 1.0

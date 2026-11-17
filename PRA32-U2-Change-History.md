@@ -1,6 +1,9 @@
 ## Digital Synth PRA32-U2 Change History
 
 - v3.22.0 (2026-??-??):
+    - **Osc 1 Tri** folds the wave: Osc 1 Shape sets the gain of the fold (x1 to x9, lowered at a high pitch), and Osc 1 Morph the mix of the Triangle and the folded one;
+      band-limited by the Triangle Wave tables, and corrected at the turns; not in the Lite versions
+        - Not compatible: a user program with Osc 1 Wave Tri and Osc 1 Morph other than 0 sounds otherwise (set Osc 1 Morph to 0); the Presets do not use Tri
     - The values shown as they work, in PRA32-U2 Editor, PRA32-U2 Native, and the panel: Osc 1 Shape and Osc 1 Morph by Osc 1 Wave (e.g. "25%", "1.5", "WT2", "S64"),
       Mixer Noise/Sub Osc ("N64" to "0" to "S64"), Pan ("L63" to "C" to "R63"), and Osc 2 Coarse (-60 to +60)
     - The Note On Velocity at first is 64 (100 before): Panel Play Velo, Seq Velo 0-7, the Software Keyboard, and "pra32-u2-sample.mid" (the values written before stay)
