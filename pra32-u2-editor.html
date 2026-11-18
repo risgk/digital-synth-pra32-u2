@@ -1865,6 +1865,41 @@ function twoSidesDispValue(value, minus, plus) {
   return (amount == 0) ? "0" : (amount > 0) ? (plus + String(amount)) : (minus + String(-amount));
 }
 
+// Osc 1 Shape by Osc 1 Wave (0: Saw, 1: Sqr, 2: Tri, 3: Sin, 4: WT), as the panel and PRA32-U2 Native (127 is taken as 128):
+// Saw: the detune of the outer 2 saws of the Multi Saw in cents ("2.4" to "79"), Sqr: the frequency ratio of the Sync Square
+// (2^(Shape / 32) / 2, ".50" to "8.0"), Tri: the gain of the fold ("1.0" to "9.0"), Sin: the depth of the phase modulation in periods ("0" to "4.0"),
+// and WT: the Shape (0-126, and "128"); by the tables of the exact values in 0.001 (truncated), as the panel
+const OSC_1_SAW_MILLI_CENTS = [
+  2375, 4748, 7117, 9746, 12109, 14468, 17086, 19438, 21788, 24394, 26737,
+  29076, 31672, 34005, 36335, 38919, 41242, 43562, 46136, 48450, 50760, 53068,
+  55628, 57928, 60226, 62775, 65067, 67355, 69894, 72176, 74455, 76983, 79256
+];
+const OSC_1_SQR_TOP_OCTAVE = [  // 2^(Shape / 32) for 96-127 in 0.001 * 65536, truncated
+  524288000, 535768412, 547500212, 559488906, 571740118, 584259596, 597053215, 610126978,
+  623487019, 637139607, 651091148, 665348188, 679917416, 694805669, 710019932, 725567344,
+  741455200, 757690954, 774282226, 791236799, 808562629, 826267845, 844360755, 862849848,
+  881743799, 901051474, 920781932, 940944431, 961548431, 982603600, 1004119817, 1026107178
+];
+function osc1ShapeDispValue(indexOsc1Wave, value) {
+  var shape = (value >= 127) ? 128 : parseInt(value);
+  var milli;
+  if (indexOsc1Wave == 0) {
+    milli = OSC_1_SAW_MILLI_CENTS[(shape + 2) >> 2];
+  } else if (indexOsc1Wave == 1) {
+    var octaves = (127 - shape) >> 5;
+    milli = (shape >= 128) ? 8000 : Math.floor(OSC_1_SQR_TOP_OCTAVE[shape + octaves * 32 - 96] / Math.pow(2, octaves + 17));
+  } else if (indexOsc1Wave == 2) {
+    milli = Math.floor((16000 + 1000 * shape) / 16);
+  } else if (indexOsc1Wave == 3) {
+    milli = Math.floor(shape * 125 / 4);
+  } else if (indexOsc1Wave == 4) {
+    return String(shape);
+  } else {
+    return null;
+  }
+  return frequencyDispValue(milli);
+}
+
 // Osc 1 Shape and Osc 1 Morph, by Osc 1 Wave (3 characters at most, as the panel of PRA32-U2/P), or null (the value alone):
 // Shape: the pulse width in % (Pls); Morph: the frequency ratio (Sin, e.g. "1.5", "16."), the wave table (WT), and the Pulse (P)
 // or the 2nd Saw (S) as it works (Pls); the same as PRA32-U2 Native and the panel (shown even if the same as the value)
@@ -1875,8 +1910,11 @@ function osc1DispValue(number, value) {
       var width = (value >= 127) ? 100 : Math.floor((100 * value + 64) / 128);  // 0% (0) to 50% (64) to 100% (127, "100")
       return String(width) + ((width < 100) ? "%" : "");
     }
+    return osc1ShapeDispValue(indexOsc1Wave, value);
   } else {
-    if (indexOsc1Wave == 3) {
+    if (indexOsc1Wave <= 2) {  // Saw, Sqr, and Tri: the Multi Saw, the Sync Square, and the Folded Triangle in %, as the Sustain
+      return percentDispValue(EG_SUSTAIN, value);
+    } else if (indexOsc1Wave == 3) {
       var halves = ((value + 2) >> 2) + 1;  // the ratio (0.5 to 16.5) * 2: "0.5" to "9.5", and "10" to "16." ("." for .5)
       return ((halves >> 1) < 10) ? (String(halves >> 1) + "." + ((halves & 1) ? "5" : "0"))
                                   : (String(halves >> 1) + ((halves & 1) ? "." : ""));
@@ -2084,6 +2122,7 @@ function filterTuneDispValue(number, value) {
 // fit, and with "%" where it fits (e.g. "2%", "50%", "+3%", "+13", and "100")
 function percentDispValue(number, value) {
   var v = Math.min(parseInt(value), 127);
+  if (number == P_BEND_RANGE) { return String(Math.min(v, 64)); }  // Pitch Bend Range: the semitones, 64 at most
   var percent;
   var n = 0;  // the sign (of the ones with the sign)
   if ((number == EG_SUSTAIN) || (number == AMP_SUSTAIN) || (number == MIXER_OSC_MIX) ||  // Mixer Osc Mix: the power of Osc 2
@@ -2120,6 +2159,15 @@ function ampGainDispValue(value) {
   return (v == 0) ? "Off" : (v == 127) ? "0" : ("-" + String(AMP_GAIN_MINUS_DB[v]));
 }
 
+// EG Mod Amt and LFO Mod Amt to Osc 1 Shape (1S), as the panel and PRA32-U2 Native: the Shape at the full EG, 2 a value,
+// -128 (0 and 1) to +128 (127, as 128), with the sign but where it does not fit (e.g. "+2", "-62", and "128" for +-128)
+function shapeAmtDispValue(value) {
+  var v = Math.min(parseInt(value), 127);
+  var n = ((v == 1) ? 0 : (v == 127) ? 128 : v) - 64;
+  var a = Math.abs(n) * 2;
+  return (a == 0) ? "0" : (((a < 100) ? ((n > 0) ? "+" : "-") : "") + String(a));
+}
+
 function updateDisplayOfControl(number, value) {
   var input = document.getElementById("input" + controlNumberToStringMap.get(number));
   input.value = parseInt(value);
@@ -2142,14 +2190,11 @@ function updateDisplayOfControl(number, value) {
   case EG_OSC_AMT      :
   case LFO_OSC_AMT     :
     {
-      // As the pitch, if EG Mod Dst or LFO Mod Dst is P or 2P; as the value otherwise
+      // By EG Mod Dst or LFO Mod Dst: the pitch (P and 2P), the Cutoff as Filter EG Amt (F), and the Shape (1S)
       var modDst = parseInt(localStorage.getItem("key" + controlNumberToStringMap.get((number == EG_OSC_AMT) ? EG_OSC_DST : LFO_OSC_DST))) || 0;
-      if ((((modDst * 10) + 128) >> 8) <= 3) {
-        dispValue = pitchDispValue(value, false);
-        alwaysShown = true;
-      } else {
-        dispValue = ((value >= 64) ? "+" : "") + String(value - 64);
-      }
+      var index = ((modDst * 10) + 128) >> 8;
+      dispValue = (index <= 3) ? pitchDispValue(value, false) : (index == 4) ? filterTuneDispValue(FILTER_EG_AMT, value) : shapeAmtDispValue(value);
+      alwaysShown = true;
     }
     break;
   case COARSE_TUNE     :
@@ -2188,6 +2233,7 @@ function updateDisplayOfControl(number, value) {
   case CHORUS_MIX      :
   case DELAY_LEVEL     :
   case DELAY_FEEDBACK  :
+  case P_BEND_RANGE    :
   case FILTER_KEY_TRK  :
   case A_D_VEL_SENS    :
   case REL_VEL_SENS    :

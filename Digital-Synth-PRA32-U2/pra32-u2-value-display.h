@@ -265,6 +265,75 @@ static __attribute__((noinline)) void __not_in_flash_func(PRA32_U2_ControlPanel_
   PRA32_U2_ControlPanel_copy_right_aligned(value_display_text, buff, length);
 }
 
+// EG Mod Amt and LFO Mod Amt to Osc 1 Shape (1S), as they work (the same as shapeAmtDispValue() of PRA32-U2 Editor): the
+// Shape at the full EG (the LFO swings it by half of it on each side), 2 a value: -128 (0 and 1, the same) to +128 (127,
+// as 128), with the sign but where it does not fit (e.g. "+2", "-62", and "128" for +-128)
+static __attribute__((noinline)) void __not_in_flash_func(PRA32_U2_ControlPanel_calc_value_display_shape_amt)(uint8_t controller_value, char value_display_text[5]) {
+  uint32_t v = minimum(controller_value, 127);
+  int32_t  n = static_cast<int32_t>((v == 1) ? 0 : ((v == 127) ? 128 : v)) - 64;
+  uint32_t a = static_cast<uint32_t>((n >= 0) ? n : -n) * 2;
+  char     buff[4];
+  uint32_t length = 0;
+  if (a == 0) {
+    buff[length++] = '0';
+  } else {
+    if (a < 100) {
+      buff[length++] = (n > 0) ? '+' : '-';
+    }
+    PRA32_U2_ControlPanel_append_decimal(buff, length, a);
+  }
+  PRA32_U2_ControlPanel_copy_right_aligned(value_display_text, buff, length);
+}
+
+// Osc 1 Shape by Osc 1 Wave (0: Saw, 1: Sqr, 2: Tri, 3: Sin, 4: WT; Pls by the panel), as it works (127 is taken as 128;
+// the same as osc1DispValue() of PRA32-U2 Editor): Saw: the detune of the outer 2 saws of the Multi Saw, in cents (the
+// upper one, 1200 * log2(1 + 5 * tune / 32768), 33 steps of 4 values, "2.4" to "79"); Sqr: the frequency ratio of the Sync
+// Square, 2^(Shape / 32) / 2 (the table has the 2^(Shape / 32) turns of the square a period: ".50" to "8.0"); Tri: the gain of the fold, 1 + Shape / 16 ("1.0" to "9.0", lowered at a high
+// pitch); Sin: the depth of the phase modulation in periods, Shape / 32 ("0" to "4.0"); WT: the Shape (0-126, and "128");
+// in 0.001 (truncated) as the frequency, by the tables of the exact values (so that they are rounded only once)
+static __attribute__((noinline)) boolean __not_in_flash_func(PRA32_U2_ControlPanel_calc_value_display_osc_1_shape)(uint32_t wave, uint8_t controller_value, char value_display_text[5]) {
+  static const uint32_t ary_saw_milli_cents[33] PRA32_U2_TABLE_IN_RAM(panel_text) = {
+    2375, 4748, 7117, 9746, 12109, 14468, 17086, 19438, 21788, 24394, 26737,
+    29076, 31672, 34005, 36335, 38919, 41242, 43562, 46136, 48450, 50760, 53068,
+    55628, 57928, 60226, 62775, 65067, 67355, 69894, 72176, 74455, 76983, 79256
+  };
+  // 2^(Shape / 32) for the top octave (96-127) in 0.001 * 65536, truncated, shifted right by the octaves below it and by 17 (/ 2)
+  static const uint32_t ary_sqr_top_octave[32] PRA32_U2_TABLE_IN_RAM(panel_text) = {
+    524288000, 535768412, 547500212, 559488906, 571740118, 584259596, 597053215, 610126978,
+    623487019, 637139607, 651091148, 665348188, 679917416, 694805669, 710019932, 725567344,
+    741455200, 757690954, 774282226, 791236799, 808562629, 826267845, 844360755, 862849848,
+    881743799, 901051474, 920781932, 940944431, 961548431, 982603600, 1004119817, 1026107178
+  };
+  uint32_t shape = (controller_value >= 127) ? 128 : controller_value;
+  uint32_t milli;
+
+  if (wave == 0) {
+    milli = ary_saw_milli_cents[(shape + 2) >> 2];
+  } else if (wave == 1) {
+    if (shape >= 128) {
+      milli = 8000;
+    } else {
+      uint32_t octaves = (127 - shape) >> 5;
+      milli = ary_sqr_top_octave[(shape + (octaves * 32)) - 96] >> (octaves + 17);
+    }
+  } else if (wave == 2) {
+    milli = (16000 + (1000 * shape)) / 16;
+  } else if (wave == 3) {
+    milli = (shape * 125) / 4;
+  } else if (wave == 4) {
+    char     buff[4];
+    uint32_t length = 0;
+    PRA32_U2_ControlPanel_append_decimal(buff, length, shape);
+    PRA32_U2_ControlPanel_copy_right_aligned(value_display_text, buff, length);
+    return true;
+  } else {
+    return false;
+  }
+
+  PRA32_U2_ControlPanel_format_frequency(milli, value_display_text);
+  return true;
+}
+
 // EG Sustain, Amp Sustain, EG Level Velo Sens, and Amp Level Velo Sens (65 steps: (value + 1) >> 1 / 64), Mixer Osc Mix
 // (the same, the power of Osc 2, as the table of PRA32_U2_Osc is the square root: Osc 1 100% at 0, Osc 1 50% + Osc 2 50%
 // at 63-64, and Osc 2 100% at 127), LFO Depth (value / 128, 127 as 128), Chorus Level and Delay Level (65 steps:
@@ -272,11 +341,19 @@ static __attribute__((noinline)) void __not_in_flash_func(PRA32_U2_ControlPanel_
 // shown as 0% or 50%), and Filter Key Track, EG Att/Dec Velo Sens, EG Rel Velo Sens, and EG Att/Dec Key Track (65 steps:
 // (value - 63) >> 1 / 32, -100% at 0, 0% at 63-64, and +100% at 127), as they work: the % rounded, with the sign but
 // where it does not fit, and with "%" where it fits (e.g. "2%", "50%", "+3%", "+13", and "100"), the same as
-// percentDispValue() of PRA32-U2 Editor; and Amp Gain (above)
+// percentDispValue() of PRA32-U2 Editor; and Amp Gain (above), and Pitch Bend Range (the semitones, "0" to "64")
 static __attribute__((noinline)) boolean __not_in_flash_func(PRA32_U2_ControlPanel_calc_value_display_percent)(uint8_t control_target, uint8_t controller_value, char value_display_text[5]) {
   uint32_t v = minimum(controller_value, 127);
   uint32_t percent;
   int32_t  n = 0;  // the sign (of the ones with the sign)
+
+  if (control_target == P_BEND_RANGE) {  // The semitones, 64 at most (here, not in the switch, as Amp Gain below)
+    char     buff[4];
+    uint32_t length = 0;
+    PRA32_U2_ControlPanel_append_decimal(buff, length, minimum(v, 64));
+    PRA32_U2_ControlPanel_copy_right_aligned(value_display_text, buff, length);
+    return true;
+  }
 
   if ((control_target == EG_SUSTAIN) || (control_target == AMP_SUSTAIN) || (control_target == MIXER_OSC_MIX) ||
       (control_target == EG_VEL_SENS) || (control_target == AMP_VEL_SENS)) {

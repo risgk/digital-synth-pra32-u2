@@ -41,7 +41,11 @@
     - Shown as it works, 2 values a step: "N64" (0), "N62" (1-2), ..., "0" (63-64), ..., "S62" (125-126), and "S64" (127)
 - Osc 1 Shape
     - Saw Wave: Multi Saw Detune
+        - Shown as it works: the detune of the outer 2 saws (of the 7) in cents (the upper one; 33 steps of 4 values),
+          rounded (e.g. "2.4" at 0, "41" at 64, and "79" at 127)
     - Square Wave: Sync Square Pitch
+        - Shown as it works: the frequency ratio of the Sync Square, 2^(value / 32) / 2 (127 taken as 128), rounded
+          (e.g. ".50" at 0, "1.0" at 32, "2.0" at 64, "4.0" at 96, and "8.0" at 127)
     - Triangle Wave: Fold Gain (a wavefolder: the wave beyond ±1 folded back; +1 every 16 values)
         - 0: x1 (min)
         - 16: x2
@@ -51,8 +55,12 @@
         - 127: x9 (max)
         - At an odd gain (32, 64, 96, and 127), the folded wave is the Triangle Wave of the gain times the pitch
         - Lowered at a high pitch, so that the gain times the frequency stays within 12 kHz (e.g. x5.7 at C7)
+        - Shown as the gain, rounded (e.g. "1.0" at 0, "1.1" at 1, "5.0" at 64, and "9.0" at 127; not as lowered at a high pitch)
     - Sine Wave (Frequency Modulation or Phase Modulation): Modulation Depth
+        - Shown as it works: the depth of the phase modulation in periods, value / 32 (127 taken as 128), rounded
+          (e.g. ".03" at 1, ".50" at 16, "2.0" at 64, and "4.0" at 127)
     - Wave Tables with Constraints: Position
+        - Shown as it works: the position, 0-126, and "128" at 127 (taken as 128)
     - Pulse Wave (= 1st Saw + Phase Shifted 2nd Saw)
         - 0: Pulse Width 0%, or 2nd Saw Phase 0%
         - 1: Pulse Width 0.8%, or 2nd Saw Phase 0.8%
@@ -78,6 +86,8 @@
         - 0: Normal Triangle 100% (min)
         - 64 (63-64): Normal Triangle 50% + Folded Triangle 50%
         - 127: Folded Triangle 100% (max)
+    - Saw Wave, Square Wave, and Triangle Wave: shown as it works, the Multi Saw, the Sync Square, or the Folded Triangle in %, as EG Sustain
+      (e.g. "0%" at 0, "2%" at 1-2, "50%" at 63-64, and "100" at 127)
     - Sine Wave (Frequency Modulation or Phase Modulation): Frequency Ratio of Modulator
         - 0 (0-1): Ratio 0.5 (min)
         - 4 (2-5): Ratio 1.0
@@ -257,9 +267,12 @@
         - +62 (126): Shape +124
         - +63 (127): Shape +128 (max)
         - At the full EG; the LFO swings the Shape by half of it on each side (e.g. -64 to +64 at +63, the pulse width 0% to 100% around 64 with the Pulse Wave)
+        - Shown as it works (with EG Mod Dst and LFO Mod Dst 1S): the Shape at the full EG, with the sign but where it does not fit
+          (e.g. "+2" at +1, "-62" at -31, and "128" at +-63)
     - Cutoff
         - -60 (0-4): -120 (min)
         - +60 (124-127): +120 (max)
+        - Shown as it works (with EG Mod Dst and LFO Mod Dst F), as Filter EG Amt (e.g. "+2", "-98", and "110" for +-110)
 - EG Mod Dst [P|P|2P|2P|F|1S], LFO Mod Dst [P|P|2P|2P|F|1S]
     - 0 (0-12): Osc 1 & 2 Pitch
     - 26 (13-38): Osc 1 & 2 Pitch
@@ -363,6 +376,7 @@
 - Pitch Bend Range
     - 0: 0 semitone (min)
     - 64 (64-127): 64 semitone (max)
+    - Shown as it works: the semitones ("0" to "64", and "64" for 64-127)
     - NOTE: Not changed by "Randomize Synth"
 - Coarse Tune [- to +]
     - -64 (0): -64 semitone

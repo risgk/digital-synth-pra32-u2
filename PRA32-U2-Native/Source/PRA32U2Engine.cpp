@@ -346,12 +346,21 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value, ui
   case OSC_2_COARSE    : dispValue = bipolar(std::min(std::max(v, 64 - 60), 64 + 60)); break;  // -60 to +60, as it works
   case OSC_2_PITCH     : return std::to_string(v) + " [" + pitchText(v, true) + "]";  // shown even if the same as the value
   case EG_OSC_AMT      :
-  case LFO_OSC_AMT     :  // As the pitch, if EG Mod Dst or LFO Mod Dst is P or 2P; as the value otherwise
-    if ((((relatedValue * 10) + 128) >> 8) <= 3) {
+  case LFO_OSC_AMT     : {  // By EG Mod Dst or LFO Mod Dst: the pitch (P and 2P), the Cutoff (F), and the Shape (1S), as the panel
+    const int index = ((relatedValue * 10) + 128) >> 8;
+    if (index <= 3) {
       return std::to_string(v) + " [" + pitchText(v, false) + "]";
     }
-    dispValue = bipolar(v);
-    break;
+    char text[5] = {};
+    if (index == 4) {
+      PRA32_U2_ControlPanel_calc_value_display_filter_tune(FILTER_EG_AMT, value, text);
+    } else {
+      PRA32_U2_ControlPanel_calc_value_display_shape_amt(value, text);
+    }
+    std::string trimmed(text);
+    trimmed.erase(0, trimmed.find_first_not_of(' '));
+    return std::to_string(v) + " [" + trimmed + "]";  // shown even if the same as the value, as the panel
+  }
   case COARSE_TUNE     : dispValue = bipolar(v);                     break;
   case FILTER_CUTOFF   :
   case FINE_TUNE       :
@@ -375,7 +384,8 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value, ui
   case LFO_DEPTH       :
   case CHORUS_MIX      :
   case DELAY_LEVEL     :
-  case DELAY_FEEDBACK  : {  // As the panel (the same functions): e.g. "262", "1k2", "20k" (Hz), "100" (-100 cents), "5.7" (Q), "+6" (dB), "50%"
+  case DELAY_FEEDBACK  :
+  case P_BEND_RANGE    : {  // As the panel (the same functions): e.g. "262", "1k2", "20k" (Hz), "100" (-100 cents), "5.7" (Q), "+6" (dB), "50%"
     char text[5] = {};
     if (controlNumber == FILTER_CUTOFF) {
       PRA32_U2_ControlPanel_calc_value_display_cutoff(value, text);
@@ -429,11 +439,19 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value, ui
   case OSC_1_MORPH     : {  // by Osc 1 Wave, as osc1DispValue() of PRA32-U2 Editor (3 characters at most)
     const int wave = ((osc1Wave * 10) + 128) >> 8;
     std::string text;
+    char panelText[5] = {};
     if (controlNumber == OSC_1_SHAPE) {
       if (wave == 5) {  // 0% (0) to 50% (64) to 100% (127, shown as "100")
         const int width = (v >= 127) ? 100 : (((100 * v) + 64) / 128);
         text = std::to_string(width) + ((width < 100) ? "%" : "");
+      } else if (PRA32_U2_ControlPanel_calc_value_display_osc_1_shape(wave, value, panelText)) {  // As the panel (the same function)
+        text = panelText;
+        text.erase(0, text.find_first_not_of(' '));
       }
+    } else if (wave <= 2) {  // Saw, Sqr, and Tri: the Multi Saw, the Sync Square, and the Folded Triangle in %, as the Sustain
+      PRA32_U2_ControlPanel_calc_value_display_percent(EG_SUSTAIN, value, panelText);
+      text = panelText;
+      text.erase(0, text.find_first_not_of(' '));
     } else if (wave == 3) {
       const int halves = ((v + 2) >> 2) + 1;  // the ratio (0.5 to 16.5) * 2: "0.5" to "9.5", and "10" to "16." ("." for .5)
       text = ((halves >> 1) < 10) ? (std::to_string(halves >> 1) + "." + ((halves & 1) ? "5" : "0"))

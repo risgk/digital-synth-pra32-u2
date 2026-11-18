@@ -1106,14 +1106,16 @@ static __attribute__((noinline)) boolean __not_in_flash_func(PRA32_U2_ControlPan
   uint32_t length = 0;
 
   if (control_target == OSC_1_SHAPE) {
-    if (wave != 5) {
-      return false;
+    if (wave != 5) {  // Saw, Sqr, Tri, Sin, and WT
+      return PRA32_U2_ControlPanel_calc_value_display_osc_1_shape(wave, v, value_display_text);
     }
     uint32_t width = (v >= 127) ? 100 : (((100 * v) + 64) / 128);  // 0% (0) to 50% (64) to 100% (127)
     PRA32_U2_ControlPanel_append_decimal(buff, length, width);
     if (width < 100) {
       buff[length++] = '%';  // 3 characters at most: "100" for 100%
     }
+  } else if (wave <= 2) {  // Saw, Sqr, and Tri: the Multi Saw, the Sync Square, and the Folded Triangle in %, as the Sustain
+    return PRA32_U2_ControlPanel_calc_value_display_percent(EG_SUSTAIN, v, value_display_text);
   } else if (wave == 3) {
     uint32_t halves = ((v + 2) >> 2) + 1;  // the ratio (0.5 to 16.5) * 2: "0.5" to "9.5", and "10" to "16." ("." for .5)
     PRA32_U2_ControlPanel_append_decimal(buff, length, halves >> 1);
@@ -1219,12 +1221,15 @@ static __attribute__((noinline)) boolean __not_in_flash_func(PRA32_U2_ControlPan
   case EG_OSC_AMT      :
   case LFO_OSC_AMT     :
     {
-      // As the pitch, if EG Mod Dst or LFO Mod Dst is P or 2P; as the value otherwise
-      uint8_t mod_dst = getCurrentControllerValue(getTargetMIDICh(s_current_synth), (control_target == EG_OSC_AMT) ? EG_OSC_DST : LFO_OSC_DST);
-      if ((((mod_dst * 10) + 128) >> 8) <= 3) {
+      // By EG Mod Dst or LFO Mod Dst: the pitch (P and 2P), the Cutoff as Filter EG Amt (F), and the Shape (1S)
+      uint8_t  mod_dst = getCurrentControllerValue(getTargetMIDICh(s_current_synth), (control_target == EG_OSC_AMT) ? EG_OSC_DST : LFO_OSC_DST);
+      uint32_t index   = ((mod_dst * 10) + 128) >> 8;
+      if (index <= 3) {
         PRA32_U2_ControlPanel_calc_value_display_pitch(controller_value, false, value_display_text);
+      } else if (index == 4) {
+        PRA32_U2_ControlPanel_calc_value_display_filter_tune(FILTER_EG_AMT, controller_value, value_display_text);
       } else {
-        PRA32_U2_ControlPanel_format_decimal(value_display_text, static_cast<int>(controller_value) - 64, true);
+        PRA32_U2_ControlPanel_calc_value_display_shape_amt(controller_value, value_display_text);
       }
       result = true;
     }
