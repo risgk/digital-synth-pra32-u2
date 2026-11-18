@@ -1995,7 +1995,7 @@ function milliHzFromLfoStep(step) {
 }
 
 // Portamento Time (0 for none), LFO Fade Time (0 for none), LFO Rate (with LFO Wave Nos, the cutoff of the low-pass of the
-// noise, "Off" for none), Chorus Rate, and Chorus Depth (the milliseconds, rounded), as the panel and PRA32-U2 Native
+// noise, "Off" for none), Chorus Rate, and Chorus Depth (the milliseconds, as the frequency), as the panel and PRA32-U2 Native
 function timeRateDispValue(number, value) {
   var v = parseInt(value);
   if (number == PORTAMENTO) {
@@ -2011,7 +2011,7 @@ function timeRateDispValue(number, value) {
   } else if (number == CHORUS_RATE) {
     return frequencyDispValue(milliHzFromLfoStep(CHORUS_RATE_STEPS[v]));
   }
-  return String(Math.max(Math.floor((Math.min(v, 126) + 12) / 24), (v == 0) ? 0 : 1));  // Chorus Depth: +/- (value / 24) ms, 1 at least but at 0
+  return frequencyDispValue(Math.floor((Math.min(v, 126) * 125) / 3));  // Chorus Depth: +/- (value / 24) ms, in 0.001 ms (truncated)
 }
 
 // Filter Cutoff, as the panel and PRA32-U2 Native: 13.75 Hz * 2^((value - 1) / 12), by the frequencies of the top octave

@@ -517,7 +517,7 @@
     - 32: Delay Time +/- 1.33 ms
     - 64: Delay Time +/- 2.67 ms
     - 126 (126-127): Delay Time +/- 5.25 ms (max)
-    - Shown as it works: the milliseconds rounded, but 1 at least other than 0, without the unit ("0" to "5", e.g. "1" for 1-35)
+    - Shown as it works: the milliseconds rounded, without the unit, as the LFO Rate (e.g. ".04" for 0.0417 ms, "1.3" for 1.33 ms, and "5.3" for 5.25 ms)
 - Delay Level: Delay Send Level
     - Shown as it works: the % rounded (2 values a step, as Chorus Level), with "%" where it fits (e.g. "2%", "50%", and "100")
 - Delay Mode [Ste|PP|Rev]

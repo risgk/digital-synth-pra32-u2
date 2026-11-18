@@ -103,9 +103,8 @@ static INLINE uint32_t PRA32_U2_ControlPanel_milli_hz_from_lfo_step(uint32_t ste
 }
 
 // The times and the rates: Portamento Time (0 for none), LFO Fade Time (0 for none), LFO Rate (with LFO Wave Nos, the
-// cutoff of the low-pass of the noise, "Off" for none), Chorus Rate, and Chorus Depth (the milliseconds, rounded, 1 at least
-// but at 0), by the
-// tables (or the steps) that the synth uses, so that they are shown as they work (Delay Time: the milliseconds, as before)
+// cutoff of the low-pass of the noise, "Off" for none), Chorus Rate, and Chorus Depth (the milliseconds, as the frequency,
+// e.g. ".04", "1.3", and "5.3"), by the tables (or the steps) that the synth uses, so that they are shown as they work (Delay Time: the milliseconds, as before)
 static __attribute__((noinline)) boolean __not_in_flash_func(PRA32_U2_ControlPanel_calc_value_display_time_rate)(uint8_t control_target, uint8_t controller_value, uint8_t lfo_wave, char value_display_text[5]) {
   uint32_t v = controller_value;
 
@@ -137,11 +136,8 @@ static __attribute__((noinline)) boolean __not_in_flash_func(PRA32_U2_ControlPan
     }
   } else if (control_target == CHORUS_RATE) {
     PRA32_U2_ControlPanel_format_frequency(PRA32_U2_ControlPanel_milli_hz_from_lfo_step(g_chorus_rate_table[v]), value_display_text);
-  } else if (control_target == CHORUS_DEPTH) {  // +/- (value / 24) ms, 126 at most; 1 at least but at 0 (not shown as 0)
-    char     buff[4];
-    uint32_t length = 0;
-    PRA32_U2_ControlPanel_append_decimal(buff, length, maximum((minimum(v, 126) + 12) / 24, (v == 0) ? 0 : 1));
-    PRA32_U2_ControlPanel_copy_right_aligned(value_display_text, buff, length);
+  } else if (control_target == CHORUS_DEPTH) {  // +/- (value / 24) ms, 126 at most: in 0.001 ms (truncated), as the frequency
+    PRA32_U2_ControlPanel_format_frequency((minimum(v, 126) * 125) / 3, value_display_text);
   } else {
     return false;
   }
