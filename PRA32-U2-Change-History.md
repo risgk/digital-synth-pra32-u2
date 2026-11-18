@@ -25,8 +25,8 @@
           Filter Key Track (%), and Filter Drive (dB)
         - EG and LFO: the times of the EG and the Amp, EG Sustain and Amp Sustain (%), EG Mod Amt and LFO Mod Amt by EG Mod Dst and LFO Mod Dst
           (the pitch, the Cutoff, or the Shape), LFO Fade Time, LFO Rate (with LFO Wave Nos, the cutoff of the low pass, or "Off"), and LFO Depth (%)
-        - Amp and Voice: Amp Gain (dB, or "Off"), Pan ("L63" to "C" to "R63"), Portamento Time, Pitch Bend Range, Fine Tune (the cents), Stretch Tune (the cents at note number 108),
-          the Velo Sens of the EG and the Amp, and EG Att/Dec Key Track (%)
+        - Amp and Voice: Amp Gain (dB, or "Off"), Pan ("L63" to "C" to "R63"), Portamento Time, Pitch Bend Range, Fine Tune (the cents),
+          Stretch Tune (the cents at note number 108), the Velo Sens of the EG and the Amp, and EG Att/Dec Key Track (%)
         - FX: Distortion Drive (dB), Chorus Level, Chorus Rate, Chorus Depth (the milliseconds), Delay Level, and Delay Feedback (%)
     - The parameters of a range are written as [- to +], [N to S] (Mixer Noise/Sub Osc), and [1 to 2] (Mixer Osc Mix), and Filter Mode as [LP-BR-HP-BP-LP]
       (as it changes smoothly), not to be taken for the values to select (e.g. [Off|On]), in PRA32-U2 Editor, PRA32-U2 Native, and the documents
