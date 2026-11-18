@@ -89,12 +89,16 @@
 
 ## Writing to the Flash
 
-- Writing the user programs (Write Program) does `EEPROM.write()` at once, and defers `EEPROM.commit()` (about 50-100 ms, which stops both cores)
+- Writing the user programs (Write Program) writes the tables in the RAM at once, and defers the writing of the flash (about 50-100 ms, which stops both cores)
   to the Output Fader ("pra32-u2-output-fader.h"):
     - Fades out the output (>= 3 ms), writes the silence to the whole ring buffer (the DMA keeps playing it), and mutes the I2S DAC (`PRA32_U2_I2S_DAC_MUTE_OFF_PIN`)
-    - Commits, and then unmutes the I2S DAC and fades in the output
-- The user programs are kept in the emulated EEPROM (`PRA32_U2_USE_EMULATED_EEPROM`), at the end of the flash;
-  copying a UF2 file (e.g. a new version) keeps them, as the UF2 file does not write that part of the flash
+    - Writes the flash (`PRA32_U2_ProgramFlash_commit()` of "pra32-u2-program-flash.h"), and then unmutes the I2S DAC and fades in the output
+- The user programs and the panel parameters are kept at the end of the flash (`PRA32_U2_USE_EMULATED_EEPROM`), in the sector and the layout
+  of the emulated EEPROM of Arduino-Pico (used before), without a copy of them in the RAM ("pra32-u2-program-flash.h"):
+    - Read directly from the flash at power-on; written by erasing the sector and programming its first 12 pages of 256 bytes,
+      each made on the stack from the tables (the bytes that the parameters do not use are 0xFF, not kept)
+    - The synths of PRA32-U2/M share the program table (as the flash), so that a user program written by one of them is the same in all
+    - Copying a UF2 file (e.g. a new version) keeps them, as the UF2 file does not write that part of the flash
 - A program read at power-on is checked only by its first 2 bytes ('U' and its number) and by each value being below 128:
   there is no version or checksum, so a version that changed the meaning of a parameter would read the old programs in the new meaning
 

@@ -2,11 +2,11 @@
 
 // Output Fader (for writing the user programs to the flash with less noise)
 //
-// - write_parameters_to_program() of the synth sets g_eeprom_commit_requested (EEPROM.write() is done immediately)
+// - write_parameters_to_program() of the synth sets g_eeprom_commit_requested (the tables in the RAM are written immediately)
 // - begin_block() (once per loop) fades out the output (>= 3 ms), and then does the following at once (the output is silent):
 //   - Writes the silence to the whole ring buffer, because the DMA keeps playing it while the flash is being written
 //   - (I2S DAC with PRA32_U2_I2S_DAC_MUTE_OFF_PIN only) XSMT = LOW, and waits for the soft mute (10 ms)
-//   - EEPROM.commit() (about 50-100 ms)
+//   - PRA32_U2_ProgramFlash_commit() (about 50-100 ms): writes the flash from the tables ("pra32-u2-program-flash.h")
 //   - (I2S DAC with PRA32_U2_I2S_DAC_MUTE_OFF_PIN only) XSMT = HIGH, and waits for the soft unmute (10 ms)
 //   and then fades in the output (>= 3 ms)
 // - next_gain_q8() (once per frame) returns the gain (256 = 1.0), so (* gain) can be used instead of (<< 8)
@@ -17,9 +17,6 @@
 #include "pra32-u2-common.h"
 #include "pra32-u2-audio-ring-buffer.h"
 
-#if defined(ARDUINO_ARCH_RP2040) && defined(PRA32_U2_USE_EMULATED_EEPROM)
-#include <EEPROM.h>
-#endif  // defined(ARDUINO_ARCH_RP2040) && defined(PRA32_U2_USE_EMULATED_EEPROM)
 
 class PRA32_U2_OutputFader {
   static const uint32_t FADE_BLOCKS     = ((SAMPLING_RATE * 3 / 1000) + PRA32_U2_I2S_BUFFER_WORDS - 1) / PRA32_U2_I2S_BUFFER_WORDS;
@@ -83,10 +80,10 @@ private:
     write_silence(DAC_MUTE_FRAMES);
 #endif
 
-    // The requests until here are included (EEPROM.write() has already been done)
+    // The requests until here are included (the tables have already been written)
     g_eeprom_commit_requested = false;
 #if defined(ARDUINO_ARCH_RP2040) && defined(PRA32_U2_USE_EMULATED_EEPROM)
-    EEPROM.commit();
+    PRA32_U2_ProgramFlash_commit();
 #endif  // defined(ARDUINO_ARCH_RP2040) && defined(PRA32_U2_USE_EMULATED_EEPROM)
     m_output.resync();
 

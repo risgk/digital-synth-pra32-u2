@@ -27,6 +27,10 @@
       (e.g. "100" for 100 ms, "1.0" for 1.00 s, ".07" for 0.0715 Hz, "2k4" for 2.35 kHz, and "+3%" for +3.1%)
     - The parameters of a range are written as [- to +], [N to S] (Mixer Noise/Sub Osc), and [1 to 2] (Mixer Osc Mix), and Filter Mode as [LP-BR-HP-BP-LP]
       (as it changes smoothly), not to be taken for the values to select (e.g. [Off|On]), in PRA32-U2 Editor, PRA32-U2 Native, and the documents
+    - The user programs are written to the flash without the copy of them (3 KB) in the RAM, by PRA32-U2's own code (not by the EEPROM library),
+      and the synths of PRA32-U2/M share the program table: the RAM free is about 3 KB more (PRA32-U2) and 17 KB more (PRA32-U2/M);
+      the same place and layout in the flash, so that the programs written before are read as they were
+        - PRA32-U2/M: A user program written by a synth is the same in the other synths at once (it was only after the power was turned off and on)
     - The Note On Velocity at first is 64 (100 before): Panel Play Velo, Seq Velo 0-7, the Software Keyboard, and "pra32-u2-sample.mid" (the values written before stay)
     - PRA32-U2/M: Voice Group Mode: While the Main Synth is in Poly, the messages other than the notes go to all of the group (to the Main Synth alone before);
       the panel of PRA32-U2/M/P can select such a group too
