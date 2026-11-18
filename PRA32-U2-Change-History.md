@@ -12,8 +12,9 @@
       (e.g. the pulse width 0% to 100% around 64)
         - Not compatible: a user program with EG Mod Dst or LFO Mod Dst 1S moves the Shape half as much (set the Amt to 64 + (the value before - 64) * 2, up to 127);
           the Presets #18 FM Piano, #21 Sync Lead, and #26 WT Pad: EG Mod Amt +8 -> +16 (the same sound)
-    - The values shown as they work, in PRA32-U2 Editor, PRA32-U2 Native, and the panel: Osc 1 Shape and Osc 1 Morph by Osc 1 Wave (e.g. "25%", "1.5", "WT2", "S64"),
-      Mixer Noise/Sub Osc ("N64" to "0" to "S64"), Pan ("L63" to "C" to "R63"), and Osc 2 Coarse (-60 to +60)
+    - The values shown as they work, in PRA32-U2 Editor, PRA32-U2 Native, and the panel: Osc 1 Shape and Osc 1 Morph by Osc 1 Wave (e.g. "50%", "1.5", "WT2", "S64"),
+      Mixer Noise/Sub Osc ("N64" to "0" to "S64"), Pan ("L63" to "C" to "R63"), Osc 2 Coarse (-60 to +60), and Osc 2 Pitch and EG/LFO Mod Amt to the pitch
+      (the cents and the semitones, e.g. "+2" for 1.5625 cents, and "+1." for 1.5 semitones)
     - The Note On Velocity at first is 64 (100 before): Panel Play Velo, Seq Velo 0-7, the Software Keyboard, and "pra32-u2-sample.mid" (the values written before stay)
     - PRA32-U2/M: Voice Group Mode: While the Main Synth is in Poly, the messages other than the notes go to all of the group (to the Main Synth alone before);
       the panel of PRA32-U2/M/P can select such a group too

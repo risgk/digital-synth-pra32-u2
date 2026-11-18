@@ -289,7 +289,7 @@ bool PRA32U2Engine::isRandomizedAsFx(uint8_t controlNumber) {
 }
 
 // The same as updateDisplayOfControl() of PRA32-U2 Editor (pra32-u2-editor.html)
-std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value, uint8_t osc1Wave) {
+std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value, uint8_t osc1Wave, uint8_t modDst) {
   const int v = value;
   std::string dispValue = std::to_string(v);
 
@@ -319,13 +319,40 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value, ui
   static const char* const DELAY_MODES[3]  = { "Ste", "PP", "Rev" };
   static const char* const GROUP_MODES[6]  = { "Off", "Ly2", "RLy", "RR2", "RR4", "RR3" };
 
+  // Osc 2 Pitch (osc2Pitch), and EG Mod Amt and LFO Mod Amt to the pitch (P and 2P), as pitchDispValue() of PRA32-U2 Editor
+  // (3 characters at most): the cents, rounded, and the semitones, with "." for .5, with the sign but where it does not fit
+  auto pitchText = [](int x, bool osc2Pitch) {
+    static const int SEMITONES[8] = { 30, 36, 42, 48, 60, 72, 96, 120 };  // 2.5 to 10 octaves
+    const int n = x - 64;
+    int a = std::abs(n);
+    const std::string sign = (n > 0) ? "+" : "-";
+    if (osc2Pitch) {
+      a = std::min(a, 55);
+      if (a == 0) { return std::string("0"); }
+      if (a <= 32) { return sign + std::to_string(((a * 25) + 8) / 16); }  // 1.5625 cents a value
+      const int halves = a - 31;  // 0.5 semitones a value: 2 (1 semitone) to 24 (12 semitones)
+      if (halves & 1) { return (((halves / 2) < 10) ? sign : std::string()) + std::to_string(halves / 2) + "."; }
+      return sign + std::to_string(halves / 2);
+    }
+    a = std::min(a, 63);
+    if (a == 0) { return std::string("0"); }
+    if (a <= 31) { return sign + std::to_string(((a * 25) + 4) / 8); }  // 3.125 cents a value
+    const int semitones = (a <= 55) ? (a - 31) : SEMITONES[a - 56];  // 1 (100 cents) to 120 (10 octaves)
+    return ((semitones < 100) ? sign : std::string()) + std::to_string(semitones);
+  };
+
   switch (controlNumber) {
   case OSC_2_COARSE    : dispValue = bipolar(std::min(std::max(v, 64 - 60), 64 + 60)); break;  // -60 to +60, as it works
-  case OSC_2_PITCH     :
+  case OSC_2_PITCH     : return std::to_string(v) + " [" + pitchText(v, true) + "]";  // shown even if the same as the value
+  case EG_OSC_AMT      :
+  case LFO_OSC_AMT     :  // As the pitch, if EG Mod Dst or LFO Mod Dst is P or 2P; as the value otherwise
+    if ((((modDst * 10) + 128) >> 8) <= 3) {
+      return std::to_string(v) + " [" + pitchText(v, false) + "]";
+    }
+    dispValue = bipolar(v);
+    break;
   case FILTER_EG_AMT   :
   case FILTER_KEY_TRK  :
-  case EG_OSC_AMT      :
-  case LFO_OSC_AMT     :
   case LFO_FILTER_AMT  :
   case A_D_VEL_SENS    :
   case REL_VEL_SENS    :
@@ -548,6 +575,11 @@ void PRA32U2Engine::controlChange(uint8_t controlNumber, uint8_t value) {
 
 uint8_t PRA32U2Engine::getOsc1Wave() const {
   return getControllerValue(OSC_1_WAVE);
+}
+
+uint8_t PRA32U2Engine::getModDst(uint8_t controlNumber) const {
+  return (controlNumber == EG_OSC_AMT)  ? getControllerValue(EG_OSC_DST)  :
+         (controlNumber == LFO_OSC_AMT) ? getControllerValue(LFO_OSC_DST) : 0;
 }
 
 uint8_t PRA32U2Engine::getControllerValue(uint8_t controlNumber) const {

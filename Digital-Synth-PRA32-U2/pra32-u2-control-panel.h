@@ -1147,6 +1147,54 @@ static boolean PRA32_U2_ControlPanel_calc_value_display_osc_1(uint8_t control_ta
   return true;
 }
 
+// Osc 2 Pitch (osc2_pitch), and EG Mod Amt and LFO Mod Amt to the pitch (P and 2P), as they work (3 characters at most,
+// right-aligned; the same as pitchDispValue() of PRA32-U2 Editor): the cents, rounded (e.g. "+2" for 1.5625 cents), and
+// the semitones, with "." for .5 (e.g. "+1." for 1.5), with the sign but where it does not fit (e.g. "10." for 10.5);
+// Osc 2 Pitch: 1.5625 cents a value up to 50 cents (+-32), and 0.5 semitones up to 12 (+-55); the Amt: 3.125 cents a
+// value up to 96.875 cents (+-31), 1 semitone (+-32) to 24 semitones (+-55), and 30 to 120 semitones (+-56 to +-63)
+static void PRA32_U2_ControlPanel_calc_value_display_pitch(uint8_t controller_value, boolean osc2_pitch, char value_display_text[5]) {
+  static const uint8_t ary_semitones[8] PRA32_U2_TABLE_IN_RAM(panel_text) = { 30, 36, 42, 48, 60, 72, 96, 120 };
+  int32_t  n = static_cast<int32_t>(controller_value) - 64;
+  uint32_t a = (n >= 0) ? n : -n;
+  char     buff[4];
+  uint32_t length = 0;
+
+  if (osc2_pitch) {
+    a = minimum(a, 55u);
+    if (a == 0) {
+      buff[length++] = '0';
+    } else if (a <= 32) {
+      buff[length++] = (n > 0) ? '+' : '-';
+      PRA32_U2_ControlPanel_append_decimal(buff, length, ((a * 25) + 8) / 16);
+    } else {
+      uint32_t halves = a - 31;  // 2 (1 semitone) to 24 (12 semitones)
+      if (((halves & 1) == 0) || ((halves / 2) < 10)) {
+        buff[length++] = (n > 0) ? '+' : '-';
+      }
+      PRA32_U2_ControlPanel_append_decimal(buff, length, halves / 2);
+      if (halves & 1) {
+        buff[length++] = '.';
+      }
+    }
+  } else {
+    a = minimum(a, 63u);
+    if (a == 0) {
+      buff[length++] = '0';
+    } else if (a <= 31) {
+      buff[length++] = (n > 0) ? '+' : '-';
+      PRA32_U2_ControlPanel_append_decimal(buff, length, ((a * 25) + 4) / 8);
+    } else {
+      uint32_t semitones = (a <= 55) ? (a - 31) : ary_semitones[a - 56];
+      if (semitones < 100) {
+        buff[length++] = (n > 0) ? '+' : '-';
+      }
+      PRA32_U2_ControlPanel_append_decimal(buff, length, semitones);
+    }
+  }
+
+  PRA32_U2_ControlPanel_copy_right_aligned(value_display_text, buff, length);
+}
+
 // Pan: L63 (0 and 1, the same) to C (64) to R63 (127), right-aligned (the same as PRA32-U2 Editor)
 static void PRA32_U2_ControlPanel_calc_value_display_pan(uint8_t controller_value, char value_display_text[5]) {
   char     buff[4];
@@ -1168,10 +1216,24 @@ static __attribute__((noinline)) boolean __not_in_flash_func(PRA32_U2_ControlPan
 
   switch (control_target) {
   case OSC_2_PITCH     :
-  case FILTER_EG_AMT   :
-  case FILTER_KEY_TRK  :
+    PRA32_U2_ControlPanel_calc_value_display_pitch(controller_value, true, value_display_text);
+    result = true;
+    break;
   case EG_OSC_AMT      :
   case LFO_OSC_AMT     :
+    {
+      // As the pitch, if EG Mod Dst or LFO Mod Dst is P or 2P; as the value otherwise
+      uint8_t mod_dst = getCurrentControllerValue(getTargetMIDICh(s_current_synth), (control_target == EG_OSC_AMT) ? EG_OSC_DST : LFO_OSC_DST);
+      if ((((mod_dst * 10) + 128) >> 8) <= 3) {
+        PRA32_U2_ControlPanel_calc_value_display_pitch(controller_value, false, value_display_text);
+      } else {
+        PRA32_U2_ControlPanel_format_decimal(value_display_text, static_cast<int>(controller_value) - 64, true);
+      }
+      result = true;
+    }
+    break;
+  case FILTER_EG_AMT   :
+  case FILTER_KEY_TRK  :
   case LFO_FILTER_AMT  :
   case BTH_FILTER_AMT  :
   case A_D_KEY_TRK     :

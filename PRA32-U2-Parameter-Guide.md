@@ -137,6 +137,8 @@
     - +33 (97): +1 semitone
     - +45 (109): +7 semitone
     - +55 (119): +12 semitone (max)
+    - Shown as it works: the cents, rounded (e.g. "+2" at +1, "+50" at +32), and the semitones, with "." for .5 (e.g. "+1" at +33,
+      "+1." at +34, and "-1." at -34); with the sign but where it does not fit ("10." and "11." for 10.5 and 11.5)
 - Filter Cutoff
     - 0: f = 13.0 Hz (min)
     - 1: f = 13.8 Hz
@@ -242,6 +244,8 @@
         - +61 (125): +6 oct
         - +62 (126): +8 oct
         - +63 (127): +10 oct (max)
+        - Shown as it works (with EG Mod Dst and LFO Mod Dst P and 2P): the cents, rounded (e.g. "+3" at +1, "+97" at +31),
+          and the semitones (e.g. "+1" at +32, "+24" at +55, and "+96" at +62); with the sign but at +-63 ("120", which does not fit)
     - Shape
         - -63 (1): Shape -128 (min)
         - -62 (2): Shape -124

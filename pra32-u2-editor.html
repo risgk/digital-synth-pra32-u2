@@ -1572,7 +1572,7 @@ var specialProgramChangeCCValues = [0, 0, 0, 0, 0, 0, 0, 0];
 var specialRandomControlCCValue = 0;
 
 // The parameters that change which parameters are dimmed (shown in light gray, as they have no effect)
-const DIMMING_CONTROLS = [OSC_1_WAVE, EG_AMP_MOD, REL_EQ_DECAY, PORTA_MODE];
+const DIMMING_CONTROLS = [OSC_1_WAVE, EG_OSC_DST, LFO_OSC_DST, EG_AMP_MOD, REL_EQ_DECAY, PORTA_MODE];
 
 function setDimmed(ids, dimmed) {
   ids.forEach(function(id) {
@@ -1586,8 +1586,8 @@ function setParameterDimmed(number, dimmed) {
 }
 
 function updateDimmedParameters() {
-  // Osc 1 Shape and Osc 1 Morph: their values shown by Osc 1 Wave
-  [OSC_1_SHAPE, OSC_1_MORPH].forEach(function(number) {
+  // Osc 1 Shape and Osc 1 Morph: their values shown by Osc 1 Wave; EG Mod Amt and LFO Mod Amt: by EG Mod Dst and LFO Mod Dst
+  [OSC_1_SHAPE, OSC_1_MORPH, EG_OSC_AMT, LFO_OSC_AMT].forEach(function(number) {
     var value = localStorage.getItem("key" + controlNumberToStringMap.get(number));
     if (value !== null) {
       updateDisplayOfControl(number, value);
@@ -1888,6 +1888,29 @@ function osc1DispValue(number, value) {
   return null;
 }
 
+// Osc 2 Pitch (osc2Pitch), and EG Mod Amt and LFO Mod Amt to the pitch (P and 2P), as they work (3 characters at most, as the
+// panel of PRA32-U2/P and PRA32-U2 Native): the cents, rounded (e.g. "+2" for 1.5625 cents), and the semitones, with "." for .5
+// (e.g. "+1." for 1.5), with the sign but where it does not fit (e.g. "10." for 10.5, and "120")
+function pitchDispValue(value, osc2Pitch) {
+  var n = parseInt(value) - 64;
+  var a = Math.abs(n);
+  var sign = (n > 0) ? "+" : "-";
+  if (osc2Pitch) {
+    a = Math.min(a, 55);
+    if (a == 0) { return "0"; }
+    if (a <= 32) { return sign + String(Math.floor((a * 25 + 8) / 16)); }  // 1.5625 cents a value
+    var halves = a - 31;  // 0.5 semitones a value: 2 (1 semitone) to 24 (12 semitones)
+    var semitones = Math.floor(halves / 2);
+    if (halves & 1) { return ((semitones < 10) ? sign : "") + String(semitones) + "."; }
+    return sign + String(semitones);
+  }
+  a = Math.min(a, 63);
+  if (a == 0) { return "0"; }
+  if (a <= 31) { return sign + String(Math.floor((a * 25 + 4) / 8)); }  // 3.125 cents a value
+  var semitones = (a <= 55) ? (a - 31) : [30, 36, 42, 48, 60, 72, 96, 120][a - 56];  // 1 (100 cents) to 120 (10 octaves)
+  return ((semitones < 100) ? sign : "") + String(semitones);
+}
+
 function updateDisplayOfControl(number, value) {
   var input = document.getElementById("input" + controlNumberToStringMap.get(number));
   input.value = parseInt(value);
@@ -1904,10 +1927,24 @@ function updateDisplayOfControl(number, value) {
     }
     break;
   case OSC_2_PITCH     :
-  case FILTER_EG_AMT   :
-  case FILTER_KEY_TRK  :
+    dispValue = pitchDispValue(value, true);
+    alwaysShown = true;  // shown even if the same as the value, as the panel
+    break;
   case EG_OSC_AMT      :
   case LFO_OSC_AMT     :
+    {
+      // As the pitch, if EG Mod Dst or LFO Mod Dst is P or 2P; as the value otherwise
+      var modDst = parseInt(localStorage.getItem("key" + controlNumberToStringMap.get((number == EG_OSC_AMT) ? EG_OSC_DST : LFO_OSC_DST))) || 0;
+      if ((((modDst * 10) + 128) >> 8) <= 3) {
+        dispValue = pitchDispValue(value, false);
+        alwaysShown = true;
+      } else {
+        dispValue = ((value >= 64) ? "+" : "") + String(value - 64);
+      }
+    }
+    break;
+  case FILTER_EG_AMT   :
+  case FILTER_KEY_TRK  :
   case LFO_FILTER_AMT  :
   case A_D_VEL_SENS    :
   case REL_VEL_SENS    :
