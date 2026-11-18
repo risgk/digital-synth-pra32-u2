@@ -2236,7 +2236,8 @@ if constexpr (RESTRICT_POLY_AND_CORES == false) {
   }
 
   INLINE void update_eg_osc_mod() {
-    if        (m_eg_osc_dst >= 115) {  /* MOD_DST_SHAPE_1 */
+    const int32_t index = ((m_eg_osc_dst * 10) + 128) >> 8;  // [P|P|2P|2P|F|1S], as the other 6-way parameters
+    if        (index >= 5) {  /* MOD_DST_SHAPE_1 */
       m_osc.set_pitch_eg_amt<0>(64);
       m_osc.set_pitch_eg_amt<1>(64);
       m_osc.set_shape_eg_amt(m_eg_osc_amt);
@@ -2244,7 +2245,7 @@ if constexpr (RESTRICT_POLY_AND_CORES == false) {
       m_filter[1].set_cutoff_eg_amt(1, 64);
       m_filter[2].set_cutoff_eg_amt(1, 64);
       m_filter[3].set_cutoff_eg_amt(1, 64);
-    } else if (m_eg_osc_dst >= 89) {  /* MOD_DST_CUTOFF */
+    } else if (index >= 4) {  /* MOD_DST_CUTOFF */
       m_osc.set_pitch_eg_amt<0>(64);
       m_osc.set_pitch_eg_amt<1>(64);
       m_osc.set_shape_eg_amt(64);
@@ -2252,7 +2253,7 @@ if constexpr (RESTRICT_POLY_AND_CORES == false) {
       m_filter[1].set_cutoff_eg_amt(1, m_eg_osc_amt);
       m_filter[2].set_cutoff_eg_amt(1, m_eg_osc_amt);
       m_filter[3].set_cutoff_eg_amt(1, m_eg_osc_amt);
-    } else if (m_eg_osc_dst >= 39) {  /* MOD_DST_PITCH_2 */
+    } else if (index >= 2) {  /* MOD_DST_PITCH_2 */
       m_osc.set_pitch_eg_amt<0>(64);
       m_osc.set_pitch_eg_amt<1>(m_eg_osc_amt);
       m_osc.set_shape_eg_amt(64);
@@ -2272,7 +2273,8 @@ if constexpr (RESTRICT_POLY_AND_CORES == false) {
   }
 
   INLINE void update_lfo_osc_mod() {
-    if        (m_lfo_osc_dst >= 115) {  /* MOD_DST_SHAPE_1 */
+    const int32_t index = ((m_lfo_osc_dst * 10) + 128) >> 8;  // [P|P|2P|2P|F|1S], as the other 6-way parameters
+    if        (index >= 5) {  /* MOD_DST_SHAPE_1 */
       m_osc.set_pitch_lfo_amt<0>(64);
       m_osc.set_pitch_lfo_amt<1>(64);
       m_osc.set_shape_lfo_amt(m_lfo_osc_amt);
@@ -2280,7 +2282,7 @@ if constexpr (RESTRICT_POLY_AND_CORES == false) {
       m_filter[1].set_cutoff_lfo_amt(1, 64);
       m_filter[2].set_cutoff_lfo_amt(1, 64);
       m_filter[3].set_cutoff_lfo_amt(1, 64);
-    } else if (m_lfo_osc_dst >= 89) {  /* MOD_DST_CUTOFF */
+    } else if (index >= 4) {  /* MOD_DST_CUTOFF */
       m_osc.set_pitch_lfo_amt<0>(64);
       m_osc.set_pitch_lfo_amt<1>(64);
       m_osc.set_shape_lfo_amt(64);
@@ -2288,7 +2290,7 @@ if constexpr (RESTRICT_POLY_AND_CORES == false) {
       m_filter[1].set_cutoff_lfo_amt(1, m_lfo_osc_amt);
       m_filter[2].set_cutoff_lfo_amt(1, m_lfo_osc_amt);
       m_filter[3].set_cutoff_lfo_amt(1, m_lfo_osc_amt);
-    } else if (m_lfo_osc_dst >= 39) {  /* MOD_DST_PITCH_2 */
+    } else if (index >= 2) {  /* MOD_DST_PITCH_2 */
       m_osc.set_pitch_lfo_amt<0>(64);
       m_osc.set_pitch_lfo_amt<1>(m_lfo_osc_amt);
       m_osc.set_shape_lfo_amt(64);
