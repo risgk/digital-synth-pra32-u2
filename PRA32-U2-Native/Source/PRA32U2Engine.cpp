@@ -23,6 +23,7 @@ uint8_t g_midi_ch = 0;  // Used by the core (only for the panel); the engine rec
 
 #include "pra32-u2-common.h"
 #include "pra32-u2-synth.h"
+#include "pra32-u2-value-display.h"  // The values shown as they work (also without the panel)
 
 #include "PRA32U2Engine.h"
 
