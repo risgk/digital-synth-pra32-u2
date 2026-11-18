@@ -19,6 +19,19 @@
 - LFO: LFO Wave, LFO Fade Time, LFO Rate, LFO Depth, LFO Mod Amt, LFO Mod Dst, LFO Filter Amt
 - FX: Distortion Drive, Chorus Level, Delay Level
 
+## Values Shown
+
+- PRA32-U2 Editor, PRA32-U2 Native, and the panel of PRA32-U2/P show the values of many parameters as they work, in 3 characters at most
+  (beside the controller value; "Shown" below), the same in all three
+    - Times: the milliseconds without the unit (e.g. "100" for 100 ms), and the seconds with "." (e.g. "1.0" for 1.00 s, and "28." for 27.9 s)
+    - Frequencies, and the other values of this form (e.g. the Q): ".01" to ".99" below 1, "1.0" to "9.9", "10" to "999", and "1k0" to "99k" (kHz)
+    - %: with "%" where it fits (e.g. "2%", "50%"), and "100" for 100%
+    - dB, cents, and semitones: the numbers, without the unit
+    - The sign: shown (e.g. "+2", "-98"), but where it does not fit (e.g. "110" for +110 and -110, and "100" for -100 cents)
+- The values are rounded; a value other than 0 is not shown as 0 (e.g. Filter Drive "+1" for +0.25 dB), and Delay Feedback 49.6% is "49%"
+- Where 127 is taken as 128 (e.g. Osc 1 Shape), it is shown as 128
+- The values are of the parameters themselves, without the modulations (e.g. Filter Cutoff without the EG, the LFO, and Filter Key Track)
+
 ## Control Change Parameters
 
 - Osc 1 Wave [Saw|Sqr|Tri|Sin|WT|Pls]
@@ -28,77 +41,41 @@
     - 77 (64-89): Sine Wave
     - 102 (90-115): Wave Tables with Constraints
     - 127 (116-127): Pulse Wave
-- Mixer Noise/Sub Osc [N to S]
+- Mixer Noise/Sub Osc [N to S]: 2 values a step (3.1%)
     - -64 (0): Noise 100% (min)
-    - -62 (1-2): Noise 96.9%
-    - -60 (3-4): Noise 93.8%
-    - -2 (61-62): Noise 3.1%
     - +0 (63-64): 0%
-    - +2 (65-66): Sub Osc 3.1%
-    - +60 (123-124): Sub Osc 93.8%
-    - +62 (125-126): Sub Osc 96.9%
     - +63 (127): Sub Osc 100% (max)
-    - Shown as it works, 2 values a step: "N64" (0), "N62" (1-2), ..., "0" (63-64), ..., "S62" (125-126), and "S64" (127)
-- Osc 1 Shape
-    - Saw Wave: Multi Saw Detune
-        - Shown as it works: the detune of the outer 2 saws (of the 7) in cents (the upper one; 33 steps of 4 values),
-          rounded (e.g. "2.4" at 0, "41" at 64, and "79" at 127)
-    - Square Wave: Sync Square Pitch
-        - Shown as it works: the frequency ratio of the Sync Square, 2^(value / 32) / 2 (127 taken as 128), rounded
-          (e.g. ".50" at 0, "1.0" at 32, "2.0" at 64, "4.0" at 96, and "8.0" at 127)
-    - Triangle Wave: Fold Gain (a wavefolder: the wave beyond ±1 folded back; +1 every 16 values)
-        - 0: x1 (min)
-        - 16: x2
-        - 32: x3
-        - 64: x5
-        - 96: x7
-        - 127: x9 (max)
+    - Shown: "N64", "N62" (1-2), ..., "0", ..., "S64"
+- Osc 1 Shape (127 is taken as 128)
+    - Saw Wave: Multi Saw Detune (7 saws, 33 steps of 4 values)
+        - Shown: the detune of the outer 2 saws in cents (e.g. "2.4" at 0, "41" at 64, and "79" at 127)
+    - Square Wave: Sync Square Pitch, the frequency ratio 2^(value / 32) / 2 (an octave every 32 values)
+        - Shown: the ratio (e.g. ".50" at 0, "1.0" at 32, and "8.0" at 127)
+    - Triangle Wave: Fold Gain (a wavefolder: the wave beyond ±1 folded back), x1 (0) to x9 (127), +1 every 16 values
         - At an odd gain (32, 64, 96, and 127), the folded wave is the Triangle Wave of the gain times the pitch
         - Lowered at a high pitch, so that the gain times the frequency stays within 12 kHz (e.g. x5.7 at C7)
-        - Shown as the gain, rounded (e.g. "1.0" at 0, "1.1" at 1, "5.0" at 64, and "9.0" at 127; not as lowered at a high pitch)
-    - Sine Wave (Frequency Modulation or Phase Modulation): Modulation Depth
-        - Shown as it works: the depth of the phase modulation in periods, value / 32 (127 taken as 128), rounded
-          (e.g. ".03" at 1, ".50" at 16, "2.0" at 64, and "4.0" at 127)
+        - Shown: the gain, not as lowered (e.g. "1.0" at 0, "5.0" at 64, and "9.0" at 127)
+    - Sine Wave (Frequency Modulation or Phase Modulation): Modulation Depth, up to 4 periods of the phase at 127
+        - Shown: the depth in periods (e.g. ".50" at 16, "2.0" at 64, and "4.0" at 127)
     - Wave Tables with Constraints: Position
-        - Shown as it works: the position, 0-126, and "128" at 127 (taken as 128)
-    - Pulse Wave (= 1st Saw + Phase Shifted 2nd Saw)
-        - 0: Pulse Width 0%, or 2nd Saw Phase 0%
-        - 1: Pulse Width 0.8%, or 2nd Saw Phase 0.8%
-        - 32: Pulse Width 25%, or 2nd Saw Phase 25%
-        - 64: Pulse Width 50%, or 2nd Saw Phase 50% (#19 Plain Poly and #30 PWM Lead)
-        - 96: Pulse Width 75%, or 2nd Saw Phase 75%
-        - 126: Pulse Width 98.4%, or 2nd Saw Phase 98.4%
-        - 127: Pulse Width 100%, or 2nd Saw Phase 100%
-        - Shown as the pulse width (e.g. "50%" at 64, and "100" at 127)
+        - Shown: 0-126, and "128" at 127
+    - Pulse Wave (= 1st Saw + Phase Shifted 2nd Saw): Pulse Width, or 2nd Saw Phase, value / 128
+        - 0: 0% (min)
+        - 64: 50% (#19 Plain Poly and #30 PWM Lead)
+        - 127: 100% (max)
+        - Shown: the pulse width (e.g. "50%" at 64, and "100" at 127)
         - The EG and LFO modulations stay within the range of the Shape (0-127), as with the other waves
         - NOTE: The Pulse Width 0% and 100% are silent (with the Pulse), as the 2nd Saw cancels the 1st:
           set Osc 1 Shape to 64 (50%) when Osc 1 Wave is changed to Pls with Osc 1 Shape 0 (e.g. from #23 Initial)
 - Osc 1 Morph
-    - Saw Wave:
-        - 0: Normal Saw 100% (min)
-        - 64 (63-64): Normal Saw 50% + Multi Saw 50%
-        - 127: Multi Saw 100% (max)
-    - Square Wave:
-        - 0: Normal Square 100% (min)
-        - 64 (63-64): Normal Square 50% + Sync Square 50%
-        - 127: Sync Square 100% (max)
-    - Triangle Wave:
-        - 0: Normal Triangle 100% (min)
-        - 64 (63-64): Normal Triangle 50% + Folded Triangle 50%
-        - 127: Folded Triangle 100% (max)
-    - Saw Wave, Square Wave, and Triangle Wave: shown as it works, the Multi Saw, the Sync Square, or the Folded Triangle in %, as EG Sustain
-      (e.g. "0%" at 0, "2%" at 1-2, "50%" at 63-64, and "100" at 127)
-    - Sine Wave (Frequency Modulation or Phase Modulation): Frequency Ratio of Modulator
-        - 0 (0-1): Ratio 0.5 (min)
-        - 4 (2-5): Ratio 1.0
-        - 8 (6-9): Ratio 1.5
-        - 12 (10-13): Ratio 2.0
-        - 20 (18-21): Ratio 3.0
-        - 28 (26-29): Ratio 4.0
-        - 108 (106-109): Ratio 14.0
-        - 124 (122-125): Ratio 16.0
-        - 127 (126-127): Ratio 16.5 (max)
-        - Shown as the ratio in 3 characters: "0.5" to "9.5", and "10" to "16." ("." for .5, e.g. "16." for 16.5)
+    - Saw Wave, Square Wave, and Triangle Wave: the mix of the Normal and the other wave, 2 values a step
+        - 0: Normal Saw, Normal Square, or Normal Triangle 100% (min)
+        - 64 (63-64): 50% + 50%
+        - 127: Multi Saw, Sync Square, or Folded Triangle 100% (max)
+        - Shown: the Multi Saw, the Sync Square, or the Folded Triangle in % (e.g. "50%" at 63-64)
+    - Sine Wave (Frequency Modulation or Phase Modulation): Frequency Ratio of Modulator, 0.5 (0-1) to 16.5 (126-127), +0.5 every 4 values
+        - e.g. 1.0 at 4 (2-5), 2.0 at 12 (10-13), and 4.0 at 28 (26-29)
+        - Shown: the ratio, with "." for .5 (e.g. "1.5", and "16." for 16.5)
     - Wave Tables with Constraints
         - 0 (0-12): Wave Table 0 (Sync Pulse 1/8)
         - 26 (13-38): Wave Table 1 (Sync Pulse 1/4)
@@ -106,173 +83,86 @@
         - 77 (64-89): Wave Table 3 (Sync & Ring)
         - 102 (90-115): Wave Table 4 (8+0 to 0+8)
         - 127 (116-127): Wave Table 5 (6+0 to 0+10)
-        - Shown as "WT0" to "WT5"; the slider of PRA32-U2 Editor snaps to the 6 tables (0, 26, 51, 77, 102, and 127)
-    - Pulse Wave
+        - Shown: "WT0" to "WT5"; the slider of PRA32-U2 Editor snaps to the 6 tables
+    - Pulse Wave: 2 values a step
         - 0: Pulse 100% = Saw 100% + Reverse Saw 100% (min)
         - 32 (31-32): Pulse 50% + Saw 50% = Saw 100% + Reverse Saw 50%
         - 64 (63-64): Saw 100%
         - 96 (95-96): Saw 100% + Saw 50%
         - 127: Saw 100% + Saw 100% (max)
-        - Shown as it works, 2 values a step: "P64" (0, the Pulse), "P62" (1-2), ..., "0" (63-64, the Saw), ..., "S62" (125-126), and "S64" (127, the 2nd Saw)
+        - Shown: "P64" (the Pulse), ..., "0" (the Saw), ..., "S64" (the 2nd Saw)
         - NOTE: With "Osc 1 Shape" near 0 or 127 and a high "Osc 1 Morph", the output gets louder (up to about +6 dB), and the Output Compressor may make chords waver; if so, lower the "Amp Gain"
 - Osc 2 Wave [Saw|Sqr|Tri|Sin|O1|Nos]
     - 0 (0-12): Saw Wave
     - 26 (13-38): Square Wave
     - 51 (39-63): Triangle Wave
     - 77 (64-89): Sine Wave
-    - 102 (90-115): Same as Osc 1 Wave
-        - Osc 1 Wave: Saw Wave -> Saw Wave
-        - Osc 1 Wave: Square Wave -> Square Wave
-        - Osc 1 Wave: Triangle Wave -> Triangle Wave
-        - Osc 1 Wave: Sine Wave -> Sine Wave
-        - Osc 1 Wave: Wave Tables with Constraints -> Square Wave
-        - Osc 1 Wave: Pulse Wave -> Square Wave
+    - 102 (90-115): Same as Osc 1 Wave (Square Wave for Wave Tables with Constraints and Pulse Wave)
     - 127 (116-127): White Noise
-- Mixer Osc Mix [1 to 2]
+- Mixer Osc Mix [1 to 2]: The power of the two, 2 values a step
     - 0: Osc 1 100% (min)
     - 64 (63-64): Osc 1 50% + Osc 2 50%
     - 127: Osc 2 100% (max)
-    - Shown as it works: Osc 2 (the power, as above; 2 values a step) in % rounded, with "%" where it fits (e.g. "0%", "2%", "50%", and "100")
-- Osc 2 Coarse [- to +]
-    - -60 (0-4): -60 semitone (min)
-    - +60 (124-127): +60 semitone (max)
+    - Shown: Osc 2 in % (e.g. "50%" at 63-64)
+- Osc 2 Coarse [- to +]: -60 (0-4) to +60 (124-127) semitone
 - Osc 2 Pitch [- to +]
-    - -55 (9): -12 semitone (min)
-    - -41 (23): -5 semitone
-    - -33 (31): -1 semitone
-    - -32 (32): -50 cent
-    - -1 (63): -1.5625 cent
-    - +0 (64): +0 cent
-    - +1 (65): +1.5625 cent
-    - +32 (96): +50 cent
-    - +33 (97): +1 semitone
-    - +45 (109): +7 semitone
-    - +55 (119): +12 semitone (max)
-    - Shown as it works: the cents, rounded (e.g. "+2" at +1, "+50" at +32), and the semitones, with "." for .5 (e.g. "+1" at +33,
-      "+1." at +34, and "-1." at -34); with the sign but where it does not fit ("10." and "11." for 10.5 and 11.5)
-- Filter Cutoff
-    - 0: f = 13.0 Hz (min)
-    - 1: f = 13.8 Hz
-    - 4: f = 16.4 Hz
-    - 7: f = 19.4 Hz
-    - 52: f = 261.6 Hz
-    - 61: f = 440.0 Hz
-    - 64: f = 523.3 Hz
-    - 67: f = 622.3 Hz
-    - 121: f = 14080.0 Hz
-    - 124: f = 16744.0 Hz
-    - 127: f = 19912.1 Hz (max)
-    - Shown as it works, as the LFO Rate (e.g. "440" for 440.0 Hz, "3k5" for 3520.0 Hz, and "20k" for 19912.1 Hz)
+    - -32 (32) to +32 (96): -50 to +50 cent, 1.5625 cent a value
+    - -55 (9) to -33 (31), +33 (97) to +55 (119): -12 to -1, +1 to +12 semitone, 0.5 semitone a value (min and max)
+    - Shown: the cents (e.g. "+2" at +1), and the semitones, with "." for .5 (e.g. "+1." at +34, and "10." for +10.5 and -10.5)
+- Filter Cutoff: 13.75 Hz x 2^((value - 1) / 12), a semitone a value
+    - 0: 13.0 Hz (min)
+    - 61: 440.0 Hz
+    - 127: 19.9 kHz (max)
+    - Shown: the frequency (e.g. "440", "3k5", and "20k")
 - Filter Resonance
     - 0: Q = 0.707 (min)
-    - 16: Q = 1.00
-    - 32: Q = 1.41
-    - 48: Q = 2.00
-    - 64: Q = 2.83
-    - 80: Q = 4.00
-    - 96: Q = 5.66
-    - 100: Q = 6.66
-    - 104: Q = 9.15
+    - 16-96: Q = 1.00 to 5.66, doubling every 32 values
     - 108: Q = 14.7
-    - 112: Q = 27.4
-    - 116: Q = 59.7
-    - 120: Q = 152
     - 122: Q = 256
-    - 123: Self-oscillation (peak level 0.15 out of the Filter; 0.22 in the loop)
-    - 124: Self-oscillation (peak level 0.21 out of the Filter; 0.32 in the loop)
-    - 125: Self-oscillation (peak level 0.25 out of the Filter; 0.39 in the loop)
-    - 126: Self-oscillation (peak level 0.28 out of the Filter; 0.45 in the loop)
-    - 127: Self-oscillation (peak level 0.30 out of the Filter; 0.50 in the loop) (max)
-        - NOTE: The full scale is 1.0 (e.g. the peak level of the Osc 1 Saw Wave is 0.25)
-    - Above 96, the output of the Filter is lowered with the Resonance (-1.3 dB at 108, -2.8 dB at 122, -3.5 dB at 123, -3.8 dB at 125, and -4.4 dB at 127), so that a high Resonance is about as loud as 96; how readily the self-oscillation holds against the input follows its level in the loop
-    - The self-oscillation fades out as the cutoff (including the modulation) rises from the Cutoff 111 (f = 7.9 kHz) to 116 (f = 10.5 kHz), and above that the Resonance 123-127 acts as 122
+    - 123-127: Self-oscillation (peak level 0.15 to 0.30 out of the Filter, 0.22 to 0.50 in the loop; the full scale is 1.0, and the Osc 1 Saw Wave is 0.25)
+    - Above 96, the output of the Filter is lowered with the Resonance (-1.3 dB at 108, -2.8 dB at 122, and -4.4 dB at 127), so that a high Resonance is about as loud as 96
+    - The self-oscillation fades out as the cutoff (including the modulation) rises from the Cutoff 111 (7.9 kHz) to 116 (10.5 kHz), and above that the Resonance 123-127 acts as 122
     - A loud input near the cutoff (e.g. the Square or the Multi Saw) weakens or stops the self-oscillation, and an input harmonic near it pulls it to the pitch of that harmonic
-    - Shown as it works: the Q, as the LFO Rate (e.g. ".71" for 0.707, "5.7" for 5.66, and "256"), and "Osc" for 123-127 (the self-oscillation)
+    - Shown: the Q (e.g. ".71", "5.7", and "256"), and "Osc" for 123-127
     - NOTE: With a high Resonance (about 112 or above), chords can still get louder, and the Output Compressor lowers the level; if it is too much, lower the "Amp Gain"
-- Filter EG Amt [- to +], LFO Filter Amt [- to +]
+- Filter EG Amt [- to +], LFO Filter Amt [- to +]: The Cutoff at the full EG or LFO, 2 a value
     - -60 (0-4): -120 (min)
     - +60 (124-127): +120 (max)
-    - Shown as it works: the Cutoff (the semitones), with the sign but where it does not fit (e.g. "+2", "-98", and "110" for +-110)
-- Filter Key Track [- to +]: The Cutoff follows the pitch by -100% to +100%, 3.125% (1/32) a step of 2 values (as Mixer Noise/Sub Osc)
+    - Shown: the Cutoff (the semitones) (e.g. "+2", "-98", and "110")
+- Filter Key Track [- to +]: How much the Cutoff follows the pitch, 2 values a step (3.125%)
     - 0: -100% (min)
-    - 1 (1-2): -96.9%
-    - 32 (31-32): -50%
     - 64 (63-64): 0%
-    - 65 (65-66): +3.1%
     - 96 (95-96): +50% (the Presets)
-    - 126 (125-126): +96.9%
     - 127: +100% (max)
-    - Shown as it works: the % rounded, with "%" where it fits, and with the sign but where it does not fit (e.g. "0%", "+3%" for +3.1%,
-      "+13" for +12.5%, and "100" for +-100%)
-- EG Attack, Amp Attack: Attack time
+    - Shown: the % (e.g. "+3%", "+13", and "100")
+- EG Attack, Amp Attack: Attack time, 1 ms x 10^(value / 32)
     - 0: 1.00 ms
-    - 32: 10.0 ms
     - 64: 100 ms
-    - 96: 1.00 s
     - 127: 9.31 s
-- EG Decay, EG Release, Amp Decay, Amp Release: Time to 1/1024 (approx. -60 dB)
+- EG Decay, EG Release, Amp Decay, Amp Release: Time to 1/1024 (approx. -60 dB), 3 times the Attack
     - 0: 3.00 ms
-    - 32: 30.0 ms
     - 64: 300 ms
-    - 96: 3.00 s
     - 127: 27.9 s
-- EG Attack, EG Decay, EG Release, Amp Attack, Amp Decay, and Amp Release are shown as they work: the milliseconds rounded,
-  without the unit (e.g. "100" for 100 ms), and the seconds with "." (e.g. "1.0" for 1.00 s, and "28." for 27.9 s)
-- EG Sustain, Amp Sustain: Sustain level
+- EG Attack, EG Decay, EG Release, Amp Attack, Amp Decay, and Amp Release: Shown: the time (e.g. "100", "1.0", and "28.")
+- EG Sustain, Amp Sustain: Sustain level, 2 values a step
     - 0: 0%
-    - 1 (1-2): 1.6%
     - 64 (63-64): 50%
-    - 126 (125-126): 98.4%
     - 127: 100%
-    - Shown as it works: the % rounded, with "%" where it fits (e.g. "2%" for 1.6%, "50%", and "100")
-- EG Mod Amt [- to +], LFO Mod Amt [- to +]
-    - Pitch
-        - -63 (1): -10 oct (min)
-        - -62 (2): -8 oct
-        - -61 (3): -6 oct
-        - -60 (4): -5 oct
-        - -59 (5): -4 oct
-        - -58 (6): -3.5 oct
-        - -57 (7): -3 oct
-        - -56 (8): -2.5 oct
-        - -55 (9): -24 semitone
-        - -43 (21): -12 semitone
-        - -33 (31): -2 semitone
-        - -32 (32): -100 cent
-        - -1 (63): -3.125 cent
-        - +0 (64): +0 cent
-        - +1 (65): +3.125 cent
-        - +32 (96): +100 cent
-        - +33 (97): +2 semitone
-        - +43 (107): +12 semitone
-        - +55 (119): +24 semitone
-        - +56 (120): +2.5 oct
-        - +57 (121): +3 oct
-        - +58 (122): +3.5 oct
-        - +59 (123): +4 oct
-        - +60 (124): +5 oct
-        - +61 (125): +6 oct
-        - +62 (126): +8 oct
-        - +63 (127): +10 oct (max)
-        - Shown as it works (with EG Mod Dst and LFO Mod Dst P and 2P): the cents, rounded (e.g. "+3" at +1, "+97" at +31),
-          and the semitones (e.g. "+1" at +32, "+24" at +55, and "+96" at +62); with the sign but at +-63 ("120", which does not fit)
-    - Shape
+    - Shown: the % (e.g. "2%" at 1-2, and "100")
+- EG Mod Amt [- to +], LFO Mod Amt [- to +]: By EG Mod Dst and LFO Mod Dst
+    - Pitch (P and 2P), at the full EG or LFO
+        - -32 (32) to +32 (96): -100 to +100 cent, 3.125 cent a value
+        - -33 (31) to -55 (9), +33 (97) to +55 (119): -2 to -24, +2 to +24 semitone, 1 semitone a value
+        - -56 (8) to -63 (1), +56 (120) to +63 (127): -2.5 to -10, +2.5 to +10 oct (min and max)
+        - Shown: the cents (e.g. "+3" at +1), and the semitones (e.g. "+1" at +32, and "120" at +63 and -63)
+    - Shape (1S), 2 a value
         - -63 (1): Shape -128 (min)
-        - -62 (2): Shape -124
-        - -61 (3): Shape -122
-        - -1 (63): Shape -2
         - +0 (64): Shape +0
-        - +1 (65): Shape +2
-        - +61 (125): Shape +122
-        - +62 (126): Shape +124
         - +63 (127): Shape +128 (max)
         - At the full EG; the LFO swings the Shape by half of it on each side (e.g. -64 to +64 at +63, the pulse width 0% to 100% around 64 with the Pulse Wave)
-        - Shown as it works (with EG Mod Dst and LFO Mod Dst 1S): the Shape at the full EG, with the sign but where it does not fit
-          (e.g. "+2" at +1, "-62" at -31, and "128" at +-63)
-    - Cutoff
-        - -60 (0-4): -120 (min)
-        - +60 (124-127): +120 (max)
-        - Shown as it works (with EG Mod Dst and LFO Mod Dst F), as Filter EG Amt (e.g. "+2", "-98", and "110" for +-110)
+        - Shown: the Shape at the full EG (e.g. "+2", and "128")
+    - Cutoff (F): as Filter EG Amt
+        - Shown: as Filter EG Amt
 - EG Mod Dst [P|P|2P|2P|F|1S], LFO Mod Dst [P|P|2P|2P|F|1S]
     - 0 (0-12): Osc 1 & 2 Pitch
     - 26 (13-38): Osc 1 & 2 Pitch
@@ -288,12 +178,11 @@
     - 102 (90-115): Legato Portamento (Monophonic, EG & LFO Single Trigger, Auto Portamento)
     - 127 (116-127): Legato (Monophonic, EG & LFO Single Trigger)
     - NOTE: The LFO triggers as above with "LFO Trig Mode" Aut (the Presets); see it for the others
-- Portamento Time
+- Portamento Time: as EG Attack (0: none)
     - 0: 0 ms
-    - 1: 1.07 ms
     - 64: 100 ms
     - 127: 9.31 s
-    - Shown as it works, as the EG Attack ("0" for 0)
+    - Shown: the time (e.g. "0", "100", and "9.3")
     - NOTE: The Portamento is turned on and off by "Portamento Mode" (and "Portamento Switch")
 - LFO Wave [Tri|Sin|Nos|Saw|S&H|Sqr]
     - 0 (0-12): Triangle Wave (Key Trigger Off, -0.5 to +0.5)
@@ -305,43 +194,30 @@
     - NOTE: Key Trigger On/Off is with "LFO Trig Mode" Aut (the Presets) and VAu; with On and VOn, every wave is key triggered
 - LFO Fade Time
     - 0: 0 ms (min)
-    - 32: 309 ms
     - 64: 992 ms
-    - 96: 3.16 s
     - 127: 9.64 s (max)
-    - Shown as it works, as the EG Attack (e.g. "309" for 309 ms, and "3.2" for 3.16 s; "0" for 0)
+    - Shown: the time (e.g. "992", and "9.6")
 - LFO Rate
     - 0: 0 Hz (min)
-    - 1: 0.0715 Hz
     - 64: 2.73 Hz
     - 79: 6.49 Hz (the Presets, but #30 PWM Lead)
     - 127: 104 Hz (max)
-    - Shown as it works: the hertz rounded, without the unit (e.g. ".07" for 0.0715 Hz, "2.7" for 2.73 Hz, and "104" for 104 Hz)
-- LFO Rate (Red Noise: sets the low-pass cutoff of the noise, the level stays the same)
-    - 0: 0 Hz (min)
-    - 1: 0.0146 Hz
-    - 32: 1.54 Hz
-    - 64: 189 Hz
-    - 80: 2.35 kHz
-    - 83: 5.12 kHz
-    - 84: Almost No Low-Pass Filtering
-    - 100 (100-127): No Low-Pass Filtering (max)
-    - Shown as it works: the cutoff of the low-pass (-3 dB), as the LFO Rate (e.g. "1.5" for 1.54 Hz, and "2k4" for 2.35 kHz),
-      and "Off" for 84-127
+    - Shown: the frequency (e.g. ".07" at 1, "2.7", and "104")
+    - With Red Noise: sets the cutoff of the low pass of the noise (the level stays the same)
+        - 1: 0.0146 Hz
+        - 64: 189 Hz
+        - 83: 5.12 kHz
+        - 84-127: No Low-Pass Filtering, about (max at 100-127)
+        - Shown: the cutoff (-3 dB) (e.g. "189", and "5k1"), and "Off" for 84-127
 - LFO Depth
     - 0: 0% (min)
-    - 1: 0.8%
     - 64: 50%
-    - 125: 97.7%
-    - 126: 98.4%
     - 127: 100% (max)
-    - Shown as it works: the % rounded, with "%" where it fits (e.g. "1%" for 0.8%, "98%" for 97.7% and 98.4%, and "100")
+    - Shown: the % (e.g. "1%" at 1, and "100")
     - NOTE: The actual LFO depth is the "LFO Depth" value plus the "Modulation Wheel" value and the after touch effect (up to 100%)
-- Amp Gain
-    - Shown as it works: the gain in dB rounded (the level is (value / 127)^2), but -1 at most other than 127, without the unit
-      (e.g. "0" at 127, "-1" at 117-126, "-6" at 90, "-12" at 64, and "-84" at 1), and "Off" at 0
-        - By the gain as it is calculated, ((value * value) * 16384) / 16129 in 1/16384 (the integer): e.g. "-43" at 11 (-42.6 dB),
-          where (11 / 127)^2 is -42.5 dB
+- Amp Gain: The level, (value / 127)^2
+    - Shown: the gain in dB (e.g. "0" at 127, "-1" at 117-126, "-12" at 64, and "-84" at 1), and "Off" at 0
+        - By the gain as it is calculated (in 1/16384, the integer), e.g. "-43" at 11 (-42.6 dB), where (11 / 127)^2 is -42.5 dB
     - NOTE: The Output Compressor (after the FX) compresses the peaks above -6 dB (0.5 of full scale) at its input by 2:1 (with a soft knee from -9 dB to -3 dB), limits the peaks so that they do not go above 1.0 (full scale) at its input (reached at +6 dB), and lowers the output by 2.5 dB (x 0.75) (with the Presets, the peaks of chords are lowered by about 0.5 dB)
 - Filter Mode [LP-BR-HP-BP-LP]: The response of the Filter, changing smoothly in between (127 is taken as 128)
     - 0: Low Pass (min, the Presets)
@@ -353,15 +229,12 @@
     - 96: Band Pass
     - 97-126 (B-L): Band Pass to Low Pass (crossfaded; no notch in between)
     - 127: Low Pass (max, the same as 0)
-- Filter Drive: The gain into the Filter, 2^(value / 24) (6 dB every 24 values; x 4 at 48, x 32 at 120, x 39.2 at 127), which drives the loop (the leak, at a high Resonance or near the cutoff) harder; what leaves the loop is lowered by the same ahead of the output clip, so that the level stays and the Drive changes the tone alone (the self-oscillation comes out lower by it, and a high Drive holds the resonant peak down; at a low Resonance it does little)
+- Filter Drive: The gain into the Filter, 2^(value / 24) (6 dB every 24 values), which drives the loop (the leak, at a high Resonance or near the cutoff) harder; what leaves the loop is lowered by the same ahead of the output clip, so that the level stays and the Drive changes the tone alone (the self-oscillation comes out lower by it, and a high Drive holds the resonant peak down; at a low Resonance it does little)
     - 0: x 1.00 (0 dB, min, the Presets: the Filter as it was)
-    - 24: x 2.00 (+6 dB)
     - 48: x 4.00 (+12 dB)
-    - 72: x 8.00 (+18 dB)
-    - 96: x 16.0 (+24 dB)
     - 120: x 32.0 (+30 dB)
     - 127: x 39.2 (+31.9 dB, max)
-    - Shown as it works: the dB rounded, but +1 at least other than 0, without the unit (e.g. "+1" for +0.25 dB, "+6", and "+32" for +31.9 dB)
+    - Shown: the dB (e.g. "+6", and "+32")
 - EG Amp Mod [Off|On]
     - 0 (0-63): Off, the Amp EG (Amp Attack/Decay/Sustain/Release, in the More Synth Parameters of PRA32-U2 Editor) changes the level (as a gate in the Presets: Amp Attack 0, Amp Decay 0, Amp Sustain 127, and Amp Release 0)
     - 127 (64-127): On, the EG also works as the Amp EG (the Amp Attack/Decay/Sustain/Release are not used)
@@ -371,61 +244,32 @@
 - Osc/Filter Drift: Randomly drifts the pitch of each oscillator, and the Filter Cutoff of each voice by the same amount (100 cent = 1 Cutoff value), wandering very slowly (a time constant of about 44 s), as a slight difference of each oscillator that changes over a piece; it starts from a random value of the same spread (the same at every start, and goes back to it at All Sound Off, going the same way from there), not from 0
     - 0: Off
     - 32: About 1.4 cent (RMS) (the Presets)
-    - 64: About 2.8 cent (RMS)
     - 127: About 5.6 cent (RMS) (max)
-- Pitch Bend Range
-    - 0: 0 semitone (min)
-    - 64 (64-127): 64 semitone (max)
-    - Shown as it works: the semitones ("0" to "64", and "64" for 64-127)
+- Pitch Bend Range: 0 (min) to 64 (64-127, max) semitone
+    - Shown: the semitones (e.g. "64" for 64-127)
     - NOTE: Not changed by "Randomize Synth"
-- Coarse Tune [- to +]
-    - -64 (0): -64 semitone
-    - -1 (63): -1 semitone
-    - +0 (64): +0 semitone
-    - +1 (65): +1 semitone
-    - +63 (127): +63 semitone
-- Fine Tune [- to +]
-    - -64 (0): -100 cent
-    - -1 (63): -1.5625 cent
-    - +0 (64): +0 cent
-    - +1 (65): +1.5625 cent
-    - +63 (127): +98.4375 cent
-    - Shown as it works: the cents rounded (e.g. "+2" for +1.5625 cent, and "+98" for +98.4375 cent), and "100" for -100 cent (the sign does not fit)
-- EG Att/Dec Velo Sens [- to +]: EG Attack/Decay Velocity Sensitivity, Modulates the attack/decay times by note on velocity
-    - -64 (0): -100% (+63 to -63)
-    - -32 (31-32): -50% (+31.5 to -31.5)
-    - +0 (63-64): +0% (-0 to +0)
-    - +32 (95-96): +50% (-31.5 to +31.5)
+- Coarse Tune [- to +]: -64 (0) to +63 (127) semitone
+- Fine Tune [- to +]: -100 (0) to +98.4375 (127) cent, 1.5625 cent a value
+    - Shown: the cents (e.g. "+2" at +1, and "100" at -64)
+- EG Att/Dec Velo Sens [- to +]: EG Attack/Decay Velocity Sensitivity, Modulates the attack/decay times by note on velocity, 2 values a step (3.125%)
+    - -64 (0): -100% (+63 to -63 by the velocity, in the values of the times)
+    - +0 (63-64): +0%
     - +63 (127): +100% (-63 to +63)
-    - Shown as it works: the % rounded (2 values a step, 3.125%), with the sign but where it does not fit, and with "%" where it fits
-      (e.g. "0%", "+3%" for +3.1%, "+13" for +12.5%, "+50", and "100" for +-100%)
-- EG Rel Velo Sens [- to +]: EG Release Velocity Sensitivity, Modulates the release time by note off velocity
-    - -64 (0): -100% (+63 to -63)
-    - -32 (31-32): -50% (+31.5 to -31.5)
-    - +0 (63-64): +0% (-0 to +0)
-    - +32 (95-96): +50% (-31.5 to +31.5)
-    - +63 (127): +100% (-63 to +63)
-    - Shown as it works: the % rounded (2 values a step, 3.125%), with the sign but where it does not fit, and with "%" where it fits
-      (e.g. "0%", "+3%" for +3.1%, "+13" for +12.5%, "+50", and "100" for +-100%)
-- EG Level Velo Sens: EG Level Velocity Sensitivity, Decreases the EG level as note on velocity decreases
+    - Shown: the % (e.g. "+3%", "+50", and "100")
+- EG Rel Velo Sens [- to +]: EG Release Velocity Sensitivity, Modulates the release time by note off velocity, as EG Att/Dec Velo Sens
+    - Shown: as EG Att/Dec Velo Sens
+- EG Level Velo Sens: EG Level Velocity Sensitivity, Decreases the EG level as note on velocity decreases, 2 values a step
     - 0: 0% (min, the EG level does not change by the velocity)
     - 64 (63-64): 50%
     - 127: 100% (max, the EG level in proportion to the velocity)
-    - Shown as it works: the % rounded (2 values a step, 1.6%), with "%" where it fits (e.g. "0%", "2%", "50%", and "100")
-- Amp Level Velo Sens: Amp Level Velocity Sensitivity, Decreases the Amp EG level as note on velocity decreases
-    - 0: 0% (min, the Amp EG level does not change by the velocity)
-    - 64 (63-64): 50%
-    - 127: 100% (max, the Amp EG level in proportion to the velocity)
-    - Shown as it works: the % rounded (2 values a step, 1.6%), with "%" where it fits (e.g. "0%", "2%", "50%", and "100")
-- EG Att/Dec Key Track [- to +]: Modulates the attack/decay times based on oscillator pitch at note-on
+    - Shown: the % (e.g. "50%")
+- Amp Level Velo Sens: Amp Level Velocity Sensitivity, Decreases the Amp EG level as note on velocity decreases, as EG Level Velo Sens
+    - Shown: as EG Level Velo Sens
+- EG Att/Dec Key Track [- to +]: Modulates the attack/decay times based on oscillator pitch at note-on, 2 values a step
     - -64 (0): Delta Value = -12 / octave (Delta Second = 0.42x / octave)
-    - -52 (11-12): Delta Value = -9.75 / octave (Delta Second = 0.50x / octave)
-    - -32 (31-32): Delta Value = -6 / octave (Delta Second = 0.65x / octave)
     - +0 (63-64): Delta Value = +0 / octave (Delta Second = 1x / octave)
-    - +32 (95-96): Delta Value = +6 / octave (Delta Second = 1.54x / octave)
-    - +52 (115-116): Delta Value = +9.75 / octave (Delta Second = 2.02x / octave)
     - +63 (127): Delta Value = +12 / octave (Delta Second = 2.37x / octave)
-    - Shown as it works: the % of the Delta Value of +-100% (+-12 / octave) rounded, as EG Att/Dec Velo Sens (e.g. "+3%", "+50", and "100")
+    - Shown: the % of +-12 / octave (e.g. "+50", and "100")
 - Voice Assign Mode [1|1|3|3|4|2]: The voice assignment in the Polyphonic Mode
     - 0 (0-12): Mode 1, Free voice with next number has priority (Round Robin), Release is effective
     - 26 (13-38): Mode 1, Free voice with next number has priority (Round Robin), Release is effective
@@ -457,7 +301,7 @@
     - -60 (0-4): -240 (min)
     - +30 (94): +120, the Cutoff +120 with the max breath
     - +60 (124-127): +240 (max), the Cutoff +120 with the half breath
-    - Shown as it works: the Cutoff with the max breath, as Filter EG Amt (e.g. "+4", "120" for +120, and "240" for +-240)
+    - Shown: the Cutoff with the max breath, as Filter EG Amt (e.g. "+4", "120", and "240")
 - Breath Amp Mode [Off|Q|L|LO|QO|Opn]
     - 0 (0-12): Off, The Amp follows the EG (the Breath Controller does not modulate the Amp)
     - 26 (13-38): Quadratic Curve (Q), The Amp follows the EG, x the Breath Controller (Quadratic Curve)
@@ -483,32 +327,22 @@
 - Osc Saw Wave Mode [Str|Cur]
     - 0 (0-63): Straight Saw Wave
     - 127 (64-127): Curved Saw Wave, This does not affect the Pulse Wave
-- Stretch Tune [- to +]
+- Stretch Tune [- to +]: The pitch stretched around note number 60
     - -64 (0): -37.5 cent at note number 108 (+37.5 cent at note number 12) (min)
-    - -32 (32): -18.8 cent at note number 108 (+18.8 cent at note number 12)
-    - +0 (64): +0 cent
     - +8 (72): +4.7 cent at note number 108 (-4.7 cent at note number 12) (the Presets)
-    - +16 (80): +9.4 cent at note number 108 (-9.4 cent at note number 12)
-    - +32 (96): +18.8 cent at note number 108 (-18.8 cent at note number 12)
     - +63 (127): +36.9 cent at note number 108 (-36.9 cent at note number 12) (max)
-    - Shown as it works: the cents at note number 108 rounded (e.g. "+5" for +4.7 cent, and "-38" for -37.5 cent)
+    - Shown: the cents at note number 108 (e.g. "+5" at +8, and "-38" at -64)
 - Pan: Constant power panning
     - -64 (0-1): Left (L +3.0 dB, R Off) (min)
-    - -32 (32): L +2.3 dB, R -5.5 dB
     - +0 (64): Center (L 0 dB, R 0 dB)
-    - +32 (96): L -5.5 dB, R +2.3 dB
     - +63 (127): Right (L Off, R +3.0 dB) (max)
-    - Shown as "L63" (0 and 1), ..., "L1" (63), "C" (64), "R1" (65), ..., and "R63" (127)
-- Distortion Drive: The drive into the Distortion FX, 2^(value / 24) (6 dB every 24 values; x 4 at 48, x 32 at 120, x 39.2 at 127), for the synths whose FX Routing is Dst; the output is lowered by 15/16 of the drive in dB up to 96 (x 16), and by as much as there above it, where most of a sound is past the shoulder already, so that the level stays within about 2 dB as the drive goes up (a single quiet note gets a few dB louder at the top) (a little up halfway, and a little down where it saturates hard). The shoulder below zero is shorter than above (even harmonics too), the aliasing is reduced by ADAA (antiderivative anti-aliasing), and a tone (a 1-pole low pass) after it takes the edge off the harmonics, more with more drive (none at 0, about 10 kHz at 64, 5 kHz at 127)
-    - NOTE: On a single note of the Saw Wave, which has every harmonic already, the Distortion changes the tone little; it is heard best on a chord (from a Distortion Drive of about 30 up, with the Presets), with a high Filter Resonance (about 110 or above, from a Distortion Drive of about 72 up), or with the Sine or the Triangle Wave
+    - Shown: "L63" (0 and 1), ..., "C" (64), ..., "R63" (127)
+- Distortion Drive: The drive into the Distortion FX, 2^(value / 24) (6 dB every 24 values, as Filter Drive), for the synths whose FX Routing is Dst; the output is lowered by 15/16 of the drive in dB up to 96 (x 16), and by as much as there above it, where most of a sound is past the shoulder already, so that the level stays within about 2 dB as the drive goes up (a single quiet note gets a few dB louder at the top). The shoulder below zero is shorter than above (even harmonics too), the aliasing is reduced by ADAA (antiderivative anti-aliasing), and a tone (a 1-pole low pass) after it takes the edge off the harmonics, more with more drive (none at 0, about 10 kHz at 64, 5 kHz at 127)
     - 0: x 1.00 (0 dB, min, the Presets: a sound below full scale passes as it is)
-    - 24: x 2.00 (+6 dB)
     - 48: x 4.00 (+12 dB)
-    - 72: x 8.00 (+18 dB)
-    - 96: x 16.0 (+24 dB)
-    - 120: x 32.0 (+30 dB)
     - 127: x 39.2 (+31.9 dB, max)
-    - Shown as it works: the dB rounded, but +1 at least other than 0, without the unit (e.g. "+1" for +0.25 dB, "+6", and "+32" for +31.9 dB)
+    - Shown: the dB (e.g. "+6", and "+32")
+    - NOTE: On a single note of the Saw Wave, which has every harmonic already, the Distortion changes the tone little; it is heard best on a chord (from a Distortion Drive of about 30 up, with the Presets), with a high Filter Resonance (about 110 or above, from a Distortion Drive of about 72 up), or with the Sine or the Triangle Wave
     - NOTE: Changed by "Randomize FX" (of PRA32-U2 Editor and PRA32-U2 Native), not by "Randomize Synth"
 - FX Routing [Dst|Cho|Dly|Dly|Cmp|Dry]: Where the output is input to the FX (connected in series: Distortion -> Chorus -> Delay -> Output Compressor)
     - 0 (0-12): Dst (through the Distortion, the Chorus, the Delay, and the Output Compressor)
@@ -519,21 +353,20 @@
     - 127 (116-127): Dry (through none of them)
         - The output is still delayed by 1 ms and lowered by 2.5 dB (x 0.75) as the others, and is clipped (soft clipping) if it is too loud
     - In PRA32-U2/M, each synth has its own FX Routing, while the other FX parameters of the Main Synth apply to all synths
-- Chorus Level: The level of the chorused signal L (0.0 at 0 to 1.0 at 127) added to the input; the sum is lowered by about 1 / sqrt(1 + L^2) (x 0.707 at 127, where the two are equal), so that the level stays within about 1 dB as the Chorus Level goes up
-    - Shown as it works: the % of L rounded (2 values a step: 1.6% at 1-2, 50% at 63-64, and 100% at 127), with "%" where it fits (e.g. "2%", and "100")
-- Chorus Rate
-    - 0: LFO Frequency 0.0114 Hz (min)
-    - 64: LFO Frequency 0.482 Hz
-    - 127: LFO Frequency 18.4 Hz (max)
-    - Shown as it works, as the LFO Rate (e.g. ".01" for 0.0114 Hz, and "18" for 18.4 Hz)
-- Chorus Depth
-    - 0: Delay Time +/- 0 ms (min)
-    - 32: Delay Time +/- 1.33 ms
-    - 64: Delay Time +/- 2.67 ms
-    - 126 (126-127): Delay Time +/- 5.25 ms (max)
-    - Shown as it works: the milliseconds rounded, without the unit, as the LFO Rate (e.g. ".04" for 0.0417 ms, "1.3" for 1.33 ms, and "5.3" for 5.25 ms)
-- Delay Level: Delay Send Level
-    - Shown as it works: the % rounded (2 values a step, as Chorus Level), with "%" where it fits (e.g. "2%", "50%", and "100")
+- Chorus Level: The level of the chorused signal L (0.0 at 0 to 1.0 at 127, 2 values a step) added to the input; the sum is lowered by about 1 / sqrt(1 + L^2) (x 0.707 at 127, where the two are equal), so that the level stays within about 1 dB as the Chorus Level goes up
+    - Shown: L in % (e.g. "50%" at 63-64, and "100")
+- Chorus Rate: The frequency of the LFO
+    - 0: 0.0114 Hz (min)
+    - 64: 0.482 Hz
+    - 127: 18.4 Hz (max)
+    - Shown: the frequency (e.g. ".01", ".48", and "18")
+- Chorus Depth: The swing of the delay time, value / 24 ms
+    - 0: +/- 0 ms (min)
+    - 64: +/- 2.67 ms
+    - 126 (126-127): +/- 5.25 ms (max)
+    - Shown: the milliseconds, as the frequency (e.g. ".04" at 1, "2.7", and "5.3")
+- Delay Level: Delay Send Level, 2 values a step
+    - Shown: the % (e.g. "50%" at 63-64, and "100")
 - Delay Mode [Ste|PP|Rev]
     - 0 (0-31): Stereo Delay
     - 64 (32-95): Ping Pong Delay
@@ -544,28 +377,14 @@
         - When the Delay Time is changed, the size follows it slowly (within +/-3% of the pitch)
 - Delay Time
     - 0: 1 ms (min)
-    - 5: 6 ms
-    - 6: 8 ms
-    - 7: 10 ms
-    - 12: 20 ms
-    - 27: 50 ms
-    - 42: 100 ms = eighth note time at 300 BPM
-    - 57: 150 ms = eighth note time at 200 BPM
-    - 62: 166.7 ms = eighth note time at 180 BPM
-    - 63: 170 ms
+    - 42: 100 ms
     - 64: 173.3 ms
-    - 72: 200 ms = eighth note time at 150 BPM
-    - 87: 250 ms = eighth note time at 120 BPM
-    - 93: 270 ms
-    - 102: 300 ms = eighth note time at 100 BPM
-    - 112: 333.3 ms
     - 114: 340 ms (max)
+    - The eighth note time: 42 (300 BPM), 57 (200 BPM), 62 (180 BPM), 72 (150 BPM), 87 (120 BPM), and 102 (100 BPM)
+    - Shown: the milliseconds (e.g. "100", and "173")
     - NOTE: When the Delay Time is changed, the delay time follows it within +/-25% of the pitch, as on a tape delay
-- Delay Feedback
-    - 0: Feedback 0% (min)
-    - 64: Feedback 25%
-    - 127: Feedback 49.6% (max)
-    - Shown as it works: the % rounded, but 1% to 49% other than 0 (e.g. "1%" for 0.4%, "25%", and "49%" for 49.6%)
+- Delay Feedback: 0% (0, min) to 49.6% (127, max), value / 256
+    - Shown: the % (e.g. "25%" at 64, and "49%" at 127)
 
 ## Performance Controllers
 
