@@ -50,26 +50,26 @@ namespace {
 // The names of the parameters, the same as PRA32-U2 Editor (the parameters and their order are s_program_table_parameters of the core)
 const PRA32U2Engine::ParameterInfo s_parameter_names[] = {
   { OSC_1_WAVE     , "Osc 1 Wave [Saw|Sqr|Tri|Sin|WT|Pls]"    },
-  { MIXER_SUB_OSC  , "Mixer Noise/Sub Osc [N|S]"              },
+  { MIXER_SUB_OSC  , "Mixer Noise/Sub Osc [N to S]"              },
   { OSC_1_SHAPE    , "Osc 1 Shape"                            },
   { OSC_1_MORPH    , "Osc 1 Morph"                            },
 
   { OSC_2_WAVE     , "Osc 2 Wave [Saw|Sqr|Tri|Sin|O1|Nos]"    },
-  { MIXER_OSC_MIX  , "Mixer Osc Mix [1|2]"                    },
-  { OSC_2_COARSE   , "Osc 2 Coarse [-|+]"                     },
-  { OSC_2_PITCH    , "Osc 2 Pitch [-|+]"                      },
+  { MIXER_OSC_MIX  , "Mixer Osc Mix [1 to 2]"                    },
+  { OSC_2_COARSE   , "Osc 2 Coarse [- to +]"                     },
+  { OSC_2_PITCH    , "Osc 2 Pitch [- to +]"                      },
 
   { FILTER_CUTOFF  , "Filter Cutoff"                          },
   { FILTER_RESO    , "Filter Resonance"                       },
-  { FILTER_EG_AMT  , "Filter EG Amt [-|+]"                    },
-  { FILTER_KEY_TRK , "Filter Key Track [-|+]"                 },
+  { FILTER_EG_AMT  , "Filter EG Amt [- to +]"                    },
+  { FILTER_KEY_TRK , "Filter Key Track [- to +]"                 },
 
   { EG_ATTACK      , "EG Attack"                              },
   { EG_DECAY       , "EG Decay"                               },
   { EG_SUSTAIN     , "EG Sustain"                             },
   { EG_RELEASE     , "EG Release"                             },
 
-  { EG_OSC_AMT     , "EG Mod Amt [-|+]"                       },
+  { EG_OSC_AMT     , "EG Mod Amt [- to +]"                       },
   { EG_OSC_DST     , "EG Mod Dst [P|P|2P|2P|F|1S]"            },
   { VOICE_MODE     , "Voice Mode [Pol|Pol|Mon|Mon|LP|Lgt]"    },
   { PORTAMENTO     , "Portamento Time"                        },
@@ -79,12 +79,12 @@ const PRA32U2Engine::ParameterInfo s_parameter_names[] = {
   { LFO_RATE       , "LFO Rate"                               },
   { LFO_DEPTH      , "LFO Depth"                              },
 
-  { LFO_OSC_AMT    , "LFO Mod Amt [-|+]"                      },
+  { LFO_OSC_AMT    , "LFO Mod Amt [- to +]"                      },
   { LFO_OSC_DST    , "LFO Mod Dst [P|P|2P|2P|F|1S]"           },
-  { LFO_FILTER_AMT , "LFO Filter Amt [-|+]"                   },
+  { LFO_FILTER_AMT , "LFO Filter Amt [- to +]"                   },
   { AMP_GAIN       , "Amp Gain"                               },
 
-  { FILTER_MODE    , "Filter Mode [LP|BR|HP|BP|LP]"           },
+  { FILTER_MODE    , "Filter Mode [LP-BR-HP-BP-LP]"           },
   { FILTER_DRIVE   , "Filter Drive"                           },
   { EG_AMP_MOD     , "EG Amp Mod [Off|On]"                    },
   { REL_EQ_DECAY   , "EG/Amp Rel = Dec [Off|On]"              },
@@ -96,25 +96,25 @@ const PRA32U2Engine::ParameterInfo s_parameter_names[] = {
 
   { OSC_DRIFT      , "Osc/Filter Drift"                       },
   { P_BEND_RANGE   , "Pitch Bend Range"                       },
-  { COARSE_TUNE    , "Coarse Tune [-|+]"                      },
-  { FINE_TUNE      , "Fine Tune [-|+]"                        },
+  { COARSE_TUNE    , "Coarse Tune [- to +]"                      },
+  { FINE_TUNE      , "Fine Tune [- to +]"                        },
 
-  { A_D_VEL_SENS   , "EG Att/Dec Velo Sens [-|+]"             },
-  { REL_VEL_SENS   , "EG Rel Velo Sens [-|+]"                 },
+  { A_D_VEL_SENS   , "EG Att/Dec Velo Sens [- to +]"             },
+  { REL_VEL_SENS   , "EG Rel Velo Sens [- to +]"                 },
   { EG_VEL_SENS    , "EG Level Velo Sens"                     },
   { AMP_VEL_SENS   , "Amp Level Velo Sens"                    },
 
-  { A_D_KEY_TRK    , "EG Att/Dec Key Track [-|+]"             },
+  { A_D_KEY_TRK    , "EG Att/Dec Key Track [- to +]"             },
   { VOICE_ASGN_MODE, "Voice Assign Mode [1|1|3|3|4|2]"        },
   { VOICE_GRP_MODE , "Voice Group Mode [Off|Ly2|RLy|RR2|RR4|RR3]" },
   { LFO_TRIG_MODE  , "LFO Trig Mode [Aut|Off|On|VOn|VOf|VAu]" },
 
-  { BTH_FILTER_AMT , "Breath Filter Amt [-|+]"                },
+  { BTH_FILTER_AMT , "Breath Filter Amt [- to +]"                },
   { BTH_AMP_MOD    , "Breath Amp Mode [Off|Q|L|LO|QO|Opn]"    },
   { AFT_T_LFO_AMT  , "After Touch LFO Amt"                    },
   { PORTA_MODE     , "Portamento Mode [Sw|Aut]"               },
   { OSC_SAW_W_MODE , "Osc Saw Wave Mode [Str|Cur]"            },
-  { STRETCH_TUNE   , "Stretch Tune [-|+]"                     },
+  { STRETCH_TUNE   , "Stretch Tune [- to +]"                     },
   { PAN            , "Pan"                                    },
 
   { DISTORTION     , "Distortion Drive"                       },
@@ -214,7 +214,7 @@ int PRA32U2Engine::getMarkers(uint8_t controlNumber, const uint8_t** markerValue
   static const uint8_t MARKERS_3[]   = { 0, 64, 127 };
   static const uint8_t MARKERS_5[]   = { 0, 32, 64, 96, 127 };
   static const uint8_t MARKERS_2[]   = { 0, 127 };
-  static const uint8_t MARKERS_C[]   = { 64 };  // The center, for [-|+], [N|S], and Pan
+  static const uint8_t MARKERS_C[]   = { 64 };  // The center, for [- to +], [N to S], and Pan
   static const uint8_t MARKERS_6_C[] = { 0, 26, 51, 64, 77, 102, 127 };  // The 6 markers and the center
 
   switch (controlNumber) {

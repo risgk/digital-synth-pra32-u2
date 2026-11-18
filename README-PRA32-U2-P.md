@@ -74,13 +74,13 @@
         - The display shows the step of the Step Sequencer at the right end of the top line, as in Seq Mode, and "*" on its left while the Play Key plays
           (e.g. "*3", or "*53" with Seq Pattern 4x4: the shift 5 and the step 3)
     - Panel Scale [Maj|Min|Mel|MaP|MiP|Chr]: Major, Natural Minor, Ascending Melodic Minor (Jazz Minor), Major Pentatonic, Minor Pentatonic, Chromatic (2 octaves)
-    - Panel Pitch Ofst (Offset) [-|+]: Offset Panel Play Pitch and Seq Pitch 0-7 (min -60 to max +60)
+    - Panel Pitch Ofst (Offset) [- to +]: Offset Panel Play Pitch and Seq Pitch 0-7 (min -60 to max +60)
         - For example, if Panel Scale is Maj and Panel Pitch Ofst is -25, the scale is G Mixolydian
         - For example, if Panel Scale is Maj and Panel Pitch Ofst is -15, the scale is A Aeolian (Natural Minor)
         - For example, if Panel Scale is Maj and Panel Pitch Ofst is +10, the scale is D Dorian
         - For example, if Panel Scale is Maj and Panel Pitch Ofst is +20, the scale is E Phrygian
         - For example, if Panel Scale is Maj and Panel Pitch Ofst is +25, the scale is F Lydian
-    - Panel Transpose [-|+]
+    - Panel Transpose [- to +]
         - For example, if Panel Scale is Mel and Panel Transpose is -3, the scale is A Ascending Melodic Minor (Jazz Minor)
         - For example, if Panel Scale is Min and Panel Transpose is -3, the scale is A Natural Minor
         - For example, if Panel Scale is MiP and Panel Transpose is -3, the scale is A Minor Pentatonic
@@ -122,8 +122,8 @@
           Seq Rand Pitch randomizes Seq Pitch 0-3 (the pattern) alone
         - NOTE: The shifts move the pitches of the pattern in the steps of the pitch values (as Panel Pitch Ofst), not by the degrees of the scale:
           a chord of the pattern is not kept (e.g. C, E, G, and C shifted by -30 in Maj are G, A, C, and G)
-    - Seq Pitch Ofst (Offset) [-|+]: Offset Seq Pitch 0-7 (min -60 to max +60), added to Panel Pitch Ofst
-    - Seq Transpose [-|+]: Transpose Seq Pitch 0-7, added to Panel Transpose (e.g. -12 for the Step Sequencer an octave lower than the Play Key)
+    - Seq Pitch Ofst (Offset) [- to +]: Offset Seq Pitch 0-7 (min -60 to max +60), added to Panel Pitch Ofst
+    - Seq Transpose [- to +]: Transpose Seq Pitch 0-7, added to Panel Transpose (e.g. -12 for the Step Sequencer an octave lower than the Play Key)
     - Seq On Steps: bit 0 is Step 1 On, ..., bit 6 is Step 7 On (Step 0 is always On)
     - Seq Act Steps (Active Steps): bit 0 is Step 1 Active, ..., bit 6 is Step 7 Active (Step 0 is always Active)
     - Seq Pitch 0-7: 0 is Off, 1-4 is lowest, 124-127 is highest

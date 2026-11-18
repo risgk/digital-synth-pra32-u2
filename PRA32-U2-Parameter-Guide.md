@@ -28,7 +28,7 @@
     - 77 (64-89): Sine Wave
     - 102 (90-115): Wave Tables with Constraints
     - 127 (116-127): Pulse Wave
-- Mixer Noise/Sub Osc [N|S]
+- Mixer Noise/Sub Osc [N to S]
     - -64 (0): Noise 100% (min)
     - -62 (1-2): Noise 96.9%
     - -60 (3-4): Noise 93.8%
@@ -118,15 +118,15 @@
         - Osc 1 Wave: Wave Tables with Constraints -> Square Wave
         - Osc 1 Wave: Pulse Wave -> Square Wave
     - 127 (116-127): White Noise
-- Mixer Osc Mix [1|2]
+- Mixer Osc Mix [1 to 2]
     - 0: Osc 1 100% (min)
     - 64 (63-64): Osc 1 50% + Osc 2 50%
     - 127: Osc 2 100% (max)
     - Shown as it works: Osc 2 (the power, as above; 2 values a step) in % rounded, with "%" where it fits (e.g. "0%", "2%", "50%", and "100")
-- Osc 2 Coarse [-|+]
+- Osc 2 Coarse [- to +]
     - -60 (0-4): -60 semitone (min)
     - +60 (124-127): +60 semitone (max)
-- Osc 2 Pitch [-|+]
+- Osc 2 Pitch [- to +]
     - -55 (9): -12 semitone (min)
     - -41 (23): -5 semitone
     - -33 (31): -1 semitone
@@ -179,11 +179,11 @@
     - A loud input near the cutoff (e.g. the Square or the Multi Saw) weakens or stops the self-oscillation, and an input harmonic near it pulls it to the pitch of that harmonic
     - Shown as it works: the Q, as the LFO Rate (e.g. ".71" for 0.707, "5.7" for 5.66, and "256"), and "Osc" for 123-127 (the self-oscillation)
     - NOTE: With a high Resonance (about 112 or above), chords can still get louder, and the Output Compressor lowers the level; if it is too much, lower the "Amp Gain"
-- Filter EG Amt [-|+], LFO Filter Amt [-|+]
+- Filter EG Amt [- to +], LFO Filter Amt [- to +]
     - -60 (0-4): -120 (min)
     - +60 (124-127): +120 (max)
     - Shown as it works: the Cutoff (the semitones), with the sign but where it does not fit (e.g. "+2", "-98", and "110" for +-110)
-- Filter Key Track [-|+]: The Cutoff follows the pitch by -100% to +100%, 3.125% (1/32) a step of 2 values (as Mixer Noise/Sub Osc)
+- Filter Key Track [- to +]: The Cutoff follows the pitch by -100% to +100%, 3.125% (1/32) a step of 2 values (as Mixer Noise/Sub Osc)
     - 0: -100% (min)
     - 1 (1-2): -96.9%
     - 32 (31-32): -50%
@@ -215,7 +215,7 @@
     - 126 (125-126): 98.4%
     - 127: 100%
     - Shown as it works: the % rounded, with "%" where it fits (e.g. "2%" for 1.6%, "50%", and "100")
-- EG Mod Amt [-|+], LFO Mod Amt [-|+]
+- EG Mod Amt [- to +], LFO Mod Amt [- to +]
     - Pitch
         - -63 (1): -10 oct (min)
         - -62 (2): -8 oct
@@ -330,7 +330,7 @@
         - By the gain as it is calculated, ((value * value) * 16384) / 16129 in 1/16384 (the integer): e.g. "-43" at 11 (-42.6 dB),
           where (11 / 127)^2 is -42.5 dB
     - NOTE: The Output Compressor (after the FX) compresses the peaks above -6 dB (0.5 of full scale) at its input by 2:1 (with a soft knee from -9 dB to -3 dB), limits the peaks so that they do not go above 1.0 (full scale) at its input (reached at +6 dB), and lowers the output by 2.5 dB (x 0.75) (with the Presets, the peaks of chords are lowered by about 0.5 dB)
-- Filter Mode [LP|BR|HP|BP|LP]: The response of the Filter, changing smoothly in between (127 is taken as 128)
+- Filter Mode [LP-BR-HP-BP-LP]: The response of the Filter, changing smoothly in between (127 is taken as 128)
     - 0: Low Pass (min, the Presets)
     - 1-31 (L-R): Low Pass to Band Reject (the High Pass added: the notch comes down from the top to the cutoff)
     - 32: Band Reject (Notch)
@@ -364,20 +364,20 @@
     - 0: 0 semitone (min)
     - 64 (64-127): 64 semitone (max)
     - NOTE: Not changed by "Randomize Synth"
-- Coarse Tune [-|+]
+- Coarse Tune [- to +]
     - -64 (0): -64 semitone
     - -1 (63): -1 semitone
     - +0 (64): +0 semitone
     - +1 (65): +1 semitone
     - +63 (127): +63 semitone
-- Fine Tune [-|+]
+- Fine Tune [- to +]
     - -64 (0): -100 cent
     - -1 (63): -1.5625 cent
     - +0 (64): +0 cent
     - +1 (65): +1.5625 cent
     - +63 (127): +98.4375 cent
     - Shown as it works: the cents rounded (e.g. "+2" for +1.5625 cent, and "+98" for +98.4375 cent), and "100" for -100 cent (the sign does not fit)
-- EG Att/Dec Velo Sens [-|+]: EG Attack/Decay Velocity Sensitivity, Modulates the attack/decay times by note on velocity
+- EG Att/Dec Velo Sens [- to +]: EG Attack/Decay Velocity Sensitivity, Modulates the attack/decay times by note on velocity
     - -64 (0): -100% (+63 to -63)
     - -32 (31-32): -50% (+31.5 to -31.5)
     - +0 (63-64): +0% (-0 to +0)
@@ -385,7 +385,7 @@
     - +63 (127): +100% (-63 to +63)
     - Shown as it works: the % rounded (2 values a step, 3.125%), with the sign but where it does not fit, and with "%" where it fits
       (e.g. "0%", "+3%" for +3.1%, "+13" for +12.5%, "+50", and "100" for +-100%)
-- EG Rel Velo Sens [-|+]: EG Release Velocity Sensitivity, Modulates the release time by note off velocity
+- EG Rel Velo Sens [- to +]: EG Release Velocity Sensitivity, Modulates the release time by note off velocity
     - -64 (0): -100% (+63 to -63)
     - -32 (31-32): -50% (+31.5 to -31.5)
     - +0 (63-64): +0% (-0 to +0)
@@ -403,7 +403,7 @@
     - 64 (63-64): 50%
     - 127: 100% (max, the Amp EG level in proportion to the velocity)
     - Shown as it works: the % rounded (2 values a step, 1.6%), with "%" where it fits (e.g. "0%", "2%", "50%", and "100")
-- EG Att/Dec Key Track [-|+]: Modulates the attack/decay times based on oscillator pitch at note-on
+- EG Att/Dec Key Track [- to +]: Modulates the attack/decay times based on oscillator pitch at note-on
     - -64 (0): Delta Value = -12 / octave (Delta Second = 0.42x / octave)
     - -52 (11-12): Delta Value = -9.75 / octave (Delta Second = 0.50x / octave)
     - -32 (31-32): Delta Value = -6 / octave (Delta Second = 0.65x / octave)
@@ -439,7 +439,7 @@
     - NOTE: A restarted phase starts from the center going up (Triangle and Sine), or from the top (Saw and Square); S&H takes a new value
     - NOTE: The LFOs of the Voices start a quarter apart (at the start, and at All Sound Off), and the LFO of Voice N (1-4) runs a little faster, by about 0.0007 Hz x (N - 1), so that they drift apart over minutes; the Red Noise is shared. The 4 Synths of PRA32-U2/M are the same: Sub Synth N (1-3) starts at N / 4 and runs faster by about 0.0007 Hz x N, as Voice N + 1 of the Main Synth
     - NOTE: In the Monophonic modes (Voice Mode: Mon, LP, and Lgt), which play Voice 1, VOn, VOf, and VAu work as On, Off, and Aut
-- Breath Filter Amt [-|+]: 2x the other Amt parameters (e.g. Filter EG Amt), so that a weak breath also opens the Filter
+- Breath Filter Amt [- to +]: 2x the other Amt parameters (e.g. Filter EG Amt), so that a weak breath also opens the Filter
     - -60 (0-4): -240 (min)
     - +30 (94): +120, the Cutoff +120 with the max breath
     - +60 (124-127): +240 (max), the Cutoff +120 with the half breath
@@ -469,7 +469,7 @@
 - Osc Saw Wave Mode [Str|Cur]
     - 0 (0-63): Straight Saw Wave
     - 127 (64-127): Curved Saw Wave, This does not affect the Pulse Wave
-- Stretch Tune [-|+]
+- Stretch Tune [- to +]
     - -64 (0): -37.5 cent at note number 108 (+37.5 cent at note number 12) (min)
     - -32 (32): -18.8 cent at note number 108 (+18.8 cent at note number 12)
     - +0 (64): +0 cent

@@ -25,17 +25,17 @@
 | Control                 16-23 | x             | o             | Seq Pitch 0-7                         |
 |                               |               |               |                                       |
 | Change                     51 | x             | o             | Panel Scale [Maj|Min|Mel|MaP|MiP|Chr] |
-|                            52 | x             | o             | Panel Transpose [-|+]                 |
+|                            52 | x             | o             | Panel Transpose [- to +]              |
 |                            53 | x             | o             | Panel Play Mode [Key|K+S|Seq]         |
 |                            54 | x             | o             | Panel Play Pitch                      |
 |                            55 | x             | o             | Panel Play Velo                       |
-|                            56 | x             | o             | Panel Pitch Ofst [-|+]                |
+|                            56 | x             | o             | Panel Pitch Ofst [- to +]             |
 |                            57 | x             | o             | MIDI Basic Ch (0-15) $5               |
 |                               |               |               |                                       |
 |                            58 | x             | o             | Panel Target Ch $2                    |
 |                            59 | x             | o             | Panel MIDI Tx $6                      |
 |                            60 | x             | o             | Seq Ch Ofst [+0-+F]                   |
-|                            61 | x             | o             | Seq Transpose [-|+]                   |
+|                            61 | x             | o             | Seq Transpose [- to +]                |
 |                            62 | x             | o             | Seq Pattern [Std|4x4]                 |
 |                               |               |               |                                       |
 |                         70-77 | x             | o             | Seq Velo 0-7                          |
@@ -49,7 +49,7 @@
 |                            92 | x             | o             | Seq Step Note [4|8|16]                |
 |                            93 | x             | o             | Seq On Steps                          |
 |                            94 | x             | o             | Seq Rx St/Sp [Off|On]                 |
-|                            95 | x             | o             | Seq Pitch Ofst [-|+]                  |
+|                            95 | x             | o             | Seq Pitch Ofst [- to +]               |
 |                               |               |               |                                       |
 |                           102 | x             | o             | Write Panel Prms $3                   |
 |                           103 | x             | o             | Read Panel Prms $3                    |

@@ -557,7 +557,7 @@ span.cc {
 }
 /* Markers below a slider: drawn as the background of the slider cell (the input is at 3px, and a marker of the value v
    is at the center of the thumb for v, 1px wide and 4px high, just below the thumb; e.g. 74px for 64 in a 149px slider cell).
-   The center (64) for [-|+] and [N|S]; the 2 ends for [Off|On]; the 2 ends and the center; the 6 values of a 6-way
+   The center (64) for [- to +] and [N to S]; the 2 ends for [Off|On]; the 2 ends and the center; the 6 values of a 6-way
    switch; the 5 values of Filter Mode (LP, BR, HP, BP, and LP); and the 6 values and the center for Osc 1 Morph, which can be used as a 6-way switch */
 .param-ctrl {
   --marker-0: calc(2px + var(--thumb-size) / 2);                     /* the left of the marker for 0 */
@@ -2635,7 +2635,7 @@ function updateSliderFill(input) {
 // The sliders of the switches of 2, 3, and 6 choices (e.g. [Off|On], [Fwd|Rvs|Bnc], and [Saw|Sqr|Tri|Sin|WT|Pls]):
 // the thumb dragged near a marker (within SLIDER_SNAP_DISTANCE) goes to it, as a datalist of Chrome did, so that
 // the values of the choices are easy to take. Not by the keys (a step a key), nor for the other markers (e.g. the
-// center of [-|+], and Filter Mode and Osc 1 Morph, which change smoothly between them; but Osc 1 Morph with Osc 1 Wave
+// center of [- to +], and Filter Mode and Osc 1 Morph, which change smoothly between them; but Osc 1 Morph with Osc 1 Wave
 // WT, the wave tables)
 const SLIDER_SNAP_DISTANCE = 4;
 const SLIDER_SNAP_MARKERS = {
@@ -3205,7 +3205,7 @@ function updateDisplayOfPerformanceControl(number, value) {
   value = parseInt(value);
   document.getElementById("inputPerf" + key).value = value;
   updateSliderFill(document.getElementById("inputPerf" + key));
-  // Pitch Bend signed, with "+" for 0 and above (as the parameters of [-|+], e.g. "+0" and "+8191")
+  // Pitch Bend signed, with "+" for 0 and above (as the parameters of [- to +], e.g. "+0" and "+8191")
   document.getElementById("spanPerf" + key).textContent = ((number == PITCH_BEND) && (value >= 0) ? "+" : "") + String(value);
   var valueText = document.getElementById("spanPerf" + key).textContent;
   if ((number == SUSTAIN_PEDAL) || (number == PORTAMENTO_SW)) {
@@ -3800,7 +3800,7 @@ function getStoredCCValueString(index, number) {
   <div class="param-ctrl soft-markers-6"><input  id="inputOSC_1_WAVE     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_1_WAVE     , value)"><span    id="spanOSC_1_WAVE     " >-</span><span   id="span2OSC_1_WAVE     " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>Mixer</b> Noise/Sub Osc <span class="sup">[N|S]</span> <span class="cc">CC#23</span></div>
+  <div class="param-name"><b>Mixer</b> Noise/Sub Osc <span class="sup">[N to S]</span> <span class="cc">CC#23</span></div>
   <div class="param-ctrl soft-marker-c"><input  id="inputMIXER_SUB_OSC  "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(MIXER_SUB_OSC  , value)"><span    id="spanMIXER_SUB_OSC  " >-</span><span   id="span2MIXER_SUB_OSC  " >-</span></div>
 </div>
 <div class="param">
@@ -3816,15 +3816,15 @@ function getStoredCCValueString(index, number) {
   <div class="param-ctrl soft-markers-6"><input  id="inputOSC_2_WAVE     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_2_WAVE     , value)"><span    id="spanOSC_2_WAVE     " >-</span><span   id="span2OSC_2_WAVE     " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>Mixer</b> Osc Mix <span class="sup">[1|2]</span> <span class="cc">CC#21</span></div>
+  <div class="param-name"><b>Mixer</b> Osc Mix <span class="sup">[1 to 2]</span> <span class="cc">CC#21</span></div>
   <div class="param-ctrl"><input  id="inputMIXER_OSC_MIX  "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(MIXER_OSC_MIX  , value)"><span    id="spanMIXER_OSC_MIX  " >-</span><span   id="span2MIXER_OSC_MIX  " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>Osc 2</b> Coarse <span class="sup">[-|+]</span> <span class="cc">CC#85</span></div>
+  <div class="param-name"><b>Osc 2</b> Coarse <span class="sup">[- to +]</span> <span class="cc">CC#85</span></div>
   <div class="param-ctrl soft-marker-c"><input  id="inputOSC_2_COARSE   "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_2_COARSE   , value)"><span    id="spanOSC_2_COARSE   " >-</span><span   id="span2OSC_2_COARSE   " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>Osc 2</b> Pitch <span class="sup">[-|+]</span> <span class="cc">CC#76</span></div>
+  <div class="param-name"><b>Osc 2</b> Pitch <span class="sup">[- to +]</span> <span class="cc">CC#76</span></div>
   <div class="param-ctrl soft-marker-c"><input  id="inputOSC_2_PITCH    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_2_PITCH    , value)"><span    id="spanOSC_2_PITCH    " >-</span><span   id="span2OSC_2_PITCH    " >-</span></div>
 </div>
 <div class="param">
@@ -3836,11 +3836,11 @@ function getStoredCCValueString(index, number) {
   <div class="param-ctrl"><input  id="inputFILTER_RESO    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(FILTER_RESO    , value)"><span    id="spanFILTER_RESO    " >-</span><span   id="span2FILTER_RESO    " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>Filter</b> EG Amt <span class="sup">[-|+]</span> <span class="cc">CC#24</span></div>
+  <div class="param-name"><b>Filter</b> EG Amt <span class="sup">[- to +]</span> <span class="cc">CC#24</span></div>
   <div class="param-ctrl soft-marker-c"><input  id="inputFILTER_EG_AMT  "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(FILTER_EG_AMT  , value)"><span    id="spanFILTER_EG_AMT  " >-</span><span   id="span2FILTER_EG_AMT  " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>Filter</b> Key Track <span class="sup">[-|+]</span> <span class="cc">CC#9</span></div>
+  <div class="param-name"><b>Filter</b> Key Track <span class="sup">[- to +]</span> <span class="cc">CC#9</span></div>
   <div class="param-ctrl soft-marker-c"><input  id="inputFILTER_KEY_TRK "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(FILTER_KEY_TRK , value)"><span    id="spanFILTER_KEY_TRK " >-</span><span   id="span2FILTER_KEY_TRK " >-</span></div>
 </div>
 <div class="param">
@@ -3862,7 +3862,7 @@ function getStoredCCValueString(index, number) {
 </div>
 <div class="param-group">
 <div class="param">
-  <div class="param-name"><b>EG</b> Mod Amt <span class="sup">[-|+]</span> <span class="cc">CC#89</span></div>
+  <div class="param-name"><b>EG</b> Mod Amt <span class="sup">[- to +]</span> <span class="cc">CC#89</span></div>
   <div class="param-ctrl soft-marker-c"><input  id="inputEG_OSC_AMT     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(EG_OSC_AMT     , value)"><span    id="spanEG_OSC_AMT     " >-</span><span   id="span2EG_OSC_AMT     " >-</span></div>
 </div>
 <div class="param">
@@ -3894,7 +3894,7 @@ function getStoredCCValueString(index, number) {
   <div class="param-ctrl"><input  id="inputLFO_DEPTH      "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_DEPTH      , value)"><span    id="spanLFO_DEPTH      " >-</span><span   id="span2LFO_DEPTH      " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>LFO</b> Mod Amt <span class="sup">[-|+]</span> <span class="cc">CC#13</span></div>
+  <div class="param-name"><b>LFO</b> Mod Amt <span class="sup">[- to +]</span> <span class="cc">CC#13</span></div>
   <div class="param-ctrl soft-marker-c"><input  id="inputLFO_OSC_AMT    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_OSC_AMT    , value)"><span    id="spanLFO_OSC_AMT    " >-</span><span   id="span2LFO_OSC_AMT    " >-</span></div>
 </div>
 <div class="param">
@@ -3902,7 +3902,7 @@ function getStoredCCValueString(index, number) {
   <div class="param-ctrl soft-markers-6"><input  id="inputLFO_OSC_DST    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_OSC_DST    , value)"><span    id="spanLFO_OSC_DST    " >-</span><span   id="span2LFO_OSC_DST    " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>LFO</b> Filter Amt <span class="sup">[-|+]</span> <span class="cc">CC#25</span></div>
+  <div class="param-name"><b>LFO</b> Filter Amt <span class="sup">[- to +]</span> <span class="cc">CC#25</span></div>
   <div class="param-ctrl soft-marker-c"><input  id="inputLFO_FILTER_AMT "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_FILTER_AMT , value)"><span    id="spanLFO_FILTER_AMT " >-</span><span   id="span2LFO_FILTER_AMT " >-</span></div>
 </div>
 <div class="param">
@@ -3910,7 +3910,7 @@ function getStoredCCValueString(index, number) {
   <div class="param-ctrl"><input  id="inputAMP_GAIN       "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(AMP_GAIN       , value)"><span    id="spanAMP_GAIN       " >-</span><span   id="span2AMP_GAIN       " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>Filter</b> Mode <span class="sup">[LP|BR|HP|BP|LP]</span> <span class="cc">CC#39</span></div>
+  <div class="param-name"><b>Filter</b> Mode <span class="sup">[LP-BR-HP-BP-LP]</span> <span class="cc">CC#39</span></div>
   <div class="param-ctrl soft-markers-5"><input  id="inputFILTER_MODE    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(FILTER_MODE    , value)"><span    id="spanFILTER_MODE    " >-</span><span   id="span2FILTER_MODE    " >-</span></div>
 </div>
 <div class="param">
@@ -3958,19 +3958,19 @@ function getStoredCCValueString(index, number) {
   <div class="param-ctrl"><input  id="inputP_BEND_RANGE   "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(P_BEND_RANGE   , value)"><span    id="spanP_BEND_RANGE   " >-</span><span   id="span2P_BEND_RANGE   " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name">Coarse Tune <span class="sup">[-|+]</span> <span class="cc">CC#86</span></div>
+  <div class="param-name">Coarse Tune <span class="sup">[- to +]</span> <span class="cc">CC#86</span></div>
   <div class="param-ctrl soft-marker-c"><input  id="inputCOARSE_TUNE    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(COARSE_TUNE    , value)"><span    id="spanCOARSE_TUNE    " >-</span><span   id="span2COARSE_TUNE    " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name">Fine Tune <span class="sup">[-|+]</span> <span class="cc">CC#70</span></div>
+  <div class="param-name">Fine Tune <span class="sup">[- to +]</span> <span class="cc">CC#70</span></div>
   <div class="param-ctrl soft-marker-c"><input  id="inputFINE_TUNE      "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(FINE_TUNE      , value)"><span    id="spanFINE_TUNE      " >-</span><span   id="span2FINE_TUNE      " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>EG</b> Att/Dec Velo Sens <span class="sup">[-|+]</span> <span class="cc">CC#51</span></div>
+  <div class="param-name"><b>EG</b> Att/Dec Velo Sens <span class="sup">[- to +]</span> <span class="cc">CC#51</span></div>
   <div class="param-ctrl soft-marker-c"><input  id="inputA_D_VEL_SENS   "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(A_D_VEL_SENS   , value)"><span    id="spanA_D_VEL_SENS   " >-</span><span   id="span2A_D_VEL_SENS   " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>EG</b> Rel Velo Sens <span class="sup">[-|+]</span> <span class="cc">CC#81</span></div>
+  <div class="param-name"><b>EG</b> Rel Velo Sens <span class="sup">[- to +]</span> <span class="cc">CC#81</span></div>
   <div class="param-ctrl soft-marker-c"><input  id="inputREL_VEL_SENS   "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(REL_VEL_SENS   , value)"><span    id="spanREL_VEL_SENS   " >-</span><span   id="span2REL_VEL_SENS   " >-</span></div>
 </div>
 <div class="param">
@@ -3982,7 +3982,7 @@ function getStoredCCValueString(index, number) {
   <div class="param-ctrl"><input  id="inputAMP_VEL_SENS   "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(AMP_VEL_SENS   , value)"><span    id="spanAMP_VEL_SENS   " >-</span><span   id="span2AMP_VEL_SENS   " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>EG</b> Att/Dec Key Track <span class="sup">[-|+]</span> <span class="cc">CC#16</span></div>
+  <div class="param-name"><b>EG</b> Att/Dec Key Track <span class="sup">[- to +]</span> <span class="cc">CC#16</span></div>
   <div class="param-ctrl soft-marker-c"><input  id="inputA_D_KEY_TRK    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(A_D_KEY_TRK    , value)"><span    id="spanA_D_KEY_TRK    " >-</span><span   id="span2A_D_KEY_TRK    " >-</span></div>
 </div>
 <div class="param">
@@ -4000,7 +4000,7 @@ function getStoredCCValueString(index, number) {
 </div>
 <div class="param-group">
 <div class="param">
-  <div class="param-name"><b>Breath</b> Filter Amt <span class="sup">[-|+]</span> <span class="cc">CC#60</span></div>
+  <div class="param-name"><b>Breath</b> Filter Amt <span class="sup">[- to +]</span> <span class="cc">CC#60</span></div>
   <div class="param-ctrl soft-marker-c"><input  id="inputBTH_FILTER_AMT "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(BTH_FILTER_AMT , value)"><span    id="spanBTH_FILTER_AMT " >-</span><span   id="span2BTH_FILTER_AMT " >-</span></div>
 </div>
 <div class="param">
@@ -4020,7 +4020,7 @@ function getStoredCCValueString(index, number) {
   <div class="param-ctrl soft-markers-2"><input  id="inputOSC_SAW_W_MODE "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_SAW_W_MODE , value)"><span    id="spanOSC_SAW_W_MODE " >-</span><span   id="span2OSC_SAW_W_MODE " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name">Stretch Tune <span class="sup">[-|+]</span> <span class="cc">CC#22</span></div>
+  <div class="param-name">Stretch Tune <span class="sup">[- to +]</span> <span class="cc">CC#22</span></div>
   <div class="param-ctrl soft-marker-c"><input  id="inputSTRETCH_TUNE   "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(STRETCH_TUNE   , value)"><span    id="spanSTRETCH_TUNE   " >-</span><span   id="span2STRETCH_TUNE   " >-</span></div>
 </div>
 <div class="param">
@@ -4191,8 +4191,8 @@ const PANEL_PARAM_GROUPS = [
   // In the order of the pages of the panel (B-00 to B-03), 2 a page (MIDI Basic Ch of B-03 is an empty cell here)
   [["Panel", "Play Mode",  "[Key|K+S|Seq]",             53, 0,   v => ["Key", "K+S", "Seq"][(v * 4 + 128) >> 8], "soft-markers-3"],
    ["Panel", "Scale",      "[Maj|Min|Mel|MaP|MiP|Chr]", 51, 0,   v => PANEL_SCALES[(v * 10 + 128) >> 8],        "soft-markers-6"],
-   ["Panel", "Pitch Ofst", "[-|+]",                     56, 64,  v => panelSigned(panelClamp(v - 64, -60, 60)), "soft-marker-c"],
-   ["Panel", "Transpose",  "[-|+]",                     52, 64,  v => panelSigned(v - 64),                      "soft-marker-c"],
+   ["Panel", "Pitch Ofst", "[- to +]",                  56, 64,  v => panelSigned(panelClamp(v - 64, -60, 60)), "soft-marker-c"],
+   ["Panel", "Transpose",  "[- to +]",                  52, 64,  v => panelSigned(v - 64),                      "soft-marker-c"],
    ["Panel", "Play Pitch", "",                          54, 0,   v => panelPitchName(v),                        ""],
    ["Panel", "Play Velo",  "",                          55, 64,  v => String(v),                                ""],
    null,
@@ -4209,8 +4209,8 @@ const PANEL_PARAM_GROUPS = [
    ["Seq", "Num Steps",  "",                          88, 32,  v => String(Math.max((v - 2) >> 2, 0) + 1),      ""],
    ["Seq", "Pattern",    "[Std|4x4]",                 62, 0,   v => (v >= 64) ? "4x4" : "Std",                   "soft-markers-2"],
    null,
-   ["Seq", "Pitch Ofst", "[-|+]",                     95, 64,  v => panelSigned(panelClamp(v - 64, -60, 60)),   "soft-marker-c"],
-   ["Seq", "Transpose",  "[-|+]",                     61, 64,  v => panelSigned(v - 64),                        "soft-marker-c"],
+   ["Seq", "Pitch Ofst", "[- to +]",                  95, 64,  v => panelSigned(panelClamp(v - 64, -60, 60)),   "soft-marker-c"],
+   ["Seq", "Transpose",  "[- to +]",                  61, 64,  v => panelSigned(v - 64),                        "soft-marker-c"],
    ["Seq", "On Steps",   "",                          93, 127, v => panelHex2(v),                               ""],
    ["Seq", "Act Steps",  "",                          90, 127, v => panelHex2(v),                               ""]],
   // B-12 to B-19

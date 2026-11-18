@@ -337,7 +337,7 @@ public:
     m_cutoff_pitch_amt = (static_cast<int32_t>(controller_value) - 63) >> 1;
   }
 
-  // [LP|BR|HP|BP|LP]: 0 Low Pass, 32 Band Reject (Notch), 64 High Pass, 96 Band Pass, and 127 (taken as 128)
+  // [LP-BR-HP-BP-LP]: 0 Low Pass, 32 Band Reject (Notch), 64 High Pass, 96 Band Pass, and 127 (taken as 128)
   // Low Pass again, in between crossfaded: LP to BR to HP by the high pass added to the low pass and then the low
   // pass taken away (the notch comes down from the top to the cutoff, and on down to none), as the Notch of a
   // multimode filter; HP to BP to LP by a crossfade of two, which are 90 degrees apart at every frequency, so

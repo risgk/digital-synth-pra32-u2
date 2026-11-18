@@ -25,6 +25,8 @@
       EG Sustain, Amp Sustain, Mixer Osc Mix (Osc 2), LFO Depth, Chorus Level, Delay Level, Delay Feedback, EG Att/Dec Velo Sens, EG Rel Velo Sens,
       EG Level Velo Sens, Amp Level Velo Sens, and EG Att/Dec Key Track (%), and Amp Gain (dB, or "Off")
       (e.g. "100" for 100 ms, "1.0" for 1.00 s, ".07" for 0.0715 Hz, "2k4" for 2.35 kHz, and "+3%" for +3.1%)
+    - The parameters of a range are written as [- to +], [N to S] (Mixer Noise/Sub Osc), and [1 to 2] (Mixer Osc Mix), and Filter Mode as [LP-BR-HP-BP-LP]
+      (as it changes smoothly), not to be taken for the values to select (e.g. [Off|On]), in PRA32-U2 Editor, PRA32-U2 Native, and the documents
     - The Note On Velocity at first is 64 (100 before): Panel Play Velo, Seq Velo 0-7, the Software Keyboard, and "pra32-u2-sample.mid" (the values written before stay)
     - PRA32-U2/M: Voice Group Mode: While the Main Synth is in Poly, the messages other than the notes go to all of the group (to the Main Synth alone before);
       the panel of PRA32-U2/M/P can select such a group too
@@ -38,7 +40,7 @@
     - PRA32-U2/P: Seq Clock Src [Aut|Int|Ext]: Add **Aut** (the default): Internal at first, External at a MIDI Clock, and Internal again when Seq Tempo is changed
       (with a device that keeps sending MIDI Clocks, e.g. some MIDI keyboards, set it to Int)
         - Not compatible: Int written before at 0-31 is now Aut (set it to 64), and Ext at 64-95 is now Int (set it to 127)
-    - PRA32-U2/P: Add **Seq Ch Ofst** [+0-+F] (#60) and **Seq Transpose** [-|+] (#61), the channel and the transposition of the Step Sequencer alone;
+    - PRA32-U2/P: Add **Seq Ch Ofst** [+0-+F] (#60) and **Seq Transpose** [- to +] (#61), the channel and the transposition of the Step Sequencer alone;
       and **Seq Pattern** [Std|4x4] (#62): 4x4 plays Seq Pitch/Velo 0-3 again and again, shifted by Seq Pitch/Velo 4-7 in turn
         - Seq Mode is now **Seq Direction** (the same Control Change #89 and values)
     - PRA32-U2/P: The pages of Group B reordered (Seq Rand Pitch and the pages after it two pages later, e.g. Seq 0 on B-12), with B-00 at first;

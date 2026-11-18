@@ -29,26 +29,26 @@
 |                            65 | x             | o             | Portamento Switch [Off|On] $7         |
 |                               |               |               |                                       |
 |                           102 | x             | o             | Osc 1 Wave [Saw|Sqr|Tri|Sin|WT|Pls]   |
-|                            23 | x             | o             | Mixer Noise/Sub Osc [N|S]             |
+|                            23 | x             | o             | Mixer Noise/Sub Osc [N to S]          |
 |                            19 | x             | o             | Osc 1 Shape                           |
 |                            20 | x             | o             | Osc 1 Morph                           |
 |                               |               |               |                                       |
 |                           104 | x             | o             | Osc 2 Wave [Saw|Sqr|Tri|Sin|O1|Nos]   |
-|                            21 | x             | o             | Mixer Osc Mix [1|2]                   |
-|                            85 | x             | o             | Osc 2 Coarse [-|+]                    |
-|                            76 | x             | o             | Osc 2 Pitch [-|+]                     |
+|                            21 | x             | o             | Mixer Osc Mix [1 to 2]                |
+|                            85 | x             | o             | Osc 2 Coarse [- to +]                 |
+|                            76 | x             | o             | Osc 2 Pitch [- to +]                  |
 |                               |               |               |                                       |
 |                            74 | x             | o             | Filter Cutoff                         |
 |                            71 | x             | o             | Filter Resonance                      |
-|                            24 | x             | o             | Filter EG Amt [-|+]                   |
-|                             9 | x             | o             | Filter Key Track [-|+]                |
+|                            24 | x             | o             | Filter EG Amt [- to +]                |
+|                             9 | x             | o             | Filter Key Track [- to +]             |
 |                               |               |               |                                       |
 |                            73 | x             | o             | EG Attack                             |
 |                            75 | x             | o             | EG Decay                              |
 |                            30 | x             | o             | EG Sustain                            |
 |                            72 | x             | o             | EG Release                            |
 |                               |               |               |                                       |
-|                            89 | x             | o             | EG Mod Amt [-|+]                      |
+|                            89 | x             | o             | EG Mod Amt [- to +]                   |
 |                             8 | x             | o             | EG Mod Dst [P|P|2P|2P|F|1S]           |
 |                            18 | x             | o             | Voice Mode [Pol|Pol|Mon|Mon|LP|Lgt]   |
 |                             5 | x             | o             | Portamento Time                       |
@@ -58,12 +58,12 @@
 |                             3 | x             | o             | LFO Rate                              |
 |                            17 | x             | o             | LFO Depth                             |
 |                               |               |               |                                       |
-|                            13 | x             | o             | LFO Mod Amt [-|+]                     |
+|                            13 | x             | o             | LFO Mod Amt [- to +]                  |
 |                           103 | x             | o             | LFO Mod Dst [P|P|2P|2P|F|1S]          |
-|                            25 | x             | o             | LFO Filter Amt [-|+]                  |
+|                            25 | x             | o             | LFO Filter Amt [- to +]               |
 |                            15 | x             | o             | Amp Gain                              |
 |                               |               |               |                                       |
-|                            39 | x             | o             | Filter Mode [LP|BR|HP|BP|LP]          |
+|                            39 | x             | o             | Filter Mode [LP-BR-HP-BP-LP]          |
 |                            31 | x             | o             | Filter Drive                          |
 |                            36 | x             | o             | EG Amp Mod [Off|On]                   |
 |                           105 | x             | o             | EG/Amp Rel = Dec [Off|On]             |
@@ -75,25 +75,25 @@
 |                               |               |               |                                       |
 |                            82 | x             | o             | Osc/Filter Drift                      |
 |                            57 | x             | o             | Pitch Bend Range                      |
-|                            86 | x             | o             | Coarse Tune [-|+]                     |
-|                            70 | x             | o             | Fine Tune [-|+]                       |
+|                            86 | x             | o             | Coarse Tune [- to +]                  |
+|                            70 | x             | o             | Fine Tune [- to +]                    |
 |                               |               |               |                                       |
-|                            51 | x             | o             | EG Att/Dec Velo Sens [-|+]            |
-|                            81 | x             | o             | EG Rel Velo Sens [-|+]                |
+|                            51 | x             | o             | EG Att/Dec Velo Sens [- to +]         |
+|                            81 | x             | o             | EG Rel Velo Sens [- to +]             |
 |                            62 | x             | o             | EG Level Velo Sens                    |
 |                            63 | x             | o             | Amp Level Velo Sens                   |
 |                               |               |               |                                       |
-|                            16 | x             | o             | EG Att/Dec Key Track [-|+]            |
+|                            16 | x             | o             | EG Att/Dec Key Track [- to +]         |
 |                           110 | x             | o             | Voice Assign Mode [1|1|3|3|4|2]       |
 |                            80 | x             | o             | Voice Group Mode $10                  |
 |                            88 | x             | o $9          | LFO Trig Mode [Aut|Off|On|VOn|VOf|VAu]|
 |                               |               |               |                                       |
-|                            60 | x             | o             | Breath Filter Amt [-|+]               |
+|                            60 | x             | o             | Breath Filter Amt [- to +]            |
 |                            61 | x             | o             | Breath Amp Mode [Off|Q|L|LO|QO|Opn]   |
 |                            37 | x             | o             | After Touch LFO Amt                   |
 |                            34 | x             | o             | Portamento Mode [Sw|Aut]              |
 |                            83 | x             | o             | Osc Saw Wave Mode [Str|Cur]           |
-|                            22 | x             | o             | Stretch Tune [-|+]                    |
+|                            22 | x             | o             | Stretch Tune [- to +]                 |
 |                            10 | x             | o             | Pan                                   |
 |                               |               |               |                                       |
 |                            95 | x             | o             | Distortion Drive                      |
