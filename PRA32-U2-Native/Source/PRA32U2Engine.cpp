@@ -430,8 +430,8 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value, ui
     const int wave = ((osc1Wave * 10) + 128) >> 8;
     std::string text;
     if (controlNumber == OSC_1_SHAPE) {
-      if (wave == 5) {  // 100% (0, shown as "100") to 50% (64) to 0% (127)
-        const int width = (v >= 127) ? 0 : ((100 * (128 - v) + 64) / 128);
+      if (wave == 5) {  // 0% (0) to 50% (64) to 100% (127, shown as "100")
+        const int width = (v >= 127) ? 100 : (((100 * v) + 64) / 128);
         text = std::to_string(width) + ((width < 100) ? "%" : "");
       }
     } else if (wave == 3) {

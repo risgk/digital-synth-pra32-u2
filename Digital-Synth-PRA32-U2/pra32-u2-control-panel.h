@@ -1109,7 +1109,7 @@ static __attribute__((noinline)) boolean __not_in_flash_func(PRA32_U2_ControlPan
     if (wave != 5) {
       return false;
     }
-    uint32_t width = (v >= 127) ? 0 : ((100 * (128 - v) + 64) / 128);  // 100% (0) to 50% (64) to 0% (127)
+    uint32_t width = (v >= 127) ? 100 : (((100 * v) + 64) / 128);  // 0% (0) to 50% (64) to 100% (127)
     PRA32_U2_ControlPanel_append_decimal(buff, length, width);
     if (width < 100) {
       buff[length++] = '%';  // 3 characters at most: "100" for 100%

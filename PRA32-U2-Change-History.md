@@ -4,9 +4,9 @@
     - **Osc 1 Tri** folds the wave: Osc 1 Shape sets the gain of the fold (x1 to x9, lowered at a high pitch), and Osc 1 Morph the mix of the Triangle and the folded one;
       band-limited by the Triangle Wave tables, and corrected at the turns; not in the Lite versions
         - Not compatible: a user program with Osc 1 Wave Tri and Osc 1 Morph other than 0 sounds otherwise (set Osc 1 Morph to 0); the Presets do not use Tri
-    - **Osc 1 Pls**: Osc 1 Shape is the pulse width 100% (0) to 50% (64) to 0% (127), and the EG and LFO modulations stay within it, as with the other waves
+    - **Osc 1 Pls**: Osc 1 Shape is the pulse width 0% (0) to 50% (64) to 100% (127), and the EG and LFO modulations stay within it, as with the other waves
       (50% (0) to 0% (127) before, modulated down to 100%)
-        - Not compatible: a user program with Osc 1 Wave Pls sounds otherwise (set Osc 1 Shape to 64 + the value before / 2, e.g. 0 to 64, 64 to 96);
+        - Not compatible: a user program with Osc 1 Wave Pls sounds otherwise (set Osc 1 Shape to 64 - the value before / 2, e.g. 0 to 64, 64 to 32);
           the Presets #19 Plain Poly and #30 PWM Lead: Osc 1 Shape 0 -> 64 (the same sound)
     - EG Mod Amt and LFO Mod Amt to Osc 1 Shape (1S) are half as much: the full EG moves the Shape by 128 (the whole range), and the full LFO by 64 on each side
       (e.g. the pulse width 0% to 100% around 64)

@@ -54,16 +54,16 @@
     - Sine Wave (Frequency Modulation or Phase Modulation): Modulation Depth
     - Wave Tables with Constraints: Position
     - Pulse Wave (= 1st Saw + Phase Shifted 2nd Saw)
-        - 0: Pulse Width 100%, or 2nd Saw Phase 0%
-        - 1: Pulse Width 99.2%, or 2nd Saw Phase 0.8%
-        - 32: Pulse Width 75%, or 2nd Saw Phase 25%
+        - 0: Pulse Width 0%, or 2nd Saw Phase 0%
+        - 1: Pulse Width 0.8%, or 2nd Saw Phase 0.8%
+        - 32: Pulse Width 25%, or 2nd Saw Phase 25%
         - 64: Pulse Width 50%, or 2nd Saw Phase 50% (#19 Plain Poly and #30 PWM Lead)
-        - 96: Pulse Width 25%, or 2nd Saw Phase 75%
-        - 126: Pulse Width 1.6%, or 2nd Saw Phase 98.4%
-        - 127: Pulse Width 0%, or 2nd Saw Phase 100%
-        - Shown as the pulse width (e.g. "50%" at 64, and "100" at 0)
+        - 96: Pulse Width 75%, or 2nd Saw Phase 75%
+        - 126: Pulse Width 98.4%, or 2nd Saw Phase 98.4%
+        - 127: Pulse Width 100%, or 2nd Saw Phase 100%
+        - Shown as the pulse width (e.g. "50%" at 64, and "100" at 127)
         - The EG and LFO modulations stay within the range of the Shape (0-127), as with the other waves
-        - NOTE: The Pulse Width 100% and 0% are silent (with the Pulse), as the 2nd Saw cancels the 1st:
+        - NOTE: The Pulse Width 0% and 100% are silent (with the Pulse), as the 2nd Saw cancels the 1st:
           set Osc 1 Shape to 64 (50%) when Osc 1 Wave is changed to Pls with Osc 1 Shape 0 (e.g. from #23 Initial)
 - Osc 1 Morph
     - Saw Wave:
@@ -256,7 +256,7 @@
         - +61 (125): Shape +122
         - +62 (126): Shape +124
         - +63 (127): Shape +128 (max)
-        - At the full EG; the LFO swings the Shape by half of it on each side (e.g. -64 to +64 at +63, the pulse width 100% to 0% around 64 with the Pulse Wave)
+        - At the full EG; the LFO swings the Shape by half of it on each side (e.g. -64 to +64 at +63, the pulse width 0% to 100% around 64 with the Pulse Wave)
     - Cutoff
         - -60 (0-4): -120 (min)
         - +60 (124-127): +120 (max)

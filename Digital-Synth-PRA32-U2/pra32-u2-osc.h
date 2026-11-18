@@ -800,10 +800,10 @@ if constexpr (RESTRICT_SQR_WT == false) {  // the same load at any Morph, as the
       int32_t wave_0 = get_wave_level(m_wave_table[N + 16], osc1_phase);
       result += (wave_0 * m_osc1_gain * OSC_LEVEL) >> 8;
 
-      // For Pulse Wave (wave_3): the 2nd Saw shifted by the Shape, 0 to 128 for the whole period (the pulse width
-      // 100% to 0%, 50% at 64), the same range as the other waves, which the EG and LFO modulations stay within
+      // For Pulse Wave (wave_3): the 2nd Saw shifted back by the Shape, 0 to 128 for the whole period (the pulse width
+      // 0% to 100%, 50% at 64), the same range as the other waves, which the EG and LFO modulations stay within
       uint32_t shape = clamp(m_osc1_shape_current[N] - (128 << 8), (0 << 8), (128 << 8));
-      uint32_t phase_3 = osc1_phase + (shape << 9);
+      uint32_t phase_3 = osc1_phase - (shape << 9);  // (get_wave_level() takes the 24 LSBs)
       int16_t wave_3 = get_wave_level(m_wave_table[N + 16], phase_3);
       result += multiply_shift_right((wave_3 * m_osc1_gain * OSC_LEVEL) >> 8, m_osc1_morph_pulse_level_q4, 6 + 4);
     } else {

@@ -1872,7 +1872,7 @@ function osc1DispValue(number, value) {
   var indexOsc1Wave = ((parseInt(localStorage.getItem("keyOSC_1_WAVE     ")) || 0) * 10 + 128) >> 8;
   if (number == OSC_1_SHAPE) {
     if (indexOsc1Wave == 5) {
-      var width = (value >= 127) ? 0 : Math.floor((100 * (128 - value) + 64) / 128);  // 100% (0, "100") to 50% (64) to 0% (127)
+      var width = (value >= 127) ? 100 : Math.floor((100 * value + 64) / 128);  // 0% (0) to 50% (64) to 100% (127, "100")
       return String(width) + ((width < 100) ? "%" : "");
     }
   } else {
