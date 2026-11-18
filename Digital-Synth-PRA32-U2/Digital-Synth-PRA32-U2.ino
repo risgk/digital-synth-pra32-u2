@@ -184,7 +184,6 @@ void handleAfterTouchChannel(byte channel, byte pressure);
 void handleClock();
 void handleStart();
 void handleStop();
-void writeProgramsToFlashAndEndSketch();
 
 // The Program Changes that arrive one after another are kept here, and processed after the MIDI
 // messages of the loop are read (or before the next message for the synth, so that the order is

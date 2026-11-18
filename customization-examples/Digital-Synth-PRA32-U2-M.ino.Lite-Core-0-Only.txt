@@ -201,7 +201,6 @@ void handleAfterTouchChannel(byte channel, byte pressure);
 void handleClock();
 void handleStart();
 void handleStop();
-void writeProgramsToFlashAndEndSketch();
 
 // The MIDI messages of the 4 synths, the Layering, and the Round Robin
 #include "pra32-u2-m-midi.h"
