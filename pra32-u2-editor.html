@@ -845,7 +845,17 @@ span.cc {
 }
 /* The 3 parts of Panel & Step Sequencer, each shown or hidden (shown by default), inside it */
 #panelDetails > details.panel-sub {
-  margin-left: 0;
+  margin-left: 16px;
+}
+/* The headings inside another (the parts of Panel & Step Sequencer, and Performance Controls of the keyboard) a little
+   smaller and lighter, and a little to the right, so that they are seen to be inside it */
+#panelDetails > details.panel-sub > summary, #perfDetails > summary {
+  font-size: 0.88em;
+  font-weight: normal;
+  color: #404040;
+}
+#perfDetails {
+  margin-left: 16px;
 }
 #panelCtrlDetails {
   margin-top: 6px;
