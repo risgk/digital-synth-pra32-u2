@@ -54,13 +54,17 @@
     - Sine Wave (Frequency Modulation or Phase Modulation): Modulation Depth
     - Wave Tables with Constraints: Position
     - Pulse Wave (= 1st Saw + Phase Shifted 2nd Saw)
-        - 0: Pulse Width 50%, or 2nd Saw Phase 50%
-        - 1: Pulse Width 49.6%, or 2nd Saw Phase 50.4%
-        - 64: Pulse Width 25%, or 2nd Saw Phase 75%
-        - 96: Pulse Width 12.5%, or 2nd Saw Phase 87.5%
-        - 126: Pulse Width 0.8%, or 2nd Saw Phase 99.2%
+        - 0: Pulse Width 100%, or 2nd Saw Phase 0%
+        - 1: Pulse Width 99.2%, or 2nd Saw Phase 0.8%
+        - 32: Pulse Width 75%, or 2nd Saw Phase 25%
+        - 64: Pulse Width 50%, or 2nd Saw Phase 50% (#19 Plain Poly and #30 PWM Lead)
+        - 96: Pulse Width 25%, or 2nd Saw Phase 75%
+        - 126: Pulse Width 1.6%, or 2nd Saw Phase 98.4%
         - 127: Pulse Width 0%, or 2nd Saw Phase 100%
-        - Shown as the pulse width (e.g. "25%" at 64)
+        - Shown as the pulse width (e.g. "50%" at 64, and "100" at 0)
+        - The EG and LFO modulations stay within the range of the Shape (0-127), as with the other waves
+        - NOTE: The Pulse Width 100% and 0% are silent (with the Pulse), as the 2nd Saw cancels the 1st:
+          set Osc 1 Shape to 64 (50%) when Osc 1 Wave is changed to Pls with Osc 1 Shape 0 (e.g. from #23 Initial)
 - Osc 1 Morph
     - Saw Wave:
         - 0: Normal Saw 100% (min)
@@ -100,7 +104,7 @@
         - 96 (95-96): Saw 100% + Saw 50%
         - 127: Saw 100% + Saw 100% (max)
         - Shown as it works, 2 values a step: "P64" (0, the Pulse), "P62" (1-2), ..., "0" (63-64, the Saw), ..., "S62" (125-126), and "S64" (127, the 2nd Saw)
-        - NOTE: With a high "Osc 1 Shape" and a high "Osc 1 Morph", the output gets louder (up to about +6 dB), and the Output Compressor may make chords waver; if so, lower the "Amp Gain"
+        - NOTE: With "Osc 1 Shape" near 0 or 127 and a high "Osc 1 Morph", the output gets louder (up to about +6 dB), and the Output Compressor may make chords waver; if so, lower the "Amp Gain"
 - Osc 2 Wave [Saw|Sqr|Tri|Sin|O1|Nos]
     - 0 (0-12): Saw Wave
     - 26 (13-38): Square Wave
@@ -239,15 +243,16 @@
         - +62 (126): +8 oct
         - +63 (127): +10 oct (max)
     - Shape
-        - -63 (1): Shape -256 (min)
-        - -62 (2): Shape -248
-        - -61 (3): Shape -244
-        - -1 (63): Shape -4
+        - -63 (1): Shape -128 (min)
+        - -62 (2): Shape -124
+        - -61 (3): Shape -122
+        - -1 (63): Shape -2
         - +0 (64): Shape +0
-        - +1 (65): Shape +4
-        - +61 (125): Shape +244
-        - +62 (126): Shape +248
-        - +63 (127): Shape +256 (max)
+        - +1 (65): Shape +2
+        - +61 (125): Shape +122
+        - +62 (126): Shape +124
+        - +63 (127): Shape +128 (max)
+        - At the full EG; the LFO swings the Shape by half of it on each side (e.g. -64 to +64 at +63, the pulse width 100% to 0% around 64 with the Pulse Wave)
     - Cutoff
         - -60 (0-4): -120 (min)
         - +60 (124-127): +120 (max)

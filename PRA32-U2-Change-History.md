@@ -4,6 +4,14 @@
     - **Osc 1 Tri** folds the wave: Osc 1 Shape sets the gain of the fold (x1 to x9, lowered at a high pitch), and Osc 1 Morph the mix of the Triangle and the folded one;
       band-limited by the Triangle Wave tables, and corrected at the turns; not in the Lite versions
         - Not compatible: a user program with Osc 1 Wave Tri and Osc 1 Morph other than 0 sounds otherwise (set Osc 1 Morph to 0); the Presets do not use Tri
+    - **Osc 1 Pls**: Osc 1 Shape is the pulse width 100% (0) to 50% (64) to 0% (127), and the EG and LFO modulations stay within it, as with the other waves
+      (50% (0) to 0% (127) before, modulated down to 100%)
+        - Not compatible: a user program with Osc 1 Wave Pls sounds otherwise (set Osc 1 Shape to 64 + the value before / 2, e.g. 0 to 64, 64 to 96);
+          the Presets #19 Plain Poly and #30 PWM Lead: Osc 1 Shape 0 -> 64 (the same sound)
+    - EG Mod Amt and LFO Mod Amt to Osc 1 Shape (1S) are half as much: the full EG moves the Shape by 128 (the whole range), and the full LFO by 64 on each side
+      (e.g. the pulse width 0% to 100% around 64)
+        - Not compatible: a user program with EG Mod Dst or LFO Mod Dst 1S moves the Shape half as much (set the Amt to 64 + (the value before - 64) * 2, up to 127);
+          the Presets #18 FM Piano, #21 Sync Lead, and #26 WT Pad: EG Mod Amt +8 -> +16 (the same sound)
     - The values shown as they work, in PRA32-U2 Editor, PRA32-U2 Native, and the panel: Osc 1 Shape and Osc 1 Morph by Osc 1 Wave (e.g. "25%", "1.5", "WT2", "S64"),
       Mixer Noise/Sub Osc ("N64" to "0" to "S64"), Pan ("L63" to "C" to "R63"), and Osc 2 Coarse (-60 to +60)
     - The Note On Velocity at first is 64 (100 before): Panel Play Velo, Seq Velo 0-7, the Software Keyboard, and "pra32-u2-sample.mid" (the values written before stay)
@@ -29,7 +37,7 @@
     - PRA32-U2 Editor
         - Add the "Key" button (Panel Key); "Play" is "Seq Play" in K+S and Seq Mode
         - "Panel & Step Sequencer" keeps the values by the names (e.g. "SEQ_TEMPO"), as the synth parameters; not compatible: the values kept before are not read
-        - The marker of the center on Pan (PRA32-U2 Native too), and the slider of Osc 1 Morph snaps to the wave tables with Osc 1 Wave WT
+        - The marker of the center on Pan and Osc 1 Shape (PRA32-U2 Native too), and the slider of Osc 1 Morph snaps to the wave tables with Osc 1 Wave WT
         - PRA32-U2 Web: "Click (or tap) to start the audio" is shown as soon as it is chosen in MIDI Out (nothing sent then, as before)
     - Tested with Arduino-Pico version 6.3.0
 - v3.21.0 (2026-11-15):

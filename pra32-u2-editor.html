@@ -1871,7 +1871,8 @@ function osc1DispValue(number, value) {
   var indexOsc1Wave = ((parseInt(localStorage.getItem("keyOSC_1_WAVE     ")) || 0) * 10 + 128) >> 8;
   if (number == OSC_1_SHAPE) {
     if (indexOsc1Wave == 5) {
-      return String((value >= 127) ? 0 : Math.floor((50 * (128 - value) + 64) / 128)) + "%";
+      var width = (value >= 127) ? 0 : Math.floor((100 * (128 - value) + 64) / 128);  // 100% (0, "100") to 50% (64) to 0% (127)
+      return String(width) + ((width < 100) ? "%" : "");
     }
   } else {
     if (indexOsc1Wave == 3) {
@@ -3512,7 +3513,7 @@ function getStoredCCValueString(index, number) {
 </div>
 <div class="param">
   <div class="param-name"><b>Osc 1</b> Shape <span class="cc">CC#19</span></div>
-  <div class="param-ctrl"><input  id="inputOSC_1_SHAPE    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_1_SHAPE    , value)"><span    id="spanOSC_1_SHAPE    " >-</span><span   id="span2OSC_1_SHAPE    " >-</span></div>
+  <div class="param-ctrl soft-marker-c"><input  id="inputOSC_1_SHAPE    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_1_SHAPE    , value)"><span    id="spanOSC_1_SHAPE    " >-</span><span   id="span2OSC_1_SHAPE    " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>Osc 1</b> Morph <span class="cc">CC#20</span></div>

@@ -246,6 +246,7 @@ int PRA32U2Engine::getMarkers(uint8_t controlNumber, const uint8_t** markerValue
   case PORTA_MODE      :
     *markerValues = MARKERS_2;
     return 2;
+  case OSC_1_SHAPE     :  // The center (e.g. the pulse width 50% with Pls)
   case MIXER_SUB_OSC   :
   case OSC_2_COARSE    :
   case OSC_2_PITCH     :
@@ -341,7 +342,10 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value, ui
     const int wave = ((osc1Wave * 10) + 128) >> 8;
     std::string text;
     if (controlNumber == OSC_1_SHAPE) {
-      if (wave == 5) { text = std::to_string((v >= 127) ? 0 : ((50 * (128 - v) + 64) / 128)) + "%"; }
+      if (wave == 5) {  // 100% (0, shown as "100") to 50% (64) to 0% (127)
+        const int width = (v >= 127) ? 0 : ((100 * (128 - v) + 64) / 128);
+        text = std::to_string(width) + ((width < 100) ? "%" : "");
+      }
     } else if (wave == 3) {
       const int halves = ((v + 2) >> 2) + 1;  // the ratio (0.5 to 16.5) * 2: "0.5" to "9.5", and "10" to "16." ("." for .5)
       text = ((halves >> 1) < 10) ? (std::to_string(halves >> 1) + "." + ((halves & 1) ? "5" : "0"))

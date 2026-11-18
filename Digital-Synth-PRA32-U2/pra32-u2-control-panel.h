@@ -1118,8 +1118,11 @@ static boolean PRA32_U2_ControlPanel_calc_value_display_osc_1(uint8_t control_ta
     if (wave != 5) {
       return false;
     }
-    PRA32_U2_ControlPanel_append_decimal(buff, length, (v >= 127) ? 0 : ((50 * (128 - v) + 64) / 128));
-    buff[length++] = '%';  // 50% at most: 3 characters
+    uint32_t width = (v >= 127) ? 0 : ((100 * (128 - v) + 64) / 128);  // 100% (0) to 50% (64) to 0% (127)
+    PRA32_U2_ControlPanel_append_decimal(buff, length, width);
+    if (width < 100) {
+      buff[length++] = '%';  // 3 characters at most: "100" for 100%
+    }
   } else if (wave == 3) {
     uint32_t halves = ((v + 2) >> 2) + 1;  // the ratio (0.5 to 16.5) * 2: "0.5" to "9.5", and "10" to "16." ("." for .5)
     PRA32_U2_ControlPanel_append_decimal(buff, length, halves >> 1);
