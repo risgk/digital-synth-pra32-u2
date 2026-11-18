@@ -16,6 +16,8 @@
       (17 steps of 12.5% before, 8 values a step)
         - Not compatible: a user program with Filter Key Track other than 8n and 8n - 1 (e.g. 0, 63, 64, 96, and 127) follows the pitch by up to 6.25% more or less;
           the Presets use 64, 96, and 127 (the same sound)
+    - The Presets #16 Synth Pad, #17 M Saw Pad, #20 Saw Lead, #24 Synth Brs, #25 Synth Str, and #28 Fifth Lead: Osc 1 Shape 64 -> 48 (the Multi Saw a little narrower:
+      the outer 2 saws +-32 cents, +-41 before); only #17 M Saw Pad sounds otherwise, as the others are with Osc 1 Morph 0 (the Normal Saw)
     - The Note On Velocity at first is 64 (100 before): Panel Play Velo, Seq Velo 0-7, the Software Keyboard, and "pra32-u2-sample.mid" (the values written before stay)
     - **The values shown as they work**, in 3 characters, in PRA32-U2 Editor, PRA32-U2 Native, and the panel (see "Values Shown" in the Parameter Guide)
       (e.g. "100" for 100 ms, "1.0" for 1.00 s, ".07" for 0.0715 Hz, "2k4" for 2.35 kHz, "50%", and "+6" for +6 dB)
