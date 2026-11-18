@@ -122,6 +122,7 @@
     - 0: Osc 1 100% (min)
     - 64 (63-64): Osc 1 50% + Osc 2 50%
     - 127: Osc 2 100% (max)
+    - Shown as it works: Osc 2 (the power, as above; 2 values a step) in % rounded, with "%" where it fits (e.g. "0%", "2%", "50%", and "100")
 - Osc 2 Coarse [-|+]
     - -60 (0-4): -60 semitone (min)
     - +60 (124-127): +60 semitone (max)
@@ -151,6 +152,7 @@
     - 121: f = 14080.0 Hz
     - 124: f = 16744.0 Hz
     - 127: f = 19912.1 Hz (max)
+    - Shown as it works, as the LFO Rate (e.g. "440" for 440.0 Hz, "3k5" for 3520.0 Hz, and "20k" for 19912.1 Hz)
 - Filter Resonance
     - 0: Q = 0.707 (min)
     - 16: Q = 1.00
@@ -175,28 +177,23 @@
     - Above 96, the output of the Filter is lowered with the Resonance (-1.3 dB at 108, -2.8 dB at 122, -3.5 dB at 123, -3.8 dB at 125, and -4.4 dB at 127), so that a high Resonance is about as loud as 96; how readily the self-oscillation holds against the input follows its level in the loop
     - The self-oscillation fades out as the cutoff (including the modulation) rises from the Cutoff 111 (f = 7.9 kHz) to 116 (f = 10.5 kHz), and above that the Resonance 123-127 acts as 122
     - A loud input near the cutoff (e.g. the Square or the Multi Saw) weakens or stops the self-oscillation, and an input harmonic near it pulls it to the pitch of that harmonic
+    - Shown as it works: the Q, as the LFO Rate (e.g. ".71" for 0.707, "5.7" for 5.66, and "256"), and "Osc" for 123-127 (the self-oscillation)
     - NOTE: With a high Resonance (about 112 or above), chords can still get louder, and the Output Compressor lowers the level; if it is too much, lower the "Amp Gain"
 - Filter EG Amt [-|+], LFO Filter Amt [-|+]
     - -60 (0-4): -120 (min)
     - +60 (124-127): +120 (max)
-- Filter Key Track [-|+]
-    - 0 (0-3): -1.000 (min)
-    - 8 (4-11): -0.875
-    - 16 (12-19): -0.750
-    - 24 (20-27): -0.625
-    - 32 (28-35): -0.500
-    - 40 (36-43): -0.375
-    - 48 (44-51): -0.250
-    - 56 (52-59): -0.125
-    - 64 (60-67): +0.000
-    - 72 (68-75): +0.125
-    - 80 (76-83): +0.250
-    - 88 (84-91): +0.375
-    - 96 (92-99): +0.500
-    - 104 (100-107): +0.625
-    - 112 (108-115): +0.750
-    - 120 (116-123): +0.875
-    - 127 (124-127): +1.000 (max)
+    - Shown as it works: the Cutoff (the semitones), with the sign but where it does not fit (e.g. "+2", "-98", and "110" for +-110)
+- Filter Key Track [-|+]: The Cutoff follows the pitch by -100% to +100%, 3.125% (1/32) a step of 2 values (as Mixer Noise/Sub Osc)
+    - 0: -100% (min)
+    - 1 (1-2): -96.9%
+    - 32 (31-32): -50%
+    - 64 (63-64): 0%
+    - 65 (65-66): +3.1%
+    - 96 (95-96): +50% (the Presets)
+    - 126 (125-126): +96.9%
+    - 127: +100% (max)
+    - Shown as it works: the % rounded, with "%" where it fits, and with the sign but where it does not fit (e.g. "0%", "+3%" for +3.1%,
+      "+13" for +12.5%, and "100" for +-100%)
 - EG Attack, Amp Attack: Attack time
     - 0: 1.00 ms
     - 32: 10.0 ms
@@ -209,12 +206,15 @@
     - 64: 300 ms
     - 96: 3.00 s
     - 127: 27.9 s
+- EG Attack, EG Decay, EG Release, Amp Attack, Amp Decay, and Amp Release are shown as they work: the milliseconds rounded,
+  without the unit (e.g. "100" for 100 ms), and the seconds with "." (e.g. "1.0" for 1.00 s, and "28." for 27.9 s)
 - EG Sustain, Amp Sustain: Sustain level
     - 0: 0%
     - 1 (1-2): 1.6%
     - 64 (63-64): 50%
     - 126 (125-126): 98.4%
     - 127: 100%
+    - Shown as it works: the % rounded, with "%" where it fits (e.g. "2%" for 1.6%, "50%", and "100")
 - EG Mod Amt [-|+], LFO Mod Amt [-|+]
     - Pitch
         - -63 (1): -10 oct (min)
@@ -280,6 +280,7 @@
     - 1: 1.07 ms
     - 64: 100 ms
     - 127: 9.31 s
+    - Shown as it works, as the EG Attack ("0" for 0)
     - NOTE: The Portamento is turned on and off by "Portamento Mode" (and "Portamento Switch")
 - LFO Wave [Tri|Sin|Nos|Saw|S&H|Sqr]
     - 0 (0-12): Triangle Wave (Key Trigger Off, -0.5 to +0.5)
@@ -295,12 +296,14 @@
     - 64: 992 ms
     - 96: 3.16 s
     - 127: 9.64 s (max)
+    - Shown as it works, as the EG Attack (e.g. "309" for 309 ms, and "3.2" for 3.16 s; "0" for 0)
 - LFO Rate
     - 0: 0 Hz (min)
     - 1: 0.0715 Hz
     - 64: 2.73 Hz
     - 79: 6.49 Hz (the Presets, but #30 PWM Lead)
     - 127: 104 Hz (max)
+    - Shown as it works: the hertz rounded, without the unit (e.g. ".07" for 0.0715 Hz, "2.7" for 2.73 Hz, and "104" for 104 Hz)
 - LFO Rate (Red Noise: sets the low-pass cutoff of the noise, the level stays the same)
     - 0: 0 Hz (min)
     - 1: 0.0146 Hz
@@ -310,6 +313,8 @@
     - 83: 5.12 kHz
     - 84: Almost No Low-Pass Filtering
     - 100 (100-127): No Low-Pass Filtering (max)
+    - Shown as it works: the cutoff of the low-pass (-3 dB), as the LFO Rate (e.g. "1.5" for 1.54 Hz, and "2k4" for 2.35 kHz),
+      and "Off" for 84-127
 - LFO Depth
     - 0: 0% (min)
     - 1: 0.8%
@@ -317,8 +322,13 @@
     - 125: 97.7%
     - 126: 98.4%
     - 127: 100% (max)
+    - Shown as it works: the % rounded, with "%" where it fits (e.g. "1%" for 0.8%, "98%" for 97.7% and 98.4%, and "100")
     - NOTE: The actual LFO depth is the "LFO Depth" value plus the "Modulation Wheel" value and the after touch effect (up to 100%)
 - Amp Gain
+    - Shown as it works: the gain in dB rounded (the level is (value / 127)^2), but -1 at most other than 127, without the unit
+      (e.g. "0" at 127, "-1" at 117-126, "-6" at 90, "-12" at 64, and "-84" at 1), and "Off" at 0
+        - By the gain as it is calculated, ((value * value) * 16384) / 16129 in 1/16384 (the integer): e.g. "-43" at 11 (-42.6 dB),
+          where (11 / 127)^2 is -42.5 dB
     - NOTE: The Output Compressor (after the FX) compresses the peaks above -6 dB (0.5 of full scale) at its input by 2:1 (with a soft knee from -9 dB to -3 dB), limits the peaks so that they do not go above 1.0 (full scale) at its input (reached at +6 dB), and lowers the output by 2.5 dB (x 0.75) (with the Presets, the peaks of chords are lowered by about 0.5 dB)
 - Filter Mode [LP|BR|HP|BP|LP]: The response of the Filter, changing smoothly in between (127 is taken as 128)
     - 0: Low Pass (min, the Presets)
@@ -338,6 +348,7 @@
     - 96: x 16.0 (+24 dB)
     - 120: x 32.0 (+30 dB)
     - 127: x 39.2 (+31.9 dB, max)
+    - Shown as it works: the dB rounded, but +1 at least other than 0, without the unit (e.g. "+1" for +0.25 dB, "+6", and "+32" for +31.9 dB)
 - EG Amp Mod [Off|On]
     - 0 (0-63): Off, the Amp EG (Amp Attack/Decay/Sustain/Release, in the More Synth Parameters of PRA32-U2 Editor) changes the level (as a gate in the Presets: Amp Attack 0, Amp Decay 0, Amp Sustain 127, and Amp Release 0)
     - 127 (64-127): On, the EG also works as the Amp EG (the Amp Attack/Decay/Sustain/Release are not used)
@@ -365,20 +376,33 @@
     - +0 (64): +0 cent
     - +1 (65): +1.5625 cent
     - +63 (127): +98.4375 cent
+    - Shown as it works: the cents rounded (e.g. "+2" for +1.5625 cent, and "+98" for +98.4375 cent), and "100" for -100 cent (the sign does not fit)
 - EG Att/Dec Velo Sens [-|+]: EG Attack/Decay Velocity Sensitivity, Modulates the attack/decay times by note on velocity
     - -64 (0): -100% (+63 to -63)
     - -32 (31-32): -50% (+31.5 to -31.5)
     - +0 (63-64): +0% (-0 to +0)
     - +32 (95-96): +50% (-31.5 to +31.5)
     - +63 (127): +100% (-63 to +63)
+    - Shown as it works: the % rounded (2 values a step, 3.125%), with the sign but where it does not fit, and with "%" where it fits
+      (e.g. "0%", "+3%" for +3.1%, "+13" for +12.5%, "+50", and "100" for +-100%)
 - EG Rel Velo Sens [-|+]: EG Release Velocity Sensitivity, Modulates the release time by note off velocity
     - -64 (0): -100% (+63 to -63)
     - -32 (31-32): -50% (+31.5 to -31.5)
     - +0 (63-64): +0% (-0 to +0)
     - +32 (95-96): +50% (-31.5 to +31.5)
     - +63 (127): +100% (-63 to +63)
+    - Shown as it works: the % rounded (2 values a step, 3.125%), with the sign but where it does not fit, and with "%" where it fits
+      (e.g. "0%", "+3%" for +3.1%, "+13" for +12.5%, "+50", and "100" for +-100%)
 - EG Level Velo Sens: EG Level Velocity Sensitivity, Decreases the EG level as note on velocity decreases
+    - 0: 0% (min, the EG level does not change by the velocity)
+    - 64 (63-64): 50%
+    - 127: 100% (max, the EG level in proportion to the velocity)
+    - Shown as it works: the % rounded (2 values a step, 1.6%), with "%" where it fits (e.g. "0%", "2%", "50%", and "100")
 - Amp Level Velo Sens: Amp Level Velocity Sensitivity, Decreases the Amp EG level as note on velocity decreases
+    - 0: 0% (min, the Amp EG level does not change by the velocity)
+    - 64 (63-64): 50%
+    - 127: 100% (max, the Amp EG level in proportion to the velocity)
+    - Shown as it works: the % rounded (2 values a step, 1.6%), with "%" where it fits (e.g. "0%", "2%", "50%", and "100")
 - EG Att/Dec Key Track [-|+]: Modulates the attack/decay times based on oscillator pitch at note-on
     - -64 (0): Delta Value = -12 / octave (Delta Second = 0.42x / octave)
     - -52 (11-12): Delta Value = -9.75 / octave (Delta Second = 0.50x / octave)
@@ -387,6 +411,7 @@
     - +32 (95-96): Delta Value = +6 / octave (Delta Second = 1.54x / octave)
     - +52 (115-116): Delta Value = +9.75 / octave (Delta Second = 2.02x / octave)
     - +63 (127): Delta Value = +12 / octave (Delta Second = 2.37x / octave)
+    - Shown as it works: the % of the Delta Value of +-100% (+-12 / octave) rounded, as EG Att/Dec Velo Sens (e.g. "+3%", "+50", and "100")
 - Voice Assign Mode [1|1|3|3|4|2]: The voice assignment in the Polyphonic Mode
     - 0 (0-12): Mode 1, Free voice with next number has priority (Round Robin), Release is effective
     - 26 (13-38): Mode 1, Free voice with next number has priority (Round Robin), Release is effective
@@ -418,6 +443,7 @@
     - -60 (0-4): -240 (min)
     - +30 (94): +120, the Cutoff +120 with the max breath
     - +60 (124-127): +240 (max), the Cutoff +120 with the half breath
+    - Shown as it works: the Cutoff with the max breath, as Filter EG Amt (e.g. "+4", "120" for +120, and "240" for +-240)
 - Breath Amp Mode [Off|Q|L|LO|QO|Opn]
     - 0 (0-12): Off, The Amp follows the EG (the Breath Controller does not modulate the Amp)
     - 26 (13-38): Quadratic Curve (Q), The Amp follows the EG, x the Breath Controller (Quadratic Curve)
@@ -451,6 +477,7 @@
     - +16 (80): +9.4 cent at note number 108 (-9.4 cent at note number 12)
     - +32 (96): +18.8 cent at note number 108 (-18.8 cent at note number 12)
     - +63 (127): +36.9 cent at note number 108 (-36.9 cent at note number 12) (max)
+    - Shown as it works: the cents at note number 108 rounded (e.g. "+5" for +4.7 cent, and "-38" for -37.5 cent)
 - Pan: Constant power panning
     - -64 (0-1): Left (L +3.0 dB, R Off) (min)
     - -32 (32): L +2.3 dB, R -5.5 dB
@@ -467,6 +494,7 @@
     - 96: x 16.0 (+24 dB)
     - 120: x 32.0 (+30 dB)
     - 127: x 39.2 (+31.9 dB, max)
+    - Shown as it works: the dB rounded, but +1 at least other than 0, without the unit (e.g. "+1" for +0.25 dB, "+6", and "+32" for +31.9 dB)
     - NOTE: Changed by "Randomize FX" (of PRA32-U2 Editor and PRA32-U2 Native), not by "Randomize Synth"
 - FX Routing [Dst|Cho|Dly|Dly|Cmp|Dry]: Where the output is input to the FX (connected in series: Distortion -> Chorus -> Delay -> Output Compressor)
     - 0 (0-12): Dst (through the Distortion, the Chorus, the Delay, and the Output Compressor)
@@ -478,16 +506,20 @@
         - The output is still delayed by 1 ms and lowered by 2.5 dB (x 0.75) as the others, and is clipped (soft clipping) if it is too loud
     - In PRA32-U2/M, each synth has its own FX Routing, while the other FX parameters of the Main Synth apply to all synths
 - Chorus Level: The level of the chorused signal L (0.0 at 0 to 1.0 at 127) added to the input; the sum is lowered by about 1 / sqrt(1 + L^2) (x 0.707 at 127, where the two are equal), so that the level stays within about 1 dB as the Chorus Level goes up
+    - Shown as it works: the % of L rounded (2 values a step: 1.6% at 1-2, 50% at 63-64, and 100% at 127), with "%" where it fits (e.g. "2%", and "100")
 - Chorus Rate
     - 0: LFO Frequency 0.0114 Hz (min)
     - 64: LFO Frequency 0.482 Hz
     - 127: LFO Frequency 18.4 Hz (max)
+    - Shown as it works, as the LFO Rate (e.g. ".01" for 0.0114 Hz, and "18" for 18.4 Hz)
 - Chorus Depth
     - 0: Delay Time +/- 0 ms (min)
     - 32: Delay Time +/- 1.33 ms
     - 64: Delay Time +/- 2.67 ms
     - 126 (126-127): Delay Time +/- 5.25 ms (max)
+    - Shown as it works: the milliseconds rounded, but 1 at least other than 0, without the unit ("0" to "5", e.g. "1" for 1-35)
 - Delay Level: Delay Send Level
+    - Shown as it works: the % rounded (2 values a step, as Chorus Level), with "%" where it fits (e.g. "2%", "50%", and "100")
 - Delay Mode [Ste|PP|Rev]
     - 0 (0-31): Stereo Delay
     - 64 (32-95): Ping Pong Delay
@@ -519,6 +551,7 @@
     - 0: Feedback 0% (min)
     - 64: Feedback 25%
     - 127: Feedback 49.6% (max)
+    - Shown as it works: the % rounded, but 1% to 49% other than 0 (e.g. "1%" for 0.4%, "25%", and "49%" for 49.6%)
 
 ## Performance Controllers
 

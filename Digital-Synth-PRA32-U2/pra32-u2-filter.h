@@ -331,8 +331,10 @@ public:
     m_cutoff_lfo_amt[index] = get_cutoff_mod_amt(controller_value) << 1;
   }
 
+  // Filter Key Track: -32 (0) to 0 (63-64) to +32 (127), 1/32 each (2 values a step, as Mixer Noise/Sub Osc):
+  // -1.0 to +1.0 times the pitch (-100% to +100%)
   INLINE void set_cutoff_pitch_amt(uint8_t controller_value) {
-    m_cutoff_pitch_amt = ((controller_value - 64) + 4) >> 3;
+    m_cutoff_pitch_amt = (static_cast<int32_t>(controller_value) - 63) >> 1;
   }
 
   // [LP|BR|HP|BP|LP]: 0 Low Pass, 32 Band Reject (Notch), 64 High Pass, 96 Band Pass, and 127 (taken as 128)
@@ -566,7 +568,7 @@ private:
       lfo_mod_target += (lfo_input * (smoothed.m_cutoff_lfo_amt_current[i] >> 9)) >> 7;
     }
 
-    int32_t pitch_mod = (((osc_pitch_q16 - (60 << 16)) * m_cutoff_pitch_amt) + (1 << 2)) >> 3;
+    int32_t pitch_mod = (((osc_pitch_q16 - (60 << 16)) * m_cutoff_pitch_amt) + (1 << 4)) >> 5;
 
     // 3. Add the EG modulation
     int32_t eg_mod_target = 0;

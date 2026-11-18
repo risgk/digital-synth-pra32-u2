@@ -41,6 +41,21 @@ def lfo_red_noise_gain(i)
   ((LFO_RED_NOISE_OUT_RMS / Math.sqrt(a / (2.0 - a))) / LFO_RED_NOISE_IN_RMS * 4.0).round
 end
 
+# LFO Red Noise: the cutoff of the low-pass (-3 dB) in 0.001 Hz (truncated, so that the value shown is rounded only once),
+# for the value shown (the panel, PRA32-U2 Editor, and PRA32-U2 Native); 0xFFFFFFFF where there is none below the Nyquist
+# frequency (no low-pass filtering, about); not const, so that the table is in the RAM (the panel reads it on the secondary
+# core, between the samples: no XIP cache misses)
+def lfo_red_noise_cutoff(i)
+  coef = lfo_red_noise_coef(i)
+  return 0 if coef == 0
+  a = coef / (2.0 ** 31)
+  b = 1.0 - a
+  return 0xFFFFFFFF if b <= 0.0
+  cos_w = (1.0 + (b * b) - (2.0 * a * a)) / (2.0 * b)  # where |a / (1 - b z^-1)|^2 is 1/2
+  return 0xFFFFFFFF if cos_w < -1.0
+  (Math.acos(cos_w) * LFO_CONTROL_RATE / (2.0 * Math::PI) * 1000.0).floor
+end
+
 # LFO Fade Time controller value -> the step of the fade per control period
 def lfo_fade_coef(controller_value)
   return 1 if controller_value == 0
@@ -58,6 +73,7 @@ write_header("pra32-u2-lfo-table.h") do |file|
   write_array(file, "uint32_t g_lfo_rate_table[]", CONTROLLER_VALUES.map { |i| lfo_rate(i) }, per_line: 16, format: "%6d")
   write_array(file, "int32_t g_lfo_red_noise_coef_table[]", CONTROLLER_VALUES.map { |i| lfo_red_noise_coef(i) }, per_line: 8, format: "0x%08X")
   write_array(file, "uint16_t g_lfo_red_noise_gain_table[]", CONTROLLER_VALUES.map { |i| lfo_red_noise_gain(i) }, per_line: 16, format: "%6d")
+  write_array(file, "uint32_t g_lfo_red_noise_cutoff_table[]", CONTROLLER_VALUES.map { |i| lfo_red_noise_cutoff(i) }, per_line: 8, format: "0x%08X")
   write_array(file, "uint16_t g_lfo_fade_coef_table[]", CONTROLLER_VALUES.map { |i| lfo_fade_coef(i) }, per_line: 16, format: "%6d")
   write_array(file, "uint32_t g_chorus_rate_table[]", CONTROLLER_VALUES.map { |i| chorus_rate(i) }, per_line: 16, format: "%6d")
 end

@@ -12,9 +12,19 @@
       (e.g. the pulse width 0% to 100% around 64)
         - Not compatible: a user program with EG Mod Dst or LFO Mod Dst 1S moves the Shape half as much (set the Amt to 64 + (the value before - 64) * 2, up to 127);
           the Presets #18 FM Piano, #21 Sync Lead, and #26 WT Pad: EG Mod Amt +8 -> +16 (the same sound)
+    - **Filter Key Track** is in 65 steps of 3.125% (1/32, 2 values a step, as Mixer Noise/Sub Osc): -100% (0) to 0% (63-64) to +100% (127)
+      (17 steps of 12.5% before, 8 values a step)
+        - Not compatible: a user program with Filter Key Track other than 8n and 8n - 1 (e.g. 0, 63, 64, 96, and 127) follows the pitch by up to 6.25% more or less;
+          the Presets use 64, 96, and 127 (the same sound)
     - The values shown as they work, in PRA32-U2 Editor, PRA32-U2 Native, and the panel: Osc 1 Shape and Osc 1 Morph by Osc 1 Wave (e.g. "50%", "1.5", "WT2", "S64"),
       Mixer Noise/Sub Osc ("N64" to "0" to "S64"), Pan ("L63" to "C" to "R63"), Osc 2 Coarse (-60 to +60), and Osc 2 Pitch and EG/LFO Mod Amt to the pitch
-      (the cents and the semitones, e.g. "+2" for 1.5625 cents, and "+1." for 1.5 semitones)
+      (the cents and the semitones, e.g. "+2" for 1.5625 cents, and "+1." for 1.5 semitones), the times of the EG and the Amp,
+      Portamento Time, LFO Fade Time, LFO Rate (with LFO Wave Nos, the cutoff of the low-pass, or "Off"), Chorus Rate, Chorus Depth,
+      Filter Cutoff, Fine Tune, Filter Resonance (the Q, or "Osc"), Filter Drive and Distortion Drive (dB), Stretch Tune
+      (the cents at note number 108), Filter EG Amt, LFO Filter Amt, and Breath Filter Amt (the semitones), and Filter Key Track (%),
+      EG Sustain, Amp Sustain, Mixer Osc Mix (Osc 2), LFO Depth, Chorus Level, Delay Level, Delay Feedback, EG Att/Dec Velo Sens, EG Rel Velo Sens,
+      EG Level Velo Sens, Amp Level Velo Sens, and EG Att/Dec Key Track (%), and Amp Gain (dB, or "Off")
+      (e.g. "100" for 100 ms, "1.0" for 1.00 s, ".07" for 0.0715 Hz, "2k4" for 2.35 kHz, and "+3%" for +3.1%)
     - The Note On Velocity at first is 64 (100 before): Panel Play Velo, Seq Velo 0-7, the Software Keyboard, and "pra32-u2-sample.mid" (the values written before stay)
     - PRA32-U2/M: Voice Group Mode: While the Main Synth is in Poly, the messages other than the notes go to all of the group (to the Main Synth alone before);
       the panel of PRA32-U2/M/P can select such a group too

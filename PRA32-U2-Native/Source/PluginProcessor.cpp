@@ -68,7 +68,7 @@ PRA32U2NativeAudioProcessor::PRA32U2NativeAudioProcessor()
         const PRA32U2Engine& engine = m_renderer.getEngine();
         return juce::String(PRA32U2Engine::getValueText(static_cast<uint8_t>(controlNumber),
                                                         static_cast<uint8_t>(juce::jlimit(0, 127, value)),
-                                                        engine.getOsc1Wave(), engine.getModDst(static_cast<uint8_t>(controlNumber))));
+                                                        engine.getOsc1Wave(), engine.getRelatedValue(static_cast<uint8_t>(controlNumber))));
       })
       .withValueFromStringFunction([](const juce::String& text) {
         return juce::jlimit(0, 127, text.getIntValue());  // The controller value before " [...]"

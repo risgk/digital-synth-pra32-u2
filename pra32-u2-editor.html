@@ -1572,7 +1572,7 @@ var specialProgramChangeCCValues = [0, 0, 0, 0, 0, 0, 0, 0];
 var specialRandomControlCCValue = 0;
 
 // The parameters that change which parameters are dimmed (shown in light gray, as they have no effect)
-const DIMMING_CONTROLS = [OSC_1_WAVE, EG_OSC_DST, LFO_OSC_DST, EG_AMP_MOD, REL_EQ_DECAY, PORTA_MODE];
+const DIMMING_CONTROLS = [OSC_1_WAVE, EG_OSC_DST, LFO_OSC_DST, LFO_WAVE, EG_AMP_MOD, REL_EQ_DECAY, PORTA_MODE];
 
 function setDimmed(ids, dimmed) {
   ids.forEach(function(id) {
@@ -1586,8 +1586,9 @@ function setParameterDimmed(number, dimmed) {
 }
 
 function updateDimmedParameters() {
-  // Osc 1 Shape and Osc 1 Morph: their values shown by Osc 1 Wave; EG Mod Amt and LFO Mod Amt: by EG Mod Dst and LFO Mod Dst
-  [OSC_1_SHAPE, OSC_1_MORPH, EG_OSC_AMT, LFO_OSC_AMT].forEach(function(number) {
+  // Osc 1 Shape and Osc 1 Morph: their values shown by Osc 1 Wave; EG Mod Amt and LFO Mod Amt: by EG Mod Dst and LFO Mod Dst;
+  // LFO Rate: by LFO Wave
+  [OSC_1_SHAPE, OSC_1_MORPH, EG_OSC_AMT, LFO_OSC_AMT, LFO_RATE].forEach(function(number) {
     var value = localStorage.getItem("key" + controlNumberToStringMap.get(number));
     if (value !== null) {
       updateDisplayOfControl(number, value);
@@ -1911,6 +1912,214 @@ function pitchDispValue(value, osc2Pitch) {
   return ((semitones < 100) ? sign : "") + String(semitones);
 }
 
+// A time in 1/10000 ms, as it works (3 characters at most, as the panel of PRA32-U2/P and PRA32-U2 Native): the milliseconds
+// rounded, without the unit (e.g. "100"), and the seconds with "." (e.g. "1.0", and "28." for 27.9)
+function formatTime(t) {
+  if (t < 9995000) { return String(Math.floor((t + 5000) / 10000)); }  // below 999.5 ms
+  var tenths = Math.floor((t + 500000) / 1000000);  // the seconds in 0.1 s
+  if (tenths < 100) { return String(Math.floor(tenths / 10)) + "." + String(tenths % 10); }
+  return String(Math.floor((t + 5000000) / 10000000)) + ".";
+}
+
+// The times of the EG and the Amp (decayRelease: Decay and Release, 3 times Attack), and Portamento Time (as Attack):
+// Attack 1 ms * 10^(value / 32), by the mantissas of 10^(value / 32) (5 digits)
+const TIME_MANTISSAS = [10000, 10746, 11548, 12409, 13335, 14330, 15399, 16548, 17783, 19110, 20535, 22067, 23714, 25483, 27384, 29427,
+  31623, 33982, 36517, 39242, 42170, 45316, 48697, 52330, 56234, 60430, 64938, 69783, 74989, 80584, 86596, 93057];
+function timeDispValue(value, decayRelease) {
+  var v = parseInt(value);
+  return formatTime(TIME_MANTISSAS[v & 0x1F] * (decayRelease ? 3 : 1) * [1, 10, 100, 1000][(v >> 5) & 0x03]);  // in 1/10000 ms
+}
+
+// A frequency in 0.001 Hz, as it works (3 characters at most, as the panel and PRA32-U2 Native): "0", ".01" to ".99"
+// (below 1 Hz), "1.0" to "9.9", "10" to "999", and "1k0" to "9k9" (kHz)
+function frequencyDispValue(milliHz) {
+  if (milliHz == 0) { return "0"; }
+  var hundredths = Math.floor((milliHz + 5) / 10);
+  if (hundredths < 100) { return "." + String(Math.floor(hundredths / 10)) + String(hundredths % 10); }
+  var tenths = Math.floor((milliHz + 50) / 100);
+  if (tenths < 100) { return String(Math.floor(tenths / 10)) + "." + String(tenths % 10); }
+  var hz = Math.floor((milliHz + 500) / 1000);
+  if (hz < 1000) { return String(hz); }
+  var hundreds = Math.floor((milliHz + 50000) / 100000);  // 0.1 kHz
+  if (hundreds < 100) { return String(Math.floor(hundreds / 10)) + "k" + String(hundreds % 10); }
+  return String(Math.floor((milliHz + 500000) / 1000000)) + "k";
+}
+
+// The same as "pra32-u2-lfo-table.h" (for the values shown): the phase steps of the LFO and of the Chorus per control period
+// (SAMPLING_RATE / 4), the steps of LFO Fade Time, and the cutoffs of the LFO Red Noise in 0.001 Hz (-1 for none)
+const LFO_RATE_STEPS = [
+  0, 100, 106, 112, 119, 126, 133, 141, 150, 159, 168, 178, 189, 200, 212, 225,
+  238, 252, 267, 283, 300, 318, 337, 357, 378, 400, 424, 450, 476, 505, 535, 567,
+  600, 636, 674, 714, 756, 801, 849, 900, 953, 1010, 1070, 1134, 1201, 1272, 1348, 1428,
+  1513, 1603, 1699, 1800, 1907, 2020, 2140, 2268, 2402, 2545, 2697, 2857, 3027, 3207, 3398, 3600,
+  3814, 4041, 4281, 4536, 4805, 5091, 5394, 5715, 6055, 6415, 6796, 7200, 7629, 8082, 8563, 9072,
+  9611, 10183, 10789, 11430, 12110, 12830, 13593, 14401, 15258, 16165, 17126, 18144, 19223, 20367, 21578, 22861,
+  24220, 25660, 27186, 28803, 30516, 32330, 34253, 36289, 38447, 40734, 43156, 45722, 48441, 51321, 54373, 57606,
+  61032, 64661, 68506, 72579, 76895, 81468, 86312, 91444, 96882, 102643, 108746, 115213, 122064, 129322, 137012, 145159
+];
+const CHORUS_RATE_STEPS = [
+  16, 17, 18, 19, 21, 22, 23, 25, 26, 28, 29, 31, 33, 35, 37, 39,
+  42, 44, 47, 50, 53, 56, 59, 63, 66, 70, 75, 79, 84, 89, 94, 100,
+  106, 112, 119, 126, 133, 141, 150, 159, 168, 178, 189, 200, 212, 225, 238, 252,
+  267, 283, 300, 318, 337, 357, 378, 400, 424, 450, 476, 505, 535, 567, 600, 636,
+  674, 714, 756, 801, 849, 900, 953, 1010, 1070, 1134, 1201, 1272, 1348, 1428, 1513, 1603,
+  1699, 1800, 1907, 2020, 2140, 2268, 2402, 2545, 2697, 2857, 3027, 3207, 3398, 3600, 3814, 4041,
+  4281, 4536, 4805, 5091, 5394, 5715, 6055, 6415, 6796, 7200, 7629, 8082, 8563, 9072, 9611, 10183,
+  10789, 11430, 12110, 12830, 13593, 14401, 15258, 16165, 17126, 18144, 19223, 20367, 21578, 22861, 24220, 25660
+];
+const LFO_FADE_COEFS = [
+  1, 9, 10, 10, 10, 11, 11, 12, 12, 12, 13, 13, 14, 14, 15, 16,
+  16, 17, 17, 18, 19, 19, 20, 21, 22, 23, 23, 24, 25, 26, 27, 28,
+  29, 30, 31, 33, 34, 35, 36, 38, 39, 40, 42, 44, 45, 47, 49, 50,
+  52, 54, 56, 58, 60, 63, 65, 67, 70, 72, 75, 78, 81, 84, 87, 90,
+  93, 97, 100, 104, 108, 112, 116, 120, 125, 129, 134, 139, 144, 149, 155, 160,
+  166, 172, 179, 185, 192, 199, 206, 214, 222, 230, 238, 247, 256, 266, 275, 285,
+  296, 307, 318, 330, 342, 354, 367, 381, 395, 409, 424, 440, 456, 473, 490, 508,
+  527, 546, 566, 587, 608, 631, 654, 678, 703, 728, 755, 783, 811, 841, 872, 904
+];
+const LFO_RED_NOISE_CUTOFFS = [
+  0, 14, 16, 19, 22, 26, 30, 35, 41, 48, 56, 65, 76, 88, 102, 119,
+  138, 161, 187, 218, 253, 294, 342, 398, 462, 537, 625, 726, 844, 981, 1140, 1325,
+  1540, 1790, 2080, 2418, 2810, 3266, 3796, 4412, 5128, 5960, 6928, 8052, 9358, 10876, 12641, 14692,
+  17076, 19846, 23066, 26808, 31158, 36214, 42089, 48919, 56856, 66083, 76807, 89272, 103762, 120607, 140190, 162961,
+  189440, 220238, 256068, 297770, 346326, 402901, 468878, 545911, 636001, 741594, 865737, 1012299, 1186337, 1394689, 1647028, 1957881,
+  2350959, 2870263, 3619383, 5115762, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+];
+
+// The phase step of an LFO (of the LFO, or of the Chorus) per control period (12000 Hz) -> the frequency in 0.001 Hz
+// (truncated, so that the value shown is rounded only once)
+function milliHzFromLfoStep(step) {
+  return Math.floor((step * 12000000) / 16777216);
+}
+
+// Portamento Time (0 for none), LFO Fade Time (0 for none), LFO Rate (with LFO Wave Nos, the cutoff of the low-pass of the
+// noise, "Off" for none), Chorus Rate, and Chorus Depth (the milliseconds, rounded), as the panel and PRA32-U2 Native
+function timeRateDispValue(number, value) {
+  var v = parseInt(value);
+  if (number == PORTAMENTO) {
+    return (v == 0) ? "0" : timeDispValue(v, false);
+  } else if (number == LFO_FADE_TIME) {
+    return (v == 0) ? "0" : formatTime(Math.floor((LFO_FADE_COEFS[v] * 320000 + 1) / 3));  // coef * 32 / 3 ms
+  } else if (number == LFO_RATE) {
+    var lfoWave = parseInt(localStorage.getItem("key" + controlNumberToStringMap.get(LFO_WAVE))) || 0;
+    if ((((lfoWave * 10) + 128) >> 8) == 2) {  // Nos (Red Noise)
+      return (LFO_RED_NOISE_CUTOFFS[v] < 0) ? "Off" : frequencyDispValue(LFO_RED_NOISE_CUTOFFS[v]);
+    }
+    return frequencyDispValue(milliHzFromLfoStep(LFO_RATE_STEPS[v]));
+  } else if (number == CHORUS_RATE) {
+    return frequencyDispValue(milliHzFromLfoStep(CHORUS_RATE_STEPS[v]));
+  }
+  return String(Math.max(Math.floor((Math.min(v, 126) + 12) / 24), (v == 0) ? 0 : 1));  // Chorus Depth: +/- (value / 24) ms, 1 at least but at 0
+}
+
+// Filter Cutoff, as the panel and PRA32-U2 Native: 13.75 Hz * 2^((value - 1) / 12), by the frequencies of the top octave
+// (116-127) in 0.001 Hz * 128, truncated, shifted right by the octaves below it and by 7 (so that the value shown is rounded
+// only once)
+const CUTOFF_TOP_OCTAVE = [
+  1350154473, 1430438835, 1515497155, 1605613305, 1701088041, 1802240000,
+  1909406767, 2022946001, 2143236630, 2270680112, 2405701778, 2548752250
+];
+function cutoffDispValue(value) {
+  var v = Math.min(parseInt(value), 127);
+  var octaves = Math.floor((127 - v) / 12);
+  return frequencyDispValue(Math.floor(CUTOFF_TOP_OCTAVE[v + (octaves * 12) - 116] / Math.pow(2, octaves + 7)));
+}
+
+// Fine Tune, as the panel and PRA32-U2 Native: the cents, rounded (1.5625 cents a value, e.g. "+2" for 1.5625), and "100"
+// for -100 (0)
+function fineTuneDispValue(value) {
+  var n = parseInt(value) - 64;
+  var a = Math.abs(n);
+  if (n <= -64) { return "100"; }  // -100: with the sign but where it does not fit
+  if (a == 0) { return "0"; }
+  return ((n > 0) ? "+" : "-") + String(Math.floor((a * 25 + 8) / 16));
+}
+
+// k = 1 / Q in Q30 for Filter Resonance 0-122, the same as g_filter_k_table of "pra32-u2-filter-table.h"
+const FILTER_K_TABLE = [
+  1518500250, 1485961921, 1454120821, 1422962010, 1392470869, 1362633090, 1333434672, 1304861917,
+  1276901417, 1249540052, 1222764986, 1196563654, 1170923762, 1145833280, 1121280436, 1097253708,
+  1073741824, 1050733751, 1028218693, 1006186087, 984625594, 963527098, 942880699, 922676710,
+  902905651, 883558244, 864625413, 846098274, 827968132, 810226483, 792865000, 775875538,
+  759250125, 742980960, 727060411, 711481005, 696235434, 681316545, 666717336, 652430958,
+  638450708, 624770026, 611382493, 598281827, 585461881, 572916640, 560640218, 548626854,
+  536870912, 525366875, 514109347, 503093043, 492312797, 481763549, 471440350, 461338355,
+  451452825, 441779122, 432312707, 423049137, 413984066, 405113241, 396432500, 387937769,
+  379625062, 371490480, 363530205, 355740503, 348117717, 340658272, 333358668, 326215479,
+  319225354, 312385013, 305691246, 299140913, 292730940, 286458320, 280320109, 274313427,
+  268435456, 262683438, 257054673, 251546522, 246156398, 240881774, 235720175, 230669177,
+  225726413, 220889561, 216156353, 211524568, 206992033, 202556621, 198216250, 193968884,
+  189812531, 184854616, 178303937, 170340052, 161175057, 151044217, 140195988, 128882004,
+  117347594, 105823302, 94517808, 83612496, 73257813, 63571421, 54638039, 46510767,
+  39213636, 32745071, 27081952, 22183967, 17997976, 14462166, 11509812, 9072528,
+  7082941, 5476766, 4194304
+];
+
+// Filter Resonance (the Q, as the frequency, "Osc" for the self-oscillation, 123-127), Filter Drive and Distortion Drive
+// (the gain in dB, rounded), Stretch Tune (the cents at note number 108, rounded), Filter EG Amt, LFO Filter Amt, and
+// Breath Filter Amt (2x, with the max breath) (the cutoff in semitones), with the sign but where it does not fit (e.g. "110"
+// for +-110), as the panel and PRA32-U2 Native
+function filterTuneDispValue(number, value) {
+  var v = Math.min(parseInt(value), 127);
+  if (number == FILTER_RESO) {
+    return (v > 122) ? "Osc" : frequencyDispValue(Math.floor(4194304000 / (FILTER_K_TABLE[v] >> 8)));
+  } else if ((number == FILTER_DRIVE) || (number == DISTORTION)) {
+    var db = Math.max((v * 16441 + 32768) >> 16, (v == 0) ? 0 : 1);  // 20 * log10(2) / 24 = 16441 / 65536; 1 at least but at 0
+    return (db == 0) ? "0" : ("+" + String(db));
+  } else if ((number == FILTER_EG_AMT) || (number == LFO_FILTER_AMT) || (number == BTH_FILTER_AMT)) {
+    var n = Math.min(Math.max(v - 64, -60), 60);
+    var a = Math.abs(n) * ((number == BTH_FILTER_AMT) ? 4 : 2);
+    return (a == 0) ? "0" : (((a < 100) ? ((n > 0) ? "+" : "-") : "") + String(a));
+  }
+  var n = v - 64;  // Stretch Tune
+  var a = Math.abs(n);
+  return (a == 0) ? "0" : (((n > 0) ? "+" : "-") + String(Math.floor((a * 75 + 64) / 128)));
+}
+
+// EG Sustain, Amp Sustain, EG Level Velo Sens, and Amp Level Velo Sens, Mixer Osc Mix (Osc 2), LFO Depth, Chorus Level and
+// Delay Level, Delay Feedback (1% to 49% but at 0), and Filter Key Track, EG Att/Dec Velo Sens, EG Rel Velo Sens, and EG
+// Att/Dec Key Track (-100% to +100%), as the panel and PRA32-U2 Native: the % rounded, with the sign but where it does not
+// fit, and with "%" where it fits (e.g. "2%", "50%", "+3%", "+13", and "100")
+function percentDispValue(number, value) {
+  var v = Math.min(parseInt(value), 127);
+  var percent;
+  var n = 0;  // the sign (of the ones with the sign)
+  if ((number == EG_SUSTAIN) || (number == AMP_SUSTAIN) || (number == MIXER_OSC_MIX) ||  // Mixer Osc Mix: the power of Osc 2
+      (number == EG_VEL_SENS) || (number == AMP_VEL_SENS)) {
+    percent = Math.floor((((v + 1) >> 1) * 25 + 8) / 16);
+  } else if (number == LFO_DEPTH) {
+    percent = Math.floor((((v == 127) ? 128 : v) * 25 + 16) / 32);
+  } else if ((number == CHORUS_MIX) || (number == DELAY_LEVEL)) {
+    percent = Math.floor(((((v + 1) >> 1) << 1) * 25 + 16) / 32);
+  } else if (number == DELAY_FEEDBACK) {  // 0% to 49.6%
+    percent = (v == 0) ? 0 : Math.min(Math.max(Math.floor((v * 25 + 32) / 64), 1), 49);
+  } else {  // Filter Key Track, EG Att/Dec Velo Sens, EG Rel Velo Sens, and EG Att/Dec Key Track: -32 to +32 (1/32 each)
+    n = (v - 63) >> 1;
+    percent = Math.floor((Math.abs(n) * 25 + 4) / 8);
+  }
+  var text = (((n != 0) && (percent < 100)) ? ((n > 0) ? "+" : "-") : "") + String(percent);
+  return (text.length < 3) ? (text + "%") : text;  // "%" where it fits
+}
+
+// Amp Gain, as the panel and PRA32-U2 Native: the gain in dB, rounded, but -1 at most other than 127, and "Off" at 0
+// (-dB, by the gain of PRA32-U2: ((value * value) * 16384) / 16129 in Q14, the integer)
+const AMP_GAIN_MINUS_DB = [
+   0, 84, 72, 65, 60, 56, 53, 50, 48, 46, 44, 43, 41, 40, 38, 37,
+  36, 35, 34, 33, 32, 31, 30, 30, 29, 28, 28, 27, 26, 26, 25, 24,
+  24, 23, 23, 22, 22, 21, 21, 21, 20, 20, 19, 19, 18, 18, 18, 17,
+  17, 17, 16, 16, 16, 15, 15, 15, 14, 14, 14, 13, 13, 13, 12, 12,
+  12, 12, 11, 11, 11, 11, 10, 10, 10, 10,  9,  9,  9,  9,  8,  8,
+   8,  8,  8,  7,  7,  7,  7,  7,  6,  6,  6,  6,  6,  5,  5,  5,
+   5,  5,  5,  4,  4,  4,  4,  4,  3,  3,  3,  3,  3,  3,  2,  2,
+   2,  2,  2,  2,  2,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  0
+];
+function ampGainDispValue(value) {
+  var v = Math.min(parseInt(value), 127);
+  return (v == 0) ? "Off" : (v == 127) ? "0" : ("-" + String(AMP_GAIN_MINUS_DB[v]));
+}
+
 function updateDisplayOfControl(number, value) {
   var input = document.getElementById("input" + controlNumberToStringMap.get(number));
   input.value = parseInt(value);
@@ -1943,21 +2152,50 @@ function updateDisplayOfControl(number, value) {
       }
     }
     break;
-  case FILTER_EG_AMT   :
-  case FILTER_KEY_TRK  :
-  case LFO_FILTER_AMT  :
-  case A_D_VEL_SENS    :
-  case REL_VEL_SENS    :
-  case A_D_KEY_TRK     :
-  case STRETCH_TUNE    :
   case COARSE_TUNE     :
-  case FINE_TUNE       :
-  case BTH_FILTER_AMT  :
     if (value >= 64) {
       dispValue = "+" + String(value - 64);
     } else {
       dispValue = String(value - 64);
     }
+    break;
+  case FILTER_CUTOFF   :
+    dispValue = cutoffDispValue(value);
+    alwaysShown = true;  // shown even if the same as the value, as the panel
+    break;
+  case FINE_TUNE       :
+    dispValue = fineTuneDispValue(value);
+    alwaysShown = true;
+    break;
+  case FILTER_RESO     :
+  case FILTER_DRIVE    :
+  case DISTORTION      :
+  case STRETCH_TUNE    :
+  case FILTER_EG_AMT   :
+  case LFO_FILTER_AMT  :
+  case BTH_FILTER_AMT  :
+    dispValue = filterTuneDispValue(number, value);
+    alwaysShown = true;
+    break;
+  case AMP_GAIN        :
+    dispValue = ampGainDispValue(value);
+    alwaysShown = true;
+    break;
+  case EG_SUSTAIN      :
+  case AMP_SUSTAIN     :
+  case MIXER_OSC_MIX   :
+  case LFO_DEPTH       :
+  case CHORUS_MIX      :
+  case DELAY_LEVEL     :
+  case DELAY_FEEDBACK  :
+  case FILTER_KEY_TRK  :
+  case A_D_VEL_SENS    :
+  case REL_VEL_SENS    :
+  case A_D_KEY_TRK     :
+  case EG_VEL_SENS     :
+  case AMP_VEL_SENS    :
+    dispValue = percentDispValue(number, value);
+    alwaysShown = true;
     break;
   case OSC_1_SHAPE     :
   case OSC_1_MORPH     :
@@ -1968,6 +2206,23 @@ function updateDisplayOfControl(number, value) {
         alwaysShown = true;  // shown even if the same as the value, as the panel
       }
     }
+    break;
+  case EG_ATTACK       :
+  case AMP_ATTACK      :
+  case EG_DECAY        :
+  case EG_RELEASE      :
+  case AMP_DECAY       :
+  case AMP_RELEASE     :
+    dispValue = timeDispValue(value, (number != EG_ATTACK) && (number != AMP_ATTACK));
+    alwaysShown = true;  // shown even if the same as the value, as the panel
+    break;
+  case PORTAMENTO      :
+  case LFO_FADE_TIME   :
+  case LFO_RATE        :
+  case CHORUS_RATE     :
+  case CHORUS_DEPTH    :
+    dispValue = timeRateDispValue(number, value);
+    alwaysShown = true;
     break;
   case PAN             :  // L63 (0 and 1, the same) to C (64) to R63 (127), as the panel and PRA32-U2 Native
     dispValue = (value > 64) ? ("R" + String(value - 64)) : (value == 64) ? "C" : ("L" + String(Math.min(64 - value, 63)));

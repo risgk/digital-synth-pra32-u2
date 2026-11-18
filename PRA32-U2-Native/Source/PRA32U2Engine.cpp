@@ -289,7 +289,7 @@ bool PRA32U2Engine::isRandomizedAsFx(uint8_t controlNumber) {
 }
 
 // The same as updateDisplayOfControl() of PRA32-U2 Editor (pra32-u2-editor.html)
-std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value, uint8_t osc1Wave, uint8_t modDst) {
+std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value, uint8_t osc1Wave, uint8_t relatedValue) {
   const int v = value;
   std::string dispValue = std::to_string(v);
 
@@ -346,21 +346,81 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value, ui
   case OSC_2_PITCH     : return std::to_string(v) + " [" + pitchText(v, true) + "]";  // shown even if the same as the value
   case EG_OSC_AMT      :
   case LFO_OSC_AMT     :  // As the pitch, if EG Mod Dst or LFO Mod Dst is P or 2P; as the value otherwise
-    if ((((modDst * 10) + 128) >> 8) <= 3) {
+    if ((((relatedValue * 10) + 128) >> 8) <= 3) {
       return std::to_string(v) + " [" + pitchText(v, false) + "]";
     }
     dispValue = bipolar(v);
     break;
+  case COARSE_TUNE     : dispValue = bipolar(v);                     break;
+  case FILTER_CUTOFF   :
+  case FINE_TUNE       :
+  case FILTER_RESO     :
+  case FILTER_DRIVE    :
+  case DISTORTION      :
+  case STRETCH_TUNE    :
   case FILTER_EG_AMT   :
-  case FILTER_KEY_TRK  :
   case LFO_FILTER_AMT  :
+  case BTH_FILTER_AMT  :
+  case FILTER_KEY_TRK  :
   case A_D_VEL_SENS    :
   case REL_VEL_SENS    :
   case A_D_KEY_TRK     :
-  case STRETCH_TUNE    :
-  case COARSE_TUNE     :
-  case FINE_TUNE       :
-  case BTH_FILTER_AMT  : dispValue = bipolar(v);                     break;
+  case EG_VEL_SENS     :
+  case AMP_VEL_SENS    :
+  case AMP_GAIN        :
+  case EG_SUSTAIN      :
+  case AMP_SUSTAIN     :
+  case MIXER_OSC_MIX   :
+  case LFO_DEPTH       :
+  case CHORUS_MIX      :
+  case DELAY_LEVEL     :
+  case DELAY_FEEDBACK  : {  // As the panel (the same functions): e.g. "262", "1k2", "20k" (Hz), "100" (-100 cents), "5.7" (Q), "+6" (dB), "50%"
+    char text[5] = {};
+    if (controlNumber == FILTER_CUTOFF) {
+      PRA32_U2_ControlPanel_calc_value_display_cutoff(value, text);
+    } else if (controlNumber == FINE_TUNE) {
+      PRA32_U2_ControlPanel_calc_value_display_fine_tune(value, text);
+    } else if (!PRA32_U2_ControlPanel_calc_value_display_percent(controlNumber, value, text)) {
+      PRA32_U2_ControlPanel_calc_value_display_filter_tune(controlNumber, value, text);
+    }
+    std::string trimmed(text);
+    trimmed.erase(0, trimmed.find_first_not_of(' '));
+    return std::to_string(v) + " [" + trimmed + "]";  // shown even if the same as the value, as the panel
+  }
+  case EG_ATTACK       :
+  case AMP_ATTACK      :
+  case EG_DECAY        :
+  case EG_RELEASE      :
+  case AMP_DECAY       :
+  case AMP_RELEASE     : {  // As timeDispValue() of PRA32-U2 Editor: the milliseconds without the unit, and the seconds with "."
+    static const uint32_t MANTISSAS[32] = {
+      10000, 10746, 11548, 12409, 13335, 14330, 15399, 16548, 17783, 19110, 20535, 22067, 23714, 25483, 27384, 29427,
+      31623, 33982, 36517, 39242, 42170, 45316, 48697, 52330, 56234, 60430, 64938, 69783, 74989, 80584, 86596, 93057
+    };
+    static const uint32_t DECADES[4] = { 1, 10, 100, 1000 };
+    const bool decayRelease = (controlNumber != EG_ATTACK) && (controlNumber != AMP_ATTACK);
+    const uint32_t t = MANTISSAS[v & 0x1F] * (decayRelease ? 3 : 1) * DECADES[(v >> 5) & 0x03];  // in 1/10000 ms
+    std::string text;
+    if (t < 9995000) {
+      text = std::to_string((t + 5000) / 10000);
+    } else {
+      const uint32_t tenths = (t + 500000) / 1000000;
+      text = (tenths < 100) ? (std::to_string(tenths / 10) + "." + std::to_string(tenths % 10))
+                            : (std::to_string((t + 5000000) / 10000000) + ".");
+    }
+    return std::to_string(v) + " [" + text + "]";  // shown even if the same as the value, as the panel
+  }
+  case PORTAMENTO      :
+  case LFO_FADE_TIME   :
+  case LFO_RATE        :
+  case CHORUS_RATE     :
+  case CHORUS_DEPTH    : {  // As the panel (the same function, PRA32_U2_ControlPanel_calc_value_display_time_rate())
+    char text[5] = {};
+    PRA32_U2_ControlPanel_calc_value_display_time_rate(controlNumber, value, relatedValue, text);
+    std::string trimmed(text);
+    trimmed.erase(0, trimmed.find_first_not_of(' '));
+    return std::to_string(v) + " [" + trimmed + "]";  // shown even if the same as the value, as the panel
+  }
   case PAN             : dispValue = (v > 64) ? ("R" + std::to_string(v - 64)) : (v == 64) ? std::string("C")
                                                   : ("L" + std::to_string(std::min(64 - v, 63)));  break;  // L63 (0 and 1) to R63
   case MIXER_SUB_OSC   : dispValue = twoSides(v, "N", "S");                   break;  // N64 to 0 to S64, as it works
@@ -577,9 +637,10 @@ uint8_t PRA32U2Engine::getOsc1Wave() const {
   return getControllerValue(OSC_1_WAVE);
 }
 
-uint8_t PRA32U2Engine::getModDst(uint8_t controlNumber) const {
+uint8_t PRA32U2Engine::getRelatedValue(uint8_t controlNumber) const {
   return (controlNumber == EG_OSC_AMT)  ? getControllerValue(EG_OSC_DST)  :
-         (controlNumber == LFO_OSC_AMT) ? getControllerValue(LFO_OSC_DST) : 0;
+         (controlNumber == LFO_OSC_AMT) ? getControllerValue(LFO_OSC_DST) :
+         (controlNumber == LFO_RATE)    ? getControllerValue(LFO_WAVE)    : 0;
 }
 
 uint8_t PRA32U2Engine::getControllerValue(uint8_t controlNumber) const {
