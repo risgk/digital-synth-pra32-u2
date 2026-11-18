@@ -4,7 +4,7 @@
 
 The diagrams of the Osc, the Filter, the FX (Distortion FX, Chorus FX, Delay FX, and Reverb), the Output Compressor, and PRA32-U2/M,
 and the graphs of the Wave Tables.
-For the whole synthesizer, see [Synthesizer Block Diagram](./README.md#synthesizer-block-diagram) in README.md.
+For the whole synthesizer, see [Synthesizer Block Diagram](../README.md#synthesizer-block-diagram) in README.md.
 Solid arrows carry audio (thick ones the stereo audio, L / R), dashed arrows carry control.
 
 
@@ -369,6 +369,6 @@ flowchart LR
 
 ## Wave Table Graphs
 
-![Wave Table Graphs](./pra32-u2-wave-table-graphs.png)
+![Wave Table Graphs](./images/pra32-u2-wave-table-graphs.png)
 
-The source data of the graphs: [pra32-u2-wave-table-graphs.ods](./pra32-u2-wave-table-graphs.ods)
+The source data of the graphs: [pra32-u2-wave-table-graphs.ods](./images/pra32-u2-wave-table-graphs.ods)

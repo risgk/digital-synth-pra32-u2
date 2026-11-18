@@ -30,7 +30,7 @@ uint8_t g_midi_ch = PRA32_U2_MIDI_CH;
 
 #include "../Digital-Synth-PRA32-U2/pra32-u2-common.h"
 #include "../Digital-Synth-PRA32-U2/pra32-u2-synth.h"
-#include "../pra32-u2-wav-file-out.h"
+#include "./pra32-u2-wav-file-out.h"
 
 PRA32_U2_Synth<false, false, true, 0, false> g_synth;
 PRA32_U2_Synth<true,  false, true, 1, true>  g_sub_1_synth;

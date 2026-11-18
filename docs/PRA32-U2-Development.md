@@ -83,7 +83,7 @@
 
 ## Load Estimate
 
-- [PRA32-U2 Load Estimate](./PRA32-U2-Load-Estimate/README.md) estimates the load of each core without the hardware, from the UF2 build,
+- [PRA32-U2 Load Estimate](../PRA32-U2-Load-Estimate/README.md) estimates the load of each core without the hardware, from the UF2 build,
   in a few cases (e.g. the heaviest Osc 1 Wave and Delay Mode), and keeps the estimates of each version
 
 
@@ -105,16 +105,16 @@
 
 ## Files and Tools
 
-- [PRA32-U2/M Demo](./PRA32-U2-M-Demo/README.md): "pra32-u2-m-make-wav-file-from-smf.cc" (GCC) renders a Standard MIDI File with PRA32-U2/M to a WAV file on PC
+- [PRA32-U2/M Demo](../PRA32-U2-M-Demo/README.md): "pra32-u2-m-make-wav-file-from-smf.cc" (GCC) renders a Standard MIDI File with PRA32-U2/M to a WAV file on PC
   ("pra32-u2-m-make-wav-file-from-smf-cc.bat" on Windows), for checking a change of the sound:
-    - "pra32-u2-sample.mid", which "pra32-u2-generate-sample-smf.rb" (Ruby) makes: the sample of PRA32-U2 (MIDI Channel 1 only, which the Main Synth plays as PRA32-U2 does);
+    - "PRA32-U2-Sample/pra32-u2-sample.mid", which "pra32-u2-generate-sample-smf.rb" (Ruby) makes: the sample of PRA32-U2 (MIDI Channel 1 only, which the Main Synth plays as PRA32-U2 does);
       "pra32-u2-make-sample-wav-file-cc.bat" renders it on Windows
     - The demo song "pra32-u2-m-demo-ode-to-joy.mid": PRA32-U2/M (the 4 synths)
 
     ```
     cd PRA32-U2-M-Demo
     g++ -O2 -std=gnu++17 pra32-u2-m-make-wav-file-from-smf.cc -o pra32-u2-m-make-wav-file-from-smf
-    ./pra32-u2-m-make-wav-file-from-smf ../pra32-u2-sample.mid pra32-u2-sample.wav
+    ./pra32-u2-m-make-wav-file-from-smf ../PRA32-U2-Sample/pra32-u2-sample.mid pra32-u2-sample.wav
     ```
 
 - GitHub Actions "PRA32-U2 Build (UF2, Native, and Web)" (".github/workflows/pra32-u2.yml", manual runs): builds the UF2 files and PRA32-U2 Web, and PRA32-U2 Native
@@ -129,12 +129,12 @@ Basically, a release goes as follows:
 1. Check it on the device: PRA32-U2, PRA32-U2/M, and PRA32-U2/M/P Headless, whose UF2 files are released (/P and /M/P with the panel are built by the users)
 2. In PRA32-U2-Change-History.md, set the date of the version (instead of "2026-??-??"), and "Tested with Arduino-Pico version"
 3. Change the version: `PRA32_U2_VERSION` in "Digital-Synth-PRA32-U2.ino", "Digital-Synth-PRA32-U2-M.ino", and the 4 files in "customization-examples";
-   `APP_NAME_VERSION` in "pra32-u2-editor.html"; `_version` in the 3 program JSON files (the 2 preset files and "PRA32-U2-M-Demo/pra32-u2-m-demo-ode-to-joy.json"); the headings of README.md and README.ja.md,
+   `APP_NAME_VERSION` in "pra32-u2-editor.html"; `_version` in the 3 program JSON files (the 2 files in "presets" and "PRA32-U2-M-Demo/pra32-u2-m-demo-ode-to-joy.json"); the headings of README.md and README.ja.md,
    and the dates under them ("YYYY-MM-DD ISGK Instruments"); the License of README.md; the Info page in README-PRA32-U2-P.md;
-   and the Version and the Date of PRA32-U2-MIDI-Implementation-Chart.md, all of them at every release
+   and the Version and the Date of "docs/PRA32-U2-MIDI-Implementation-Chart.md", all of them at every release
    (the other documents have no version or date)
 4. Estimate the load with `sh PRA32-U2-Load-Estimate/pra32-u2-load-estimate.sh` (it takes the version from "Digital-Synth-PRA32-U2.ino"),
-   and replace the tables in [PRA32-U2 Load Estimate](./PRA32-U2-Load-Estimate/README.md) with those printed
+   and replace the tables in [PRA32-U2 Load Estimate](../PRA32-U2-Load-Estimate/README.md) with those printed
 5. Commit them all as "vX.Y.Z"
 6. Run "PRA32-U2 Build" on develop with `commit_package` only, for the UF2 files and PRA32-U2 Web
    (`load_estimate` is for an estimate without arduino-cli at hand: the tables are in the summary of the run, and they are committed by hand)

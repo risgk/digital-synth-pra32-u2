@@ -5,7 +5,7 @@
 
 ## PRA32-U2/P (PRA32-U2 with Panel) (Optional)
 
-![PRA32-U2/P (Grove System)](./pra32-u2-with-panel-grove-system.jpg)
+![PRA32-U2/P (Grove System)](./docs/images/pra32-u2-with-panel-grove-system.jpg)
 
 - Features
     - Editing and displaying parameters by panel operation
@@ -132,7 +132,7 @@
 - Step Sequencer Operations
     - Seq Rand Pitch (Randomize Pitch 0-7, or 0-3 with Seq Pattern 4x4): Change the value from 0-31 [Rdy] to 96-127 [Exe]
     - Seq Rand Velo (Randomize Velo 0-7): Change the value from 0-31 [Rdy] to 96-127 [Exe]
-- Control Parameters (see [Performance Controllers](./PRA32-U2-Parameter-Guide.md#performance-controllers) in the Parameter Guide)
+- Control Parameters (see [Performance Controllers](./docs/PRA32-U2-Parameter-Guide.md#performance-controllers) in the Parameter Guide)
     - Pitch Bend: the MSB only (64 is the center, and 127 is the max, +8191)
     - Modulation Wheel
     - Breath Controller
@@ -168,13 +168,13 @@
 ### Panel Channel
 
 - The Control Changes on the Panel Channel (the Basic Channel + 14, 15 by default) control the Panel and Step Sequencer Parameters
-  and the operations (Write Panel Prms, Seq Rand Pitch, etc.), as the panel does: see the [MIDI Implementation Chart of the Panel Channel](./PRA32-U2-P-Panel-Channel-MIDI-Implementation-Chart.md)
+  and the operations (Write Panel Prms, Seq Rand Pitch, etc.), as the panel does: see the [MIDI Implementation Chart of the Panel Channel](./docs/PRA32-U2-P-Panel-Channel-MIDI-Implementation-Chart.md)
     - Enabled by default: comment out `#define PRA32_U2_USE_PANEL_CHANNEL` not to use it
     - The CC numbers are only those that the synth parameters use (the others are left free), except those that a DAW or a keyboard may send by itself
 - "Panel & Step Sequencer" of [PRA32-U2 Editor](./README.md#pra32-u2-editor) (hidden by default) edits them by the Panel Channel
   (also those of PRA32-U2/M/P Web (Built-in))
     - "Basic Ch": that of PRA32-U2 (not "MIDI Ch" of the editor); "Set Basic Ch (to Device)" changes it on PRA32-U2 too (kept by Write)
-    - PRA32-U2 sends nothing back: "Send Panel" sends the values that the editor keeps ("pra32-u2-panel-initial.json": the initial ones);
+    - PRA32-U2 sends nothing back: "Send Panel" sends the values that the editor keeps ("presets/pra32-u2-panel-initial.json": the initial ones);
       Export keeps the Basic Ch too, which Import sets on PRA32-U2 if asked
     - The values are kept (in the browser, and in the files of Export) by the names of the panel parameters (e.g. "SEQ_TEMPO"), as the synth parameters are
     - "Key" plays Panel Play Pitch while pressed (Panel Key, CC #110), as the Play Key in Key Mode and K+S; "Play" ("Seq Play" in K+S and Seq Mode)
@@ -194,7 +194,7 @@
 
 ### Circuit Diagram
 
-![Circuit Diagram](./pra32-u2-with-panel-circuit-diagram.png)
+![Circuit Diagram](./docs/images/pra32-u2-with-panel-circuit-diagram.png)
 
 - This image was created with Fritzing.
     - Actually, it is necessary to use Raspberry Pi Pico 2 (instead of Raspberry Pi Pico)
@@ -206,7 +206,7 @@
 - Using a universal PCB, GY-PCM5102 (PCM5102A I2S DAC Module), 6 SWs, 3 VRs, an OLED Display, and an M5Stack MIDI Unit (optional)
     - A connection between Raspberry Pi Pico 2's Mute Off Pin and GY-PCM5102's XSMT is omitted
 
-![PRA32-U2/P (Universal PCB)](./pra32-u2-with-panel-universal-pcb.jpg)
+![PRA32-U2/P (Universal PCB)](./docs/images/pra32-u2-with-panel-universal-pcb.jpg)
 
 
 ### An Example of Construction Using a Breadboard
@@ -214,7 +214,7 @@
 - Using a breadboard, GY-PCM5102 (PCM5102A I2S DAC Module), 3 SWs, 3 VRs, and an OLED Display
     - A connection between Raspberry Pi Pico 2's Mute Off Pin and GY-PCM5102's XSMT is omitted
 
-![PRA32-U2/P (Bread Board)](./pra32-u2-with-panel-breadboard.jpg)
+![PRA32-U2/P (Bread Board)](./docs/images/pra32-u2-with-panel-breadboard.jpg)
 
 
 ### Table of GUI Pages

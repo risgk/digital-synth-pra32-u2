@@ -66,6 +66,8 @@
         - The marker of the center on Pan and Osc 1 Shape (PRA32-U2 Native too), and the slider of Osc 1 Morph snaps to the wave tables with Osc 1 Wave WT
         - The headings inside another (the 3 parts of "Panel & Step Sequencer", and "Performance Controls") a little to the right
         - PRA32-U2 Web: "Click (or tap) to start the audio" is shown as soon as it is chosen in MIDI Out (nothing sent then, as before)
+    - The files moved: the documents (other than README.md, README.ja.md, README-PRA32-U2-P.md, and this Change History) and their images to "docs",
+      the preset JSON files to "presets", and the sample Standard MIDI File and its tools to "PRA32-U2-Sample" ("pra32-u2-wav-file-out.h" to "PRA32-U2-M-Demo")
     - Tested with Arduino-Pico version 6.3.0
 - v3.21.0 (2026-11-15):
     - **Filter Mode** [LP|BR|HP|BP|LP] changes smoothly: Low Pass (0 and 127), Band Reject (32), High Pass (64), and Band Pass (96), crossfaded in between

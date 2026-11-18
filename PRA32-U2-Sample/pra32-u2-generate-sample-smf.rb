@@ -1,4 +1,4 @@
-require_relative 'Digital-Synth-PRA32-U2/pra32-u2-constants'
+require_relative '../Digital-Synth-PRA32-U2/pra32-u2-constants'
 
 # The sample Standard MIDI File "pra32-u2-sample.mid", for checking a change of the sound on PC with
 # "PRA32-U2-M-Demo/pra32-u2-m-make-wav-file-from-smf.cc" (PRA32-U2/M, whose Main Synth on MIDI Channel 1 plays
