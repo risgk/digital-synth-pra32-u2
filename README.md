@@ -45,7 +45,7 @@
 
 ## [Parameter Guide](./PRA32-U2-Parameter-Guide.md)
 
-- See [Main Parameters](./PRA32-U2-Parameter-Guide.md#main-parameters) first: the main parameters, and the Preset to start from
+- See [Main Parameters](./PRA32-U2-Parameter-Guide.md#main-parameters) first: the main parameters (and the Preset to start from: see [Programs and Presets](#programs-and-presets))
 
 
 ## [MIDI Implementation Chart](./PRA32-U2-MIDI-Implementation-Chart.md)
@@ -145,6 +145,10 @@ graph LR
     - #16-31: the factory presets (the same as the programs #16-31 of PRA32-U2)
     - To select the programs of PRA32-U2 itself, send Program Changes to PRA32-U2 directly (without PRA32-U2 Editor),
       or use the Program Change buttons (in "Write & Program Change")
+- To make a sound, we recommend starting from the Preset "#19 Plain Poly", rather than "#23 Initial"
+    - "#19 Plain Poly" is a plain Saw Wave sound (Osc 1 Wave: Pulse Wave, with Osc 1 Morph: Saw 100%) in Poly, with the FX on (Chorus, and Reverb), while "#23 Initial" is in Mono, with the FX off
+    - In "#19 Plain Poly", Osc 1 Morph changes the wave from the Saw: lower to a Pulse, higher to 2 Saws, with the pulse width (or the phase of the 2nd Saw) set by Osc 1 Shape (Osc 1 Shape has no effect while Osc 1 Morph is 64)
+    - In both, EG Amp Mod is On: the EG also works as the Amp EG, so the Amp Attack/Decay/Sustain/Release are not used
 - Sounds made with PRA32-U2 Editor can be written to PRA32-U2, and recalled later without PRA32-U2 Editor
     1. Write: press a Write button (#0-15, in "Write & Program Change") of PRA32-U2 Editor, to write the current parameters
        to the program of PRA32-U2 (also to the flash, so that they are kept after the power is turned off);
