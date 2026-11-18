@@ -63,6 +63,7 @@ class PRA32_U2_Osc {
   uint32_t       m_phase[4 * 2];
   int32_t        m_drift_noise[4 * 2];
   uint32_t       m_phase_shape_morph[4];
+  uint32_t       m_freq_shape_morph[4];          // Saw Wave: the detune of the Multi Saw a sample (see update_multi_saw_detune())
   boolean        m_osc_on[4];
 
   uint8_t        m_mixer_osc_mix_target;
@@ -131,6 +132,7 @@ public:
   , m_phase()
   , m_drift_noise()
   , m_phase_shape_morph()
+  , m_freq_shape_morph()
   , m_osc_on()
 
   , m_mixer_osc_mix_target()
@@ -242,6 +244,10 @@ public:
     m_osc1_shape_current[1] = 0;
     m_osc1_shape_current[2] = 0;
     m_osc1_shape_current[3] = 0;
+    update_multi_saw_detune<0>();  // From the first sample, as the frequency and the Shape above (then at the control rate)
+    update_multi_saw_detune<1>();
+    update_multi_saw_detune<2>();
+    update_multi_saw_detune<3>();
     m_osc1_shape_lfo_target[0] = 0;
     m_osc1_shape_lfo_target[1] = 0;
     m_osc1_shape_lfo_target[2] = 0;
@@ -534,6 +540,25 @@ public:
     }
 
     update_tri_fold<N, RESTRICT_SQR_WT>();
+    update_multi_saw_detune<N>();
+  }
+
+  // Osc 1 Saw: the detune of the Multi Saw a sample, by the Shape and the frequency of Osc 1 (both updated above, at the
+  // control rate). The tune (9 at the Shape 0 to 307 at 128) is (k * 2385) >> 8 at the steps k = 1 to 33, 4 values of the
+  // Shape a step, and in between interpolated linearly by the Shape in Q8 (10 bits of the fraction), so that it changes
+  // smoothly (also with the EG and LFO modulations); at the multiples of 4, the same as before (the steps alone)
+  template <uint8_t N>
+  INLINE void update_multi_saw_detune() {
+    uint32_t depth    = maximum(m_osc1_shape_current[N] - (128 << 8), 0);  // 0 to 128 << 8
+    uint32_t k        = (depth >> 10) + 1;                                 // 1 to 33
+    uint32_t fraction = depth & 0x3FF;
+    uint32_t tune_0   = (k * 2385) >> 8;
+    uint32_t tune_1   = ((k + 1) * 2385) >> 8;
+    uint32_t tune_q10 = (tune_0 << 10) + ((tune_1 - tune_0) * fraction);
+    const int8_t MORPH_TUNE_DENOM_BITS = 15;
+    uint32_t freq_shape_morph =
+      static_cast<uint32_t>((static_cast<uint64_t>(m_freq[N] >> 1) * tune_q10) >> (MORPH_TUNE_DENOM_BITS + 10));
+    m_freq_shape_morph[N] = (freq_shape_morph << 1) + (N + 4);
   }
 
   INLINE void process_at_low_rate_global(uint8_t count) {
@@ -657,25 +682,9 @@ private:
       m_osc1_phase_modulation_frequency_ratio[N] = (m_osc1_phase_modulation_frequency_ratio[N] * (1 - new_period_osc1)) + (phase_modulation_frequency_ratio_candidate * new_period_osc1);
     } else if ((m_waveform[0] == WAVEFORM_SAW) || (m_waveform[0] == WAVEFORM_SAW2)) {
 if constexpr (RESTRICT_SAW == false) {
-      int32_t phase_modulation_depth = maximum(m_osc1_shape_current[N] - (128 << 8), 0);
-
-      // 1. Calculate the original table index from depth
-      int32_t detune_idx = (((phase_modulation_depth + 512) >> 10) + 1 + 128);
-
-      // 2. Generate the precise equivalent of the tune table value without the table.
-      // The original table has a strict slope of approx. 9.3175 per step from the center (128).
-      // This high-precision scaling (* 2385 >> 8) matches the original detune speed perfectly.
-      int32_t osc_tune_value = ((detune_idx - 128) * 2385) >> 8;
-
-      const int8_t MORPH_TUNE_DENOM_BITS = 15;
-
-      // 3. Keep the original multiplication structure to maintain correct phase accumulation
-      uint32_t freq_shape_morph =
-        ((static_cast<int32_t>(m_freq[N] >> 1) * osc_tune_value) >> MORPH_TUNE_DENOM_BITS);
-      freq_shape_morph = (freq_shape_morph >> 0) << 1;
-      freq_shape_morph += (N + 4);
+      // The detune a sample, by update_multi_saw_detune() at the control rate
       const uint32_t phase_shape_morph = m_phase_shape_morph[N];
-      m_phase_shape_morph[N] = phase_shape_morph + freq_shape_morph;
+      m_phase_shape_morph[N] = phase_shape_morph + m_freq_shape_morph[N];
 
       uint32_t phase_shift_base = (127 * (4 - ((N + SYNTH_ID) & 0x03))) << (5 + 16 - 2);
 

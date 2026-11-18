@@ -43,7 +43,7 @@
     - +63 (127): Sub Osc 100% (max)
     - Shown: "N64", "N62" (1-2), ..., "0", ..., "S64"
 - Osc 1 Shape (127 is taken as 128)
-    - Saw Wave: Multi Saw Detune (7 saws, 33 steps of 4 values)
+    - Saw Wave: Multi Saw Detune (7 saws), changing smoothly with the Shape (and its EG and LFO modulations)
         - Shown: the detune of the outer 2 saws in cents (e.g. "2.4" at 0, "41" at 64, and "79" at 127)
     - Square Wave: Sync Square Pitch, the frequency ratio 2^(value / 32) / 2 (an octave every 32 values)
         - Shown: the ratio (e.g. ".50" at 0, "1.0" at 32, and "8.0" at 127)

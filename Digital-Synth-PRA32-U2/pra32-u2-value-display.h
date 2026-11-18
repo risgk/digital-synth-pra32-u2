@@ -287,15 +287,22 @@ static __attribute__((noinline)) void __not_in_flash_func(PRA32_U2_ControlPanel_
 
 // Osc 1 Shape by Osc 1 Wave (0: Saw, 1: Sqr, 2: Tri, 3: Sin, 4: WT; Pls by the panel), as it works (127 is taken as 128;
 // the same as osc1DispValue() of PRA32-U2 Editor): Saw: the detune of the outer 2 saws of the Multi Saw, in cents (the
-// upper one, 1200 * log2(1 + 5 * tune / 32768), 33 steps of 4 values, "2.4" to "79"); Sqr: the frequency ratio of the Sync
+// upper one, 1200 * log2(1 + 5 * tune / 32768), the tune interpolated between the steps of 4 values, "2.4" to "79"); Sqr: the frequency ratio of the Sync
 // Square, 2^(Shape / 32) / 2 (the table has the 2^(Shape / 32) turns of the square a period: ".50" to "8.0"); Tri: the gain of the fold, 1 + Shape / 16 ("1.0" to "9.0", lowered at a high
 // pitch); Sin: the depth of the phase modulation in periods, Shape / 32 ("0" to "4.0"); WT: the Shape (0-126, and "128");
 // in 0.001 (truncated) as the frequency, by the tables of the exact values (so that they are rounded only once)
 static __attribute__((noinline)) boolean __not_in_flash_func(PRA32_U2_ControlPanel_calc_value_display_osc_1_shape)(uint32_t wave, uint8_t controller_value, char value_display_text[5]) {
-  static const uint32_t ary_saw_milli_cents[33] PRA32_U2_TABLE_IN_RAM(panel_text) = {
-    2375, 4748, 7117, 9746, 12109, 14468, 17086, 19438, 21788, 24394, 26737,
-    29076, 31672, 34005, 36335, 38919, 41242, 43562, 46136, 48450, 50760, 53068,
-    55628, 57928, 60226, 62775, 65067, 67355, 69894, 72176, 74455, 76983, 79256
+  // The detune in 0.01 cents (truncated) for each Shape, 0-128 (the tune interpolated as PRA32_U2_Osc::update_multi_saw_detune())
+  static const uint16_t ary_saw_centi_cents[129] PRA32_U2_TABLE_IN_RAM(panel_text) = {
+    237, 296, 356, 415, 474, 534, 593, 652, 711, 777, 843, 908, 974, 1033, 1092, 1151,
+    1210, 1269, 1328, 1387, 1446, 1512, 1577, 1643, 1708, 1767, 1826, 1885, 1943, 2002, 2061, 2120,
+    2178, 2244, 2309, 2374, 2439, 2498, 2556, 2615, 2673, 2732, 2790, 2849, 2907, 2972, 3037, 3102,
+    3167, 3225, 3283, 3342, 3400, 3458, 3517, 3575, 3633, 3698, 3762, 3827, 3891, 3950, 4008, 4066,
+    4124, 4182, 4240, 4298, 4356, 4420, 4485, 4549, 4613, 4671, 4729, 4787, 4845, 4902, 4960, 5018,
+    5076, 5133, 5191, 5249, 5306, 5370, 5434, 5498, 5562, 5620, 5677, 5735, 5792, 5850, 5907, 5965,
+    6022, 6086, 6150, 6213, 6277, 6334, 6392, 6449, 6506, 6563, 6621, 6678, 6735, 6799, 6862, 6926,
+    6989, 7046, 7103, 7160, 7217, 7274, 7331, 7388, 7445, 7508, 7572, 7635, 7698, 7755, 7812, 7868,
+    7925
   };
   // 2^(Shape / 32) for the top octave (96-127) in 0.001 * 65536, truncated, shifted right by the octaves below it and by 17 (/ 2)
   static const uint32_t ary_sqr_top_octave[32] PRA32_U2_TABLE_IN_RAM(panel_text) = {
@@ -308,7 +315,7 @@ static __attribute__((noinline)) boolean __not_in_flash_func(PRA32_U2_ControlPan
   uint32_t milli;
 
   if (wave == 0) {
-    milli = ary_saw_milli_cents[(shape + 2) >> 2];
+    milli = ary_saw_centi_cents[shape] * 10;
   } else if (wave == 1) {
     if (shape >= 128) {
       milli = 8000;

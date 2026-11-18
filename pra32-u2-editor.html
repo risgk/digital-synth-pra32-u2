@@ -1869,10 +1869,16 @@ function twoSidesDispValue(value, minus, plus) {
 // Saw: the detune of the outer 2 saws of the Multi Saw in cents ("2.4" to "79"), Sqr: the frequency ratio of the Sync Square
 // (2^(Shape / 32) / 2, ".50" to "8.0"), Tri: the gain of the fold ("1.0" to "9.0"), Sin: the depth of the phase modulation in periods ("0" to "4.0"),
 // and WT: the Shape (0-126, and "128"); by the tables of the exact values in 0.001 (truncated), as the panel
-const OSC_1_SAW_MILLI_CENTS = [
-  2375, 4748, 7117, 9746, 12109, 14468, 17086, 19438, 21788, 24394, 26737,
-  29076, 31672, 34005, 36335, 38919, 41242, 43562, 46136, 48450, 50760, 53068,
-  55628, 57928, 60226, 62775, 65067, 67355, 69894, 72176, 74455, 76983, 79256
+const OSC_1_SAW_CENTI_CENTS = [  // The detune in 0.01 cents (truncated) for each Shape, 0-128, as the panel
+  237, 296, 356, 415, 474, 534, 593, 652, 711, 777, 843, 908, 974, 1033, 1092, 1151,
+  1210, 1269, 1328, 1387, 1446, 1512, 1577, 1643, 1708, 1767, 1826, 1885, 1943, 2002, 2061, 2120,
+  2178, 2244, 2309, 2374, 2439, 2498, 2556, 2615, 2673, 2732, 2790, 2849, 2907, 2972, 3037, 3102,
+  3167, 3225, 3283, 3342, 3400, 3458, 3517, 3575, 3633, 3698, 3762, 3827, 3891, 3950, 4008, 4066,
+  4124, 4182, 4240, 4298, 4356, 4420, 4485, 4549, 4613, 4671, 4729, 4787, 4845, 4902, 4960, 5018,
+  5076, 5133, 5191, 5249, 5306, 5370, 5434, 5498, 5562, 5620, 5677, 5735, 5792, 5850, 5907, 5965,
+  6022, 6086, 6150, 6213, 6277, 6334, 6392, 6449, 6506, 6563, 6621, 6678, 6735, 6799, 6862, 6926,
+  6989, 7046, 7103, 7160, 7217, 7274, 7331, 7388, 7445, 7508, 7572, 7635, 7698, 7755, 7812, 7868,
+  7925
 ];
 const OSC_1_SQR_TOP_OCTAVE = [  // 2^(Shape / 32) for 96-127 in 0.001 * 65536, truncated
   524288000, 535768412, 547500212, 559488906, 571740118, 584259596, 597053215, 610126978,
@@ -1884,7 +1890,7 @@ function osc1ShapeDispValue(indexOsc1Wave, value) {
   var shape = (value >= 127) ? 128 : parseInt(value);
   var milli;
   if (indexOsc1Wave == 0) {
-    milli = OSC_1_SAW_MILLI_CENTS[(shape + 2) >> 2];
+    milli = OSC_1_SAW_CENTI_CENTS[shape] * 10;
   } else if (indexOsc1Wave == 1) {
     var octaves = (127 - shape) >> 5;
     milli = (shape >= 128) ? 8000 : Math.floor(OSC_1_SQR_TOP_OCTAVE[shape + octaves * 32 - 96] / Math.pow(2, octaves + 17));

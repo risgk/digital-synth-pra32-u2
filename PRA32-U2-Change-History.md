@@ -12,6 +12,10 @@
       (e.g. the pulse width 0% to 100% around 64)
         - Not compatible: a user program with EG Mod Dst or LFO Mod Dst 1S moves the Shape half as much (set the Amt to 64 + (the value before - 64) * 2, up to 127);
           the Presets #18 FM Piano, #21 Sync Lead, and #26 WT Pad: EG Mod Amt +8 -> +16 (the same sound)
+    - Osc 1 Saw: The Multi Saw Detune changes smoothly with Osc 1 Shape (and its EG and LFO modulations), interpolated between the 33 steps of 4 values
+      (the steps alone before; the same detune at the multiples of 4)
+        - Not compatible: a user program with Osc 1 Wave Saw, Osc 1 Morph other than 0, and Osc 1 Shape not a multiple of 4 is detuned a little otherwise
+          (up to half a step, about 1.2 cents of the outer saws); the Presets use 0 and 48 (the same sound)
     - **Filter Key Track** is in 65 steps of 3.125% (1/32, 2 values a step, as Mixer Noise/Sub Osc): -100% (0) to 0% (63-64) to +100% (127)
       (17 steps of 12.5% before, 8 values a step)
         - Not compatible: a user program with Filter Key Track other than 8n and 8n - 1 (e.g. 0, 63, 64, 96, and 127) follows the pitch by up to 6.25% more or less;
