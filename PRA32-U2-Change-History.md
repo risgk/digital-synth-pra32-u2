@@ -16,24 +16,25 @@
       (17 steps of 12.5% before, 8 values a step)
         - Not compatible: a user program with Filter Key Track other than 8n and 8n - 1 (e.g. 0, 63, 64, 96, and 127) follows the pitch by up to 6.25% more or less;
           the Presets use 64, 96, and 127 (the same sound)
-    - The values shown as they work, in PRA32-U2 Editor, PRA32-U2 Native, and the panel: Osc 1 Shape and Osc 1 Morph by Osc 1 Wave (e.g. "41", "2.0", "5.0", ".50", "50%", "1.5", "WT2", "S64"),
-      Mixer Noise/Sub Osc ("N64" to "0" to "S64"), Pan ("L63" to "C" to "R63"), Osc 2 Coarse (-60 to +60), and Osc 2 Pitch and EG/LFO Mod Amt to the pitch
-      (the cents and the semitones, e.g. "+2" for 1.5625 cents, and "+1." for 1.5 semitones), the times of the EG and the Amp,
-      Portamento Time, LFO Fade Time, LFO Rate (with LFO Wave Nos, the cutoff of the low-pass, or "Off"), Chorus Rate, Chorus Depth,
-      Filter Cutoff, Fine Tune, Filter Resonance (the Q, or "Osc"), Filter Drive and Distortion Drive (dB), Stretch Tune
-      (the cents at note number 108), Filter EG Amt, LFO Filter Amt, and Breath Filter Amt (the semitones), and Filter Key Track (%),
-      EG Sustain, Amp Sustain, Mixer Osc Mix (Osc 2), LFO Depth, Chorus Level, Delay Level, Delay Feedback, EG Att/Dec Velo Sens, EG Rel Velo Sens,
-      EG Level Velo Sens, Amp Level Velo Sens, and EG Att/Dec Key Track (%), Amp Gain (dB, or "Off"), EG/LFO Mod Amt to the Cutoff and Osc 1 Shape,
-      and Pitch Bend Range
-      (e.g. "100" for 100 ms, "1.0" for 1.00 s, ".07" for 0.0715 Hz, "2k4" for 2.35 kHz, and "+3%" for +3.1%)
+    - The Note On Velocity at first is 64 (100 before): Panel Play Velo, Seq Velo 0-7, the Software Keyboard, and "pra32-u2-sample.mid" (the values written before stay)
+    - **The values shown as they work**, in 3 characters, in PRA32-U2 Editor, PRA32-U2 Native, and the panel (see "Values Shown" in the Parameter Guide)
+      (e.g. "100" for 100 ms, "1.0" for 1.00 s, ".07" for 0.0715 Hz, "2k4" for 2.35 kHz, "50%", and "+6" for +6 dB)
+        - Osc: Osc 1 Shape and Osc 1 Morph by Osc 1 Wave (e.g. "41", ".50", "5.0", "50%", "1.5", "WT2", and "S64"), Mixer Noise/Sub Osc ("N64" to "0" to "S64"),
+          Mixer Osc Mix (Osc 2 in %), Osc 2 Coarse, and Osc 2 Pitch (the cents and the semitones, e.g. "+2" for 1.5625 cents, and "+1." for 1.5 semitones)
+        - Filter: Filter Cutoff (Hz), Filter Resonance (the Q, or "Osc"), Filter EG Amt, LFO Filter Amt, and Breath Filter Amt (the semitones),
+          Filter Key Track (%), and Filter Drive (dB)
+        - EG and LFO: the times of the EG and the Amp, EG Sustain and Amp Sustain (%), EG Mod Amt and LFO Mod Amt by EG Mod Dst and LFO Mod Dst
+          (the pitch, the Cutoff, or the Shape), LFO Fade Time, LFO Rate (with LFO Wave Nos, the cutoff of the low pass, or "Off"), and LFO Depth (%)
+        - Amp and Voice: Amp Gain (dB, or "Off"), Pan ("L63" to "C" to "R63"), Portamento Time, Pitch Bend Range, Fine Tune (the cents), Stretch Tune (the cents at note number 108),
+          the Velo Sens of the EG and the Amp, and EG Att/Dec Key Track (%)
+        - FX: Distortion Drive (dB), Chorus Level, Chorus Rate, Chorus Depth (the milliseconds), Delay Level, and Delay Feedback (%)
     - The parameters of a range are written as [- to +], [N to S] (Mixer Noise/Sub Osc), and [1 to 2] (Mixer Osc Mix), and Filter Mode as [LP-BR-HP-BP-LP]
       (as it changes smoothly), not to be taken for the values to select (e.g. [Off|On]), in PRA32-U2 Editor, PRA32-U2 Native, and the documents
     - The user programs are written to the flash without the copy of them (3 KB) in the RAM, by PRA32-U2's own code (not by the EEPROM library),
       and the synths of PRA32-U2/M share the program table: the RAM free is about 3 KB more (PRA32-U2) and 17 KB more (PRA32-U2/M);
       the same place and layout in the flash, so that the programs written before are read as they were
         - PRA32-U2/M: A user program written by a synth is the same in the other synths at once (it was only after the power was turned off and on)
-    - EG Mod Dst and LFO Mod Dst: 89 is 2P (Osc 2 Pitch) and 115 is F (Filter Cutoff), as shown and as the other 6-way parameters (F and 1S before)
-    - The Note On Velocity at first is 64 (100 before): Panel Play Velo, Seq Velo 0-7, the Software Keyboard, and "pra32-u2-sample.mid" (the values written before stay)
+    - Fix EG Mod Dst and LFO Mod Dst: 89 is 2P (Osc 2 Pitch) and 115 is F (Filter Cutoff), as shown and as the other 6-way parameters (F and 1S before)
     - PRA32-U2/M: Voice Group Mode: While the Main Synth is in Poly, the messages other than the notes go to all of the group (to the Main Synth alone before);
       the panel of PRA32-U2/M/P can select such a group too
     - PRA32-U2/P: Panel Play Mode is now [Key|K+S|Seq]: Nrm is now **Key**, and Add **K+S** (Key + Seq, at 64): the Step Sequencer, and the Play Key that plays as in Key;
