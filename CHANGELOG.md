@@ -78,6 +78,7 @@
       (e.g. "#4            S8  *53"); the second line with "Ch" and the channel that the panel selects (1-16, in decimal; PRA32-U2/P too: the Basic Channel),
       and what it is (PRA32-U2/M/P, e.g. "Ch 5 [Ly2]"); and the page below it, numbered without a 0 (e.g. "Page A-6")
     - PRA32-U2/P: Fix the wrong pitches of the Step Sequencer with Panel Pitch Ofst and Seq Pitch Ofst both near -60
+    - PRA32-U2/P: The display shows "%" and "&" (e.g. "50%", and "S&H" of LFO Wave, a box before), and the other ASCII symbols too (e.g. "!", "?", and "@")
     - PRA32-U2/M/P: Prog - Key and Prog + Key go by 4 on the Layering of all ("[All]"), and by 2 on "[Ly2]" and "[RLy]", to the multiple of it,
       so that the programs of the synths layered stay in the same sets (e.g. #0-3 and #4-7 on "[All]"; by 1 as before on the others)
         - The program shown for a group or the Layering is that of its first synth (e.g. #0, #2, and #0 at the start for the Basic Channel + 4, + 5, and + 15 with Ly2; #4, #5, and #6 before)
