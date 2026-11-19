@@ -89,7 +89,8 @@
         - "Panel & Step Sequencer" keeps the values by the names (e.g. "SEQ_TEMPO"), as the synth parameters; **not compatible**: the values kept before are not read
         - The marker of the center on Pan and Osc 1 Shape (PRA32-U2 Native too), and the slider of Osc 1 Morph snaps to the wave tables with Osc 1 Wave WT
         - The headings inside another (the 3 parts of "Panel & Step Sequencer", and "Performance Controls") a little to the right
-        - PRA32-U2 Web: "Click (or tap) to start the audio" is shown as soon as it is chosen in MIDI Out (nothing sent then, as before)
+        - PRA32-U2 Web: "Click (or tap) to start the audio" is shown as soon as it is chosen in MIDI Out (nothing sent then, as before),
+          in the dark orange of the editor (red before)
     - The files renamed and moved: the Change History to "CHANGELOG.md"; the documents (other than README.md, README.ja.md, README-PRA32-U2-P.md, and CHANGELOG.md)
       and their images to "docs" (e.g. "docs/parameter-guide.md"); the preset JSON files to "presets"; PRA32-U2 Load Estimate to "load-estimate";
       and PRA32-U2/M Demo, with the sample Standard MIDI File and its tools, to "demo" (PRA32-U2 Demo)
