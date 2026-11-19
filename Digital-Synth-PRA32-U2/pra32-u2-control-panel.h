@@ -1052,6 +1052,19 @@ static __attribute__((noinline, unused)) void PRA32_U2_ControlPanel_execute_oper
   }
 }
 
+// The knobs of General Purpose Controller 1-4 (Pages B-24 and B-25), with Assign Mode Rel: the parameter of Assign #16-#19 Dst
+// at once (the knob as an absolute value, not as a relative one); the others: the control target itself
+static uint8_t PRA32_U2_ControlPanel_absolute_target(uint8_t control_target) {
+  if ((control_target >= GEN_PURPOSE_1) && (control_target <= GEN_PURPOSE_4)) {
+    uint8_t channel = getTargetMIDICh(s_current_synth);
+    uint8_t dst     = getCurrentControllerValue(channel, ASGN_1_DST + (control_target - GEN_PURPOSE_1));
+    if ((PRA32_U2_assign_mode(getCurrentControllerValue(channel, ASGN_MODE)) == 2) && !PRA32_U2_assign_dst_off(dst)) {
+      return dst;
+    }
+  }
+  return control_target;
+}
+
 static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_number) {
 #if !defined(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN)
   if (adc_number == 2) {
@@ -1093,10 +1106,17 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
       s_adc_control_catched[adc_number] = true;
     }
 
+    // General Purpose Controller 1-4 (Pages B-24 and B-25) at once, as they come to the values of the parameters themselves
+    // (Assign #16-#19 Dst), so that the knob is not turned to their own values first
+    if ((s_adc_control_target[adc_number] >= GEN_PURPOSE_1) && (s_adc_control_target[adc_number] <= GEN_PURPOSE_4)) {
+      s_adc_control_catched[adc_number] = true;
+    }
+
 
     if (s_adc_control_target[adc_number] < 128) {
       if (s_adc_control_catched[adc_number]) {
-        handleControlChange(getTargetMIDICh(s_current_synth), s_adc_control_target[adc_number], adc_control_value_new);
+        handleControlChange(getTargetMIDICh(s_current_synth), PRA32_U2_ControlPanel_absolute_target(s_adc_control_target[adc_number]),
+                            adc_control_value_new);
       }
     } else if (s_adc_control_target[adc_number] < 128 + 64) {
       if (s_adc_control_catched[adc_number]) {
@@ -2309,6 +2329,41 @@ INLINE void PRA32_U2_ControlPanel_on_stop()
   }
 }
 
+// The value shown for a control target of the page: General Purpose Controller 1-4 (Pages B-24 and B-25) show the parameter
+// that they control (Assign #16-#19 Dst), its value (compared with the knob: "<" or ">" until the knob comes to it, from when
+// it controls the parameter, as the knobs of the other pages, with Assign Mode Cat) and its number (e.g. "A>112[ 74]"), or their own values with "[Off]"
+static __attribute__((noinline, unused)) uint8_t __not_in_flash_func(PRA32_U2_ControlPanel_current_value_of_target)(uint8_t control_target) {
+  uint8_t channel = getTargetMIDICh(s_current_synth);
+  uint8_t value   = getCurrentControllerValue(channel, control_target);
+  if ((control_target >= GEN_PURPOSE_1) && (control_target <= GEN_PURPOSE_4)) {
+    uint8_t dst = getCurrentControllerValue(channel, ASGN_1_DST + (control_target - GEN_PURPOSE_1));
+    if (!PRA32_U2_assign_dst_off(dst)) {
+      value = getCurrentControllerValue(channel, dst);
+    }
+  }
+  return value;
+}
+
+// The value that the knob is compared with ("<", ">", or "="): with Assign Mode Jmp or Rel, General Purpose Controller 1-4
+// control the parameters at once (as absolute values, see PRA32_U2_ControlPanel_absolute_target()), so the knob is always "="
+static __attribute__((noinline, unused)) uint8_t __not_in_flash_func(PRA32_U2_ControlPanel_compared_value_of_target)(uint8_t control_target, uint8_t adc_control_value,
+                                                                                                                   uint8_t current_controller_value) {
+  if ((control_target >= GEN_PURPOSE_1) && (control_target <= GEN_PURPOSE_4) &&
+      (PRA32_U2_assign_mode(getCurrentControllerValue(getTargetMIDICh(s_current_synth), ASGN_MODE)) != 1)) {
+    return adc_control_value;
+  }
+  return current_controller_value;
+}
+
+static __attribute__((noinline, unused)) boolean __not_in_flash_func(PRA32_U2_ControlPanel_calc_value_display_of_target)(uint8_t control_target, uint8_t controller_value,
+                                                                                                                  char value_display_text[5]) {
+  if ((control_target >= GEN_PURPOSE_1) && (control_target <= GEN_PURPOSE_4)) {
+    uint8_t dst = getCurrentControllerValue(getTargetMIDICh(s_current_synth), ASGN_1_DST + (control_target - GEN_PURPOSE_1));
+    return PRA32_U2_ControlPanel_calc_value_display(ASGN_1_DST, dst, value_display_text);  // its number, or "Off"
+  }
+  return PRA32_U2_ControlPanel_calc_value_display(control_target, controller_value, value_display_text);
+}
+
 INLINE void PRA32_U2_ControlPanel_update_display_buffer(uint32_t loop_counter) {
   static_cast<void>(loop_counter);
 
@@ -2323,15 +2378,16 @@ INLINE void PRA32_U2_ControlPanel_update_display_buffer(uint32_t loop_counter) {
       uint8_t adc_control_value        = s_adc_control_value[0];
       uint8_t current_controller_value = adc_control_value;
       if        (adc_control_target_0 < 128) {
-        current_controller_value = getCurrentControllerValue(getTargetMIDICh(s_current_synth), adc_control_target_0);
+        current_controller_value = PRA32_U2_ControlPanel_current_value_of_target(adc_control_target_0);
       } else if (adc_control_target_0 < 128 + 64) {
         current_controller_value = g_synth.current_controller_value(adc_control_target_0);
       }
 
       s_display_buffer[7][ 0] = 'A';
-      if        (adc_control_value < current_controller_value) {
+      uint8_t compared_value = PRA32_U2_ControlPanel_compared_value_of_target(adc_control_target_0, adc_control_value, current_controller_value);
+      if        (adc_control_value < compared_value) {
         s_display_buffer[7][ 1] = '<';
-      } else if (adc_control_value > current_controller_value) {
+      } else if (adc_control_value > compared_value) {
         s_display_buffer[7][ 1] = '>';
       } else {
         s_display_buffer[7][ 1] = '=';
@@ -2343,7 +2399,7 @@ INLINE void PRA32_U2_ControlPanel_update_display_buffer(uint32_t loop_counter) {
       s_display_buffer[7][ 4] = buff[2];
 
       char value_display_text[5] = {};
-      boolean exists = PRA32_U2_ControlPanel_calc_value_display(adc_control_target_0, current_controller_value, value_display_text);
+      boolean exists = PRA32_U2_ControlPanel_calc_value_display_of_target(adc_control_target_0, current_controller_value, value_display_text);
       if (exists) {
         s_display_buffer[7][ 5] = '[';
         s_display_buffer[7][ 6] = value_display_text[0];
@@ -2362,15 +2418,16 @@ INLINE void PRA32_U2_ControlPanel_update_display_buffer(uint32_t loop_counter) {
       uint8_t adc_control_value        = s_adc_control_value[1];
       uint8_t current_controller_value = adc_control_value;
       if        (adc_control_target_1 < 128) {
-        current_controller_value = getCurrentControllerValue(getTargetMIDICh(s_current_synth), adc_control_target_1);
+        current_controller_value = PRA32_U2_ControlPanel_current_value_of_target(adc_control_target_1);
       } else if (adc_control_target_1 < 128 + 64) {
         current_controller_value = g_synth.current_controller_value(adc_control_target_1);
       }
 
       s_display_buffer[7][11] = 'B';
-      if        (adc_control_value < current_controller_value) {
+      uint8_t compared_value = PRA32_U2_ControlPanel_compared_value_of_target(adc_control_target_1, adc_control_value, current_controller_value);
+      if        (adc_control_value < compared_value) {
         s_display_buffer[7][12] = '<';
-      } else if (adc_control_value > current_controller_value) {
+      } else if (adc_control_value > compared_value) {
         s_display_buffer[7][12] = '>';
       } else {
         s_display_buffer[7][12] = '=';
@@ -2382,7 +2439,7 @@ INLINE void PRA32_U2_ControlPanel_update_display_buffer(uint32_t loop_counter) {
       s_display_buffer[7][15] = buff[2];
 
       char value_display_text[5] = {};
-      boolean exists = PRA32_U2_ControlPanel_calc_value_display(adc_control_target_1, current_controller_value, value_display_text);
+      boolean exists = PRA32_U2_ControlPanel_calc_value_display_of_target(adc_control_target_1, current_controller_value, value_display_text);
       if (exists) {
         s_display_buffer[7][16] = '[';
         s_display_buffer[7][17] = value_display_text[0];
@@ -2401,15 +2458,16 @@ INLINE void PRA32_U2_ControlPanel_update_display_buffer(uint32_t loop_counter) {
       uint8_t adc_control_value        = s_adc_control_value[2];
       uint8_t current_controller_value = adc_control_value;
       if        (adc_control_target_2 < 128) {
-        current_controller_value = getCurrentControllerValue(getTargetMIDICh(s_current_synth), adc_control_target_2);
+        current_controller_value = PRA32_U2_ControlPanel_current_value_of_target(adc_control_target_2);
       } else if (adc_control_target_2 < 128 + 64) {
         current_controller_value = g_synth.current_controller_value(adc_control_target_2);
       }
 
       s_display_buffer[3][11] = 'C';
-      if        (adc_control_value < current_controller_value) {
+      uint8_t compared_value = PRA32_U2_ControlPanel_compared_value_of_target(adc_control_target_2, adc_control_value, current_controller_value);
+      if        (adc_control_value < compared_value) {
         s_display_buffer[3][12] = '<';
-      } else if (adc_control_value > current_controller_value) {
+      } else if (adc_control_value > compared_value) {
         s_display_buffer[3][12] = '>';
       } else {
         s_display_buffer[3][12] = '=';
@@ -2421,7 +2479,7 @@ INLINE void PRA32_U2_ControlPanel_update_display_buffer(uint32_t loop_counter) {
       s_display_buffer[3][15] = buff[2];
 
       char value_display_text[5] = {};
-      boolean exists = PRA32_U2_ControlPanel_calc_value_display(adc_control_target_2, current_controller_value, value_display_text);
+      boolean exists = PRA32_U2_ControlPanel_calc_value_display_of_target(adc_control_target_2, current_controller_value, value_display_text);
       if (exists) {
         s_display_buffer[3][16] = '[';
         s_display_buffer[3][17] = value_display_text[0];

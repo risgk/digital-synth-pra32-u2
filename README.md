@@ -165,6 +165,10 @@ graph LR
 - PRA32-U2 can also be controlled by MIDI without using PRA32-U2 Editor (e.g. with a DAW or a MIDI keyboard)
 - The default program (when the power is turned on) is #0; the programs written by Write are recalled by Program Change #0-15 (see above)
 - Refer to [MIDI Implementation Chart](./docs/midi-implementation-chart.md) for the supported functions
+- General Purpose Controller 1-4 (CC #16-19), e.g. the knobs of a MIDI keyboard, control the parameters that Assign #16-#19 Dst (CC #48-51) set,
+  a program each (Filter Cutoff, Filter Resonance, Osc 1 Shape, and Osc 1 Morph in the Presets), at once, or by Assign Mode (CC #42),
+  from when each comes to the value of the parameter, so that it does not jump (e.g. live), or as relative values for endless encoders (see [Performance Controllers](./docs/parameter-guide.md#performance-controllers) in the Parameter Guide)
+    - Since v3.22.0, EG Att/Dec Key Track, LFO Depth, Voice Mode, and Osc 1 Shape are CC #44-47 (CC #16-19 before), and EG Att/Dec Velo Sens is CC #43 (#51 before)
 - Programs #0-31 can be modified by editing "pra32-u2-program-table.h"
 
 
@@ -176,6 +180,7 @@ graph LR
 - Undo: back to the parameters before the last change (a preset, Randomize, Import, or a move of a slider), up to 200 steps; Redo: forward again (also by Ctrl+Z and Ctrl+Y or Ctrl+Shift+Z, or Command on a Mac)
 - "MIDI", "Actions & Presets", "Store & File", and "Write & Program Change" can each be hidden, to give the parameters more of the window (Send Current is on the heading of "MIDI", shown while it is hidden too)
 - "Synth Parameters" (the first 32), "More Synth Parameters" (the others), and "FX Parameters" can each be hidden too
+- Assign #16-#19 Dst can be selected by the names of the parameters too (the list beside each)
 - "Panel & Step Sequencer" for PRA32-U2/P (see [Panel Channel](./README-PRA32-U2-P.md#panel-channel))
 - The controls look the same in every Web browser and OS (as in Chrome); on a touch screen, the thumbs of the sliders are larger, and the buttons taller
 - Software Keyboard
@@ -185,7 +190,8 @@ graph LR
       some PC keyboards cannot take many keys at the same time (e.g. a chord of 4 notes)
     - The velocities of Note On and Note Off can be entered (1-127, 64 and 64 by default)
     - Pitch Bend (springs back to the center), Modulation Wheel, Breath Controller, Expression, Sustain Pedal, Portamento Switch,
-      and Channel Pressure can be sent from the sliders below the keyboard (Performance Controls, which can be hidden apart from the keyboard,
+      Channel Pressure, and General Purpose Controller 1-4 can be sent from the sliders below the keyboard
+      (with Assign Mode Cat, "[<]" or "[>]" beside them until they come to the values of the parameters, and "[=]" while they follow them) (Performance Controls, which can be hidden apart from the keyboard,
       e.g. on a phone)
 
 

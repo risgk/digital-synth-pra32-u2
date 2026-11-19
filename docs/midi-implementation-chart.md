@@ -27,10 +27,10 @@
 |                            11 | x             | o             | Expression                            |
 |                            64 | x             | o             | Sustain Pedal [Off|On]                |
 |                            65 | x             | o             | Portamento Switch [Off|On] $7         |
-|                            16 | x             | o             | General Purpose 1 $12                 |
-|                            17 | x             | o             | General Purpose 2 $12                 |
-|                            18 | x             | o             | General Purpose 3 $12                 |
-|                            19 | x             | o             | General Purpose 4 $12                 |
+|                            16 | x             | o             | General Purpose Controller 1 $12      |
+|                            17 | x             | o             | General Purpose Controller 2 $12      |
+|                            18 | x             | o             | General Purpose Controller 3 $12      |
+|                            19 | x             | o             | General Purpose Controller 4 $12      |
 |                               |               |               |                                       |
 |                           102 | x             | o             | Osc 1 Wave [Saw|Sqr|Tri|Sin|WT|Pls]   |
 |                            23 | x             | o             | Mixer Noise/Sub Osc [N to S]          |
@@ -99,11 +99,12 @@
 |                            83 | x             | o             | Osc Saw Wave Mode [Str|Cur]           |
 |                            22 | x             | o             | Stretch Tune [- to +]                 |
 |                            10 | x             | o             | Pan                                   |
+|                            42 | x             | o             | Assign Mode [Jmp|Cat|Rel] $12         |
 |                               |               |               |                                       |
-|                            48 | x             | o             | Asgn 1 Dst $12                        |
-|                            49 | x             | o             | Asgn 2 Dst $12                        |
-|                            50 | x             | o             | Asgn 3 Dst $12                        |
-|                            51 | x             | o             | Asgn 4 Dst $12                        |
+|                            48 | x             | o             | Assign #16 Dst $12                    |
+|                            49 | x             | o             | Assign #17 Dst $12                    |
+|                            50 | x             | o             | Assign #18 Dst $12                    |
+|                            51 | x             | o             | Assign #19 Dst $12                    |
 |                               |               |               |                                       |
 |                            95 | x             | o             | Distortion Drive                      |
 |                            77 | x             | o             | FX Routing [Dst|Cho|Dly|Dly|Cmp|Dry]  |
@@ -168,9 +169,11 @@
 |                               |   [Off|Ly2|RLy|RR2|RR4|RR3]                                           |
 |                               | $11: o in PRA32-U2/P by Panel MIDI Tx (the notes that the panel       |
 |                               |   plays)                                                              |
-|                               | $12: General Purpose 1-4 work as the Control Change of the number     |
-|                               |   that Asgn 1-4 Dst set (Off: 0, 16-19, 106, and 120-127), after the  |
-|                               |   value comes to that of the parameter (the same, or across it)       |
+|                               | $12: General Purpose Controller 1-4 work as the Control Change of     |
+|                               |   the number that Assign #16-#19 Dst set (Off: 0, 16-19, 48-51, 64,   |
+|                               |   80, 106, and 111-127), by Assign Mode: at once (Jmp), after the     |
+|                               |   value comes to that of the parameter (Cat), or as relative values   |
+|                               |   (Rel, 64 + n: +n)                                                   |
 +-------------------------------+-----------------------------------------------------------------------+
   Mode 1: Omni On,  Poly          Mode 2: Omni On,  Mono          o: Yes                                 
   Mode 3: Omni Off, Poly          Mode 4: Omni Off, Mono          x: No                                  

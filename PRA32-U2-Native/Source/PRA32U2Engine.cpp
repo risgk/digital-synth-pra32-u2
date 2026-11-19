@@ -117,11 +117,12 @@ const PRA32U2Engine::ParameterInfo s_parameter_names[] = {
   { OSC_SAW_W_MODE , "Osc Saw Wave Mode [Str|Cur]"            },
   { STRETCH_TUNE   , "Stretch Tune [- to +]"                     },
   { PAN            , "Pan"                                    },
+  { ASGN_MODE      , "Assign Mode [Jmp|Cat|Rel]"              },
 
-  { ASGN_1_DST     , "Asgn 1 Dst"                             },
-  { ASGN_2_DST     , "Asgn 2 Dst"                             },
-  { ASGN_3_DST     , "Asgn 3 Dst"                             },
-  { ASGN_4_DST     , "Asgn 4 Dst"                             },
+  { ASGN_1_DST     , "Assign #16 Dst"                         },
+  { ASGN_2_DST     , "Assign #17 Dst"                         },
+  { ASGN_3_DST     , "Assign #18 Dst"                         },
+  { ASGN_4_DST     , "Assign #19 Dst"                         },
 
   { DISTORTION     , "Distortion Drive"                       },
   { FX_ROUTING     , "FX Routing [Dst|Cho|Dly|Dly|Cmp|Dry]"   },
@@ -244,6 +245,7 @@ int PRA32U2Engine::getMarkers(uint8_t controlNumber, const uint8_t** markerValue
     *markerValues = MARKERS_6_C;
     return 7;
   case DELAY_MODE      :
+  case ASGN_MODE       :
     *markerValues = MARKERS_3;
     return 3;
   case EG_AMP_MOD      :
@@ -323,6 +325,7 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value, ui
   static const char* const FX_ROUTINGS[6]  = { "Dst", "Cho", "Dly", "Dly", "Cmp", "Dry" };
   static const char* const ASGN_MODES[6]   = { "1", "1", "3", "3", "4", "2" };
   static const char* const DELAY_MODES[3]  = { "Ste", "PP", "Rev" };
+  static const char* const ASSIGN_MODES[3] = { "Jmp", "Cat", "Rel" };
   static const char* const GROUP_MODES[6]  = { "Off", "Ly2", "RLy", "RR2", "RR4", "RR3" };
 
   // Osc 2 Pitch (osc2Pitch), and EG Mod Amt and LFO Mod Amt to the pitch (P and 2P), as pitchDispValue() of PRA32-U2 Editor
@@ -489,6 +492,7 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value, ui
   }
   case EG_AMP_MOD      :
   case REL_EQ_DECAY    : dispValue = select2(v, OFF_ON);             break;
+  case ASGN_MODE       : dispValue = select3(v, ASSIGN_MODES);       break;
   case OSC_SAW_W_MODE  : dispValue = select2(v, SAW_W_MODES);        break;
   case PORTA_MODE      : dispValue = select2(v, PORTA_MODES);        break;
   case LFO_TRIG_MODE   : dispValue = select6(v, LFO_TRIG_MODES);      break;

@@ -56,13 +56,14 @@ static const PRA32_U2_ControlPanelPage g_control_panel_page_table_a[] = {
   { "Page A-28 ", "LFO d     ",   "LFO       ", "Filter Amt", LFO_FILTER_AMT ,   "LFO       ", "Trig Mode ", LFO_TRIG_MODE  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page A-29 ", "Breath    ",   "Breath    ", "Filter Amt", BTH_FILTER_AMT ,   "Breath    ", "Amp Mode  ", BTH_AMP_MOD    ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page A-30 ", "Aft Touch ",   "Aft Touch ", "LFO Amt   ", AFT_T_LFO_AMT  ,   "          ", "          ", 0xFF           ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page A-31 ", "Assign a  ",   "Asgn 1    ", "Dst       ", ASGN_1_DST     ,   "Asgn 2    ", "Dst       ", ASGN_2_DST     ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page A-32 ", "Assign b  ",   "Asgn 3    ", "Dst       ", ASGN_3_DST     ,   "Asgn 4    ", "Dst       ", ASGN_4_DST     ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page A-33 ", "FX        ",   "Distortion", "Drive     ", DISTORTION     ,   "FX        ", "Routing   ", FX_ROUTING     ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page A-34 ", "Chorus a  ",   "Chorus    ", "Level     ", CHORUS_MIX     ,   "          ", "          ", 0xFF           ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page A-35 ", "Chorus b  ",   "Chorus    ", "Rate      ", CHORUS_RATE    ,   "Chorus    ", "Depth     ", CHORUS_DEPTH   ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page A-36 ", "Delay a   ",   "Delay     ", "Level     ", DELAY_LEVEL    ,   "Delay     ", "Mode      ", DELAY_MODE     ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page A-37 ", "Delay b   ",   "Delay     ", "Time      ", DELAY_TIME     ,   "Delay     ", "Feedback  ", DELAY_FEEDBACK ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page A-31 ", "Assign a  ",   "Assign #16", "Dst       ", ASGN_1_DST     ,   "Assign #17", "Dst       ", ASGN_2_DST     ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page A-32 ", "Assign b  ",   "Assign #18", "Dst       ", ASGN_3_DST     ,   "Assign #19", "Dst       ", ASGN_4_DST     ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page A-33 ", "Assign c  ",   "Assign    ", "Mode      ", ASGN_MODE      ,   "          ", "          ", 0xFF           ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page A-34 ", "FX        ",   "Distortion", "Drive     ", DISTORTION     ,   "FX        ", "Routing   ", FX_ROUTING     ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page A-35 ", "Chorus a  ",   "Chorus    ", "Level     ", CHORUS_MIX     ,   "          ", "          ", 0xFF           ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page A-36 ", "Chorus b  ",   "Chorus    ", "Rate      ", CHORUS_RATE    ,   "Chorus    ", "Depth     ", CHORUS_DEPTH   ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page A-37 ", "Delay a   ",   "Delay     ", "Level     ", DELAY_LEVEL    ,   "Delay     ", "Mode      ", DELAY_MODE     ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page A-38 ", "Delay b   ",   "Delay     ", "Time      ", DELAY_TIME     ,   "Delay     ", "Feedback  ", DELAY_FEEDBACK ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
 };
 
 static const PRA32_U2_ControlPanelPage g_control_panel_page_table_b[] = {
@@ -90,7 +91,9 @@ static const PRA32_U2_ControlPanelPage g_control_panel_page_table_b[] = {
   { "Page B-21 ", "Control b ",   "Breath    ", "Controller", BTH_CONTROLLER ,   "Expression", "          ", EXPRESSION     ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page B-22 ", "Control c ",   "Sustain   ", "Pedal     ", SUSTAIN_PEDAL  ,   "Portamento", "Switch    ", PORTAMENTO_SW  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page B-23 ", "Control d ",   "Channel   ", "Pressure  ", CH_PRESSURE    ,   "          ", "          ", 0xFF           ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page B-24 ", "Control e ",   "Panic     ", "          ", PANIC_OP       ,   "Randomize ", "Synth     ", RAND_SYNTH_OP  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page B-24 ", "Control e ",   "General   ", "Purpose 1 ", GEN_PURPOSE_1  ,   "General   ", "Purpose 2 ", GEN_PURPOSE_2  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page B-25 ", "Control f ",   "General   ", "Purpose 3 ", GEN_PURPOSE_3  ,   "General   ", "Purpose 4 ", GEN_PURPOSE_4  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page B-26 ", "Control g ",   "Panic     ", "          ", PANIC_OP       ,   "Randomize ", "Synth     ", RAND_SYNTH_OP  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
 };
 
 static const PRA32_U2_ControlPanelPage g_control_panel_page_table_c[] = {

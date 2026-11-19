@@ -446,6 +446,20 @@ span.cc {
 .param-group:last-child {
   border-bottom: none;  /* no line at the bottom */
 }
+/* The Assign row (More Synth Parameters) as more rows of the group above it: no line, nor space, between them */
+.param-group-continued {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.param-group-continuing {
+  padding-top: 0;
+}
+/* Assign #16-#19 Dst by the names, in the line of the name (beside the slider of the number) */
+.asgn-dst-select {
+  font-size: 0.85em;
+  max-width: 132px;
+  padding: 0;
+}
 /* A break only in 2 or 1 column (MIDI In 1, 2 / MIDI In 3, 4) */
 .narrow-only {
   display: none;
@@ -994,8 +1008,11 @@ const AFT_T_LFO_AMT   = 37;
 const PORTA_MODE      = 34;
 const P_BEND_RANGE    = 57;
 
-const GEN_PURPOSE_1   = 16;  // General Purpose 1-4: each works as the Control Change of the number that Asgn 1-4 Dst set
+const GEN_PURPOSE_1   = 16;  // General Purpose Controller 1-4: each works as the Control Change of the number that Assign #16-#19 Dst set
+const GEN_PURPOSE_2   = 17;
+const GEN_PURPOSE_3   = 18;
 const GEN_PURPOSE_4   = 19;
+const ASGN_MODE       = 42;
 const ASGN_1_DST      = 48;
 const ASGN_2_DST      = 49;
 const ASGN_3_DST      = 50;
@@ -1107,6 +1124,7 @@ var controlNumberToStringMap = new Map([
   [ OSC_SAW_W_MODE , "OSC_SAW_W_MODE " ],
   [ STRETCH_TUNE   , "STRETCH_TUNE   " ],
   [ PAN            , "PAN            " ],
+  [ ASGN_MODE      , "ASGN_MODE      " ],
   [ ASGN_1_DST     , "ASGN_1_DST     " ],
   [ ASGN_2_DST     , "ASGN_2_DST     " ],
   [ ASGN_3_DST     , "ASGN_3_DST     " ],
@@ -1193,6 +1211,7 @@ var controllersInLocalStorage = [
   OSC_SAW_W_MODE ,
   STRETCH_TUNE   ,
   PAN            ,
+  ASGN_MODE      ,
 
   ASGN_1_DST     ,
   ASGN_2_DST     ,
@@ -1283,6 +1302,7 @@ presetControllers[OSC_SAW_W_MODE ] = [127, 127, 127, 127, 127, 127, 127, 127,   
 presetControllers[STRETCH_TUNE   ] = [72 , 72 , 72 , 72 , 72 , 72 , 72 , 72 ,   72 , 72 , 72 , 72 , 72 , 72 , 72 , 72 ];
 presetControllers[PAN            ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 
+presetControllers[ASGN_MODE      ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 presetControllers[ASGN_1_DST     ] = [74 , 74 , 74 , 74 , 74 , 74 , 74 , 0  ,   74 , 74 , 74 , 74 , 74 , 74 , 74 , 0  ];
 presetControllers[ASGN_2_DST     ] = [71 , 71 , 71 , 71 , 71 , 71 , 71 , 0  ,   71 , 71 , 71 , 71 , 71 , 71 , 71 , 0  ];
 presetControllers[ASGN_3_DST     ] = [47 , 47 , 47 , 47 , 47 , 47 , 47 , 0  ,   47 , 47 , 47 , 47 , 47 , 47 , 47 , 0  ];
@@ -1332,6 +1352,7 @@ window.onload = function() {
     showMIDINote("Web MIDI is not available in this Web browser: no MIDI device can be used");
   }
 
+  createAsgnDstSelects();  // (before the parameters restored, which show them)
   withoutUndo(function() {
     var result = restoreControllers();
     if (!result) {
@@ -1635,36 +1656,130 @@ function updateDimmedParameters() {
   setDimmed(["spanPerfPORTAMENTO_SW", "span2PerfPORTAMENTO_SW"], (localStorage.getItem("keyPORTA_MODE     ") >= 64));
 }
 
-// Asgn 1-4 Dst: Off (0, 16-19: General Purpose 1-4, 106: Write Parameters to Program, and 120-127: the Channel Mode
-// Messages), as PRA32-U2
+// Assign #16-#19 Dst: Off (0, 16-19: General Purpose Controller 1-4, 48-51: Assign #16-#19 Dst, 64: Sustain Pedal, 80:
+// Voice Group Mode, 106: Write Parameters to Program, 111-119: Randomize Synth and Program Change by CC, and 120-127: the
+// Channel Mode Messages), as PRA32-U2
 function asgnDstOff(dst) {
-  return (dst == 0) || ((dst >= GEN_PURPOSE_1) && (dst <= GEN_PURPOSE_4)) || (dst == WRITE_P_TO_PROG) || (dst >= ALL_SOUND_OFF);
+  return (dst == 0) || ((dst >= GEN_PURPOSE_1) && (dst <= GEN_PURPOSE_4)) || ((dst >= ASGN_1_DST) && (dst <= ASGN_4_DST)) ||
+         (dst == SUSTAIN_PEDAL) || (dst == VOICE_GRP_MODE) || (dst == WRITE_P_TO_PROG) || (dst >= SP_RAND_CTRL);
 }
 
-// General Purpose 1-4 from MIDI In, as PRA32-U2: the parameter (or the performance control) of Asgn 1-4 Dst, only after the
-// value comes to that of it (the same, or across it), so that it does not jump; returns its number, or 0 (none now). The
-// value here is that of the editor (as PRA32-U2 has it, unless it was changed on PRA32-U2 alone, e.g. by the panel)
+// Assign #16-#19 Dst by the names: the parameters and the performance controls that they can control (not Off), in the
+// order of the editor, with the names shown on it (e.g. "Filter Cutoff (74)"), and "Off" (0); a number not in them (e.g. 7,
+// which controls nothing) is shown as "CC#7"
+function asgnDstName(input) {
+  var name = input.closest(".param").querySelector(".param-name").cloneNode(true);
+  name.querySelectorAll(".sup, .cc, select").forEach(function(e) { e.remove(); });
+  return name.textContent.replace(/\s+/g, " ").trim();
+}
+
+function createAsgnDstSelects() {
+  var items = [[0, "Off"]];
+  controllersInLocalStorage.forEach(function(number) {
+    if (!asgnDstOff(number)) {
+      items.push([number, asgnDstName(document.getElementById("input" + controlNumberToStringMap.get(number))) + " (" + number + ")"]);
+    }
+  });
+  [MODULATION, BTH_CONTROLLER, EXPRESSION, PORTAMENTO_SW].forEach(function(number) {
+    items.push([number, asgnDstName(document.getElementById("inputPerf" + PERFORMANCE_CONTROLS.get(number)[0])) + " (" + number + ")"]);
+  });
+  [ASGN_1_DST, ASGN_2_DST, ASGN_3_DST, ASGN_4_DST].forEach(function(number) {
+    var select = document.getElementById("select" + controlNumberToStringMap.get(number).trim());
+    items.forEach(function(item) {
+      select.add(new Option(item[1], String(item[0])));
+    });
+    select.add(new Option("", "other"));  // a number not in them (its text set when shown)
+  });
+}
+
+function updateAsgnDstSelect(number, value) {
+  var select = document.getElementById("select" + controlNumberToStringMap.get(number).trim());
+  if (!select || (select.options.length == 0)) {
+    return;
+  }
+  value = parseInt(value);
+  var key = asgnDstOff(value) ? "0" : String(value);
+  var other = select.options[select.options.length - 1];
+  if (Array.from(select.options).some(function(o) { return (o.value == key) && (o != other); })) {
+    select.value = key;
+  } else {
+    other.text = "CC#" + value;
+    select.value = "other";
+  }
+}
+
+function onChangeAsgnDstSelect(number, value) {
+  if (value == "other") {
+    return;
+  }
+  saveUndo();
+  onChangeControlChange(number, parseInt(value));
+}
+
+// With Assign Mode Cat, beside the sliders of General Purpose Controller 1-4: "[<]" or "[>]" while the slider is below or
+// above the value of the parameter that it controls (not yet following it, as the knobs of the panel), and "[=]" while it
+// follows it; nothing with Jmp and Rel (at once), or with Assign #16-#19 Dst Off
+function updateGeneralPurposeIndicators() {
+  var mode = assignMode();
+  for (var index = 0; index < 4; index++) {
+    var span = document.getElementById("span2PerfGEN_PURPOSE_" + (index + 1));
+    if (!span) {
+      return;
+    }
+    var dst = parseInt(localStorage.getItem("key" + controlNumberToStringMap.get(ASGN_1_DST + index))) || 0;
+    var current = null;
+    if (!asgnDstOff(dst) && (controllersInLocalStorage.indexOf(dst) >= 0)) {
+      current = parseInt(document.getElementById("input" + controlNumberToStringMap.get(dst)).value);
+    } else if (!asgnDstOff(dst) && PERFORMANCE_CONTROLS.has(dst)) {
+      current = parseInt(document.getElementById("inputPerf" + PERFORMANCE_CONTROLS.get(dst)[0]).value);
+    }
+    var text = "";
+    if ((mode == 1) && (current != null)) {
+      var slider = parseInt(document.getElementById("inputPerfGEN_PURPOSE_" + (index + 1)).value);
+      if ((generalPurposeLastValues[index] == current) || (slider == current)) {
+        text = "[=]";
+      } else {
+        text = (slider < current) ? "[<]" : "[>]";
+      }
+    }
+    span.textContent = text;
+  }
+}
+
+// Assign Mode [Jmp|Cat|Rel]: 0, 1, and 2
+function assignMode() {
+  return (((parseInt(localStorage.getItem("key" + controlNumberToStringMap.get(ASGN_MODE))) || 0) * 4) + 128) >> 8;
+}
+
+// General Purpose Controller 1-4 (from MIDI In, or the sliders), as PRA32-U2: the parameter (or the performance control) of
+// Assign #16-#19 Dst, and the value to set, by Assign Mode: Jmp, the value at once; Cat, only after the value comes to that of
+// the parameter (the same, or across it), so that it does not jump; Rel, the value - 64 added to that of the parameter (the
+// sliders of the editor: absolute values, as Jmp); { dst: 0 } if none now. The value of the parameter here is that of the
+// editor (as PRA32-U2 has it, unless it was changed on PRA32-U2 alone, e.g. by the panel)
 var generalPurposeLastValues = [-1, -1, -1, -1];
-function generalPurposeDst(index, value) {
+function generalPurposeDst(index, value, absolute) {
   var dst = parseInt(localStorage.getItem("key" + controlNumberToStringMap.get(ASGN_1_DST + index))) || 0;
   var last = generalPurposeLastValues[index];
   generalPurposeLastValues[index] = value;
   var current;
-  if (controllersInLocalStorage.indexOf(dst) >= 0) {
+  if (asgnDstOff(dst)) {
+    return { dst: 0, value: value };
+  } else if (controllersInLocalStorage.indexOf(dst) >= 0) {
     current = parseInt(document.getElementById("input" + controlNumberToStringMap.get(dst)).value);
   } else if (PERFORMANCE_CONTROLS.has(dst)) {
     current = parseInt(document.getElementById("inputPerf" + PERFORMANCE_CONTROLS.get(dst)[0]).value);
   } else {
-    return 0;  // none that the editor shows (or Off)
+    return { dst: 0, value: value };  // none that the editor shows
   }
-  if (asgnDstOff(dst)) {
-    return 0;
+  var mode = assignMode();
+  if ((mode == 2) && !absolute) {
+    return { dst: dst, value: Math.min(Math.max(current + value - 64, 0), 127) };
   }
-  if ((value == current) || (last == current) || ((last >= 0) && (last < current) && (value > current)) ||
+  if ((mode != 1) || (value == current) || (last == current) || ((last >= 0) && (last < current) && (value > current)) ||
       ((last > current) && (value < current))) {
-    return dst;
+    return { dst: dst, value: value };
   }
-  return 0;
+  return { dst: 0, value: value };
 }
 
 // MIDI In 1-4 to MIDI Out (thru and merge). Web MIDI API gives a complete message with its status byte for each event
@@ -1681,7 +1796,11 @@ function onMIDIMessage(event) {
     var number = event.data[1];
     var value = event.data[2];
     if ((number >= GEN_PURPOSE_1) && (number <= GEN_PURPOSE_4)) {
-      number = generalPurposeDst(number - GEN_PURPOSE_1, value);  // the parameter that it controls now, as PRA32-U2 (0 if none)
+      updateDisplayOfPerformanceControl(number, value);
+      var generalPurpose = generalPurposeDst(number - GEN_PURPOSE_1, value, false);  // the parameter that it controls now, as PRA32-U2
+      number = generalPurpose.dst;  // (0 if none)
+      value = generalPurpose.value;
+      updateGeneralPurposeIndicators();
     }
     // As PRA32-U2: Reset All Controllers resets them all, and All Notes Off (and All Sound Off, Omni Mode Off/On,
     // Mono/Poly Mode On) turns off the Sustain Pedal
@@ -2342,6 +2461,7 @@ function updateDisplayOfControl(number, value) {
   case ASGN_3_DST      :
   case ASGN_4_DST      :
     dispValue = asgnDstOff(parseInt(value)) ? "Off" : String(value);  // the number of the Control Change, or Off
+    updateAsgnDstSelect(number, value);  // the name
     alwaysShown = true;
     break;
   case PAN             :  // L63 (0 and 1, the same) to C (64) to R63 (127), as the panel and PRA32-U2 Native
@@ -2452,6 +2572,13 @@ function updateDisplayOfControl(number, value) {
       dispValue = ary[index];
     }
     break;
+  case ASGN_MODE       :
+    {
+      var ary = ["Jmp","Cat","Rel"];
+      var index = ((value * 4) + 128) >> 8;
+      dispValue = ary[index];
+    }
+    break;
   case DELAY_MODE      :
     {
       var ary = ["Ste","PP","Rev"];
@@ -2484,6 +2611,7 @@ function updateDisplayOfControl(number, value) {
   input.setAttribute("aria-valuetext", (alwaysShown || (String(value) != dispValue)) ? value + " " + dispValue : String(value));
 
   localStorage.setItem("key" + controlNumberToStringMap.get(number), value);
+  updateGeneralPurposeIndicators();
 }
 
 // Voice Group Mode (PRA32-U2/M): its slider sends it on the Basic Channel (Basic Ch of Panel & Step Sequencer, 1 by default),
@@ -2553,6 +2681,7 @@ function setRandom() {
         (i != AMP_DECAY      ) &&
         (i != AMP_SUSTAIN    ) &&
         (i != AMP_RELEASE    ) &&
+        (i != ASGN_MODE      ) &&
         (i != ASGN_1_DST     ) &&
         (i != ASGN_2_DST     ) &&
         (i != ASGN_3_DST     ) &&
@@ -3307,10 +3436,32 @@ const PERFORMANCE_CONTROLS = new Map([
   [SUSTAIN_PEDAL , ["SUSTAIN_PEDAL" , 0  ]],
   [PORTAMENTO_SW , ["PORTAMENTO_SW" , 0  ]],
   [CH_PRESSURE   , ["CH_PRESSURE"   , 0  ]],  // not a Control Change, but Channel Pressure (After Touch)
+  [GEN_PURPOSE_1 , ["GEN_PURPOSE_1" , null]],  // General Purpose Controller 1-4 (null: not reset by Reset All Controllers, as PRA32-U2)
+  [GEN_PURPOSE_2 , ["GEN_PURPOSE_2" , null]],
+  [GEN_PURPOSE_3 , ["GEN_PURPOSE_3" , null]],
+  [GEN_PURPOSE_4 , ["GEN_PURPOSE_4" , null]],
 ]);
 
 function onChangePerformanceControl(number, value) {
   updateDisplayOfPerformanceControl(number, value);
+  var numberToSend = number;
+  if ((number >= GEN_PURPOSE_1) && (number <= GEN_PURPOSE_4)) {
+    // The parameter of Assign #16-#19 Dst, as PRA32-U2 takes it (and as from MIDI In); with Assign Mode Rel, the slider sends
+    // the Control Change of the parameter itself (an absolute value, which PRA32-U2 would take as a relative one by the slider's)
+    var dst = generalPurposeDst(number - GEN_PURPOSE_1, parseInt(value), true).dst;
+    if ((assignMode() == 2) && (dst != 0)) {
+      numberToSend = dst;
+    }
+    updateGeneralPurposeIndicators();
+    if (PERFORMANCE_CONTROLS.has(dst)) {
+      updateDisplayOfPerformanceControl(dst, value);
+    } else if (dst != 0) {
+      updateDisplayOfControl(dst, value);
+      if (DIMMING_CONTROLS.indexOf(dst) >= 0) {
+        updateDimmedParameters();
+      }
+    }
+  }
   if (midiOutput) {
     if (number == PITCH_BEND) {
       var bend = parseInt(value) + 8192;
@@ -3318,7 +3469,7 @@ function onChangePerformanceControl(number, value) {
     } else if (number == CH_PRESSURE) {
       midiOutput.send([(CH_PRESSURE | midi_ch), parseInt(value)]);
     } else {
-      midiOutput.send([(CONTROL_CHANGE | midi_ch), number, parseInt(value)]);
+      midiOutput.send([(CONTROL_CHANGE | midi_ch), numberToSend, parseInt(value)]);
     }
     sleep(2);
   }
@@ -3337,6 +3488,7 @@ function updateDisplayOfPerformanceControl(number, value) {
     valueText += (value >= 64) ? " On" : " Off";
   }
   document.getElementById("inputPerf" + key).setAttribute("aria-valuetext", valueText);  // for a screen reader, as shown
+  updateGeneralPurposeIndicators();
 }
 
 // Pitch Bend springs back to the center when the slider is released (as a pitch bend wheel)
@@ -3357,7 +3509,9 @@ function setupPitchBendSpring() {
 
 function resetPerformanceControls() {
   PERFORMANCE_CONTROLS.forEach(function(item, number) {
-    updateDisplayOfPerformanceControl(number, item[1]);
+    if (item[1] != null) {
+      updateDisplayOfPerformanceControl(number, item[1]);
+    }
   });
 }
 
@@ -3636,6 +3790,7 @@ function fileExport() {
   str += fileExportOneLine(OSC_SAW_W_MODE );
   str += fileExportOneLine(STRETCH_TUNE   );
   str += fileExportOneLine(PAN            );
+  str += fileExportOneLine(ASGN_MODE      );
   str += "\n";
   str += fileExportOneLine(ASGN_1_DST     );
   str += fileExportOneLine(ASGN_2_DST     );
@@ -4127,7 +4282,7 @@ function getStoredCCValueString(index, number) {
   <div class="param-ctrl soft-markers-6"><input  id="inputLFO_TRIG_MODE  "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_TRIG_MODE  , value)"><span    id="spanLFO_TRIG_MODE  " >-</span><span   id="span2LFO_TRIG_MODE  " >-</span></div>
 </div>
 </div>
-<div class="param-group">
+<div class="param-group param-group-continued">
 <div class="param">
   <div class="param-name"><b>Breath</b> Filter Amt <span class="sup">[- to +]</span> <span class="cc">CC#60</span></div>
   <div class="param-ctrl soft-marker-c"><input  id="inputBTH_FILTER_AMT "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(BTH_FILTER_AMT , value)"><span    id="spanBTH_FILTER_AMT " >-</span><span   id="span2BTH_FILTER_AMT " >-</span></div>
@@ -4156,22 +4311,26 @@ function getStoredCCValueString(index, number) {
   <div class="param-name">Pan <span class="cc">CC#10</span></div>
   <div class="param-ctrl soft-marker-c"><input  id="inputPAN            "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(PAN            , value)"><span    id="spanPAN            " >-</span><span   id="span2PAN            " >-</span></div>
 </div>
-</div>
-<div class="param-group">
 <div class="param">
-  <div class="param-name"><b>Asgn 1</b> Dst <span class="cc">CC#48</span></div>
+  <div class="param-name"><b>Assign</b> Mode <span class="sup">[Jmp|Cat|Rel]</span> <span class="cc">CC#42</span></div>
+  <div class="param-ctrl soft-markers-3"><input  id="inputASGN_MODE      "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(ASGN_MODE      , value)"><span    id="spanASGN_MODE      " >-</span><span   id="span2ASGN_MODE      " >-</span></div>
+</div>
+</div>
+<div class="param-group param-group-continuing">
+<div class="param">
+  <div class="param-name"><b>Assign #16</b> <select id="selectASGN_1_DST" class="asgn-dst-select" onchange="onChangeAsgnDstSelect(ASGN_1_DST, value)" aria-label="Assign #16 Dst"></select> <span class="cc">CC#48</span></div>
   <div class="param-ctrl"><input  id="inputASGN_1_DST     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(ASGN_1_DST     , value)"><span    id="spanASGN_1_DST     " >-</span><span   id="span2ASGN_1_DST     " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>Asgn 2</b> Dst <span class="cc">CC#49</span></div>
+  <div class="param-name"><b>Assign #17</b> <select id="selectASGN_2_DST" class="asgn-dst-select" onchange="onChangeAsgnDstSelect(ASGN_2_DST, value)" aria-label="Assign #17 Dst"></select> <span class="cc">CC#49</span></div>
   <div class="param-ctrl"><input  id="inputASGN_2_DST     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(ASGN_2_DST     , value)"><span    id="spanASGN_2_DST     " >-</span><span   id="span2ASGN_2_DST     " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>Asgn 3</b> Dst <span class="cc">CC#50</span></div>
+  <div class="param-name"><b>Assign #18</b> <select id="selectASGN_3_DST" class="asgn-dst-select" onchange="onChangeAsgnDstSelect(ASGN_3_DST, value)" aria-label="Assign #18 Dst"></select> <span class="cc">CC#50</span></div>
   <div class="param-ctrl"><input  id="inputASGN_3_DST     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(ASGN_3_DST     , value)"><span    id="spanASGN_3_DST     " >-</span><span   id="span2ASGN_3_DST     " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>Asgn 4</b> Dst <span class="cc">CC#51</span></div>
+  <div class="param-name"><b>Assign #19</b> <select id="selectASGN_4_DST" class="asgn-dst-select" onchange="onChangeAsgnDstSelect(ASGN_4_DST, value)" aria-label="Assign #19 Dst"></select> <span class="cc">CC#51</span></div>
   <div class="param-ctrl"><input  id="inputASGN_4_DST     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(ASGN_4_DST     , value)"><span    id="spanASGN_4_DST     " >-</span><span   id="span2ASGN_4_DST     " >-</span></div>
 </div>
 </div>
@@ -4313,6 +4472,24 @@ Off <input type="number" id="inputNoteOffVelocity" min="1" max="127" step="1"></
 <div class="param">
   <div class="param-name">Channel Pressure</div>
   <div class="param-ctrl"><input id="inputPerfCH_PRESSURE" type="range" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(CH_PRESSURE, value)"><span id="spanPerfCH_PRESSURE">0</span><span id="span2PerfCH_PRESSURE"></span></div>
+</div>
+</div>
+<div class="param-group">
+<div class="param">
+  <div class="param-name">General Purpose 1 <span class="cc">CC#16</span></div>
+  <div class="param-ctrl"><input id="inputPerfGEN_PURPOSE_1" type="range" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(GEN_PURPOSE_1, value)"><span id="spanPerfGEN_PURPOSE_1">0</span><span id="span2PerfGEN_PURPOSE_1"></span></div>
+</div>
+<div class="param">
+  <div class="param-name">General Purpose 2 <span class="cc">CC#17</span></div>
+  <div class="param-ctrl"><input id="inputPerfGEN_PURPOSE_2" type="range" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(GEN_PURPOSE_2, value)"><span id="spanPerfGEN_PURPOSE_2">0</span><span id="span2PerfGEN_PURPOSE_2"></span></div>
+</div>
+<div class="param">
+  <div class="param-name">General Purpose 3 <span class="cc">CC#18</span></div>
+  <div class="param-ctrl"><input id="inputPerfGEN_PURPOSE_3" type="range" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(GEN_PURPOSE_3, value)"><span id="spanPerfGEN_PURPOSE_3">0</span><span id="span2PerfGEN_PURPOSE_3"></span></div>
+</div>
+<div class="param">
+  <div class="param-name">General Purpose 4 <span class="cc">CC#19</span></div>
+  <div class="param-ctrl"><input id="inputPerfGEN_PURPOSE_4" type="range" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(GEN_PURPOSE_4, value)"><span id="spanPerfGEN_PURPOSE_4">0</span><span id="span2PerfGEN_PURPOSE_4"></span></div>
 </div>
 </div>
 </div>

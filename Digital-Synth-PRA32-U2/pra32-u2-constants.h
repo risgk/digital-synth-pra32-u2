@@ -138,6 +138,7 @@ const uint8_t   GEN_PURPOSE_1   = 16;
 const uint8_t   GEN_PURPOSE_2   = 17;
 const uint8_t   GEN_PURPOSE_3   = 18;
 const uint8_t   GEN_PURPOSE_4   = 19;
+const uint8_t   ASGN_MODE       = 42;
 const uint8_t   ASGN_1_DST      = 48;
 const uint8_t   ASGN_2_DST      = 49;
 const uint8_t   ASGN_3_DST      = 50;

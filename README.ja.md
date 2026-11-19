@@ -132,6 +132,10 @@
 - PRA32-U2 は、PRA32-U2 Editor を使わずに MIDI で制御することもできます (例えば DAW や MIDI キーボードから)
 - 電源を入れたときのプログラムは #0 です。Write で書き込んだプログラムは、プログラム・チェンジ #0-15 で呼び出せます (上記)
 - 対応している機能は [MIDI Implementation Chart](./docs/midi-implementation-chart.md) (英語) を参照してください
+- General Purpose Controller 1-4 (CC #16-19) で、Assign #16-#19 Dst (CC #48-51) で選んだパラメーターを操作できます (MIDI キーボードのつまみなど)
+    - 選ぶパラメーターはプログラムごとです (プリセットでは Filter Cutoff、Filter Resonance、Osc 1 Shape、Osc 1 Morph)
+    - すぐに効きます (Assign Mode Jmp)。Assign Mode (CC #42) を Cat にすると、パラメーターの今の値に届いてから効くので値が飛ばず (ライブなどに)、Rel にするとエンドレス・エンコーダー向けの相対値として効きます (英語版の [Parameter Guide](./docs/parameter-guide.md#performance-controllers) を参照)
+    - v3.22.0 から、EG Att/Dec Key Track、LFO Depth、Voice Mode、Osc 1 Shape は CC #44-47 (以前は CC #16-19)、EG Att/Dec Velo Sens は CC #43 (以前は #51) です
 - プログラム #0-31 は "pra32-u2-program-table.h" を編集して変更できます
 
 
@@ -144,13 +148,14 @@
 - Undo: 直前の変更 (プリセット、Randomize、Import、スライダーの操作) の前のパラメーターに戻します (200 段階まで)。Redo で進めます (Ctrl+Z と、Ctrl+Y または Ctrl+Shift+Z でも。Mac では Command)
 - "MIDI"、"Actions & Presets"、"Store & File"、"Write & Program Change" はそれぞれ隠せるので、パラメーターに画面を広く使えます ("MIDI" の見出しの Send Current は、隠している間も使えます)
 - "Synth Parameters" (最初の 32 個)、"More Synth Parameters" (残り)、"FX Parameters" も、それぞれ隠せます
+- Assign #16-#19 Dst は、パラメーターの名前でも選べます (それぞれの横のリスト)
 - PRA32-U2/P 向けの "Panel & Step Sequencer" (英語版の [Panel Channel](./README-PRA32-U2-P.md#panel-channel) を参照)
 - ボタンやスライダーなどは、どのブラウザーや OS でも同じ見た目 (Chrome 相当) です。タッチ画面では、スライダーのつまみが大きく、ボタンが高くなります
 - Software Keyboard: マウス、タッチ、PC のキーボード (A - K が C - C、W - U が黒鍵、Z / X がオクターブ) で弾けます
     - パラメーターの下にあり、パラメーターをスクロールしても画面の下に残るので、弾きながらパラメーターを変えられます。隠すこともできます (Panic は表示されたまま。隠すと Hold はオフになります)
     - ノートオンとノートオフのベロシティを入力できます (1-127、初期値はどちらも 64)
     - Hold がオンの間は、離した鍵盤のノートが鳴り続けます (その鍵盤をもう一度押すか、Hold をオフにするか、Panic で止まります)
-    - 鍵盤の下のスライダーで、Pitch Bend (離すと中央に戻ります)、Modulation Wheel、Breath Controller、Expression、Sustain Pedal、Portamento Switch、Channel Pressure を送れます (Performance Controls。スマホなどでは、鍵盤とは別に隠せます)
+    - 鍵盤の下のスライダーで、Pitch Bend (離すと中央に戻ります)、Modulation Wheel、Breath Controller、Expression、Sustain Pedal、Portamento Switch、Channel Pressure、General Purpose Controller 1-4 を送れます (Performance Controls。スマホなどでは、鍵盤とは別に隠せます)
 
 
 ## PRA32-U2/M (PRA32-U2 Multi-Timbre Edition)

@@ -37,7 +37,7 @@
         - Shift + Prev/Next Key: Go to the previous/next group without long-pressing
         - Shift + Prog -/+ Key: Change to the previous/next user program without long-pressing
         - Shift + VR0/1/2: Prevent values from changing across 64
-        - Shift + Play Key: Panic (All Sound Off and Reset All Controllers of the synth, and of that of the Step Sequencer, as Panic on Page B-24)
+        - Shift + Play Key: Panic (All Sound Off and Reset All Controllers of the synth, and of that of the Step Sequencer, as Panic on Page B-26)
         - Shift + Prev Key + Next Key (PRA32-U2/M/P): Go to the previous synth (channel)
         - To use this key, uncomment `//#define PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN         (21)` in "Digital-Synth-PRA32-U2.ino"
     - VR0 (ADC0): Parameter A
@@ -158,6 +158,9 @@
     - Sustain Pedal
     - Portamento Switch
     - Channel Pressure
+    - General Purpose Controller 1-4 (Pages B-24 and B-25): the knobs control them at once (without the catch of the knobs), and the display shows
+      the parameter that they control (Assign #16-#19 Dst): its value, "<" or ">" until the knob comes to it with Assign Mode Cat (from then,
+      it follows the knob; always "=" with Jmp and Rel, as the knobs work as Jmp with Rel too), and its number (e.g. "A>112[ 74]", "A=112[ 74]"); with "[Off]", their own values
 - Control Operations
     - Panic: Change the value from 0-31 [Rdy] to 96-127 [Exe]
     - Randomize Synth (Randomize Synth Parameters, as Program Change #127): Change the value from 0-31 [Rdy] to 96-127 [Exe]
@@ -270,13 +273,14 @@
 | A-28 LFO d     | LFO Filter Amt       | LFO Trig Mode        |
 | A-29 Breath    | Breath Filter Amt    | Breath Amp Mode      |
 | A-30 Aft Touch | Aft Touch LFO Amt    |                      |
-| A-31 Assign a  | Asgn 1 Dst           | Asgn 2 Dst           |
-| A-32 Assign b  | Asgn 3 Dst           | Asgn 4 Dst           |
-| A-33 FX        | Distortion Drive     | FX Routing           |
-| A-34 Chorus a  | Chorus Level         |                      |
-| A-35 Chorus b  | Chorus Rate          | Chorus Depth         |
-| A-36 Delay a   | Delay Level          | Delay Mode           |
-| A-37 Delay b   | Delay Time           | Delay Feedback       |
+| A-31 Assign a  | Assign #16 Dst       | Assign #17 Dst       |
+| A-32 Assign b  | Assign #18 Dst       | Assign #19 Dst       |
+| A-33 Assign c  | Assign Mode          |                      |
+| A-34 FX        | Distortion Drive     | FX Routing           |
+| A-35 Chorus a  | Chorus Level         |                      |
+| A-36 Chorus b  | Chorus Rate          | Chorus Depth         |
+| A-37 Delay a   | Delay Level          | Delay Mode           |
+| A-38 Delay b   | Delay Time           | Delay Feedback       |
 | B-0 Panel a    | Panel Play Mode      | Panel Scale          |
 | B-1 Panel b    | Panel Pitch Ofst     | Panel Transpose      |
 | B-2 Panel c    | Panel Play Pitch     | Panel Play Velo      |
@@ -301,7 +305,9 @@
 | B-21 Control b | Breath Controller    | Expression           |
 | B-22 Control c | Sustain Pedal        | Portamento Switch    |
 | B-23 Control d | Channel Pressure     |                      |
-| B-24 Control e | Panic                | Randomize Synth      |
+| B-24 Control e | General Purpose 1    | General Purpose 2    |
+| B-25 Control f | General Purpose 3    | General Purpose 4    |
+| B-26 Control g | Panic                | Randomize Synth      |
 | C-0 Write 0    | Write #0 User        | Write #1 User        |
 | C-1 Write 2    | Write #2 User        | Write #3 User        |
 | C-2 Write 4    | Write #4 User        | Write #5 User        |

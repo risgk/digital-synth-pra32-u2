@@ -100,6 +100,7 @@ static uint8_t s_program_table_parameters[] = {
   OSC_SAW_W_MODE ,
   STRETCH_TUNE   ,
   PAN            ,
+  ASGN_MODE      ,
 
   ASGN_1_DST     ,
   ASGN_2_DST     ,
@@ -314,6 +315,7 @@ static __attribute__((noinline)) void PRA32_U2_copy_presets_to_program_table(uin
   std::memcpy(program_table[STRETCH_TUNE   ], g_preset_table_STRETCH_TUNE   , sizeof(program_table[0]));
   std::memcpy(program_table[PAN            ], g_preset_table_PAN            , sizeof(program_table[0]));
 
+  std::memcpy(program_table[ASGN_MODE      ], g_preset_table_ASGN_MODE      , sizeof(program_table[0]));
   std::memcpy(program_table[ASGN_1_DST     ], g_preset_table_ASGN_1_DST     , sizeof(program_table[0]));
   std::memcpy(program_table[ASGN_2_DST     ], g_preset_table_ASGN_2_DST     , sizeof(program_table[0]));
   std::memcpy(program_table[ASGN_3_DST     ], g_preset_table_ASGN_3_DST     , sizeof(program_table[0]));
@@ -332,24 +334,44 @@ static __attribute__((noinline)) void PRA32_U2_copy_presets_to_program_table(uin
   std::memcpy(program_table[DELAY_TIME     ], g_preset_table_DELAY_TIME     , sizeof(program_table[0]));
 }
 
-// General Purpose 1-4 (CC #16-19): the Control Change of the number that Asgn 1-4 Dst set (0, 16-19, 106: Write Parameters
-// to Program, and 120-127: the Channel Mode Messages, are Off), with the pickup: only after the value comes to that of the
-// parameter (the same, or across it), so that it does not jump (e.g. after a Program Change, or the parameter changed
-// otherwise); the parameter follows it from there, while the last value of it is that of the parameter. Returns the number
-// to control now, or 0; shared by the synths (not inlined into each of them, in the RAM)
+// General Purpose Controller 1-4 (CC #16-19): the Control Change of the number that Assign #16-#19 Dst set (0, 16-19,
+// 48-51: Assign #16-#19 Dst, 64: Sustain Pedal, which the groups of PRA32-U2/M take apart, 80: Voice Group Mode, 106: Write
+// Parameters to Program, 111-119: Randomize Synth and Program Change by CC, and 120-127: the Channel Mode Messages, are Off)
+static INLINE boolean PRA32_U2_assign_dst_off(uint8_t dst) {
+  return (dst == 0) || ((dst >= GEN_PURPOSE_1) && (dst <= GEN_PURPOSE_4)) || ((dst >= ASGN_1_DST) && (dst <= ASGN_4_DST)) ||
+         (dst == SUSTAIN_PEDAL) || (dst == VOICE_GRP_MODE) || (dst == WRITE_P_TO_PROG) || (dst >= SP_RAND_CTRL);
+}
+
+// Assign Mode [Jmp|Cat|Rel]: 0 (0-31), 1 (32-95), and 2 (96-127)
+static INLINE uint32_t PRA32_U2_assign_mode(uint8_t controller_value) {
+  return ((controller_value * 4) + 128) >> 8;
+}
+
+// By Assign Mode: Jmp, the value at once (the parameter jumps to it); Cat, only after the value comes to that of the parameter
+// (the same, or across it), so that it does not jump (e.g. after a Program Change, or the parameter changed otherwise), and
+// the parameter follows it from there, while the last value of it is that of the parameter; Rel, the value - 64 added to that
+// of the parameter (e.g. +1 by 65, -1 by 63, for an endless encoder), within 0-127. Returns the number to control now (or 0),
+// with the value to set; shared by the synths (not inlined into each of them, in the RAM)
 static __attribute__((noinline)) uint8_t __not_in_flash_func(PRA32_U2_general_purpose_dst)(const uint8_t controller_value_table[128 + 128],
                                                                                             uint8_t last_values[4], uint32_t index,
-                                                                                            uint8_t controller_value) {
+                                                                                            uint8_t& controller_value) {
   uint8_t dst  = controller_value_table[ASGN_1_DST + index];
   uint8_t last = last_values[index];
   last_values[index] = controller_value;
 
-  if ((dst == 0) || ((dst >= GEN_PURPOSE_1) && (dst <= GEN_PURPOSE_4)) || (dst == WRITE_P_TO_PROG) || (dst >= ALL_SOUND_OFF)) {
+  if (PRA32_U2_assign_dst_off(dst)) {
     return 0;
   }
 
-  uint8_t current = controller_value_table[dst];
-  if ((controller_value == current) || (last == current) ||
+  uint8_t  current = controller_value_table[dst];
+  uint32_t mode    = PRA32_U2_assign_mode(controller_value_table[ASGN_MODE]);
+  if (mode == 2) {
+    int32_t value = static_cast<int32_t>(current) + static_cast<int32_t>(controller_value) - 64;
+    controller_value = static_cast<uint8_t>((value < 0) ? 0 : ((value > 127) ? 127 : value));
+    return dst;
+  }
+
+  if ((mode == 0) || (controller_value == current) || (last == current) ||
       ((last < current) && (controller_value > current)) ||
       ((last > current) && (last <= DATA_BYTE_MAX) && (controller_value < current))) {
     return dst;
@@ -413,7 +435,7 @@ class PRA32_U2_Synth {
   boolean           m_ready_to_write_p_to_prog;
   uint8_t           m_sp_prog_chg_cc_values[8];
   uint8_t           m_sp_rand_ctrl_cc_value;
-  uint8_t           m_gen_purpose_last_value[4];  // The last values of General Purpose 1-4 (0xFF: none yet), for the pickup
+  uint8_t           m_gen_purpose_last_value[4];  // The last values of General Purpose Controller 1-4 (0xFF: none yet), for the pickup
   uint8_t           m_current_controller_value_table[128 + 128];
 #if defined(ARDUINO_ARCH_RP2040)
   uint8_t           (&m_program_table)[128][PROGRAM_NUMBER_MAX + 1];  // g_program_table, shared by the synths (as the flash)
@@ -1090,22 +1112,27 @@ public:
   }
 
   /* INLINE */ void __not_in_flash_func(control_change)(uint8_t control_number, uint8_t controller_value) {
-    if ((control_number >= GEN_PURPOSE_1) && (control_number <= GEN_PURPOSE_4)) {  // (not kept: not a parameter)
-      uint8_t dst = PRA32_U2_general_purpose_dst(m_current_controller_value_table, m_gen_purpose_last_value,
-                                                 control_number - GEN_PURPOSE_1, controller_value);
-      if (dst != 0) {
-        control_change(dst, controller_value);
-      }
-      return;
-    }
-
-    m_current_controller_value_table[control_number] = controller_value;
+    m_current_controller_value_table[control_number] = controller_value;  // (General Purpose Controller 1-4 too, for the panel)
 
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
     PRA32_U2_ControlPanel_on_control_change(control_number);
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 
     switch (control_number) {
+    case GEN_PURPOSE_1  :
+    case GEN_PURPOSE_2  :
+    case GEN_PURPOSE_3  :
+    case GEN_PURPOSE_4  :
+      {
+        uint8_t value = controller_value;
+        uint8_t dst   = PRA32_U2_general_purpose_dst(m_current_controller_value_table, m_gen_purpose_last_value,
+                                                     control_number - GEN_PURPOSE_1, value);
+        if (dst != 0) {
+          control_change(dst, value);
+        }
+      }
+      break;
+
     case MODULATION     :
       m_lfo.set_lfo_depth<1>(controller_value);
       break;
@@ -1688,6 +1715,7 @@ if constexpr (NO_FX == false) {
           (control_number != AMP_DECAY      ) &&
           (control_number != AMP_SUSTAIN    ) &&
           (control_number != AMP_RELEASE    ) &&
+          (control_number != ASGN_MODE      ) &&
           (control_number != ASGN_1_DST     ) &&
           (control_number != ASGN_2_DST     ) &&
           (control_number != ASGN_3_DST     ) &&
