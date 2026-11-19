@@ -178,7 +178,7 @@
 
 ### Circuit Diagram
 
-![Circuit Diagram](./images/pra32-u2-pwm-audio-circuit-diagram.png)
+![Circuit Diagram](./images/pwm-audio-circuit-diagram.png)
 
 - This image was created with Fritzing.
     - Actually, it is necessary to use Raspberry Pi Pico 2 (instead of Raspberry Pi Pico)
@@ -191,7 +191,7 @@
 
 ### Actual Wiring Diagram
 
-![Actual Wiring Diagram](./images/pra32-u2-pwm-audio-bread-board.png)
+![Actual Wiring Diagram](./images/pwm-audio-bread-board.png)
 
 - This image was created with Fritzing.
     - Actually, it is necessary to use Raspberry Pi Pico 2 (instead of Raspberry Pi Pico)

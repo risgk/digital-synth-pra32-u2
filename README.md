@@ -23,13 +23,13 @@
       ([PRA32-U2/P Headless](./README-PRA32-U2-P.md#pra32-u2p-headless)), e.g. from "Panel & Step Sequencer" of PRA32-U2 Editor
         - NOTE: It also responds to the Control Changes on MIDI Channel 15 (the Panel Channel, by default)
     - PRA32-U2: "Digital-Synth-PRA32-U2-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico 2 and Pimoroni Pico Audio Pack
-- Modifiable with Arduino IDE and Arduino-Pico (by Earle F. Philhower, III): see [Modification Guide](./docs/PRA32-U2-Modification-Guide.md) (e.g. for other I2S DACs, PWM Audio, or the panel)
+- Modifiable with Arduino IDE and Arduino-Pico (by Earle F. Philhower, III): see [Modification Guide](./docs/modification-guide.md) (e.g. for other I2S DACs, PWM Audio, or the panel)
 - Optional: **[PRA32-U2/P](./README-PRA32-U2-P.md)** (PRA32-U2 with Panel) and **PRA32-U2/M/P** (PRA32-U2 Multi-Timbre Edition with Panel) can also be configured by adding certain parts
     - Or **[PRA32-U2/P Headless](./README-PRA32-U2-P.md#pra32-u2p-headless)** without the panel: the Step Sequencer by MIDI (e.g. from PRA32-U2 Editor), with no extra parts
 - **[PRA32-U2 Native](./PRA32-U2-Native/README.md)**: a software synthesizer (VST3 plugin and standalone application) version of PRA32-U2 for PCs
 - **[PRA32-U2 Web](./PRA32-U2-Web/README.md)**: a software synthesizer version of PRA32-U2 that runs in a Web browser, built into PRA32-U2 Editor
 
-![PRA32-U2 (Pico Audio Pack)](./docs/images/pra32-u2-pico-audio-pack.jpg)
+![PRA32-U2 (Pico Audio Pack)](./docs/images/pico-audio-pack.jpg)
 
 
 ## Getting Started
@@ -40,15 +40,15 @@
 4. Open [PRA32-U2 Editor](#pra32-u2-editor) in Google Chrome or Microsoft Edge, select "PRA32-U2" in "MIDI Out", and play the Software Keyboard (MIDI Channel 1)
 
 
-## [Change History](./PRA32-U2-Change-History.md)
+## [Changelog](./CHANGELOG.md)
 
 
-## [Parameter Guide](./docs/PRA32-U2-Parameter-Guide.md)
+## [Parameter Guide](./docs/parameter-guide.md)
 
-- See [Main Parameters](./docs/PRA32-U2-Parameter-Guide.md#main-parameters) first: the main parameters (and the Preset to start from: see [Programs and Presets](#programs-and-presets))
+- See [Main Parameters](./docs/parameter-guide.md#main-parameters) first: the main parameters (and the Preset to start from: see [Programs and Presets](#programs-and-presets))
 
 
-## [MIDI Implementation Chart](./docs/PRA32-U2-MIDI-Implementation-Chart.md)
+## [MIDI Implementation Chart](./docs/midi-implementation-chart.md)
 
 
 ## Synthesizer Block Diagram
@@ -87,19 +87,19 @@ graph LR
 ```
 
 
-## [Block Diagrams and Wave Table Graphs](./docs/PRA32-U2-Block-Diagrams.md)
+## [Block Diagrams and Wave Table Graphs](./docs/block-diagrams.md)
 
 - The diagrams of the Osc, the Filter, the Distortion FX, the Chorus FX, the Delay FX, the Reverb, the Output Compressor, and PRA32-U2/M, and the graphs of the Wave Tables
 
 
-## [Modification Guide](./docs/PRA32-U2-Modification-Guide.md)
+## [Modification Guide](./docs/modification-guide.md)
 
 - Preparation for Modification (Arduino IDE, Arduino-Pico, and MIDI Library)
 - MIDI (USB MIDI Device and UART MIDI) and Audio Output (I2S, Audio Buffer and latency, and PWM Audio) settings
 - Simple Circuit for PWM Audio
 
 
-## [Development](./docs/PRA32-U2-Development.md)
+## [Development](./docs/development.md)
 
 - Notes for changing the code: Debug Print, how it runs on the two cores, keeping the processing time the same (e.g. branchless), the Load Estimate, writing to the flash, and the tools
 
@@ -108,10 +108,10 @@ graph LR
 
 - "Digital-Synth-PRA32-U2.ino" is an Arduino sketch for Raspberry Pi Pico/RP2040/RP2350 core
     - Modify `PRA32_U2_MIDI_CH` to change the MIDI Channel (0-based: 0 is MIDI Channel 1)
-- "PRA32-U2-M-Demo/pra32-u2-m-make-wav-file-from-smf.cc" renders a Standard MIDI File to a WAV file on PC, for debugging
-  (e.g. "PRA32-U2-Sample/pra32-u2-sample.mid", which "PRA32-U2-Sample/pra32-u2-generate-sample-smf.rb" makes; see [PRA32-U2/M Demo](./PRA32-U2-M-Demo/README.md))
+- "demo/pra32-u2-m-make-wav-file-from-smf.cc" renders a Standard MIDI File to a WAV file on PC, for debugging
+  (e.g. "demo/pra32-u2-sample.mid", which "demo/pra32-u2-generate-sample-smf.rb" makes; see [PRA32-U2 Demo](./demo/README.md))
     - GCC (g++) for PC is required
-    - "PRA32-U2-Sample/pra32-u2-make-sample-wav-file-cc.bat" makes a sample WAV file from "pra32-u2-sample.mid" (working on Windows)
+    - "demo/pra32-u2-make-sample-wav-file-cc.bat" makes a sample WAV file from "pra32-u2-sample.mid" (working on Windows)
 - "Digital-Synth-PRA32-U2/pra32-u2-generate-*.rb" generates source or header files
     - A Ruby execution environment is required
 
@@ -164,7 +164,7 @@ graph LR
 
 - PRA32-U2 can also be controlled by MIDI without using PRA32-U2 Editor (e.g. with a DAW or a MIDI keyboard)
 - The default program (when the power is turned on) is #0; the programs written by Write are recalled by Program Change #0-15 (see above)
-- Refer to [PRA32-U2-MIDI-Implementation-Chart.md](./docs/PRA32-U2-MIDI-Implementation-Chart.md) for the supported functions
+- Refer to [MIDI Implementation Chart](./docs/midi-implementation-chart.md) for the supported functions
 - Programs #0-31 can be modified by editing "pra32-u2-program-table.h"
 
 
@@ -281,8 +281,8 @@ graph LR
     - Check the wiring of the I2S DAC (for GY-PCM5102, also check that SCK is connected to GND, and the solder jumpers on the back)
     - Check that "MIDI Ch" of PRA32-U2 Editor matches the MIDI Channel of PRA32-U2 (1 by default)
 - Noise
-    - The output may be affected by USB communication noise; try [UART MIDI](./docs/PRA32-U2-Modification-Guide.md#uart-midi)
-    - With PWM Audio without the RC filters, reduce the level: see [PWM Audio (Optional)](./docs/PRA32-U2-Modification-Guide.md#pwm-audio-optional)
+    - The output may be affected by USB communication noise; try [UART MIDI](./docs/modification-guide.md#uart-midi)
+    - With PWM Audio without the RC filters, reduce the level: see [PWM Audio (Optional)](./docs/modification-guide.md#pwm-audio-optional)
 - Distortion
     - Check that "Distortion Drive" is 0 (or that FX Routing is not Dst)
     - Lower "Amp Gain" (a high Filter Resonance or a high Osc 1 Shape/Morph makes the sound louder)

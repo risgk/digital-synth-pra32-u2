@@ -369,6 +369,6 @@ flowchart LR
 
 ## Wave Table Graphs
 
-![Wave Table Graphs](./images/pra32-u2-wave-table-graphs.png)
+![Wave Table Graphs](./images/wave-table-graphs.png)
 
-The source data of the graphs: [pra32-u2-wave-table-graphs.ods](./images/pra32-u2-wave-table-graphs.ods)
+The source data of the graphs: [wave-table-graphs.ods](./images/wave-table-graphs.ods)

@@ -4,7 +4,7 @@
 # PRA32-U2 and PRA32-U2/M/P in the cases below with pra32-u2-load-estimate.py, and prints the tables
 # of README.md, with the RAM of all 6 (the 4 and the Lite)
 #
-#   sh PRA32-U2-Load-Estimate/pra32-u2-load-estimate.sh
+#   sh load-estimate/pra32-u2-load-estimate.sh
 #
 # Needs arduino-cli with the Arduino-Pico core and the MIDI Library (see README.md here), python3, and:
 # pip install unicorn capstone pyelftools. Tested on Linux

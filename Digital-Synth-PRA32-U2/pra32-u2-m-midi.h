@@ -3,7 +3,7 @@
 // PRA32-U2/M: the MIDI messages of the 4 synths (the Main Synth and the Sub Synths 1-3) by the MIDI channels:
 // each synth on Basic Channel + 0 to + 3, the Layering, and the Round Robin (see README.md); the Program Changes
 // kept and processed later. Used by "Digital-Synth-PRA32-U2-M.ino" (and its Customization Examples),
-// "PRA32-U2-M-Demo", and PRA32-U2/M/P Web, so that they handle the MIDI messages in the same way.
+// "demo", and PRA32-U2/M/P Web, so that they handle the MIDI messages in the same way.
 // Defined before it is included: g_midi_ch (the Basic Channel - 1), g_synth, g_sub_1_synth, g_sub_2_synth,
 // g_sub_3_synth, g_synth_is_in_polyphonic_mode, and PRA32_U2_ENABLE_LAYERING if used (the Layering and the Round Robin)
 // (and PRA32_U2_NUMBER_OF_SYNTHS, after "pra32-u2-control-panel.h", with PRA32_U2_USE_CONTROL_PANEL).

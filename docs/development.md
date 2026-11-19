@@ -1,7 +1,7 @@
 # Digital Synth PRA32-U2 Development
 
 - <https://github.com/risgk/digital-synth-pra32-u2>
-- Notes for changing the code of PRA32-U2: how it runs and how to measure it; for the settings, see [Modification Guide](./PRA32-U2-Modification-Guide.md)
+- Notes for changing the code of PRA32-U2: how it runs and how to measure it; for the settings, see [Modification Guide](./modification-guide.md)
 
 
 ## Debug Print
@@ -15,9 +15,9 @@
 - `underruns`: the times the output buffer was found empty (the DMA had played all of it, and plays it again: heard as a glitch),
   since the start; not counted after a write to the flash (e.g. Write Program), where the output stops for a while
 - It is printed by the secondary core (core 1), a line at a time, and skipped while the host is not reading
-- To measure PRA32-U2/M, /P, or /M/P, build it as "pra32-u2-load-estimate.sh" in "PRA32-U2-Load-Estimate" does with arduino-cli
+- To measure PRA32-U2/M, /P, or /M/P, build it as "pra32-u2-load-estimate.sh" in "load-estimate" does with arduino-cli
   (a copy of the "Digital-Synth-PRA32-U2" folder, with "Digital-Synth-PRA32-U2-M.ino" as its .ino for /M, and `PRA32_U2_USE_CONTROL_PANEL` uncommented for /P,
-  with `PRA32_U2_USE_DEBUG_PRINT` uncommented), or use the UF2 files that it builds into "PRA32-U2-Load-Estimate/build"
+  with `PRA32_U2_USE_DEBUG_PRINT` uncommented), or use the UF2 files that it builds into "load-estimate/build"
 
 
 ## Runtime
@@ -83,7 +83,7 @@
 
 ## Load Estimate
 
-- [PRA32-U2 Load Estimate](../PRA32-U2-Load-Estimate/README.md) estimates the load of each core without the hardware, from the UF2 build,
+- [PRA32-U2 Load Estimate](../load-estimate/README.md) estimates the load of each core without the hardware, from the UF2 build,
   in a few cases (e.g. the heaviest Osc 1 Wave and Delay Mode), and keeps the estimates of each version
 
 
@@ -105,16 +105,16 @@
 
 ## Files and Tools
 
-- [PRA32-U2/M Demo](../PRA32-U2-M-Demo/README.md): "pra32-u2-m-make-wav-file-from-smf.cc" (GCC) renders a Standard MIDI File with PRA32-U2/M to a WAV file on PC
+- [PRA32-U2 Demo](../demo/README.md): "pra32-u2-m-make-wav-file-from-smf.cc" (GCC) renders a Standard MIDI File with PRA32-U2/M to a WAV file on PC
   ("pra32-u2-m-make-wav-file-from-smf-cc.bat" on Windows), for checking a change of the sound:
-    - "PRA32-U2-Sample/pra32-u2-sample.mid", which "pra32-u2-generate-sample-smf.rb" (Ruby) makes: the sample of PRA32-U2 (MIDI Channel 1 only, which the Main Synth plays as PRA32-U2 does);
+    - "pra32-u2-sample.mid", which "pra32-u2-generate-sample-smf.rb" (Ruby) makes: the sample of PRA32-U2 (MIDI Channel 1 only, which the Main Synth plays as PRA32-U2 does);
       "pra32-u2-make-sample-wav-file-cc.bat" renders it on Windows
     - The demo song "pra32-u2-m-demo-ode-to-joy.mid": PRA32-U2/M (the 4 synths)
 
     ```
-    cd PRA32-U2-M-Demo
+    cd demo
     g++ -O2 -std=gnu++17 pra32-u2-m-make-wav-file-from-smf.cc -o pra32-u2-m-make-wav-file-from-smf
-    ./pra32-u2-m-make-wav-file-from-smf ../PRA32-U2-Sample/pra32-u2-sample.mid pra32-u2-sample.wav
+    ./pra32-u2-m-make-wav-file-from-smf pra32-u2-sample.mid pra32-u2-sample.wav
     ```
 
 - GitHub Actions "PRA32-U2 Build (UF2, Native, and Web)" (".github/workflows/pra32-u2.yml", manual runs): builds the UF2 files and PRA32-U2 Web, and PRA32-U2 Native
@@ -127,24 +127,24 @@
 Basically, a release goes as follows:
 
 1. Check it on the device: PRA32-U2, PRA32-U2/M, and PRA32-U2/M/P Headless, whose UF2 files are released (/P and /M/P with the panel are built by the users)
-2. In PRA32-U2-Change-History.md, set the date of the version (instead of "2026-??-??"), and "Tested with Arduino-Pico version"
+2. In CHANGELOG.md, set the date of the version (instead of "2026-??-??"), and "Tested with Arduino-Pico version"
 3. Change the version: `PRA32_U2_VERSION` in "Digital-Synth-PRA32-U2.ino", "Digital-Synth-PRA32-U2-M.ino", and the 4 files in "customization-examples";
-   `APP_NAME_VERSION` in "pra32-u2-editor.html"; `_version` in the 3 program JSON files (the 2 files in "presets" and "PRA32-U2-M-Demo/pra32-u2-m-demo-ode-to-joy.json"); the headings of README.md and README.ja.md,
+   `APP_NAME_VERSION` in "pra32-u2-editor.html"; `_version` in the 3 program JSON files (the 2 files in "presets" and "demo/pra32-u2-m-demo-ode-to-joy.json"); the headings of README.md and README.ja.md,
    and the dates under them ("YYYY-MM-DD ISGK Instruments"); the License of README.md; the Info page in README-PRA32-U2-P.md;
-   and the Version and the Date of "docs/PRA32-U2-MIDI-Implementation-Chart.md", all of them at every release
+   and the Version and the Date of "docs/midi-implementation-chart.md", all of them at every release
    (the other documents have no version or date)
-4. Estimate the load with `sh PRA32-U2-Load-Estimate/pra32-u2-load-estimate.sh` (it takes the version from "Digital-Synth-PRA32-U2.ino"),
-   and replace the tables in [PRA32-U2 Load Estimate](../PRA32-U2-Load-Estimate/README.md) with those printed
+4. Estimate the load with `sh load-estimate/pra32-u2-load-estimate.sh` (it takes the version from "Digital-Synth-PRA32-U2.ino"),
+   and replace the tables in [PRA32-U2 Load Estimate](../load-estimate/README.md) with those printed
 5. Commit them all as "vX.Y.Z"
 6. Run "PRA32-U2 Build" on develop with `commit_package` only, for the UF2 files and PRA32-U2 Web
    (`load_estimate` is for an estimate without arduino-cli at hand: the tables are in the summary of the run, and they are committed by hand)
 7. Merge develop into main by a pull request
 8. Make the GitHub Release as a draft ("Save draft"): the tag "vX.Y.Z" on main (made when the release is published), and the notes "# Digital Synth PRA32-U2 vX.Y.Z", the line of what it is,
-   and "## Change History" with the version of this release only; write "#N" (a program, a CC, ...) as "#&#8203;N" (with a zero-width space),
+   and "## Changelog" with the version of this release only; write "#N" (a program, a CC, ...) as "#&#8203;N" (with a zero-width space),
    so that GitHub does not link it to an issue or a pull request
 9. Run "PRA32-U2 Build" on main with `release_tag` "vX.Y.Z", which attaches the PRA32-U2 Native packages to the draft;
    check them in the draft, and publish the release (so that it is published with the packages)
-10. Add the next version to PRA32-U2-Change-History.md ("vX.Y.Z (2026-??-??)", with "Tested with Arduino-Pico version")
+10. Add the next version to CHANGELOG.md ("vX.Y.Z (2026-??-??)", with "Tested with Arduino-Pico version")
 
 - In the commit messages too, "#N" is linked to an issue or a pull request: write the name of a program instead (e.g. "Sync Lead"), or "CC 112"
 - For the maintainer: after a release, update PRA32-U2 Editor and PRA32-U2 Web on the official page

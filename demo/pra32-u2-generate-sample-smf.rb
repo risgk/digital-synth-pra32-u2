@@ -1,7 +1,7 @@
 require_relative '../Digital-Synth-PRA32-U2/pra32-u2-constants'
 
 # The sample Standard MIDI File "pra32-u2-sample.mid", for checking a change of the sound on PC with
-# "PRA32-U2-M-Demo/pra32-u2-m-make-wav-file-from-smf.cc" (PRA32-U2/M, whose Main Synth on MIDI Channel 1 plays
+# "pra32-u2-m-make-wav-file-from-smf.cc" (PRA32-U2/M, whose Main Synth on MIDI Channel 1 plays
 # as PRA32-U2 does): a tick is 12 samples (250 us: 480 ticks a quarter note of 120 ms), the time of a byte at
 # 38400 bps, and each message takes the ticks of its bytes, as the sample MIDI stream did (until v3.17.4)
 
