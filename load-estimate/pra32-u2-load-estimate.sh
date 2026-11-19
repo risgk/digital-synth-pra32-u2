@@ -73,7 +73,7 @@ row() {  # case, variants, options
         n=$((n + 1))
         opts="--brief $*"
         case $v in u2l|ml)  # The Lite: Osc 1 Wave Sin in #5 Sync Lead, the heaviest there (Sqr is lighter without its Shape and Morph)
-          opts=$(printf '%s' "$opts" | sed -e 's/--cc 18=0,35=127/&,102=77/' -e 's/--cc 1:35=127/&,1:102=77/') ;;
+          opts=$(printf '%s' "$opts" | sed -e 's/--cc 46=0,35=127/&,102=77/' -e 's/--cc 1:35=127/&,1:102=77/') ;;
         esac
         if [ "$v" = "$MODULES_OF" ]; then
           opts="$opts --modules"
@@ -90,7 +90,7 @@ row() {  # case, variants, options
 # The heaviest: #5 Sync Lead (Osc 1 Wave Sqr) with Delay Mode Rev, in Poly (PRA32-U2), and as the
 # 4 Synths in Mono by MIDI Channel 16 (Layering, with Voice Group Mode Ly2 of the Main Synth, PRA32-U2/M/P);
 # for the Program Changes, written to the user programs #0 (and #1-3 for the Sub Synths) for the time of the estimate
-POLY='--program 5 --cc 18=0,35=127 --write 0'
+POLY='--program 5 --cc 46=0,35=127 --write 0'
 SYNTHS='--program 1:5,2:5,3:5,4:5 --cc 1:35=127,1:80=26 --write 1:0,2:1,3:2,4:3 --notes 16:60,16:64,16:67,16:71'
 # By UART MIDI with Running Status, the fastest (the status byte once, then the data bytes over and over,
 # a Note Off as a Note On of velocity 0); USB MIDI has the status byte in every packet

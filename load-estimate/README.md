@@ -46,7 +46,7 @@
 - The cases (MIDI Channel 1 is the Basic Channel)
     - The notes are 60, 64, 67, and 71 (velocity 100), held; the loops are measured after 8 of warm-up
     - Osc 1 Wave Sqr and Delay Mode Rev are the heaviest of the waves and the Delay Modes, as in #5 Sync Lead (Osc 1 Wave Sqr) with Delay Mode Rev (CC #35 = 127)
-    - "Poly": #5 Sync Lead in Poly (Voice Mode, CC #18 = 0), the heaviest for PRA32-U2
+    - "Poly": #5 Sync Lead in Poly (Voice Mode, CC #46 = 0), the heaviest for PRA32-U2
     - "4 Synths" (PRA32-U2/M/P only): the Main Synth and the 3 Sub Synths (Channels 1-4) with #5 Sync Lead in Mono, played together by MIDI Channel 16 (Layering, with Voice Group Mode Ly2, CC #80 = 26),
       the heaviest for PRA32-U2/M/P
     - "by UART MIDI (Running Status) and USB MIDI": the bytes arrive over and over, with no gap, while the loops run, by UART MIDI at 31250 bps (about 4.2 bytes a loop)
