@@ -1716,9 +1716,9 @@ function onChangeAsgnDstSelect(number, value) {
   onChangeControlChange(number, parseInt(value));
 }
 
-// With Assign Mode Cat, beside the sliders of General Purpose Controller 1-4: "[<]" or "[>]" while the slider is below or
-// above the value of the parameter that it controls (not yet following it, as the knobs of the panel), and "[=]" while it
-// follows it; nothing with Jmp and Rel (at once), or with Assign #16-#19 Dst Off
+// Beside the sliders of General Purpose Controller 1-4: the number of the parameter that it controls (Assign #16-#19 Dst, e.g.
+// "[74]", or "[Off]"), and with Assign Mode Cat, "<" or ">" before it while the slider is below or above the value of the
+// parameter (not yet following it, as the knobs of the panel), and "=" while it follows it (e.g. "[<74]" and "[=74]")
 function updateGeneralPurposeIndicators() {
   var mode = assignMode();
   for (var index = 0; index < 4; index++) {
@@ -1733,16 +1733,16 @@ function updateGeneralPurposeIndicators() {
     } else if (!asgnDstOff(dst) && PERFORMANCE_CONTROLS.has(dst)) {
       current = parseInt(document.getElementById("inputPerf" + PERFORMANCE_CONTROLS.get(dst)[0]).value);
     }
-    var text = "";
+    var mark = "";
     if ((mode == 1) && (current != null)) {
       var slider = parseInt(document.getElementById("inputPerfGEN_PURPOSE_" + (index + 1)).value);
       if ((generalPurposeLastValues[index] == current) || (slider == current)) {
-        text = "[=]";
+        mark = "=";
       } else {
-        text = (slider < current) ? "[<]" : "[>]";
+        mark = (slider < current) ? "<" : ">";
       }
     }
-    span.textContent = text;
+    span.textContent = asgnDstOff(dst) ? "[Off]" : ("[" + mark + dst + "]");
   }
 }
 

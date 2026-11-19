@@ -191,7 +191,8 @@ graph LR
     - The velocities of Note On and Note Off can be entered (1-127, 64 and 64 by default)
     - Pitch Bend (springs back to the center), Modulation Wheel, Breath Controller, Expression, Sustain Pedal, Portamento Switch,
       Channel Pressure, and General Purpose Controller 1-4 can be sent from the sliders below the keyboard
-      (with Assign Mode Cat, "[<]" or "[>]" beside them until they come to the values of the parameters, and "[=]" while they follow them) (Performance Controls, which can be hidden apart from the keyboard,
+      (beside them, the numbers of the parameters that they control, e.g. "[74]", with "<" or ">" before it with Assign Mode Cat until they come to
+      the values of the parameters, and "=" while they follow them, e.g. "[<74]" and "[=74]") (Performance Controls, which can be hidden apart from the keyboard,
       e.g. on a phone)
 
 

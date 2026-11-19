@@ -83,8 +83,8 @@
       so that the programs of the synths layered stay in the same sets (e.g. #0-3 and #4-7 on "[All]"; by 1 as before on the others)
         - The program shown for a group or the Layering is that of its first synth (e.g. #0, #2, and #0 at the start for the Basic Channel + 4, + 5, and + 15 with Ly2; #4, #5, and #6 before)
     - PRA32-U2 Editor
-        - Assign #16-#19 Dst can also be selected by the names of the parameters (e.g. "Filter Cutoff (74)"), and with Assign Mode Cat,
-          "[<]", "[>]", or "[=]" beside the sliders of General Purpose Controller 1-4 (not yet following the parameter, or following it)
+        - Assign #16-#19 Dst can also be selected by the names of the parameters (e.g. "Filter Cutoff (74)"), and the sliders of General Purpose Controller 1-4
+          show the numbers of the parameters that they control (e.g. "[74]"), with "<", ">", or "=" before it with Assign Mode Cat (not yet following the parameter, or following it)
         - Add the "Key" button (Panel Key); "Play" is "Seq Play" in K+S and Seq Mode
         - "Panel & Step Sequencer" keeps the values by the names (e.g. "SEQ_TEMPO"), as the synth parameters; **not compatible**: the values kept before are not read
         - The marker of the center on Pan and Osc 1 Shape (PRA32-U2 Native too), and the slider of Osc 1 Morph snaps to the wave tables with Osc 1 Wave WT
