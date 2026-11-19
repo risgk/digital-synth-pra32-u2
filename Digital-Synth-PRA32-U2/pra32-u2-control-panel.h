@@ -1052,13 +1052,13 @@ static __attribute__((noinline, unused)) void PRA32_U2_ControlPanel_execute_oper
   }
 }
 
-// The knobs of General Purpose Controller 1-4 (Pages B-24 and B-25), with Assign Mode Rel: the parameter of Assign #16-#19 Dst
+// The knobs of General Purpose Controller 1-4 (Pages B-24 and B-25), with Assign Mode Rel: the parameter of Assign #16-#19
 // at once (the knob as an absolute value, not as a relative one); the others: the control target itself
 static uint8_t PRA32_U2_ControlPanel_absolute_target(uint8_t control_target) {
   if ((control_target >= GEN_PURPOSE_1) && (control_target <= GEN_PURPOSE_4)) {
     uint8_t channel = getTargetMIDICh(s_current_synth);
-    uint8_t dst     = getCurrentControllerValue(channel, ASGN_1_DST + (control_target - GEN_PURPOSE_1));
-    if ((PRA32_U2_assign_mode(getCurrentControllerValue(channel, ASGN_MODE)) == 2) && !PRA32_U2_assign_dst_off(dst)) {
+    uint8_t dst     = getCurrentControllerValue(channel, ASSIGN_16  + (control_target - GEN_PURPOSE_1));
+    if ((PRA32_U2_assign_mode(getCurrentControllerValue(channel, ASSIGN_MODE)) == 2) && !PRA32_U2_assign_dst_off(dst)) {
       return dst;
     }
   }
@@ -1107,7 +1107,7 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
     }
 
     // General Purpose Controller 1-4 (Pages B-24 and B-25) at once, as they come to the values of the parameters themselves
-    // (Assign #16-#19 Dst), so that the knob is not turned to their own values first
+    // (Assign #16-#19), so that the knob is not turned to their own values first
     if ((s_adc_control_target[adc_number] >= GEN_PURPOSE_1) && (s_adc_control_target[adc_number] <= GEN_PURPOSE_4)) {
       s_adc_control_catched[adc_number] = true;
     }
@@ -2330,13 +2330,13 @@ INLINE void PRA32_U2_ControlPanel_on_stop()
 }
 
 // The value shown for a control target of the page: General Purpose Controller 1-4 (Pages B-24 and B-25) show the parameter
-// that they control (Assign #16-#19 Dst), its value (compared with the knob: "<" or ">" until the knob comes to it, from when
+// that they control (Assign #16-#19), its value (compared with the knob: "<" or ">" until the knob comes to it, from when
 // it controls the parameter, as the knobs of the other pages, with Assign Mode Cat) and its number (e.g. "A>112[ 74]"), or their own values with "[Off]"
 static __attribute__((noinline, unused)) uint8_t __not_in_flash_func(PRA32_U2_ControlPanel_current_value_of_target)(uint8_t control_target) {
   uint8_t channel = getTargetMIDICh(s_current_synth);
   uint8_t value   = getCurrentControllerValue(channel, control_target);
   if ((control_target >= GEN_PURPOSE_1) && (control_target <= GEN_PURPOSE_4)) {
-    uint8_t dst = getCurrentControllerValue(channel, ASGN_1_DST + (control_target - GEN_PURPOSE_1));
+    uint8_t dst = getCurrentControllerValue(channel, ASSIGN_16  + (control_target - GEN_PURPOSE_1));
     if (!PRA32_U2_assign_dst_off(dst)) {
       value = getCurrentControllerValue(channel, dst);
     }
@@ -2349,7 +2349,7 @@ static __attribute__((noinline, unused)) uint8_t __not_in_flash_func(PRA32_U2_Co
 static __attribute__((noinline, unused)) uint8_t __not_in_flash_func(PRA32_U2_ControlPanel_compared_value_of_target)(uint8_t control_target, uint8_t adc_control_value,
                                                                                                                    uint8_t current_controller_value) {
   if ((control_target >= GEN_PURPOSE_1) && (control_target <= GEN_PURPOSE_4) &&
-      (PRA32_U2_assign_mode(getCurrentControllerValue(getTargetMIDICh(s_current_synth), ASGN_MODE)) != 1)) {
+      (PRA32_U2_assign_mode(getCurrentControllerValue(getTargetMIDICh(s_current_synth), ASSIGN_MODE)) != 1)) {
     return adc_control_value;
   }
   return current_controller_value;
@@ -2358,8 +2358,8 @@ static __attribute__((noinline, unused)) uint8_t __not_in_flash_func(PRA32_U2_Co
 static __attribute__((noinline, unused)) boolean __not_in_flash_func(PRA32_U2_ControlPanel_calc_value_display_of_target)(uint8_t control_target, uint8_t controller_value,
                                                                                                                   char value_display_text[5]) {
   if ((control_target >= GEN_PURPOSE_1) && (control_target <= GEN_PURPOSE_4)) {
-    uint8_t dst = getCurrentControllerValue(getTargetMIDICh(s_current_synth), ASGN_1_DST + (control_target - GEN_PURPOSE_1));
-    return PRA32_U2_ControlPanel_calc_value_display(ASGN_1_DST, dst, value_display_text);  // its number, or "Off"
+    uint8_t dst = getCurrentControllerValue(getTargetMIDICh(s_current_synth), ASSIGN_16  + (control_target - GEN_PURPOSE_1));
+    return PRA32_U2_ControlPanel_calc_value_display(ASSIGN_16, dst, value_display_text);  // its number, or "Off"
   }
   return PRA32_U2_ControlPanel_calc_value_display(control_target, controller_value, value_display_text);
 }

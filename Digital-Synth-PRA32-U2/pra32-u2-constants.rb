@@ -138,11 +138,11 @@ GEN_PURPOSE_1   = 16
 GEN_PURPOSE_2   = 17
 GEN_PURPOSE_3   = 18
 GEN_PURPOSE_4   = 19
-ASGN_MODE       = 42
-ASGN_1_DST      = 48
-ASGN_2_DST      = 49
-ASGN_3_DST      = 50
-ASGN_4_DST      = 51
+ASSIGN_MODE     = 42
+ASSIGN_16       = 48
+ASSIGN_17       = 49
+ASSIGN_18       = 50
+ASSIGN_19       = 51
 
 DISTORTION      = 95
 FX_ROUTING      = 77

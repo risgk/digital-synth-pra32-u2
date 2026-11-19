@@ -100,12 +100,12 @@ static uint8_t s_program_table_parameters[] = {
   OSC_SAW_W_MODE ,
   STRETCH_TUNE   ,
   PAN            ,
-  ASGN_MODE      ,
+  ASSIGN_MODE    ,
 
-  ASGN_1_DST     ,
-  ASGN_2_DST     ,
-  ASGN_3_DST     ,
-  ASGN_4_DST     ,
+  ASSIGN_16      ,
+  ASSIGN_17      ,
+  ASSIGN_18      ,
+  ASSIGN_19      ,
 
   DISTORTION     ,
   FX_ROUTING     ,
@@ -315,11 +315,11 @@ static __attribute__((noinline)) void PRA32_U2_copy_presets_to_program_table(uin
   std::memcpy(program_table[STRETCH_TUNE   ], g_preset_table_STRETCH_TUNE   , sizeof(program_table[0]));
   std::memcpy(program_table[PAN            ], g_preset_table_PAN            , sizeof(program_table[0]));
 
-  std::memcpy(program_table[ASGN_MODE      ], g_preset_table_ASGN_MODE      , sizeof(program_table[0]));
-  std::memcpy(program_table[ASGN_1_DST     ], g_preset_table_ASGN_1_DST     , sizeof(program_table[0]));
-  std::memcpy(program_table[ASGN_2_DST     ], g_preset_table_ASGN_2_DST     , sizeof(program_table[0]));
-  std::memcpy(program_table[ASGN_3_DST     ], g_preset_table_ASGN_3_DST     , sizeof(program_table[0]));
-  std::memcpy(program_table[ASGN_4_DST     ], g_preset_table_ASGN_4_DST     , sizeof(program_table[0]));
+  std::memcpy(program_table[ASSIGN_MODE    ], g_preset_table_ASSIGN_MODE    , sizeof(program_table[0]));
+  std::memcpy(program_table[ASSIGN_16      ], g_preset_table_ASSIGN_16      , sizeof(program_table[0]));
+  std::memcpy(program_table[ASSIGN_17      ], g_preset_table_ASSIGN_17      , sizeof(program_table[0]));
+  std::memcpy(program_table[ASSIGN_18      ], g_preset_table_ASSIGN_18      , sizeof(program_table[0]));
+  std::memcpy(program_table[ASSIGN_19      ], g_preset_table_ASSIGN_19      , sizeof(program_table[0]));
 
   std::memcpy(program_table[DISTORTION     ], g_preset_table_DISTORTION     , sizeof(program_table[0]));
   std::memcpy(program_table[FX_ROUTING     ], g_preset_table_FX_ROUTING     , sizeof(program_table[0]));
@@ -334,11 +334,11 @@ static __attribute__((noinline)) void PRA32_U2_copy_presets_to_program_table(uin
   std::memcpy(program_table[DELAY_TIME     ], g_preset_table_DELAY_TIME     , sizeof(program_table[0]));
 }
 
-// General Purpose Controller 1-4 (CC #16-19): the Control Change of the number that Assign #16-#19 Dst set (0, 16-19,
-// 48-51: Assign #16-#19 Dst, 64: Sustain Pedal, which the groups of PRA32-U2/M take apart, 80: Voice Group Mode, 106: Write
+// General Purpose Controller 1-4 (CC #16-19): the Control Change of the number that Assign #16-#19 set (0, 16-19,
+// 48-51: Assign #16-#19, 64: Sustain Pedal, which the groups of PRA32-U2/M take apart, 80: Voice Group Mode, 106: Write
 // Parameters to Program, 111-119: Randomize Synth and Program Change by CC, and 120-127: the Channel Mode Messages, are Off)
 static INLINE boolean PRA32_U2_assign_dst_off(uint8_t dst) {
-  return (dst == 0) || ((dst >= GEN_PURPOSE_1) && (dst <= GEN_PURPOSE_4)) || ((dst >= ASGN_1_DST) && (dst <= ASGN_4_DST)) ||
+  return (dst == 0) || ((dst >= GEN_PURPOSE_1) && (dst <= GEN_PURPOSE_4)) || ((dst >= ASSIGN_16) && (dst <= ASSIGN_19)) ||
          (dst == SUSTAIN_PEDAL) || (dst == VOICE_GRP_MODE) || (dst == WRITE_P_TO_PROG) || (dst >= SP_RAND_CTRL);
 }
 
@@ -355,7 +355,7 @@ static INLINE uint32_t PRA32_U2_assign_mode(uint8_t controller_value) {
 static __attribute__((noinline)) uint8_t __not_in_flash_func(PRA32_U2_general_purpose_dst)(const uint8_t controller_value_table[128 + 128],
                                                                                             uint8_t last_values[4], uint32_t index,
                                                                                             uint8_t& controller_value) {
-  uint8_t dst  = controller_value_table[ASGN_1_DST + index];
+  uint8_t dst  = controller_value_table[ASSIGN_16  + index];
   uint8_t last = last_values[index];
   last_values[index] = controller_value;
 
@@ -364,7 +364,7 @@ static __attribute__((noinline)) uint8_t __not_in_flash_func(PRA32_U2_general_pu
   }
 
   uint8_t  current = controller_value_table[dst];
-  uint32_t mode    = PRA32_U2_assign_mode(controller_value_table[ASGN_MODE]);
+  uint32_t mode    = PRA32_U2_assign_mode(controller_value_table[ASSIGN_MODE]);
   if (mode == 2) {
     int32_t value = static_cast<int32_t>(current) + static_cast<int32_t>(controller_value) - 64;
     controller_value = static_cast<uint8_t>((value < 0) ? 0 : ((value > 127) ? 127 : value));
@@ -1715,11 +1715,11 @@ if constexpr (NO_FX == false) {
           (control_number != AMP_DECAY      ) &&
           (control_number != AMP_SUSTAIN    ) &&
           (control_number != AMP_RELEASE    ) &&
-          (control_number != ASGN_MODE      ) &&
-          (control_number != ASGN_1_DST     ) &&
-          (control_number != ASGN_2_DST     ) &&
-          (control_number != ASGN_3_DST     ) &&
-          (control_number != ASGN_4_DST     )) {
+          (control_number != ASSIGN_MODE    ) &&
+          (control_number != ASSIGN_16      ) &&
+          (control_number != ASSIGN_17      ) &&
+          (control_number != ASSIGN_18      ) &&
+          (control_number != ASSIGN_19      )) {
         rand_state = PRA32_U2_NoiseGen::next_state(rand_state);
         control_change(control_number, rand_state >> 25);
       }

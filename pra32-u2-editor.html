@@ -454,7 +454,7 @@ span.cc {
 .param-group-continuing {
   padding-top: 0;
 }
-/* Assign #16-#19 Dst by the names, in the line of the name (beside the slider of the number) */
+/* Assign #16-#19 by the names, in the line of the name (beside the slider of the number) */
 .asgn-dst-select {
   font-size: 0.85em;
   max-width: 132px;
@@ -1008,15 +1008,15 @@ const AFT_T_LFO_AMT   = 37;
 const PORTA_MODE      = 34;
 const P_BEND_RANGE    = 57;
 
-const GEN_PURPOSE_1   = 16;  // General Purpose Controller 1-4: each works as the Control Change of the number that Assign #16-#19 Dst set
+const GEN_PURPOSE_1   = 16;  // General Purpose Controller 1-4: each works as the Control Change of the number that Assign #16-#19 set
 const GEN_PURPOSE_2   = 17;
 const GEN_PURPOSE_3   = 18;
 const GEN_PURPOSE_4   = 19;
-const ASGN_MODE       = 42;
-const ASGN_1_DST      = 48;
-const ASGN_2_DST      = 49;
-const ASGN_3_DST      = 50;
-const ASGN_4_DST      = 51;
+const ASSIGN_MODE     = 42;
+const ASSIGN_16       = 48;
+const ASSIGN_17       = 49;
+const ASSIGN_18       = 50;
+const ASSIGN_19       = 51;
 
 const DISTORTION      = 95;
 const FX_ROUTING      = 77;
@@ -1124,11 +1124,11 @@ var controlNumberToStringMap = new Map([
   [ OSC_SAW_W_MODE , "OSC_SAW_W_MODE " ],
   [ STRETCH_TUNE   , "STRETCH_TUNE   " ],
   [ PAN            , "PAN            " ],
-  [ ASGN_MODE      , "ASGN_MODE      " ],
-  [ ASGN_1_DST     , "ASGN_1_DST     " ],
-  [ ASGN_2_DST     , "ASGN_2_DST     " ],
-  [ ASGN_3_DST     , "ASGN_3_DST     " ],
-  [ ASGN_4_DST     , "ASGN_4_DST     " ],
+  [ ASSIGN_MODE    , "ASSIGN_MODE    " ],
+  [ ASSIGN_16      , "ASSIGN_16      " ],
+  [ ASSIGN_17      , "ASSIGN_17      " ],
+  [ ASSIGN_18      , "ASSIGN_18      " ],
+  [ ASSIGN_19      , "ASSIGN_19      " ],
 
   [ DISTORTION     , "DISTORTION     " ],
   [ FX_ROUTING     , "FX_ROUTING     " ],
@@ -1211,12 +1211,12 @@ var controllersInLocalStorage = [
   OSC_SAW_W_MODE ,
   STRETCH_TUNE   ,
   PAN            ,
-  ASGN_MODE      ,
+  ASSIGN_MODE    ,
 
-  ASGN_1_DST     ,
-  ASGN_2_DST     ,
-  ASGN_3_DST     ,
-  ASGN_4_DST     ,
+  ASSIGN_16      ,
+  ASSIGN_17      ,
+  ASSIGN_18      ,
+  ASSIGN_19      ,
 
   DISTORTION     ,
   FX_ROUTING     ,
@@ -1302,11 +1302,11 @@ presetControllers[OSC_SAW_W_MODE ] = [127, 127, 127, 127, 127, 127, 127, 127,   
 presetControllers[STRETCH_TUNE   ] = [72 , 72 , 72 , 72 , 72 , 72 , 72 , 72 ,   72 , 72 , 72 , 72 , 72 , 72 , 72 , 72 ];
 presetControllers[PAN            ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 
-presetControllers[ASGN_MODE      ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
-presetControllers[ASGN_1_DST     ] = [74 , 74 , 74 , 74 , 74 , 74 , 74 , 0  ,   74 , 74 , 74 , 74 , 74 , 74 , 74 , 0  ];
-presetControllers[ASGN_2_DST     ] = [71 , 71 , 71 , 71 , 71 , 71 , 71 , 0  ,   71 , 71 , 71 , 71 , 71 , 71 , 71 , 0  ];
-presetControllers[ASGN_3_DST     ] = [47 , 47 , 47 , 47 , 47 , 47 , 47 , 0  ,   47 , 47 , 47 , 47 , 47 , 47 , 47 , 0  ];
-presetControllers[ASGN_4_DST     ] = [20 , 20 , 20 , 20 , 20 , 20 , 20 , 0  ,   20 , 20 , 20 , 20 , 20 , 20 , 20 , 0  ];
+presetControllers[ASSIGN_MODE    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+presetControllers[ASSIGN_16      ] = [74 , 74 , 74 , 74 , 74 , 74 , 74 , 0  ,   74 , 74 , 74 , 74 , 74 , 74 , 74 , 0  ];
+presetControllers[ASSIGN_17      ] = [71 , 71 , 71 , 71 , 71 , 71 , 71 , 0  ,   71 , 71 , 71 , 71 , 71 , 71 , 71 , 0  ];
+presetControllers[ASSIGN_18      ] = [47 , 47 , 47 , 47 , 47 , 47 , 47 , 0  ,   47 , 47 , 47 , 47 , 47 , 47 , 47 , 0  ];
+presetControllers[ASSIGN_19      ] = [20 , 20 , 20 , 20 , 20 , 20 , 20 , 0  ,   20 , 20 , 20 , 20 , 20 , 20 , 20 , 0  ];
 
 presetControllers[DISTORTION     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 presetControllers[FX_ROUTING     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
@@ -1656,15 +1656,15 @@ function updateDimmedParameters() {
   setDimmed(["spanPerfPORTAMENTO_SW", "span2PerfPORTAMENTO_SW"], (localStorage.getItem("keyPORTA_MODE     ") >= 64));
 }
 
-// Assign #16-#19 Dst: Off (0, 16-19: General Purpose Controller 1-4, 48-51: Assign #16-#19 Dst, 64: Sustain Pedal, 80:
+// Assign #16-#19: Off (0, 16-19: General Purpose Controller 1-4, 48-51: Assign #16-#19, 64: Sustain Pedal, 80:
 // Voice Group Mode, 106: Write Parameters to Program, 111-119: Randomize Synth and Program Change by CC, and 120-127: the
 // Channel Mode Messages), as PRA32-U2
 function asgnDstOff(dst) {
-  return (dst == 0) || ((dst >= GEN_PURPOSE_1) && (dst <= GEN_PURPOSE_4)) || ((dst >= ASGN_1_DST) && (dst <= ASGN_4_DST)) ||
+  return (dst == 0) || ((dst >= GEN_PURPOSE_1) && (dst <= GEN_PURPOSE_4)) || ((dst >= ASSIGN_16) && (dst <= ASSIGN_19)) ||
          (dst == SUSTAIN_PEDAL) || (dst == VOICE_GRP_MODE) || (dst == WRITE_P_TO_PROG) || (dst >= SP_RAND_CTRL);
 }
 
-// Assign #16-#19 Dst by the names: the parameters and the performance controls that they can control (not Off), in the
+// Assign #16-#19 by the names: the parameters and the performance controls that they can control (not Off), in the
 // order of the editor, with the names shown on it (e.g. "Filter Cutoff (74)"), and "Off" (0); a number not in them (e.g. 7,
 // which controls nothing) is shown as "CC#7"
 function asgnDstName(input) {
@@ -1683,7 +1683,7 @@ function createAsgnDstSelects() {
   [MODULATION, BTH_CONTROLLER, EXPRESSION, PORTAMENTO_SW].forEach(function(number) {
     items.push([number, asgnDstName(document.getElementById("inputPerf" + PERFORMANCE_CONTROLS.get(number)[0])) + " (" + number + ")"]);
   });
-  [ASGN_1_DST, ASGN_2_DST, ASGN_3_DST, ASGN_4_DST].forEach(function(number) {
+  [ASSIGN_16, ASSIGN_17, ASSIGN_18, ASSIGN_19].forEach(function(number) {
     var select = document.getElementById("select" + controlNumberToStringMap.get(number).trim());
     items.forEach(function(item) {
       select.add(new Option(item[1], String(item[0])));
@@ -1716,7 +1716,7 @@ function onChangeAsgnDstSelect(number, value) {
   onChangeControlChange(number, parseInt(value));
 }
 
-// Beside the sliders of General Purpose Controller 1-4: the number of the parameter that it controls (Assign #16-#19 Dst, e.g.
+// Beside the sliders of General Purpose Controller 1-4: the number of the parameter that it controls (Assign #16-#19, e.g.
 // "[74]", or "[Off]"), and with Assign Mode Cat, "<" or ">" before it while the slider is below or above the value of the
 // parameter (not yet following it, as the knobs of the panel), and "=" while it follows it (e.g. "[< 74]" and "[= 74]")
 function updateGeneralPurposeIndicators() {
@@ -1726,7 +1726,7 @@ function updateGeneralPurposeIndicators() {
     if (!span) {
       return;
     }
-    var dst = parseInt(localStorage.getItem("key" + controlNumberToStringMap.get(ASGN_1_DST + index))) || 0;
+    var dst = parseInt(localStorage.getItem("key" + controlNumberToStringMap.get(ASSIGN_16  + index))) || 0;
     var current = null;
     if (!asgnDstOff(dst) && (controllersInLocalStorage.indexOf(dst) >= 0)) {
       current = parseInt(document.getElementById("input" + controlNumberToStringMap.get(dst)).value);
@@ -1748,17 +1748,17 @@ function updateGeneralPurposeIndicators() {
 
 // Assign Mode [Jmp|Cat|Rel]: 0, 1, and 2
 function assignMode() {
-  return (((parseInt(localStorage.getItem("key" + controlNumberToStringMap.get(ASGN_MODE))) || 0) * 4) + 128) >> 8;
+  return (((parseInt(localStorage.getItem("key" + controlNumberToStringMap.get(ASSIGN_MODE))) || 0) * 4) + 128) >> 8;
 }
 
 // General Purpose Controller 1-4 (from MIDI In, or the sliders), as PRA32-U2: the parameter (or the performance control) of
-// Assign #16-#19 Dst, and the value to set, by Assign Mode: Jmp, the value at once; Cat, only after the value comes to that of
+// Assign #16-#19, and the value to set, by Assign Mode: Jmp, the value at once; Cat, only after the value comes to that of
 // the parameter (the same, or across it), so that it does not jump; Rel, the value - 64 added to that of the parameter (the
 // sliders of the editor: absolute values, as Jmp); { dst: 0 } if none now. The value of the parameter here is that of the
 // editor (as PRA32-U2 has it, unless it was changed on PRA32-U2 alone, e.g. by the panel)
 var generalPurposeLastValues = [-1, -1, -1, -1];
 function generalPurposeDst(index, value, absolute) {
-  var dst = parseInt(localStorage.getItem("key" + controlNumberToStringMap.get(ASGN_1_DST + index))) || 0;
+  var dst = parseInt(localStorage.getItem("key" + controlNumberToStringMap.get(ASSIGN_16  + index))) || 0;
   var last = generalPurposeLastValues[index];
   generalPurposeLastValues[index] = value;
   var current;
@@ -2456,10 +2456,10 @@ function updateDisplayOfControl(number, value) {
     dispValue = timeRateDispValue(number, value);
     alwaysShown = true;
     break;
-  case ASGN_1_DST      :
-  case ASGN_2_DST      :
-  case ASGN_3_DST      :
-  case ASGN_4_DST      :
+  case ASSIGN_16       :
+  case ASSIGN_17       :
+  case ASSIGN_18       :
+  case ASSIGN_19       :
     dispValue = asgnDstOff(parseInt(value)) ? "Off" : String(value);  // the number of the Control Change, or Off
     updateAsgnDstSelect(number, value);  // the name
     alwaysShown = true;
@@ -2572,7 +2572,7 @@ function updateDisplayOfControl(number, value) {
       dispValue = ary[index];
     }
     break;
-  case ASGN_MODE       :
+  case ASSIGN_MODE     :
     {
       var ary = ["Jmp","Cat","Rel"];
       var index = ((value * 4) + 128) >> 8;
@@ -2681,11 +2681,11 @@ function setRandom() {
         (i != AMP_DECAY      ) &&
         (i != AMP_SUSTAIN    ) &&
         (i != AMP_RELEASE    ) &&
-        (i != ASGN_MODE      ) &&
-        (i != ASGN_1_DST     ) &&
-        (i != ASGN_2_DST     ) &&
-        (i != ASGN_3_DST     ) &&
-        (i != ASGN_4_DST     )) {
+        (i != ASSIGN_MODE    ) &&
+        (i != ASSIGN_16      ) &&
+        (i != ASSIGN_17      ) &&
+        (i != ASSIGN_18      ) &&
+        (i != ASSIGN_19      )) {
       onChangeControlChange(i, rand(128));
     }
   });
@@ -3446,7 +3446,7 @@ function onChangePerformanceControl(number, value) {
   updateDisplayOfPerformanceControl(number, value);
   var numberToSend = number;
   if ((number >= GEN_PURPOSE_1) && (number <= GEN_PURPOSE_4)) {
-    // The parameter of Assign #16-#19 Dst, as PRA32-U2 takes it (and as from MIDI In); with Assign Mode Rel, the slider sends
+    // The parameter of Assign #16-#19, as PRA32-U2 takes it (and as from MIDI In); with Assign Mode Rel, the slider sends
     // the Control Change of the parameter itself (an absolute value, which PRA32-U2 would take as a relative one by the slider's)
     var dst = generalPurposeDst(number - GEN_PURPOSE_1, parseInt(value), true).dst;
     if ((assignMode() == 2) && (dst != 0)) {
@@ -3790,12 +3790,12 @@ function fileExport() {
   str += fileExportOneLine(OSC_SAW_W_MODE );
   str += fileExportOneLine(STRETCH_TUNE   );
   str += fileExportOneLine(PAN            );
-  str += fileExportOneLine(ASGN_MODE      );
+  str += fileExportOneLine(ASSIGN_MODE    );
   str += "\n";
-  str += fileExportOneLine(ASGN_1_DST     );
-  str += fileExportOneLine(ASGN_2_DST     );
-  str += fileExportOneLine(ASGN_3_DST     );
-  str += fileExportOneLine(ASGN_4_DST     );
+  str += fileExportOneLine(ASSIGN_16      );
+  str += fileExportOneLine(ASSIGN_17      );
+  str += fileExportOneLine(ASSIGN_18      );
+  str += fileExportOneLine(ASSIGN_19      );
   str += "\n";
   str += fileExportOneLine(DISTORTION     );
   str += fileExportOneLine(FX_ROUTING     );
@@ -4313,25 +4313,25 @@ function getStoredCCValueString(index, number) {
 </div>
 <div class="param">
   <div class="param-name"><b>Assign</b> Mode <span class="sup">[Jmp|Cat|Rel]</span> <span class="cc">CC#42</span></div>
-  <div class="param-ctrl soft-markers-3"><input  id="inputASGN_MODE      "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(ASGN_MODE      , value)"><span    id="spanASGN_MODE      " >-</span><span   id="span2ASGN_MODE      " >-</span></div>
+  <div class="param-ctrl soft-markers-3"><input  id="inputASSIGN_MODE    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(ASSIGN_MODE    , value)"><span    id="spanASSIGN_MODE    " >-</span><span   id="span2ASSIGN_MODE    " >-</span></div>
 </div>
 </div>
 <div class="param-group param-group-continuing">
 <div class="param">
-  <div class="param-name"><b>Assign</b> #16 <select id="selectASGN_1_DST" class="asgn-dst-select" onchange="onChangeAsgnDstSelect(ASGN_1_DST, value)" aria-label="Assign #16 Dst"></select> <span class="cc">CC#48</span></div>
-  <div class="param-ctrl"><input  id="inputASGN_1_DST     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(ASGN_1_DST     , value)"><span    id="spanASGN_1_DST     " >-</span><span   id="span2ASGN_1_DST     " >-</span></div>
+  <div class="param-name"><b>Assign</b> #16 <select id="selectASSIGN_16" class="asgn-dst-select" onchange="onChangeAsgnDstSelect(ASSIGN_16, value)" aria-label="Assign #16"></select> <span class="cc">CC#48</span></div>
+  <div class="param-ctrl"><input  id="inputASSIGN_16      "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(ASSIGN_16      , value)"><span    id="spanASSIGN_16      " >-</span><span   id="span2ASSIGN_16      " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>Assign</b> #17 <select id="selectASGN_2_DST" class="asgn-dst-select" onchange="onChangeAsgnDstSelect(ASGN_2_DST, value)" aria-label="Assign #17 Dst"></select> <span class="cc">CC#49</span></div>
-  <div class="param-ctrl"><input  id="inputASGN_2_DST     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(ASGN_2_DST     , value)"><span    id="spanASGN_2_DST     " >-</span><span   id="span2ASGN_2_DST     " >-</span></div>
+  <div class="param-name"><b>Assign</b> #17 <select id="selectASSIGN_17" class="asgn-dst-select" onchange="onChangeAsgnDstSelect(ASSIGN_17, value)" aria-label="Assign #17"></select> <span class="cc">CC#49</span></div>
+  <div class="param-ctrl"><input  id="inputASSIGN_17      "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(ASSIGN_17      , value)"><span    id="spanASSIGN_17      " >-</span><span   id="span2ASSIGN_17      " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>Assign</b> #18 <select id="selectASGN_3_DST" class="asgn-dst-select" onchange="onChangeAsgnDstSelect(ASGN_3_DST, value)" aria-label="Assign #18 Dst"></select> <span class="cc">CC#50</span></div>
-  <div class="param-ctrl"><input  id="inputASGN_3_DST     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(ASGN_3_DST     , value)"><span    id="spanASGN_3_DST     " >-</span><span   id="span2ASGN_3_DST     " >-</span></div>
+  <div class="param-name"><b>Assign</b> #18 <select id="selectASSIGN_18" class="asgn-dst-select" onchange="onChangeAsgnDstSelect(ASSIGN_18, value)" aria-label="Assign #18"></select> <span class="cc">CC#50</span></div>
+  <div class="param-ctrl"><input  id="inputASSIGN_18      "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(ASSIGN_18      , value)"><span    id="spanASSIGN_18      " >-</span><span   id="span2ASSIGN_18      " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>Assign</b> #19 <select id="selectASGN_4_DST" class="asgn-dst-select" onchange="onChangeAsgnDstSelect(ASGN_4_DST, value)" aria-label="Assign #19 Dst"></select> <span class="cc">CC#51</span></div>
-  <div class="param-ctrl"><input  id="inputASGN_4_DST     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(ASGN_4_DST     , value)"><span    id="spanASGN_4_DST     " >-</span><span   id="span2ASGN_4_DST     " >-</span></div>
+  <div class="param-name"><b>Assign</b> #19 <select id="selectASSIGN_19" class="asgn-dst-select" onchange="onChangeAsgnDstSelect(ASSIGN_19, value)" aria-label="Assign #19"></select> <span class="cc">CC#51</span></div>
+  <div class="param-ctrl"><input  id="inputASSIGN_19      "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(ASSIGN_19      , value)"><span    id="spanASSIGN_19      " >-</span><span   id="span2ASSIGN_19      " >-</span></div>
 </div>
 </div>
 </div>

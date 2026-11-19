@@ -138,11 +138,11 @@ const uint8_t   GEN_PURPOSE_1   = 16;
 const uint8_t   GEN_PURPOSE_2   = 17;
 const uint8_t   GEN_PURPOSE_3   = 18;
 const uint8_t   GEN_PURPOSE_4   = 19;
-const uint8_t   ASGN_MODE       = 42;
-const uint8_t   ASGN_1_DST      = 48;
-const uint8_t   ASGN_2_DST      = 49;
-const uint8_t   ASGN_3_DST      = 50;
-const uint8_t   ASGN_4_DST      = 51;
+const uint8_t   ASSIGN_MODE     = 42;
+const uint8_t   ASSIGN_16       = 48;
+const uint8_t   ASSIGN_17       = 49;
+const uint8_t   ASSIGN_18       = 50;
+const uint8_t   ASSIGN_19       = 51;
 
 const uint8_t   DISTORTION      = 95;
 const uint8_t   FX_ROUTING      = 77;

@@ -117,12 +117,12 @@ const PRA32U2Engine::ParameterInfo s_parameter_names[] = {
   { OSC_SAW_W_MODE , "Osc Saw Wave Mode [Str|Cur]"            },
   { STRETCH_TUNE   , "Stretch Tune [- to +]"                     },
   { PAN            , "Pan"                                    },
-  { ASGN_MODE      , "Assign Mode [Jmp|Cat|Rel]"              },
+  { ASSIGN_MODE    , "Assign Mode [Jmp|Cat|Rel]"              },
 
-  { ASGN_1_DST     , "Assign #16 Dst"                         },
-  { ASGN_2_DST     , "Assign #17 Dst"                         },
-  { ASGN_3_DST     , "Assign #18 Dst"                         },
-  { ASGN_4_DST     , "Assign #19 Dst"                         },
+  { ASSIGN_16      , "Assign #16"                         },
+  { ASSIGN_17      , "Assign #17"                         },
+  { ASSIGN_18      , "Assign #18"                         },
+  { ASSIGN_19      , "Assign #19"                         },
 
   { DISTORTION     , "Distortion Drive"                       },
   { FX_ROUTING     , "FX Routing [Dst|Cho|Dly|Dly|Cmp|Dry]"   },
@@ -245,7 +245,7 @@ int PRA32U2Engine::getMarkers(uint8_t controlNumber, const uint8_t** markerValue
     *markerValues = MARKERS_6_C;
     return 7;
   case DELAY_MODE      :
-  case ASGN_MODE       :
+  case ASSIGN_MODE     :
     *markerValues = MARKERS_3;
     return 3;
   case EG_AMP_MOD      :
@@ -393,10 +393,10 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value, ui
   case CHORUS_MIX      :
   case DELAY_LEVEL     :
   case DELAY_FEEDBACK  :
-  case ASGN_1_DST      :
-  case ASGN_2_DST      :
-  case ASGN_3_DST      :
-  case ASGN_4_DST      :
+  case ASSIGN_16       :
+  case ASSIGN_17       :
+  case ASSIGN_18       :
+  case ASSIGN_19       :
   case P_BEND_RANGE    : {  // As the panel (the same functions): e.g. "262", "1k2", "20k" (Hz), "100" (-100 cents), "5.7" (Q), "+6" (dB), "50%"
     char text[5] = {};
     if (controlNumber == FILTER_CUTOFF) {
@@ -492,7 +492,7 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value, ui
   }
   case EG_AMP_MOD      :
   case REL_EQ_DECAY    : dispValue = select2(v, OFF_ON);             break;
-  case ASGN_MODE       : dispValue = select3(v, ASSIGN_MODES);       break;
+  case ASSIGN_MODE     : dispValue = select3(v, ASSIGN_MODES);       break;
   case OSC_SAW_W_MODE  : dispValue = select2(v, SAW_W_MODES);        break;
   case PORTA_MODE      : dispValue = select2(v, PORTA_MODES);        break;
   case LFO_TRIG_MODE   : dispValue = select6(v, LFO_TRIG_MODES);      break;

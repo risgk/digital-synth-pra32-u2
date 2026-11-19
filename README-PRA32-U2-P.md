@@ -159,7 +159,7 @@
     - Portamento Switch
     - Channel Pressure
     - General Purpose Controller 1-4 (Pages B-24 and B-25): the knobs control them at once (without the catch of the knobs), and the display shows
-      the parameter that they control (Assign #16-#19 Dst): its value, "<" or ">" until the knob comes to it with Assign Mode Cat (from then,
+      the parameter that they control (Assign #16-#19): its value, "<" or ">" until the knob comes to it with Assign Mode Cat (from then,
       it follows the knob; always "=" with Jmp and Rel, as the knobs work as Jmp with Rel too), and its number (e.g. "A>112[ 74]", "A=112[ 74]"); with "[Off]", their own values
 - Control Operations
     - Panic: Change the value from 0-31 [Rdy] to 96-127 [Exe]
@@ -273,8 +273,8 @@
 | A-28 LFO d     | LFO Filter Amt       | LFO Trig Mode        |
 | A-29 Breath    | Breath Filter Amt    | Breath Amp Mode      |
 | A-30 Aft Touch | Aft Touch LFO Amt    |                      |
-| A-31 Assign a  | Assign #16 Dst       | Assign #17 Dst       |
-| A-32 Assign b  | Assign #18 Dst       | Assign #19 Dst       |
+| A-31 Assign a  | Assign #16       | Assign #17       |
+| A-32 Assign b  | Assign #18       | Assign #19       |
 | A-33 Assign c  | Assign Mode          |                      |
 | A-34 FX        | Distortion Drive     | FX Routing           |
 | A-35 Chorus a  | Chorus Level         |                      |
