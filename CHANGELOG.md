@@ -53,6 +53,8 @@
       and the synths of PRA32-U2/M share the program table: the RAM free is about 3 KB more (PRA32-U2) and 17 KB more (PRA32-U2/M);
       the same place and layout in the flash, so that the programs written before are read as they were
         - PRA32-U2/M: A user program written by a synth is the same in the other synths at once (it was only after the power was turned off and on)
+        - PRA32-U2 Load Estimate: The cases of Program Change by CC #112 (#0) by MIDI Channel 16 (the 4 Synths) now play the 4 synths with the program #0
+          (written by the Main Synth, and shared), heavier than before (#0 of the Sub Synths was the default, in Poly, with which only the Main Synth was played)
     - Fix EG Mod Dst and LFO Mod Dst: 89 is 2P (Osc 2 Pitch) and 115 is F (Filter Cutoff), as shown and as the other 6-way parameters (F and 1S before)
     - PRA32-U2/M: Voice Group Mode: While the Main Synth is in Poly, the messages other than the notes go to all of the group (to the Main Synth alone before);
       the panel of PRA32-U2/M/P can select such a group too
