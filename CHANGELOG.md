@@ -8,7 +8,7 @@
           General Purpose Controller 1-4 are also in Performance Controls of PRA32-U2 Editor, and on Pages B-24 and B-25 of the panel
           (without the catch of the knobs there, and as Jmp with Assign Mode Rel; Panic and Randomize Synth are now Page B-26)
         - The Presets: Assign Mode Jmp, and Assign #16-#19 Dst 74 (Filter Cutoff), 71 (Filter Resonance), 47 (Osc 1 Shape), and 20 (Osc 1 Morph) (0, Off, in #23 Initial and #31)
-        - Not compatible: EG Att/Dec Key Track, LFO Depth, Voice Mode, and Osc 1 Shape moved from #16-19 to #44-47,
+        - **Not compatible**: EG Att/Dec Key Track, LFO Depth, Voice Mode, and Osc 1 Shape moved from #16-19 to #44-47,
           and EG Att/Dec Velo Sens from #51 to #43: send the new numbers to control them (e.g. set the knob of a keyboard for Osc 1 Shape to #47)
             - The Presets and the program files of PRA32-U2 Editor are changed by the names (the same sounds); the user programs written to PRA32-U2
               and the states of PRA32-U2 Native are not (these 5 parameters go back to the defaults, and Assign #19 Dst takes the value of
@@ -16,22 +16,22 @@
             - (If the keyboard cannot be changed, Assign Mode Jmp and Assign #16-#19 Dst 44-47 make #16-19 work as before)
     - **Osc 1 Tri** folds the wave: Osc 1 Shape sets the gain of the fold (x1 to x9, lowered at a high pitch), and Osc 1 Morph the mix of the Triangle and the folded one;
       band-limited by the Triangle Wave tables, and corrected at the turns; not in the Lite versions
-        - Not compatible: a user program with Osc 1 Wave Tri and Osc 1 Morph other than 0 sounds otherwise (set Osc 1 Morph to 0); the Presets do not use Tri
+        - **Not compatible**: a user program with Osc 1 Wave Tri and Osc 1 Morph other than 0 sounds otherwise (set Osc 1 Morph to 0); the Presets do not use Tri
     - **Osc 1 Pls**: Osc 1 Shape is the pulse width 0% (0) to 50% (64) to 100% (127), and the EG and LFO modulations stay within it, as with the other waves
       (50% (0) to 0% (127) before, modulated down to 100%)
-        - Not compatible: a user program with Osc 1 Wave Pls sounds otherwise (set Osc 1 Shape to 64 - the value before / 2, e.g. 0 to 64, 64 to 32);
+        - **Not compatible**: a user program with Osc 1 Wave Pls sounds otherwise (set Osc 1 Shape to 64 - the value before / 2, e.g. 0 to 64, 64 to 32);
           the Presets #19 Plain Poly and #30 PWM Lead: Osc 1 Shape 0 -> 64 (the same sound)
     - EG Mod Amt and LFO Mod Amt to Osc 1 Shape (1S) are half as much: the full EG moves the Shape by 128 (the whole range), and the full LFO by 64 on each side
       (e.g. the pulse width 0% to 100% around 64)
-        - Not compatible: a user program with EG Mod Dst or LFO Mod Dst 1S moves the Shape half as much (set the Amt to 64 + (the value before - 64) * 2, up to 127);
+        - **Not compatible**: a user program with EG Mod Dst or LFO Mod Dst 1S moves the Shape half as much (set the Amt to 64 + (the value before - 64) * 2, up to 127);
           the Presets #18 FM Piano, #21 Sync Lead, and #26 WT Pad: EG Mod Amt +8 -> +16 (the same sound)
     - Osc 1 Saw: The Multi Saw Detune changes smoothly with Osc 1 Shape (and its EG and LFO modulations), interpolated between the 33 steps of 4 values
       (the steps alone before; the same detune at the multiples of 4)
-        - Not compatible: a user program with Osc 1 Wave Saw, Osc 1 Morph other than 0, and Osc 1 Shape not a multiple of 4 is detuned a little otherwise
+        - **Not compatible**: a user program with Osc 1 Wave Saw, Osc 1 Morph other than 0, and Osc 1 Shape not a multiple of 4 is detuned a little otherwise
           (up to half a step, about 1.2 cents of the outer saws); the Presets use 0 and 48 (the same sound)
     - **Filter Key Track** is in 65 steps of 3.125% (1/32, 2 values a step, as Mixer Noise/Sub Osc): -100% (0) to 0% (63-64) to +100% (127)
       (17 steps of 12.5% before, 8 values a step)
-        - Not compatible: a user program with Filter Key Track other than 8n and 8n - 1 (e.g. 0, 63, 64, 96, and 127) follows the pitch by up to 6.25% more or less;
+        - **Not compatible**: a user program with Filter Key Track other than 8n and 8n - 1 (e.g. 0, 63, 64, 96, and 127) follows the pitch by up to 6.25% more or less;
           the Presets use 64, 96, and 127 (the same sound)
     - The Presets #16 Synth Pad, #17 M Saw Pad, #20 Saw Lead, #24 Synth Brs, #25 Synth Str, and #28 Fifth Lead: Osc 1 Shape 64 -> 48 (the Multi Saw a little narrower:
       the outer 2 saws +-32 cents, +-41 before); only #17 M Saw Pad sounds otherwise, as the others are with Osc 1 Morph 0 (the Normal Saw)
@@ -58,14 +58,14 @@
       the panel of PRA32-U2/M/P can select such a group too
     - PRA32-U2/P: Panel Play Mode is now [Key|K+S|Seq]: Nrm is now **Key**, and Add **K+S** (Key + Seq, at 64): the Step Sequencer, and the Play Key that plays as in Key;
       Next Key + Play Key: start/stop the Step Sequencer (Seq and K+S)
-        - Not compatible: Seq written before at 32-95 (e.g. 64 by the panel) is now K+S: set it to 127
+        - **Not compatible**: Seq written before at 32-95 (e.g. 64 by the panel) is now K+S: set it to 127
     - PRA32-U2/P: Add **Panel Key** (Control Change #110 on the Panel Channel): as the Play Key pressed and released, in Key and K+S
     - PRA32-U2/P: Add **Panel MIDI Tx** [Off|Clk|All|Nte|C+N|A+N] (#59): MIDI Clock (Clk, the default, as before), Start and Stop, and the notes that the panel plays,
       by UART MIDI and also by USB MIDI now
-        - Seq T/Rx St/Sp is now **Seq Rx St/Sp**; not compatible: it no longer transmits Start and Stop (set Panel MIDI Tx to All)
+        - Seq T/Rx St/Sp is now **Seq Rx St/Sp**; **not compatible**: it no longer transmits Start and Stop (set Panel MIDI Tx to All)
     - PRA32-U2/P: Seq Clock Src [Aut|Int|Ext]: Add **Aut** (the default): Internal at first, External at a MIDI Clock, and Internal again when Seq Tempo is changed
       (with a device that keeps sending MIDI Clocks, e.g. some MIDI keyboards, set it to Int)
-        - Not compatible: Int written before at 0-31 is now Aut (set it to 64), and Ext at 64-95 is now Int (set it to 127)
+        - **Not compatible**: Int written before at 0-31 is now Aut (set it to 64), and Ext at 64-95 is now Int (set it to 127)
     - PRA32-U2/P: Add **Seq Ch Ofst** [+0 to +15] (#60) and **Seq Transpose** [- to +] (#61), the channel and the transposition of the Step Sequencer alone;
       and **Seq Pattern** [Std|4x4] (#62): 4x4 plays Seq Pitch/Velo 0-3 again and again, shifted by Seq Pitch/Velo 4-7 in turn
         - Seq Mode is now **Seq Direction** (the same Control Change #89 and values)
@@ -83,7 +83,7 @@
         - Assign #16-#19 Dst can also be selected by the names of the parameters (e.g. "Filter Cutoff (74)"), and with Assign Mode Cat,
           "[<]", "[>]", or "[=]" beside the sliders of General Purpose Controller 1-4 (not yet following the parameter, or following it)
         - Add the "Key" button (Panel Key); "Play" is "Seq Play" in K+S and Seq Mode
-        - "Panel & Step Sequencer" keeps the values by the names (e.g. "SEQ_TEMPO"), as the synth parameters; not compatible: the values kept before are not read
+        - "Panel & Step Sequencer" keeps the values by the names (e.g. "SEQ_TEMPO"), as the synth parameters; **not compatible**: the values kept before are not read
         - The marker of the center on Pan and Osc 1 Shape (PRA32-U2 Native too), and the slider of Osc 1 Morph snaps to the wave tables with Osc 1 Wave WT
         - The headings inside another (the 3 parts of "Panel & Step Sequencer", and "Performance Controls") a little to the right
         - PRA32-U2 Web: "Click (or tap) to start the audio" is shown as soon as it is chosen in MIDI Out (nothing sent then, as before)
