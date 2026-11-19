@@ -2,12 +2,12 @@
 
 - v3.22.0 (2026-??-??):
     - **CC #16-19** are now **General Purpose Controller 1-4**: each works as the Control Change of the number that **Assign #16-#19** (#48-51) set
-      (0, 16-19, 48-51, 64, 80, 106, and 111-127: Off), by **Assign Mode** [Jmp|Cat|Rel] (#42): at once (Jmp),
-      from when the value comes to that of the parameter, so that it does not jump (Cat, e.g. live), or as relative values for an endless encoder (Rel, 64 + n: +n)
+      (0, 16-19, 48-51, 64, 80, 106, and 111-127: Off), by **Assign Mode** [Cat|Jmp|Rel] (#42): from when the value comes to
+      that of the parameter, so that it does not jump (Cat, e.g. live), at once (Jmp), or as relative values for an endless encoder (Rel, 64 + n: +n)
         - Assign Mode and Assign #16-#19 are in More Synth Parameters of PRA32-U2 Editor, and on Pages A-31 to A-33 of the panel (FX to Delay b are now Pages A-34 to A-38);
           General Purpose Controller 1-4 are also in Performance Controls of PRA32-U2 Editor, and on Pages B-24 and B-25 of the panel
           (without the catch of the knobs there, and as Jmp with Assign Mode Rel; Panic and Randomize Synth are now Page B-26)
-        - The Presets: Assign Mode Jmp, and Assign #16-#19 set to 74 (Filter Cutoff), 71 (Filter Resonance), 47 (Osc 1 Shape), and 20 (Osc 1 Morph) (0, Off, in #23 Initial and #31)
+        - The Presets: Assign Mode Cat, and Assign #16-#19 set to 74 (Filter Cutoff), 71 (Filter Resonance), 47 (Osc 1 Shape), and 20 (Osc 1 Morph) (0, Off, in #23 Initial and #31)
         - **Not compatible**: EG Att/Dec Key Track, LFO Depth, Voice Mode, and Osc 1 Shape moved from #16-19 to #44-47,
           and EG Att/Dec Velo Sens from #51 to #43: send the new numbers to control them (e.g. set the knob of a keyboard for Osc 1 Shape to #47)
             - The Presets and the program files of PRA32-U2 Editor are changed by the names (the same sounds); the user programs written to PRA32-U2

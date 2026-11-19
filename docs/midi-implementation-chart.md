@@ -99,7 +99,7 @@
 |                            83 | x             | o             | Osc Saw Wave Mode [Str|Cur]           |
 |                            22 | x             | o             | Stretch Tune [- to +]                 |
 |                            10 | x             | o             | Pan                                   |
-|                            42 | x             | o             | Assign Mode [Jmp|Cat|Rel] $12         |
+|                            42 | x             | o             | Assign Mode [Cat|Jmp|Rel] $12         |
 |                               |               |               |                                       |
 |                            48 | x             | o             | Assign #16 $12                        |
 |                            49 | x             | o             | Assign #17 $12                        |
@@ -170,9 +170,9 @@
 |                               | $11: o in PRA32-U2/P by Panel MIDI Tx (the notes that the panel       |
 |                               |   plays)                                                              |
 |                               | $12: General Purpose Controller 1-4 work as the Control Change of     |
-|                               |   the number that Assign #16-#19 set (Off: 0, 16-19, 48-51, 64,   |
-|                               |   80, 106, and 111-127), by Assign Mode: at once (Jmp), after the     |
-|                               |   value comes to that of the parameter (Cat), or as relative values   |
+|                               |   the number that Assign #16-#19 set (Off: 0, 16-19, 48-51, 64,       |
+|                               |   80, 106, and 111-127), by Assign Mode: after the value comes to     |
+|                               |   that of the parameter (Cat), at once (Jmp), or as relative values   |
 |                               |   (Rel, 64 + n: +n)                                                   |
 +-------------------------------+-----------------------------------------------------------------------+
   Mode 1: Omni On,  Poly          Mode 2: Omni On,  Mono          o: Yes                                 

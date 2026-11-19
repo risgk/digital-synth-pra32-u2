@@ -166,8 +166,8 @@ graph LR
 - The default program (when the power is turned on) is #0; the programs written by Write are recalled by Program Change #0-15 (see above)
 - Refer to [MIDI Implementation Chart](./docs/midi-implementation-chart.md) for the supported functions
 - General Purpose Controller 1-4 (CC #16-19), e.g. the knobs of a MIDI keyboard, control the parameters that Assign #16-#19 (CC #48-51) set,
-  a program each (Filter Cutoff, Filter Resonance, Osc 1 Shape, and Osc 1 Morph in the Presets), at once, or by Assign Mode (CC #42),
-  from when each comes to the value of the parameter, so that it does not jump (e.g. live), or as relative values for endless encoders (see [Performance Controllers](./docs/parameter-guide.md#performance-controllers) in the Parameter Guide)
+  a program each (Filter Cutoff, Filter Resonance, Osc 1 Shape, and Osc 1 Morph in the Presets), from when each comes to the value of
+  the parameter, so that it does not jump (e.g. live), or by Assign Mode (CC #42), at once, or as relative values for endless encoders (see [Performance Controllers](./docs/parameter-guide.md#performance-controllers) in the Parameter Guide)
     - Since v3.22.0, EG Att/Dec Key Track, LFO Depth, Voice Mode, and Osc 1 Shape are CC #44-47 (CC #16-19 before), and EG Att/Dec Velo Sens is CC #43 (#51 before)
 - Programs #0-31 can be modified by editing "pra32-u2-program-table.h"
 

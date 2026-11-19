@@ -117,7 +117,7 @@ const PRA32U2Engine::ParameterInfo s_parameter_names[] = {
   { OSC_SAW_W_MODE , "Osc Saw Wave Mode [Str|Cur]"            },
   { STRETCH_TUNE   , "Stretch Tune [- to +]"                     },
   { PAN            , "Pan"                                    },
-  { ASSIGN_MODE    , "Assign Mode [Jmp|Cat|Rel]"              },
+  { ASSIGN_MODE    , "Assign Mode [Cat|Jmp|Rel]"              },
 
   { ASSIGN_16      , "Assign #16"                         },
   { ASSIGN_17      , "Assign #17"                         },
@@ -325,7 +325,7 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value, ui
   static const char* const FX_ROUTINGS[6]  = { "Dst", "Cho", "Dly", "Dly", "Cmp", "Dry" };
   static const char* const ASGN_MODES[6]   = { "1", "1", "3", "3", "4", "2" };
   static const char* const DELAY_MODES[3]  = { "Ste", "PP", "Rev" };
-  static const char* const ASSIGN_MODES[3] = { "Jmp", "Cat", "Rel" };
+  static const char* const ASSIGN_MODES[3] = { "Cat", "Jmp", "Rel" };
   static const char* const GROUP_MODES[6]  = { "Off", "Ly2", "RLy", "RR2", "RR4", "RR3" };
 
   // Osc 2 Pitch (osc2Pitch), and EG Mod Amt and LFO Mod Amt to the pitch (P and 2P), as pitchDispValue() of PRA32-U2 Editor

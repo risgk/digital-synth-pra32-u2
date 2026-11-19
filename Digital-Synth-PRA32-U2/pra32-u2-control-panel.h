@@ -2349,7 +2349,7 @@ static __attribute__((noinline, unused)) uint8_t __not_in_flash_func(PRA32_U2_Co
 static __attribute__((noinline, unused)) uint8_t __not_in_flash_func(PRA32_U2_ControlPanel_compared_value_of_target)(uint8_t control_target, uint8_t adc_control_value,
                                                                                                                    uint8_t current_controller_value) {
   if ((control_target >= GEN_PURPOSE_1) && (control_target <= GEN_PURPOSE_4) &&
-      (PRA32_U2_assign_mode(getCurrentControllerValue(getTargetMIDICh(s_current_synth), ASSIGN_MODE)) != 1)) {
+      (PRA32_U2_assign_mode(getCurrentControllerValue(getTargetMIDICh(s_current_synth), ASSIGN_MODE)) != 0)) {
     return adc_control_value;
   }
   return current_controller_value;

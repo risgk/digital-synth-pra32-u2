@@ -333,10 +333,10 @@
     - +0 (64): Center (L 0 dB, R 0 dB)
     - +63 (127): Right (L Off, R +3.0 dB) (max)
     - Shown: "L63" (0 and 1), ..., "C" (64), ..., "R63" (127)
-- Assign Mode [Jmp|Cat|Rel]: How General Purpose Controller 1-4 (Control Change #16-19) control the parameters of Assign #16-#19 (see Performance Controllers)
-    - 0 (0-31): Jump (Jmp), At once, as the Control Change of the number (the parameter jumps to the value)
-    - 64 (32-95): Catch (Cat), From when the value comes to that of the parameter (the same, or across it), as the VRs of the panel of PRA32-U2/P,
+- Assign Mode [Cat|Jmp|Rel]: How General Purpose Controller 1-4 (Control Change #16-19) control the parameters of Assign #16-#19 (see Performance Controllers)
+    - 0 (0-31): Catch (Cat), From when the value comes to that of the parameter (the same, or across it), as the VRs of the panel of PRA32-U2/P,
       so that the parameter does not jump (e.g. after a Program Change, or the parameter changed otherwise); the parameter then follows it
+    - 64 (32-95): Jump (Jmp), At once, as the Control Change of the number (the parameter jumps to the value)
     - 127 (96-127): Relative (Rel), The value - 64 added to that of the parameter (e.g. +1 by 65, -1 by 63), within 0-127, for an endless encoder
       that sends them; the sliders of PRA32-U2 Editor and the knobs of the panel (Performance Controls, and Pages B-24 and B-25) work as Jmp
 - Assign #16-#19: The parameter that General Purpose Controller 1-4 (Control Change #16-19) control, by its Control Change number (see Performance Controllers)
@@ -404,7 +404,7 @@
 - Portamento Switch [Off|On] (Control Change #65): While it is On (64-127), the Portamento is on, if "Portamento Mode" is Sw (Reset: Off)
 - After Touch (Polyphonic Key Pressure and Channel Pressure): Adds to the LFO depth by "After Touch LFO Amt" (Reset: 0)
 - General Purpose Controller 1-4 (Control Change #16-19): Work as the Control Change of the number that "Assign #16-#19" set (e.g. a knob of a keyboard for
-  a parameter of each program), at once (Assign Mode Jmp), from when the value comes to that of the parameter (Cat), or as relative values (Rel)
+  a parameter of each program), from when the value comes to that of the parameter (Assign Mode Cat), at once (Jmp), or as relative values (Rel)
     - With Assign Mode Jmp and Assign #16-#19 set to 44-47, they work as EG Att/Dec Key Track, LFO Depth, Voice Mode, and Osc 1 Shape did on them before v3.22.0
     - PRA32-U2/M: On a channel of a group (e.g. the Round Robin) or the Layering, each synth takes it by its own Assign Mode, Assign #16-#19,
       and value of the parameter: with Assign Mode Cat, the synths whose values the knob comes to first follow it first
