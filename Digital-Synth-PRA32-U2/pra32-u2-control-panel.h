@@ -159,13 +159,15 @@ extern void writeParametersToProgram(byte channel, byte number);
 extern byte getTargetMIDICh(byte synth);
 #if (PRA32_U2_NUMBER_OF_SYNTHS > 1)
 extern boolean isChannelRouted(byte channel);
+extern uint32_t getProgramStep(byte channel);
+extern uint32_t getFirstSynth(byte channel);
 #endif  // (PRA32_U2_NUMBER_OF_SYNTHS > 1)
 extern void getCurrentValues(byte channel, uint8_t values[128 + 128]);
 extern void setValues(byte channel, boolean panel, const uint8_t values[128 + 128]);
 extern void getProgramValues(byte channel, byte number, uint8_t values[128 + 128]);
 extern void writeValuesToProgram(byte channel, byte number, const uint8_t values[128 + 128]);
 
-// Whether the panel can select a synth (channel) now: one that goes to a synth (e.g. only the Main Synth, "$0", while
+// Whether the panel can select a synth (channel) now: one that goes to a synth (e.g. only the Main Synth, + 0, while
 // Voice Group Mode is Off; a group without the Main Synth too while the Main Synth is in Poly, for its parameters)
 static INLINE boolean PRA32_U2_ControlPanel_target_usable(uint32_t synth) {
 #if (PRA32_U2_NUMBER_OF_SYNTHS > 1)
@@ -195,6 +197,47 @@ static __attribute__((unused)) void PRA32_U2_ControlPanel_step_target() {
   }
   s_current_synth = synth;
 #endif  // (PRA32_U2_NUMBER_OF_SYNTHS > 1)
+}
+
+static void PRA32_U2_ControlPanel_update_program_display();
+
+// The synth whose program the panel shows for the channel selected: the synth, or the first synth of a group (or of the
+// Layering), which takes the program + 0 of a Program Change on the channel
+static INLINE uint32_t PRA32_U2_ControlPanel_program_synth() {
+#if (PRA32_U2_NUMBER_OF_SYNTHS > 1)
+  return getFirstSynth(getTargetMIDICh(s_current_synth));
+#else
+  return 0;
+#endif
+}
+
+// Prog - key and Prog + key: the previous or the next user program of the synth (channel) selected, by the number of the
+// programs that the channel sets (e.g. 4 on the Layering of all, as the program + 0 to + 3 for the synths), to the multiple
+// of it (e.g. #5 -> #8 or #4), so that the programs of the synths layered stay in the same sets (e.g. #0-3, #4-7, ...);
+// from a Factory Preset (#16-31), to #0 (Prog +), or to the last set (Prog -, e.g. #12-15)
+static __attribute__((unused)) void PRA32_U2_ControlPanel_step_program(boolean up) {
+  uint32_t step = 1;
+#if (PRA32_U2_NUMBER_OF_SYNTHS > 1)
+  step = getProgramStep(getTargetMIDICh(s_current_synth));  // 1, 2, or 4 (a divisor of USER_PROGRAM_NUMBER_MAX + 1)
+#endif  // (PRA32_U2_NUMBER_OF_SYNTHS > 1)
+  uint32_t synth          = PRA32_U2_ControlPanel_program_synth();
+  uint32_t program_number = s_current_program[synth];
+  if (program_number > USER_PROGRAM_NUMBER_MAX) {
+    program_number = up ? 0 : ((USER_PROGRAM_NUMBER_MAX + 1) - step);
+  } else {
+    uint32_t aligned = program_number & ~(step - 1);
+    if (up) {
+      program_number = aligned + step;
+    } else if (aligned != program_number) {
+      program_number = aligned;
+    } else {
+      program_number = aligned - step;
+    }
+    program_number &= USER_PROGRAM_NUMBER_MAX;  // #15 -> #0, and #0 -> #15 (or #12, #14)
+  }
+  s_current_program[synth] = program_number;  // (also by the Program Change, when the synth takes it)
+  handleProgramChange(getTargetMIDICh(s_current_synth), program_number);
+  PRA32_U2_ControlPanel_update_program_display();
 }
 
 // Undo Read and Undo Write (Page D-17): what the last Read (or Init Panel Prms) and the last Write of
@@ -425,14 +468,69 @@ static __attribute__((noinline)) void __not_in_flash_func(PRA32_U2_ControlPanel_
   }
 }
 
-// The channel of the Step Sequencer ("S" and the MIDI channel - 1, in hex, as "$"), in Seq and K+S, if not that of the panel
+// A number (0-99) in decimal, left-aligned in 2 columns (e.g. "5 " and "16")
+static __attribute__((noinline)) void PRA32_U2_ControlPanel_put_number_left(char* text, uint32_t number) {
+  if (number >= 10) {
+    text[0] = '0' + (number / 10);
+    text[1] = '0' + (number % 10);
+  } else {
+    text[0] = '0' + number;
+    text[1] = ' ';
+  }
+}
+
+// The channel of the Step Sequencer ("S" and the MIDI channel, 1-16, columns 14-16 of the top line, on the left of the
+// step), in Seq and K+S, if not that of the panel
 static __attribute__((noinline)) void PRA32_U2_ControlPanel_update_seq_ch_display() {
   if (PRA32_U2_ControlPanel_mode_has_seq() && ((g_synth.current_controller_value(SEQ_CH_OFST    ) >> 3) != 0)) {
-    s_display_buffer[0][ 8] = 'S';
-    s_display_buffer[0][ 9] = s_hex_chars[PRA32_U2_ControlPanel_seq_ch() - 1];
+    s_display_buffer[0][14] = 'S';
+    PRA32_U2_ControlPanel_put_number_left(&s_display_buffer[0][15], PRA32_U2_ControlPanel_seq_ch());
   } else {
-    s_display_buffer[0][ 8] = ' ';
-    s_display_buffer[0][ 9] = ' ';
+    std::memcpy(&s_display_buffer[0][14], "   ", 3);
+  }
+}
+
+// The channel that the panel selects (PRA32-U2/P: the Basic Channel), as "Ch" and the MIDI channel (1-16), and what it
+// is (PRA32-U2/M/P: "[Sy0]" to "[Sy3]" for the synths, Voice Group Mode for "+ 4" and "+ 5", and "[All]" for the Layering),
+// columns 0-9 of the second line
+static __attribute__((noinline)) void PRA32_U2_ControlPanel_update_ch_display() {
+  std::memcpy(&s_display_buffer[1][0], "Ch        ", 10);
+  PRA32_U2_ControlPanel_put_number_left(&s_display_buffer[1][3], getTargetMIDICh(s_current_synth));
+#if (PRA32_U2_NUMBER_OF_SYNTHS > 1)
+  static const char s_names[PRA32_U2_NUMBER_OF_SYNTHS][4] = {
+    "Sy0", "Sy1", "Sy2", "Sy3",
+#if (PRA32_U2_NUMBER_OF_SYNTHS > 4)
+    "",    "",    "All",  // (the groups by Voice Group Mode below)
+#endif  // (PRA32_U2_NUMBER_OF_SYNTHS > 4)
+  };
+  static const char s_group_names[6][4] = {"Off", "Ly2", "RLy", "RR2", "RR4", "RR3"};
+  const char* name = s_names[s_current_synth];
+  if ((s_current_synth == 4) || (s_current_synth == 5)) {
+    name = s_group_names[((g_synth.current_controller_value(VOICE_GRP_MODE) * 10) + 128) >> 8];
+  }
+  s_display_buffer[1][5] = '[';
+  std::memcpy(&s_display_buffer[1][6], name, 3);
+  s_display_buffer[1][9] = ']';
+#endif  // (PRA32_U2_NUMBER_OF_SYNTHS > 1)
+}
+
+// The program of the channel that the panel selects (with Prog - key or Prog + key), as "#" and the number of the last
+// program that its (first) synth took (0-31; not #127, Randomize Synth, which is not a program), columns 0-2 of the top line
+static void PRA32_U2_ControlPanel_update_program_display() {
+#if defined(PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN) || defined(PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN)
+  s_display_buffer[0][0] = '#';
+  PRA32_U2_ControlPanel_put_number_left(&s_display_buffer[0][1], s_current_program[PRA32_U2_ControlPanel_program_synth()]);
+#endif  // defined(PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN) || defined(PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN)
+}
+
+static volatile boolean s_program_display_requested = false;
+
+// A synth took a program (#0-31, by a Program Change from MIDI, the panel, or the Prog keys): the program shown for it (in the
+// RAM, as the synths call it; the display is updated by PRA32_U2_ControlPanel_update_control(), in the loop)
+void __not_in_flash_func(PRA32_U2_ControlPanel_on_program_change)(uint32_t synth_id, uint8_t program_number) {
+  if (synth_id < PRA32_U2_NUMBER_OF_SYNTHS) {
+    s_current_program[synth_id] = program_number;
+    s_program_display_requested = true;
   }
 }
 
@@ -449,8 +547,8 @@ static INLINE void PRA32_U2_ControlPanel_update_page() {
     current_page.control_target_c = SEQ_PIT_OFST   ;
   }
 
-  std::memcpy(&s_display_buffer[1][ 0], current_page.page_name_line_0            , 10);
-  std::memcpy(&s_display_buffer[2][ 0], current_page.page_name_line_1            , 10);
+  std::memcpy(&s_display_buffer[2][ 0], current_page.page_name_line_0            , 10);  // (the channel on the line above it)
+  std::memcpy(&s_display_buffer[3][ 0], current_page.page_name_line_1            , 10);
 
   std::memcpy(&s_display_buffer[5][ 0], current_page.control_target_a_name_line_0, 10);
   std::memcpy(&s_display_buffer[6][ 0], current_page.control_target_a_name_line_1, 10);
@@ -467,16 +565,8 @@ static INLINE void PRA32_U2_ControlPanel_update_page() {
 #endif  // defined(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN)
 
   PRA32_U2_ControlPanel_update_seq_ch_display();
-
-#if (PRA32_U2_NUMBER_OF_SYNTHS > 1)
-  s_display_buffer[0][11] = '$';
-  s_display_buffer[0][12] = s_hex_chars[getTargetMIDICh(s_current_synth) - 1];
-#endif  // (PRA32_U2_NUMBER_OF_SYNTHS > 1)
-
-#if defined(PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN) || defined(PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN)
-  s_display_buffer[0][15] = '#';
-  s_display_buffer[0][16] = s_hex_chars[s_current_program[s_current_synth]];
-#endif  // defined(PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN) || defined(PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN)
+  PRA32_U2_ControlPanel_update_ch_display();
+  PRA32_U2_ControlPanel_update_program_display();
 
   // The secondary core draws the display from the start again, after the characters above are written
   PRA32_U2_COMPILER_MEMORY_BARRIER();
@@ -1368,10 +1458,10 @@ static __attribute__((noinline)) boolean __not_in_flash_func(PRA32_U2_ControlPan
     break;
   case SEQ_CH_OFST     :
     {
-      uint32_t ofst = controller_value >> 3;
-      value_display_text[0] = ' ';
-      value_display_text[1] = '+';
-      value_display_text[2] = s_hex_chars[ofst];
+      uint32_t ofst = controller_value >> 3;  // +0 to +15, in decimal (as the channels)
+      value_display_text[0] = (ofst >= 10) ? '+' : ' ';
+      value_display_text[1] = (ofst >= 10) ? '1' : '+';
+      value_display_text[2] = '0' + ((ofst >= 10) ? (ofst - 10) : ofst);
       result = true;
     }
     break;
@@ -1685,7 +1775,9 @@ static __attribute__((noinline)) boolean __not_in_flash_func(PRA32_U2_ControlPan
 
 
 INLINE void PRA32_U2_ControlPanel_setup() {
-  for (uint32_t i = 0; i < PRA32_U2_NUMBER_OF_SYNTHS; ++i) {
+  // The programs of the synths at the start (#0-3 for the synths 0-3, also by their Program Changes at the start); those
+  // of the channels of the groups (+ 4, + 5, and + 15) are of their first synths (e.g. #0, #2, and #0 with Ly2)
+  for (uint32_t i = 0; (i < PRA32_U2_NUMBER_OF_SYNTHS) && (i < 4); ++i) {
     s_current_program[i] = (i + PROGRAM_NUMBER_DEFAULT) & USER_PROGRAM_NUMBER_MAX;
   }
 
@@ -1844,6 +1936,11 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
     return;
   }
 
+  if (s_program_display_requested) {
+    s_program_display_requested = false;
+    PRA32_U2_ControlPanel_update_program_display();
+  }
+
 #if (PRA32_U2_NUMBER_OF_SYNTHS > 1)
   // Back to the Main Synth when the channel selected goes to no synth now (e.g. after Voice Group Mode went Off by a
   // Program Change), checked here, after the MIDI messages, where the synths have taken the changes
@@ -1931,7 +2028,6 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
           PRA32_U2_ControlPanel_notes_off();
 
           PRA32_U2_ControlPanel_step_target();
-          s_display_buffer[0][12] = s_hex_chars[getTargetMIDICh(s_current_synth) - 1];
           g_synth.control_change(PANEL_TARGET_CH, ((getTargetMIDICh(s_current_synth) - 1) - g_midi_ch) & 0x0F);  // kept by Write Panel Prms
 
           s_prev_key_long_pressed = true;
@@ -2013,7 +2109,6 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
           PRA32_U2_ControlPanel_notes_off();
 
           PRA32_U2_ControlPanel_step_target();
-          s_display_buffer[0][12] = s_hex_chars[getTargetMIDICh(s_current_synth) - 1];
           g_synth.control_change(PANEL_TARGET_CH, ((getTargetMIDICh(s_current_synth) - 1) - g_midi_ch) & 0x0F);  // kept by Write Panel Prms
 
           s_prev_key_long_pressed = true;
@@ -2108,13 +2203,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
 #if defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
         uint32_t shift_key_pressed = digitalRead(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
         if (shift_key_pressed) {
-          if (s_current_program[s_current_synth] == 0) {
-            s_current_program[s_current_synth] = USER_PROGRAM_NUMBER_MAX;
-          } else {
-            --s_current_program[s_current_synth];
-          }
-          handleProgramChange(getTargetMIDICh(s_current_synth), s_current_program[s_current_synth]);
-          s_display_buffer[0][16] = s_hex_chars[s_current_program[s_current_synth]];
+          PRA32_U2_ControlPanel_step_program(false);
         }
 #endif  // defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
       }
@@ -2126,13 +2215,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
     if (s_prog_minus_key_long_pressed == false) {
       if (s_key_inpuy_counter - s_prog_minus_key_value_changed_time >= PRA32_U2_KEY_LONG_PRESS_WAIT) {
         s_prog_minus_key_long_pressed = true;
-        if (s_current_program[s_current_synth] == 0) {
-          s_current_program[s_current_synth] = USER_PROGRAM_NUMBER_MAX;
-        } else {
-          --s_current_program[s_current_synth];
-        }
-        handleProgramChange(getTargetMIDICh(s_current_synth), s_current_program[s_current_synth]);
-        s_display_buffer[0][16] = s_hex_chars[s_current_program[s_current_synth]];
+        PRA32_U2_ControlPanel_step_program(false);
         return;
       }
     }
@@ -2150,13 +2233,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
 #if defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
         uint32_t shift_key_pressed = digitalRead(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN) == PRA32_U2_KEY_INPUT_ACTIVE_LEVEL;
         if (shift_key_pressed) {
-          if (s_current_program[s_current_synth] == USER_PROGRAM_NUMBER_MAX) {
-            s_current_program[s_current_synth] = 0;
-          } else {
-            ++s_current_program[s_current_synth];
-          }
-          handleProgramChange(getTargetMIDICh(s_current_synth), s_current_program[s_current_synth]);
-          s_display_buffer[0][16] = s_hex_chars[s_current_program[s_current_synth]];
+          PRA32_U2_ControlPanel_step_program(true);
         }
 #endif  // defined(PRA32_U2_KEY_INPUT_SHIFT_KEY_PIN)
       }
@@ -2168,13 +2245,7 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
     if (s_prog_plus_key_long_pressed == false) {
       if (s_key_inpuy_counter - s_prog_plus_key_value_changed_time >= PRA32_U2_KEY_LONG_PRESS_WAIT) {
         s_prog_plus_key_long_pressed = true;
-        if (s_current_program[s_current_synth] == USER_PROGRAM_NUMBER_MAX) {
-          s_current_program[s_current_synth] = 0;
-        } else {
-          ++s_current_program[s_current_synth];
-        }
-        handleProgramChange(getTargetMIDICh(s_current_synth), s_current_program[s_current_synth]);
-        s_display_buffer[0][16] = s_hex_chars[s_current_program[s_current_synth]];
+        PRA32_U2_ControlPanel_step_program(true);
         return;
       }
     }
@@ -2480,7 +2551,6 @@ static void PRA32_U2_ControlPanel_select_target(uint8_t offset) {
       if (synth != s_current_synth) {
         PRA32_U2_ControlPanel_notes_off();
         s_current_synth = synth;
-        s_display_buffer[0][12] = s_hex_chars[getTargetMIDICh(s_current_synth) - 1];
         PRA32_U2_ControlPanel_update_page();
       }
 #endif  // (PRA32_U2_NUMBER_OF_SYNTHS > 1)
@@ -2574,6 +2644,8 @@ static void PRA32_U2_ControlPanel_select_target(uint8_t offset) {
     if (!PRA32_U2_ControlPanel_target_usable(s_current_synth)) {
       g_synth.control_change(PANEL_TARGET_CH, 0);
     }
+    PRA32_U2_ControlPanel_update_ch_display();  // the name of the group (e.g. "[Ly2]")
+    s_program_display_requested = true;         // the program of its first synth
   } else if (control_number == SEQ_CH_OFST    ) {
     PRA32_U2_ControlPanel_update_seq_ch_display();
   } else if (control_number == PANEL_TARGET_CH) {
@@ -2581,9 +2653,8 @@ static void PRA32_U2_ControlPanel_select_target(uint8_t offset) {
   } else if (control_number == PANEL_MIDI_CH  ) {
     uint8_t midi_ch = g_synth.current_controller_value(PANEL_MIDI_CH  ) >> 3;
     g_midi_ch = midi_ch;
-#if (PRA32_U2_NUMBER_OF_SYNTHS > 1)
-    s_display_buffer[0][12] = s_hex_chars[getTargetMIDICh(s_current_synth) - 1];
-#endif  // (PRA32_U2_NUMBER_OF_SYNTHS > 1)
+    PRA32_U2_ControlPanel_update_ch_display();
+    PRA32_U2_ControlPanel_update_seq_ch_display();  // the channel of the Step Sequencer moves with it
   }
 
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)

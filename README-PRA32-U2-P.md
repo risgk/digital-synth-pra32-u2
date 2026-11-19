@@ -28,6 +28,11 @@
         - To use this key, uncomment `//#define PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN    (17)` in "Digital-Synth-PRA32-U2.ino"
     - SW4: Prog + Key (Long press to change to the next user program) (optional)
         - To use this key, uncomment `//#define PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN     (19)` in "Digital-Synth-PRA32-U2.ino"
+        - Prog -/+ Key (PRA32-U2/M/P): On a channel that sets a program for each synth (+ 0, + 1, ...), the program goes by the number of them,
+          to the multiple of it, so that the synths stay in the same sets: by 4 on the Layering, "[All]" (#0-3, #4-7, ...; e.g. #5 to #8 or #4), and by 2 on "[Ly2]" and "[RLy]"
+            - The program shown ("#") is the last program that the synth took (#0-31, by Program Change from MIDI, the Read pages, or Prog -/+ Key; not #127, Randomize Synth),
+              and that of the first synth for a group or the Layering (e.g. #0, #2, and #0 at the start for the Basic Channel + 4, + 5, and + 15 with Ly2)
+            - From a Factory Preset (#16-31), Prog + Key goes to #0, and Prog - Key to the last set (e.g. #12 on "[All]")
     - SW5: Shift Key (optional)
         - Shift + Prev/Next Key: Go to the previous/next group without long-pressing
         - Shift + Prog -/+ Key: Change to the previous/next user program without long-pressing
@@ -48,17 +53,30 @@
 - Copy all files in the "Digital-Synth-PRA32-U2" folder, except for "Digital-Synth-PRA32-U2.ino", to the "Digital-Synth-PRA32-U2-M" folder
 - Uncomment `//#define PRA32_U2_USE_CONTROL_PANEL` in "Digital-Synth-PRA32-U2-M.ino"
 - Prev Key + Next Key: Push to go to the next synth (channel), or to the previous one with the Shift Key (Shift + Prev + Next)
-    - "$0" -> "$1" -> "$2" -> "$3" -> "$4" -> "$5" -> "$F" -> "$0"
-    - The MIDI channel - 1, in hex: "$0" to "$3" the synths, "$4" and "$5" by Voice Group Mode, and "$F" the Layering (see [PRA32-U2/M](./README.md#pra32-u2m-pra32-u2-multi-timbre-edition));
-      with the Basic Channel 1 (default), the digit is the Basic Channel + n in hex (e.g. "$F" for the Basic Channel + 15, Channel 16)
+    - With the Basic Channel 1 (default): "Ch 1 [Sy0]" -> "Ch 2 [Sy1]" -> "Ch 3 [Sy2]" -> "Ch 4 [Sy3]" -> "Ch 5 [Ly2]" -> "Ch 6 [Ly2]" -> "Ch 16[All]" -> "Ch 1 [Sy0]" (e.g. with Ly2)
+    - The MIDI channel (the Basic Channel + 0 to + 3 the synths, + 4 and + 5 by Voice Group Mode, and + 15 the Layering; see [PRA32-U2/M](./README.md#pra32-u2m-pra32-u2-multi-timbre-edition)),
+      and what it is: "[Sy0]" the Main Synth, "[Sy1]" to "[Sy3]" the Sub Synths 1-3, Voice Group Mode for + 4 and + 5 (e.g. "[Ly2]" and "[RR3]"), and "[All]" the Layering
     - On the Round Robin and the Layering, the current values (and Write) are those of the first synth of the channel
-    - Only a channel that goes to a synth now can be selected: "$0" only with Voice Group Mode Off (as only the Basic Channel is used);
-      back to "$0" when the channel selected goes to none. While the Main Synth is in Poly, a group without it (e.g. "$4" of RR3) does not play notes
+    - Only a channel that goes to a synth now can be selected: the Main Synth only with Voice Group Mode Off (as only the Basic Channel is used);
+      back to the Main Synth when the channel selected goes to none. While the Main Synth is in Poly, a group without it (e.g. "[RR3]") does not play notes
     - The channel selected (Panel Target Ch, CC #58 on the Panel Channel) is a panel parameter: kept by Write Panel Prms (selected again at the start, and by Read Panel Prms)
-      and by Store and Export of PRA32-U2 Editor, and back to "$0" by Init Panel Prms
+      and by Store and Export of PRA32-U2 Editor, and back to the Main Synth by Init Panel Prms
 
 
 ### GUI Pages
+
+- The display: the top 2 lines, and the page (e.g. Page A-6 Osc a) with Parameter C on its right (for Play), and Parameter A and B below them
+
+    ```
+    #4            S8  *53
+    Ch 5 [Ly2] Panel
+    Page A-6   Play Pitch
+    Osc a      C=...
+    ```
+
+    - "#" and the program (the last program that the synth took), with Prog -/+ Key; "S" and the channel of the Step Sequencer (if Seq Ch Ofst is not +0, in Seq and K+S);
+      and the step of the Step Sequencer, with "*" while the Play Key plays (see Panel Play Mode)
+    - "Ch" and the channel (1-16) that the panel selects (PRA32-U2/P: the Basic Channel), and what it is (PRA32-U2/M/P; see Prev Key + Next Key in PRA32-U2/M/P)
 
 #### Group A
 
@@ -97,9 +115,9 @@
         - Not to transmit by USB MIDI, uncomment `//#define PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION` in "Digital-Synth-PRA32-U2.ino" (or "Digital-Synth-PRA32-U2-M.ino")
 - Step Sequencer Parameters
     - Seq Rx St/Sp (Receive Start/Stop): Off, On
-    - Seq Ch Ofst (Channel Offset) [+0-+F]: the channel of the Step Sequencer, as the channel that the panel selects + the offset (mod 16);
+    - Seq Ch Ofst (Channel Offset) [+0 to +15]: the channel of the Step Sequencer, as the channel that the panel selects + the offset (mod 16);
       +0 (the default) is the channel that the panel selects, as before
-        - The display shows the channel of the Step Sequencer as "S" and the MIDI channel - 1 (as "$"), if not +0 (in Seq and K+S)
+        - The display shows the channel of the Step Sequencer as "S" and the MIDI channel (e.g. "S8"), on the left of the step, if not +0 (in Seq and K+S)
         - A channel that goes to no synth (e.g. +8) plays no synth: with Panel MIDI Tx, the notes go to the device on the channel
     - Seq Step Note [4|8|16]: Quarter Note, Eighth Note, Sixteenth Note
     - Seq Clock Src [Aut|Int|Ext]: Auto (the default), Internal, External (Rx MIDI Clock)
@@ -158,7 +176,7 @@
     - Read #0-15 (User), #16-31 (Factory Presets), Read Panel Prms, Init Panel Prms
         - Change the value from 0-31 [Rdy] to 96-127 [Exe] to read from the flash
         - Read Panel Prms and Init Panel Prms are for the panel parameters, whatever synth (channel) the panel selects
-- Undo Operations (also on Page C-09, after the Write Operations)
+- Undo Operations (also on Page C-9, after the Write Operations)
     - Undo Write: Brings back the user program (or the panel parameters) in the flash that the last Write replaced
     - Undo Read: Brings back the parameters (or the panel parameters) that the last Read (or Init Panel Prms) replaced
         - Change the value from 0-31 [Rdy] to 96-127 [Exe] to undo; doing it again redoes it
@@ -221,16 +239,16 @@
 
 | Page           | Parameter A          | Parameter B          |
 | :------------- | :------------------- | :------------------- |
-| A-00 Info      | PRA32-U2/P           | v3.21.0              |
-| A-01 Voice a   | Voice Mode           | Voice Asgn Mode      |
-| A-02 Voice b   | Voice Group Mode     |                      |
-| A-03 Pitch a   | Portamento Time      | Portamento Mode      |
-| A-04 Pitch b   | Pitch Bend Range     | Stretch Tune         |
-| A-05 Pitch c   | Coarse Tune          | Fine Tune            |
-| A-06 Osc a     | Osc 1 Wave           | Mixer Noise/Sub      |
-| A-07 Osc b     | Osc 1 Shape          | Osc 1 Morph          |
-| A-08 Osc c     | Osc 2 Wave           | Mixer Osc Mix        |
-| A-09 Osc d     | Osc 2 Coarse         | Osc 2 Pitch          |
+| A-0 Info      | PRA32-U2/P           | v3.21.0              |
+| A-1 Voice a   | Voice Mode           | Voice Asgn Mode      |
+| A-2 Voice b   | Voice Group Mode     |                      |
+| A-3 Pitch a   | Portamento Time      | Portamento Mode      |
+| A-4 Pitch b   | Pitch Bend Range     | Stretch Tune         |
+| A-5 Pitch c   | Coarse Tune          | Fine Tune            |
+| A-6 Osc a     | Osc 1 Wave           | Mixer Noise/Sub      |
+| A-7 Osc b     | Osc 1 Shape          | Osc 1 Morph          |
+| A-8 Osc c     | Osc 2 Wave           | Mixer Osc Mix        |
+| A-9 Osc d     | Osc 2 Coarse         | Osc 2 Pitch          |
 | A-10 Osc e     | Osc/Filter Drift     | Osc Saw W Mode       |
 | A-11 Filter a  | Filter Cutoff        | Filter Resonance     |
 | A-12 Filter b  | Filter EG Amt        | Filter Key Track     |
@@ -257,16 +275,16 @@
 | A-33 Chorus b  | Chorus Rate          | Chorus Depth         |
 | A-34 Delay a   | Delay Level          | Delay Mode           |
 | A-35 Delay b   | Delay Time           | Delay Feedback       |
-| B-00 Panel a   | Panel Play Mode      | Panel Scale          |
-| B-01 Panel b   | Panel Pitch Ofst     | Panel Transpose      |
-| B-02 Panel c   | Panel Play Pitch     | Panel Play Velo      |
-| B-03 Panel d   | MIDI Basic Ch        | Panel MIDI Tx        |
-| B-04 Seq a     | Seq Rx St/Sp         | Seq Ch Ofst          |
-| B-05 Seq b     | Seq Step Note        | Seq Clock Src        |
-| B-06 Seq c     | Seq Tempo            | Seq Gate Time        |
-| B-07 Seq d     | Seq Direction        | Seq Num Steps        |
-| B-08 Seq e     | Seq Pattern          |                      |
-| B-09 Seq f     | Seq Pitch Ofst       | Seq Transpose        |
+| B-0 Panel a   | Panel Play Mode      | Panel Scale          |
+| B-1 Panel b   | Panel Pitch Ofst     | Panel Transpose      |
+| B-2 Panel c   | Panel Play Pitch     | Panel Play Velo      |
+| B-3 Panel d   | MIDI Basic Ch        | Panel MIDI Tx        |
+| B-4 Seq a     | Seq Rx St/Sp         | Seq Ch Ofst          |
+| B-5 Seq b     | Seq Step Note        | Seq Clock Src        |
+| B-6 Seq c     | Seq Tempo            | Seq Gate Time        |
+| B-7 Seq d     | Seq Direction        | Seq Num Steps        |
+| B-8 Seq e     | Seq Pattern          |                      |
+| B-9 Seq f     | Seq Pitch Ofst       | Seq Transpose        |
 | B-10 Seq g     | Seq On Steps         | Seq Act Steps        |
 | B-11 Seq h     | Seq Rand Pitch       | Seq Rand Velo        |
 | B-12 Seq 0     | Seq Pitch 0          | Seq Velo 0           |
@@ -282,26 +300,26 @@
 | B-22 Control c | Sustain Pedal        | Portamento Switch    |
 | B-23 Control d | Channel Pressure     |                      |
 | B-24 Control e | Panic                | Randomize Synth      |
-| C-00 Write 0   | Write #0 User        | Write #1 User        |
-| C-01 Write 2   | Write #2 User        | Write #3 User        |
-| C-02 Write 4   | Write #4 User        | Write #5 User        |
-| C-03 Write 6   | Write #6 User        | Write #7 User        |
-| C-04 Write 8   | Write #8 User        | Write #9 User        |
-| C-05 Write 10  | Write #10 User       | Write #11 User       |
-| C-06 Write 12  | Write #12 User       | Write #13 User       |
-| C-07 Write 14  | Write #14 User       | Write #15 User       |
-| C-08 Write a   | Write Panel Prms     |                      |
-| C-09 Undo      | Undo Write           | Undo Read            |
-| D-00 Read 0    | Read #0 User         | Read #1 User         |
-| D-01 Read 2    | Read #2 User         | Read #3 User         |
-| D-02 Read 4    | Read #4 User         | Read #5 User         |
-| D-03 Read 6    | Read #6 User         | Read #7 User         |
-| D-04 Read 8    | Read #8 User         | Read #9 User         |
-| D-05 Read 10   | Read #10 User        | Read #11 User        |
-| D-06 Read 12   | Read #12 User        | Read #13 User        |
-| D-07 Read 14   | Read #14 User        | Read #15 User        |
-| D-08 Read 16   | Read #16 Synth Pad   | Read #17 M Saw Pad   |
-| D-09 Read 18   | Read #18 FM Piano    | Read #19 Plain Poly  |
+| C-0 Write 0   | Write #0 User        | Write #1 User        |
+| C-1 Write 2   | Write #2 User        | Write #3 User        |
+| C-2 Write 4   | Write #4 User        | Write #5 User        |
+| C-3 Write 6   | Write #6 User        | Write #7 User        |
+| C-4 Write 8   | Write #8 User        | Write #9 User        |
+| C-5 Write 10  | Write #10 User       | Write #11 User       |
+| C-6 Write 12  | Write #12 User       | Write #13 User       |
+| C-7 Write 14  | Write #14 User       | Write #15 User       |
+| C-8 Write a   | Write Panel Prms     |                      |
+| C-9 Undo      | Undo Write           | Undo Read            |
+| D-0 Read 0    | Read #0 User         | Read #1 User         |
+| D-1 Read 2    | Read #2 User         | Read #3 User         |
+| D-2 Read 4    | Read #4 User         | Read #5 User         |
+| D-3 Read 6    | Read #6 User         | Read #7 User         |
+| D-4 Read 8    | Read #8 User         | Read #9 User         |
+| D-5 Read 10   | Read #10 User        | Read #11 User        |
+| D-6 Read 12   | Read #12 User        | Read #13 User        |
+| D-7 Read 14   | Read #14 User        | Read #15 User        |
+| D-8 Read 16   | Read #16 Synth Pad   | Read #17 M Saw Pad   |
+| D-9 Read 18   | Read #18 FM Piano    | Read #19 Plain Poly  |
 | D-10 Read 20   | Read #20 Saw Lead    | Read #21 Sync Lead   |
 | D-11 Read 22   | Read #22 Synth Bass  | Read #23 Initial     |
 | D-12 Read 24   | Read #24 Synth Brs   | Read #25 Synth Str   |

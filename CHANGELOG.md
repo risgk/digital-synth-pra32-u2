@@ -53,13 +53,18 @@
     - PRA32-U2/P: Seq Clock Src [Aut|Int|Ext]: Add **Aut** (the default): Internal at first, External at a MIDI Clock, and Internal again when Seq Tempo is changed
       (with a device that keeps sending MIDI Clocks, e.g. some MIDI keyboards, set it to Int)
         - Not compatible: Int written before at 0-31 is now Aut (set it to 64), and Ext at 64-95 is now Int (set it to 127)
-    - PRA32-U2/P: Add **Seq Ch Ofst** [+0-+F] (#60) and **Seq Transpose** [- to +] (#61), the channel and the transposition of the Step Sequencer alone;
+    - PRA32-U2/P: Add **Seq Ch Ofst** [+0 to +15] (#60) and **Seq Transpose** [- to +] (#61), the channel and the transposition of the Step Sequencer alone;
       and **Seq Pattern** [Std|4x4] (#62): 4x4 plays Seq Pitch/Velo 0-3 again and again, shifted by Seq Pitch/Velo 4-7 in turn
         - Seq Mode is now **Seq Direction** (the same Control Change #89 and values)
-    - PRA32-U2/P: The pages of Group B reordered (Seq Rand Pitch and the pages after it two pages later, e.g. Seq 0 on B-12), with B-00 at first;
+    - PRA32-U2/P: The pages of Group B reordered (Seq Rand Pitch and the pages after it two pages later, e.g. Seq 0 on B-12), with B-0 at first;
       the same order in "Panel & Step Sequencer" of PRA32-U2 Editor
-    - PRA32-U2/P: The top line of the display: "S", "$", and "#" to the left, and "*" (the Play Key), the shift (4x4), and the step on the right end
+    - PRA32-U2/P: The display (see "GUI Pages" in README-PRA32-U2-P.md): the top line with "#" and the program (in decimal; the last program that the synth took, e.g. by MIDI or the Read pages too), and "S" and the channel of the Step Sequencer,
+      "*" (the Play Key), the shift (4x4), and the step on the right end (e.g. "#4            S8  *53"); the second line with "Ch" and the channel that the panel selects
+      (1-16, in decimal; PRA32-U2/P too: the Basic Channel), and what it is (PRA32-U2/M/P, e.g. "Ch 5 [Ly2]"), and the page below it, numbered without a 0 (e.g. "Page A-6")
     - PRA32-U2/P: Fix the wrong pitches of the Step Sequencer with Panel Pitch Ofst and Seq Pitch Ofst both near -60
+    - PRA32-U2/M/P: Prog - Key and Prog + Key go by 4 on the Layering of all ("[All]"), and by 2 on "[Ly2]" and "[RLy]", to the multiple of it,
+      so that the programs of the synths layered stay in the same sets (e.g. #0-3 and #4-7 on "[All]"; by 1 as before on the others)
+        - The program shown for a group or the Layering is that of its first synth (e.g. #0, #2, and #0 at the start for the Basic Channel + 4, + 5, and + 15 with Ly2; #4, #5, and #6 before)
     - PRA32-U2 Editor
         - Add the "Key" button (Panel Key); "Play" is "Seq Play" in K+S and Seq Mode
         - "Panel & Step Sequencer" keeps the values by the names (e.g. "SEQ_TEMPO"), as the synth parameters; not compatible: the values kept before are not read

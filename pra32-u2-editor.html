@@ -4245,7 +4245,7 @@ function panelHex2(v) { return "x" + v.toString(16).toUpperCase().padStart(2, "0
 
 // [category, name, supplement, CC#, default, display, markers (the class of PRA32-U2 Editor)], in groups (rows of 4)
 const PANEL_PARAM_GROUPS = [
-  // In the order of the pages of the panel (B-00 to B-03), 2 a page (MIDI Basic Ch of B-03 is an empty cell here)
+  // In the order of the pages of the panel (B-0 to B-3), 2 a page (MIDI Basic Ch of B-3 is an empty cell here)
   [["Panel", "Play Mode",  "[Key|K+S|Seq]",             53, 0,   v => ["Key", "K+S", "Seq"][(v * 4 + 128) >> 8], "soft-markers-3"],
    ["Panel", "Scale",      "[Maj|Min|Mel|MaP|MiP|Chr]", 51, 0,   v => PANEL_SCALES[(v * 10 + 128) >> 8],        "soft-markers-6"],
    ["Panel", "Pitch Ofst", "[- to +]",                  56, 64,  v => panelSigned(panelClamp(v - 64, -60, 60)), "soft-marker-c"],
@@ -4254,10 +4254,10 @@ const PANEL_PARAM_GROUPS = [
    ["Panel", "Play Velo",  "",                          55, 64,  v => String(v),                                ""],
    null,
    ["Panel", "MIDI Tx",    "[Off|Clk|All|Nte|C+N|A+N]", 59, 26,  v => ["Off", "Clk", "All", "Nte", "C+N", "A+N"][(v * 10 + 128) >> 8], "soft-markers-6"]],
-  // B-04 to B-10 (the empty one of B-08; Seq On Steps and Seq Act Steps, each with the check boxes of the steps beside it,
+  // B-4 to B-10 (the empty one of B-8; Seq On Steps and Seq Act Steps, each with the check boxes of the steps beside it,
   // take the last row)
   [["Seq", "Rx St/Sp",   "[Off|On]",                  94, 0,   v => ["Off", "On"][(v * 2 + 128) >> 8],          "soft-markers-2"],
-   ["Seq", "Ch Ofst",    "[+0-+F]",                   60, 0,   v => "+" + (v >> 3).toString(16).toUpperCase(),   ""],
+   ["Seq", "Ch Ofst",    "[+0 to +15]",               60, 0,   v => "+" + (v >> 3),                              ""],
    ["Seq", "Step Note",  "[4|8|16]",                  92, 64,  v => ["4", "8", "16"][(v * 4 + 128) >> 8],       "soft-markers-3"],
    ["Seq", "Clock Src",  "[Aut|Int|Ext]",             86, 0,   v => ["Aut", "Int", "Ext"][(v * 4 + 128) >> 8],  "soft-markers-3"],
    ["Seq", "Tempo",      "",                          85, 64,  v => String(panelClamp(v * 2 - 8, 30, 240)),     ""],

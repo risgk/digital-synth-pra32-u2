@@ -225,6 +225,7 @@ const uint8_t   DEFAULT_SEQ_PATTERN     = 0  ;  // Std
 
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
 extern void PRA32_U2_ControlPanel_on_control_change(uint8_t control_number);
+extern void PRA32_U2_ControlPanel_on_program_change(uint32_t synth_id, uint8_t program_number);
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 
 
@@ -1577,6 +1578,12 @@ if constexpr (NO_FX == false) {
   }
 
   /* INLINE */ void __not_in_flash_func(program_change)(uint8_t program_number) {
+#if defined(PRA32_U2_USE_CONTROL_PANEL)
+    if (program_number <= PROGRAM_NUMBER_MAX) {  // #0-31 (not #127, Randomize Synth, nor 128 and 129, the panel parameters)
+      PRA32_U2_ControlPanel_on_program_change(SYNTH_ID, program_number);
+    }
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
+
     if (program_number > PROGRAM_NUMBER_MAX) {
       if ((program_number == 128) || (program_number == 129)) {
         for (uint32_t i = 0; i < sizeof(s_program_table_panel_parameters) / sizeof(s_program_table_panel_parameters[0]); ++i) {

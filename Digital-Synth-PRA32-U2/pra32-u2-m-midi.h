@@ -431,6 +431,33 @@ boolean isChannelRouted(byte channel)
   uint32_t mode = ((g_synth.current_controller_value(VOICE_GRP_MODE) * 10) + 128) >> 8;
   return routeOf(((channel - 1) - g_midi_ch) & 0x0F, mode, first, last) != ROUTE_NONE;
 }
+
+// The first synth of a channel (for the program shown by the panel: that of the first synth, which takes the program + 0)
+uint32_t getFirstSynth(byte channel)
+{
+  uint32_t first = 0, last = 0;
+  uint32_t mode = ((g_synth.current_controller_value(VOICE_GRP_MODE) * 10) + 128) >> 8;
+  if (routeOf(((channel - 1) - g_midi_ch) & 0x0F, mode, first, last) == ROUTE_NONE) {
+    return 0;
+  }
+  return first;
+}
+
+// The number of the programs that a Program Change on a channel sets (for Prog - key and Prog + key of the panel): 2 or 4
+// on the Layering (the program + 0, + 1, ... for the synths), 2 on RLy (+ 0 for 0-1, and + 1 for 2-3), and 1 on the others
+uint32_t getProgramStep(byte channel)
+{
+  uint32_t first, last;
+  uint32_t mode = ((g_synth.current_controller_value(VOICE_GRP_MODE) * 10) + 128) >> 8;
+  switch (routeOf(((channel - 1) - g_midi_ch) & 0x0F, mode, first, last)) {
+  case ROUTE_LAYERING:
+    return (last - first) + 1;
+  case ROUTE_ROUND_ROBIN_LAYERED:
+    return 2;
+  default:
+    return 1;
+  }
+}
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 
 void __not_in_flash_func(handleNoteOn)(byte channel, byte pitch, byte velocity)

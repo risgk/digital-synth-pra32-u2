@@ -34,7 +34,7 @@
 |                               |               |               |                                       |
 |                            58 | x             | o             | Panel Target Ch $2                    |
 |                            59 | x             | o             | Panel MIDI Tx $6                      |
-|                            60 | x             | o             | Seq Ch Ofst [+0-+F]                   |
+|                            60 | x             | o             | Seq Ch Ofst [+0 to +15]               |
 |                            61 | x             | o             | Seq Transpose [- to +]                |
 |                            62 | x             | o             | Seq Pattern [Std|4x4]                 |
 |                               |               |               |                                       |
