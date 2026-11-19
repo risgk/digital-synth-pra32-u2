@@ -239,16 +239,16 @@
 
 | Page           | Parameter A          | Parameter B          |
 | :------------- | :------------------- | :------------------- |
-| A-0 Info      | PRA32-U2/P           | v3.21.0              |
-| A-1 Voice a   | Voice Mode           | Voice Asgn Mode      |
-| A-2 Voice b   | Voice Group Mode     |                      |
-| A-3 Pitch a   | Portamento Time      | Portamento Mode      |
-| A-4 Pitch b   | Pitch Bend Range     | Stretch Tune         |
-| A-5 Pitch c   | Coarse Tune          | Fine Tune            |
-| A-6 Osc a     | Osc 1 Wave           | Mixer Noise/Sub      |
-| A-7 Osc b     | Osc 1 Shape          | Osc 1 Morph          |
-| A-8 Osc c     | Osc 2 Wave           | Mixer Osc Mix        |
-| A-9 Osc d     | Osc 2 Coarse         | Osc 2 Pitch          |
+| A-0 Info       | PRA32-U2/P           | v3.21.0              |
+| A-1 Voice a    | Voice Mode           | Voice Asgn Mode      |
+| A-2 Voice b    | Voice Group Mode     |                      |
+| A-3 Pitch a    | Portamento Time      | Portamento Mode      |
+| A-4 Pitch b    | Pitch Bend Range     | Stretch Tune         |
+| A-5 Pitch c    | Coarse Tune          | Fine Tune            |
+| A-6 Osc a      | Osc 1 Wave           | Mixer Noise/Sub      |
+| A-7 Osc b      | Osc 1 Shape          | Osc 1 Morph          |
+| A-8 Osc c      | Osc 2 Wave           | Mixer Osc Mix        |
+| A-9 Osc d      | Osc 2 Coarse         | Osc 2 Pitch          |
 | A-10 Osc e     | Osc/Filter Drift     | Osc Saw W Mode       |
 | A-11 Filter a  | Filter Cutoff        | Filter Resonance     |
 | A-12 Filter b  | Filter EG Amt        | Filter Key Track     |
@@ -270,21 +270,23 @@
 | A-28 LFO d     | LFO Filter Amt       | LFO Trig Mode        |
 | A-29 Breath    | Breath Filter Amt    | Breath Amp Mode      |
 | A-30 Aft Touch | Aft Touch LFO Amt    |                      |
-| A-31 FX        | Distortion Drive     | FX Routing           |
-| A-32 Chorus a  | Chorus Level         |                      |
-| A-33 Chorus b  | Chorus Rate          | Chorus Depth         |
-| A-34 Delay a   | Delay Level          | Delay Mode           |
-| A-35 Delay b   | Delay Time           | Delay Feedback       |
-| B-0 Panel a   | Panel Play Mode      | Panel Scale          |
-| B-1 Panel b   | Panel Pitch Ofst     | Panel Transpose      |
-| B-2 Panel c   | Panel Play Pitch     | Panel Play Velo      |
-| B-3 Panel d   | MIDI Basic Ch        | Panel MIDI Tx        |
-| B-4 Seq a     | Seq Rx St/Sp         | Seq Ch Ofst          |
-| B-5 Seq b     | Seq Step Note        | Seq Clock Src        |
-| B-6 Seq c     | Seq Tempo            | Seq Gate Time        |
-| B-7 Seq d     | Seq Direction        | Seq Num Steps        |
-| B-8 Seq e     | Seq Pattern          |                      |
-| B-9 Seq f     | Seq Pitch Ofst       | Seq Transpose        |
+| A-31 Assign a  | Asgn 1 Dst           | Asgn 2 Dst           |
+| A-32 Assign b  | Asgn 3 Dst           | Asgn 4 Dst           |
+| A-33 FX        | Distortion Drive     | FX Routing           |
+| A-34 Chorus a  | Chorus Level         |                      |
+| A-35 Chorus b  | Chorus Rate          | Chorus Depth         |
+| A-36 Delay a   | Delay Level          | Delay Mode           |
+| A-37 Delay b   | Delay Time           | Delay Feedback       |
+| B-0 Panel a    | Panel Play Mode      | Panel Scale          |
+| B-1 Panel b    | Panel Pitch Ofst     | Panel Transpose      |
+| B-2 Panel c    | Panel Play Pitch     | Panel Play Velo      |
+| B-3 Panel d    | MIDI Basic Ch        | Panel MIDI Tx        |
+| B-4 Seq a      | Seq Rx St/Sp         | Seq Ch Ofst          |
+| B-5 Seq b      | Seq Step Note        | Seq Clock Src        |
+| B-6 Seq c      | Seq Tempo            | Seq Gate Time        |
+| B-7 Seq d      | Seq Direction        | Seq Num Steps        |
+| B-8 Seq e      | Seq Pattern          |                      |
+| B-9 Seq f      | Seq Pitch Ofst       | Seq Transpose        |
 | B-10 Seq g     | Seq On Steps         | Seq Act Steps        |
 | B-11 Seq h     | Seq Rand Pitch       | Seq Rand Velo        |
 | B-12 Seq 0     | Seq Pitch 0          | Seq Velo 0           |
@@ -300,26 +302,26 @@
 | B-22 Control c | Sustain Pedal        | Portamento Switch    |
 | B-23 Control d | Channel Pressure     |                      |
 | B-24 Control e | Panic                | Randomize Synth      |
-| C-0 Write 0   | Write #0 User        | Write #1 User        |
-| C-1 Write 2   | Write #2 User        | Write #3 User        |
-| C-2 Write 4   | Write #4 User        | Write #5 User        |
-| C-3 Write 6   | Write #6 User        | Write #7 User        |
-| C-4 Write 8   | Write #8 User        | Write #9 User        |
-| C-5 Write 10  | Write #10 User       | Write #11 User       |
-| C-6 Write 12  | Write #12 User       | Write #13 User       |
-| C-7 Write 14  | Write #14 User       | Write #15 User       |
-| C-8 Write a   | Write Panel Prms     |                      |
-| C-9 Undo      | Undo Write           | Undo Read            |
-| D-0 Read 0    | Read #0 User         | Read #1 User         |
-| D-1 Read 2    | Read #2 User         | Read #3 User         |
-| D-2 Read 4    | Read #4 User         | Read #5 User         |
-| D-3 Read 6    | Read #6 User         | Read #7 User         |
-| D-4 Read 8    | Read #8 User         | Read #9 User         |
-| D-5 Read 10   | Read #10 User        | Read #11 User        |
-| D-6 Read 12   | Read #12 User        | Read #13 User        |
-| D-7 Read 14   | Read #14 User        | Read #15 User        |
-| D-8 Read 16   | Read #16 Synth Pad   | Read #17 M Saw Pad   |
-| D-9 Read 18   | Read #18 FM Piano    | Read #19 Plain Poly  |
+| C-0 Write 0    | Write #0 User        | Write #1 User        |
+| C-1 Write 2    | Write #2 User        | Write #3 User        |
+| C-2 Write 4    | Write #4 User        | Write #5 User        |
+| C-3 Write 6    | Write #6 User        | Write #7 User        |
+| C-4 Write 8    | Write #8 User        | Write #9 User        |
+| C-5 Write 10   | Write #10 User       | Write #11 User       |
+| C-6 Write 12   | Write #12 User       | Write #13 User       |
+| C-7 Write 14   | Write #14 User       | Write #15 User       |
+| C-8 Write a    | Write Panel Prms     |                      |
+| C-9 Undo       | Undo Write           | Undo Read            |
+| D-0 Read 0     | Read #0 User         | Read #1 User         |
+| D-1 Read 2     | Read #2 User         | Read #3 User         |
+| D-2 Read 4     | Read #4 User         | Read #5 User         |
+| D-3 Read 6     | Read #6 User         | Read #7 User         |
+| D-4 Read 8     | Read #8 User         | Read #9 User         |
+| D-5 Read 10    | Read #10 User        | Read #11 User        |
+| D-6 Read 12    | Read #12 User        | Read #13 User        |
+| D-7 Read 14    | Read #14 User        | Read #15 User        |
+| D-8 Read 16    | Read #16 Synth Pad   | Read #17 M Saw Pad   |
+| D-9 Read 18    | Read #18 FM Piano    | Read #19 Plain Poly  |
 | D-10 Read 20   | Read #20 Saw Lead    | Read #21 Sync Lead   |
 | D-11 Read 22   | Read #22 Synth Bass  | Read #23 Initial     |
 | D-12 Read 24   | Read #24 Synth Brs   | Read #25 Synth Str   |

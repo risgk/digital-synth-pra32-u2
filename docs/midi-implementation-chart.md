@@ -27,10 +27,14 @@
 |                            11 | x             | o             | Expression                            |
 |                            64 | x             | o             | Sustain Pedal [Off|On]                |
 |                            65 | x             | o             | Portamento Switch [Off|On] $7         |
+|                            16 | x             | o             | General Purpose 1 $12                 |
+|                            17 | x             | o             | General Purpose 2 $12                 |
+|                            18 | x             | o             | General Purpose 3 $12                 |
+|                            19 | x             | o             | General Purpose 4 $12                 |
 |                               |               |               |                                       |
 |                           102 | x             | o             | Osc 1 Wave [Saw|Sqr|Tri|Sin|WT|Pls]   |
 |                            23 | x             | o             | Mixer Noise/Sub Osc [N to S]          |
-|                            19 | x             | o             | Osc 1 Shape                           |
+|                            47 | x             | o             | Osc 1 Shape                           |
 |                            20 | x             | o             | Osc 1 Morph                           |
 |                               |               |               |                                       |
 |                           104 | x             | o             | Osc 2 Wave [Saw|Sqr|Tri|Sin|O1|Nos]   |
@@ -50,13 +54,13 @@
 |                               |               |               |                                       |
 |                            89 | x             | o             | EG Mod Amt [- to +]                   |
 |                             8 | x             | o             | EG Mod Dst [P|P|2P|2P|F|1S]           |
-|                            18 | x             | o             | Voice Mode [Pol|Pol|Mon|Mon|LP|Lgt]   |
+|                            46 | x             | o             | Voice Mode [Pol|Pol|Mon|Mon|LP|Lgt]   |
 |                             5 | x             | o             | Portamento Time                       |
 |                               |               |               |                                       |
 |                            33 | x             | o             | LFO Wave [Tri|Sin|Nos|Saw|S&H|Sqr]    |
 |                            56 | x             | o             | LFO Fade Time                         |
 |                             3 | x             | o             | LFO Rate                              |
-|                            17 | x             | o             | LFO Depth                             |
+|                            45 | x             | o             | LFO Depth                             |
 |                               |               |               |                                       |
 |                            13 | x             | o             | LFO Mod Amt [- to +]                  |
 |                           103 | x             | o             | LFO Mod Dst [P|P|2P|2P|F|1S]          |
@@ -78,12 +82,12 @@
 |                            86 | x             | o             | Coarse Tune [- to +]                  |
 |                            70 | x             | o             | Fine Tune [- to +]                    |
 |                               |               |               |                                       |
-|                            51 | x             | o             | EG Att/Dec Velo Sens [- to +]         |
+|                            43 | x             | o             | EG Att/Dec Velo Sens [- to +]         |
 |                            81 | x             | o             | EG Rel Velo Sens [- to +]             |
 |                            62 | x             | o             | EG Level Velo Sens                    |
 |                            63 | x             | o             | Amp Level Velo Sens                   |
 |                               |               |               |                                       |
-|                            16 | x             | o             | EG Att/Dec Key Track [- to +]         |
+|                            44 | x             | o             | EG Att/Dec Key Track [- to +]         |
 |                           110 | x             | o             | Voice Assign Mode [1|1|3|3|4|2]       |
 |                            80 | x             | o             | Voice Group Mode $10                  |
 |                            88 | x             | o $9          | LFO Trig Mode [Aut|Off|On|VOn|VOf|VAu]|
@@ -95,6 +99,11 @@
 |                            83 | x             | o             | Osc Saw Wave Mode [Str|Cur]           |
 |                            22 | x             | o             | Stretch Tune [- to +]                 |
 |                            10 | x             | o             | Pan                                   |
+|                               |               |               |                                       |
+|                            48 | x             | o             | Asgn 1 Dst $12                        |
+|                            49 | x             | o             | Asgn 2 Dst $12                        |
+|                            50 | x             | o             | Asgn 3 Dst $12                        |
+|                            51 | x             | o             | Asgn 4 Dst $12                        |
 |                               |               |               |                                       |
 |                            95 | x             | o             | Distortion Drive                      |
 |                            77 | x             | o             | FX Routing [Dst|Cho|Dly|Dly|Cmp|Dry]  |
@@ -159,6 +168,9 @@
 |                               |   [Off|Ly2|RLy|RR2|RR4|RR3]                                           |
 |                               | $11: o in PRA32-U2/P by Panel MIDI Tx (the notes that the panel       |
 |                               |   plays)                                                              |
+|                               | $12: General Purpose 1-4 work as the Control Change of the number     |
+|                               |   that Asgn 1-4 Dst set (Off: 0, 16-19, 106, and 120-127), after the  |
+|                               |   value comes to that of the parameter (the same, or across it)       |
 +-------------------------------+-----------------------------------------------------------------------+
   Mode 1: Omni On,  Poly          Mode 2: Omni On,  Mono          o: Yes                                 
   Mode 3: Omni Off, Poly          Mode 4: Omni Off, Mono          x: No                                  

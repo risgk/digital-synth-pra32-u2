@@ -101,6 +101,11 @@ static uint8_t s_program_table_parameters[] = {
   STRETCH_TUNE   ,
   PAN            ,
 
+  ASGN_1_DST     ,
+  ASGN_2_DST     ,
+  ASGN_3_DST     ,
+  ASGN_4_DST     ,
+
   DISTORTION     ,
   FX_ROUTING     ,
 
@@ -309,6 +314,11 @@ static __attribute__((noinline)) void PRA32_U2_copy_presets_to_program_table(uin
   std::memcpy(program_table[STRETCH_TUNE   ], g_preset_table_STRETCH_TUNE   , sizeof(program_table[0]));
   std::memcpy(program_table[PAN            ], g_preset_table_PAN            , sizeof(program_table[0]));
 
+  std::memcpy(program_table[ASGN_1_DST     ], g_preset_table_ASGN_1_DST     , sizeof(program_table[0]));
+  std::memcpy(program_table[ASGN_2_DST     ], g_preset_table_ASGN_2_DST     , sizeof(program_table[0]));
+  std::memcpy(program_table[ASGN_3_DST     ], g_preset_table_ASGN_3_DST     , sizeof(program_table[0]));
+  std::memcpy(program_table[ASGN_4_DST     ], g_preset_table_ASGN_4_DST     , sizeof(program_table[0]));
+
   std::memcpy(program_table[DISTORTION     ], g_preset_table_DISTORTION     , sizeof(program_table[0]));
   std::memcpy(program_table[FX_ROUTING     ], g_preset_table_FX_ROUTING     , sizeof(program_table[0]));
 
@@ -320,6 +330,31 @@ static __attribute__((noinline)) void PRA32_U2_copy_presets_to_program_table(uin
   std::memcpy(program_table[DELAY_MODE     ], g_preset_table_DELAY_MODE     , sizeof(program_table[0]));
   std::memcpy(program_table[DELAY_FEEDBACK ], g_preset_table_DELAY_FEEDBACK , sizeof(program_table[0]));
   std::memcpy(program_table[DELAY_TIME     ], g_preset_table_DELAY_TIME     , sizeof(program_table[0]));
+}
+
+// General Purpose 1-4 (CC #16-19): the Control Change of the number that Asgn 1-4 Dst set (0, 16-19, 106: Write Parameters
+// to Program, and 120-127: the Channel Mode Messages, are Off), with the pickup: only after the value comes to that of the
+// parameter (the same, or across it), so that it does not jump (e.g. after a Program Change, or the parameter changed
+// otherwise); the parameter follows it from there, while the last value of it is that of the parameter. Returns the number
+// to control now, or 0; shared by the synths (not inlined into each of them, in the RAM)
+static __attribute__((noinline)) uint8_t __not_in_flash_func(PRA32_U2_general_purpose_dst)(const uint8_t controller_value_table[128 + 128],
+                                                                                            uint8_t last_values[4], uint32_t index,
+                                                                                            uint8_t controller_value) {
+  uint8_t dst  = controller_value_table[ASGN_1_DST + index];
+  uint8_t last = last_values[index];
+  last_values[index] = controller_value;
+
+  if ((dst == 0) || ((dst >= GEN_PURPOSE_1) && (dst <= GEN_PURPOSE_4)) || (dst == WRITE_P_TO_PROG) || (dst >= ALL_SOUND_OFF)) {
+    return 0;
+  }
+
+  uint8_t current = controller_value_table[dst];
+  if ((controller_value == current) || (last == current) ||
+      ((last < current) && (controller_value > current)) ||
+      ((last > current) && (last <= DATA_BYTE_MAX) && (controller_value < current))) {
+    return dst;
+  }
+  return 0;
 }
 
 template <boolean NO_FX = false, boolean EXT_INPUT = false, boolean EXT_OUTPUT = false, uint32_t SYNTH_ID = 0, boolean RESTRICT_POLY_AND_CORES = false>
@@ -378,6 +413,7 @@ class PRA32_U2_Synth {
   boolean           m_ready_to_write_p_to_prog;
   uint8_t           m_sp_prog_chg_cc_values[8];
   uint8_t           m_sp_rand_ctrl_cc_value;
+  uint8_t           m_gen_purpose_last_value[4];  // The last values of General Purpose 1-4 (0xFF: none yet), for the pickup
   uint8_t           m_current_controller_value_table[128 + 128];
 #if defined(ARDUINO_ARCH_RP2040)
   uint8_t           (&m_program_table)[128][PROGRAM_NUMBER_MAX + 1];  // g_program_table, shared by the synths (as the flash)
@@ -438,6 +474,7 @@ public:
   , m_ready_to_write_p_to_prog(false)
   , m_sp_prog_chg_cc_values()
   , m_sp_rand_ctrl_cc_value()
+  , m_gen_purpose_last_value{0xFF, 0xFF, 0xFF, 0xFF}
   , m_current_controller_value_table()
 #if defined(ARDUINO_ARCH_RP2040)
   , m_program_table(g_program_table)
@@ -1053,6 +1090,15 @@ public:
   }
 
   /* INLINE */ void __not_in_flash_func(control_change)(uint8_t control_number, uint8_t controller_value) {
+    if ((control_number >= GEN_PURPOSE_1) && (control_number <= GEN_PURPOSE_4)) {  // (not kept: not a parameter)
+      uint8_t dst = PRA32_U2_general_purpose_dst(m_current_controller_value_table, m_gen_purpose_last_value,
+                                                 control_number - GEN_PURPOSE_1, controller_value);
+      if (dst != 0) {
+        control_change(dst, controller_value);
+      }
+      return;
+    }
+
     m_current_controller_value_table[control_number] = controller_value;
 
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
@@ -1641,7 +1687,11 @@ if constexpr (NO_FX == false) {
           (control_number != AMP_ATTACK     ) &&
           (control_number != AMP_DECAY      ) &&
           (control_number != AMP_SUSTAIN    ) &&
-          (control_number != AMP_RELEASE    )) {
+          (control_number != AMP_RELEASE    ) &&
+          (control_number != ASGN_1_DST     ) &&
+          (control_number != ASGN_2_DST     ) &&
+          (control_number != ASGN_3_DST     ) &&
+          (control_number != ASGN_4_DST     )) {
         rand_state = PRA32_U2_NoiseGen::next_state(rand_state);
         control_change(control_number, rand_state >> 25);
       }

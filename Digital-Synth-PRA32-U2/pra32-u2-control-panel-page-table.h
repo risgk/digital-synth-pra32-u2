@@ -2,7 +2,7 @@
 
 const uint8_t   PAGE_GROUP_DEFAULT   = 0;
 const uint8_t   PAGE_INDEX_DEFAULT_A = 11;  // A-11 Filter a
-const uint8_t   PAGE_INDEX_DEFAULT_B = 0;  // B-00 Panel a
+const uint8_t   PAGE_INDEX_DEFAULT_B = 0;  // B-0 Panel a
 const uint8_t   PAGE_INDEX_DEFAULT_C = 0;
 const uint8_t   PAGE_INDEX_DEFAULT_D = 0;
 
@@ -56,11 +56,13 @@ static const PRA32_U2_ControlPanelPage g_control_panel_page_table_a[] = {
   { "Page A-28 ", "LFO d     ",   "LFO       ", "Filter Amt", LFO_FILTER_AMT ,   "LFO       ", "Trig Mode ", LFO_TRIG_MODE  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page A-29 ", "Breath    ",   "Breath    ", "Filter Amt", BTH_FILTER_AMT ,   "Breath    ", "Amp Mode  ", BTH_AMP_MOD    ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page A-30 ", "Aft Touch ",   "Aft Touch ", "LFO Amt   ", AFT_T_LFO_AMT  ,   "          ", "          ", 0xFF           ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page A-31 ", "FX        ",   "Distortion", "Drive     ", DISTORTION     ,   "FX        ", "Routing   ", FX_ROUTING     ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page A-32 ", "Chorus a  ",   "Chorus    ", "Level     ", CHORUS_MIX     ,   "          ", "          ", 0xFF           ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page A-33 ", "Chorus b  ",   "Chorus    ", "Rate      ", CHORUS_RATE    ,   "Chorus    ", "Depth     ", CHORUS_DEPTH   ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page A-34 ", "Delay a   ",   "Delay     ", "Level     ", DELAY_LEVEL    ,   "Delay     ", "Mode      ", DELAY_MODE     ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page A-35 ", "Delay b   ",   "Delay     ", "Time      ", DELAY_TIME     ,   "Delay     ", "Feedback  ", DELAY_FEEDBACK ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page A-31 ", "Assign a  ",   "Asgn 1    ", "Dst       ", ASGN_1_DST     ,   "Asgn 2    ", "Dst       ", ASGN_2_DST     ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page A-32 ", "Assign b  ",   "Asgn 3    ", "Dst       ", ASGN_3_DST     ,   "Asgn 4    ", "Dst       ", ASGN_4_DST     ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page A-33 ", "FX        ",   "Distortion", "Drive     ", DISTORTION     ,   "FX        ", "Routing   ", FX_ROUTING     ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page A-34 ", "Chorus a  ",   "Chorus    ", "Level     ", CHORUS_MIX     ,   "          ", "          ", 0xFF           ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page A-35 ", "Chorus b  ",   "Chorus    ", "Rate      ", CHORUS_RATE    ,   "Chorus    ", "Depth     ", CHORUS_DEPTH   ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page A-36 ", "Delay a   ",   "Delay     ", "Level     ", DELAY_LEVEL    ,   "Delay     ", "Mode      ", DELAY_MODE     ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page A-37 ", "Delay b   ",   "Delay     ", "Time      ", DELAY_TIME     ,   "Delay     ", "Feedback  ", DELAY_FEEDBACK ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
 };
 
 static const PRA32_U2_ControlPanelPage g_control_panel_page_table_b[] = {

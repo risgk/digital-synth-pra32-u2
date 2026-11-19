@@ -68,7 +68,7 @@ const uint8_t   PORTAMENTO_SW   = 65;
 
 const uint8_t   OSC_1_WAVE      = 102;
 const uint8_t   MIXER_SUB_OSC   = 23;
-const uint8_t   OSC_1_SHAPE     = 19;
+const uint8_t   OSC_1_SHAPE     = 47;
 const uint8_t   OSC_1_MORPH     = 20;
 
 const uint8_t   OSC_2_WAVE      = 104;
@@ -88,13 +88,13 @@ const uint8_t   EG_RELEASE      = 72;
 
 const uint8_t   EG_OSC_AMT      = 89;
 const uint8_t   EG_OSC_DST      = 8;
-const uint8_t   VOICE_MODE      = 18;
+const uint8_t   VOICE_MODE      = 46;
 const uint8_t   PORTAMENTO      = 5;
 
 const uint8_t   LFO_WAVE        = 33;
 const uint8_t   LFO_FADE_TIME   = 56;
 const uint8_t   LFO_RATE        = 3;
-const uint8_t   LFO_DEPTH       = 17;
+const uint8_t   LFO_DEPTH       = 45;
 
 const uint8_t   LFO_OSC_AMT     = 13;
 const uint8_t   LFO_OSC_DST     = 103;
@@ -111,12 +111,12 @@ const uint8_t   AMP_DECAY       = 53;
 const uint8_t   AMP_SUSTAIN     = 54;
 const uint8_t   AMP_RELEASE     = 55;
 
-const uint8_t   A_D_VEL_SENS    = 51;
+const uint8_t   A_D_VEL_SENS    = 43;
 const uint8_t   REL_VEL_SENS    = 81;
 const uint8_t   EG_VEL_SENS     = 62;
 const uint8_t   AMP_VEL_SENS    = 63;
 
-const uint8_t   A_D_KEY_TRK     = 16;
+const uint8_t   A_D_KEY_TRK     = 44;
 const uint8_t   VOICE_ASGN_MODE = 110;
 const uint8_t   PAN             = 10;
 const uint8_t   VOICE_GRP_MODE  = 80;  // PRA32-U2/M: of the Main Synth (see "pra32-u2-m-midi.h")
@@ -133,6 +133,15 @@ const uint8_t   AFT_T_LFO_AMT   = 37;
 const uint8_t   PORTA_MODE      = 34;
 const uint8_t   LFO_TRIG_MODE   = 88;
 const uint8_t   P_BEND_RANGE    = 57;
+
+const uint8_t   GEN_PURPOSE_1   = 16;
+const uint8_t   GEN_PURPOSE_2   = 17;
+const uint8_t   GEN_PURPOSE_3   = 18;
+const uint8_t   GEN_PURPOSE_4   = 19;
+const uint8_t   ASGN_1_DST      = 48;
+const uint8_t   ASGN_2_DST      = 49;
+const uint8_t   ASGN_3_DST      = 50;
+const uint8_t   ASGN_4_DST      = 51;
 
 const uint8_t   DISTORTION      = 95;
 const uint8_t   FX_ROUTING      = 77;

@@ -118,6 +118,11 @@ const PRA32U2Engine::ParameterInfo s_parameter_names[] = {
   { STRETCH_TUNE   , "Stretch Tune [- to +]"                     },
   { PAN            , "Pan"                                    },
 
+  { ASGN_1_DST     , "Asgn 1 Dst"                             },
+  { ASGN_2_DST     , "Asgn 2 Dst"                             },
+  { ASGN_3_DST     , "Asgn 3 Dst"                             },
+  { ASGN_4_DST     , "Asgn 4 Dst"                             },
+
   { DISTORTION     , "Distortion Drive"                       },
   { FX_ROUTING     , "FX Routing [Dst|Cho|Dly|Dly|Cmp|Dry]"   },
 
@@ -385,6 +390,10 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value, ui
   case CHORUS_MIX      :
   case DELAY_LEVEL     :
   case DELAY_FEEDBACK  :
+  case ASGN_1_DST      :
+  case ASGN_2_DST      :
+  case ASGN_3_DST      :
+  case ASGN_4_DST      :
   case P_BEND_RANGE    : {  // As the panel (the same functions): e.g. "262", "1k2", "20k" (Hz), "100" (-100 cents), "5.7" (Q), "+6" (dB), "50%"
     char text[5] = {};
     if (controlNumber == FILTER_CUTOFF) {

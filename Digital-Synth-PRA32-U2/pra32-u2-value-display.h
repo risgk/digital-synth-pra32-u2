@@ -354,6 +354,20 @@ static __attribute__((noinline)) boolean __not_in_flash_func(PRA32_U2_ControlPan
   uint32_t percent;
   int32_t  n = 0;  // the sign (of the ones with the sign)
 
+  if ((control_target >= ASGN_1_DST) && (control_target <= ASGN_4_DST)) {  // The number of the Control Change, or Off
+    if ((v == 0) || ((v >= GEN_PURPOSE_1) && (v <= GEN_PURPOSE_4)) || (v == WRITE_P_TO_PROG) || (v >= ALL_SOUND_OFF)) {
+      value_display_text[0] = 'O';
+      value_display_text[1] = 'f';
+      value_display_text[2] = 'f';
+    } else {
+      char     buff[4];
+      uint32_t length = 0;
+      PRA32_U2_ControlPanel_append_decimal(buff, length, v);
+      PRA32_U2_ControlPanel_copy_right_aligned(value_display_text, buff, length);
+    }
+    return true;
+  }
+
   if (control_target == P_BEND_RANGE) {  // The semitones, 64 at most (here, not in the switch, as Amp Gain below)
     char     buff[4];
     uint32_t length = 0;

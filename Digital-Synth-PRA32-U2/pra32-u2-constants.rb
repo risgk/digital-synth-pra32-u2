@@ -68,7 +68,7 @@ PORTAMENTO_SW   = 65
 
 OSC_1_WAVE      = 102
 MIXER_SUB_OSC   = 23
-OSC_1_SHAPE     = 19
+OSC_1_SHAPE     = 47
 OSC_1_MORPH     = 20
 
 OSC_2_WAVE      = 104
@@ -88,13 +88,13 @@ EG_RELEASE      = 72
 
 EG_OSC_AMT      = 89
 EG_OSC_DST      = 8
-VOICE_MODE      = 18
+VOICE_MODE      = 46
 PORTAMENTO      = 5
 
 LFO_WAVE        = 33
 LFO_FADE_TIME   = 56
 LFO_RATE        = 3
-LFO_DEPTH       = 17
+LFO_DEPTH       = 45
 
 LFO_OSC_AMT     = 13
 LFO_OSC_DST     = 103
@@ -111,12 +111,12 @@ AMP_DECAY       = 53
 AMP_SUSTAIN     = 54
 AMP_RELEASE     = 55
 
-A_D_VEL_SENS    = 51
+A_D_VEL_SENS    = 43
 REL_VEL_SENS    = 81
 EG_VEL_SENS     = 62
 AMP_VEL_SENS    = 63
 
-A_D_KEY_TRK     = 16
+A_D_KEY_TRK     = 44
 VOICE_ASGN_MODE = 110
 PAN             = 10
 VOICE_GRP_MODE  = 80
@@ -133,6 +133,15 @@ AFT_T_LFO_AMT   = 37
 PORTA_MODE      = 34
 LFO_TRIG_MODE   = 88
 P_BEND_RANGE    = 57
+
+GEN_PURPOSE_1   = 16
+GEN_PURPOSE_2   = 17
+GEN_PURPOSE_3   = 18
+GEN_PURPOSE_4   = 19
+ASGN_1_DST      = 48
+ASGN_2_DST      = 49
+ASGN_3_DST      = 50
+ASGN_4_DST      = 51
 
 DISTORTION      = 95
 FX_ROUTING      = 77

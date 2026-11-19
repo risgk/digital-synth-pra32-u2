@@ -333,6 +333,10 @@
     - +0 (64): Center (L 0 dB, R 0 dB)
     - +63 (127): Right (L Off, R +3.0 dB) (max)
     - Shown: "L63" (0 and 1), ..., "C" (64), ..., "R63" (127)
+- Asgn 1-4 Dst: The parameter that General Purpose 1-4 (Control Change #16-19) control, by its Control Change number (see Performance Controllers)
+    - 0, 16-19 (General Purpose 1-4), 106 (Write Parameters to Program), and 120-127 (the Channel Mode Messages): Off
+    - e.g. 74: Filter Cutoff, 71: Filter Resonance, 47: Osc 1 Shape, 20: Osc 1 Morph, and 1: Modulation Wheel
+    - Shown: the number, or "Off"
 - Distortion Drive: The drive into the Distortion FX, 2^(value / 24) (6 dB every 24 values, as Filter Drive), for the synths whose FX Routing is Dst; the output is lowered by 15/16 of the drive in dB up to 96 (x 16), and by as much as there above it, where most of a sound is past the shoulder already, so that the level stays within about 2 dB as the drive goes up (a single quiet note gets a few dB louder at the top). The shoulder below zero is shorter than above (even harmonics too), the aliasing is reduced by ADAA (antiderivative anti-aliasing), and a tone (a 1-pole low pass) after it takes the edge off the harmonics, more with more drive (none at 0, about 10 kHz at 64, 5 kHz at 127)
     - 0: x 1.00 (0 dB, min: a sound below full scale passes as it is)
     - 48: x 4.00 (+12 dB)
@@ -393,6 +397,9 @@
     - It is also turned Off by All Notes Off, All Sound Off, Omni Mode Off/On, and Mono/Poly Mode On
 - Portamento Switch [Off|On] (Control Change #65): While it is On (64-127), the Portamento is on, if "Portamento Mode" is Sw (Reset: Off)
 - After Touch (Polyphonic Key Pressure and Channel Pressure): Adds to the LFO depth by "After Touch LFO Amt" (Reset: 0)
+- General Purpose 1-4 (Control Change #16-19): Work as the Control Change of the number that "Asgn 1-4 Dst" set (e.g. a knob of a keyboard for
+  a parameter of each program), from when the value comes to that of the parameter (the same, or across it), as the VRs of the panel of PRA32-U2/P,
+  so that the parameter does not jump (e.g. after a Program Change, or the parameter changed otherwise); the parameter then follows it
 
 ## Parameter Smoothing
 
