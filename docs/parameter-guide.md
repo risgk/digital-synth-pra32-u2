@@ -405,7 +405,7 @@
 - After Touch (Polyphonic Key Pressure and Channel Pressure): Adds to the LFO depth by "After Touch LFO Amt" (Reset: 0)
 - General Purpose Controller 1-4 (Control Change #16-19): Work as the Control Change of the number that "Assign #16-#19" set (e.g. a knob of a keyboard for
   a parameter of each program), at once (Assign Mode Jmp), from when the value comes to that of the parameter (Cat), or as relative values (Rel)
-    - With Assign Mode Jmp and Assign #16-#19 44-47, they work as EG Att/Dec Key Track, LFO Depth, Voice Mode, and Osc 1 Shape did on them before v3.22.0
+    - With Assign Mode Jmp and Assign #16-#19 set to 44-47, they work as EG Att/Dec Key Track, LFO Depth, Voice Mode, and Osc 1 Shape did on them before v3.22.0
     - PRA32-U2/M: On a channel of a group (e.g. the Round Robin) or the Layering, each synth takes it by its own Assign Mode, Assign #16-#19,
       and value of the parameter: with Assign Mode Cat, the synths whose values the knob comes to first follow it first
 

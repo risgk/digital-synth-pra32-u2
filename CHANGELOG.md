@@ -7,13 +7,13 @@
         - Assign Mode and Assign #16-#19 are in More Synth Parameters of PRA32-U2 Editor, and on Pages A-31 to A-33 of the panel (FX to Delay b are now Pages A-34 to A-38);
           General Purpose Controller 1-4 are also in Performance Controls of PRA32-U2 Editor, and on Pages B-24 and B-25 of the panel
           (without the catch of the knobs there, and as Jmp with Assign Mode Rel; Panic and Randomize Synth are now Page B-26)
-        - The Presets: Assign Mode Jmp, and Assign #16-#19 74 (Filter Cutoff), 71 (Filter Resonance), 47 (Osc 1 Shape), and 20 (Osc 1 Morph) (0, Off, in #23 Initial and #31)
+        - The Presets: Assign Mode Jmp, and Assign #16-#19 set to 74 (Filter Cutoff), 71 (Filter Resonance), 47 (Osc 1 Shape), and 20 (Osc 1 Morph) (0, Off, in #23 Initial and #31)
         - **Not compatible**: EG Att/Dec Key Track, LFO Depth, Voice Mode, and Osc 1 Shape moved from #16-19 to #44-47,
           and EG Att/Dec Velo Sens from #51 to #43: send the new numbers to control them (e.g. set the knob of a keyboard for Osc 1 Shape to #47)
             - The Presets and the program files of PRA32-U2 Editor are changed by the names (the same sounds); the user programs written to PRA32-U2
               and the states of PRA32-U2 Native are not (these 5 parameters go back to the defaults, and Assign #19 takes the value of
               EG Att/Dec Velo Sens, usually 64, which is Off: set it again)
-            - (If the keyboard cannot be changed, Assign Mode Jmp and Assign #16-#19 44-47 make #16-19 work as before)
+            - (If the keyboard cannot be changed, Assign Mode Jmp and Assign #16-#19 set to 44-47 make #16-19 work as before)
     - **Osc 1 Tri** folds the wave: Osc 1 Shape sets the gain of the fold (x1 to x9, lowered at a high pitch), and Osc 1 Morph the mix of the Triangle and the folded one;
       band-limited by the Triangle Wave tables, and corrected at the turns; not in the Lite versions
         - **Not compatible**: a user program with Osc 1 Wave Tri and Osc 1 Morph other than 0 sounds otherwise (set Osc 1 Morph to 0); the Presets do not use Tri

@@ -101,10 +101,10 @@
 |                            10 | x             | o             | Pan                                   |
 |                            42 | x             | o             | Assign Mode [Jmp|Cat|Rel] $12         |
 |                               |               |               |                                       |
-|                            48 | x             | o             | Assign #16 $12                    |
-|                            49 | x             | o             | Assign #17 $12                    |
-|                            50 | x             | o             | Assign #18 $12                    |
-|                            51 | x             | o             | Assign #19 $12                    |
+|                            48 | x             | o             | Assign #16 $12                        |
+|                            49 | x             | o             | Assign #17 $12                        |
+|                            50 | x             | o             | Assign #18 $12                        |
+|                            51 | x             | o             | Assign #19 $12                        |
 |                               |               |               |                                       |
 |                            95 | x             | o             | Distortion Drive                      |
 |                            77 | x             | o             | FX Routing [Dst|Cho|Dly|Dly|Cmp|Dry]  |
