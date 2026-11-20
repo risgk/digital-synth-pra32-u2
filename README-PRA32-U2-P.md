@@ -81,7 +81,6 @@
 
     - The images: Key Mode (PRA32-U2/P), the Layering in K+S Mode (PRA32-U2/M/P), General Purpose Controller 1 and 2 (Page B-24), and Seq Mode
       (made by "docs/generate-panel-display-images.rb", with the font of the panel)
-
     - "#" and the program (the last program that the synth took), with Prog -/+ Key; "S" and the channel of the Step Sequencer (if Seq Ch Ofst is not +0, in Seq and K+S);
       and the step of the Step Sequencer, with "*" while the Play Key plays (see Panel Play Mode)
     - "Ch" and the channel (1-16) that the panel selects (PRA32-U2/P: the Basic Channel), and what it is (PRA32-U2/M/P; see Prev Key + Next Key in PRA32-U2/M/P)
