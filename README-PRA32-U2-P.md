@@ -67,20 +67,18 @@
 
 - The display: the top 2 lines, and the page (e.g. Page A-11 Filter a) with Parameter C on its right (for Play), and Parameter A and B below them
 
-    ```
-    #4            S8  *53
-    Ch 5 [Ly2] Panel
-    Page A-11  Play Pitch
-    Filter a   C=...
-    ```
+    <table>
+    <tr>
+    <td><a href="./docs/images/panel-display-key.png"><img src="./docs/images/panel-display-key.png" alt="The display: Key Mode (PRA32-U2/P)" width="256"></a><br>Key Mode (PRA32-U2/P)</td>
+    <td><a href="./docs/images/panel-display-layering.png"><img src="./docs/images/panel-display-layering.png" alt="The display: the Layering in K+S Mode (PRA32-U2/M/P)" width="256"></a><br>The Layering in K+S Mode (PRA32-U2/M/P)</td>
+    </tr>
+    <tr>
+    <td><a href="./docs/images/panel-display-general-purpose.png"><img src="./docs/images/panel-display-general-purpose.png" alt="The display: General Purpose Controller 1 and 2 (Page B-24)" width="256"></a><br>General Purpose Controller 1 and 2 (Page B-24)</td>
+    <td><a href="./docs/images/panel-display-seq.png"><img src="./docs/images/panel-display-seq.png" alt="The display: Seq Mode" width="256"></a><br>Seq Mode</td>
+    </tr>
+    </table>
 
-    <a href="./docs/images/panel-display-key.png"><img src="./docs/images/panel-display-key.png" alt="The display: Key Mode (PRA32-U2/P)" title="Key Mode (PRA32-U2/P)" width="256"></a>
-    <a href="./docs/images/panel-display-layering.png"><img src="./docs/images/panel-display-layering.png" alt="The display: the Layering in K+S Mode (PRA32-U2/M/P)" title="The Layering in K+S Mode (PRA32-U2/M/P)" width="256"></a>
-    <a href="./docs/images/panel-display-general-purpose.png"><img src="./docs/images/panel-display-general-purpose.png" alt="The display: General Purpose Controller 1 and 2 (Page B-24)" title="General Purpose Controller 1 and 2 (Page B-24)" width="256"></a>
-    <a href="./docs/images/panel-display-seq.png"><img src="./docs/images/panel-display-seq.png" alt="The display: Seq Mode" title="Seq Mode" width="256"></a>
-
-    - The images: Key Mode (PRA32-U2/P), the Layering in K+S Mode (PRA32-U2/M/P), General Purpose Controller 1 and 2 (Page B-24), and Seq Mode
-      (made by "docs/generate-panel-display-images.rb", with the font of the panel)
+    - The images are made by "docs/generate-panel-display-images.rb", with the font of the panel
     - "#" and the program (the last program that the synth took), with Prog -/+ Key; "S" and the channel of the Step Sequencer (if Seq Ch Ofst is not +0, in Seq and K+S);
       and the step of the Step Sequencer, with "*" while the Play Key plays (see Panel Play Mode)
     - "Ch" and the channel (1-16) that the panel selects (PRA32-U2/P: the Basic Channel), and what it is (PRA32-U2/M/P; see Prev Key + Next Key in PRA32-U2/M/P)
