@@ -342,14 +342,14 @@ static INLINE boolean PRA32_U2_assign_dst_off(uint8_t dst) {
          (dst == SUSTAIN_PEDAL) || (dst == VOICE_GRP_MODE) || (dst == WRITE_P_TO_PROG) || (dst >= SP_RAND_CTRL);
 }
 
-// Assign Mode [Cat|Jmp|Rel]: 0 (0-31), 1 (32-95), and 2 (96-127)
+// Assign Mode [Jmp|Cat|Rel]: 0 (0-31), 1 (32-95), and 2 (96-127)
 static INLINE uint32_t PRA32_U2_assign_mode(uint8_t controller_value) {
   return ((controller_value * 4) + 128) >> 8;
 }
 
-// By Assign Mode: Cat, only after the value comes to that of the parameter (the same, or across it), so that it does not jump
-// (e.g. after a Program Change, or the parameter changed otherwise), and the parameter follows it from there, while the last
-// value of it is that of the parameter; Jmp, the value at once (the parameter jumps to it); Rel, the value - 64 added to that
+// By Assign Mode: Jmp, the value at once (the parameter jumps to it); Cat, only after the value comes to that of the parameter
+// (the same, or across it), so that it does not jump (e.g. after a Program Change, or the parameter changed otherwise), and
+// the parameter follows it from there, while the last value of it is that of the parameter; Rel, the value - 64 added to that
 // of the parameter (e.g. +1 by 65, -1 by 63, for an endless encoder), within 0-127. Returns the number to control now (or 0),
 // with the value to set; shared by the synths (not inlined into each of them, in the RAM)
 static __attribute__((noinline)) uint8_t __not_in_flash_func(PRA32_U2_general_purpose_dst)(const uint8_t controller_value_table[128 + 128],
@@ -371,7 +371,7 @@ static __attribute__((noinline)) uint8_t __not_in_flash_func(PRA32_U2_general_pu
     return dst;
   }
 
-  if ((mode == 1) || (controller_value == current) || (last == current) ||
+  if ((mode == 0) || (controller_value == current) || (last == current) ||
       ((last < current) && (controller_value > current)) ||
       ((last > current) && (last <= DATA_BYTE_MAX) && (controller_value < current))) {
     return dst;

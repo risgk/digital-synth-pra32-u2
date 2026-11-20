@@ -1734,7 +1734,7 @@ function updateGeneralPurposeIndicators() {
       current = parseInt(document.getElementById("inputPerf" + PERFORMANCE_CONTROLS.get(dst)[0]).value);
     }
     var mark = "";
-    if ((mode == 0) && (current != null)) {
+    if ((mode == 1) && (current != null)) {
       var slider = parseInt(document.getElementById("inputPerfGEN_PURPOSE_" + (index + 1)).value);
       if ((generalPurposeLastValues[index] == current) || (slider == current)) {
         mark = "=";
@@ -1746,14 +1746,14 @@ function updateGeneralPurposeIndicators() {
   }
 }
 
-// Assign Mode [Cat|Jmp|Rel]: 0, 1, and 2
+// Assign Mode [Jmp|Cat|Rel]: 0, 1, and 2
 function assignMode() {
   return (((parseInt(localStorage.getItem("key" + controlNumberToStringMap.get(ASSIGN_MODE))) || 0) * 4) + 128) >> 8;
 }
 
 // General Purpose Controller 1-4 (from MIDI In, or the sliders), as PRA32-U2: the parameter (or the performance control) of
-// Assign #16-#19, and the value to set, by Assign Mode: Cat, only after the value comes to that of the parameter (the same,
-// or across it), so that it does not jump; Jmp, the value at once; Rel, the value - 64 added to that of the parameter (the
+// Assign #16-#19, and the value to set, by Assign Mode: Jmp, the value at once; Cat, only after the value comes to that of
+// the parameter (the same, or across it), so that it does not jump; Rel, the value - 64 added to that of the parameter (the
 // sliders of the editor: absolute values, as Jmp); { dst: 0 } if none now. The value of the parameter here is that of the
 // editor (as PRA32-U2 has it, unless it was changed on PRA32-U2 alone, e.g. by the panel)
 var generalPurposeLastValues = [-1, -1, -1, -1];
@@ -1775,7 +1775,7 @@ function generalPurposeDst(index, value, absolute) {
   if ((mode == 2) && !absolute) {
     return { dst: dst, value: Math.min(Math.max(current + value - 64, 0), 127) };
   }
-  if ((mode != 0) || (value == current) || (last == current) || ((last >= 0) && (last < current) && (value > current)) ||
+  if ((mode != 1) || (value == current) || (last == current) || ((last >= 0) && (last < current) && (value > current)) ||
       ((last > current) && (value < current))) {
     return { dst: dst, value: value };
   }
@@ -2574,7 +2574,7 @@ function updateDisplayOfControl(number, value) {
     break;
   case ASSIGN_MODE     :
     {
-      var ary = ["Cat","Jmp","Rel"];
+      var ary = ["Jmp","Cat","Rel"];
       var index = ((value * 4) + 128) >> 8;
       dispValue = ary[index];
     }
@@ -4312,7 +4312,7 @@ function getStoredCCValueString(index, number) {
   <div class="param-ctrl soft-marker-c"><input  id="inputPAN            "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(PAN            , value)"><span    id="spanPAN            " >-</span><span   id="span2PAN            " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>Assign</b> Mode <span class="sup">[Cat|Jmp|Rel]</span> <span class="cc">CC#42</span></div>
+  <div class="param-name"><b>Assign</b> Mode <span class="sup">[Jmp|Cat|Rel]</span> <span class="cc">CC#42</span></div>
   <div class="param-ctrl soft-markers-3"><input  id="inputASSIGN_MODE    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(ASSIGN_MODE    , value)"><span    id="spanASSIGN_MODE    " >-</span><span   id="span2ASSIGN_MODE    " >-</span></div>
 </div>
 </div>
