@@ -494,6 +494,8 @@ static __attribute__((noinline)) void PRA32_U2_ControlPanel_update_seq_ch_displa
 // is (PRA32-U2/M/P: "[Sy0]" to "[Sy3]" for the synths, Voice Group Mode for "+ 4" and "+ 5", and "[All]" for the Layering),
 // columns 0-9 of the second line
 static __attribute__((noinline)) void PRA32_U2_ControlPanel_update_ch_display() {
+  char last[10];
+  std::memcpy(last, &s_display_buffer[1][0], 10);
   std::memcpy(&s_display_buffer[1][0], "Ch        ", 10);
   PRA32_U2_ControlPanel_put_number_left(&s_display_buffer[1][3], getTargetMIDICh(s_current_synth));
 #if (PRA32_U2_NUMBER_OF_SYNTHS > 1)
@@ -512,14 +514,26 @@ static __attribute__((noinline)) void PRA32_U2_ControlPanel_update_ch_display() 
   std::memcpy(&s_display_buffer[1][6], name, 3);
   s_display_buffer[1][9] = ']';
 #endif  // (PRA32_U2_NUMBER_OF_SYNTHS > 1)
+  if (std::memcmp(last, &s_display_buffer[1][0], 10) != 0) {
+    // Drawn from the start again (as after a page changed), as this line is not drawn again by itself (it changes seldom)
+    PRA32_U2_COMPILER_MEMORY_BARRIER();
+    s_display_draw_counter = -1;
+  }
 }
 
 // The program of the channel that the panel selects (with Prog - key or Prog + key), as "#" and the number of the last
 // program that its (first) synth took (0-31; not #127, Randomize Synth, which is not a program), columns 0-2 of the top line
 static void PRA32_U2_ControlPanel_update_program_display() {
 #if defined(PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN) || defined(PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN)
+  char last[3];
+  std::memcpy(last, &s_display_buffer[0][0], 3);
   s_display_buffer[0][0] = '#';
   PRA32_U2_ControlPanel_put_number_left(&s_display_buffer[0][1], s_current_program[PRA32_U2_ControlPanel_program_synth()]);
+  if (std::memcmp(last, &s_display_buffer[0][0], 3) != 0) {
+    // Drawn from the start again (as after a page changed), as this line is not drawn again by itself (it changes seldom)
+    PRA32_U2_COMPILER_MEMORY_BARRIER();
+    s_display_draw_counter = -1;
+  }
 #endif  // defined(PRA32_U2_KEY_INPUT_PROG_MINUS_KEY_PIN) || defined(PRA32_U2_KEY_INPUT_PROG_PLUS_KEY_PIN)
 }
 
@@ -2515,72 +2529,19 @@ INLINE void PRA32_U2_ControlPanel_update_display(uint32_t loop_counter) {
 
     ++s_display_draw_counter;
 
-    if (s_display_draw_counter == (15 * 10)) {
-      s_display_draw_counter = (11 * 10);
+    // From the start (after a page changed, or the channel or the program shown), the lines on the left (0-3 and 5-7)
+    // and on the right (5-7 and 1-3) once; and then the values (lines 7 and 3) and the top line on the right, again and again
+    if (s_display_draw_counter == (17 * 10)) {
+      s_display_draw_counter = (13 * 10);
     }
 
-    switch (s_display_draw_counter / 10) {
-    case 0:
-      s_display_draw_position_x = s_display_draw_counter % 10;
-      s_display_draw_position_y = 1;
-      break;
-    case 1:
-      s_display_draw_position_x = s_display_draw_counter % 10;
-      s_display_draw_position_y = 2;
-      break;
-    case 2:
-      s_display_draw_position_x = s_display_draw_counter % 10;
-      s_display_draw_position_y = 5;
-      break;
-    case 3:
-      s_display_draw_position_x = s_display_draw_counter % 10;
-      s_display_draw_position_y = 6;
-      break;
-    case 4:
-      s_display_draw_position_x = s_display_draw_counter % 10;
-      s_display_draw_position_y = 7;
-      break;
-    case 5:
-      s_display_draw_position_x = s_display_draw_counter % 10 + 11;
-      s_display_draw_position_y = 5;
-      break;
-    case 6:
-      s_display_draw_position_x = s_display_draw_counter % 10 + 11;
-      s_display_draw_position_y = 6;
-      break;
-    case 7:
-      s_display_draw_position_x = s_display_draw_counter % 10 + 11;
-      s_display_draw_position_y = 7;
-      break;
-    case 8:
-      s_display_draw_position_x = s_display_draw_counter % 10 + 11;
-      s_display_draw_position_y = 1;
-      break;
-    case 9:
-      s_display_draw_position_x = s_display_draw_counter % 10 + 11;
-      s_display_draw_position_y = 2;
-      break;
-    case 10:
-      s_display_draw_position_x = s_display_draw_counter % 10 + 11;
-      s_display_draw_position_y = 3;
-      break;
-    case 11:
-      s_display_draw_position_x = s_display_draw_counter % 10;
-      s_display_draw_position_y = 7;
-      break;
-    case 12:
-      s_display_draw_position_x = s_display_draw_counter % 10 + 11;
-      s_display_draw_position_y = 7;
-      break;
-    case 13:
-      s_display_draw_position_x = s_display_draw_counter % 10 + 11;
-      s_display_draw_position_y = 3;
-      break;
-    case 14:
-      s_display_draw_position_x = s_display_draw_counter % 10 + 11;
-      s_display_draw_position_y = 0;
-      break;
-    }
+    // The lines in this order, each 10 characters, + 8 for those on the right (columns 11-20)
+    static const uint8_t s_lines[17] PRA32_U2_TABLE_IN_RAM(display_lines) = {
+      0, 1, 2, 3, 5, 6, 7,  5 + 8, 6 + 8, 7 + 8, 1 + 8, 2 + 8, 3 + 8,  7, 7 + 8, 3 + 8, 0 + 8,
+    };
+    uint8_t line = s_lines[s_display_draw_counter / 10];
+    s_display_draw_position_x = (s_display_draw_counter % 10) + ((line & 8) ? 11 : 0);
+    s_display_draw_position_y = line & 7;
 
     if ((s_display_draw_position_x == 0) || (s_display_draw_position_x == 11)) {
       s_display_draw_position_update = true;
