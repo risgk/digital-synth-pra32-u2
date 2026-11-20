@@ -727,6 +727,12 @@ span.cc {
   height: calc(140px * var(--kbd-scale));
   touch-action: none;  /* a touch plays (and glides over) the keys, and does not scroll */
 }
+/* White behind the keys, so that the dark frame does not show as a line between two keys, where the edges of the keys
+   fall between the pixels (e.g. at 125% and 150% of the display scale); not at the bottom 4px, so that the lower keys
+   keep their rounded corners */
+#keyboard {
+  background: linear-gradient(#fff, #fff) top / 100% calc(100% - 4px) no-repeat;
+}
 /* The keyboard (with its bar and the controls for playing) stays at the bottom of the window while the parameters
    scroll above it, so that they can be changed while playing (e.g. in a demo), with lower keys (100px).
    Hidden, only its bar stays there */

@@ -149,4 +149,5 @@ Basically, a release goes as follows:
 - In the commit messages too, "#N" is linked to an issue or a pull request: write the name of a program instead (e.g. "Sync Lead"), or "CC 112"
 - For the maintainer: after a release, update PRA32-U2 Editor and PRA32-U2 Web on the official page
   ([risgk.github.io](https://github.com/risgk/risgk.github.io)): copy "pra32-u2-editor.html" and "pra32-u2-web-synth.js"
-  of main to "digital-synth-pra32-u2" there (not needed for a fork)
+  of main to "digital-synth-pra32-u2" there, and the development version too, "pra32-u2-editor-dev.html" (the copy with
+  "pra32-u2-web-synth-dev.js" in place of "pra32-u2-web-synth.js") and "pra32-u2-web-synth-dev.js" (not needed for a fork)

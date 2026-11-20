@@ -77,10 +77,10 @@
       e.g. by MIDI or the Read pages too), and "S" and the channel of the Step Sequencer, "*" (the Play Key), the shift (4x4), and the step on the right end
       (e.g. "#4            S8  *53"); the second line with "Ch" and the channel that the panel selects (1-16, in decimal; PRA32-U2/P too: the Basic Channel),
       and what it is (PRA32-U2/M/P, e.g. "Ch 5 [Ly2]"); and the page below it, numbered without a 0 (e.g. "Page A-6")
-    - PRA32-U2/P: Fix the wrong pitches of the Step Sequencer with Panel Pitch Ofst and Seq Pitch Ofst both near -60
-    - PRA32-U2/P: The display shows "%" and "&" (e.g. "50%", and "S&H" of LFO Wave, a box before), and the other ASCII symbols too (e.g. "!", "?", and "@")
         - The images of the display in "GUI Pages" of README-PRA32-U2-P.md (Key Mode, the Layering, General Purpose Controller 1 and 2, and Seq Mode),
           made by "docs/generate-panel-display-images.rb" with the font of the panel
+    - PRA32-U2/P: Fix the wrong pitches of the Step Sequencer with Panel Pitch Ofst and Seq Pitch Ofst both near -60
+    - PRA32-U2/P: The display shows "%" and "&" (e.g. "50%", and "S&H" of LFO Wave, a box before), and the other ASCII symbols too (e.g. "!", "?", and "@")
     - PRA32-U2/M/P: Prog - Key and Prog + Key go by 4 on the Layering of all ("[All]"), and by 2 on "[Ly2]" and "[RLy]", to the multiple of it,
       so that the programs of the synths layered stay in the same sets (e.g. #0-3 and #4-7 on "[All]"; by 1 as before on the others)
         - The program shown for a group or the Layering is that of its first synth (e.g. #0, #2, and #0 at the start for the Basic Channel + 4, + 5, and + 15 with Ly2; #4, #5, and #6 before)
@@ -91,6 +91,7 @@
         - "Panel & Step Sequencer" keeps the values by the names (e.g. "SEQ_TEMPO"), as the synth parameters; **not compatible**: the values kept before are not read
         - The marker of the center on Pan and Osc 1 Shape (PRA32-U2 Native too), and the slider of Osc 1 Morph snaps to the wave tables with Osc 1 Wave WT
         - The headings inside another (the 3 parts of "Panel & Step Sequencer", and "Performance Controls") a little to the right
+        - No dark line between two keys of the soft keyboard (where the edges of the keys fell between the pixels, e.g. at 125% and 150% of the display scale)
         - PRA32-U2 Web: "Click (or tap) to start the audio" is shown as soon as it is chosen in MIDI Out (nothing sent then, as before),
           in the dark orange of the editor (red before)
     - The files renamed and moved: the Change History to "CHANGELOG.md"; the documents (other than README.md, README.ja.md, README-PRA32-U2-P.md, and CHANGELOG.md)
