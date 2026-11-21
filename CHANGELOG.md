@@ -13,7 +13,8 @@
     - Fixes: PRA32-U2/M: a Program Change of more than one synth (e.g. by the Layering) with a note right after it,
       and a change of Voice Group Mode or of Poly of the Main Synth, processed all the programs in one loop
       (over 100% estimated)
-    - PRA32-U2 Load Estimate: Add the cases of a Program Change with a note right after it
+    - PRA32-U2 Load Estimate: Add the cases of a Program Change with a note right after it;
+      the bytes of UART MIDI arrive in the time of the loops as on the device (fewer a loop for a lighter loop before)
     - Tested with Arduino-Pico version 6.4.0
 - v3.22.0 (2026-11-21):
     - **CC #16-19 are General Purpose Controller 1-4**: each controls the parameter that Assign #16-#19 (#48-51) set

@@ -12,8 +12,10 @@
 #   core 0 waits for core 1 (and core 1 for core 0) as on the device
 # - loop() is measured from its start to its return; the output never blocks (the ring buffer is
 #   always writable); the messages before the loops are given to the handlers, and while the loops
-#   run, the bytes of --uart-midi arrive at 31250 bps and those of --usb-midi as fast as they are
-#   read, through stand-ins for available() and read() of SerialUART and Adafruit_USBD_MIDI
+#   run, the bytes of --uart-midi arrive at 31250 bps (in the time of the loops as on the device,
+#   where a loop lasts 1333 us however long it computes, so about 4.2 bytes a loop) and those of
+#   --usb-midi as fast as they are read, through stand-ins for available() and read() of SerialUART
+#   and Adafruit_USBD_MIDI
 # - Core 1 is busy but while it spins: the cycles since its last store (but to its stack) count if
 #   they are few, and are a wait if they are many (see SPIN_CYCLES); the stores are told by the
 #   instructions (not by a hook on the writes of Unicorn, which breaks the conditional stores of
@@ -287,6 +289,7 @@ for n, fn in helpers.items():
 # each counted at MIDI_CALL_CYCLES, a rough figure for the real ones (a FIFO and a lock)
 MIDI_CALL_CYCLES = 20
 UART_BYTE_CYCLES = args.mhz * 1e6 * 10 / 31250  # 10 bits a byte
+LOOP_CYCLES = args.mhz * 1e6 * 64 / 48000  # The time of a loop on the device (64 frames), for the UART
 UART_FIFO = 256
 midi_in = {
     'uart': {'bytes': bytes.fromhex(args.uart_midi), 'read': 0},
@@ -299,7 +302,9 @@ def midi_waiting(port):
         return 0
     if port == 'usb':
         return 64
-    arrived = int(clock[0] / UART_BYTE_CYCLES)
+    # In the time of the loops as on the device (each 1333 us, however long it computes), so that
+    # the bytes a loop do not depend on the load (a lighter loop would get fewer of them otherwise)
+    arrived = int(((len(loops) * LOOP_CYCLES) + (clock[0] - loop_start)) / UART_BYTE_CYCLES)
     m['read'] = max(m['read'], arrived - UART_FIFO)  # an overrun drops the oldest
     return arrived - m['read']
 def midi_available(port):
