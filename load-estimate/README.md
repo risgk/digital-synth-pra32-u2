@@ -76,30 +76,30 @@ and "Other" is the rest (e.g. Debug Print).
 
 | Case (core 0 / core 1, max) | PRA32-U2 | PRA32-U2/M/P | PRA32-U2 (Lite) | PRA32-U2/M (Lite) |
 | :-- | --: | --: | --: | --: |
-| #0 Synth Pad, 4 notes | 65% / 62% | 69% / 66% | 73% / 1% | 88% / 1% |
-| Poly: #5 Sync Lead (Osc 1 Wave Sqr) in Poly with Delay Mode Rev, 4 notes | 77% / 72% | 80% / 76% | 77% / 1% | 89% / 1% |
-| Poly, with Note On and Off of another note by UART MIDI (Running Status) and USB MIDI | 78% / 72% | 82% / 75% | 78% / 1% | 91% / 1% |
-| Poly, with Program Change #0 (Poly itself) back to back by UART MIDI (Running Status) and USB MIDI | 80% / 72% | 84% / 75% | 81% / 1% | 92% / 1% |
-| Poly, with Program Change by CC #112 (#0) back to back by UART MIDI (Running Status) and USB MIDI | 80% / 72% | 83% / 75% | 80% / 1% | 92% / 1% |
-| Poly, with Program Change #0 and #16 by turns, each with Note On and Off right after it, by UART MIDI and USB MIDI | 83% / 72% | 84% / 76% | 83% / 1% | 93% / 1% |
-| 4 Synths: #5 Sync Lead (Mono, and Delay Mode Rev) by MIDI Channel 16 (Layering), 4 notes | - | 79% / 76% | - | 87% / 1% |
-| 4 Synths, with Note On and Off of another note by MIDI Channel 16 by UART MIDI (Running Status) and USB MIDI | - | 84% / 76% | - | 92% / 1% |
-| 4 Synths, with Program Change #0 (4 Synths itself) by MIDI Channel 16 back to back by UART MIDI (Running Status) and USB MIDI | - | 84% / 76% | - | 91% / 1% |
-| 4 Synths, with Program Change by CC #112 (#0) by MIDI Channel 16 back to back by UART MIDI (Running Status) and USB MIDI | - | 83% / 76% | - | 92% / 1% |
-| 4 Synths, with Program Change #0 and #16 by MIDI Channel 16 by turns, each with Note On and Off right after it, by UART MIDI and USB MIDI | - | 85% / 76% | - | 95% / 1% |
+| #0 Synth Pad, 4 notes | 65% / 62% | 68% / 66% | 72% / 1% | 87% / 1% |
+| Poly: #5 Sync Lead (Osc 1 Wave Sqr) in Poly with Delay Mode Rev, 4 notes | 77% / 72% | 80% / 75% | 74% / 1% | 87% / 1% |
+| Poly, with Note On and Off of another note by UART MIDI (Running Status) and USB MIDI | 78% / 72% | 82% / 75% | 75% / 1% | 90% / 1% |
+| Poly, with Program Change #0 (Poly itself) back to back by UART MIDI (Running Status) and USB MIDI | 80% / 72% | 84% / 75% | 78% / 1% | 90% / 1% |
+| Poly, with Program Change by CC #112 (#0) back to back by UART MIDI (Running Status) and USB MIDI | 80% / 72% | 83% / 75% | 78% / 1% | 90% / 1% |
+| Poly, with Program Change #0 and #16 by turns, each with Note On and Off right after it, by UART MIDI and USB MIDI | 83% / 72% | 83% / 76% | 80% / 1% | 90% / 1% |
+| 4 Synths: #5 Sync Lead (Mono, and Delay Mode Rev) by MIDI Channel 16 (Layering), 4 notes | - | 79% / 76% | - | 86% / 1% |
+| 4 Synths, with Note On and Off of another note by MIDI Channel 16 by UART MIDI (Running Status) and USB MIDI | - | 83% / 76% | - | 91% / 1% |
+| 4 Synths, with Program Change #0 (4 Synths itself) by MIDI Channel 16 back to back by UART MIDI (Running Status) and USB MIDI | - | 83% / 76% | - | 90% / 1% |
+| 4 Synths, with Program Change by CC #112 (#0) by MIDI Channel 16 back to back by UART MIDI (Running Status) and USB MIDI | - | 83% / 76% | - | 90% / 1% |
+| 4 Synths, with Program Change #0 and #16 by MIDI Channel 16 by turns, each with Note On and Off right after it, by UART MIDI and USB MIDI | - | 89% / 80% | - | 93% / 1% |
 
 ⚠: over 100% (1333 us), △: over 95%
 
 | Module (core 0 / core 1, avg) | PRA32-U2, Poly | PRA32-U2/M/P, 4 Synths |
 | :-- | --: | --: |
-| Osc | 38.3% / 22.6% | 31.7% / 31.6% |
-| Synth | 10.0% / 17.6% | 5.2% / 13.6% |
-| Filter | 15.0% / 7.3% | 12.6% / 12.6% |
-| Sketch | 3.8% / 5.7% | 9.1% / 6.9% |
+| Osc | 38.3% / 22.6% | 31.8% / 31.7% |
+| Synth | 10.6% / 18.0% | 5.2% / 13.5% |
+| Filter | 14.5% / 6.9% | 12.1% / 12.1% |
+| Sketch | 3.8% / 5.9% | 9.0% / 6.9% |
 | DelayFx | 0.0% / 8.5% | 8.5% / 0.0% |
 | OutputCompressor | 0.0% / 4.3% | 4.3% / 0.0% |
 | ChorusFx | 0.0% / 4.3% | 0.0% / 4.3% |
-| LFO | 3.3% / 0.0% | 2.1% / 1.8% |
+| LFO | 3.4% / 0.0% | 2.1% / 1.8% |
 | Amp | 2.2% / 1.1% | 2.1% / 2.1% |
 | EG | 1.6% / 0.0% | 0.8% / 0.8% |
 | Panner | 0.7% / 0.0% | 1.4% / 1.3% |
@@ -109,7 +109,7 @@ and "Other" is the rest (e.g. Debug Print).
 
 | RAM (global variables) | PRA32-U2 | PRA32-U2/M | PRA32-U2/P | PRA32-U2/M/P | PRA32-U2 (Lite) | PRA32-U2/M (Lite) |
 | :-- | --: | --: | --: | --: | --: | --: |
-| | 390384 (74%) | 486576 (92%) | 410708 (78%) | 507572 (96%) | 345512 (65%) | 422084 (80%) |
+| | 390124 (74%) | 486216 (92%) | 410448 (78%) | 507204 (96%) | 345164 (65%) | 421916 (80%) |
 
 On the device on the way to v3.21.0 (6ca67001, the same as at 2b41f301; PRA32-U2/M/P with the 6 keys and the Panel Channel, Debug Print `max(loop)`): 4 Synths: #5 Sync Lead (Mono, and Delay Mode Rev) by MIDI Channel 16 (Layering), 4 notes, 1091 us (82%; `min(loop)` 1078 us; `max(audio)` 1066 us; `underruns` 0), about the same as at 331a179b (1087 us) and on the way to v3.19.0 below, against the estimate (81% / 79%)
 

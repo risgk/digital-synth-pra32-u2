@@ -275,7 +275,7 @@ graph LR
     - "Digital-Synth-PRA32-U2.ino.Lite-Core-1-Only.txt" and "Digital-Synth-PRA32-U2-M.ino.Lite-Core-1-Only.txt":
       only the synth and the audio output, without MIDI, the panel, and Debug Print (no sound as it is): a base to play the synth from code of your own, at `// TODO` in `loop()`
     - PRA32-U2/M (Lite): with the 4 synths of heavy sounds (e.g. #18 FM Piano), the load is near the limit
-      (about 90-93% on the device, by the build, and below 100% even with Program Changes back to back: up to 95% estimated)
+      (about 89% on the device, and below 100% even with Program Changes back to back: up to 93% estimated)
 
 
 ## Troubleshooting
