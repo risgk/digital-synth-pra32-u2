@@ -12,15 +12,16 @@
 // out of Poly)
 
 // The Program Changes that arrive one after another are kept here for each synth (the Main Synth
-// and the Sub Synths 1-3), and processed after the MIDI messages of the loop are read, one synth a
-// loop (or all of them before the next message for any of the synths, so that the order is kept),
-// as one at most of each:
+// and the Sub Synths 1-3), and processed after the MIDI messages of the loop are read, half a program
+// of one synth a loop (or all of them before the next message for any of the synths, so that the order
+// is kept), as one at most of each:
 // - A program (#0-31) sets all the parameters of a program, so only the last of them is kept, and
 //   a Random Control kept before it is dropped
 // - #127 Random Control sets some of them (at random) after the program kept, so many of them in a
 //   row are kept as one
-static int16_t s_pending_program_change[4] = { -1, -1, -1, -1 };
-static boolean s_pending_random_control[4] = { false, false, false, false };
+static int16_t  s_pending_program_change[4] = { -1, -1, -1, -1 };
+static uint8_t  s_pending_program_part[4]   = { 0, 0, 0, 0 };  // The parts of the program processed (see program_change_part())
+static boolean  s_pending_random_control[4] = { false, false, false, false };
 
 static void __not_in_flash_func(programChangeOf)(uint32_t synth, uint8_t program_number) {
   switch (synth) {
@@ -31,22 +32,45 @@ static void __not_in_flash_func(programChangeOf)(uint32_t synth, uint8_t program
   }
 }
 
-// The ones kept for a synth, if any; true if processed
-static boolean __not_in_flash_func(processPendingProgramChangeOf)(uint32_t synth) {
+static void __not_in_flash_func(programChangePartOf)(uint32_t synth, uint8_t program_number, uint32_t part) {
+  switch (synth) {
+  case 0: g_synth      .program_change_part(program_number, part); break;
+  case 1: g_sub_1_synth.program_change_part(program_number, part); break;
+  case 2: g_sub_2_synth.program_change_part(program_number, part); break;
+  case 3: g_sub_3_synth.program_change_part(program_number, part); break;
+  }
+}
+
+// One part of the ones kept for a synth (the next part of the program, or the Random Control after it), if any; true if
+// processed (with all: all of them)
+static boolean __not_in_flash_func(processPendingProgramChangeStepOf)(uint32_t synth, boolean all) {
   int16_t program_number = s_pending_program_change[synth];
-  boolean random_control = s_pending_random_control[synth];
-  if ((program_number < 0) && !random_control) {
+  if ((program_number < 0) && !s_pending_random_control[synth]) {
     return false;
   }
-  s_pending_program_change[synth] = -1;
-  s_pending_random_control[synth] = false;
   if (program_number >= 0) {
-    programChangeOf(synth, static_cast<uint8_t>(program_number));
+    do {
+      programChangePartOf(synth, static_cast<uint8_t>(program_number), s_pending_program_part[synth]);
+      ++s_pending_program_part[synth];
+    } while (all && (s_pending_program_part[synth] < g_synth.PROGRAM_CHANGE_PARTS));
+    if (s_pending_program_part[synth] >= g_synth.PROGRAM_CHANGE_PARTS) {
+      s_pending_program_change[synth] = -1;
+      s_pending_program_part[synth]   = 0;
+    }
+    if (!all) {
+      return true;
+    }
   }
-  if (random_control) {
+  if (s_pending_random_control[synth]) {
+    s_pending_random_control[synth] = false;
     programChangeOf(synth, 127);
   }
   return true;
+}
+
+// The ones kept for a synth, if any, all of them; true if processed
+static boolean __not_in_flash_func(processPendingProgramChangeOf)(uint32_t synth) {
+  return processPendingProgramChangeStepOf(synth, true);
 }
 
 static void __not_in_flash_func(processPendingProgramChanges)() {
@@ -55,15 +79,16 @@ static void __not_in_flash_func(processPendingProgramChanges)() {
   }
 }
 
-// In a loop, the ones kept of only one of the synths (the next of them by turns) are processed, so
-// that a Program Change of the 4 synths at once (e.g. by the Layering) is spread over 4 loops, each
-// with the load of one synth
+// In a loop, one part of the ones kept of only one of the synths (the next of them by turns, the parts of
+// one in a row) is processed, so that a Program Change of the 4 synths at once (e.g. by the Layering) is
+// spread over 8 loops, each with the load of half a program of one synth (a Random Control, a loop of its own)
 static void __not_in_flash_func(processOnePendingProgramChange)() {
   static uint32_t s_next_synth = 0;
   for (uint32_t k = 0; k < 4; ++k) {
     uint32_t i = (s_next_synth + k) & 0x03;
-    if (processPendingProgramChangeOf(i)) {
-      s_next_synth = (i + 1) & 0x03;
+    if (processPendingProgramChangeStepOf(i, false)) {
+      boolean left = (s_pending_program_change[i] >= 0) || s_pending_random_control[i];
+      s_next_synth = left ? i : ((i + 1) & 0x03);
       return;
     }
   }
@@ -74,6 +99,7 @@ static void __not_in_flash_func(processOnePendingProgramChange)() {
 static void __not_in_flash_func(programChange)(uint32_t synth, uint8_t program_number) {
   if (program_number <= PROGRAM_NUMBER_MAX) {
     s_pending_program_change[synth] = program_number;
+    s_pending_program_part[synth]   = 0;  // (all of it again, also after a part of the one kept before)
     s_pending_random_control[synth] = false;
     return;
   }

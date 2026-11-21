@@ -1650,13 +1650,28 @@ if constexpr (NO_FX == false) {
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
   }
 
-  /* INLINE */ void __not_in_flash_func(program_change)(uint8_t program_number) {
+  // A program (#0-31) in 2 parts, the first and the second half of the parameters, so that the parts can be
+  // processed in 2 loops (see "pra32-u2-m-midi.h"), each with about half the load of the whole
+  static const uint32_t PROGRAM_CHANGE_PARTS = 2;
+
+  /* INLINE */ void __not_in_flash_func(program_change_part)(uint8_t program_number, uint32_t part) {
+    const uint32_t number_of_parameters = sizeof(s_program_table_parameters) / sizeof(s_program_table_parameters[0]);
+    const uint32_t begin = (number_of_parameters * part) / PROGRAM_CHANGE_PARTS;
+    const uint32_t end   = (number_of_parameters * (part + 1)) / PROGRAM_CHANGE_PARTS;
+
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
-    if (program_number <= PROGRAM_NUMBER_MAX) {  // #0-31 (not #127, Randomize Synth, nor 128 and 129, the panel parameters)
+    if (part == 0) {
       PRA32_U2_ControlPanel_on_program_change(SYNTH_ID, program_number);
     }
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 
+    for (uint32_t i = begin; i < end; ++i) {
+      uint32_t control_number = s_program_table_parameters[i];
+      control_change(control_number, m_program_table[control_number][program_number]);
+    }
+  }
+
+  /* INLINE */ void __not_in_flash_func(program_change)(uint8_t program_number) {
     if (program_number > PROGRAM_NUMBER_MAX) {
       if ((program_number == 128) || (program_number == 129)) {
         for (uint32_t i = 0; i < sizeof(s_program_table_panel_parameters) / sizeof(s_program_table_panel_parameters[0]); ++i) {
@@ -1670,9 +1685,9 @@ if constexpr (NO_FX == false) {
       return;
     }
 
-    for (uint32_t i = 0; i < sizeof(s_program_table_parameters) / sizeof(s_program_table_parameters[0]); ++i) {
-      uint32_t control_number = s_program_table_parameters[i];
-      control_change(control_number, m_program_table[control_number][program_number]);
+    // #0-31 (not #127, Randomize Synth, nor 128 and 129, the panel parameters)
+    for (uint32_t part = 0; part < PROGRAM_CHANGE_PARTS; ++part) {
+      program_change_part(program_number, part);
     }
   }
 
