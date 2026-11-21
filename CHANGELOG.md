@@ -7,6 +7,8 @@
     - A program sets Voice Mode last (the sound right after a Program Change of Voice Mode a little otherwise)
     - Filter: The output is clipped at +-1.0 (a soft clip from 0.75 before), a little lighter
       (e.g. 1% less of a loop, PRA32-U2/M (Lite) on the device); the Presets sound the same
+    - The Filter and Osc 1 Sin lighter (e.g. 2.7% less of a loop estimated, #18 FM Piano, the 4 synths of PRA32-U2/M (Lite));
+      the sound the same (the Filter within -109 dB)
     - PRA32-U2/P: Seq Velo 4-7 of Seq Pattern 4x4 shift the velocity by -63 to +63 (-64 at 0 before)
     - Fixes: PRA32-U2/M: a Program Change of more than one synth (e.g. by the Layering) with a note right after it,
       and a change of Voice Group Mode or of Poly of the Main Synth, processed all the programs in one loop
