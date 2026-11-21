@@ -34,6 +34,17 @@ static INLINE int32_t saturate_to_ceiling(int32_t value) {
 static const uint8_t SOFT_CLIP_SQUARED_SHIFT = ((23 + FILTER_CALC_SCALING_BITS) * 2) - FILTER_TABLE_FRACTION_BITS
                                              + (2 * SOFT_CLIP_CEILING_BITS);
 
+// Clamp to +-1.0 (1 << 23) of the output; a single instruction on the RP2350
+static INLINE int32_t saturate_output(int32_t value) {
+#if defined(__ARM_FEATURE_SAT)
+  int32_t result;
+  __asm ("ssat %0, %1, %2" : "=r" (result) : "I" (24), "r" (value));
+  return result;
+#else
+  return clamp(value, -(1 << 23), (1 << 23) - 1);
+#endif
+}
+
 // Cubic soft clipping with the ceiling at 4.0, written as a gain applied by a
 // single multiplication (not the "gain prediction" of the KVR thread, which
 // puts a predicted gain into the zero-delay feedback equation)
@@ -541,8 +552,11 @@ public:
     int32_t y_0 = audio_input_int24 << FILTER_CALC_SCALING_BITS;
 #endif
 
-    // The Drive's gain taken back off ahead of the output clip, with the output level by the Resonance
-    return soft_clip_output(multiply_shift_right(y_0, m_output_gain, 16 + FILTER_CALC_SCALING_BITS));
+    // The Drive's gain taken back off ahead of the output clip, with the output level by the Resonance; the output
+    // clipped at +-1.0 (a single instruction), as it rarely reaches 0.75 with the output level (the Presets: the peaks
+    // of #24 Synth Brs alone, up to about 1.03), so that a soft clip (soft_clip_output(), a knee from 0.75) is not
+    // worth its load
+    return saturate_output(multiply_shift_right(y_0, m_output_gain, 16 + FILTER_CALC_SCALING_BITS));
   }
 
 private:
