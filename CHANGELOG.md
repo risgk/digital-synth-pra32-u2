@@ -1,6 +1,7 @@
 ## Digital Synth PRA32-U2 Changelog
 
 - v3.23.0 (2026-??-??):
+    - PRA32-U2/P: Seq Velo 4-7 of Seq Pattern 4x4 shift the velocity by -63 to +63 (0 and 1: -63; -64 at 0 before)
     - Tested with Arduino-Pico version 6.4.0
 - v3.22.0 (2026-11-21):
     - **CC #16-19 are General Purpose Controller 1-4**: each controls the parameter that Assign #16-#19 (#48-51) set

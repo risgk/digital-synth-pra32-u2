@@ -4548,7 +4548,7 @@ const PANEL_PARAM_GROUPS = [
   [0, 1, 2, 3, 4, 5, 6, 7].flatMap(i => [["Seq", "Pitch " + i, "", 16 + i, [4, 22, 37, 57, 72, 89, 107, 124][i],
                                           v => ((i >= 4) && panelPattern4x4()) ? panelSigned(panelClamp(v - 64, -60, 60)) : panelPitchName(v), ""],
                                          ["Seq", "Velo " + i,  "", 70 + i, 64,
-                                          v => ((i >= 4) && panelPattern4x4()) ? panelSigned(v - 64) : String(v), ""]]),
+                                          v => ((i >= 4) && panelPattern4x4()) ? panelSigned(Math.max(v - 64, -63)) : String(v), ""]]),
 ];
 const PANEL_PARAMS = PANEL_PARAM_GROUPS.flat().filter(p => p);
 const PANEL_ON_STEPS_CC = 93, PANEL_ACT_STEPS_CC = 90;

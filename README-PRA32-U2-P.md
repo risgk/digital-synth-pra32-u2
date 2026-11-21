@@ -139,7 +139,7 @@
     - Seq Pattern [Std|4x4]: Standard (0-63, the default), 4x4 (64-127)
         - 4x4: Seq Pitch 0-7 and Seq Velo 0-7 as the pattern (0-3) and the shifts (4-7): the pattern is played again and again,
           shifted by Seq Pitch 4, 5, 6, and 7 in turn (each added to the offsets, as Seq Pitch Ofst, -60 to +60), and Seq Velo 4-7 (each added to
-          the velocity, 64 as 0; 1-127); Seq Num Steps is the length of each shift (e.g. 8 for the pattern twice)
+          the velocity, 64 as 0, -63 to +63; 1-127); Seq Num Steps is the length of each shift (e.g. 8 for the pattern twice)
         - 4x4: Seq On Steps and Seq Act Steps (Step 1-3) work on the pattern; Seq Act Steps (Step 5-7) on the shifts (the shift by Seq Pitch 4 is always Active);
           Seq Direction works on the pattern; Panel Scale, Panel Pitch Ofst, Panel Transpose, Seq Pitch Ofst, and Seq Transpose take effect at each shift;
           Seq Rand Pitch randomizes Seq Pitch 0-3 (the pattern) alone

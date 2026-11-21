@@ -795,11 +795,12 @@ static __attribute__((noinline)) void __not_in_flash_func(PRA32_U2_ControlPanel_
 
   int32_t shift_ofst = 0;
   if (s_seq_pattern_4x4) {
+    // The shift of the velocity -63 to +63 (0 and 1: -63), to 1-127; a step of the velocity 0 (or not On) stays silent
+    // (computed whichever, so that the steps take the same time)
     shift_ofst = g_synth.current_controller_value(SEQ_PITCH_4 + s_seq_shift) - 64;
-    if (new_velocity > 0) {
-      new_velocity += g_synth.current_controller_value(SEQ_VELO_4 + s_seq_shift) - 64;
-      if (new_velocity < 1) { new_velocity = 1; } else if (new_velocity > 127) { new_velocity = 127; }
-    }
+    int32_t velo_shift   = maximum(static_cast<int32_t>(g_synth.current_controller_value(SEQ_VELO_4 + s_seq_shift)) - 64, -63);
+    int32_t shifted_velo = clamp(new_velocity + velo_shift, 1, 127);
+    new_velocity = (new_velocity > 0) ? shifted_velo : 0;
   }
 
   new_pitch = PRA32_U2_ControlPanel_calc_scaled_pitch(s_index_scale, new_pitch, s_panel_pit_ofst, s_seq_pit_ofst, shift_ofst);
@@ -1683,8 +1684,8 @@ static __attribute__((noinline)) boolean __not_in_flash_func(PRA32_U2_ControlPan
   case  SEQ_VELO_5     :
   case  SEQ_VELO_6     :
   case  SEQ_VELO_7     :
-    if (s_seq_pattern_4x4) {  // the shifts, added to the velocity
-      PRA32_U2_ControlPanel_format_decimal(value_display_text, static_cast<int>(controller_value) - 64, true);
+    if (s_seq_pattern_4x4) {  // the shifts, added to the velocity (-63 to +63; 0 and 1: -63)
+      PRA32_U2_ControlPanel_format_decimal(value_display_text, maximum(static_cast<int32_t>(controller_value) - 64, -63), true);
       result = true;
     }
     break;
