@@ -20,7 +20,7 @@ VARIANTS='u2 m p mp u2l ml'
 ESTIMATED='u2 mp u2l ml'
 # The builds run in parallel (all at once), and the estimates too (as many at a time as the CPUs)
 JOBS=$(getconf _NPROCESSORS_ONLN 2>/dev/null || echo 2)
-# The paths of the files of the core in the asserts (e.g. "/home/runner/.arduino15/packages/rp2040/hardware/rp2040/6.3.0/...")
+# The paths of the files of the core in the asserts (e.g. "/home/runner/.arduino15/packages/rp2040/hardware/rp2040/6.4.0/...")
 # as "/rp2040/...", so that the build is the same wherever it is built (the length of the path shifts the estimate by about 1%)
 MAP='-ffile-prefix-map={runtime.platform.path}=/rp2040'
 pids=''

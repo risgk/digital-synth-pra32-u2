@@ -1,7 +1,7 @@
 ## Digital Synth PRA32-U2 Changelog
 
 - v3.23.0 (2026-??-??):
-    - Tested with Arduino-Pico version 6.3.0
+    - Tested with Arduino-Pico version 6.4.0
 - v3.22.0 (2026-11-21):
     - **CC #16-19 are General Purpose Controller 1-4**: each controls the parameter that Assign #16-#19 (#48-51) set
       for each program, by Assign Mode (#42) [Jmp|Cat|Rel]
@@ -24,7 +24,7 @@
         - PRA32-U2 Editor: the values of "Panel & Step Sequencer" kept before are not read
     - Fixes: EG/LFO Mod Dst (89: 2P, 115: F), and the pitches of the Step Sequencer with Pitch Ofst near -60
     - The files renamed and moved (e.g. "CHANGELOG.md" and "docs")
-    - Tested with Arduino-Pico version 6.3.0
+    - Tested with Arduino-Pico version 6.4.0
 - v3.21.0 (2026-11-15):
     - **Filter Mode** [LP|BR|HP|BP|LP] changes smoothly: Low Pass (0 and 127), Band Reject (32), High Pass (64), and Band Pass (96), crossfaded in between
         - Not compatible: a user program with Filter Mode other than LP sounds otherwise (e.g. the High Pass, 127, is now LP: set it to 64); the Presets are LP, as before
