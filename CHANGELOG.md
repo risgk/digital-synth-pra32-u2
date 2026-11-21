@@ -6,8 +6,8 @@
       PRA32-U2/M/P Web too
     - A program sets Voice Mode after the other parameters (the sound right after a Program Change of Voice Mode a little otherwise)
     - Filter: The output is clipped at +-1.0 (a soft clip from 0.75 before), lighter (e.g. 2.4% less of a loop,
-      the 4 synths of PRA32-U2/M (Lite)); the Presets sound the same but the peaks of #24 Synth Brs,
-      and the Oscs stay below 0.75 (e.g. the Noise at a high Resonance goes over it)
+      the 4 synths of PRA32-U2/M (Lite)); the Presets sound the same, and the Oscs stay below 0.75
+      (e.g. the Noise at a high Resonance goes over it)
     - PRA32-U2/P: Seq Velo 4-7 of Seq Pattern 4x4 shift the velocity by -63 to +63 (-64 at 0 before)
     - Fixes: PRA32-U2/M: a note right after a Program Change of more than one synth (e.g. by the Layering) processed
       all the programs in one loop (over 100% estimated, even once), and so did a change of Voice Group Mode
