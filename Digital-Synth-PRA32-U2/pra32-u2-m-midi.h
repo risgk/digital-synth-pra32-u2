@@ -16,11 +16,14 @@
 // of one synth a loop (the messages after them waiting for them, so that the order is kept; see the
 // waiting messages below), as one at most of each:
 // - A program (#0-31) sets all the parameters of a program, so only the last of them is kept, and
-//   a Random Control kept before it is dropped
+//   a Random Control kept before it is dropped; a program begun (its first part processed) is processed
+//   to the end before the last one (kept as the next), so that a stream of them does not keep a program
+//   half processed
 // - #127 Random Control sets some of them (at random) after the program kept, so many of them in a
 //   row are kept as one
 static int16_t  s_pending_program_change[4] = { -1, -1, -1, -1 };
 static uint8_t  s_pending_program_part[4]   = { 0, 0, 0, 0 };  // The parts of the program processed (see program_change_part())
+static int16_t  s_pending_next_program[4]   = { -1, -1, -1, -1 };  // The last program, after the one begun
 static boolean  s_pending_random_control[4] = { false, false, false, false };
 
 static void __not_in_flash_func(programChangeOf)(uint32_t synth, uint8_t program_number) {
@@ -49,13 +52,20 @@ static boolean __not_in_flash_func(processPendingProgramChangeStepOf)(uint32_t s
     return false;
   }
   if (program_number >= 0) {
+    if (all && (s_pending_next_program[synth] >= 0)) {  // (all of the last one alone, which sets all the parameters)
+      program_number = s_pending_next_program[synth];
+      s_pending_program_change[synth] = program_number;
+      s_pending_program_part[synth]   = 0;
+      s_pending_next_program[synth]   = -1;
+    }
     do {
       programChangePartOf(synth, static_cast<uint8_t>(program_number), s_pending_program_part[synth]);
       ++s_pending_program_part[synth];
     } while (all && (s_pending_program_part[synth] < g_synth.PROGRAM_CHANGE_PARTS));
     if (s_pending_program_part[synth] >= g_synth.PROGRAM_CHANGE_PARTS) {
-      s_pending_program_change[synth] = -1;
+      s_pending_program_change[synth] = s_pending_next_program[synth];  // (the next, if any)
       s_pending_program_part[synth]   = 0;
+      s_pending_next_program[synth]   = -1;
     }
     if (!all) {
       return true;
@@ -93,8 +103,11 @@ static boolean __not_in_flash_func(anyPendingProgramChange)() {
 // do nothing) are processed at once, after those kept, so that each takes effect as it did
 static void __not_in_flash_func(programChange)(uint32_t synth, uint8_t program_number) {
   if (program_number <= PROGRAM_NUMBER_MAX) {
-    s_pending_program_change[synth] = program_number;
-    s_pending_program_part[synth]   = 0;  // (all of it again, also after a part of the one kept before)
+    if (s_pending_program_part[synth] > 0) {  // A program begun: this one next (after it)
+      s_pending_next_program[synth]   = program_number;
+    } else {
+      s_pending_program_change[synth] = program_number;
+    }
     s_pending_random_control[synth] = false;
     return;
   }
@@ -348,9 +361,11 @@ static void __not_in_flash_func(updateGroupMode)() {
   }
   boolean poly_changed = ((mode ^ s_group_mode) & 8) != 0;
   s_group_mode = mode;
-  for (uint32_t s = 0; s < 4; s++) {
-    controlChange(s, ALL_NOTES_OFF, 0);
-  }
+  // To the synths at once (not by controlChange(), which would process all the programs kept first, in one loop)
+  g_synth      .control_change(ALL_NOTES_OFF, 0);
+  g_sub_1_synth.control_change(ALL_NOTES_OFF, 0);
+  g_sub_2_synth.control_change(ALL_NOTES_OFF, 0);
+  g_sub_3_synth.control_change(ALL_NOTES_OFF, 0);
 
   // The Sub Synths reset at once when the Main Synth goes in or out of Poly (as the sketch does after the MIDI messages),
   // so that a note right after it (e.g. by a Program Change before it at once) sounds

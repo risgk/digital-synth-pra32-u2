@@ -1667,7 +1667,12 @@ if constexpr (NO_FX == false) {
 
     for (uint32_t i = begin; i < end; ++i) {
       uint32_t control_number = s_program_table_parameters[i];
-      control_change(control_number, m_program_table[control_number][program_number]);
+      if (control_number != VOICE_MODE) {
+        control_change(control_number, m_program_table[control_number][program_number]);
+      }
+    }
+    if (part == PROGRAM_CHANGE_PARTS - 1) {
+      control_change(VOICE_MODE, m_program_table[VOICE_MODE][program_number]);
     }
   }
 
