@@ -1653,8 +1653,8 @@ if constexpr (NO_FX == false) {
   // A program (#0-31) in 2 parts, the first and the second half of the parameters, so that the parts can be
   // processed in 2 loops (see "pra32-u2-m-midi.h"), each with about half the load of the whole; Voice Mode at the
   // end of the last part, so that the synth does not go into the mode of the program with the parameters half of it
-  // (e.g. the Main Synth of PRA32-U2/M into Poly, which stops the Sub Synths). A whole program (program_change())
-  // sets them in the order of the table, as before
+  // (e.g. the Main Synth of PRA32-U2/M into Poly, which stops the Sub Synths); a whole program (program_change())
+  // in the same order
   static const uint32_t PROGRAM_CHANGE_PARTS = 2;
 
   /* INLINE */ void __not_in_flash_func(program_change_part)(uint8_t program_number, uint32_t part) {
@@ -1694,13 +1694,8 @@ if constexpr (NO_FX == false) {
     }
 
     // #0-31 (not #127, Randomize Synth, nor 128 and 129, the panel parameters)
-#if defined(PRA32_U2_USE_CONTROL_PANEL)
-    PRA32_U2_ControlPanel_on_program_change(SYNTH_ID, program_number);
-#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
-
-    for (uint32_t i = 0; i < sizeof(s_program_table_parameters) / sizeof(s_program_table_parameters[0]); ++i) {
-      uint32_t control_number = s_program_table_parameters[i];
-      control_change(control_number, m_program_table[control_number][program_number]);
+    for (uint32_t part = 0; part < PROGRAM_CHANGE_PARTS; ++part) {
+      program_change_part(program_number, part);
     }
   }
 
