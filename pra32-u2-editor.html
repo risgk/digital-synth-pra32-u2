@@ -446,6 +446,20 @@ span.cc {
 .param-group:last-child {
   border-bottom: none;  /* no line at the bottom */
 }
+/* The Assign row (More Synth Parameters) as more rows of the group above it: no line, nor space, between them */
+.param-group-continued {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.param-group-continuing {
+  padding-top: 0;
+}
+/* Assign #16-#19 by the names, in the line of the name (beside the slider of the number) */
+.asgn-dst-select {
+  font-size: 0.85em;
+  max-width: 132px;
+  padding: 0;
+}
 /* A break only in 2 or 1 column (MIDI In 1, 2 / MIDI In 3, 4) */
 .narrow-only {
   display: none;
@@ -519,7 +533,7 @@ span.cc {
   padding: 4px 1px 0 1px;
   align-self: end;
 }
-/* A name is on 1 line. A name too long for its width (e.g. "Voice Mode [Pol|Pol|Mon|Mon|LP|Lgt] CC#18")
+/* A name is on 1 line. A name too long for its width (e.g. "Voice Mode [Pol|Pol|Mon|Mon|LP|Lgt] CC#46")
    gets the letters closer together ("tight"), and smaller if still too long ("tighter"), by fitParamNames().
    If it is still too long, it wraps ("wrap"); the names of a row share their height */
 .param-name {
@@ -557,7 +571,7 @@ span.cc {
 }
 /* Markers below a slider: drawn as the background of the slider cell (the input is at 3px, and a marker of the value v
    is at the center of the thumb for v, 1px wide and 4px high, just below the thumb; e.g. 74px for 64 in a 149px slider cell).
-   The center (64) for [-|+] and [N|S]; the 2 ends for [Off|On]; the 2 ends and the center; the 6 values of a 6-way
+   The center (64) for [- to +] and [N to S]; the 2 ends for [Off|On]; the 2 ends and the center; the 6 values of a 6-way
    switch; the 5 values of Filter Mode (LP, BR, HP, BP, and LP); and the 6 values and the center for Osc 1 Morph, which can be used as a 6-way switch */
 .param-ctrl {
   --marker-0: calc(2px + var(--thumb-size) / 2);                     /* the left of the marker for 0 */
@@ -713,6 +727,12 @@ span.cc {
   height: calc(140px * var(--kbd-scale));
   touch-action: none;  /* a touch plays (and glides over) the keys, and does not scroll */
 }
+/* White behind the keys, so that the dark frame does not show as a line between two keys, where the edges of the keys
+   fall between the pixels (e.g. at 125% and 150% of the display scale); not at the bottom 4px, so that the lower keys
+   keep their rounded corners */
+#keyboard {
+  background: linear-gradient(#fff, #fff) top / 100% calc(100% - 4px) no-repeat;
+}
 /* The keyboard (with its bar and the controls for playing) stays at the bottom of the window while the parameters
    scroll above it, so that they can be changed while playing (e.g. in a demo), with lower keys (100px).
    Hidden, only its bar stays there */
@@ -845,7 +865,12 @@ span.cc {
 }
 /* The 3 parts of Panel & Step Sequencer, each shown or hidden (shown by default), inside it */
 #panelDetails > details.panel-sub {
-  margin-left: 0;
+  margin-left: 16px;
+}
+/* Performance Controls of the keyboard a little to the right, as the parts of Panel & Step Sequencer, so that they are seen
+   to be inside it */
+#perfDetails {
+  margin-left: 16px;
 }
 #panelCtrlDetails {
   margin-top: 6px;
@@ -880,7 +905,7 @@ span.cc {
 }
 </style>
 <script>
-const APP_NAME_VERSION = "PRA32-U2 Editor v3.21.0";
+const APP_NAME_VERSION = "PRA32-U2 Editor v3.22.0";
 
 // localStorage that throws (e.g. disabled by the Web browser) is replaced by one in memory, as the start of the page
 // reads it without try / catch. The settings are then kept only until the page is closed
@@ -901,8 +926,8 @@ const USER_PROGRAM_NUMBER_MAX      = 15;
 const PROGRAM_NUMBER_MAX           = 31;
 
 const PRA32_U2_MIDI_CH  = 0;  // 0-based
-// The velocities of the Software Keyboard (selected in its bar, 100 and 64 by default)
-var noteOnVelocity  = 100;
+// The velocities of the Software Keyboard (selected in its bar, 64 and 64 by default)
+var noteOnVelocity  = 64;
 var noteOffVelocity = 64;
 
 
@@ -923,7 +948,7 @@ const PORTAMENTO_SW   = 65;
 
 const OSC_1_WAVE      = 102;
 const MIXER_SUB_OSC   = 23;
-const OSC_1_SHAPE     = 19;
+const OSC_1_SHAPE     = 47;
 const OSC_1_MORPH     = 20;
 
 const OSC_2_WAVE      = 104;
@@ -943,13 +968,13 @@ const EG_RELEASE      = 72;
 
 const EG_OSC_AMT      = 89;
 const EG_OSC_DST      = 8;
-const VOICE_MODE      = 18;
+const VOICE_MODE      = 46;
 const PORTAMENTO      = 5;
 
 const LFO_WAVE        = 33;
 const LFO_FADE_TIME   = 56;
 const LFO_RATE        = 3;
-const LFO_DEPTH       = 17;
+const LFO_DEPTH       = 45;
 
 const LFO_OSC_AMT     = 13;
 const LFO_OSC_DST     = 103;
@@ -966,12 +991,12 @@ const AMP_DECAY       = 53;
 const AMP_SUSTAIN     = 54;
 const AMP_RELEASE     = 55;
 
-const A_D_VEL_SENS    = 51;
+const A_D_VEL_SENS    = 43;
 const REL_VEL_SENS    = 81;
 const EG_VEL_SENS     = 62;
 const AMP_VEL_SENS    = 63;
 
-const A_D_KEY_TRK     = 16;
+const A_D_KEY_TRK     = 44;
 const VOICE_ASGN_MODE = 110;
 const PAN             = 10;
 const VOICE_GRP_MODE  = 80;  // PRA32-U2/M: of the Main Synth
@@ -988,6 +1013,16 @@ const BTH_AMP_MOD     = 61;
 const AFT_T_LFO_AMT   = 37;
 const PORTA_MODE      = 34;
 const P_BEND_RANGE    = 57;
+
+const GEN_PURPOSE_1   = 16;  // General Purpose Controller 1-4: each works as the Control Change of the number that Assign #16-#19 set
+const GEN_PURPOSE_2   = 17;
+const GEN_PURPOSE_3   = 18;
+const GEN_PURPOSE_4   = 19;
+const ASSIGN_MODE     = 42;
+const ASSIGN_16       = 48;
+const ASSIGN_17       = 49;
+const ASSIGN_18       = 50;
+const ASSIGN_19       = 51;
 
 const DISTORTION      = 95;
 const FX_ROUTING      = 77;
@@ -1095,6 +1130,11 @@ var controlNumberToStringMap = new Map([
   [ OSC_SAW_W_MODE , "OSC_SAW_W_MODE " ],
   [ STRETCH_TUNE   , "STRETCH_TUNE   " ],
   [ PAN            , "PAN            " ],
+  [ ASSIGN_MODE    , "ASSIGN_MODE    " ],
+  [ ASSIGN_16      , "ASSIGN_16      " ],
+  [ ASSIGN_17      , "ASSIGN_17      " ],
+  [ ASSIGN_18      , "ASSIGN_18      " ],
+  [ ASSIGN_19      , "ASSIGN_19      " ],
 
   [ DISTORTION     , "DISTORTION     " ],
   [ FX_ROUTING     , "FX_ROUTING     " ],
@@ -1177,6 +1217,12 @@ var controllersInLocalStorage = [
   OSC_SAW_W_MODE ,
   STRETCH_TUNE   ,
   PAN            ,
+  ASSIGN_MODE    ,
+
+  ASSIGN_16      ,
+  ASSIGN_17      ,
+  ASSIGN_18      ,
+  ASSIGN_19      ,
 
   DISTORTION     ,
   FX_ROUTING     ,
@@ -1196,7 +1242,7 @@ var presetControllers = {};
 // Factory Preset A                   #16  #17  #18  #19  #20  #21  #22  #23    #24  #25  #26  #27  #28  #29  #30  #31
 presetControllers[OSC_1_WAVE     ] = [0  , 0  , 77 , 127, 0  , 26 , 0  , 0  ,   0  , 0  , 102, 77 , 0  , 26 , 127, 0  ];
 presetControllers[MIXER_SUB_OSC  ] = [64 , 64 , 64 , 64 , 64 , 64 , 127, 64 ,   64 , 64 , 64 , 110, 127, 64 , 64 , 64 ];
-presetControllers[OSC_1_SHAPE    ] = [64 , 64 , 0  , 0  , 64 , 64 , 0  , 0  ,   64 , 64 , 64 , 0  , 64 , 32 , 0  , 0  ];
+presetControllers[OSC_1_SHAPE    ] = [48 , 48 , 0  , 64 , 48 , 64 , 0  , 0  ,   48 , 48 , 64 , 0  , 48 , 32 , 64 , 0  ];
 presetControllers[OSC_1_MORPH    ] = [0  , 127, 108, 64 , 0  , 127, 0  , 0  ,   0  , 0  , 127, 12 , 0  , 0  , 0  , 0  ];
 
 presetControllers[OSC_2_WAVE     ] = [0  , 0  , 0  , 0  , 0  , 26 , 0  , 0  ,   0  , 0  , 0  , 77 , 0  , 26 , 0  , 0  ];
@@ -1214,7 +1260,7 @@ presetControllers[EG_DECAY       ] = [90 , 0  , 90 , 0  , 0  , 90 , 90 , 0  ,   
 presetControllers[EG_SUSTAIN     ] = [0  , 127, 0  , 127, 127, 0  , 0  , 127,   0  , 127, 0  , 127, 127, 127, 127, 127];
 presetControllers[EG_RELEASE     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 
-presetControllers[EG_OSC_AMT     ] = [64 , 64 , 72 , 64 , 64 , 72 , 64 , 64 ,   72 , 64 , 72 , 64 , 64 , 64 , 64 , 64 ];
+presetControllers[EG_OSC_AMT     ] = [64 , 64 , 80 , 64 , 64 , 80 , 64 , 64 ,   72 , 64 , 80 , 64 , 64 , 64 , 64 , 64 ];
 presetControllers[EG_OSC_DST     ] = [0  , 0  , 127, 0  , 0  , 127, 0  , 0  ,   76 , 0  , 127, 127, 0  , 0  , 127, 0  ];
 presetControllers[VOICE_MODE     ] = [0  , 0  , 0  , 0  , 127, 76 , 76 , 127,   0  , 0  , 0  , 0  , 127, 127, 127, 127];
 presetControllers[PORTAMENTO     ] = [48 , 0  , 0  , 0  , 48 , 48 , 0  , 0  ,   0  , 0  , 0  , 0  , 48 , 48 , 48 , 0  ];
@@ -1262,6 +1308,12 @@ presetControllers[OSC_SAW_W_MODE ] = [127, 127, 127, 127, 127, 127, 127, 127,   
 presetControllers[STRETCH_TUNE   ] = [72 , 72 , 72 , 72 , 72 , 72 , 72 , 72 ,   72 , 72 , 72 , 72 , 72 , 72 , 72 , 72 ];
 presetControllers[PAN            ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 
+presetControllers[ASSIGN_MODE    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+presetControllers[ASSIGN_16      ] = [74 , 74 , 74 , 74 , 74 , 74 , 74 , 0  ,   74 , 74 , 74 , 74 , 74 , 74 , 74 , 0  ];
+presetControllers[ASSIGN_17      ] = [71 , 71 , 71 , 71 , 71 , 71 , 71 , 0  ,   71 , 71 , 71 , 71 , 71 , 71 , 71 , 0  ];
+presetControllers[ASSIGN_18      ] = [47 , 47 , 47 , 47 , 47 , 47 , 47 , 0  ,   47 , 47 , 47 , 47 , 47 , 47 , 47 , 0  ];
+presetControllers[ASSIGN_19      ] = [20 , 20 , 20 , 20 , 20 , 20 , 20 , 0  ,   20 , 20 , 20 , 20 , 20 , 20 , 20 , 0  ];
+
 presetControllers[DISTORTION     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 presetControllers[FX_ROUTING     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 presetControllers[CHORUS_MIX     ] = [127, 127, 127, 127, 127, 127, 127, 0  ,   127, 127, 127, 127, 127, 127, 127, 0  ];
@@ -1284,7 +1336,7 @@ var fileReaderImportAll = new FileReader();
 var fileReaderImportCurrent = new FileReader();
 
 window.onload = function() {
-  // "PRA32-U2 Editor" and "v3.21.0" apart, styled apart
+  // "PRA32-U2 Editor" and "v3.22.0" apart, styled apart
   var nameEnd = APP_NAME_VERSION.lastIndexOf(" v");
   var appName = document.createElement("span");
   appName.className = "app-name";
@@ -1306,6 +1358,7 @@ window.onload = function() {
     showMIDINote("Web MIDI is not available in this Web browser: no MIDI device can be used");
   }
 
+  createAsgnDstSelects();  // (before the parameters restored, which show them)
   withoutUndo(function() {
     var result = restoreControllers();
     if (!result) {
@@ -1572,7 +1625,7 @@ var specialProgramChangeCCValues = [0, 0, 0, 0, 0, 0, 0, 0];
 var specialRandomControlCCValue = 0;
 
 // The parameters that change which parameters are dimmed (shown in light gray, as they have no effect)
-const DIMMING_CONTROLS = [OSC_1_WAVE, EG_AMP_MOD, REL_EQ_DECAY, PORTA_MODE];
+const DIMMING_CONTROLS = [OSC_1_WAVE, EG_OSC_DST, LFO_OSC_DST, LFO_WAVE, EG_AMP_MOD, REL_EQ_DECAY, PORTA_MODE];
 
 function setDimmed(ids, dimmed) {
   ids.forEach(function(id) {
@@ -1586,10 +1639,14 @@ function setParameterDimmed(number, dimmed) {
 }
 
 function updateDimmedParameters() {
-  // Osc 1 Shape and Osc 1 Morph: disabled if Osc 1 Wave is Tri
-  var indexOsc1Wave = Math.floor(((localStorage.getItem("keyOSC_1_WAVE     ") * 10) + 128) >> 8);
-  setParameterDimmed(OSC_1_SHAPE, indexOsc1Wave == 2);
-  setParameterDimmed(OSC_1_MORPH, indexOsc1Wave == 2);
+  // Osc 1 Shape and Osc 1 Morph: their values shown by Osc 1 Wave; EG Mod Amt and LFO Mod Amt: by EG Mod Dst and LFO Mod Dst;
+  // LFO Rate: by LFO Wave
+  [OSC_1_SHAPE, OSC_1_MORPH, EG_OSC_AMT, LFO_OSC_AMT, LFO_RATE].forEach(function(number) {
+    var value = localStorage.getItem("key" + controlNumberToStringMap.get(number));
+    if (value !== null) {
+      updateDisplayOfControl(number, value);
+    }
+  });
 
   // Amp Attack, Amp Decay, Amp Sustain, and Amp Release: not used if EG Amp Mod is On,
   // and EG Release and Amp Release: not used if EG/Amp Rel = Dec is On
@@ -1605,6 +1662,132 @@ function updateDimmedParameters() {
   setDimmed(["spanPerfPORTAMENTO_SW", "span2PerfPORTAMENTO_SW"], (localStorage.getItem("keyPORTA_MODE     ") >= 64));
 }
 
+// Assign #16-#19: Off (0, 16-19: General Purpose Controller 1-4, 48-51: Assign #16-#19, 64: Sustain Pedal, 80:
+// Voice Group Mode, 106: Write Parameters to Program, 111-119: Randomize Synth and Program Change by CC, and 120-127: the
+// Channel Mode Messages), as PRA32-U2
+function asgnDstOff(dst) {
+  return (dst == 0) || ((dst >= GEN_PURPOSE_1) && (dst <= GEN_PURPOSE_4)) || ((dst >= ASSIGN_16) && (dst <= ASSIGN_19)) ||
+         (dst == SUSTAIN_PEDAL) || (dst == VOICE_GRP_MODE) || (dst == WRITE_P_TO_PROG) || (dst >= SP_RAND_CTRL);
+}
+
+// Assign #16-#19 by the names: the parameters and the performance controls that they can control (not Off), in the
+// order of the editor, with the names shown on it (e.g. "Filter Cutoff (74)"), and "Off" (0); a number not in them (e.g. 7,
+// which controls nothing) is shown as "CC#7"
+function asgnDstName(input) {
+  var name = input.closest(".param").querySelector(".param-name").cloneNode(true);
+  name.querySelectorAll(".sup, .cc, select").forEach(function(e) { e.remove(); });
+  return name.textContent.replace(/\s+/g, " ").trim();
+}
+
+function createAsgnDstSelects() {
+  var items = [[0, "Off"]];
+  controllersInLocalStorage.forEach(function(number) {
+    if (!asgnDstOff(number)) {
+      items.push([number, asgnDstName(document.getElementById("input" + controlNumberToStringMap.get(number))) + " (" + number + ")"]);
+    }
+  });
+  [MODULATION, BTH_CONTROLLER, EXPRESSION, PORTAMENTO_SW].forEach(function(number) {
+    items.push([number, asgnDstName(document.getElementById("inputPerf" + PERFORMANCE_CONTROLS.get(number)[0])) + " (" + number + ")"]);
+  });
+  [ASSIGN_16, ASSIGN_17, ASSIGN_18, ASSIGN_19].forEach(function(number) {
+    var select = document.getElementById("select" + controlNumberToStringMap.get(number).trim());
+    items.forEach(function(item) {
+      select.add(new Option(item[1], String(item[0])));
+    });
+    select.add(new Option("", "other"));  // a number not in them (its text set when shown)
+  });
+}
+
+function updateAsgnDstSelect(number, value) {
+  var select = document.getElementById("select" + controlNumberToStringMap.get(number).trim());
+  if (!select || (select.options.length == 0)) {
+    return;
+  }
+  value = parseInt(value);
+  var key = asgnDstOff(value) ? "0" : String(value);
+  var other = select.options[select.options.length - 1];
+  if (Array.from(select.options).some(function(o) { return (o.value == key) && (o != other); })) {
+    select.value = key;
+  } else {
+    other.text = "CC#" + value;
+    select.value = "other";
+  }
+}
+
+function onChangeAsgnDstSelect(number, value) {
+  if (value == "other") {
+    return;
+  }
+  saveUndo();
+  onChangeControlChange(number, parseInt(value));
+}
+
+// Beside the sliders of General Purpose Controller 1-4: the number of the parameter that it controls (Assign #16-#19, e.g.
+// "[74]", or "[Off]"), and with Assign Mode Cat, "<" or ">" before it while the slider is below or above the value of the
+// parameter (not yet following it, as the knobs of the panel), and "=" while it follows it (e.g. "[< 74]" and "[= 74]")
+function updateGeneralPurposeIndicators() {
+  var mode = assignMode();
+  for (var index = 0; index < 4; index++) {
+    var span = document.getElementById("span2PerfGEN_PURPOSE_" + (index + 1));
+    if (!span) {
+      return;
+    }
+    var dst = parseInt(localStorage.getItem("key" + controlNumberToStringMap.get(ASSIGN_16  + index))) || 0;
+    var current = null;
+    if (!asgnDstOff(dst) && (controllersInLocalStorage.indexOf(dst) >= 0)) {
+      current = parseInt(document.getElementById("input" + controlNumberToStringMap.get(dst)).value);
+    } else if (!asgnDstOff(dst) && PERFORMANCE_CONTROLS.has(dst)) {
+      current = parseInt(document.getElementById("inputPerf" + PERFORMANCE_CONTROLS.get(dst)[0]).value);
+    }
+    var mark = "";
+    if ((mode == 1) && (current != null)) {
+      var slider = parseInt(document.getElementById("inputPerfGEN_PURPOSE_" + (index + 1)).value);
+      if ((generalPurposeLastValues[index] == current) || (slider == current)) {
+        mark = "=";
+      } else {
+        mark = (slider < current) ? "<" : ">";
+      }
+    }
+    span.textContent = asgnDstOff(dst) ? "[Off]" : ("[" + ((mark != "") ? (mark + " ") : "") + dst + "]");
+  }
+}
+
+// Assign Mode [Jmp|Cat|Rel]: 0, 1, and 2
+function assignMode() {
+  return (((parseInt(localStorage.getItem("key" + controlNumberToStringMap.get(ASSIGN_MODE))) || 0) * 4) + 128) >> 8;
+}
+
+// General Purpose Controller 1-4 (from MIDI In, or the sliders), as PRA32-U2: the parameter (or the performance control) of
+// Assign #16-#19, and the value to set, by Assign Mode: Jmp, the value at once; Cat, only after the value comes to that of
+// the parameter (the same, or across it), so that it does not jump; Rel, the value - 64 added to that of the parameter (the
+// sliders of the editor: absolute values, as Jmp); { dst: 0 } if none now. The value of the parameter here is that of the
+// editor (as PRA32-U2 has it, unless it was changed on PRA32-U2 alone, e.g. by the panel)
+var generalPurposeLastValues = [-1, -1, -1, -1];
+function generalPurposeDst(index, value, absolute) {
+  var dst = parseInt(localStorage.getItem("key" + controlNumberToStringMap.get(ASSIGN_16  + index))) || 0;
+  var last = generalPurposeLastValues[index];
+  generalPurposeLastValues[index] = value;
+  var current;
+  if (asgnDstOff(dst)) {
+    return { dst: 0, value: value };
+  } else if (controllersInLocalStorage.indexOf(dst) >= 0) {
+    current = parseInt(document.getElementById("input" + controlNumberToStringMap.get(dst)).value);
+  } else if (PERFORMANCE_CONTROLS.has(dst)) {
+    current = parseInt(document.getElementById("inputPerf" + PERFORMANCE_CONTROLS.get(dst)[0]).value);
+  } else {
+    return { dst: 0, value: value };  // none that the editor shows
+  }
+  var mode = assignMode();
+  if ((mode == 2) && !absolute) {
+    return { dst: dst, value: Math.min(Math.max(current + value - 64, 0), 127) };
+  }
+  if ((mode != 1) || (value == current) || (last == current) || ((last >= 0) && (last < current) && (value > current)) ||
+      ((last > current) && (value < current))) {
+    return { dst: dst, value: value };
+  }
+  return { dst: 0, value: value };
+}
+
 // MIDI In 1-4 to MIDI Out (thru and merge). Web MIDI API gives a complete message with its status byte for each event
 // (the Web browser expands the running status, and a real-time message, e.g. Timing Clock, is an event of its own),
 // and each message is sent as a whole, so the messages from the inputs are merged without being mixed.
@@ -1618,6 +1801,13 @@ function onMIDIMessage(event) {
   if (event.data[0] == (CONTROL_CHANGE | midi_ch)) {
     var number = event.data[1];
     var value = event.data[2];
+    if ((number >= GEN_PURPOSE_1) && (number <= GEN_PURPOSE_4)) {
+      updateDisplayOfPerformanceControl(number, value);
+      var generalPurpose = generalPurposeDst(number - GEN_PURPOSE_1, value, false);  // the parameter that it controls now, as PRA32-U2
+      number = generalPurpose.dst;  // (0 if none)
+      value = generalPurpose.value;
+      updateGeneralPurposeIndicators();
+    }
     // As PRA32-U2: Reset All Controllers resets them all, and All Notes Off (and All Sound Off, Omni Mode Off/On,
     // Mono/Poly Mode On) turns off the Sustain Pedal
     if (PERFORMANCE_CONTROLS.has(number)) {  // a Control Change (Pitch Bend and Channel Pressure are 0xE0 and 0xD0)
@@ -1841,6 +2031,11 @@ function onChangeInputPort4(){
 function onChangeOutputPort() {
   var selectOutputPort = document.getElementById("selectOutputPort");
   midiOutput = midiOutputs[selectOutputPort.selectedIndex];
+  // PRA32-U2 Web: the audio prepared (nothing sent), so that its notice ("Click (or tap) to start the audio") is shown
+  // at once while the Web browser holds the audio (e.g. Chrome, until the page is clicked)
+  if (midiOutput && midiOutput.isPRA32U2WebSynth && window.PRA32U2WebSynth && window.PRA32U2WebSynth.prepare) {
+    window.PRA32U2WebSynth.prepare();
+  }
 }
 
 function onChangeMIDICh() {
@@ -1849,41 +2044,437 @@ function onChangeMIDICh() {
   localStorage.setItem("keyMIDICh", midi_ch);
 }
 
+// A value of two sides as it works, 2 controller values a step: -64 (0), -62 (1-2), ..., 0 (63-64), ..., +62 (125-126),
+// and +64 (127), as the letter of the side and the amount (e.g. "N64", "0", "S64"); the same as PRA32-U2 Native and the panel
+function twoSidesDispValue(value, minus, plus) {
+  var amount = ((value - 63) >> 1) << 1;
+  return (amount == 0) ? "0" : (amount > 0) ? (plus + String(amount)) : (minus + String(-amount));
+}
+
+// Osc 1 Shape by Osc 1 Wave (0: Saw, 1: Sqr, 2: Tri, 3: Sin, 4: WT), as the panel and PRA32-U2 Native (127 is taken as 128):
+// Saw: the detune of the outer 2 saws of the Multi Saw in cents ("2.4" to "79"), Sqr: the frequency ratio of the Sync Square
+// (2^(Shape / 32) / 2, ".50" to "8.0"), Tri: the gain of the fold ("1.0" to "9.0"), Sin: the depth of the phase modulation in periods ("0" to "4.0"),
+// and WT: the Shape (0-126, and "128"); by the tables of the exact values in 0.001 (truncated), as the panel
+const OSC_1_SAW_CENTI_CENTS = [  // The detune in 0.01 cents (truncated) for each Shape, 0-128, as the panel
+  237, 296, 356, 415, 474, 534, 593, 652, 711, 777, 843, 908, 974, 1033, 1092, 1151,
+  1210, 1269, 1328, 1387, 1446, 1512, 1577, 1643, 1708, 1767, 1826, 1885, 1943, 2002, 2061, 2120,
+  2178, 2244, 2309, 2374, 2439, 2498, 2556, 2615, 2673, 2732, 2790, 2849, 2907, 2972, 3037, 3102,
+  3167, 3225, 3283, 3342, 3400, 3458, 3517, 3575, 3633, 3698, 3762, 3827, 3891, 3950, 4008, 4066,
+  4124, 4182, 4240, 4298, 4356, 4420, 4485, 4549, 4613, 4671, 4729, 4787, 4845, 4902, 4960, 5018,
+  5076, 5133, 5191, 5249, 5306, 5370, 5434, 5498, 5562, 5620, 5677, 5735, 5792, 5850, 5907, 5965,
+  6022, 6086, 6150, 6213, 6277, 6334, 6392, 6449, 6506, 6563, 6621, 6678, 6735, 6799, 6862, 6926,
+  6989, 7046, 7103, 7160, 7217, 7274, 7331, 7388, 7445, 7508, 7572, 7635, 7698, 7755, 7812, 7868,
+  7925
+];
+const OSC_1_SQR_TOP_OCTAVE = [  // 2^(Shape / 32) for 96-127 in 0.001 * 65536, truncated
+  524288000, 535768412, 547500212, 559488906, 571740118, 584259596, 597053215, 610126978,
+  623487019, 637139607, 651091148, 665348188, 679917416, 694805669, 710019932, 725567344,
+  741455200, 757690954, 774282226, 791236799, 808562629, 826267845, 844360755, 862849848,
+  881743799, 901051474, 920781932, 940944431, 961548431, 982603600, 1004119817, 1026107178
+];
+function osc1ShapeDispValue(indexOsc1Wave, value) {
+  var shape = (value >= 127) ? 128 : parseInt(value);
+  var milli;
+  if (indexOsc1Wave == 0) {
+    milli = OSC_1_SAW_CENTI_CENTS[shape] * 10;
+  } else if (indexOsc1Wave == 1) {
+    var octaves = (127 - shape) >> 5;
+    milli = (shape >= 128) ? 8000 : Math.floor(OSC_1_SQR_TOP_OCTAVE[shape + octaves * 32 - 96] / Math.pow(2, octaves + 17));
+  } else if (indexOsc1Wave == 2) {
+    milli = Math.floor((16000 + 1000 * shape) / 16);
+  } else if (indexOsc1Wave == 3) {
+    milli = Math.floor(shape * 125 / 4);
+  } else if (indexOsc1Wave == 4) {
+    return String(shape);
+  } else {
+    return null;
+  }
+  return frequencyDispValue(milli);
+}
+
+// Osc 1 Shape and Osc 1 Morph, by Osc 1 Wave (3 characters at most, as the panel of PRA32-U2/P), or null (the value alone):
+// Shape: the pulse width in % (Pls); Morph: the frequency ratio (Sin, e.g. "1.5", "16."), the wave table (WT), and the Pulse (P)
+// or the 2nd Saw (S) as it works (Pls); the same as PRA32-U2 Native and the panel (shown even if the same as the value)
+function osc1DispValue(number, value) {
+  var indexOsc1Wave = ((parseInt(localStorage.getItem("keyOSC_1_WAVE     ")) || 0) * 10 + 128) >> 8;
+  if (number == OSC_1_SHAPE) {
+    if (indexOsc1Wave == 5) {
+      var width = (value >= 127) ? 100 : Math.floor((100 * value + 64) / 128);  // 0% (0) to 50% (64) to 100% (127, "100")
+      return String(width) + ((width < 100) ? "%" : "");
+    }
+    return osc1ShapeDispValue(indexOsc1Wave, value);
+  } else {
+    if (indexOsc1Wave <= 2) {  // Saw, Sqr, and Tri: the Multi Saw, the Sync Square, and the Folded Triangle in %, as the Sustain
+      return percentDispValue(EG_SUSTAIN, value);
+    } else if (indexOsc1Wave == 3) {
+      var halves = ((value + 2) >> 2) + 1;  // the ratio (0.5 to 16.5) * 2: "0.5" to "9.5", and "10" to "16." ("." for .5)
+      return ((halves >> 1) < 10) ? (String(halves >> 1) + "." + ((halves & 1) ? "5" : "0"))
+                                  : (String(halves >> 1) + ((halves & 1) ? "." : ""));
+    } else if (indexOsc1Wave == 4) {
+      return "WT" + String((value * 10 + 128) >> 8);
+    } else if (indexOsc1Wave == 5) {
+      return twoSidesDispValue(value, "P", "S");
+    }
+  }
+  return null;
+}
+
+// Osc 2 Pitch (osc2Pitch), and EG Mod Amt and LFO Mod Amt to the pitch (P and 2P), as they work (3 characters at most, as the
+// panel of PRA32-U2/P and PRA32-U2 Native): the cents, rounded (e.g. "+2" for 1.5625 cents), and the semitones, with "." for .5
+// (e.g. "+1." for 1.5), with the sign but where it does not fit (e.g. "10." for 10.5, and "120")
+function pitchDispValue(value, osc2Pitch) {
+  var n = parseInt(value) - 64;
+  var a = Math.abs(n);
+  var sign = (n > 0) ? "+" : "-";
+  if (osc2Pitch) {
+    a = Math.min(a, 55);
+    if (a == 0) { return "0"; }
+    if (a <= 32) { return sign + String(Math.floor((a * 25 + 8) / 16)); }  // 1.5625 cents a value
+    var halves = a - 31;  // 0.5 semitones a value: 2 (1 semitone) to 24 (12 semitones)
+    var semitones = Math.floor(halves / 2);
+    if (halves & 1) { return ((semitones < 10) ? sign : "") + String(semitones) + "."; }
+    return sign + String(semitones);
+  }
+  a = Math.min(a, 63);
+  if (a == 0) { return "0"; }
+  if (a <= 31) { return sign + String(Math.floor((a * 25 + 4) / 8)); }  // 3.125 cents a value
+  var semitones = (a <= 55) ? (a - 31) : [30, 36, 42, 48, 60, 72, 96, 120][a - 56];  // 1 (100 cents) to 120 (10 octaves)
+  return ((semitones < 100) ? sign : "") + String(semitones);
+}
+
+// A time in 1/10000 ms, as it works (3 characters at most, as the panel of PRA32-U2/P and PRA32-U2 Native): the milliseconds
+// rounded, without the unit (e.g. "100"), and the seconds with "." (e.g. "1.0", and "28." for 27.9)
+function formatTime(t) {
+  if (t < 9995000) { return String(Math.floor((t + 5000) / 10000)); }  // below 999.5 ms
+  var tenths = Math.floor((t + 500000) / 1000000);  // the seconds in 0.1 s
+  if (tenths < 100) { return String(Math.floor(tenths / 10)) + "." + String(tenths % 10); }
+  return String(Math.floor((t + 5000000) / 10000000)) + ".";
+}
+
+// The times of the EG and the Amp (decayRelease: Decay and Release, 3 times Attack), and Portamento Time (as Attack):
+// Attack 1 ms * 10^(value / 32), by the mantissas of 10^(value / 32) (5 digits)
+const TIME_MANTISSAS = [10000, 10746, 11548, 12409, 13335, 14330, 15399, 16548, 17783, 19110, 20535, 22067, 23714, 25483, 27384, 29427,
+  31623, 33982, 36517, 39242, 42170, 45316, 48697, 52330, 56234, 60430, 64938, 69783, 74989, 80584, 86596, 93057];
+function timeDispValue(value, decayRelease) {
+  var v = parseInt(value);
+  return formatTime(TIME_MANTISSAS[v & 0x1F] * (decayRelease ? 3 : 1) * [1, 10, 100, 1000][(v >> 5) & 0x03]);  // in 1/10000 ms
+}
+
+// A frequency in 0.001 Hz, as it works (3 characters at most, as the panel and PRA32-U2 Native): "0", ".01" to ".99"
+// (below 1 Hz), "1.0" to "9.9", "10" to "999", and "1k0" to "9k9" (kHz)
+function frequencyDispValue(milliHz) {
+  if (milliHz == 0) { return "0"; }
+  var hundredths = Math.floor((milliHz + 5) / 10);
+  if (hundredths < 100) { return "." + String(Math.floor(hundredths / 10)) + String(hundredths % 10); }
+  var tenths = Math.floor((milliHz + 50) / 100);
+  if (tenths < 100) { return String(Math.floor(tenths / 10)) + "." + String(tenths % 10); }
+  var hz = Math.floor((milliHz + 500) / 1000);
+  if (hz < 1000) { return String(hz); }
+  var hundreds = Math.floor((milliHz + 50000) / 100000);  // 0.1 kHz
+  if (hundreds < 100) { return String(Math.floor(hundreds / 10)) + "k" + String(hundreds % 10); }
+  return String(Math.floor((milliHz + 500000) / 1000000)) + "k";
+}
+
+// The same as "pra32-u2-lfo-table.h" (for the values shown): the phase steps of the LFO and of the Chorus per control period
+// (SAMPLING_RATE / 4), the steps of LFO Fade Time, and the cutoffs of the LFO Red Noise in 0.001 Hz (-1 for none)
+const LFO_RATE_STEPS = [
+  0, 100, 106, 112, 119, 126, 133, 141, 150, 159, 168, 178, 189, 200, 212, 225,
+  238, 252, 267, 283, 300, 318, 337, 357, 378, 400, 424, 450, 476, 505, 535, 567,
+  600, 636, 674, 714, 756, 801, 849, 900, 953, 1010, 1070, 1134, 1201, 1272, 1348, 1428,
+  1513, 1603, 1699, 1800, 1907, 2020, 2140, 2268, 2402, 2545, 2697, 2857, 3027, 3207, 3398, 3600,
+  3814, 4041, 4281, 4536, 4805, 5091, 5394, 5715, 6055, 6415, 6796, 7200, 7629, 8082, 8563, 9072,
+  9611, 10183, 10789, 11430, 12110, 12830, 13593, 14401, 15258, 16165, 17126, 18144, 19223, 20367, 21578, 22861,
+  24220, 25660, 27186, 28803, 30516, 32330, 34253, 36289, 38447, 40734, 43156, 45722, 48441, 51321, 54373, 57606,
+  61032, 64661, 68506, 72579, 76895, 81468, 86312, 91444, 96882, 102643, 108746, 115213, 122064, 129322, 137012, 145159
+];
+const CHORUS_RATE_STEPS = [
+  16, 17, 18, 19, 21, 22, 23, 25, 26, 28, 29, 31, 33, 35, 37, 39,
+  42, 44, 47, 50, 53, 56, 59, 63, 66, 70, 75, 79, 84, 89, 94, 100,
+  106, 112, 119, 126, 133, 141, 150, 159, 168, 178, 189, 200, 212, 225, 238, 252,
+  267, 283, 300, 318, 337, 357, 378, 400, 424, 450, 476, 505, 535, 567, 600, 636,
+  674, 714, 756, 801, 849, 900, 953, 1010, 1070, 1134, 1201, 1272, 1348, 1428, 1513, 1603,
+  1699, 1800, 1907, 2020, 2140, 2268, 2402, 2545, 2697, 2857, 3027, 3207, 3398, 3600, 3814, 4041,
+  4281, 4536, 4805, 5091, 5394, 5715, 6055, 6415, 6796, 7200, 7629, 8082, 8563, 9072, 9611, 10183,
+  10789, 11430, 12110, 12830, 13593, 14401, 15258, 16165, 17126, 18144, 19223, 20367, 21578, 22861, 24220, 25660
+];
+const LFO_FADE_COEFS = [
+  1, 9, 10, 10, 10, 11, 11, 12, 12, 12, 13, 13, 14, 14, 15, 16,
+  16, 17, 17, 18, 19, 19, 20, 21, 22, 23, 23, 24, 25, 26, 27, 28,
+  29, 30, 31, 33, 34, 35, 36, 38, 39, 40, 42, 44, 45, 47, 49, 50,
+  52, 54, 56, 58, 60, 63, 65, 67, 70, 72, 75, 78, 81, 84, 87, 90,
+  93, 97, 100, 104, 108, 112, 116, 120, 125, 129, 134, 139, 144, 149, 155, 160,
+  166, 172, 179, 185, 192, 199, 206, 214, 222, 230, 238, 247, 256, 266, 275, 285,
+  296, 307, 318, 330, 342, 354, 367, 381, 395, 409, 424, 440, 456, 473, 490, 508,
+  527, 546, 566, 587, 608, 631, 654, 678, 703, 728, 755, 783, 811, 841, 872, 904
+];
+const LFO_RED_NOISE_CUTOFFS = [
+  0, 14, 16, 19, 22, 26, 30, 35, 41, 48, 56, 65, 76, 88, 102, 119,
+  138, 161, 187, 218, 253, 294, 342, 398, 462, 537, 625, 726, 844, 981, 1140, 1325,
+  1540, 1790, 2080, 2418, 2810, 3266, 3796, 4412, 5128, 5960, 6928, 8052, 9358, 10876, 12641, 14692,
+  17076, 19846, 23066, 26808, 31158, 36214, 42089, 48919, 56856, 66083, 76807, 89272, 103762, 120607, 140190, 162961,
+  189440, 220238, 256068, 297770, 346326, 402901, 468878, 545911, 636001, 741594, 865737, 1012299, 1186337, 1394689, 1647028, 1957881,
+  2350959, 2870263, 3619383, 5115762, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
+];
+
+// The phase step of an LFO (of the LFO, or of the Chorus) per control period (12000 Hz) -> the frequency in 0.001 Hz
+// (truncated, so that the value shown is rounded only once)
+function milliHzFromLfoStep(step) {
+  return Math.floor((step * 12000000) / 16777216);
+}
+
+// Portamento Time (0 for none), LFO Fade Time (0 for none), LFO Rate (with LFO Wave Nos, the cutoff of the low-pass of the
+// noise, "Off" for none), Chorus Rate, and Chorus Depth (the milliseconds, as the frequency), as the panel and PRA32-U2 Native
+function timeRateDispValue(number, value) {
+  var v = parseInt(value);
+  if (number == PORTAMENTO) {
+    return (v == 0) ? "0" : timeDispValue(v, false);
+  } else if (number == LFO_FADE_TIME) {
+    return (v == 0) ? "0" : formatTime(Math.floor((LFO_FADE_COEFS[v] * 320000 + 1) / 3));  // coef * 32 / 3 ms
+  } else if (number == LFO_RATE) {
+    var lfoWave = parseInt(localStorage.getItem("key" + controlNumberToStringMap.get(LFO_WAVE))) || 0;
+    if ((((lfoWave * 10) + 128) >> 8) == 2) {  // Nos (Red Noise)
+      return (LFO_RED_NOISE_CUTOFFS[v] < 0) ? "Off" : frequencyDispValue(LFO_RED_NOISE_CUTOFFS[v]);
+    }
+    return frequencyDispValue(milliHzFromLfoStep(LFO_RATE_STEPS[v]));
+  } else if (number == CHORUS_RATE) {
+    return frequencyDispValue(milliHzFromLfoStep(CHORUS_RATE_STEPS[v]));
+  }
+  return frequencyDispValue(Math.floor((Math.min(v, 126) * 125) / 3));  // Chorus Depth: +/- (value / 24) ms, in 0.001 ms (truncated)
+}
+
+// Filter Cutoff, as the panel and PRA32-U2 Native: 13.75 Hz * 2^((value - 1) / 12), by the frequencies of the top octave
+// (116-127) in 0.001 Hz * 128, truncated, shifted right by the octaves below it and by 7 (so that the value shown is rounded
+// only once)
+const CUTOFF_TOP_OCTAVE = [
+  1350154473, 1430438835, 1515497155, 1605613305, 1701088041, 1802240000,
+  1909406767, 2022946001, 2143236630, 2270680112, 2405701778, 2548752250
+];
+function cutoffDispValue(value) {
+  var v = Math.min(parseInt(value), 127);
+  var octaves = Math.floor((127 - v) / 12);
+  return frequencyDispValue(Math.floor(CUTOFF_TOP_OCTAVE[v + (octaves * 12) - 116] / Math.pow(2, octaves + 7)));
+}
+
+// Fine Tune, as the panel and PRA32-U2 Native: the cents, rounded (1.5625 cents a value, e.g. "+2" for 1.5625), and "100"
+// for -100 (0)
+function fineTuneDispValue(value) {
+  var n = parseInt(value) - 64;
+  var a = Math.abs(n);
+  if (n <= -64) { return "100"; }  // -100: with the sign but where it does not fit
+  if (a == 0) { return "0"; }
+  return ((n > 0) ? "+" : "-") + String(Math.floor((a * 25 + 8) / 16));
+}
+
+// k = 1 / Q in Q30 for Filter Resonance 0-122, the same as g_filter_k_table of "pra32-u2-filter-table.h"
+const FILTER_K_TABLE = [
+  1518500250, 1485961921, 1454120821, 1422962010, 1392470869, 1362633090, 1333434672, 1304861917,
+  1276901417, 1249540052, 1222764986, 1196563654, 1170923762, 1145833280, 1121280436, 1097253708,
+  1073741824, 1050733751, 1028218693, 1006186087, 984625594, 963527098, 942880699, 922676710,
+  902905651, 883558244, 864625413, 846098274, 827968132, 810226483, 792865000, 775875538,
+  759250125, 742980960, 727060411, 711481005, 696235434, 681316545, 666717336, 652430958,
+  638450708, 624770026, 611382493, 598281827, 585461881, 572916640, 560640218, 548626854,
+  536870912, 525366875, 514109347, 503093043, 492312797, 481763549, 471440350, 461338355,
+  451452825, 441779122, 432312707, 423049137, 413984066, 405113241, 396432500, 387937769,
+  379625062, 371490480, 363530205, 355740503, 348117717, 340658272, 333358668, 326215479,
+  319225354, 312385013, 305691246, 299140913, 292730940, 286458320, 280320109, 274313427,
+  268435456, 262683438, 257054673, 251546522, 246156398, 240881774, 235720175, 230669177,
+  225726413, 220889561, 216156353, 211524568, 206992033, 202556621, 198216250, 193968884,
+  189812531, 184854616, 178303937, 170340052, 161175057, 151044217, 140195988, 128882004,
+  117347594, 105823302, 94517808, 83612496, 73257813, 63571421, 54638039, 46510767,
+  39213636, 32745071, 27081952, 22183967, 17997976, 14462166, 11509812, 9072528,
+  7082941, 5476766, 4194304
+];
+
+// Filter Resonance (the Q, as the frequency, "Osc" for the self-oscillation, 123-127), Filter Drive and Distortion Drive
+// (the gain in dB, rounded), Stretch Tune (the cents at note number 108, rounded), Filter EG Amt, LFO Filter Amt, and
+// Breath Filter Amt (2x, with the max breath) (the cutoff in semitones), with the sign but where it does not fit (e.g. "110"
+// for +-110), as the panel and PRA32-U2 Native
+function filterTuneDispValue(number, value) {
+  var v = Math.min(parseInt(value), 127);
+  if (number == FILTER_RESO) {
+    return (v > 122) ? "Osc" : frequencyDispValue(Math.floor(4194304000 / (FILTER_K_TABLE[v] >> 8)));
+  } else if ((number == FILTER_DRIVE) || (number == DISTORTION)) {
+    var db = Math.max((v * 16441 + 32768) >> 16, (v == 0) ? 0 : 1);  // 20 * log10(2) / 24 = 16441 / 65536; 1 at least but at 0
+    return (db == 0) ? "0" : ("+" + String(db));
+  } else if ((number == FILTER_EG_AMT) || (number == LFO_FILTER_AMT) || (number == BTH_FILTER_AMT)) {
+    var n = Math.min(Math.max(v - 64, -60), 60);
+    var a = Math.abs(n) * ((number == BTH_FILTER_AMT) ? 4 : 2);
+    return (a == 0) ? "0" : (((a < 100) ? ((n > 0) ? "+" : "-") : "") + String(a));
+  }
+  var n = v - 64;  // Stretch Tune
+  var a = Math.abs(n);
+  return (a == 0) ? "0" : (((n > 0) ? "+" : "-") + String(Math.floor((a * 75 + 64) / 128)));
+}
+
+// EG Sustain, Amp Sustain, EG Level Velo Sens, and Amp Level Velo Sens, Mixer Osc Mix (Osc 2), LFO Depth, Chorus Level and
+// Delay Level, Delay Feedback (1% to 49% but at 0), and Filter Key Track, EG Att/Dec Velo Sens, EG Rel Velo Sens, and EG
+// Att/Dec Key Track (-100% to +100%), as the panel and PRA32-U2 Native: the % rounded, with the sign but where it does not
+// fit, and with "%" where it fits (e.g. "2%", "50%", "+3%", "+13", and "100")
+function percentDispValue(number, value) {
+  var v = Math.min(parseInt(value), 127);
+  if (number == P_BEND_RANGE) { return String(Math.min(v, 64)); }  // Pitch Bend Range: the semitones, 64 at most
+  var percent;
+  var n = 0;  // the sign (of the ones with the sign)
+  if ((number == EG_SUSTAIN) || (number == AMP_SUSTAIN) || (number == MIXER_OSC_MIX) ||  // Mixer Osc Mix: the power of Osc 2
+      (number == EG_VEL_SENS) || (number == AMP_VEL_SENS)) {
+    percent = Math.floor((((v + 1) >> 1) * 25 + 8) / 16);
+  } else if (number == LFO_DEPTH) {
+    percent = Math.floor((((v == 127) ? 128 : v) * 25 + 16) / 32);
+  } else if ((number == CHORUS_MIX) || (number == DELAY_LEVEL)) {
+    percent = Math.floor(((((v + 1) >> 1) << 1) * 25 + 16) / 32);
+  } else if (number == DELAY_FEEDBACK) {  // 0% to 49.6%
+    percent = (v == 0) ? 0 : Math.min(Math.max(Math.floor((v * 25 + 32) / 64), 1), 49);
+  } else {  // Filter Key Track, EG Att/Dec Velo Sens, EG Rel Velo Sens, and EG Att/Dec Key Track: -32 to +32 (1/32 each)
+    n = (v - 63) >> 1;
+    percent = Math.floor((Math.abs(n) * 25 + 4) / 8);
+  }
+  var text = (((n != 0) && (percent < 100)) ? ((n > 0) ? "+" : "-") : "") + String(percent);
+  return (text.length < 3) ? (text + "%") : text;  // "%" where it fits
+}
+
+// Amp Gain, as the panel and PRA32-U2 Native: the gain in dB, rounded, but -1 at most other than 127, and "Off" at 0
+// (-dB, by the gain of PRA32-U2: ((value * value) * 16384) / 16129 in Q14, the integer)
+const AMP_GAIN_MINUS_DB = [
+   0, 84, 72, 65, 60, 56, 53, 50, 48, 46, 44, 43, 41, 40, 38, 37,
+  36, 35, 34, 33, 32, 31, 30, 30, 29, 28, 28, 27, 26, 26, 25, 24,
+  24, 23, 23, 22, 22, 21, 21, 21, 20, 20, 19, 19, 18, 18, 18, 17,
+  17, 17, 16, 16, 16, 15, 15, 15, 14, 14, 14, 13, 13, 13, 12, 12,
+  12, 12, 11, 11, 11, 11, 10, 10, 10, 10,  9,  9,  9,  9,  8,  8,
+   8,  8,  8,  7,  7,  7,  7,  7,  6,  6,  6,  6,  6,  5,  5,  5,
+   5,  5,  5,  4,  4,  4,  4,  4,  3,  3,  3,  3,  3,  3,  2,  2,
+   2,  2,  2,  2,  2,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  0
+];
+function ampGainDispValue(value) {
+  var v = Math.min(parseInt(value), 127);
+  return (v == 0) ? "Off" : (v == 127) ? "0" : ("-" + String(AMP_GAIN_MINUS_DB[v]));
+}
+
+// EG Mod Amt and LFO Mod Amt to Osc 1 Shape (1S), as the panel and PRA32-U2 Native: the Shape at the full EG, 2 a value,
+// -128 (0 and 1) to +128 (127, as 128), with the sign but where it does not fit (e.g. "+2", "-62", and "128" for +-128)
+function shapeAmtDispValue(value) {
+  var v = Math.min(parseInt(value), 127);
+  var n = ((v == 1) ? 0 : (v == 127) ? 128 : v) - 64;
+  var a = Math.abs(n) * 2;
+  return (a == 0) ? "0" : (((a < 100) ? ((n > 0) ? "+" : "-") : "") + String(a));
+}
+
 function updateDisplayOfControl(number, value) {
   var input = document.getElementById("input" + controlNumberToStringMap.get(number));
   input.value = parseInt(value);
   updateSliderFill(input);
 
   dispValue = String(value);
+  var alwaysShown = false;
 
   switch (number) {
   case OSC_2_COARSE    :
+    {
+      const v = Math.min(Math.max(value, 64 - 60), 64 + 60);  // -60 to +60, as it works
+      dispValue = ((v >= 64) ? "+" : "") + String(v - 64);
+    }
+    break;
   case OSC_2_PITCH     :
-  case FILTER_EG_AMT   :
-  case FILTER_KEY_TRK  :
+    dispValue = pitchDispValue(value, true);
+    alwaysShown = true;  // shown even if the same as the value, as the panel
+    break;
   case EG_OSC_AMT      :
   case LFO_OSC_AMT     :
-  case LFO_FILTER_AMT  :
-  case A_D_VEL_SENS    :
-  case REL_VEL_SENS    :
-  case A_D_KEY_TRK     :
-  case PAN             :
-  case STRETCH_TUNE    :
+    {
+      // By EG Mod Dst or LFO Mod Dst: the pitch (P and 2P), the Cutoff as Filter EG Amt (F), and the Shape (1S)
+      var modDst = parseInt(localStorage.getItem("key" + controlNumberToStringMap.get((number == EG_OSC_AMT) ? EG_OSC_DST : LFO_OSC_DST))) || 0;
+      var index = ((modDst * 10) + 128) >> 8;
+      dispValue = (index <= 3) ? pitchDispValue(value, false) : (index == 4) ? filterTuneDispValue(FILTER_EG_AMT, value) : shapeAmtDispValue(value);
+      alwaysShown = true;
+    }
+    break;
   case COARSE_TUNE     :
-  case FINE_TUNE       :
-  case BTH_FILTER_AMT  :
     if (value >= 64) {
       dispValue = "+" + String(value - 64);
     } else {
       dispValue = String(value - 64);
     }
     break;
-  case MIXER_SUB_OSC   :
-    if (value >= 64) {
-      dispValue = "S" + String(value - 64);
-    } else {
-      dispValue = "N" + String(64 - value);
+  case FILTER_CUTOFF   :
+    dispValue = cutoffDispValue(value);
+    alwaysShown = true;  // shown even if the same as the value, as the panel
+    break;
+  case FINE_TUNE       :
+    dispValue = fineTuneDispValue(value);
+    alwaysShown = true;
+    break;
+  case FILTER_RESO     :
+  case FILTER_DRIVE    :
+  case DISTORTION      :
+  case STRETCH_TUNE    :
+  case FILTER_EG_AMT   :
+  case LFO_FILTER_AMT  :
+  case BTH_FILTER_AMT  :
+    dispValue = filterTuneDispValue(number, value);
+    alwaysShown = true;
+    break;
+  case AMP_GAIN        :
+    dispValue = ampGainDispValue(value);
+    alwaysShown = true;
+    break;
+  case EG_SUSTAIN      :
+  case AMP_SUSTAIN     :
+  case MIXER_OSC_MIX   :
+  case LFO_DEPTH       :
+  case CHORUS_MIX      :
+  case DELAY_LEVEL     :
+  case DELAY_FEEDBACK  :
+  case P_BEND_RANGE    :
+  case FILTER_KEY_TRK  :
+  case A_D_VEL_SENS    :
+  case REL_VEL_SENS    :
+  case A_D_KEY_TRK     :
+  case EG_VEL_SENS     :
+  case AMP_VEL_SENS    :
+    dispValue = percentDispValue(number, value);
+    alwaysShown = true;
+    break;
+  case OSC_1_SHAPE     :
+  case OSC_1_MORPH     :
+    {
+      var osc1Text = osc1DispValue(number, parseInt(value));
+      if (osc1Text !== null) {
+        dispValue = osc1Text;
+        alwaysShown = true;  // shown even if the same as the value, as the panel
+      }
     }
+    break;
+  case EG_ATTACK       :
+  case AMP_ATTACK      :
+  case EG_DECAY        :
+  case EG_RELEASE      :
+  case AMP_DECAY       :
+  case AMP_RELEASE     :
+    dispValue = timeDispValue(value, (number != EG_ATTACK) && (number != AMP_ATTACK));
+    alwaysShown = true;  // shown even if the same as the value, as the panel
+    break;
+  case PORTAMENTO      :
+  case LFO_FADE_TIME   :
+  case LFO_RATE        :
+  case CHORUS_RATE     :
+  case CHORUS_DEPTH    :
+    dispValue = timeRateDispValue(number, value);
+    alwaysShown = true;
+    break;
+  case ASSIGN_16       :
+  case ASSIGN_17       :
+  case ASSIGN_18       :
+  case ASSIGN_19       :
+    dispValue = asgnDstOff(parseInt(value)) ? "Off" : String(value);  // the number of the Control Change, or Off
+    updateAsgnDstSelect(number, value);  // the name
+    alwaysShown = true;
+    break;
+  case PAN             :  // L63 (0 and 1, the same) to C (64) to R63 (127), as the panel and PRA32-U2 Native
+    dispValue = (value > 64) ? ("R" + String(value - 64)) : (value == 64) ? "C" : ("L" + String(Math.min(64 - value, 63)));
+    break;
+  case MIXER_SUB_OSC   :  // N64 (Noise 100%) to 0 to S64 (Sub Osc 100%), as it works
+    dispValue = twoSidesDispValue(parseInt(value), "N", "S");
     break;
   case OSC_1_WAVE      :
     {
@@ -1987,6 +2578,13 @@ function updateDisplayOfControl(number, value) {
       dispValue = ary[index];
     }
     break;
+  case ASSIGN_MODE     :
+    {
+      var ary = ["Jmp","Cat","Rel"];
+      var index = ((value * 4) + 128) >> 8;
+      dispValue = ary[index];
+    }
+    break;
   case DELAY_MODE      :
     {
       var ary = ["Ste","PP","Rev"];
@@ -2010,15 +2608,16 @@ function updateDisplayOfControl(number, value) {
   }
 
   document.getElementById("span" + controlNumberToStringMap.get(number)).innerHTML = value;
-  if (String(value) != dispValue) {
+  if (alwaysShown || (String(value) != dispValue)) {
     document.getElementById("span2" + controlNumberToStringMap.get(number)).innerHTML = "[" + dispValue + "]";
   } else {
     document.getElementById("span2" + controlNumberToStringMap.get(number)).innerHTML = "";
   }
   // For a screen reader, the value with its meaning (e.g. "0 Saw"), as shown
-  input.setAttribute("aria-valuetext", (String(value) != dispValue) ? value + " " + dispValue : String(value));
+  input.setAttribute("aria-valuetext", (alwaysShown || (String(value) != dispValue)) ? value + " " + dispValue : String(value));
 
   localStorage.setItem("key" + controlNumberToStringMap.get(number), value);
+  updateGeneralPurposeIndicators();
 }
 
 // Voice Group Mode (PRA32-U2/M): its slider sends it on the Basic Channel (Basic Ch of Panel & Step Sequencer, 1 by default),
@@ -2087,7 +2686,12 @@ function setRandom() {
         (i != AMP_ATTACK     ) &&
         (i != AMP_DECAY      ) &&
         (i != AMP_SUSTAIN    ) &&
-        (i != AMP_RELEASE    )) {
+        (i != AMP_RELEASE    ) &&
+        (i != ASSIGN_MODE    ) &&
+        (i != ASSIGN_16      ) &&
+        (i != ASSIGN_17      ) &&
+        (i != ASSIGN_18      ) &&
+        (i != ASSIGN_19      )) {
       onChangeControlChange(i, rand(128));
     }
   });
@@ -2290,7 +2894,8 @@ function updateSliderFill(input) {
 // The sliders of the switches of 2, 3, and 6 choices (e.g. [Off|On], [Fwd|Rvs|Bnc], and [Saw|Sqr|Tri|Sin|WT|Pls]):
 // the thumb dragged near a marker (within SLIDER_SNAP_DISTANCE) goes to it, as a datalist of Chrome did, so that
 // the values of the choices are easy to take. Not by the keys (a step a key), nor for the other markers (e.g. the
-// center of [-|+], and Filter Mode and Osc 1 Morph, which change smoothly between them)
+// center of [- to +], and Filter Mode and Osc 1 Morph, which change smoothly between them; but Osc 1 Morph with Osc 1 Wave
+// WT, the wave tables)
 const SLIDER_SNAP_DISTANCE = 4;
 const SLIDER_SNAP_MARKERS = {
   "soft-markers-2": [0, 127],
@@ -2303,6 +2908,11 @@ function sliderSnapMarkers(input) {
   var ctrl = input.parentElement;
   if (!ctrl || !ctrl.classList) {
     return null;
+  }
+  // Osc 1 Morph with Osc 1 Wave WT: the wave tables (0-5), as the 6 choices
+  if ((input.id == "input" + controlNumberToStringMap.get(OSC_1_MORPH)) &&
+      ((((parseInt(localStorage.getItem("keyOSC_1_WAVE     ")) || 0) * 10 + 128) >> 8) == 4)) {
+    return SLIDER_SNAP_MARKERS["soft-markers-6"];
   }
   for (var name in SLIDER_SNAP_MARKERS) {
     if (ctrl.classList.contains(name)) {
@@ -2832,10 +3442,32 @@ const PERFORMANCE_CONTROLS = new Map([
   [SUSTAIN_PEDAL , ["SUSTAIN_PEDAL" , 0  ]],
   [PORTAMENTO_SW , ["PORTAMENTO_SW" , 0  ]],
   [CH_PRESSURE   , ["CH_PRESSURE"   , 0  ]],  // not a Control Change, but Channel Pressure (After Touch)
+  [GEN_PURPOSE_1 , ["GEN_PURPOSE_1" , null]],  // General Purpose Controller 1-4 (null: not reset by Reset All Controllers, as PRA32-U2)
+  [GEN_PURPOSE_2 , ["GEN_PURPOSE_2" , null]],
+  [GEN_PURPOSE_3 , ["GEN_PURPOSE_3" , null]],
+  [GEN_PURPOSE_4 , ["GEN_PURPOSE_4" , null]],
 ]);
 
 function onChangePerformanceControl(number, value) {
   updateDisplayOfPerformanceControl(number, value);
+  var numberToSend = number;
+  if ((number >= GEN_PURPOSE_1) && (number <= GEN_PURPOSE_4)) {
+    // The parameter of Assign #16-#19, as PRA32-U2 takes it (and as from MIDI In); with Assign Mode Rel, the slider sends
+    // the Control Change of the parameter itself (an absolute value, which PRA32-U2 would take as a relative one by the slider's)
+    var dst = generalPurposeDst(number - GEN_PURPOSE_1, parseInt(value), true).dst;
+    if ((assignMode() == 2) && (dst != 0)) {
+      numberToSend = dst;
+    }
+    updateGeneralPurposeIndicators();
+    if (PERFORMANCE_CONTROLS.has(dst)) {
+      updateDisplayOfPerformanceControl(dst, value);
+    } else if (dst != 0) {
+      updateDisplayOfControl(dst, value);
+      if (DIMMING_CONTROLS.indexOf(dst) >= 0) {
+        updateDimmedParameters();
+      }
+    }
+  }
   if (midiOutput) {
     if (number == PITCH_BEND) {
       var bend = parseInt(value) + 8192;
@@ -2843,7 +3475,7 @@ function onChangePerformanceControl(number, value) {
     } else if (number == CH_PRESSURE) {
       midiOutput.send([(CH_PRESSURE | midi_ch), parseInt(value)]);
     } else {
-      midiOutput.send([(CONTROL_CHANGE | midi_ch), number, parseInt(value)]);
+      midiOutput.send([(CONTROL_CHANGE | midi_ch), numberToSend, parseInt(value)]);
     }
     sleep(2);
   }
@@ -2854,7 +3486,7 @@ function updateDisplayOfPerformanceControl(number, value) {
   value = parseInt(value);
   document.getElementById("inputPerf" + key).value = value;
   updateSliderFill(document.getElementById("inputPerf" + key));
-  // Pitch Bend signed, with "+" for 0 and above (as the parameters of [-|+], e.g. "+0" and "+8191")
+  // Pitch Bend signed, with "+" for 0 and above (as the parameters of [- to +], e.g. "+0" and "+8191")
   document.getElementById("spanPerf" + key).textContent = ((number == PITCH_BEND) && (value >= 0) ? "+" : "") + String(value);
   var valueText = document.getElementById("spanPerf" + key).textContent;
   if ((number == SUSTAIN_PEDAL) || (number == PORTAMENTO_SW)) {
@@ -2862,6 +3494,7 @@ function updateDisplayOfPerformanceControl(number, value) {
     valueText += (value >= 64) ? " On" : " Off";
   }
   document.getElementById("inputPerf" + key).setAttribute("aria-valuetext", valueText);  // for a screen reader, as shown
+  updateGeneralPurposeIndicators();
 }
 
 // Pitch Bend springs back to the center when the slider is released (as a pitch bend wheel)
@@ -2882,7 +3515,9 @@ function setupPitchBendSpring() {
 
 function resetPerformanceControls() {
   PERFORMANCE_CONTROLS.forEach(function(item, number) {
-    updateDisplayOfPerformanceControl(number, item[1]);
+    if (item[1] != null) {
+      updateDisplayOfPerformanceControl(number, item[1]);
+    }
   });
 }
 
@@ -2890,7 +3525,7 @@ function resetPerformanceControls() {
 // and "127"), and the value entered (by Enter, leaving the field, or the spin buttons) is set to the range (1-127),
 // or back to the last valid one if not a number (e.g. empty)
 function createVelocityInputs() {
-  [["inputNoteOnVelocity", "keyNoteOnVelocity", 100], ["inputNoteOffVelocity", "keyNoteOffVelocity", 64]].forEach(function(item) {
+  [["inputNoteOnVelocity", "keyNoteOnVelocity", 64], ["inputNoteOffVelocity", "keyNoteOffVelocity", 64]].forEach(function(item) {
     var input = document.getElementById(item[0]);
     var key = item[1];
     var value = parseVelocity(localStorage.getItem(key));
@@ -3161,6 +3796,12 @@ function fileExport() {
   str += fileExportOneLine(OSC_SAW_W_MODE );
   str += fileExportOneLine(STRETCH_TUNE   );
   str += fileExportOneLine(PAN            );
+  str += fileExportOneLine(ASSIGN_MODE    );
+  str += "\n";
+  str += fileExportOneLine(ASSIGN_16      );
+  str += fileExportOneLine(ASSIGN_17      );
+  str += fileExportOneLine(ASSIGN_18      );
+  str += fileExportOneLine(ASSIGN_19      );
   str += "\n";
   str += fileExportOneLine(DISTORTION     );
   str += fileExportOneLine(FX_ROUTING     );
@@ -3449,12 +4090,12 @@ function getStoredCCValueString(index, number) {
   <div class="param-ctrl soft-markers-6"><input  id="inputOSC_1_WAVE     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_1_WAVE     , value)"><span    id="spanOSC_1_WAVE     " >-</span><span   id="span2OSC_1_WAVE     " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>Mixer</b> Noise/Sub Osc <span class="sup">[N|S]</span> <span class="cc">CC#23</span></div>
+  <div class="param-name"><b>Mixer</b> Noise/Sub Osc <span class="sup">[N to S]</span> <span class="cc">CC#23</span></div>
   <div class="param-ctrl soft-marker-c"><input  id="inputMIXER_SUB_OSC  "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(MIXER_SUB_OSC  , value)"><span    id="spanMIXER_SUB_OSC  " >-</span><span   id="span2MIXER_SUB_OSC  " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>Osc 1</b> Shape <span class="cc">CC#19</span></div>
-  <div class="param-ctrl"><input  id="inputOSC_1_SHAPE    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_1_SHAPE    , value)"><span    id="spanOSC_1_SHAPE    " >-</span><span   id="span2OSC_1_SHAPE    " >-</span></div>
+  <div class="param-name"><b>Osc 1</b> Shape <span class="cc">CC#47</span></div>
+  <div class="param-ctrl soft-marker-c"><input  id="inputOSC_1_SHAPE    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_1_SHAPE    , value)"><span    id="spanOSC_1_SHAPE    " >-</span><span   id="span2OSC_1_SHAPE    " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>Osc 1</b> Morph <span class="cc">CC#20</span></div>
@@ -3465,15 +4106,15 @@ function getStoredCCValueString(index, number) {
   <div class="param-ctrl soft-markers-6"><input  id="inputOSC_2_WAVE     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_2_WAVE     , value)"><span    id="spanOSC_2_WAVE     " >-</span><span   id="span2OSC_2_WAVE     " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>Mixer</b> Osc Mix <span class="sup">[1|2]</span> <span class="cc">CC#21</span></div>
+  <div class="param-name"><b>Mixer</b> Osc Mix <span class="sup">[1 to 2]</span> <span class="cc">CC#21</span></div>
   <div class="param-ctrl"><input  id="inputMIXER_OSC_MIX  "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(MIXER_OSC_MIX  , value)"><span    id="spanMIXER_OSC_MIX  " >-</span><span   id="span2MIXER_OSC_MIX  " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>Osc 2</b> Coarse <span class="sup">[-|+]</span> <span class="cc">CC#85</span></div>
+  <div class="param-name"><b>Osc 2</b> Coarse <span class="sup">[- to +]</span> <span class="cc">CC#85</span></div>
   <div class="param-ctrl soft-marker-c"><input  id="inputOSC_2_COARSE   "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_2_COARSE   , value)"><span    id="spanOSC_2_COARSE   " >-</span><span   id="span2OSC_2_COARSE   " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>Osc 2</b> Pitch <span class="sup">[-|+]</span> <span class="cc">CC#76</span></div>
+  <div class="param-name"><b>Osc 2</b> Pitch <span class="sup">[- to +]</span> <span class="cc">CC#76</span></div>
   <div class="param-ctrl soft-marker-c"><input  id="inputOSC_2_PITCH    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_2_PITCH    , value)"><span    id="spanOSC_2_PITCH    " >-</span><span   id="span2OSC_2_PITCH    " >-</span></div>
 </div>
 <div class="param">
@@ -3485,11 +4126,11 @@ function getStoredCCValueString(index, number) {
   <div class="param-ctrl"><input  id="inputFILTER_RESO    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(FILTER_RESO    , value)"><span    id="spanFILTER_RESO    " >-</span><span   id="span2FILTER_RESO    " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>Filter</b> EG Amt <span class="sup">[-|+]</span> <span class="cc">CC#24</span></div>
+  <div class="param-name"><b>Filter</b> EG Amt <span class="sup">[- to +]</span> <span class="cc">CC#24</span></div>
   <div class="param-ctrl soft-marker-c"><input  id="inputFILTER_EG_AMT  "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(FILTER_EG_AMT  , value)"><span    id="spanFILTER_EG_AMT  " >-</span><span   id="span2FILTER_EG_AMT  " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>Filter</b> Key Track <span class="sup">[-|+]</span> <span class="cc">CC#9</span></div>
+  <div class="param-name"><b>Filter</b> Key Track <span class="sup">[- to +]</span> <span class="cc">CC#9</span></div>
   <div class="param-ctrl soft-marker-c"><input  id="inputFILTER_KEY_TRK "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(FILTER_KEY_TRK , value)"><span    id="spanFILTER_KEY_TRK " >-</span><span   id="span2FILTER_KEY_TRK " >-</span></div>
 </div>
 <div class="param">
@@ -3511,7 +4152,7 @@ function getStoredCCValueString(index, number) {
 </div>
 <div class="param-group">
 <div class="param">
-  <div class="param-name"><b>EG</b> Mod Amt <span class="sup">[-|+]</span> <span class="cc">CC#89</span></div>
+  <div class="param-name"><b>EG</b> Mod Amt <span class="sup">[- to +]</span> <span class="cc">CC#89</span></div>
   <div class="param-ctrl soft-marker-c"><input  id="inputEG_OSC_AMT     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(EG_OSC_AMT     , value)"><span    id="spanEG_OSC_AMT     " >-</span><span   id="span2EG_OSC_AMT     " >-</span></div>
 </div>
 <div class="param">
@@ -3519,7 +4160,7 @@ function getStoredCCValueString(index, number) {
   <div class="param-ctrl soft-markers-6"><input  id="inputEG_OSC_DST     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(EG_OSC_DST     , value)"><span    id="spanEG_OSC_DST     " >-</span><span   id="span2EG_OSC_DST     " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>Voice</b> Mode <span class="sup">[Pol|Pol|Mon|Mon|LP|Lgt]</span> <span class="cc">CC#18</span></div>
+  <div class="param-name"><b>Voice</b> Mode <span class="sup">[Pol|Pol|Mon|Mon|LP|Lgt]</span> <span class="cc">CC#46</span></div>
   <div class="param-ctrl soft-markers-6"><input  id="inputVOICE_MODE     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(VOICE_MODE     , value)"><span    id="spanVOICE_MODE     " >-</span><span   id="span2VOICE_MODE     " >-</span></div>
 </div>
 <div class="param">
@@ -3539,11 +4180,11 @@ function getStoredCCValueString(index, number) {
   <div class="param-ctrl"><input  id="inputLFO_RATE       "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_RATE       , value)"><span    id="spanLFO_RATE       " >-</span><span   id="span2LFO_RATE       " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>LFO</b> Depth <span class="cc">CC#17</span></div>
+  <div class="param-name"><b>LFO</b> Depth <span class="cc">CC#45</span></div>
   <div class="param-ctrl"><input  id="inputLFO_DEPTH      "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_DEPTH      , value)"><span    id="spanLFO_DEPTH      " >-</span><span   id="span2LFO_DEPTH      " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>LFO</b> Mod Amt <span class="sup">[-|+]</span> <span class="cc">CC#13</span></div>
+  <div class="param-name"><b>LFO</b> Mod Amt <span class="sup">[- to +]</span> <span class="cc">CC#13</span></div>
   <div class="param-ctrl soft-marker-c"><input  id="inputLFO_OSC_AMT    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_OSC_AMT    , value)"><span    id="spanLFO_OSC_AMT    " >-</span><span   id="span2LFO_OSC_AMT    " >-</span></div>
 </div>
 <div class="param">
@@ -3551,7 +4192,7 @@ function getStoredCCValueString(index, number) {
   <div class="param-ctrl soft-markers-6"><input  id="inputLFO_OSC_DST    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_OSC_DST    , value)"><span    id="spanLFO_OSC_DST    " >-</span><span   id="span2LFO_OSC_DST    " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>LFO</b> Filter Amt <span class="sup">[-|+]</span> <span class="cc">CC#25</span></div>
+  <div class="param-name"><b>LFO</b> Filter Amt <span class="sup">[- to +]</span> <span class="cc">CC#25</span></div>
   <div class="param-ctrl soft-marker-c"><input  id="inputLFO_FILTER_AMT "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_FILTER_AMT , value)"><span    id="spanLFO_FILTER_AMT " >-</span><span   id="span2LFO_FILTER_AMT " >-</span></div>
 </div>
 <div class="param">
@@ -3559,7 +4200,7 @@ function getStoredCCValueString(index, number) {
   <div class="param-ctrl"><input  id="inputAMP_GAIN       "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(AMP_GAIN       , value)"><span    id="spanAMP_GAIN       " >-</span><span   id="span2AMP_GAIN       " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>Filter</b> Mode <span class="sup">[LP|BR|HP|BP|LP]</span> <span class="cc">CC#39</span></div>
+  <div class="param-name"><b>Filter</b> Mode <span class="sup">[LP-BR-HP-BP-LP]</span> <span class="cc">CC#39</span></div>
   <div class="param-ctrl soft-markers-5"><input  id="inputFILTER_MODE    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(FILTER_MODE    , value)"><span    id="spanFILTER_MODE    " >-</span><span   id="span2FILTER_MODE    " >-</span></div>
 </div>
 <div class="param">
@@ -3607,19 +4248,19 @@ function getStoredCCValueString(index, number) {
   <div class="param-ctrl"><input  id="inputP_BEND_RANGE   "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(P_BEND_RANGE   , value)"><span    id="spanP_BEND_RANGE   " >-</span><span   id="span2P_BEND_RANGE   " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name">Coarse Tune <span class="sup">[-|+]</span> <span class="cc">CC#86</span></div>
+  <div class="param-name">Coarse Tune <span class="sup">[- to +]</span> <span class="cc">CC#86</span></div>
   <div class="param-ctrl soft-marker-c"><input  id="inputCOARSE_TUNE    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(COARSE_TUNE    , value)"><span    id="spanCOARSE_TUNE    " >-</span><span   id="span2COARSE_TUNE    " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name">Fine Tune <span class="sup">[-|+]</span> <span class="cc">CC#70</span></div>
+  <div class="param-name">Fine Tune <span class="sup">[- to +]</span> <span class="cc">CC#70</span></div>
   <div class="param-ctrl soft-marker-c"><input  id="inputFINE_TUNE      "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(FINE_TUNE      , value)"><span    id="spanFINE_TUNE      " >-</span><span   id="span2FINE_TUNE      " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>EG</b> Att/Dec Velo Sens <span class="sup">[-|+]</span> <span class="cc">CC#51</span></div>
+  <div class="param-name"><b>EG</b> Att/Dec Velo Sens <span class="sup">[- to +]</span> <span class="cc">CC#43</span></div>
   <div class="param-ctrl soft-marker-c"><input  id="inputA_D_VEL_SENS   "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(A_D_VEL_SENS   , value)"><span    id="spanA_D_VEL_SENS   " >-</span><span   id="span2A_D_VEL_SENS   " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>EG</b> Rel Velo Sens <span class="sup">[-|+]</span> <span class="cc">CC#81</span></div>
+  <div class="param-name"><b>EG</b> Rel Velo Sens <span class="sup">[- to +]</span> <span class="cc">CC#81</span></div>
   <div class="param-ctrl soft-marker-c"><input  id="inputREL_VEL_SENS   "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(REL_VEL_SENS   , value)"><span    id="spanREL_VEL_SENS   " >-</span><span   id="span2REL_VEL_SENS   " >-</span></div>
 </div>
 <div class="param">
@@ -3631,7 +4272,7 @@ function getStoredCCValueString(index, number) {
   <div class="param-ctrl"><input  id="inputAMP_VEL_SENS   "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(AMP_VEL_SENS   , value)"><span    id="spanAMP_VEL_SENS   " >-</span><span   id="span2AMP_VEL_SENS   " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>EG</b> Att/Dec Key Track <span class="sup">[-|+]</span> <span class="cc">CC#16</span></div>
+  <div class="param-name"><b>EG</b> Att/Dec Key Track <span class="sup">[- to +]</span> <span class="cc">CC#44</span></div>
   <div class="param-ctrl soft-marker-c"><input  id="inputA_D_KEY_TRK    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(A_D_KEY_TRK    , value)"><span    id="spanA_D_KEY_TRK    " >-</span><span   id="span2A_D_KEY_TRK    " >-</span></div>
 </div>
 <div class="param">
@@ -3647,9 +4288,9 @@ function getStoredCCValueString(index, number) {
   <div class="param-ctrl soft-markers-6"><input  id="inputLFO_TRIG_MODE  "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(LFO_TRIG_MODE  , value)"><span    id="spanLFO_TRIG_MODE  " >-</span><span   id="span2LFO_TRIG_MODE  " >-</span></div>
 </div>
 </div>
-<div class="param-group">
+<div class="param-group param-group-continued">
 <div class="param">
-  <div class="param-name"><b>Breath</b> Filter Amt <span class="sup">[-|+]</span> <span class="cc">CC#60</span></div>
+  <div class="param-name"><b>Breath</b> Filter Amt <span class="sup">[- to +]</span> <span class="cc">CC#60</span></div>
   <div class="param-ctrl soft-marker-c"><input  id="inputBTH_FILTER_AMT "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(BTH_FILTER_AMT , value)"><span    id="spanBTH_FILTER_AMT " >-</span><span   id="span2BTH_FILTER_AMT " >-</span></div>
 </div>
 <div class="param">
@@ -3669,12 +4310,34 @@ function getStoredCCValueString(index, number) {
   <div class="param-ctrl soft-markers-2"><input  id="inputOSC_SAW_W_MODE "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(OSC_SAW_W_MODE , value)"><span    id="spanOSC_SAW_W_MODE " >-</span><span   id="span2OSC_SAW_W_MODE " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name">Stretch Tune <span class="sup">[-|+]</span> <span class="cc">CC#22</span></div>
+  <div class="param-name">Stretch Tune <span class="sup">[- to +]</span> <span class="cc">CC#22</span></div>
   <div class="param-ctrl soft-marker-c"><input  id="inputSTRETCH_TUNE   "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(STRETCH_TUNE   , value)"><span    id="spanSTRETCH_TUNE   " >-</span><span   id="span2STRETCH_TUNE   " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name">Pan <span class="cc">CC#10</span></div>
-  <div class="param-ctrl"><input  id="inputPAN            "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(PAN            , value)"><span    id="spanPAN            " >-</span><span   id="span2PAN            " >-</span></div>
+  <div class="param-ctrl soft-marker-c"><input  id="inputPAN            "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(PAN            , value)"><span    id="spanPAN            " >-</span><span   id="span2PAN            " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>Assign</b> Mode <span class="sup">[Jmp|Cat|Rel]</span> <span class="cc">CC#42</span></div>
+  <div class="param-ctrl soft-markers-3"><input  id="inputASSIGN_MODE    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(ASSIGN_MODE    , value)"><span    id="spanASSIGN_MODE    " >-</span><span   id="span2ASSIGN_MODE    " >-</span></div>
+</div>
+</div>
+<div class="param-group param-group-continuing">
+<div class="param">
+  <div class="param-name"><b>Assign</b> #16 <select id="selectASSIGN_16" class="asgn-dst-select" onchange="onChangeAsgnDstSelect(ASSIGN_16, value)" aria-label="Assign #16"></select> <span class="cc">CC#48</span></div>
+  <div class="param-ctrl"><input  id="inputASSIGN_16      "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(ASSIGN_16      , value)"><span    id="spanASSIGN_16      " >-</span><span   id="span2ASSIGN_16      " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>Assign</b> #17 <select id="selectASSIGN_17" class="asgn-dst-select" onchange="onChangeAsgnDstSelect(ASSIGN_17, value)" aria-label="Assign #17"></select> <span class="cc">CC#49</span></div>
+  <div class="param-ctrl"><input  id="inputASSIGN_17      "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(ASSIGN_17      , value)"><span    id="spanASSIGN_17      " >-</span><span   id="span2ASSIGN_17      " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>Assign</b> #18 <select id="selectASSIGN_18" class="asgn-dst-select" onchange="onChangeAsgnDstSelect(ASSIGN_18, value)" aria-label="Assign #18"></select> <span class="cc">CC#50</span></div>
+  <div class="param-ctrl"><input  id="inputASSIGN_18      "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(ASSIGN_18      , value)"><span    id="spanASSIGN_18      " >-</span><span   id="span2ASSIGN_18      " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>Assign</b> #19 <select id="selectASSIGN_19" class="asgn-dst-select" onchange="onChangeAsgnDstSelect(ASSIGN_19, value)" aria-label="Assign #19"></select> <span class="cc">CC#51</span></div>
+  <div class="param-ctrl"><input  id="inputASSIGN_19      "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(ASSIGN_19      , value)"><span    id="spanASSIGN_19      " >-</span><span   id="span2ASSIGN_19      " >-</span></div>
 </div>
 </div>
 </div>
@@ -3731,7 +4394,8 @@ function getStoredCCValueString(index, number) {
 <summary>Panel &amp; Step Sequencer <span class="cc">for PRA32-U2/P and PRA32-U2/M/P</span></summary>
 <details class="section panel-sub" id="panelCtrlDetails" open>
 <summary>Panel &amp; Operations <span class="panel-summary-buttons" onclick="event.preventDefault()"><button type="button" onclick="sendPanelCurrent()">Send Panel</button>
-<button type="button" id="buttonPanelPlay" onclick="onClickPanelPlay()" title="Panel Play (CC#111): Normal Mode: holds the note; Seq Mode: starts and stops the sequencer">Play</button></span></summary>
+<button type="button" id="buttonPanelKey" title="Panel Key (CC#110): plays Panel Play Pitch while pressed (Key and K+S)">Key</button>
+<button type="button" id="buttonPanelPlay" onclick="onClickPanelPlay()" title="Panel Play (CC#111): Key: holds the note; K+S and Seq: starts and stops the sequencer">Play</button></span></summary>
 <div class="section misc">
 <div class="misc-group"><span>Basic Ch</span><div class="misc-buttons">
 <select id="selectPanelCh" onchange="onChangePanelCh()" aria-label="Basic Ch"></select><span class="cc" id="spanPanelCCCh"></span>
@@ -3816,6 +4480,24 @@ Off <input type="number" id="inputNoteOffVelocity" min="1" max="127" step="1"></
   <div class="param-ctrl"><input id="inputPerfCH_PRESSURE" type="range" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(CH_PRESSURE, value)"><span id="spanPerfCH_PRESSURE">0</span><span id="span2PerfCH_PRESSURE"></span></div>
 </div>
 </div>
+<div class="param-group">
+<div class="param">
+  <div class="param-name">General Purpose 1 <span class="cc">CC#16</span></div>
+  <div class="param-ctrl"><input id="inputPerfGEN_PURPOSE_1" type="range" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(GEN_PURPOSE_1, value)"><span id="spanPerfGEN_PURPOSE_1">0</span><span id="span2PerfGEN_PURPOSE_1"></span></div>
+</div>
+<div class="param">
+  <div class="param-name">General Purpose 2 <span class="cc">CC#17</span></div>
+  <div class="param-ctrl"><input id="inputPerfGEN_PURPOSE_2" type="range" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(GEN_PURPOSE_2, value)"><span id="spanPerfGEN_PURPOSE_2">0</span><span id="span2PerfGEN_PURPOSE_2"></span></div>
+</div>
+<div class="param">
+  <div class="param-name">General Purpose 3 <span class="cc">CC#18</span></div>
+  <div class="param-ctrl"><input id="inputPerfGEN_PURPOSE_3" type="range" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(GEN_PURPOSE_3, value)"><span id="spanPerfGEN_PURPOSE_3">0</span><span id="span2PerfGEN_PURPOSE_3"></span></div>
+</div>
+<div class="param">
+  <div class="param-name">General Purpose 4 <span class="cc">CC#19</span></div>
+  <div class="param-ctrl"><input id="inputPerfGEN_PURPOSE_4" type="range" min="0" max="127" step="1" value="0" oninput="onChangePerformanceControl(GEN_PURPOSE_4, value)"><span id="spanPerfGEN_PURPOSE_4">0</span><span id="span2PerfGEN_PURPOSE_4"></span></div>
+</div>
+</div>
 </div>
 </details>
 </details>
@@ -3836,29 +4518,37 @@ function panelHex2(v) { return "x" + v.toString(16).toUpperCase().padStart(2, "0
 
 // [category, name, supplement, CC#, default, display, markers (the class of PRA32-U2 Editor)], in groups (rows of 4)
 const PANEL_PARAM_GROUPS = [
-  // In the order of the pages of the panel (B-00 to B-03), 2 a page (MIDI Basic Ch of B-00 and the empty one of B-03
-  // are empty cells here)
-  [["Panel", "Play Mode",  "[Nrm|Seq]",                 53, 0,   v => ["Nrm", "Seq"][(v * 2 + 128) >> 8],       "soft-markers-2"],
-   null,
-   ["Panel", "Play Pitch", "",                          54, 0,   v => panelPitchName(v),                        ""],
-   ["Panel", "Play Velo",  "",                          55, 100, v => String(v),                                ""],
+  // In the order of the pages of the panel (B-0 to B-3), 2 a page (MIDI Basic Ch of B-3 is an empty cell here)
+  [["Panel", "Play Mode",  "[Key|K+S|Seq]",             53, 0,   v => ["Key", "K+S", "Seq"][(v * 4 + 128) >> 8], "soft-markers-3"],
    ["Panel", "Scale",      "[Maj|Min|Mel|MaP|MiP|Chr]", 51, 0,   v => PANEL_SCALES[(v * 10 + 128) >> 8],        "soft-markers-6"],
-   ["Panel", "Pitch Ofst", "[-|+]",                     56, 64,  v => panelSigned(panelClamp(v - 64, -60, 60)), "soft-marker-c"],
-   ["Panel", "Transpose",  "[-|+]",                     52, 64,  v => panelSigned(v - 64),                      "soft-marker-c"]],
-  // B-04 to B-08
-  [["Seq", "Step Note",  "[4|8|16]",                  92, 64,  v => ["4", "8", "16"][(v * 4 + 128) >> 8],       "soft-markers-3"],
-   ["Seq", "Clock Src",  "[Int|Ext]",                 86, 0,   v => ["Int", "Ext"][(v * 2 + 128) >> 8],         "soft-markers-2"],
-   ["Seq", "Pitch Ofst", "[-|+]",                     95, 64,  v => panelSigned(panelClamp(v - 64, -60, 60)),   "soft-marker-c"],
-   ["Seq", "T/Rx St/Sp", "[Off|On]",                  94, 0,   v => ["Off", "On"][(v * 2 + 128) >> 8],          "soft-markers-2"],
+   ["Panel", "Pitch Ofst", "[- to +]",                  56, 64,  v => panelSigned(panelClamp(v - 64, -60, 60)), "soft-marker-c"],
+   ["Panel", "Transpose",  "[- to +]",                  52, 64,  v => panelSigned(v - 64),                      "soft-marker-c"],
+   ["Panel", "Play Pitch", "",                          54, 0,   v => panelPitchName(v),                        ""],
+   ["Panel", "Play Velo",  "",                          55, 64,  v => String(v),                                ""],
+   null,
+   ["Panel", "MIDI Tx",    "[Off|Clk|All|Nte|C+N|A+N]", 59, 26,  v => ["Off", "Clk", "All", "Nte", "C+N", "A+N"][(v * 10 + 128) >> 8], "soft-markers-6"]],
+  // B-4 to B-10 (the empty one of B-8; Seq On Steps and Seq Act Steps, each with the check boxes of the steps beside it,
+  // take the last row)
+  [["Seq", "Rx St/Sp",   "[Off|On]",                  94, 0,   v => ["Off", "On"][(v * 2 + 128) >> 8],          "soft-markers-2"],
+   ["Seq", "Ch Ofst",    "[+0 to +15]",               60, 0,   v => "+" + (v >> 3),                              ""],
+   ["Seq", "Step Note",  "[4|8|16]",                  92, 64,  v => ["4", "8", "16"][(v * 4 + 128) >> 8],       "soft-markers-3"],
+   ["Seq", "Clock Src",  "[Aut|Int|Ext]",             86, 0,   v => ["Aut", "Int", "Ext"][(v * 4 + 128) >> 8],  "soft-markers-3"],
    ["Seq", "Tempo",      "",                          85, 64,  v => String(panelClamp(v * 2 - 8, 30, 240)),     ""],
    ["Seq", "Gate Time",  "[1/6|2/6|3/6|4/6|5/6|6/6]", 87, 51,  v => ((v * 10 + 128) >> 8) + 1 + "/6",           "soft-markers-6"],
-   ["Seq", "Mode",       "[Fwd|Rvs|Bnc]",             89, 0,   v => ["Fwd", "Rvs", "Bnc"][(v * 4 + 128) >> 8],  "soft-markers-3"],
+   ["Seq", "Direction",  "[Fwd|Rvs|Bnc]",             89, 0,   v => ["Fwd", "Rvs", "Bnc"][(v * 4 + 128) >> 8],  "soft-markers-3"],
    ["Seq", "Num Steps",  "",                          88, 32,  v => String(Math.max((v - 2) >> 2, 0) + 1),      ""],
+   ["Seq", "Pattern",    "[Std|4x4]",                 62, 0,   v => (v >= 64) ? "4x4" : "Std",                   "soft-markers-2"],
+   null,
+   ["Seq", "Pitch Ofst", "[- to +]",                  95, 64,  v => panelSigned(panelClamp(v - 64, -60, 60)),   "soft-marker-c"],
+   ["Seq", "Transpose",  "[- to +]",                  61, 64,  v => panelSigned(v - 64),                        "soft-marker-c"],
    ["Seq", "On Steps",   "",                          93, 127, v => panelHex2(v),                               ""],
    ["Seq", "Act Steps",  "",                          90, 127, v => panelHex2(v),                               ""]],
-  // B-10 to B-17
-  [0, 1, 2, 3, 4, 5, 6, 7].flatMap(i => [["Seq", "Pitch " + i, "", 16 + i, [4, 22, 37, 57, 72, 89, 107, 124][i], v => panelPitchName(v), ""],
-                                         ["Seq", "Velo " + i,  "", 70 + i, 100, v => String(v), ""]]),
+  // B-12 to B-19
+  // (Seq Pattern 4x4: Pitch 4-7 and Velo 4-7 are the shifts, added to the offsets and to the velocity)
+  [0, 1, 2, 3, 4, 5, 6, 7].flatMap(i => [["Seq", "Pitch " + i, "", 16 + i, [4, 22, 37, 57, 72, 89, 107, 124][i],
+                                          v => ((i >= 4) && panelPattern4x4()) ? panelSigned(panelClamp(v - 64, -60, 60)) : panelPitchName(v), ""],
+                                         ["Seq", "Velo " + i,  "", 70 + i, 64,
+                                          v => ((i >= 4) && panelPattern4x4()) ? panelSigned(v - 64) : String(v), ""]]),
 ];
 const PANEL_PARAMS = PANEL_PARAM_GROUPS.flat().filter(p => p);
 const PANEL_ON_STEPS_CC = 93, PANEL_ACT_STEPS_CC = 90;
@@ -3891,12 +4581,15 @@ const PANEL_SCALE_TABLES = [
 ];
 const PANEL_NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 // The pitch as PRA32-U2/P shows it (see PRA32_U2_ControlPanel_calc_value_display_pitch())
+// Seq Pattern 4x4 (#62 at 32 and more)
+function panelPattern4x4() { return (panelValues[62] !== undefined) && (panelValues[62] >= 32); }
+
 function panelPitchName(pitch) {
   if (pitch === 0) { return "Off"; }
   pitch = panelClamp(pitch, 4, 124);
   const indexScale = (panelValues[51] * 10 + 128) >> 8;
   const p = Math.floor((((pitch + panelClamp(panelValues[56] - 64, -60, 60) + panelClamp(panelValues[95] - 64, -60, 60) + 3) * 2) + 1) / 5) - 3 + 24;
-  const note = PANEL_SCALE_TABLES[indexScale][p % 24] + Math.floor(p / 24) * 12 - 24;
+  const note = PANEL_SCALE_TABLES[indexScale][((p % 24) + 24) % 24] + Math.floor(p / 24) * 12 - 24;  // below the lowest too
   const n = panelClamp(note + (panelValues[52] - 64), 0, 127);
   const octave = Math.floor(n / 12) - 1;
   return PANEL_NOTE_NAMES[n % 12] + (octave < 0 ? "-" : octave.toString(16).toUpperCase());
@@ -3921,28 +4614,36 @@ function panelSendCC(number, value) {
 }
 
 function panelSave() {
-  try { localStorage.setItem(PANEL_STORAGE_KEY, JSON.stringify({ ccs: PANEL_CCS_VERSION, values: panelValues, settings: panelSettings })); } catch (e) {}
+  try { localStorage.setItem(PANEL_STORAGE_KEY, JSON.stringify({ values: panelNamedValues(panelValues), settings: panelSettings })); } catch (e) {}
 }
 
-// The values of the data kept (in the browser) or exported, by the CC numbers of the Panel Channel now ("ccs": 3);
-// the data before them renumbered: with no "ccs" (e.g. Seq Velo 0-7 #24-31 to #70-77), and "ccs": 2 (Seq Pitch Ofst #91 to #95)
-const PANEL_CCS_VERSION = 3;
-const PANEL_OLD_CCS = { 40: 51, 41: 52, 42: 53, 44: 54, 45: 55, 46: 56,
-  24: 70, 25: 71, 26: 72, 27: 73, 28: 74, 29: 75, 30: 76, 31: 77,
-  48: 85, 49: 86, 50: 87, 51: 88, 52: 89, 53: 90, 54: 95, 55: 92, 56: 93, 57: 94 };
-const PANEL_CCS_2 = { 91: 95 };
+// The values of the data kept (in the browser) or exported: by the names of the panel parameters (as those of PRA32-U2,
+// e.g. "SEQ_TEMPO"), as the synth parameters are kept, not by the CC numbers of the Panel Channel (which the editor uses
+// to send them); the data by the CC numbers (before) is not read (the initial values instead)
+const PANEL_PARAM_NAMES = [
+  [51, "PANEL_SCALE"    ], [52, "PANEL_TRANSPOSE"], [53, "PANEL_PLAY_MODE"], [54, "PANEL_PLAY_PIT" ],
+  [55, "PANEL_PLAY_VELO"], [56, "PANEL_PIT_OFST" ], [58, "PANEL_TARGET_CH"], [59, "PANEL_MIDI_TX"  ],
+  [85, "SEQ_TEMPO"      ], [86, "SEQ_CLOCK_SRC"  ], [87, "SEQ_GATE_TIME"  ], [88, "SEQ_NUM_STEPS"  ],
+  [89, "SEQ_DIRECTION"  ], [90, "SEQ_ACT_STEPS"  ], [92, "SEQ_STEP_NOTE"  ], [93, "SEQ_ON_STEPS"   ],
+  [94, "SEQ_RX_ST_SP"   ], [95, "SEQ_PIT_OFST"   ], [60, "SEQ_CH_OFST"    ], [61, "SEQ_TRANSPOSE"  ],
+  [62, "SEQ_PATTERN"    ],
+  ...[0, 1, 2, 3, 4, 5, 6, 7].map(i => [16 + i, "SEQ_PITCH_" + i]),
+  ...[0, 1, 2, 3, 4, 5, 6, 7].map(i => [70 + i, "SEQ_VELO_" + i]),
+];
+
+function panelNamedValues(values) {
+  const named = {};
+  PANEL_PARAM_NAMES.forEach(([cc, name]) => { named[name] = values[cc]; });
+  return named;
+}
 
 function panelValuesOf(data) {
   const values = panelDefaultValues();
-  const renumber = (data.ccs === PANEL_CCS_VERSION) ? {} : (data.ccs === 2) ? PANEL_CCS_2 : PANEL_OLD_CCS;
-  for (const key in data.values || {}) {
-    const cc = renumber[key] || Number(key);
-    if (cc in values) { values[cc] = panelClamp(parseInt(data.values[key]) || 0, 0, 127); }
-  }
-  // Panel Target Ch (#58): one of PANEL_TARGETS (the Main Synth if not); the current one kept for the data without it (before)
-  if (!(data.values && ("58" in data.values))) {
-    values[58] = (58 in panelValues) ? panelValues[58] : 0;
-  }
+  const named = data.values || {};
+  PANEL_PARAM_NAMES.forEach(([cc, name]) => {
+    if (name in named) { values[cc] = panelClamp(parseInt(named[name]) || 0, 0, 127); }
+  });
+  // Panel Target Ch (#58): one of PANEL_TARGETS (the Main Synth if not)
   if (!PANEL_TARGETS.some(t => t[1] === values[58])) { values[58] = 0; }
   return values;
 }
@@ -3954,14 +4655,7 @@ function panelLoad() {
     if (data) {
       panelValues = panelValuesOf(data);
       const settings = data.settings || {};
-      if ((settings.basicCh === undefined) && (settings.panelCh !== undefined)) {  // kept as the Panel CC Ch (+ 10) before
-        settings.basicCh = (settings.panelCh + 6) & 0x0F;
-      }
       panelSettings.basicCh = panelClamp(parseInt(settings.basicCh) || 0, 0, 15);
-      if ((settings.target !== undefined) && !(data.values && ("58" in data.values))) {  // kept as a setting before
-        const t = PANEL_TARGETS[panelClamp(parseInt(settings.target) || 0, 0, PANEL_TARGETS.length - 1)];
-        panelValues[58] = t[1];
-      }
     }
   } catch (e) {}
 }
@@ -4033,8 +4727,25 @@ function panelUpdateDisplay() {
   panelUpdateTargetSelected();
   const play = document.getElementById("buttonPanelPlay");
   play.classList.toggle("kbd-hold-on", panelPlaying);
-  play.textContent = panelPlaying ? "Stop" : "Play";
+  const seqText = (panelValues[53] >= 32) ? "Seq " : "";  // K+S and Seq: the Step Sequencer
+  play.textContent = seqText + (panelPlaying ? "Stop" : "Play");
 }
+
+function panelSetKey(on) {
+  const key = document.getElementById("buttonPanelKey");
+  if (key.classList.contains("kbd-hold-on") === on) { return; }
+  key.classList.toggle("kbd-hold-on", on);
+  panelSendCC(110, on ? 127 : 0);
+}
+
+(function() {
+  const key = document.getElementById("buttonPanelKey");
+  key.addEventListener("pointerdown", function(event) { key.setPointerCapture(event.pointerId); panelSetKey(true); });
+  ["pointerup", "pointercancel", "lostpointercapture"].forEach(type => key.addEventListener(type, () => panelSetKey(false)));
+  key.addEventListener("keydown", function(event) { if ((event.key === " " || event.key === "Enter") && !event.repeat) { event.preventDefault(); panelSetKey(true); } });
+  key.addEventListener("keyup", function(event) { if (event.key === " " || event.key === "Enter") { panelSetKey(false); } });
+  key.addEventListener("blur", () => panelSetKey(false));
+})();
 
 function onClickPanelPlay() {
   panelPlaying = !panelPlaying;
@@ -4045,7 +4756,7 @@ function onClickPanelPlay() {
 function sendPanelCurrent() {
   panelSendCC(58, panelValues[58]);
   // The Panel Parameters first (the Scale and the offsets that the pitches need), and then the others
-  [51, 52, 53, 54, 55, 56, 85, 86, 87, 88, 89, 90, 92, 93, 94, 95].forEach(cc => panelSendCC(cc, panelValues[cc]));
+  [51, 52, 53, 54, 55, 56, 59, 60, 61, 62, 85, 86, 87, 88, 89, 90, 92, 93, 94, 95].forEach(cc => panelSendCC(cc, panelValues[cc]));
   for (let i = 0; i < 8; i++) { panelSendCC(16 + i, panelValues[16 + i]); panelSendCC(70 + i, panelValues[70 + i]); }
 }
 
@@ -4127,7 +4838,7 @@ function panelRecall() {
 }
 
 function panelStore() {
-  try { localStorage.setItem(PANEL_MEMORY_KEY, JSON.stringify({ ccs: PANEL_CCS_VERSION, values: panelValues })); } catch (e) {}
+  try { localStorage.setItem(PANEL_MEMORY_KEY, JSON.stringify({ values: panelNamedValues(panelValues) })); } catch (e) {}
   panelUpdateMemoryButtons();
 }
 
@@ -4162,7 +4873,7 @@ function panelSetBasicChAsked() {
 }
 
 function panelExport() {
-  const data = { format: "PRA32-U2 Panel Parameters", ccs: PANEL_CCS_VERSION, values: panelValues, basicCh: panelBasicCh() };
+  const data = { format: "PRA32-U2 Panel Parameters", values: panelNamedValues(panelValues), basicCh: panelBasicCh() };
   const blob = new Blob([JSON.stringify(data, null, 2) + "\n"], { type: "application/json" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);

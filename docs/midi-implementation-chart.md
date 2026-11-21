@@ -1,6 +1,6 @@
 ```
-  [Polyphonic Synthesizer]                                        Date: 2026-11-15                       
-  Model: Digital Synth PRA32-U2   MIDI Implementation Chart       Version: 3.21.0                        
+  [Polyphonic Synthesizer]                                        Date: 2026-11-21                       
+  Model: Digital Synth PRA32-U2   MIDI Implementation Chart       Version: 3.22.0                        
 +-------------------------------+---------------+---------------+---------------------------------------+
 | Function...                   | Transmitted   | Recognized    | Remarks                               |
 +-------------------------------+---------------+---------------+---------------------------------------+
@@ -11,11 +11,11 @@
 |              Messages         | x             | x             |                                       |
 |              Altered          | ************* |               |                                       |
 +-------------------------------+---------------+---------------+---------------------------------------+
-| Note                          | x             | 0-127         |                                       |
+| Note                          | x $11         | 0-127         |                                       |
 | Number       : True Voice     | ************* | 0-127         |                                       |
 +-------------------------------+---------------+---------------+---------------------------------------+
-| Velocity     Note ON          | x             | o             |                                       |
-|              Note OFF         | x             | o             |                                       |
+| Velocity     Note ON          | x $11         | o             |                                       |
+|              Note OFF         | x $11         | o             |                                       |
 +-------------------------------+---------------+---------------+---------------------------------------+
 | After        Key's            | x             | o             |                                       |
 | Touch        Ch's             | x             | o             |                                       |
@@ -27,43 +27,47 @@
 |                            11 | x             | o             | Expression                            |
 |                            64 | x             | o             | Sustain Pedal [Off|On]                |
 |                            65 | x             | o             | Portamento Switch [Off|On] $7         |
+|                            16 | x             | o             | General Purpose Controller 1 $12      |
+|                            17 | x             | o             | General Purpose Controller 2 $12      |
+|                            18 | x             | o             | General Purpose Controller 3 $12      |
+|                            19 | x             | o             | General Purpose Controller 4 $12      |
 |                               |               |               |                                       |
 |                           102 | x             | o             | Osc 1 Wave [Saw|Sqr|Tri|Sin|WT|Pls]   |
-|                            23 | x             | o             | Mixer Noise/Sub Osc [N|S]             |
-|                            19 | x             | o             | Osc 1 Shape $1                        |
-|                            20 | x             | o             | Osc 1 Morph $1                        |
+|                            23 | x             | o             | Mixer Noise/Sub Osc [N to S]          |
+|                            47 | x             | o             | Osc 1 Shape                           |
+|                            20 | x             | o             | Osc 1 Morph                           |
 |                               |               |               |                                       |
 |                           104 | x             | o             | Osc 2 Wave [Saw|Sqr|Tri|Sin|O1|Nos]   |
-|                            21 | x             | o             | Mixer Osc Mix [1|2]                   |
-|                            85 | x             | o             | Osc 2 Coarse [-|+]                    |
-|                            76 | x             | o             | Osc 2 Pitch [-|+]                     |
+|                            21 | x             | o             | Mixer Osc Mix [1 to 2]                |
+|                            85 | x             | o             | Osc 2 Coarse [- to +]                 |
+|                            76 | x             | o             | Osc 2 Pitch [- to +]                  |
 |                               |               |               |                                       |
 |                            74 | x             | o             | Filter Cutoff                         |
 |                            71 | x             | o             | Filter Resonance                      |
-|                            24 | x             | o             | Filter EG Amt [-|+]                   |
-|                             9 | x             | o             | Filter Key Track [-|+]                |
+|                            24 | x             | o             | Filter EG Amt [- to +]                |
+|                             9 | x             | o             | Filter Key Track [- to +]             |
 |                               |               |               |                                       |
 |                            73 | x             | o             | EG Attack                             |
 |                            75 | x             | o             | EG Decay                              |
 |                            30 | x             | o             | EG Sustain                            |
 |                            72 | x             | o             | EG Release                            |
 |                               |               |               |                                       |
-|                            89 | x             | o             | EG Mod Amt [-|+]                      |
+|                            89 | x             | o             | EG Mod Amt [- to +]                   |
 |                             8 | x             | o             | EG Mod Dst [P|P|2P|2P|F|1S]           |
-|                            18 | x             | o             | Voice Mode [Pol|Pol|Mon|Mon|LP|Lgt]   |
+|                            46 | x             | o             | Voice Mode [Pol|Pol|Mon|Mon|LP|Lgt]   |
 |                             5 | x             | o             | Portamento Time                       |
 |                               |               |               |                                       |
 |                            33 | x             | o             | LFO Wave [Tri|Sin|Nos|Saw|S&H|Sqr]    |
 |                            56 | x             | o             | LFO Fade Time                         |
 |                             3 | x             | o             | LFO Rate                              |
-|                            17 | x             | o             | LFO Depth                             |
+|                            45 | x             | o             | LFO Depth                             |
 |                               |               |               |                                       |
-|                            13 | x             | o             | LFO Mod Amt [-|+]                     |
+|                            13 | x             | o             | LFO Mod Amt [- to +]                  |
 |                           103 | x             | o             | LFO Mod Dst [P|P|2P|2P|F|1S]          |
-|                            25 | x             | o             | LFO Filter Amt [-|+]                  |
+|                            25 | x             | o             | LFO Filter Amt [- to +]               |
 |                            15 | x             | o             | Amp Gain                              |
 |                               |               |               |                                       |
-|                            39 | x             | o             | Filter Mode [LP|BR|HP|BP|LP]          |
+|                            39 | x             | o             | Filter Mode [LP-BR-HP-BP-LP]          |
 |                            31 | x             | o             | Filter Drive                          |
 |                            36 | x             | o             | EG Amp Mod [Off|On]                   |
 |                           105 | x             | o             | EG/Amp Rel = Dec [Off|On]             |
@@ -75,26 +79,32 @@
 |                               |               |               |                                       |
 |                            82 | x             | o             | Osc/Filter Drift                      |
 |                            57 | x             | o             | Pitch Bend Range                      |
-|                            86 | x             | o             | Coarse Tune [-|+]                     |
-|                            70 | x             | o             | Fine Tune [-|+]                       |
+|                            86 | x             | o             | Coarse Tune [- to +]                  |
+|                            70 | x             | o             | Fine Tune [- to +]                    |
 |                               |               |               |                                       |
-|                            51 | x             | o             | EG Att/Dec Velo Sens [-|+]            |
-|                            81 | x             | o             | EG Rel Velo Sens [-|+]                |
+|                            43 | x             | o             | EG Att/Dec Velo Sens [- to +]         |
+|                            81 | x             | o             | EG Rel Velo Sens [- to +]             |
 |                            62 | x             | o             | EG Level Velo Sens                    |
 |                            63 | x             | o             | Amp Level Velo Sens                   |
 |                               |               |               |                                       |
-|                            16 | x             | o             | EG Att/Dec Key Track [-|+]            |
+|                            44 | x             | o             | EG Att/Dec Key Track [- to +]         |
 |                           110 | x             | o             | Voice Assign Mode [1|1|3|3|4|2]       |
 |                            80 | x             | o             | Voice Group Mode $10                  |
 |                            88 | x             | o $9          | LFO Trig Mode [Aut|Off|On|VOn|VOf|VAu]|
 |                               |               |               |                                       |
-|                            60 | x             | o             | Breath Filter Amt [-|+]               |
+|                            60 | x             | o             | Breath Filter Amt [- to +]            |
 |                            61 | x             | o             | Breath Amp Mode [Off|Q|L|LO|QO|Opn]   |
 |                            37 | x             | o             | After Touch LFO Amt                   |
 |                            34 | x             | o             | Portamento Mode [Sw|Aut]              |
 |                            83 | x             | o             | Osc Saw Wave Mode [Str|Cur]           |
-|                            22 | x             | o             | Stretch Tune [-|+]                    |
+|                            22 | x             | o             | Stretch Tune [- to +]                 |
 |                            10 | x             | o             | Pan                                   |
+|                            42 | x             | o             | Assign Mode [Jmp|Cat|Rel] $12         |
+|                               |               |               |                                       |
+|                            48 | x             | o             | Assign #16 $12                        |
+|                            49 | x             | o             | Assign #17 $12                        |
+|                            50 | x             | o             | Assign #18 $12                        |
+|                            51 | x             | o             | Assign #19 $12                        |
 |                               |               |               |                                       |
 |                            95 | x             | o             | Distortion Drive                      |
 |                            77 | x             | o             | FX Routing [Dst|Cho|Dly|Dly|Cmp|Dry]  |
@@ -141,14 +151,14 @@
 |              : Active Sense   | x             | x             |                                       |
 |              : Reset          | x             | x             |                                       |
 +-------------------------------+---------------+---------------+---------------------------------------+
-| Notes                         | $1 : Disabled if Osc 1 Wave is Tri (Triangle Wave)                    |
-|                               | $2 : To write the current parameters to Program #0-15 and the         |
+| Notes                         | $2 : To write the current parameters to Program #0-15 and the         |
 |                               |   flash, set "Program Number to Write to" (# is the value mod 32;     |
 |                               |   #16-31 are not written), and then change "Write Parameters to       |
 |                               |   Program" from 0-31 to 96-127                                        |
 |                               | $3 : Basic Channel can be changed in PRA32-U2/P                       |
-|                               | $4 : o in PRA32-U2/P (No transmission via USB MIDI)                   |
-|                               | $5 : o in PRA32-U2/P if Seq Clock Src is External                     |
+|                               | $4 : o in PRA32-U2/P by Panel MIDI Tx (in Seq Mode and K+S)           |
+|                               | $5 : o in PRA32-U2/P if Seq Clock Src is External (or Auto)           |
+|                               |   (Start/Stop: by Seq Rx St/Sp On)                                    |
 |                               | $6 : Randomize the synth parameters (as "Randomize Synth" in          |
 |                               |   PRA32-U2 Editor) when changed from 0-63 to 64-127                   |
 |                               | $7 : Effective only if Portamento Mode is Sw                          |
@@ -157,6 +167,13 @@
 |                               |   it (e.g. Hi-Res Velocity Out), turn it off                          |
 |                               | $10: PRA32-U2/M only, by the value of the Main Synth:                 |
 |                               |   [Off|Ly2|RLy|RR2|RR4|RR3]                                           |
+|                               | $11: o in PRA32-U2/P by Panel MIDI Tx (the notes that the panel       |
+|                               |   plays)                                                              |
+|                               | $12: General Purpose Controller 1-4 work as the Control Change of     |
+|                               |   the number that Assign #16-#19 set (Off: 0, 16-19, 48-51, 64,       |
+|                               |   80, 106, and 111-127), by Assign Mode: at once (Jmp), after the     |
+|                               |   value comes to that of the parameter (Cat), or as relative values   |
+|                               |   (Rel, 64 + n: +n)                                                   |
 +-------------------------------+-----------------------------------------------------------------------+
   Mode 1: Omni On,  Poly          Mode 2: Omni On,  Mono          o: Yes                                 
   Mode 3: Omni Off, Poly          Mode 4: Omni Off, Mono          x: No                                  

@@ -1,10 +1,10 @@
 /*
  * Digital Synth PRA32-U2 (Lite)
  *
- * - Osc 1 Shape and Morph are disabled in Saw, Sqr, and WT
+ * - Osc 1 Shape and Morph are disabled in Saw, Sqr, Tri, and WT
  */
 
-#define PRA32_U2_VERSION                       "v3.21.0   "
+#define PRA32_U2_VERSION                       "v3.22.0   "
 
 #define PRA32_U2_MIDI_CH                       (0)  // 0-based
 

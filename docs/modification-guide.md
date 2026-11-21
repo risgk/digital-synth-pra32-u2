@@ -1,7 +1,7 @@
 # Digital Synth PRA32-U2 Modification Guide
 
 - <https://github.com/risgk/digital-synth-pra32-u2>
-- For modifying PRA32-U2 with Arduino IDE: the MIDI and audio output settings, and the circuit for PWM Audio; see also [README](./README.md)
+- For modifying PRA32-U2 with Arduino IDE: the MIDI and audio output settings, and the circuit for PWM Audio; see also [README](../README.md)
 
 
 ## Preparation for Modification
@@ -178,7 +178,7 @@
 
 ### Circuit Diagram
 
-![Circuit Diagram](./pra32-u2-pwm-audio-circuit-diagram.png)
+![Circuit Diagram](./images/pwm-audio-circuit-diagram.png)
 
 - This image was created with Fritzing.
     - Actually, it is necessary to use Raspberry Pi Pico 2 (instead of Raspberry Pi Pico)
@@ -191,7 +191,7 @@
 
 ### Actual Wiring Diagram
 
-![Actual Wiring Diagram](./pra32-u2-pwm-audio-bread-board.png)
+![Actual Wiring Diagram](./images/pwm-audio-bread-board.png)
 
 - This image was created with Fritzing.
     - Actually, it is necessary to use Raspberry Pi Pico 2 (instead of Raspberry Pi Pico)

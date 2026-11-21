@@ -4,7 +4,7 @@
 # - PRA32-U2 Native (with "native" or "release_tag" only, as it takes the longest): built with Visual Studio 2022
 #   (Windows), Xcode (macOS), and GCC (Linux), and validated with pluginval (and auval for AU) (see PRA32-U2-Native/README.md)
 # - PRA32-U2 Web: built with Emscripten (Ubuntu), and tested with Node.js (see PRA32-U2-Web/README.md)
-# - PRA32-U2 Load Estimate (with "load_estimate" only): the table of PRA32-U2-Load-Estimate/README.md,
+# - PRA32-U2 Load Estimate (with "load_estimate" only): the table of load-estimate/README.md,
 #   in the summary of the run (about 12 min)
 name: PRA32-U2 Build (UF2, Native, and Web)
 
@@ -33,7 +33,7 @@ permissions:
 
 env:
   ARDUINO_CLI_VERSION: '1.5.1'
-  ARDUINO_PICO_VERSION: '6.3.0'  # The same as "Tested with Arduino-Pico version ..." in PRA32-U2-Change-History.md
+  ARDUINO_PICO_VERSION: '6.3.0'  # The same as "Tested with Arduino-Pico version ..." in CHANGELOG.md
   MIDI_LIBRARY_VERSION: '5.0.2'
   ARDUINO_PICO_INDEX_URL: 'https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json'
   EMSDK_VERSION: '6.0.12'  # Emscripten, for PRA32-U2 Web
@@ -266,7 +266,7 @@ jobs:
           name: ${{ steps.build.outputs.name }}
           path: pra32-u2-web-synth.js
 
-  # PRA32-U2 Load Estimate ("PRA32-U2-Load-Estimate"): the table for its README.md, in the summary
+  # PRA32-U2 Load Estimate ("load-estimate"): the table for its README.md, in the summary
   load-estimate:
     if: inputs.load_estimate
     runs-on: ubuntu-latest
@@ -289,10 +289,10 @@ jobs:
       - name: Estimate
         shell: bash  # With pipefail, so that a failed estimate fails the job
         run: |
-          sh PRA32-U2-Load-Estimate/pra32-u2-load-estimate.sh | tee load-estimate.md
+          sh load-estimate/pra32-u2-load-estimate.sh | tee load-estimate.md
           cat load-estimate.md >> "$GITHUB_STEP_SUMMARY"
           # A maximum over 95% of 1333 us as a warning of the run (marked in the table too)
-          while read -r line; do echo "::warning title=PRA32-U2 Load Estimate::$line"; done < PRA32-U2-Load-Estimate/build/warnings.txt
+          while read -r line; do echo "::warning title=PRA32-U2 Load Estimate::$line"; done < load-estimate/build/warnings.txt
 
   commit:
     if: inputs.commit_package

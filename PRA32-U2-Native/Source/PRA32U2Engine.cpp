@@ -23,9 +23,11 @@ uint8_t g_midi_ch = 0;  // Used by the core (only for the panel); the engine rec
 
 #include "pra32-u2-common.h"
 #include "pra32-u2-synth.h"
+#include "pra32-u2-value-display.h"  // The values shown as they work (also without the panel)
 
 #include "PRA32U2Engine.h"
 
+#include <algorithm>
 #include <array>
 
 #if defined(PRA32_U2_ENGINE_M)
@@ -49,26 +51,26 @@ namespace {
 // The names of the parameters, the same as PRA32-U2 Editor (the parameters and their order are s_program_table_parameters of the core)
 const PRA32U2Engine::ParameterInfo s_parameter_names[] = {
   { OSC_1_WAVE     , "Osc 1 Wave [Saw|Sqr|Tri|Sin|WT|Pls]"    },
-  { MIXER_SUB_OSC  , "Mixer Noise/Sub Osc [N|S]"              },
+  { MIXER_SUB_OSC  , "Mixer Noise/Sub Osc [N to S]"              },
   { OSC_1_SHAPE    , "Osc 1 Shape"                            },
   { OSC_1_MORPH    , "Osc 1 Morph"                            },
 
   { OSC_2_WAVE     , "Osc 2 Wave [Saw|Sqr|Tri|Sin|O1|Nos]"    },
-  { MIXER_OSC_MIX  , "Mixer Osc Mix [1|2]"                    },
-  { OSC_2_COARSE   , "Osc 2 Coarse [-|+]"                     },
-  { OSC_2_PITCH    , "Osc 2 Pitch [-|+]"                      },
+  { MIXER_OSC_MIX  , "Mixer Osc Mix [1 to 2]"                    },
+  { OSC_2_COARSE   , "Osc 2 Coarse [- to +]"                     },
+  { OSC_2_PITCH    , "Osc 2 Pitch [- to +]"                      },
 
   { FILTER_CUTOFF  , "Filter Cutoff"                          },
   { FILTER_RESO    , "Filter Resonance"                       },
-  { FILTER_EG_AMT  , "Filter EG Amt [-|+]"                    },
-  { FILTER_KEY_TRK , "Filter Key Track [-|+]"                 },
+  { FILTER_EG_AMT  , "Filter EG Amt [- to +]"                    },
+  { FILTER_KEY_TRK , "Filter Key Track [- to +]"                 },
 
   { EG_ATTACK      , "EG Attack"                              },
   { EG_DECAY       , "EG Decay"                               },
   { EG_SUSTAIN     , "EG Sustain"                             },
   { EG_RELEASE     , "EG Release"                             },
 
-  { EG_OSC_AMT     , "EG Mod Amt [-|+]"                       },
+  { EG_OSC_AMT     , "EG Mod Amt [- to +]"                       },
   { EG_OSC_DST     , "EG Mod Dst [P|P|2P|2P|F|1S]"            },
   { VOICE_MODE     , "Voice Mode [Pol|Pol|Mon|Mon|LP|Lgt]"    },
   { PORTAMENTO     , "Portamento Time"                        },
@@ -78,12 +80,12 @@ const PRA32U2Engine::ParameterInfo s_parameter_names[] = {
   { LFO_RATE       , "LFO Rate"                               },
   { LFO_DEPTH      , "LFO Depth"                              },
 
-  { LFO_OSC_AMT    , "LFO Mod Amt [-|+]"                      },
+  { LFO_OSC_AMT    , "LFO Mod Amt [- to +]"                      },
   { LFO_OSC_DST    , "LFO Mod Dst [P|P|2P|2P|F|1S]"           },
-  { LFO_FILTER_AMT , "LFO Filter Amt [-|+]"                   },
+  { LFO_FILTER_AMT , "LFO Filter Amt [- to +]"                   },
   { AMP_GAIN       , "Amp Gain"                               },
 
-  { FILTER_MODE    , "Filter Mode [LP|BR|HP|BP|LP]"           },
+  { FILTER_MODE    , "Filter Mode [LP-BR-HP-BP-LP]"           },
   { FILTER_DRIVE   , "Filter Drive"                           },
   { EG_AMP_MOD     , "EG Amp Mod [Off|On]"                    },
   { REL_EQ_DECAY   , "EG/Amp Rel = Dec [Off|On]"              },
@@ -95,26 +97,32 @@ const PRA32U2Engine::ParameterInfo s_parameter_names[] = {
 
   { OSC_DRIFT      , "Osc/Filter Drift"                       },
   { P_BEND_RANGE   , "Pitch Bend Range"                       },
-  { COARSE_TUNE    , "Coarse Tune [-|+]"                      },
-  { FINE_TUNE      , "Fine Tune [-|+]"                        },
+  { COARSE_TUNE    , "Coarse Tune [- to +]"                      },
+  { FINE_TUNE      , "Fine Tune [- to +]"                        },
 
-  { A_D_VEL_SENS   , "EG Att/Dec Velo Sens [-|+]"             },
-  { REL_VEL_SENS   , "EG Rel Velo Sens [-|+]"                 },
+  { A_D_VEL_SENS   , "EG Att/Dec Velo Sens [- to +]"             },
+  { REL_VEL_SENS   , "EG Rel Velo Sens [- to +]"                 },
   { EG_VEL_SENS    , "EG Level Velo Sens"                     },
   { AMP_VEL_SENS   , "Amp Level Velo Sens"                    },
 
-  { A_D_KEY_TRK    , "EG Att/Dec Key Track [-|+]"             },
+  { A_D_KEY_TRK    , "EG Att/Dec Key Track [- to +]"             },
   { VOICE_ASGN_MODE, "Voice Assign Mode [1|1|3|3|4|2]"        },
   { VOICE_GRP_MODE , "Voice Group Mode [Off|Ly2|RLy|RR2|RR4|RR3]" },
   { LFO_TRIG_MODE  , "LFO Trig Mode [Aut|Off|On|VOn|VOf|VAu]" },
 
-  { BTH_FILTER_AMT , "Breath Filter Amt [-|+]"                },
+  { BTH_FILTER_AMT , "Breath Filter Amt [- to +]"                },
   { BTH_AMP_MOD    , "Breath Amp Mode [Off|Q|L|LO|QO|Opn]"    },
   { AFT_T_LFO_AMT  , "After Touch LFO Amt"                    },
   { PORTA_MODE     , "Portamento Mode [Sw|Aut]"               },
   { OSC_SAW_W_MODE , "Osc Saw Wave Mode [Str|Cur]"            },
-  { STRETCH_TUNE   , "Stretch Tune [-|+]"                     },
+  { STRETCH_TUNE   , "Stretch Tune [- to +]"                     },
   { PAN            , "Pan"                                    },
+  { ASSIGN_MODE    , "Assign Mode [Jmp|Cat|Rel]"              },
+
+  { ASSIGN_16      , "Assign #16"                         },
+  { ASSIGN_17      , "Assign #17"                         },
+  { ASSIGN_18      , "Assign #18"                         },
+  { ASSIGN_19      , "Assign #19"                         },
 
   { DISTORTION     , "Distortion Drive"                       },
   { FX_ROUTING     , "FX Routing [Dst|Cho|Dly|Dly|Cmp|Dry]"   },
@@ -213,7 +221,7 @@ int PRA32U2Engine::getMarkers(uint8_t controlNumber, const uint8_t** markerValue
   static const uint8_t MARKERS_3[]   = { 0, 64, 127 };
   static const uint8_t MARKERS_5[]   = { 0, 32, 64, 96, 127 };
   static const uint8_t MARKERS_2[]   = { 0, 127 };
-  static const uint8_t MARKERS_C[]   = { 64 };  // The center, for [-|+] and [N|S]
+  static const uint8_t MARKERS_C[]   = { 64 };  // The center, for [- to +], [N to S], and Pan
   static const uint8_t MARKERS_6_C[] = { 0, 26, 51, 64, 77, 102, 127 };  // The 6 markers and the center
 
   switch (controlNumber) {
@@ -237,6 +245,7 @@ int PRA32U2Engine::getMarkers(uint8_t controlNumber, const uint8_t** markerValue
     *markerValues = MARKERS_6_C;
     return 7;
   case DELAY_MODE      :
+  case ASSIGN_MODE     :
     *markerValues = MARKERS_3;
     return 3;
   case EG_AMP_MOD      :
@@ -245,6 +254,7 @@ int PRA32U2Engine::getMarkers(uint8_t controlNumber, const uint8_t** markerValue
   case PORTA_MODE      :
     *markerValues = MARKERS_2;
     return 2;
+  case OSC_1_SHAPE     :  // The center (e.g. the pulse width 50% with Pls)
   case MIXER_SUB_OSC   :
   case OSC_2_COARSE    :
   case OSC_2_PITCH     :
@@ -260,6 +270,7 @@ int PRA32U2Engine::getMarkers(uint8_t controlNumber, const uint8_t** markerValue
   case COARSE_TUNE     :
   case FINE_TUNE       :
   case BTH_FILTER_AMT  :
+  case PAN             :
     *markerValues = MARKERS_C;
     return 1;
   default:
@@ -286,11 +297,16 @@ bool PRA32U2Engine::isRandomizedAsFx(uint8_t controlNumber) {
 }
 
 // The same as updateDisplayOfControl() of PRA32-U2 Editor (pra32-u2-editor.html)
-std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value) {
+std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value, uint8_t osc1Wave, uint8_t relatedValue) {
   const int v = value;
   std::string dispValue = std::to_string(v);
 
   auto bipolar = [](int x) { return (x >= 64) ? ("+" + std::to_string(x - 64)) : std::to_string(x - 64); };
+  // Two sides as it works, 2 values a step: -64 (0), -62 (1-2), ..., 0 (63-64), ..., +64 (127), e.g. "N64", "0", "S64"
+  auto twoSides = [](int x, const char* minus, const char* plus) {
+    const int amount = ((x - 63) >= 0) ? (((x - 63) / 2) * 2) : -((((63 - x) + 1) / 2) * 2);
+    return (amount == 0) ? std::string("0") : (amount > 0) ? (plus + std::to_string(amount)) : (minus + std::to_string(-amount));
+  };
   auto select6 = [](int x, const char* const (&labels)[6]) { return std::string(labels[((x * 10) + 128) >> 8]); };
   auto select3 = [](int x, const char* const (&labels)[3]) { return std::string(labels[((x * 4) + 128) >> 8]); };
   auto select2 = [](int x, const char* const (&labels)[2]) { return std::string(labels[((x * 2) + 128) >> 8]); };
@@ -309,25 +325,159 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value) {
   static const char* const FX_ROUTINGS[6]  = { "Dst", "Cho", "Dly", "Dly", "Cmp", "Dry" };
   static const char* const ASGN_MODES[6]   = { "1", "1", "3", "3", "4", "2" };
   static const char* const DELAY_MODES[3]  = { "Ste", "PP", "Rev" };
+  static const char* const ASSIGN_MODES[3] = { "Jmp", "Cat", "Rel" };
   static const char* const GROUP_MODES[6]  = { "Off", "Ly2", "RLy", "RR2", "RR4", "RR3" };
 
+  // Osc 2 Pitch (osc2Pitch), and EG Mod Amt and LFO Mod Amt to the pitch (P and 2P), as pitchDispValue() of PRA32-U2 Editor
+  // (3 characters at most): the cents, rounded, and the semitones, with "." for .5, with the sign but where it does not fit
+  auto pitchText = [](int x, bool osc2Pitch) {
+    static const int SEMITONES[8] = { 30, 36, 42, 48, 60, 72, 96, 120 };  // 2.5 to 10 octaves
+    const int n = x - 64;
+    int a = std::abs(n);
+    const std::string sign = (n > 0) ? "+" : "-";
+    if (osc2Pitch) {
+      a = std::min(a, 55);
+      if (a == 0) { return std::string("0"); }
+      if (a <= 32) { return sign + std::to_string(((a * 25) + 8) / 16); }  // 1.5625 cents a value
+      const int halves = a - 31;  // 0.5 semitones a value: 2 (1 semitone) to 24 (12 semitones)
+      if (halves & 1) { return (((halves / 2) < 10) ? sign : std::string()) + std::to_string(halves / 2) + "."; }
+      return sign + std::to_string(halves / 2);
+    }
+    a = std::min(a, 63);
+    if (a == 0) { return std::string("0"); }
+    if (a <= 31) { return sign + std::to_string(((a * 25) + 4) / 8); }  // 3.125 cents a value
+    const int semitones = (a <= 55) ? (a - 31) : SEMITONES[a - 56];  // 1 (100 cents) to 120 (10 octaves)
+    return ((semitones < 100) ? sign : std::string()) + std::to_string(semitones);
+  };
+
   switch (controlNumber) {
-  case OSC_2_COARSE    :
-  case OSC_2_PITCH     :
-  case FILTER_EG_AMT   :
-  case FILTER_KEY_TRK  :
+  case OSC_2_COARSE    : dispValue = bipolar(std::min(std::max(v, 64 - 60), 64 + 60)); break;  // -60 to +60, as it works
+  case OSC_2_PITCH     : return std::to_string(v) + " [" + pitchText(v, true) + "]";  // shown even if the same as the value
   case EG_OSC_AMT      :
-  case LFO_OSC_AMT     :
+  case LFO_OSC_AMT     : {  // By EG Mod Dst or LFO Mod Dst: the pitch (P and 2P), the Cutoff (F), and the Shape (1S), as the panel
+    const int index = ((relatedValue * 10) + 128) >> 8;
+    if (index <= 3) {
+      return std::to_string(v) + " [" + pitchText(v, false) + "]";
+    }
+    char text[5] = {};
+    if (index == 4) {
+      PRA32_U2_ControlPanel_calc_value_display_filter_tune(FILTER_EG_AMT, value, text);
+    } else {
+      PRA32_U2_ControlPanel_calc_value_display_shape_amt(value, text);
+    }
+    std::string trimmed(text);
+    trimmed.erase(0, trimmed.find_first_not_of(' '));
+    return std::to_string(v) + " [" + trimmed + "]";  // shown even if the same as the value, as the panel
+  }
+  case COARSE_TUNE     : dispValue = bipolar(v);                     break;
+  case FILTER_CUTOFF   :
+  case FINE_TUNE       :
+  case FILTER_RESO     :
+  case FILTER_DRIVE    :
+  case DISTORTION      :
+  case STRETCH_TUNE    :
+  case FILTER_EG_AMT   :
   case LFO_FILTER_AMT  :
+  case BTH_FILTER_AMT  :
+  case FILTER_KEY_TRK  :
   case A_D_VEL_SENS    :
   case REL_VEL_SENS    :
   case A_D_KEY_TRK     :
-  case PAN             :
-  case STRETCH_TUNE    :
-  case COARSE_TUNE     :
-  case FINE_TUNE       :
-  case BTH_FILTER_AMT  : dispValue = bipolar(v);                     break;
-  case MIXER_SUB_OSC   : dispValue = (v >= 64) ? ("S" + std::to_string(v - 64)) : ("N" + std::to_string(64 - v)); break;
+  case EG_VEL_SENS     :
+  case AMP_VEL_SENS    :
+  case AMP_GAIN        :
+  case EG_SUSTAIN      :
+  case AMP_SUSTAIN     :
+  case MIXER_OSC_MIX   :
+  case LFO_DEPTH       :
+  case CHORUS_MIX      :
+  case DELAY_LEVEL     :
+  case DELAY_FEEDBACK  :
+  case ASSIGN_16       :
+  case ASSIGN_17       :
+  case ASSIGN_18       :
+  case ASSIGN_19       :
+  case P_BEND_RANGE    : {  // As the panel (the same functions): e.g. "262", "1k2", "20k" (Hz), "100" (-100 cents), "5.7" (Q), "+6" (dB), "50%"
+    char text[5] = {};
+    if (controlNumber == FILTER_CUTOFF) {
+      PRA32_U2_ControlPanel_calc_value_display_cutoff(value, text);
+    } else if (controlNumber == FINE_TUNE) {
+      PRA32_U2_ControlPanel_calc_value_display_fine_tune(value, text);
+    } else if (!PRA32_U2_ControlPanel_calc_value_display_percent(controlNumber, value, text)) {
+      PRA32_U2_ControlPanel_calc_value_display_filter_tune(controlNumber, value, text);
+    }
+    std::string trimmed(text);
+    trimmed.erase(0, trimmed.find_first_not_of(' '));
+    return std::to_string(v) + " [" + trimmed + "]";  // shown even if the same as the value, as the panel
+  }
+  case EG_ATTACK       :
+  case AMP_ATTACK      :
+  case EG_DECAY        :
+  case EG_RELEASE      :
+  case AMP_DECAY       :
+  case AMP_RELEASE     : {  // As timeDispValue() of PRA32-U2 Editor: the milliseconds without the unit, and the seconds with "."
+    static const uint32_t MANTISSAS[32] = {
+      10000, 10746, 11548, 12409, 13335, 14330, 15399, 16548, 17783, 19110, 20535, 22067, 23714, 25483, 27384, 29427,
+      31623, 33982, 36517, 39242, 42170, 45316, 48697, 52330, 56234, 60430, 64938, 69783, 74989, 80584, 86596, 93057
+    };
+    static const uint32_t DECADES[4] = { 1, 10, 100, 1000 };
+    const bool decayRelease = (controlNumber != EG_ATTACK) && (controlNumber != AMP_ATTACK);
+    const uint32_t t = MANTISSAS[v & 0x1F] * (decayRelease ? 3 : 1) * DECADES[(v >> 5) & 0x03];  // in 1/10000 ms
+    std::string text;
+    if (t < 9995000) {
+      text = std::to_string((t + 5000) / 10000);
+    } else {
+      const uint32_t tenths = (t + 500000) / 1000000;
+      text = (tenths < 100) ? (std::to_string(tenths / 10) + "." + std::to_string(tenths % 10))
+                            : (std::to_string((t + 5000000) / 10000000) + ".");
+    }
+    return std::to_string(v) + " [" + text + "]";  // shown even if the same as the value, as the panel
+  }
+  case PORTAMENTO      :
+  case LFO_FADE_TIME   :
+  case LFO_RATE        :
+  case CHORUS_RATE     :
+  case CHORUS_DEPTH    : {  // As the panel (the same function, PRA32_U2_ControlPanel_calc_value_display_time_rate())
+    char text[5] = {};
+    PRA32_U2_ControlPanel_calc_value_display_time_rate(controlNumber, value, relatedValue, text);
+    std::string trimmed(text);
+    trimmed.erase(0, trimmed.find_first_not_of(' '));
+    return std::to_string(v) + " [" + trimmed + "]";  // shown even if the same as the value, as the panel
+  }
+  case PAN             : dispValue = (v > 64) ? ("R" + std::to_string(v - 64)) : (v == 64) ? std::string("C")
+                                                  : ("L" + std::to_string(std::min(64 - v, 63)));  break;  // L63 (0 and 1) to R63
+  case MIXER_SUB_OSC   : dispValue = twoSides(v, "N", "S");                   break;  // N64 to 0 to S64, as it works
+  case OSC_1_SHAPE     :
+  case OSC_1_MORPH     : {  // by Osc 1 Wave, as osc1DispValue() of PRA32-U2 Editor (3 characters at most)
+    const int wave = ((osc1Wave * 10) + 128) >> 8;
+    std::string text;
+    char panelText[5] = {};
+    if (controlNumber == OSC_1_SHAPE) {
+      if (wave == 5) {  // 0% (0) to 50% (64) to 100% (127, shown as "100")
+        const int width = (v >= 127) ? 100 : (((100 * v) + 64) / 128);
+        text = std::to_string(width) + ((width < 100) ? "%" : "");
+      } else if (PRA32_U2_ControlPanel_calc_value_display_osc_1_shape(wave, value, panelText)) {  // As the panel (the same function)
+        text = panelText;
+        text.erase(0, text.find_first_not_of(' '));
+      }
+    } else if (wave <= 2) {  // Saw, Sqr, and Tri: the Multi Saw, the Sync Square, and the Folded Triangle in %, as the Sustain
+      PRA32_U2_ControlPanel_calc_value_display_percent(EG_SUSTAIN, value, panelText);
+      text = panelText;
+      text.erase(0, text.find_first_not_of(' '));
+    } else if (wave == 3) {
+      const int halves = ((v + 2) >> 2) + 1;  // the ratio (0.5 to 16.5) * 2: "0.5" to "9.5", and "10" to "16." ("." for .5)
+      text = ((halves >> 1) < 10) ? (std::to_string(halves >> 1) + "." + ((halves & 1) ? "5" : "0"))
+                                  : (std::to_string(halves >> 1) + ((halves & 1) ? "." : ""));
+    } else if (wave == 4) {
+      text = "WT" + std::to_string(((v * 10) + 128) >> 8);
+    } else if (wave == 5) {
+      text = twoSides(v, "P", "S");
+    }
+    if (!text.empty()) {
+      return std::to_string(v) + " [" + text + "]";  // shown even if the same as the value, as the panel
+    }
+    break;
+  }
   case OSC_1_WAVE      : dispValue = select6(v, OSC_1_WAVES);        break;
   case OSC_2_WAVE      : dispValue = select6(v, OSC_2_WAVES);        break;
   case VOICE_GRP_MODE  : dispValue = select6(v, GROUP_MODES);        break;
@@ -342,6 +492,7 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value) {
   }
   case EG_AMP_MOD      :
   case REL_EQ_DECAY    : dispValue = select2(v, OFF_ON);             break;
+  case ASSIGN_MODE     : dispValue = select3(v, ASSIGN_MODES);       break;
   case OSC_SAW_W_MODE  : dispValue = select2(v, SAW_W_MODES);        break;
   case PORTA_MODE      : dispValue = select2(v, PORTA_MODES);        break;
   case LFO_TRIG_MODE   : dispValue = select6(v, LFO_TRIG_MODES);      break;
@@ -444,7 +595,7 @@ void PRA32U2Engine::handleMidiMessage(const uint8_t* data, int size) {
       PRA32_U2_ControlPanel_on_clock();
       return;
     } else if ((data[0] == 0xFA) || (data[0] == 0xFC)) {
-      if (g_synth.current_controller_value(SEQ_TRX_ST_SP  ) >= 64) {
+      if (g_synth.current_controller_value(SEQ_RX_ST_SP   ) >= 64) {
         if (data[0] == 0xFA) { PRA32_U2_ControlPanel_on_start(); } else { PRA32_U2_ControlPanel_on_stop(); }
       }
       return;
@@ -512,6 +663,16 @@ void PRA32U2Engine::controlChange(uint8_t controlNumber, uint8_t value) {
   }
 #endif  // defined(PRA32_U2_ENGINE_M)
   m_impl->with_synth([&](auto& s) { s.control_change(controlNumber & 0x7F, value & 0x7F); });
+}
+
+uint8_t PRA32U2Engine::getOsc1Wave() const {
+  return getControllerValue(OSC_1_WAVE);
+}
+
+uint8_t PRA32U2Engine::getRelatedValue(uint8_t controlNumber) const {
+  return (controlNumber == EG_OSC_AMT)  ? getControllerValue(EG_OSC_DST)  :
+         (controlNumber == LFO_OSC_AMT) ? getControllerValue(LFO_OSC_DST) :
+         (controlNumber == LFO_RATE)    ? getControllerValue(LFO_WAVE)    : 0;
 }
 
 uint8_t PRA32U2Engine::getControllerValue(uint8_t controlNumber) const {

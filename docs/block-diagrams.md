@@ -4,7 +4,7 @@
 
 The diagrams of the Osc, the Filter, the FX (Distortion FX, Chorus FX, Delay FX, and Reverb), the Output Compressor, and PRA32-U2/M,
 and the graphs of the Wave Tables.
-For the whole synthesizer, see [Synthesizer Block Diagram](./README.md#synthesizer-block-diagram) in README.md.
+For the whole synthesizer, see [Synthesizer Block Diagram](../README.md#synthesizer-block-diagram) in README.md.
 Solid arrows carry audio (thick ones the stereo audio, L / R), dashed arrows carry control.
 
 
@@ -54,10 +54,14 @@ How each Osc 1 Wave is made, and what the Osc 1 Shape and the Osc 1 Morph do:
 | ---------- | ------- | ----------- | ----------- |
 | Saw | A Saw, and a Multi Saw (7 Saws, detuned) | The detune of the Multi Saw | The mix of the Saw and the Multi Saw |
 | Sqr | A Square, and a Sync Square (16 Saws, alternately added and subtracted at shifted phases) | The pitch of the Sync Square | The mix of the Square and the Sync Square |
-| Tri | A Triangle | - | - |
+| Tri | A Triangle, and a Folded Triangle (a Triangle of the gain times the frequency, whose phase follows the Triangle, and so turns back at its peaks) | The gain of the fold (x1 to x9) | The mix of the Triangle and the Folded Triangle |
 | Sin | A Sine (the carrier), whose phase is modulated by another Sine (the modulator) | The modulation depth | The frequency ratio of the modulator |
 | WT | 16 Saws, alternately added and subtracted at the phases in a wave table | The position in the wave table | The wave table |
 | Pls | A Saw, and a second Saw at a shifted phase, added or subtracted (a subtracted one makes a pulse) | The phase of the second Saw (the pulse width) | The level of the second Saw (−100% to +100%) |
+
+The fold of Tri: folding at +1 and -1 is itself a Triangle of the input (a period of 4), so the Triangle x folded by a gain g
+is the Triangle read at the phase g x / 4, which turns back at each peak of x (a reverse sync); the Triangle Wave tables
+band-limit the folds, and only the 2 turns a period are corrected (the polyBLAMP, and the 3rd derivative)
 
 
 ## Filter
@@ -354,8 +358,8 @@ flowchart LR
   the Poly modes uses the processing time of all of them)
 - Voice Group Mode (Control Change #80, of the Main Synth): MIDI Ch 5 and 6 are the Layering or the
   Round Robin of 2-4 synths, and MIDI Ch 16 the Layering of all 4 (none of them while it is Off,
-  when MIDI Ch 2-4 are not used either); while the Main Synth is in the Poly modes, a group
-  has only the Main Synth (none without it, e.g. RR3)
+  when MIDI Ch 2-4 are not used either); while the Main Synth is in the Poly modes, the notes of
+  a group go only to the Main Synth (none without it, e.g. RR3), and the other messages to all
     - Layering: a Note On (and the other messages) goes to 2 or 4 synths at once; a Program Change
       selects the Program # + 0, + 1, + 2, and + 3 for them, in this order
     - Round Robin: the notes go to the synths in turn
@@ -365,6 +369,6 @@ flowchart LR
 
 ## Wave Table Graphs
 
-![Wave Table Graphs](./pra32-u2-wave-table-graphs.png)
+![Wave Table Graphs](./images/wave-table-graphs.png)
 
-The source data of the graphs: [pra32-u2-wave-table-graphs.ods](./pra32-u2-wave-table-graphs.ods)
+The source data of the graphs: [wave-table-graphs.ods](./images/wave-table-graphs.ods)

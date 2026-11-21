@@ -1,6 +1,7 @@
-# PRA32-U2/M Demo
+# PRA32-U2 Demo
 
 - A demo song of PRA32-U2/M (Multi-Timbre Edition) in 4 parts, as a Standard MIDI File, and a tool that renders a Standard MIDI File with PRA32-U2/M to a WAV file on PC
+  (also a sample of PRA32-U2, for checking a change of the sound)
 - "pra32-u2-m-demo-ode-to-joy.mid": "Ode to Joy" (Beethoven, Symphony No. 9; public domain), arranged for PRA32-U2/M (about 55 s)
     - MIDI Channel 1 (Main Synth): Melody, #20 Saw Lead up to the theme, #21 Sync Lead in the middle and the theme, and #28 Fifth Lead in them again
       (Program Changes in the song), with the Modulation Wheel up to 64 from the middle of each long note
@@ -38,3 +39,5 @@
     - The MIDI messages are read at the start of each loop (64 frames), as on the device; MIDI Channels 1-4 are for the Main Synth and the Sub Synths 1-3 (2-4 not while Voice Group Mode is Off), and 5, 6, and 16 by Voice Group Mode (RR3 in the Presets), as on the device
     - Unlike the device, a Program Change (or one by CC #111-119) is processed at once (the device processes it in one of the next loops), and the output fader is not used
     - It takes about 1 s for a song of 1 min; it can also be used to check that a change of PRA32-U2/M keeps the sound (compare the WAV files)
+- "pra32-u2-sample.mid": the sample of PRA32-U2 (MIDI Channel 1 only, which the Main Synth plays as PRA32-U2 does), for checking a change of the sound
+    - "pra32-u2-generate-sample-smf.rb" (Ruby) makes it, and "pra32-u2-make-sample-wav-file-cc.bat" renders it to "pra32-u2-sample-wav-file-cc.wav" (on Windows)

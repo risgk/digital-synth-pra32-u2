@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 v3.21.0
+# Digital Synth PRA32-U2 v3.22.0
 
-- 2026-11-15 ISGK Instruments
+- 2026-11-21 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 - [日本語版 README (抄訳)](./README.ja.md)
 
@@ -23,13 +23,13 @@
       ([PRA32-U2/P Headless](./README-PRA32-U2-P.md#pra32-u2p-headless)), e.g. from "Panel & Step Sequencer" of PRA32-U2 Editor
         - NOTE: It also responds to the Control Changes on MIDI Channel 15 (the Panel Channel, by default)
     - PRA32-U2: "Digital-Synth-PRA32-U2-Pimoroni-Pico-Audio-Pack.uf2" is for Raspberry Pi Pico 2 and Pimoroni Pico Audio Pack
-- Modifiable with Arduino IDE and Arduino-Pico (by Earle F. Philhower, III): see [Modification Guide](./PRA32-U2-Modification-Guide.md) (e.g. for other I2S DACs, PWM Audio, or the panel)
+- Modifiable with Arduino IDE and Arduino-Pico (by Earle F. Philhower, III): see [Modification Guide](./docs/modification-guide.md) (e.g. for other I2S DACs, PWM Audio, or the panel)
 - Optional: **[PRA32-U2/P](./README-PRA32-U2-P.md)** (PRA32-U2 with Panel) and **PRA32-U2/M/P** (PRA32-U2 Multi-Timbre Edition with Panel) can also be configured by adding certain parts
     - Or **[PRA32-U2/P Headless](./README-PRA32-U2-P.md#pra32-u2p-headless)** without the panel: the Step Sequencer by MIDI (e.g. from PRA32-U2 Editor), with no extra parts
 - **[PRA32-U2 Native](./PRA32-U2-Native/README.md)**: a software synthesizer (VST3 plugin and standalone application) version of PRA32-U2 for PCs
 - **[PRA32-U2 Web](./PRA32-U2-Web/README.md)**: a software synthesizer version of PRA32-U2 that runs in a Web browser, built into PRA32-U2 Editor
 
-![PRA32-U2 (Pico Audio Pack)](./pra32-u2-pico-audio-pack.jpg)
+![PRA32-U2 (Pico Audio Pack)](./docs/images/pico-audio-pack.jpg)
 
 
 ## Getting Started
@@ -40,15 +40,15 @@
 4. Open [PRA32-U2 Editor](#pra32-u2-editor) in Google Chrome or Microsoft Edge, select "PRA32-U2" in "MIDI Out", and play the Software Keyboard (MIDI Channel 1)
 
 
-## [Change History](./PRA32-U2-Change-History.md)
+## [Changelog](./CHANGELOG.md)
 
 
-## [Parameter Guide](./PRA32-U2-Parameter-Guide.md)
+## [Parameter Guide](./docs/parameter-guide.md)
 
-- See [Main Parameters](./PRA32-U2-Parameter-Guide.md#main-parameters) first: the main parameters, and the Preset to start from
+- See [Main Parameters](./docs/parameter-guide.md#main-parameters) first: the main parameters (and the Preset to start from: see [Programs and Presets](#programs-and-presets))
 
 
-## [MIDI Implementation Chart](./PRA32-U2-MIDI-Implementation-Chart.md)
+## [MIDI Implementation Chart](./docs/midi-implementation-chart.md)
 
 
 ## Synthesizer Block Diagram
@@ -87,19 +87,19 @@ graph LR
 ```
 
 
-## [Block Diagrams and Wave Table Graphs](./PRA32-U2-Block-Diagrams.md)
+## [Block Diagrams and Wave Table Graphs](./docs/block-diagrams.md)
 
 - The diagrams of the Osc, the Filter, the Distortion FX, the Chorus FX, the Delay FX, the Reverb, the Output Compressor, and PRA32-U2/M, and the graphs of the Wave Tables
 
 
-## [Modification Guide](./PRA32-U2-Modification-Guide.md)
+## [Modification Guide](./docs/modification-guide.md)
 
 - Preparation for Modification (Arduino IDE, Arduino-Pico, and MIDI Library)
 - MIDI (USB MIDI Device and UART MIDI) and Audio Output (I2S, Audio Buffer and latency, and PWM Audio) settings
 - Simple Circuit for PWM Audio
 
 
-## [Development](./PRA32-U2-Development.md)
+## [Development](./docs/development.md)
 
 - Notes for changing the code: Debug Print, how it runs on the two cores, keeping the processing time the same (e.g. branchless), the Load Estimate, writing to the flash, and the tools
 
@@ -108,11 +108,11 @@ graph LR
 
 - "Digital-Synth-PRA32-U2.ino" is an Arduino sketch for Raspberry Pi Pico/RP2040/RP2350 core
     - Modify `PRA32_U2_MIDI_CH` to change the MIDI Channel (0-based: 0 is MIDI Channel 1)
-- "PRA32-U2-M-Demo/pra32-u2-m-make-wav-file-from-smf.cc" renders a Standard MIDI File to a WAV file on PC, for debugging
-  (e.g. "pra32-u2-sample.mid", which "pra32-u2-generate-sample-smf.rb" makes; see [PRA32-U2/M Demo](./PRA32-U2-M-Demo/README.md))
+- "demo/pra32-u2-m-make-wav-file-from-smf.cc" renders a Standard MIDI File to a WAV file on PC, for debugging
+  (e.g. "demo/pra32-u2-sample.mid", which "demo/pra32-u2-generate-sample-smf.rb" makes; see [PRA32-U2 Demo](./demo/README.md))
     - GCC (g++) for PC is required
-    - "pra32-u2-make-sample-wav-file-cc.bat" makes a sample WAV file from "pra32-u2-sample.mid" (working on Windows)
-- "pra32-u2-generate-*.rb" generates source or header files
+    - "demo/pra32-u2-make-sample-wav-file-cc.bat" makes a sample WAV file from "pra32-u2-sample.mid" (working on Windows)
+- "Digital-Synth-PRA32-U2/pra32-u2-generate-*.rb" generates source or header files
     - A Ruby execution environment is required
 
 
@@ -145,6 +145,10 @@ graph LR
     - #16-31: the factory presets (the same as the programs #16-31 of PRA32-U2)
     - To select the programs of PRA32-U2 itself, send Program Changes to PRA32-U2 directly (without PRA32-U2 Editor),
       or use the Program Change buttons (in "Write & Program Change")
+- To make a sound, we recommend starting from the Preset "#19 Plain Poly", rather than "#23 Initial"
+    - "#19 Plain Poly" is a plain Saw Wave sound (Osc 1 Wave: Pulse Wave, with Osc 1 Morph: Saw 100%) in Poly, with the FX on (Chorus, and Reverb), while "#23 Initial" is in Mono, with the FX off
+    - In "#19 Plain Poly", Osc 1 Morph changes the wave from the Saw: lower to a Pulse, higher to 2 Saws, with the pulse width (or the phase of the 2nd Saw) set by Osc 1 Shape (Osc 1 Shape has no effect while Osc 1 Morph is 64)
+    - In both, EG Amp Mod is On: the EG also works as the Amp EG, so the Amp Attack/Decay/Sustain/Release are not used
 - Sounds made with PRA32-U2 Editor can be written to PRA32-U2, and recalled later without PRA32-U2 Editor
     1. Write: press a Write button (#0-15, in "Write & Program Change") of PRA32-U2 Editor, to write the current parameters
        to the program of PRA32-U2 (also to the flash, so that they are kept after the power is turned off);
@@ -160,7 +164,11 @@ graph LR
 
 - PRA32-U2 can also be controlled by MIDI without using PRA32-U2 Editor (e.g. with a DAW or a MIDI keyboard)
 - The default program (when the power is turned on) is #0; the programs written by Write are recalled by Program Change #0-15 (see above)
-- Refer to [PRA32-U2-MIDI-Implementation-Chart.md](./PRA32-U2-MIDI-Implementation-Chart.md) for the supported functions
+- Refer to [MIDI Implementation Chart](./docs/midi-implementation-chart.md) for the supported functions
+- General Purpose Controller 1-4 (CC #16-19), e.g. the knobs of a MIDI keyboard, control the parameters that Assign #16-#19 (CC #48-51) set,
+  a program each (Filter Cutoff, Filter Resonance, Osc 1 Shape, and Osc 1 Morph in the Presets), at once, or by Assign Mode (CC #42),
+  from when each comes to the value of the parameter, so that it does not jump (e.g. live), or as relative values for endless encoders (see [Performance Controllers](./docs/parameter-guide.md#performance-controllers) in the Parameter Guide)
+    - Since v3.22.0, EG Att/Dec Key Track, LFO Depth, Voice Mode, and Osc 1 Shape are CC #44-47 (CC #16-19 before), and EG Att/Dec Velo Sens is CC #43 (#51 before)
 - Programs #0-31 can be modified by editing "pra32-u2-program-table.h"
 
 
@@ -172,6 +180,7 @@ graph LR
 - Undo: back to the parameters before the last change (a preset, Randomize, Import, or a move of a slider), up to 200 steps; Redo: forward again (also by Ctrl+Z and Ctrl+Y or Ctrl+Shift+Z, or Command on a Mac)
 - "MIDI", "Actions & Presets", "Store & File", and "Write & Program Change" can each be hidden, to give the parameters more of the window (Send Current is on the heading of "MIDI", shown while it is hidden too)
 - "Synth Parameters" (the first 32), "More Synth Parameters" (the others), and "FX Parameters" can each be hidden too
+- Assign #16-#19 can be selected by the names of the parameters too (the list beside each)
 - "Panel & Step Sequencer" for PRA32-U2/P (see [Panel Channel](./README-PRA32-U2-P.md#panel-channel))
 - The controls look the same in every Web browser and OS (as in Chrome); on a touch screen, the thumbs of the sliders are larger, and the buttons taller
 - Software Keyboard
@@ -179,9 +188,11 @@ graph LR
     - While Hold is on, the keys released keep their notes on (pressing a key held again, turning Hold off, or Panic, turns them off)
     - The PC keyboard can also be played while it is shown (A - K for C - C, W - U for the black keys, and Z / X for the octave);
       some PC keyboards cannot take many keys at the same time (e.g. a chord of 4 notes)
-    - The velocities of Note On and Note Off can be entered (1-127, 100 and 64 by default)
+    - The velocities of Note On and Note Off can be entered (1-127, 64 and 64 by default)
     - Pitch Bend (springs back to the center), Modulation Wheel, Breath Controller, Expression, Sustain Pedal, Portamento Switch,
-      and Channel Pressure can be sent from the sliders below the keyboard (Performance Controls, which can be hidden apart from the keyboard,
+      Channel Pressure, and General Purpose Controller 1-4 can be sent from the sliders below the keyboard
+      (beside them, the numbers of the parameters that they control, e.g. "[74]", with "<" or ">" before it with Assign Mode Cat until they come to
+      the values of the parameters, and "=" while they follow them, e.g. "[< 74]" and "[= 74]") (Performance Controls, which can be hidden apart from the keyboard,
       e.g. on a phone)
 
 
@@ -217,8 +228,9 @@ graph LR
         - Off: only the Basic Channel (as PRA32-U2; not + 1 to + 3 either), so that the other channels are free (e.g. for a sequencer;
           with PRA32-U2/M/P, Headless too, the Panel Channel, + 14, too)
         - The others: the Sub Synths play on + 1 to + 3, and + 15 is the Layering of all too
-        - The Sub Synths sound only while the Main Synth is in the Mono modes: while it is in Poly, a group has only the Main Synth
-          (e.g. + 15 and RR4 play the Main Synth in Poly), and none without it (e.g. RR3)
+        - The Sub Synths sound only while the Main Synth is in the Mono modes: while it is in Poly, the notes of a group go only to the Main Synth
+          (e.g. + 15 and RR4 play the Main Synth in Poly), and none without it (e.g. RR3); the other messages (e.g. Control Changes) go to all of the group,
+          so that the Sub Synths can be set up then too
         - E.g. RR3 (the presets) with the Main Synth in Mono: Channel 1 plays a lead, and Channel 5 plays 3 notes (the Round Robin of the Sub Synths)
         - E.g. RR4: Channel 5 plays 4 notes (the Round Robin), and Channel 16 a lead of the 4 synths layered, with the sounds of one program
           (+ 15 sets #n to #n + 3, and + 4 sets #n to all)
@@ -229,7 +241,7 @@ graph LR
         - So the 4 sounds stored as the user programs in a row (e.g. #4-7) are set at once by a Program Change on the Basic Channel + 15 (e.g. #4), as a setup of the 4 synths
           (with Voice Group Mode not Off)
         - The Program Change sets the Main Synth too, and so Voice Group Mode (that of #n): keep it not Off in #n to use + 1 to + 5 and + 15 after it;
-          while the Main Synth is in Poly, it sets the Main Synth alone (#n)
+          (while the Main Synth is in Poly too)
     - Round Robin: the notes go to the synths of the channel in turn, as the voices of a polyphonic synth (the other messages go to all of them)
         - The synths are assigned by the Voice Assign Mode of the first synth, as the voices of the Polyphonic Mode, and kept by the Sustain Pedal
         - Unlike the Polyphonic Mode, each synth has its own LFO, and a note is as loud as a voice of the Polyphonic Mode
@@ -257,7 +269,7 @@ graph LR
 ## Customization Examples
 
 - Files in the "customization-examples" folder: each is a sketch, to be used in place of "Digital-Synth-PRA32-U2.ino" (or "Digital-Synth-PRA32-U2-M.ino" for PRA32-U2/M)
-- **Digital Synth PRA32-U2 (Lite)** and **Digital Synth PRA32-U2/M (Lite)**: Osc 1 Shape and Morph are disabled in Saw, Sqr, and WT, the Distortion FX passes its input through (Dst as Cho), Delay Mode Rev is the Stereo Delay (Ste), and the synth is processed on a single core (core 0)
+- **Digital Synth PRA32-U2 (Lite)** and **Digital Synth PRA32-U2/M (Lite)**: Osc 1 Shape and Morph are disabled in Saw, Sqr, Tri, and WT, the Distortion FX passes its input through (Dst as Cho), Delay Mode Rev is the Stereo Delay (Ste), and the synth is processed on a single core (core 0)
     - "Digital-Synth-PRA32-U2.ino.Lite-Core-0-Only.txt" and "Digital-Synth-PRA32-U2-M.ino.Lite-Core-0-Only.txt":
       with MIDI (USB MIDI and UART MIDI), the panel, and Debug Print, as the sketch; core 1 only updates the panel and prints the debug print
     - "Digital-Synth-PRA32-U2.ino.Lite-Core-1-Only.txt" and "Digital-Synth-PRA32-U2-M.ino.Lite-Core-1-Only.txt":
@@ -276,8 +288,8 @@ graph LR
     - Check the wiring of the I2S DAC (for GY-PCM5102, also check that SCK is connected to GND, and the solder jumpers on the back)
     - Check that "MIDI Ch" of PRA32-U2 Editor matches the MIDI Channel of PRA32-U2 (1 by default)
 - Noise
-    - The output may be affected by USB communication noise; try [UART MIDI](./PRA32-U2-Modification-Guide.md#uart-midi)
-    - With PWM Audio without the RC filters, reduce the level: see [PWM Audio (Optional)](./PRA32-U2-Modification-Guide.md#pwm-audio-optional)
+    - The output may be affected by USB communication noise; try [UART MIDI](./docs/modification-guide.md#uart-midi)
+    - With PWM Audio without the RC filters, reduce the level: see [PWM Audio (Optional)](./docs/modification-guide.md#pwm-audio-optional)
 - Distortion
     - Check that "Distortion Drive" is 0 (or that FX Routing is not Dst)
     - Lower "Amp Gain" (a high Filter Resonance or a high Osc 1 Shape/Morph makes the sound louder)
@@ -293,11 +305,11 @@ graph LR
 
 ![CC0](http://i.creativecommons.org/p/zero/1.0/88x31.png)
 
-**Digital Synth PRA32-U2 v3.21.0 by ISGK Instruments (Ryo Ishigaki)**
+**Digital Synth PRA32-U2 v3.22.0 by ISGK Instruments (Ryo Ishigaki)**
 
 To the extent possible under law, ISGK Instruments (Ryo Ishigaki)
 has waived all copyright and related or neighboring rights
-to Digital Synth PRA32-U2 v3.21.0.
+to Digital Synth PRA32-U2 v3.22.0.
 
 You should have received a copy of the CC0 legalcode along with this
 work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.

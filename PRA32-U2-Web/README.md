@@ -34,6 +34,7 @@ PRA32-U2 Web: a software synthesizer version of Digital Synth PRA32-U2 that runs
     - Web browsers start the audio only after a user operation in the page (e.g. a click, a tap, or a key press),
       so click the page once before playing a MIDI keyboard (clicking the keyboard of PRA32-U2 Editor also starts the audio)
     - While the audio is not started, "PRA32-U2 Web: Click (or tap) to start the audio" is shown at the bottom of the page
+      (from when PRA32-U2 Web is chosen in MIDI Out, e.g. as PRA32-U2 Editor opens with it chosen; nothing is sent to it then)
 - Web browsers
     - Google Chrome, Microsoft Edge (Windows, Mac, Linux, Android): recommended
       (Web MIDI API, i.e. "MIDI In" and "MIDI Out" to the devices, needs a permission)

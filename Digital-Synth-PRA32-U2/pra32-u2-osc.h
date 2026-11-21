@@ -1,8 +1,13 @@
 #pragma once
 
+// refs https://www.research.ed.ac.uk/files/28180097/18_DAFx_16_paper_33_PN.pdf (Rounding Corners with BLAMP, DAFx-16)
+// refs https://www.pure.ed.ac.uk/ws/files/26997332/07499828.pdf (Aliasing Reduction in Clipped Signals, the B-spline polyBLAMP)
+// refs https://dafx2020.mdw.ac.at/proceedings/papers/DAFx20in22_paper_3.pdf (A General Antialiasing Method for Sine Hard Sync)
+
 #include "pra32-u2-common.h"
 #include "pra32-u2-noise-gen.h"
 #include "pra32-u2-osc-table.h"
+#include "pra32-u2-osc-tri-fold-table.h"
 #include "pra32-u2-osc-sqr-shape-table.h"
 #include "pra32-u2-osc-wave-shape-table-0.h"
 #include "pra32-u2-osc-wave-shape-table-1.h"
@@ -58,6 +63,7 @@ class PRA32_U2_Osc {
   uint32_t       m_phase[4 * 2];
   int32_t        m_drift_noise[4 * 2];
   uint32_t       m_phase_shape_morph[4];
+  uint32_t       m_freq_shape_morph[4];          // Saw Wave: the detune of the Multi Saw a sample (see update_multi_saw_detune())
   boolean        m_osc_on[4];
 
   uint8_t        m_mixer_osc_mix_target;
@@ -87,6 +93,12 @@ class PRA32_U2_Osc {
   uint32_t       m_osc1_sqr_shape_offset[4][16];
   uint32_t       m_osc1_wt_shape_offset[4][16];
   uint16_t       m_osc1_phase_modulation_frequency_ratio[4];
+  uint8_t        m_osc1_coarse[4];               // Osc 1 Tri: the Note Number of the mipmap of Osc 1,
+  int32_t        m_tri_fold_g[4];                // the gain g of the triangle fold (Q12, 1 to 9),
+  int32_t        m_tri_fold_k[4];                // the jump of the slope at the peak of the Triangle Wave (per sample),
+  int32_t        m_tri_fold_k3[4];               // and that of the 3rd derivative (per sample^3),
+  uint32_t       m_tri_fold_inv_freq[4];         // 2^31 / the frequency,
+  int32_t        m_tri_fold_carry[4][3];         // and the corrections for this sample and the next 2
   int16_t        m_mixer_noise_sub_osc_target;
   int32_t        m_mixer_noise_sub_osc_stage_1;
   int32_t        m_mixer_noise_sub_osc_current;
@@ -120,6 +132,7 @@ public:
   , m_phase()
   , m_drift_noise()
   , m_phase_shape_morph()
+  , m_freq_shape_morph()
   , m_osc_on()
 
   , m_mixer_osc_mix_target()
@@ -149,6 +162,12 @@ public:
   , m_osc1_sqr_shape_offset()
   , m_osc1_wt_shape_offset()
   , m_osc1_phase_modulation_frequency_ratio()
+  , m_osc1_coarse()
+  , m_tri_fold_g()
+  , m_tri_fold_k()
+  , m_tri_fold_k3()
+  , m_tri_fold_inv_freq()
+  , m_tri_fold_carry()
   , m_mixer_noise_sub_osc_target()
   , m_mixer_noise_sub_osc_stage_1()
   , m_mixer_noise_sub_osc_current()
@@ -225,6 +244,10 @@ public:
     m_osc1_shape_current[1] = 0;
     m_osc1_shape_current[2] = 0;
     m_osc1_shape_current[3] = 0;
+    update_multi_saw_detune<0>();  // From the first sample, as the frequency and the Shape above (then at the control rate)
+    update_multi_saw_detune<1>();
+    update_multi_saw_detune<2>();
+    update_multi_saw_detune<3>();
     m_osc1_shape_lfo_target[0] = 0;
     m_osc1_shape_lfo_target[1] = 0;
     m_osc1_shape_lfo_target[2] = 0;
@@ -339,10 +362,11 @@ public:
 
   INLINE void set_shape_eg_amt(uint8_t controller_value) {
     // Controller value 1 maps to 0 like controller value 0 does, so that the
-    // reachable amounts stay a mirror image on the minus and the plus side
+    // reachable amounts stay a mirror image on the minus and the plus side;
+    // the Shape -128 to +128 (the whole range of the Shape) at the full EG
     m_shape_eg_amt =
       (((controller_value == 1)   ? 0   :
-       ((controller_value == 127) ? 128 : controller_value)) - 64) << 1;
+       ((controller_value == 127) ? 128 : controller_value)) - 64);
   }
 
   template <uint8_t N>
@@ -353,9 +377,10 @@ public:
   INLINE void set_shape_lfo_amt(uint8_t controller_value) {
     // Controller value 1 maps to 0 like controller value 0 does, so that the
     // reachable amounts stay a mirror image on the minus and the plus side
+    // (the Shape -64 to +64 at the full LFO, e.g. the pulse width 0% to 100% around 64 with the Pulse Wave)
     m_shape_lfo_amt =
       -((((controller_value == 1)   ? 0   :
-         ((controller_value == 127) ? 128 : controller_value)) - 64) << 1);
+         ((controller_value == 127) ? 128 : controller_value)) - 64));
   }
 
   INLINE void set_mixer_osc_mix(uint8_t controller_value) {
@@ -496,7 +521,7 @@ public:
     }
   }
 
-  // RESTRICT_SQR_WT: as for process(), where the Shape and the Morph of Sqr and WT are not used
+  // RESTRICT_SQR_WT: as for process(), where the Shape and the Morph of Sqr, WT, and Tri are not used
   template <uint8_t N, boolean RESTRICT_SQR_WT = false>
   INLINE void process_at_low_rate(uint32_t count, int32_t lfo_level, int32_t eg_level, int32_t drift_noise_int23) {
     update_pitch_current<N>();
@@ -513,6 +538,27 @@ public:
       update_freq_offset<N + 4>(drift_noise_int23);
       break;
     }
+
+    update_tri_fold<N, RESTRICT_SQR_WT>();
+    update_multi_saw_detune<N>();
+  }
+
+  // Osc 1 Saw: the detune of the Multi Saw a sample, by the Shape and the frequency of Osc 1 (both updated above, at the
+  // control rate). The tune (9 at the Shape 0 to 307 at 128) is (k * 2385) >> 8 at the steps k = 1 to 33, 4 values of the
+  // Shape a step, and in between interpolated linearly by the Shape in Q8 (10 bits of the fraction), so that it changes
+  // smoothly (also with the EG and LFO modulations); at the multiples of 4, the same as before (the steps alone)
+  template <uint8_t N>
+  INLINE void update_multi_saw_detune() {
+    uint32_t depth    = maximum(m_osc1_shape_current[N] - (128 << 8), 0);  // 0 to 128 << 8
+    uint32_t k        = (depth >> 10) + 1;                                 // 1 to 33
+    uint32_t fraction = depth & 0x3FF;
+    uint32_t tune_0   = (k * 2385) >> 8;
+    uint32_t tune_1   = ((k + 1) * 2385) >> 8;
+    uint32_t tune_q10 = (tune_0 << 10) + ((tune_1 - tune_0) * fraction);
+    const int8_t MORPH_TUNE_DENOM_BITS = 15;
+    uint32_t freq_shape_morph =
+      static_cast<uint32_t>((static_cast<uint64_t>(m_freq[N] >> 1) * tune_q10) >> (MORPH_TUNE_DENOM_BITS + 10));
+    m_freq_shape_morph[N] = (freq_shape_morph << 1) + (N + 4);
   }
 
   INLINE void process_at_low_rate_global(uint8_t count) {
@@ -636,25 +682,9 @@ private:
       m_osc1_phase_modulation_frequency_ratio[N] = (m_osc1_phase_modulation_frequency_ratio[N] * (1 - new_period_osc1)) + (phase_modulation_frequency_ratio_candidate * new_period_osc1);
     } else if ((m_waveform[0] == WAVEFORM_SAW) || (m_waveform[0] == WAVEFORM_SAW2)) {
 if constexpr (RESTRICT_SAW == false) {
-      int32_t phase_modulation_depth = maximum(m_osc1_shape_current[N] - (128 << 8), 0);
-
-      // 1. Calculate the original table index from depth
-      int32_t detune_idx = (((phase_modulation_depth + 512) >> 10) + 1 + 128);
-
-      // 2. Generate the precise equivalent of the tune table value without the table.
-      // The original table has a strict slope of approx. 9.3175 per step from the center (128).
-      // This high-precision scaling (* 2385 >> 8) matches the original detune speed perfectly.
-      int32_t osc_tune_value = ((detune_idx - 128) * 2385) >> 8;
-
-      const int8_t MORPH_TUNE_DENOM_BITS = 15;
-
-      // 3. Keep the original multiplication structure to maintain correct phase accumulation
-      uint32_t freq_shape_morph =
-        ((static_cast<int32_t>(m_freq[N] >> 1) * osc_tune_value) >> MORPH_TUNE_DENOM_BITS);
-      freq_shape_morph = (freq_shape_morph >> 0) << 1;
-      freq_shape_morph += (N + 4);
+      // The detune a sample, by update_multi_saw_detune() at the control rate
       const uint32_t phase_shape_morph = m_phase_shape_morph[N];
-      m_phase_shape_morph[N] = phase_shape_morph + freq_shape_morph;
+      m_phase_shape_morph[N] = phase_shape_morph + m_freq_shape_morph[N];
 
       uint32_t phase_shift_base = (127 * (4 - ((N + SYNTH_ID) & 0x03))) << (5 + 16 - 2);
 
@@ -728,12 +758,61 @@ if constexpr (RESTRICT_SQR_WT == false) {
       int32_t wave_0 = get_wave_level(m_wave_table[N], osc1_phase);
       result += (wave_0 * m_osc1_gain * OSC_LEVEL) >> 8;
 }
+    } else if (m_waveform[0] == WAVEFORM_TRIANGLE) {
+      // Osc 1 Tri: the Triangle Wave folded, fold(g * x) (a triangle fold, at +1 and -1), made as
+      // the Triangle Wave of g times the frequency (the slave, band-limited by its mipmap), whose phase g * x / 4
+      // follows the naive Triangle Wave x of Osc 1, so that it runs backward after each peak of x: the turns at
+      // the peaks, 2 a period, are the only corners left, each corrected for the jumps of its slope (the 4-point
+      // PolyBLAMP) and of its 3rd derivative, over the 4 samples around it (see update_tri_fold()); the Morph
+      // mixes the Triangle Wave (0, exactly as before) and the folded one (127), 2 values a step, as the Saw
+      // and the Square Waves
+      int32_t x = get_wave_level(m_wave_table[N], osc1_phase);  // Q13
+      int32_t wave = x;
+      int32_t tri_mix = m_osc1_morph_mix_q4;
+if constexpr (RESTRICT_SQR_WT == false) {  // the same load at any Morph, as the Saw and the Square Waves
+        uint32_t q = (osc1_phase + 0x400000) & 0xFFFFFF;  // the peak -1 at 0, +1 at 0x800000
+        int32_t tri = (1 << 22) - std::abs(static_cast<int32_t>(q) - 0x800000);  // the naive Triangle Wave (Q22)
+        uint32_t slave_phase = static_cast<uint32_t>((static_cast<int64_t>(tri) * m_tri_fold_g[N]) >> 12);  // g * x / 4 of a period
+        int32_t c0 = m_tri_fold_carry[N][0];
+        int32_t c1 = m_tri_fold_carry[N][1];
+        int32_t c2 = m_tri_fold_carry[N][2];
+        int32_t c3 = 0;
+
+        // A peak of x between the next sample and the one after (one sample ahead, as the corrections start a
+        // sample before it): the weights of this sample to the one after it, by the time t from the next sample
+        // to the peak (Q15, the table of 64 steps, lerp), times the jumps (the signs: -k at +1, +k at -1)
+        uint32_t q_next = q + m_freq[N];
+        uint32_t peak = ((q_next >> 23) + 1) << 23;  // the peak next after it (+1 at 0x800000, -1 at 0x1000000)
+        if (q_next + m_freq[N] >= peak) {
+          int32_t t = static_cast<int32_t>(((peak - q_next) * m_tri_fold_inv_freq[N]) >> 16);
+          boolean plus_1 = ((peak & 0xFFFFFF) == 0x800000);
+          int32_t k1 = plus_1 ? -m_tri_fold_k[N]  : m_tri_fold_k[N];
+          int32_t k3 = plus_1 ? -m_tri_fold_k3[N] : m_tri_fold_k3[N];
+          const int16_t* w0 = &g_osc_tri_fold_weight_table[(t >> 9) * 8];
+          const int16_t* w1 = w0 + 8;
+          int32_t f = t & 0x1FF;
+          c0 += ((k1 * (w0[0] + (((w1[0] - w0[0]) * f) >> 9))) + (k3 * (w0[4] + (((w1[4] - w0[4]) * f) >> 9)))) >> 16;
+          c1 += ((k1 * (w0[1] + (((w1[1] - w0[1]) * f) >> 9))) + (k3 * (w0[5] + (((w1[5] - w0[5]) * f) >> 9)))) >> 16;
+          c2 += ((k1 * (w0[2] + (((w1[2] - w0[2]) * f) >> 9))) + (k3 * (w0[6] + (((w1[6] - w0[6]) * f) >> 9)))) >> 16;
+          c3 += ((k1 * (w0[3] + (((w1[3] - w0[3]) * f) >> 9))) + (k3 * (w0[7] + (((w1[7] - w0[7]) * f) >> 9)))) >> 16;
+        }
+
+        int32_t y = get_wave_level(m_wave_table[N + 8], slave_phase) + c0;
+        m_tri_fold_carry[N][0] = c1;
+        m_tri_fold_carry[N][1] = c2;
+        m_tri_fold_carry[N][2] = c3;
+
+        wave = x + (((y - x) * tri_mix) >> (6 + 4));
+}
+      result += (wave * m_osc1_gain * OSC_LEVEL) >> 8;
     } else if (m_waveform[0] == WAVEFORM_1_PULSE) {
       int32_t wave_0 = get_wave_level(m_wave_table[N + 16], osc1_phase);
       result += (wave_0 * m_osc1_gain * OSC_LEVEL) >> 8;
 
-      // For Pulse Wave (wave_3)
-      uint32_t phase_3 = osc1_phase + (m_osc1_shape_current[N] << 8);
+      // For Pulse Wave (wave_3): the 2nd Saw shifted back by the Shape, 0 to 128 for the whole period (the pulse width
+      // 0% to 100%, 50% at 64), the same range as the other waves, which the EG and LFO modulations stay within
+      uint32_t shape = clamp(m_osc1_shape_current[N] - (128 << 8), (0 << 8), (128 << 8));
+      uint32_t phase_3 = osc1_phase - (shape << 9);  // (get_wave_level() takes the 24 LSBs)
       int16_t wave_3 = get_wave_level(m_wave_table[N + 16], phase_3);
       result += multiply_shift_right((wave_3 * m_osc1_gain * OSC_LEVEL) >> 8, m_osc1_morph_pulse_level_q4, 6 + 4);
     } else {
@@ -846,6 +925,8 @@ if constexpr (RESTRICT_SQR_WT == false) {
 
       int32_t coarse_sub = maximum((coarse - 12), NOTE_NUMBER_MIN);
       m_wave_table[N + 12] = get_wave_table(WAVEFORM_SINE, coarse_sub);
+
+      m_osc1_coarse[N] = coarse;
     }
   }
 
@@ -910,6 +991,51 @@ if constexpr (RESTRICT_SQR_WT == false) {
     // so that the smoothing is not lost by rounding them to integers
     m_osc1_shape_lfo_target[N] = -((lfo_level * (m_shape_lfo_amt_current >> 9)) >> (6 + 7));
     m_osc1_shape_eg_target[N] = (eg_level * (m_shape_eg_amt_current >> 9)) >> (6 + 7);
+  }
+
+  // Osc 1 Tri: the gain g of the triangle fold by the Shape, 1 (0) to 9 (128), 1 / 16 a value, so that
+  // every integer is at a value (at an odd one, the folded wave is the Triangle Wave of g times the pitch), capped so
+  // that g times the frequency stays within TRI_FOLD_CAP_HZ (where the band of the folded wave is, about): the mipmap of the
+  // slave (the Note Number of Osc 1 plus 12 log2(g), rounded up by a table of 16), 2^31 / the frequency for the
+  // time of a peak (a 32-bit division a voice, and the cap is 8 times it in Q12, as TRI_FOLD_CAP_HZ is a quarter
+  // of the sampling rate), and the jumps at a peak: of the slope, 2 * T'(g / 4) * v (per sample), and of the 3rd
+  // derivative, 2 * T'''(g / 4) * v^3 (per sample^3), v = g * frequency (the periods of the slave a sample), T' and
+  // T''' those of the slave there, by its table (over 1 / 256 of a period on each side, and the 3rd difference
+  // by 1 / 16 of a period)
+  static const uint32_t TRI_FOLD_CAP_HZ = 12000;  // SAMPLING_RATE / 4
+  // (not with RESTRICT_SQR_WT, where the folded one is not used)
+  template <uint8_t N, boolean RESTRICT_SQR_WT = false>
+  INLINE void update_tri_fold() {
+    if ((RESTRICT_SQR_WT == true) || (m_waveform[0] != WAVEFORM_TRIANGLE)) {
+      return;
+    }
+
+    static const uint8_t semitones_table[16] = { 0, 2, 3, 3, 4, 5, 6, 7, 8, 8, 9, 10, 10, 11, 11, 12 };
+
+    uint32_t freq = maximum(m_freq[N], 1u);
+    uint32_t inv_freq = 0x80000000u / freq;
+    int32_t shape = maximum(m_osc1_shape_current[N] - (128 << 8), 0);  // 0 to 128 << 8
+    int32_t g = (1 << 12) + shape;  // Q12, 1 to 9 (the Shape in Q8 is 1 / 16 of g in Q12)
+    g = maximum(minimum(g, static_cast<int32_t>(minimum(inv_freq, 0x0FFFFFFFu) << 3)), (1 << 12));
+
+    int32_t e = 31 - __builtin_clz(static_cast<uint32_t>(g));  // 12 to 15
+    int32_t semitones = (12 * (e - 12)) + semitones_table[(g >> (e - 4)) & 0x0F];
+    const int16_t* slave_table = get_wave_table(WAVEFORM_TRIANGLE, minimum(m_osc1_coarse[N] + semitones, static_cast<int32_t>(NOTE_NUMBER_MAX)));
+
+    uint32_t peak_phase = static_cast<uint32_t>(g) << 10;  // g / 4 of a period
+    int32_t tdiff = get_wave_level(slave_table, peak_phase + (1 << 16)) - get_wave_level(slave_table, peak_phase - (1 << 16));
+    int32_t gf = (g * static_cast<int32_t>(freq >> 8)) >> 12;  // v * 2^16, 2^14 at most (the cap)
+
+    int32_t tdiff3 = get_wave_level(slave_table, peak_phase + (2 << 20)) - (2 * get_wave_level(slave_table, peak_phase + (1 << 20)))
+                   + (2 * get_wave_level(slave_table, peak_phase - (1 << 20))) - get_wave_level(slave_table, peak_phase - (2 << 20));
+    int64_t a = gf << 4;  // v * 16 (the steps of the 3rd difference a sample), Q16
+    int64_t cube = (((a * a) >> 16) * a) >> 16;
+
+    m_wave_table[N + 8]   = slave_table;
+    m_tri_fold_g[N]        = g;
+    m_tri_fold_k[N]        = (tdiff * gf) >> 8;
+    m_tri_fold_k3[N]       = static_cast<int32_t>((tdiff3 * cube) >> 16);
+    m_tri_fold_inv_freq[N] = inv_freq;
   }
 
   // The offsets of the 16 waves of Sqr and WT for their Shape (and Morph), not computed with

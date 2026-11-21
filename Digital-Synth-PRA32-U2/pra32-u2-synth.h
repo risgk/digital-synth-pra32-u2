@@ -18,12 +18,8 @@
 #endif  // defined(PRA32_U2_USE_LEGACY_OUTPUT_LIMITER)
 #include "pra32-u2-program-table.h"
 
-#if defined(ARDUINO_ARCH_RP2040)
-#include <EEPROM.h>
-#endif  // defined(ARDUINO_ARCH_RP2040)
-
-// Set by write_parameters_to_program() (EEPROM.write() is done immediately),
-// and the sketch calls EEPROM.commit() after fading out the output (see loop())
+// Set by write_parameters_to_program() (the tables in the RAM are written immediately), and the Output Fader
+// writes the flash (PRA32_U2_ProgramFlash_commit() of "pra32-u2-program-flash.h") after fading out the output
 static volatile boolean g_eeprom_commit_requested = false;
 
 #include <algorithm>
@@ -104,6 +100,12 @@ static uint8_t s_program_table_parameters[] = {
   OSC_SAW_W_MODE ,
   STRETCH_TUNE   ,
   PAN            ,
+  ASSIGN_MODE    ,
+
+  ASSIGN_16      ,
+  ASSIGN_17      ,
+  ASSIGN_18      ,
+  ASSIGN_19      ,
 
   DISTORTION     ,
   FX_ROUTING     ,
@@ -156,16 +158,24 @@ static uint8_t s_program_table_panel_parameters[] = {
   SEQ_GATE_TIME  ,
   SEQ_NUM_STEPS  ,
 
-  SEQ_MODE       ,
+  SEQ_DIRECTION  ,
   SEQ_ACT_STEPS  ,
   SEQ_PIT_OFST   ,
   SEQ_STEP_NOTE  ,
 
   SEQ_ON_STEPS   ,
-  SEQ_TRX_ST_SP  ,
+  SEQ_RX_ST_SP   ,
+
+  PANEL_MIDI_TX  ,
+  SEQ_CH_OFST    ,
+  SEQ_TRANSPOSE  ,
+  SEQ_PATTERN    ,
 
 
 };
+
+// The program table shared by the synths, and the user programs and the panel parameters in the flash
+#include "pra32-u2-program-flash.h"
 
 
 const uint8_t   DEFAULT_PANEL_SCALE     = 0  ;
@@ -173,7 +183,7 @@ const uint8_t   DEFAULT_PANEL_TRANSPOSE = 64 ;
 const uint8_t   DEFAULT_PANEL_PLAY_MODE = 0  ;
 
 const uint8_t   DEFAULT_PANEL_PLAY_PIT  = 0  ;
-const uint8_t   DEFAULT_PANEL_PLAY_VELO = 100;
+const uint8_t   DEFAULT_PANEL_PLAY_VELO = 64 ;
 const uint8_t   DEFAULT_PANEL_PIT_OFST  = 64 ;
 const uint8_t   DEFAULT_PANEL_TARGET_CH = 0  ;
 
@@ -188,34 +198,40 @@ const uint8_t   DEFAULT_SEQ_PITCH_5     = 89 ;
 const uint8_t   DEFAULT_SEQ_PITCH_6     = 107;
 const uint8_t   DEFAULT_SEQ_PITCH_7     = 124;
 
-const uint8_t   DEFAULT_SEQ_VELO_0      = 100;
-const uint8_t   DEFAULT_SEQ_VELO_1      = 100;
-const uint8_t   DEFAULT_SEQ_VELO_2      = 100;
-const uint8_t   DEFAULT_SEQ_VELO_3      = 100;
+const uint8_t   DEFAULT_SEQ_VELO_0      = 64 ;
+const uint8_t   DEFAULT_SEQ_VELO_1      = 64 ;
+const uint8_t   DEFAULT_SEQ_VELO_2      = 64 ;
+const uint8_t   DEFAULT_SEQ_VELO_3      = 64 ;
 
-const uint8_t   DEFAULT_SEQ_VELO_4      = 100;
-const uint8_t   DEFAULT_SEQ_VELO_5      = 100;
-const uint8_t   DEFAULT_SEQ_VELO_6      = 100;
-const uint8_t   DEFAULT_SEQ_VELO_7      = 100;
+const uint8_t   DEFAULT_SEQ_VELO_4      = 64 ;
+const uint8_t   DEFAULT_SEQ_VELO_5      = 64 ;
+const uint8_t   DEFAULT_SEQ_VELO_6      = 64 ;
+const uint8_t   DEFAULT_SEQ_VELO_7      = 64 ;
 
 const uint8_t   DEFAULT_SEQ_TEMPO       = 64 ;  // 120 BPM
-const uint8_t   DEFAULT_SEQ_CLOCK_SRC   = 0  ;
+const uint8_t   DEFAULT_SEQ_CLOCK_SRC   = 0  ;  // Aut
 const uint8_t   DEFAULT_SEQ_GATE_TIME   = 51 ;  // 3/6, on its marker
 const uint8_t   DEFAULT_SEQ_NUM_STEPS   = 32 ;
 
-const uint8_t   DEFAULT_SEQ_MODE        = 0  ;
+const uint8_t   DEFAULT_SEQ_DIRECTION   = 0  ;
 const uint8_t   DEFAULT_SEQ_ACT_STEPS   = 127;
 const uint8_t   DEFAULT_SEQ_PIT_OFST    = 64 ;
 const uint8_t   DEFAULT_SEQ_STEP_NOTE   = 64 ;
 
 const uint8_t   DEFAULT_SEQ_ON_STEPS    = 127;
-const uint8_t   DEFAULT_SEQ_TRX_ST_SP   = 0  ;
+const uint8_t   DEFAULT_SEQ_RX_ST_SP    = 0  ;
+
+const uint8_t   DEFAULT_PANEL_MIDI_TX   = 26 ;  // Clk
+const uint8_t   DEFAULT_SEQ_CH_OFST     = 0  ;  // +0
+const uint8_t   DEFAULT_SEQ_TRANSPOSE   = 64 ;  // 0
+const uint8_t   DEFAULT_SEQ_PATTERN     = 0  ;  // Std
 
 
 
 
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
 extern void PRA32_U2_ControlPanel_on_control_change(uint8_t control_number);
+extern void PRA32_U2_ControlPanel_on_program_change(uint32_t synth_id, uint8_t program_number);
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 
 
@@ -227,6 +243,141 @@ static const boolean SECONDARY_CORE_IN_POLY_ONLY = true;
 #else  // defined(PRA32_U2_SECONDARY_CORE_IN_POLY_ONLY)
 static const boolean SECONDARY_CORE_IN_POLY_ONLY = false;
 #endif  // defined(PRA32_U2_SECONDARY_CORE_IN_POLY_ONLY)
+
+// The Presets copied to the program table (by initialize() of each synth; the shared one again, with the same values); in
+// the flash (not while playing), and not inlined, so that the copies are not put in each synth (in the RAM)
+static __attribute__((noinline)) void PRA32_U2_copy_presets_to_program_table(uint8_t (&program_table)[128][PROGRAM_NUMBER_MAX + 1]) {
+  std::memcpy(program_table[OSC_1_WAVE     ], g_preset_table_OSC_1_WAVE     , sizeof(program_table[0]));
+  std::memcpy(program_table[MIXER_SUB_OSC  ], g_preset_table_MIXER_SUB_OSC  , sizeof(program_table[0]));
+  std::memcpy(program_table[OSC_1_SHAPE    ], g_preset_table_OSC_1_SHAPE    , sizeof(program_table[0]));
+  std::memcpy(program_table[OSC_1_MORPH    ], g_preset_table_OSC_1_MORPH    , sizeof(program_table[0]));
+
+  std::memcpy(program_table[OSC_2_WAVE     ], g_preset_table_OSC_2_WAVE     , sizeof(program_table[0]));
+  std::memcpy(program_table[MIXER_OSC_MIX  ], g_preset_table_MIXER_OSC_MIX  , sizeof(program_table[0]));
+  std::memcpy(program_table[OSC_2_COARSE   ], g_preset_table_OSC_2_COARSE   , sizeof(program_table[0]));
+  std::memcpy(program_table[OSC_2_PITCH    ], g_preset_table_OSC_2_PITCH    , sizeof(program_table[0]));
+
+  std::memcpy(program_table[FILTER_CUTOFF  ], g_preset_table_FILTER_CUTOFF  , sizeof(program_table[0]));
+  std::memcpy(program_table[FILTER_RESO    ], g_preset_table_FILTER_RESO    , sizeof(program_table[0]));
+  std::memcpy(program_table[FILTER_EG_AMT  ], g_preset_table_FILTER_EG_AMT  , sizeof(program_table[0]));
+  std::memcpy(program_table[FILTER_KEY_TRK ], g_preset_table_FILTER_KEY_TRK , sizeof(program_table[0]));
+
+  std::memcpy(program_table[EG_ATTACK      ], g_preset_table_EG_ATTACK      , sizeof(program_table[0]));
+  std::memcpy(program_table[EG_DECAY       ], g_preset_table_EG_DECAY       , sizeof(program_table[0]));
+  std::memcpy(program_table[EG_SUSTAIN     ], g_preset_table_EG_SUSTAIN     , sizeof(program_table[0]));
+  std::memcpy(program_table[EG_RELEASE     ], g_preset_table_EG_RELEASE     , sizeof(program_table[0]));
+
+  std::memcpy(program_table[EG_OSC_AMT     ], g_preset_table_EG_OSC_AMT     , sizeof(program_table[0]));
+  std::memcpy(program_table[EG_OSC_DST     ], g_preset_table_EG_OSC_DST     , sizeof(program_table[0]));
+  std::memcpy(program_table[VOICE_MODE     ], g_preset_table_VOICE_MODE     , sizeof(program_table[0]));
+  std::memcpy(program_table[PORTAMENTO     ], g_preset_table_PORTAMENTO     , sizeof(program_table[0]));
+
+  std::memcpy(program_table[LFO_WAVE       ], g_preset_table_LFO_WAVE       , sizeof(program_table[0]));
+  std::memcpy(program_table[LFO_FADE_TIME  ], g_preset_table_LFO_FADE_TIME  , sizeof(program_table[0]));
+  std::memcpy(program_table[LFO_RATE       ], g_preset_table_LFO_RATE       , sizeof(program_table[0]));
+  std::memcpy(program_table[LFO_DEPTH      ], g_preset_table_LFO_DEPTH      , sizeof(program_table[0]));
+
+  std::memcpy(program_table[LFO_OSC_AMT    ], g_preset_table_LFO_OSC_AMT    , sizeof(program_table[0]));
+  std::memcpy(program_table[LFO_OSC_DST    ], g_preset_table_LFO_OSC_DST    , sizeof(program_table[0]));
+  std::memcpy(program_table[LFO_FILTER_AMT ], g_preset_table_LFO_FILTER_AMT , sizeof(program_table[0]));
+  std::memcpy(program_table[AMP_GAIN       ], g_preset_table_AMP_GAIN       , sizeof(program_table[0]));
+
+  std::memcpy(program_table[FILTER_MODE    ], g_preset_table_FILTER_MODE    , sizeof(program_table[0]));
+  std::memcpy(program_table[FILTER_DRIVE   ], g_preset_table_FILTER_DRIVE   , sizeof(program_table[0]));
+  std::memcpy(program_table[EG_AMP_MOD     ], g_preset_table_EG_AMP_MOD     , sizeof(program_table[0]));
+  std::memcpy(program_table[REL_EQ_DECAY   ], g_preset_table_REL_EQ_DECAY   , sizeof(program_table[0]));
+
+  std::memcpy(program_table[AMP_ATTACK     ], g_preset_table_AMP_ATTACK     , sizeof(program_table[0]));
+  std::memcpy(program_table[AMP_DECAY      ], g_preset_table_AMP_DECAY      , sizeof(program_table[0]));
+  std::memcpy(program_table[AMP_SUSTAIN    ], g_preset_table_AMP_SUSTAIN    , sizeof(program_table[0]));
+  std::memcpy(program_table[AMP_RELEASE    ], g_preset_table_AMP_RELEASE    , sizeof(program_table[0]));
+
+  std::memcpy(program_table[OSC_DRIFT      ], g_preset_table_OSC_DRIFT      , sizeof(program_table[0]));
+  std::memcpy(program_table[P_BEND_RANGE   ], g_preset_table_P_BEND_RANGE   , sizeof(program_table[0]));
+  std::memcpy(program_table[COARSE_TUNE    ], g_preset_table_COARSE_TUNE    , sizeof(program_table[0]));
+  std::memcpy(program_table[FINE_TUNE      ], g_preset_table_FINE_TUNE      , sizeof(program_table[0]));
+
+  std::memcpy(program_table[A_D_VEL_SENS   ], g_preset_table_A_D_VEL_SENS   , sizeof(program_table[0]));
+  std::memcpy(program_table[REL_VEL_SENS   ], g_preset_table_REL_VEL_SENS   , sizeof(program_table[0]));
+  std::memcpy(program_table[EG_VEL_SENS    ], g_preset_table_EG_VEL_SENS    , sizeof(program_table[0]));
+  std::memcpy(program_table[AMP_VEL_SENS   ], g_preset_table_AMP_VEL_SENS   , sizeof(program_table[0]));
+
+  std::memcpy(program_table[A_D_KEY_TRK    ], g_preset_table_A_D_KEY_TRK    , sizeof(program_table[0]));
+  std::memcpy(program_table[VOICE_ASGN_MODE], g_preset_table_VOICE_ASGN_MODE, sizeof(program_table[0]));
+  std::memcpy(program_table[VOICE_GRP_MODE ], g_preset_table_VOICE_GRP_MODE , sizeof(program_table[0]));
+  std::memcpy(program_table[LFO_TRIG_MODE  ], g_preset_table_LFO_TRIG_MODE  , sizeof(program_table[0]));
+
+  std::memcpy(program_table[BTH_FILTER_AMT ], g_preset_table_BTH_FILTER_AMT , sizeof(program_table[0]));
+  std::memcpy(program_table[BTH_AMP_MOD    ], g_preset_table_BTH_AMP_MOD    , sizeof(program_table[0]));
+  std::memcpy(program_table[AFT_T_LFO_AMT  ], g_preset_table_AFT_T_LFO_AMT  , sizeof(program_table[0]));
+  std::memcpy(program_table[PORTA_MODE     ], g_preset_table_PORTA_MODE     , sizeof(program_table[0]));
+  std::memcpy(program_table[OSC_SAW_W_MODE ], g_preset_table_OSC_SAW_W_MODE , sizeof(program_table[0]));
+  std::memcpy(program_table[STRETCH_TUNE   ], g_preset_table_STRETCH_TUNE   , sizeof(program_table[0]));
+  std::memcpy(program_table[PAN            ], g_preset_table_PAN            , sizeof(program_table[0]));
+
+  std::memcpy(program_table[ASSIGN_MODE    ], g_preset_table_ASSIGN_MODE    , sizeof(program_table[0]));
+  std::memcpy(program_table[ASSIGN_16      ], g_preset_table_ASSIGN_16      , sizeof(program_table[0]));
+  std::memcpy(program_table[ASSIGN_17      ], g_preset_table_ASSIGN_17      , sizeof(program_table[0]));
+  std::memcpy(program_table[ASSIGN_18      ], g_preset_table_ASSIGN_18      , sizeof(program_table[0]));
+  std::memcpy(program_table[ASSIGN_19      ], g_preset_table_ASSIGN_19      , sizeof(program_table[0]));
+
+  std::memcpy(program_table[DISTORTION     ], g_preset_table_DISTORTION     , sizeof(program_table[0]));
+  std::memcpy(program_table[FX_ROUTING     ], g_preset_table_FX_ROUTING     , sizeof(program_table[0]));
+
+  std::memcpy(program_table[CHORUS_MIX     ], g_preset_table_CHORUS_MIX     , sizeof(program_table[0]));
+  std::memcpy(program_table[CHORUS_RATE    ], g_preset_table_CHORUS_RATE    , sizeof(program_table[0]));
+  std::memcpy(program_table[CHORUS_DEPTH   ], g_preset_table_CHORUS_DEPTH   , sizeof(program_table[0]));
+
+  std::memcpy(program_table[DELAY_LEVEL    ], g_preset_table_DELAY_LEVEL   , sizeof(program_table[0]));
+  std::memcpy(program_table[DELAY_MODE     ], g_preset_table_DELAY_MODE     , sizeof(program_table[0]));
+  std::memcpy(program_table[DELAY_FEEDBACK ], g_preset_table_DELAY_FEEDBACK , sizeof(program_table[0]));
+  std::memcpy(program_table[DELAY_TIME     ], g_preset_table_DELAY_TIME     , sizeof(program_table[0]));
+}
+
+// General Purpose Controller 1-4 (CC #16-19): the Control Change of the number that Assign #16-#19 set (0, 16-19,
+// 48-51: Assign #16-#19, 64: Sustain Pedal, which the groups of PRA32-U2/M take apart, 80: Voice Group Mode, 106: Write
+// Parameters to Program, 111-119: Randomize Synth and Program Change by CC, and 120-127: the Channel Mode Messages, are Off)
+static INLINE boolean PRA32_U2_assign_dst_off(uint8_t dst) {
+  return (dst == 0) || ((dst >= GEN_PURPOSE_1) && (dst <= GEN_PURPOSE_4)) || ((dst >= ASSIGN_16) && (dst <= ASSIGN_19)) ||
+         (dst == SUSTAIN_PEDAL) || (dst == VOICE_GRP_MODE) || (dst == WRITE_P_TO_PROG) || (dst >= SP_RAND_CTRL);
+}
+
+// Assign Mode [Jmp|Cat|Rel]: 0 (0-31), 1 (32-95), and 2 (96-127)
+static INLINE uint32_t PRA32_U2_assign_mode(uint8_t controller_value) {
+  return ((controller_value * 4) + 128) >> 8;
+}
+
+// By Assign Mode: Jmp, the value at once (the parameter jumps to it); Cat, only after the value comes to that of the parameter
+// (the same, or across it), so that it does not jump (e.g. after a Program Change, or the parameter changed otherwise), and
+// the parameter follows it from there, while the last value of it is that of the parameter; Rel, the value - 64 added to that
+// of the parameter (e.g. +1 by 65, -1 by 63, for an endless encoder), within 0-127. Returns the number to control now (or 0),
+// with the value to set; shared by the synths (not inlined into each of them, in the RAM)
+static __attribute__((noinline)) uint8_t __not_in_flash_func(PRA32_U2_general_purpose_dst)(const uint8_t controller_value_table[128 + 128],
+                                                                                            uint8_t last_values[4], uint32_t index,
+                                                                                            uint8_t& controller_value) {
+  uint8_t dst  = controller_value_table[ASSIGN_16  + index];
+  uint8_t last = last_values[index];
+  last_values[index] = controller_value;
+
+  if (PRA32_U2_assign_dst_off(dst)) {
+    return 0;
+  }
+
+  uint8_t  current = controller_value_table[dst];
+  uint32_t mode    = PRA32_U2_assign_mode(controller_value_table[ASSIGN_MODE]);
+  if (mode == 2) {
+    int32_t value = static_cast<int32_t>(current) + static_cast<int32_t>(controller_value) - 64;
+    controller_value = static_cast<uint8_t>((value < 0) ? 0 : ((value > 127) ? 127 : value));
+    return dst;
+  }
+
+  if ((mode == 0) || (controller_value == current) || (last == current) ||
+      ((last < current) && (controller_value > current)) ||
+      ((last > current) && (last <= DATA_BYTE_MAX) && (controller_value < current))) {
+    return dst;
+  }
+  return 0;
+}
 
 template <boolean NO_FX = false, boolean EXT_INPUT = false, boolean EXT_OUTPUT = false, uint32_t SYNTH_ID = 0, boolean RESTRICT_POLY_AND_CORES = false>
 class PRA32_U2_Synth {
@@ -284,8 +435,13 @@ class PRA32_U2_Synth {
   boolean           m_ready_to_write_p_to_prog;
   uint8_t           m_sp_prog_chg_cc_values[8];
   uint8_t           m_sp_rand_ctrl_cc_value;
+  uint8_t           m_gen_purpose_last_value[4];  // The last values of General Purpose Controller 1-4 (0xFF: none yet), for the pickup
   uint8_t           m_current_controller_value_table[128 + 128];
-  uint8_t           m_program_table[128][PROGRAM_NUMBER_MAX + 1];
+#if defined(ARDUINO_ARCH_RP2040)
+  uint8_t           (&m_program_table)[128][PROGRAM_NUMBER_MAX + 1];  // g_program_table, shared by the synths (as the flash)
+#else  // defined(ARDUINO_ARCH_RP2040)
+  uint8_t           m_program_table[128][PROGRAM_NUMBER_MAX + 1];     // Each instance has its own (e.g. of PRA32-U2 Native)
+#endif  // defined(ARDUINO_ARCH_RP2040)
   uint8_t           m_program_table_panel[2][128 + 128];
 
   volatile int32_t  m_secondary_core_processing_argument;
@@ -340,8 +496,13 @@ public:
   , m_ready_to_write_p_to_prog(false)
   , m_sp_prog_chg_cc_values()
   , m_sp_rand_ctrl_cc_value()
+  , m_gen_purpose_last_value{0xFF, 0xFF, 0xFF, 0xFF}
   , m_current_controller_value_table()
+#if defined(ARDUINO_ARCH_RP2040)
+  , m_program_table(g_program_table)
+#else  // defined(ARDUINO_ARCH_RP2040)
   , m_program_table()
+#endif  // defined(ARDUINO_ARCH_RP2040)
   , m_program_table_panel()
 
   , m_secondary_core_processing_argument()
@@ -402,85 +563,7 @@ public:
     start_drifts();
     start_osc_phases();
 
-    std::memcpy(m_program_table[OSC_1_WAVE     ], g_preset_table_OSC_1_WAVE     , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[MIXER_SUB_OSC  ], g_preset_table_MIXER_SUB_OSC  , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[OSC_1_SHAPE    ], g_preset_table_OSC_1_SHAPE    , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[OSC_1_MORPH    ], g_preset_table_OSC_1_MORPH    , sizeof(m_program_table[0]));
-
-    std::memcpy(m_program_table[OSC_2_WAVE     ], g_preset_table_OSC_2_WAVE     , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[MIXER_OSC_MIX  ], g_preset_table_MIXER_OSC_MIX  , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[OSC_2_COARSE   ], g_preset_table_OSC_2_COARSE   , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[OSC_2_PITCH    ], g_preset_table_OSC_2_PITCH    , sizeof(m_program_table[0]));
-
-    std::memcpy(m_program_table[FILTER_CUTOFF  ], g_preset_table_FILTER_CUTOFF  , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[FILTER_RESO    ], g_preset_table_FILTER_RESO    , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[FILTER_EG_AMT  ], g_preset_table_FILTER_EG_AMT  , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[FILTER_KEY_TRK ], g_preset_table_FILTER_KEY_TRK , sizeof(m_program_table[0]));
-
-    std::memcpy(m_program_table[EG_ATTACK      ], g_preset_table_EG_ATTACK      , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[EG_DECAY       ], g_preset_table_EG_DECAY       , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[EG_SUSTAIN     ], g_preset_table_EG_SUSTAIN     , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[EG_RELEASE     ], g_preset_table_EG_RELEASE     , sizeof(m_program_table[0]));
-
-    std::memcpy(m_program_table[EG_OSC_AMT     ], g_preset_table_EG_OSC_AMT     , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[EG_OSC_DST     ], g_preset_table_EG_OSC_DST     , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[VOICE_MODE     ], g_preset_table_VOICE_MODE     , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[PORTAMENTO     ], g_preset_table_PORTAMENTO     , sizeof(m_program_table[0]));
-
-    std::memcpy(m_program_table[LFO_WAVE       ], g_preset_table_LFO_WAVE       , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[LFO_FADE_TIME  ], g_preset_table_LFO_FADE_TIME  , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[LFO_RATE       ], g_preset_table_LFO_RATE       , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[LFO_DEPTH      ], g_preset_table_LFO_DEPTH      , sizeof(m_program_table[0]));
-
-    std::memcpy(m_program_table[LFO_OSC_AMT    ], g_preset_table_LFO_OSC_AMT    , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[LFO_OSC_DST    ], g_preset_table_LFO_OSC_DST    , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[LFO_FILTER_AMT ], g_preset_table_LFO_FILTER_AMT , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[AMP_GAIN       ], g_preset_table_AMP_GAIN       , sizeof(m_program_table[0]));
-
-    std::memcpy(m_program_table[FILTER_MODE    ], g_preset_table_FILTER_MODE    , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[FILTER_DRIVE   ], g_preset_table_FILTER_DRIVE   , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[EG_AMP_MOD     ], g_preset_table_EG_AMP_MOD     , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[REL_EQ_DECAY   ], g_preset_table_REL_EQ_DECAY   , sizeof(m_program_table[0]));
-
-    std::memcpy(m_program_table[AMP_ATTACK     ], g_preset_table_AMP_ATTACK     , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[AMP_DECAY      ], g_preset_table_AMP_DECAY      , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[AMP_SUSTAIN    ], g_preset_table_AMP_SUSTAIN    , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[AMP_RELEASE    ], g_preset_table_AMP_RELEASE    , sizeof(m_program_table[0]));
-
-    std::memcpy(m_program_table[OSC_DRIFT      ], g_preset_table_OSC_DRIFT      , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[P_BEND_RANGE   ], g_preset_table_P_BEND_RANGE   , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[COARSE_TUNE    ], g_preset_table_COARSE_TUNE    , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[FINE_TUNE      ], g_preset_table_FINE_TUNE      , sizeof(m_program_table[0]));
-
-    std::memcpy(m_program_table[A_D_VEL_SENS   ], g_preset_table_A_D_VEL_SENS   , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[REL_VEL_SENS   ], g_preset_table_REL_VEL_SENS   , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[EG_VEL_SENS    ], g_preset_table_EG_VEL_SENS    , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[AMP_VEL_SENS   ], g_preset_table_AMP_VEL_SENS   , sizeof(m_program_table[0]));
-
-    std::memcpy(m_program_table[A_D_KEY_TRK    ], g_preset_table_A_D_KEY_TRK    , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[VOICE_ASGN_MODE], g_preset_table_VOICE_ASGN_MODE, sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[VOICE_GRP_MODE ], g_preset_table_VOICE_GRP_MODE , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[LFO_TRIG_MODE  ], g_preset_table_LFO_TRIG_MODE  , sizeof(m_program_table[0]));
-
-    std::memcpy(m_program_table[BTH_FILTER_AMT ], g_preset_table_BTH_FILTER_AMT , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[BTH_AMP_MOD    ], g_preset_table_BTH_AMP_MOD    , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[AFT_T_LFO_AMT  ], g_preset_table_AFT_T_LFO_AMT  , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[PORTA_MODE     ], g_preset_table_PORTA_MODE     , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[OSC_SAW_W_MODE ], g_preset_table_OSC_SAW_W_MODE , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[STRETCH_TUNE   ], g_preset_table_STRETCH_TUNE   , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[PAN            ], g_preset_table_PAN            , sizeof(m_program_table[0]));
-
-    std::memcpy(m_program_table[DISTORTION     ], g_preset_table_DISTORTION     , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[FX_ROUTING     ], g_preset_table_FX_ROUTING     , sizeof(m_program_table[0]));
-
-    std::memcpy(m_program_table[CHORUS_MIX     ], g_preset_table_CHORUS_MIX     , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[CHORUS_RATE    ], g_preset_table_CHORUS_RATE    , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[CHORUS_DEPTH   ], g_preset_table_CHORUS_DEPTH   , sizeof(m_program_table[0]));
-
-    std::memcpy(m_program_table[DELAY_LEVEL    ], g_preset_table_DELAY_LEVEL   , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[DELAY_MODE     ], g_preset_table_DELAY_MODE     , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[DELAY_FEEDBACK ], g_preset_table_DELAY_FEEDBACK , sizeof(m_program_table[0]));
-    std::memcpy(m_program_table[DELAY_TIME     ], g_preset_table_DELAY_TIME     , sizeof(m_program_table[0]));
+    PRA32_U2_copy_presets_to_program_table(m_program_table);
 
     for (uint32_t i = 0; i < sizeof(m_program_table_panel) / sizeof(m_program_table_panel[0]); ++i) {
       m_program_table_panel[i][PANEL_SCALE    ] = DEFAULT_PANEL_SCALE    ;
@@ -519,45 +602,26 @@ public:
       m_program_table_panel[i][SEQ_GATE_TIME  ] = DEFAULT_SEQ_GATE_TIME  ;
       m_program_table_panel[i][SEQ_NUM_STEPS  ] = DEFAULT_SEQ_NUM_STEPS  ;
 
-      m_program_table_panel[i][SEQ_MODE       ] = DEFAULT_SEQ_MODE       ;
+      m_program_table_panel[i][SEQ_DIRECTION  ] = DEFAULT_SEQ_DIRECTION  ;
       m_program_table_panel[i][SEQ_ACT_STEPS  ] = DEFAULT_SEQ_ACT_STEPS  ;
       m_program_table_panel[i][SEQ_PIT_OFST   ] = DEFAULT_SEQ_PIT_OFST   ;
       m_program_table_panel[i][SEQ_STEP_NOTE  ] = DEFAULT_SEQ_STEP_NOTE  ;
 
       m_program_table_panel[i][SEQ_ON_STEPS   ] = DEFAULT_SEQ_ON_STEPS   ;
-      m_program_table_panel[i][SEQ_TRX_ST_SP  ] = DEFAULT_SEQ_TRX_ST_SP  ;
+      m_program_table_panel[i][SEQ_RX_ST_SP   ] = DEFAULT_SEQ_RX_ST_SP   ;
+
+      m_program_table_panel[i][PANEL_MIDI_TX  ] = DEFAULT_PANEL_MIDI_TX  ;
+      m_program_table_panel[i][SEQ_CH_OFST    ] = DEFAULT_SEQ_CH_OFST    ;
+      m_program_table_panel[i][SEQ_TRANSPOSE  ] = DEFAULT_SEQ_TRANSPOSE  ;
+      m_program_table_panel[i][SEQ_PATTERN    ] = DEFAULT_SEQ_PATTERN    ;
 
 
     }
 
 #if defined(ARDUINO_ARCH_RP2040)
 #if defined(PRA32_U2_USE_EMULATED_EEPROM)
-    EEPROM.begin(3072);
-
-    for (uint32_t program_number = 0; program_number <= USER_PROGRAM_NUMBER_MAX; ++program_number) {
-      if ((EEPROM.read(1024 + program_number * 128) == 'U') && (EEPROM.read(1024 + program_number * 128 + 1) == program_number)) {
-        for (uint32_t i = 0; i < sizeof(s_program_table_parameters) / sizeof(s_program_table_parameters[0]); ++i) {
-          uint32_t control_number = s_program_table_parameters[i];
-          uint8_t value_read = EEPROM.read(1024 + program_number * 128 + control_number);
-          if (value_read < 128) {
-            m_program_table[control_number][program_number] = value_read;
-          }
-        }
-      }
-    }
-
-#if defined(PRA32_U2_USE_CONTROL_PANEL)
-    if ((EEPROM.read(0) == 'P') && (EEPROM.read(1) == 0)) {
-      for (uint32_t i = 0; i < sizeof(s_program_table_panel_parameters) / sizeof(s_program_table_panel_parameters[0]); ++i) {
-        uint32_t control_number = s_program_table_panel_parameters[i];
-        uint8_t value_read = EEPROM.read(control_number);
-        if (value_read < 128) {
-          m_program_table_panel[0][control_number] = value_read;
-        }
-      }
-    }
-#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
-
+    // Read directly from the flash (the shared program table again by each synth, with the same values)
+    PRA32_U2_ProgramFlash_load(m_program_table, m_program_table_panel[0], SYNTH_ID == 0);
 #endif  // defined(PRA32_U2_USE_EMULATED_EEPROM)
 #endif  // defined(ARDUINO_ARCH_RP2040)
 
@@ -1048,13 +1112,27 @@ public:
   }
 
   /* INLINE */ void __not_in_flash_func(control_change)(uint8_t control_number, uint8_t controller_value) {
-    m_current_controller_value_table[control_number] = controller_value;
+    m_current_controller_value_table[control_number] = controller_value;  // (General Purpose Controller 1-4 too, for the panel)
 
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
     PRA32_U2_ControlPanel_on_control_change(control_number);
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 
     switch (control_number) {
+    case GEN_PURPOSE_1  :
+    case GEN_PURPOSE_2  :
+    case GEN_PURPOSE_3  :
+    case GEN_PURPOSE_4  :
+      {
+        uint8_t value = controller_value;
+        uint8_t dst   = PRA32_U2_general_purpose_dst(m_current_controller_value_table, m_gen_purpose_last_value,
+                                                     control_number - GEN_PURPOSE_1, value);
+        if (dst != 0) {
+          control_change(dst, value);
+        }
+      }
+      break;
+
     case MODULATION     :
       m_lfo.set_lfo_depth<1>(controller_value);
       break;
@@ -1573,6 +1651,12 @@ if constexpr (NO_FX == false) {
   }
 
   /* INLINE */ void __not_in_flash_func(program_change)(uint8_t program_number) {
+#if defined(PRA32_U2_USE_CONTROL_PANEL)
+    if (program_number <= PROGRAM_NUMBER_MAX) {  // #0-31 (not #127, Randomize Synth, nor 128 and 129, the panel parameters)
+      PRA32_U2_ControlPanel_on_program_change(SYNTH_ID, program_number);
+    }
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
+
     if (program_number > PROGRAM_NUMBER_MAX) {
       if ((program_number == 128) || (program_number == 129)) {
         for (uint32_t i = 0; i < sizeof(s_program_table_panel_parameters) / sizeof(s_program_table_panel_parameters[0]); ++i) {
@@ -1630,7 +1714,12 @@ if constexpr (NO_FX == false) {
           (control_number != AMP_ATTACK     ) &&
           (control_number != AMP_DECAY      ) &&
           (control_number != AMP_SUSTAIN    ) &&
-          (control_number != AMP_RELEASE    )) {
+          (control_number != AMP_RELEASE    ) &&
+          (control_number != ASSIGN_MODE    ) &&
+          (control_number != ASSIGN_16      ) &&
+          (control_number != ASSIGN_17      ) &&
+          (control_number != ASSIGN_18      ) &&
+          (control_number != ASSIGN_19      )) {
         rand_state = PRA32_U2_NoiseGen::next_state(rand_state);
         control_change(control_number, rand_state >> 25);
       }
@@ -1706,29 +1795,19 @@ if constexpr (NO_FX == false) {
 #if defined(ARDUINO_ARCH_RP2040)
 
 #if defined(PRA32_U2_USE_EMULATED_EEPROM)
-    if (program_number_to_write <= PROGRAM_NUMBER_MAX) {
-      for (uint32_t i = 0; i < sizeof(s_program_table_parameters) / sizeof(s_program_table_parameters[0]); ++i) {
-        uint32_t control_number = s_program_table_parameters[i];
-        EEPROM.write(1024 + program_number_to_write * 128 + control_number, values[control_number]);
-      }
-
-      EEPROM.write(1024 + program_number_to_write * 128,     'U');
-      EEPROM.write(1024 + program_number_to_write * 128 + 1, program_number_to_write);
+    // The values are in the tables above (the program table is shared by the synths); the flash is written from them
+    if (program_number_to_write <= USER_PROGRAM_NUMBER_MAX) {
+      g_program_flash_user_programs |= (1u << program_number_to_write);
     }
 
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
     if (program_number_to_write == 128) {
-      for (uint32_t i = 0; i < sizeof(s_program_table_panel_parameters) / sizeof(s_program_table_panel_parameters[0]); ++i) {
-        uint32_t control_number = s_program_table_panel_parameters[i];
-        EEPROM.write(control_number, m_program_table_panel[0][control_number]);
-      }
-
-      EEPROM.write(0, 'P');
-      EEPROM.write(1, 0);
+      g_program_flash_panel        = true;
+      g_program_flash_panel_values = m_program_table_panel[0];  // Of this synth (the last to write them)
     }
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 
-    g_eeprom_commit_requested = true;  // EEPROM.commit() is deferred (see loop())
+    g_eeprom_commit_requested = true;  // The flash is written later, by the Output Fader (see loop())
 
 #endif  // defined(PRA32_U2_USE_EMULATED_EEPROM)
 
@@ -2242,7 +2321,8 @@ if constexpr (RESTRICT_POLY_AND_CORES == false) {
   }
 
   INLINE void update_eg_osc_mod() {
-    if        (m_eg_osc_dst >= 115) {  /* MOD_DST_SHAPE_1 */
+    const int32_t index = ((m_eg_osc_dst * 10) + 128) >> 8;  // [P|P|2P|2P|F|1S], as the other 6-way parameters
+    if        (index >= 5) {  /* MOD_DST_SHAPE_1 */
       m_osc.set_pitch_eg_amt<0>(64);
       m_osc.set_pitch_eg_amt<1>(64);
       m_osc.set_shape_eg_amt(m_eg_osc_amt);
@@ -2250,7 +2330,7 @@ if constexpr (RESTRICT_POLY_AND_CORES == false) {
       m_filter[1].set_cutoff_eg_amt(1, 64);
       m_filter[2].set_cutoff_eg_amt(1, 64);
       m_filter[3].set_cutoff_eg_amt(1, 64);
-    } else if (m_eg_osc_dst >= 89) {  /* MOD_DST_CUTOFF */
+    } else if (index >= 4) {  /* MOD_DST_CUTOFF */
       m_osc.set_pitch_eg_amt<0>(64);
       m_osc.set_pitch_eg_amt<1>(64);
       m_osc.set_shape_eg_amt(64);
@@ -2258,7 +2338,7 @@ if constexpr (RESTRICT_POLY_AND_CORES == false) {
       m_filter[1].set_cutoff_eg_amt(1, m_eg_osc_amt);
       m_filter[2].set_cutoff_eg_amt(1, m_eg_osc_amt);
       m_filter[3].set_cutoff_eg_amt(1, m_eg_osc_amt);
-    } else if (m_eg_osc_dst >= 39) {  /* MOD_DST_PITCH_2 */
+    } else if (index >= 2) {  /* MOD_DST_PITCH_2 */
       m_osc.set_pitch_eg_amt<0>(64);
       m_osc.set_pitch_eg_amt<1>(m_eg_osc_amt);
       m_osc.set_shape_eg_amt(64);
@@ -2278,7 +2358,8 @@ if constexpr (RESTRICT_POLY_AND_CORES == false) {
   }
 
   INLINE void update_lfo_osc_mod() {
-    if        (m_lfo_osc_dst >= 115) {  /* MOD_DST_SHAPE_1 */
+    const int32_t index = ((m_lfo_osc_dst * 10) + 128) >> 8;  // [P|P|2P|2P|F|1S], as the other 6-way parameters
+    if        (index >= 5) {  /* MOD_DST_SHAPE_1 */
       m_osc.set_pitch_lfo_amt<0>(64);
       m_osc.set_pitch_lfo_amt<1>(64);
       m_osc.set_shape_lfo_amt(m_lfo_osc_amt);
@@ -2286,7 +2367,7 @@ if constexpr (RESTRICT_POLY_AND_CORES == false) {
       m_filter[1].set_cutoff_lfo_amt(1, 64);
       m_filter[2].set_cutoff_lfo_amt(1, 64);
       m_filter[3].set_cutoff_lfo_amt(1, 64);
-    } else if (m_lfo_osc_dst >= 89) {  /* MOD_DST_CUTOFF */
+    } else if (index >= 4) {  /* MOD_DST_CUTOFF */
       m_osc.set_pitch_lfo_amt<0>(64);
       m_osc.set_pitch_lfo_amt<1>(64);
       m_osc.set_shape_lfo_amt(64);
@@ -2294,7 +2375,7 @@ if constexpr (RESTRICT_POLY_AND_CORES == false) {
       m_filter[1].set_cutoff_lfo_amt(1, m_lfo_osc_amt);
       m_filter[2].set_cutoff_lfo_amt(1, m_lfo_osc_amt);
       m_filter[3].set_cutoff_lfo_amt(1, m_lfo_osc_amt);
-    } else if (m_lfo_osc_dst >= 39) {  /* MOD_DST_PITCH_2 */
+    } else if (index >= 2) {  /* MOD_DST_PITCH_2 */
       m_osc.set_pitch_lfo_amt<0>(64);
       m_osc.set_pitch_lfo_amt<1>(m_lfo_osc_amt);
       m_osc.set_shape_lfo_amt(64);

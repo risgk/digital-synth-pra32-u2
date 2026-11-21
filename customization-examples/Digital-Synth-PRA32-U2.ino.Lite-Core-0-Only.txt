@@ -1,10 +1,10 @@
 /*
  * Digital Synth PRA32-U2 (Lite)
  *
- * - Osc 1 Shape and Morph are disabled in Saw, Sqr, and WT
+ * - Osc 1 Shape and Morph are disabled in Saw, Sqr, Tri, and WT
  */
 
-#define PRA32_U2_VERSION                       "v3.21.0   "
+#define PRA32_U2_VERSION                       "v3.22.0   "
 
 //#define PRA32_U2_USE_DEBUG_PRINT
 
@@ -93,7 +93,7 @@
 #define PRA32_U2_OLED_DISPLAY_CONTRAST           (0xFF)
 #define PRA32_U2_OLED_DISPLAY_ROTATION           (true)
 
-#define PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION
+//#define PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION  // Not to transmit by USB MIDI what Panel MIDI Tx selects (MIDI Clock, Start, Stop, and the notes)
 
 ////////////////////////////////////////////////////////////////
 
@@ -188,7 +188,6 @@ void handleAfterTouchChannel(byte channel, byte pressure);
 void handleClock();
 void handleStart();
 void handleStop();
-void writeProgramsToFlashAndEndSketch();
 
 // The Program Changes that arrive one after another are kept here, and processed after the MIDI
 // messages of the loop are read (or before the next message for the synth, so that the order is
@@ -598,7 +597,7 @@ void __not_in_flash_func(handleClock)()
 void __not_in_flash_func(handleStart)()
 {
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
-  if (g_synth.current_controller_value(SEQ_TRX_ST_SP  ) >= 64) {
+  if (g_synth.current_controller_value(SEQ_RX_ST_SP   ) >= 64) {
     PRA32_U2_ControlPanel_on_start();
   }
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
@@ -607,7 +606,7 @@ void __not_in_flash_func(handleStart)()
 void __not_in_flash_func(handleStop)()
 {
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
-  if (g_synth.current_controller_value(SEQ_TRX_ST_SP  ) >= 64) {
+  if (g_synth.current_controller_value(SEQ_RX_ST_SP   ) >= 64) {
     PRA32_U2_ControlPanel_on_stop();
   }
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)

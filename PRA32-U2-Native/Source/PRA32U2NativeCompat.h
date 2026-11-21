@@ -18,8 +18,8 @@ typedef signed char boolean;
 #define __attribute__(x)
 #endif  // defined(_MSC_VER) && !defined(__clang__)
 
-// MSVC does not have "__builtin_clz" (the Output Compressor), so it is defined with
-// "_BitScanReverse"; the result is undefined for 0, as with GCC (never 0 in the core)
+// MSVC does not have "__builtin_clz" (the Output Compressor, the Distortion FX, and the fold of Osc 1 Tri), so it is
+// defined with "_BitScanReverse"; the result is undefined for 0, as with GCC (never 0 in the core)
 #if defined(_MSC_VER) && !defined(__clang__)
 #include <intrin.h>
 
