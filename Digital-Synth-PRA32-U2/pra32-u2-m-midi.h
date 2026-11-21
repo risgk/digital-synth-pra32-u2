@@ -684,6 +684,7 @@ static void __not_in_flash_func(dispatchWaitingMessage)() {
   WaitingMessage m = s_waiting_messages[s_waiting_head];
   s_waiting_head = (s_waiting_head + 1) % WAITING_MESSAGES_MAX;
   --s_waiting_count;
+  boolean dispatching = s_waiting_dispatching;  // (also in another, when the messages are full)
   s_waiting_dispatching = true;
   switch (m.type) {
   case WAITING_NOTE_ON:             handleNoteOnNow(m.channel, m.data_1, m.data_2);                                break;
@@ -694,7 +695,7 @@ static void __not_in_flash_func(dispatchWaitingMessage)() {
   case WAITING_AFTER_TOUCH_POLY:    handleAfterTouchPolyNow(m.channel, m.data_1, m.data_2);                        break;
   case WAITING_AFTER_TOUCH_CHANNEL: handleAfterTouchChannelNow(m.channel, m.data_1);                               break;
   }
-  s_waiting_dispatching = false;
+  s_waiting_dispatching = dispatching;
 }
 
 // All the programs kept and all the messages waiting, at once (as before, e.g. for the control panel);
@@ -757,7 +758,12 @@ void __not_in_flash_func(handleNoteOff)(byte channel, byte pitch, byte velocity)
 
 void __not_in_flash_func(handleControlChange)(byte channel, byte number, byte value)
 {
-  boolean program = (number >= SP_RAND_CTRL) && (number <= PC_BY_CC_7);
+  boolean program = (number >= SP_RAND_CTRL) && (number <= PC_BY_CC_7);  // Program Change by CC (and #111)
+#if defined(PRA32_U2_USE_CONTROL_PANEL) && defined(PRA32_U2_USE_PANEL_CHANNEL)
+  if ((channel - 1) == ((g_midi_ch + 14) & 0x0F)) {  // the Panel Channel, where they are of the panel
+    program = false;
+  }
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL) && defined(PRA32_U2_USE_PANEL_CHANNEL)
   if (!waitForProgramChanges(WAITING_CONTROL_CHANGE, channel, number, value, program)) { handleControlChangeNow(channel, number, value); }
 }
 
