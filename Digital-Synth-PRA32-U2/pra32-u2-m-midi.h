@@ -642,8 +642,8 @@ static void __not_in_flash_func(handleAfterTouchChannelNow)(byte channel, byte p
 // (or Program Change by CC) is kept at once if no message is waiting (the last of them kept, as before). If the
 // messages fill the space, the oldest of them is processed at once, after the programs (as before), so that none of
 // them is lost
-static const uint32_t WAITING_MESSAGES_MAX    = 32;
-static const uint32_t WAITING_MESSAGES_A_LOOP = 8;  // More than the messages that arrive in a loop (about 4 at most)
+static const uint32_t WAITING_MESSAGES_MAX    = 64;
+static const uint32_t WAITING_MESSAGES_A_LOOP = 4;  // About the messages that arrive in a loop (about 4 at most), not to load a loop more
 
 enum WaitingMessageType : uint8_t {
   WAITING_NOTE_ON, WAITING_NOTE_OFF, WAITING_CONTROL_CHANGE, WAITING_PROGRAM_CHANGE,
