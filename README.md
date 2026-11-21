@@ -274,6 +274,8 @@ graph LR
       with MIDI (USB MIDI and UART MIDI), the panel, and Debug Print, as the sketch; core 1 only updates the panel and prints the debug print
     - "Digital-Synth-PRA32-U2.ino.Lite-Core-1-Only.txt" and "Digital-Synth-PRA32-U2-M.ino.Lite-Core-1-Only.txt":
       only the synth and the audio output, without MIDI, the panel, and Debug Print (no sound as it is): a base to play the synth from code of your own, at `// TODO` in `loop()`
+    - PRA32-U2/M (Lite): with the 4 synths of heavy sounds (e.g. #18 FM Piano), the load is near the limit
+      (95% on the device, and 97% or more with Program Changes back to back)
 
 
 ## Troubleshooting
