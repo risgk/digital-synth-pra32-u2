@@ -183,7 +183,7 @@
 - **Digital Synth PRA32-U2 (Lite)** と **Digital Synth PRA32-U2/M (Lite)**: Saw、Sqr、Tri、WT で Osc 1 Shape と Morph が効かず、Distortion FX は入力をそのまま通し (Dst は Cho と同じ)、Delay Mode の Rev は Stereo Delay (Ste) になる代わりに、シンセを 1 つのコア (コア 0) で処理します
     - "...Lite-Core-0-Only.txt": 通常のスケッチと同じく、MIDI (USB MIDI と UART MIDI)、パネル、デバッグプリントがあります。コア 1 はパネルの更新とデバッグプリントだけを行います
     - "...Lite-Core-1-Only.txt": シンセと音声出力だけで、MIDI、パネル、デバッグプリントはありません (このままでは音が出ません)。`loop()` の `// TODO` に自分のコードを書いて、シンセを鳴らすための雛形です
-    - PRA32-U2/M (Lite): 4 つのシンセとも重い音色 (#18 FM Piano など) だと、負荷が限界に近くなります (実機で 95%、Program Change を続けて送ると 97% 以上)
+    - PRA32-U2/M (Lite): 4 つのシンセとも重い音色 (#18 FM Piano など) だと、負荷が限界に近くなります (実機で 95%、Program Change のたびに一時的に 97% 以上)
 - 詳しくは英語版の [Customization Examples](./README.md#customization-examples) を参照してください
 
 
