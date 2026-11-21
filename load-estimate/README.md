@@ -54,7 +54,9 @@
       as fast as PRA32-U2 reads them (5 bytes a loop), whose packets have the status byte each
         - Note On and Off of the note 72 are what a player sends
         - A Program Change, which sets all the parameters (of the 4 Synths, by MIDI Channel 16), is the heaviest message: back to back, the heaviest case,
-          PRA32-U2 processes the last of them that arrive one after another, a loop (one synth a loop for PRA32-U2/M/P)
+          PRA32-U2 processes the last of them that arrive one after another, a loop (half a program of one synth a loop for PRA32-U2/M/P, since v3.23.0)
+        - Program Change #0 and #16 (another program, #16 Synth Pad) by turns, each with Note On and Off right after it (without Running Status):
+          PRA32-U2 processes the program in the loop of the note, and PRA32-U2/M/P keeps the note waiting until the programs are processed (since v3.23.0)
         - Program Change by CC (#112-119, as the programs #0-7, when the value goes up to 64 or above), whose value goes 127 and 0 by turns,
           sets all the parameters too: PRA32-U2 processes it as a Program Change (since v3.17.5)
         - So that the sound stays the heaviest, "Poly" (or "4 Synths") is written to the user program #0 (and #1-3 for the Sub Synths) by Write Program first,

@@ -2598,6 +2598,12 @@ static void PRA32_U2_ControlPanel_select_target(uint8_t offset) {
     s_adc_control_catched[2] = false;
   }
 
+  // The parameters of the synths (all but Voice Group Mode, below 128): nothing more (not compared with each below,
+  // as a Program Change sets each of them, of each synth)
+  if ((control_number < 128) && (control_number != VOICE_GRP_MODE)) {
+    return;
+  }
+
   if ((control_number == PANEL_PLAY_PIT ) ||
       (control_number == PANEL_PLAY_VELO) ||
       (control_number == PANEL_SCALE    ) ||

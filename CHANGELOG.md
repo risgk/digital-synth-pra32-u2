@@ -1,6 +1,12 @@
 ## Digital Synth PRA32-U2 Changelog
 
 - v3.23.0 (2026-??-??):
+    - PRA32-U2/M: A Program Change is processed in 2 loops for each synth (half the parameters each, Voice Mode last), and the messages after it
+      wait for it (up to about 11 ms with the Layering), so that a Program Change and a note right after it do not overload a loop
+      (estimated, the 4 Synths of PRA32-U2/M/P with Program Changes by MIDI Channel 16, each with notes after it, by UART MIDI: 100% to 84%);
+      also PRA32-U2/M/P Web (Built-in), in its loops of 64 frames as the device
+    - PRA32-U2/M: Fix that a change of Voice Group Mode or of Poly of the Main Synth (e.g. by a Program Change) processed all the Program Changes kept in one loop
+    - PRA32-U2 Load Estimate: Add the cases of Program Change #0 and #16 by turns, each with Note On and Off right after it
     - PRA32-U2/P: Seq Velo 4-7 of Seq Pattern 4x4 shift the velocity by -63 to +63 (0 and 1: -63; -64 at 0 before)
     - Tested with Arduino-Pico version 6.4.0
 - v3.22.0 (2026-11-21):

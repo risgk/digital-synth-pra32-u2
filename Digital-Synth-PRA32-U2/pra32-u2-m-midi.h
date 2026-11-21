@@ -12,15 +12,19 @@
 // out of Poly)
 
 // The Program Changes that arrive one after another are kept here for each synth (the Main Synth
-// and the Sub Synths 1-3), and processed after the MIDI messages of the loop are read, one synth a
-// loop (or all of them before the next message for any of the synths, so that the order is kept),
-// as one at most of each:
+// and the Sub Synths 1-3), and processed after the MIDI messages of the loop are read, half a program
+// of one synth a loop (the messages after them waiting for them, so that the order is kept; see the
+// waiting messages below), as one at most of each:
 // - A program (#0-31) sets all the parameters of a program, so only the last of them is kept, and
-//   a Random Control kept before it is dropped
+//   a Random Control kept before it is dropped; a program begun (its first part processed) is processed
+//   to the end before the last one (kept as the next), so that a stream of them does not keep a program
+//   half processed
 // - #127 Random Control sets some of them (at random) after the program kept, so many of them in a
 //   row are kept as one
-static int16_t s_pending_program_change[4] = { -1, -1, -1, -1 };
-static boolean s_pending_random_control[4] = { false, false, false, false };
+static int16_t  s_pending_program_change[4] = { -1, -1, -1, -1 };
+static uint8_t  s_pending_program_part[4]   = { 0, 0, 0, 0 };  // The parts of the program processed (see program_change_part())
+static int16_t  s_pending_next_program[4]   = { -1, -1, -1, -1 };  // The last program, after the one begun
+static boolean  s_pending_random_control[4] = { false, false, false, false };
 
 static void __not_in_flash_func(programChangeOf)(uint32_t synth, uint8_t program_number) {
   switch (synth) {
@@ -31,49 +35,82 @@ static void __not_in_flash_func(programChangeOf)(uint32_t synth, uint8_t program
   }
 }
 
-// The ones kept for a synth, if any; true if processed
-static boolean __not_in_flash_func(processPendingProgramChangeOf)(uint32_t synth) {
+static void __not_in_flash_func(programChangePartOf)(uint32_t synth, uint8_t program_number, uint32_t part) {
+  switch (synth) {
+  case 0: g_synth      .program_change_part(program_number, part); break;
+  case 1: g_sub_1_synth.program_change_part(program_number, part); break;
+  case 2: g_sub_2_synth.program_change_part(program_number, part); break;
+  case 3: g_sub_3_synth.program_change_part(program_number, part); break;
+  }
+}
+
+// One part of the ones kept for a synth (the next part of the program, or the Random Control after it), if any; true if
+// processed (with all: all of them)
+static boolean __not_in_flash_func(processPendingProgramChangeStepOf)(uint32_t synth, boolean all) {
   int16_t program_number = s_pending_program_change[synth];
-  boolean random_control = s_pending_random_control[synth];
-  if ((program_number < 0) && !random_control) {
+  if ((program_number < 0) && !s_pending_random_control[synth]) {
     return false;
   }
-  s_pending_program_change[synth] = -1;
-  s_pending_random_control[synth] = false;
   if (program_number >= 0) {
-    programChangeOf(synth, static_cast<uint8_t>(program_number));
+    if (all && (s_pending_next_program[synth] >= 0)) {  // (all of the last one alone, which sets all the parameters)
+      program_number = s_pending_next_program[synth];
+      s_pending_program_change[synth] = program_number;
+      s_pending_program_part[synth]   = 0;
+      s_pending_next_program[synth]   = -1;
+    }
+    while (s_pending_program_part[synth] < g_synth.PROGRAM_CHANGE_PARTS) {
+      programChangePartOf(synth, static_cast<uint8_t>(program_number), s_pending_program_part[synth]);
+      ++s_pending_program_part[synth];
+      if (!all) {
+        break;
+      }
+    }
+    if (s_pending_program_part[synth] >= g_synth.PROGRAM_CHANGE_PARTS) {
+      s_pending_program_change[synth] = s_pending_next_program[synth];  // (the next, if any)
+      s_pending_program_part[synth]   = 0;
+      s_pending_next_program[synth]   = -1;
+    }
+    if (!all) {
+      return true;
+    }
   }
-  if (random_control) {
+  if (s_pending_random_control[synth]) {
+    s_pending_random_control[synth] = false;
     programChangeOf(synth, 127);
   }
   return true;
 }
 
-static void __not_in_flash_func(processPendingProgramChanges)() {
+// The ones kept for a synth, if any, all of them; true if processed
+static boolean __not_in_flash_func(processPendingProgramChangeOf)(uint32_t synth) {
+  return processPendingProgramChangeStepOf(synth, true);
+}
+
+// All the ones kept of the synths (not the messages waiting for them, see below)
+static void __not_in_flash_func(processAllPendingProgramChanges)() {
   for (uint32_t i = 0; i < 4; ++i) {
     processPendingProgramChangeOf(i);
   }
 }
 
-// In a loop, the ones kept of only one of the synths (the next of them by turns) are processed, so
-// that a Program Change of the 4 synths at once (e.g. by the Layering) is spread over 4 loops, each
-// with the load of one synth
-static void __not_in_flash_func(processOnePendingProgramChange)() {
-  static uint32_t s_next_synth = 0;
-  for (uint32_t k = 0; k < 4; ++k) {
-    uint32_t i = (s_next_synth + k) & 0x03;
-    if (processPendingProgramChangeOf(i)) {
-      s_next_synth = (i + 1) & 0x03;
-      return;
+static boolean __not_in_flash_func(anyPendingProgramChange)() {
+  for (uint32_t i = 0; i < 4; ++i) {
+    if ((s_pending_program_change[i] >= 0) || s_pending_random_control[i]) {
+      return true;
     }
   }
+  return false;
 }
 
 // The other numbers (#128-129 the panel parameters, which only the panel sends, and #32-126, which
 // do nothing) are processed at once, after those kept, so that each takes effect as it did
 static void __not_in_flash_func(programChange)(uint32_t synth, uint8_t program_number) {
   if (program_number <= PROGRAM_NUMBER_MAX) {
-    s_pending_program_change[synth] = program_number;
+    if (s_pending_program_part[synth] > 0) {  // A program begun: this one next (after it)
+      s_pending_next_program[synth]   = program_number;
+    } else {
+      s_pending_program_change[synth] = program_number;
+    }
     s_pending_random_control[synth] = false;
     return;
   }
@@ -81,7 +118,7 @@ static void __not_in_flash_func(programChange)(uint32_t synth, uint8_t program_n
     s_pending_random_control[synth] = true;
     return;
   }
-  processPendingProgramChanges();
+  processAllPendingProgramChanges();
   programChangeOf(synth, program_number);
 }
 
@@ -99,7 +136,7 @@ static void __not_in_flash_func(controlChange)(uint32_t synth, uint8_t number, u
     }
     return;
   }
-  processPendingProgramChanges();
+  processAllPendingProgramChanges();
   switch (synth) {
   case 0: g_synth      .control_change(number, value); break;
   case 1: g_sub_1_synth.control_change(number, value); break;
@@ -327,9 +364,11 @@ static void __not_in_flash_func(updateGroupMode)() {
   }
   boolean poly_changed = ((mode ^ s_group_mode) & 8) != 0;
   s_group_mode = mode;
-  for (uint32_t s = 0; s < 4; s++) {
-    controlChange(s, ALL_NOTES_OFF, 0);
-  }
+  // To the synths at once (not by controlChange(), which would process all the programs kept first, in one loop)
+  g_synth      .control_change(ALL_NOTES_OFF, 0);
+  g_sub_1_synth.control_change(ALL_NOTES_OFF, 0);
+  g_sub_2_synth.control_change(ALL_NOTES_OFF, 0);
+  g_sub_3_synth.control_change(ALL_NOTES_OFF, 0);
 
   // The Sub Synths reset at once when the Main Synth goes in or out of Poly (as the sketch does after the MIDI messages),
   // so that a note right after it (e.g. by a Program Change before it at once) sounds
@@ -460,9 +499,9 @@ uint32_t getProgramStep(byte channel)
 }
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
 
-void __not_in_flash_func(handleNoteOn)(byte channel, byte pitch, byte velocity)
+static void __not_in_flash_func(handleNoteOnNow)(byte channel, byte pitch, byte velocity)
 {
-  processPendingProgramChanges();
+  processAllPendingProgramChanges();
 
   uint32_t first, last;
   switch (noteRoute(channel, first, last)) {
@@ -486,9 +525,9 @@ void __not_in_flash_func(handleNoteOn)(byte channel, byte pitch, byte velocity)
   }
 }
 
-void __not_in_flash_func(handleNoteOff)(byte channel, byte pitch, byte velocity)
+static void __not_in_flash_func(handleNoteOffNow)(byte channel, byte pitch, byte velocity)
 {
-  processPendingProgramChanges();
+  processAllPendingProgramChanges();
 
   uint32_t first, last;
   switch (noteRoute(channel, first, last)) {
@@ -512,11 +551,11 @@ void __not_in_flash_func(handleNoteOff)(byte channel, byte pitch, byte velocity)
   }
 }
 
-void __not_in_flash_func(handleControlChange)(byte channel, byte number, byte value)
+static void __not_in_flash_func(handleControlChangeNow)(byte channel, byte number, byte value)
 {
 #if defined(PRA32_U2_USE_CONTROL_PANEL) && defined(PRA32_U2_USE_PANEL_CHANNEL)
   if ((channel - 1) == ((g_midi_ch + 14) & 0x0F)) {  // the Panel Channel (see PRA32_U2_ControlPanel_on_panel_ch_control_change())
-    processPendingProgramChanges();
+    processAllPendingProgramChanges();
     PRA32_U2_ControlPanel_on_panel_ch_control_change(number, value);
     return;
   }
@@ -545,9 +584,9 @@ void __not_in_flash_func(handleControlChange)(byte channel, byte number, byte va
   }
 }
 
-void __not_in_flash_func(handleProgramChange)(byte channel, byte number)
+static void __not_in_flash_func(handleProgramChangeNow)(byte channel, byte number)
 {
-  // A program is processed later (see processPendingProgramChanges())
+  // A program is processed later (see processOnePendingProgramChange())
   uint32_t first, last;
   switch (channelRoute(channel, first, last)) {
   case ROUTE_SYNTH:
@@ -577,9 +616,9 @@ void __not_in_flash_func(handleProgramChange)(byte channel, byte number)
   }
 }
 
-void __not_in_flash_func(handlePitchBend)(byte channel, int bend)
+static void __not_in_flash_func(handlePitchBendNow)(byte channel, int bend)
 {
-  processPendingProgramChanges();
+  processAllPendingProgramChanges();
 
   uint32_t first, last;
   if (channelRoute(channel, first, last) != ROUTE_NONE) {
@@ -589,9 +628,9 @@ void __not_in_flash_func(handlePitchBend)(byte channel, int bend)
   }
 }
 
-void __not_in_flash_func(handleAfterTouchPoly)(byte channel, byte note, byte pressure)
+static void __not_in_flash_func(handleAfterTouchPolyNow)(byte channel, byte note, byte pressure)
 {
-  processPendingProgramChanges();
+  processAllPendingProgramChanges();
 
   uint32_t first, last;
   if (channelRoute(channel, first, last) != ROUTE_NONE) {
@@ -601,9 +640,9 @@ void __not_in_flash_func(handleAfterTouchPoly)(byte channel, byte note, byte pre
   }
 }
 
-void __not_in_flash_func(handleAfterTouchChannel)(byte channel, byte pressure)
+static void __not_in_flash_func(handleAfterTouchChannelNow)(byte channel, byte pressure)
 {
-  processPendingProgramChanges();
+  processAllPendingProgramChanges();
 
   uint32_t first, last;
   if (channelRoute(channel, first, last) != ROUTE_NONE) {
@@ -611,6 +650,142 @@ void __not_in_flash_func(handleAfterTouchChannel)(byte channel, byte pressure)
       afterTouchChannelOf(s, pressure);
     }
   }
+}
+
+// The MIDI messages that arrive while Program Changes are kept (or other messages are waiting) wait here, so that
+// a program is not processed all at once for a message right after it (e.g. a note after a Program Change of the
+// Layering, which would process the programs of the 4 synths in one loop): they are processed in the order they
+// arrived, after the programs (in the next loops, see processOnePendingProgramChange()), a few in a loop
+// (the latency of a message after a Program Change: up to about 8 loops, 11 ms, with the Layering); a Program Change
+// (or Program Change by CC) is kept at once if no message is waiting (the last of them kept, as before). If the
+// messages fill the space, the oldest of them is processed at once, after the programs (as before), so that none of
+// them is lost
+static const uint32_t WAITING_MESSAGES_MAX    = 64;
+static const uint32_t WAITING_MESSAGES_A_LOOP = 4;  // About the messages that arrive in a loop (about 4 at most), not to load a loop more
+
+enum WaitingMessageType : uint8_t {
+  WAITING_NOTE_ON, WAITING_NOTE_OFF, WAITING_CONTROL_CHANGE, WAITING_PROGRAM_CHANGE,
+  WAITING_PITCH_BEND, WAITING_AFTER_TOUCH_POLY, WAITING_AFTER_TOUCH_CHANNEL,
+};
+
+struct WaitingMessage {
+  uint8_t type;
+  uint8_t channel;
+  uint8_t data_1;
+  uint8_t data_2;
+};
+
+static WaitingMessage s_waiting_messages[WAITING_MESSAGES_MAX];
+static uint32_t       s_waiting_head        = 0;
+static uint32_t       s_waiting_count       = 0;
+static boolean        s_waiting_dispatching = false;  // A waiting message being processed (not to take the next of them in it)
+
+static void __not_in_flash_func(dispatchWaitingMessage)() {
+  WaitingMessage m = s_waiting_messages[s_waiting_head];
+  s_waiting_head = (s_waiting_head + 1) % WAITING_MESSAGES_MAX;
+  --s_waiting_count;
+  boolean dispatching = s_waiting_dispatching;  // (also in another, when the messages are full)
+  s_waiting_dispatching = true;
+  switch (m.type) {
+  case WAITING_NOTE_ON:             handleNoteOnNow(m.channel, m.data_1, m.data_2);                                break;
+  case WAITING_NOTE_OFF:            handleNoteOffNow(m.channel, m.data_1, m.data_2);                               break;
+  case WAITING_CONTROL_CHANGE:      handleControlChangeNow(m.channel, m.data_1, m.data_2);                         break;
+  case WAITING_PROGRAM_CHANGE:      handleProgramChangeNow(m.channel, m.data_1);                                   break;
+  case WAITING_PITCH_BEND:          handlePitchBendNow(m.channel, ((m.data_2 << 7) | m.data_1) - 8192);            break;
+  case WAITING_AFTER_TOUCH_POLY:    handleAfterTouchPolyNow(m.channel, m.data_1, m.data_2);                        break;
+  case WAITING_AFTER_TOUCH_CHANNEL: handleAfterTouchChannelNow(m.channel, m.data_1);                               break;
+  }
+  s_waiting_dispatching = dispatching;
+}
+
+// All the programs kept and all the messages waiting, at once (as before, e.g. for the control panel);
+// in a waiting message being processed, the programs alone (the next messages wait still, after it)
+static void __not_in_flash_func(processPendingProgramChanges)() {
+  processAllPendingProgramChanges();
+  if (s_waiting_dispatching) {
+    return;
+  }
+  while (s_waiting_count > 0) {
+    dispatchWaitingMessage();
+    processAllPendingProgramChanges();
+  }
+}
+
+// In a loop, one part of the programs kept of only one of the synths (the next of them by turns, the parts of one
+// in a row), so that a Program Change of the 4 synths at once (e.g. by the Layering) is spread over 8 loops, each
+// with the load of half a program of one synth (a Random Control, a loop of its own); or, when none is kept, the
+// messages waiting, a few of them, until one of them keeps a program again
+static void __not_in_flash_func(processOnePendingProgramChange)() {
+  static uint32_t s_next_synth = 0;
+  for (uint32_t k = 0; k < 4; ++k) {
+    uint32_t i = (s_next_synth + k) & 0x03;
+    if (processPendingProgramChangeStepOf(i, false)) {
+      boolean left = (s_pending_program_change[i] >= 0) || s_pending_random_control[i];
+      s_next_synth = left ? i : ((i + 1) & 0x03);
+      return;
+    }
+  }
+  for (uint32_t n = 0; (n < WAITING_MESSAGES_A_LOOP) && (s_waiting_count > 0) && !anyPendingProgramChange(); ++n) {
+    dispatchWaitingMessage();
+  }
+}
+
+// True if the message is to wait (kept); a Program Change (and Program Change by CC) is to wait only after another
+static boolean __not_in_flash_func(waitForProgramChanges)(uint8_t type, byte channel, uint8_t data_1, uint8_t data_2, boolean program) {
+  if ((s_waiting_count == 0) && (program || !anyPendingProgramChange())) {
+    return false;
+  }
+  if (s_waiting_count >= WAITING_MESSAGES_MAX) {
+    // Full (e.g. Program Changes and notes back to back faster than the programs are processed): the oldest
+    // message processed now, after the programs kept (as before), to make room for this one (none lost)
+    processAllPendingProgramChanges();
+    dispatchWaitingMessage();
+  }
+  s_waiting_messages[(s_waiting_head + s_waiting_count) % WAITING_MESSAGES_MAX] = { type, channel, data_1, data_2 };
+  ++s_waiting_count;
+  return true;
+}
+
+void __not_in_flash_func(handleNoteOn)(byte channel, byte pitch, byte velocity)
+{
+  if (!waitForProgramChanges(WAITING_NOTE_ON, channel, pitch, velocity, false)) { handleNoteOnNow(channel, pitch, velocity); }
+}
+
+void __not_in_flash_func(handleNoteOff)(byte channel, byte pitch, byte velocity)
+{
+  if (!waitForProgramChanges(WAITING_NOTE_OFF, channel, pitch, velocity, false)) { handleNoteOffNow(channel, pitch, velocity); }
+}
+
+void __not_in_flash_func(handleControlChange)(byte channel, byte number, byte value)
+{
+  boolean program = (number >= SP_RAND_CTRL) && (number <= PC_BY_CC_7);  // Program Change by CC (and #111)
+#if defined(PRA32_U2_USE_CONTROL_PANEL) && defined(PRA32_U2_USE_PANEL_CHANNEL)
+  if ((channel - 1) == ((g_midi_ch + 14) & 0x0F)) {  // the Panel Channel, where they are of the panel
+    program = false;
+  }
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL) && defined(PRA32_U2_USE_PANEL_CHANNEL)
+  if (!waitForProgramChanges(WAITING_CONTROL_CHANGE, channel, number, value, program)) { handleControlChangeNow(channel, number, value); }
+}
+
+void __not_in_flash_func(handleProgramChange)(byte channel, byte number)
+{
+  if (!waitForProgramChanges(WAITING_PROGRAM_CHANGE, channel, number, 0, true)) { handleProgramChangeNow(channel, number); }
+}
+
+void __not_in_flash_func(handlePitchBend)(byte channel, int bend)
+{
+  uint32_t value = static_cast<uint32_t>(bend + 8192);
+  if (!waitForProgramChanges(WAITING_PITCH_BEND, channel, value & 0x7F, (value >> 7) & 0x7F, false)) { handlePitchBendNow(channel, bend); }
+}
+
+void __not_in_flash_func(handleAfterTouchPoly)(byte channel, byte note, byte pressure)
+{
+  if (!waitForProgramChanges(WAITING_AFTER_TOUCH_POLY, channel, note, pressure, false)) { handleAfterTouchPolyNow(channel, note, pressure); }
+}
+
+void __not_in_flash_func(handleAfterTouchChannel)(byte channel, byte pressure)
+{
+  if (!waitForProgramChanges(WAITING_AFTER_TOUCH_CHANNEL, channel, pressure, 0, false)) { handleAfterTouchChannelNow(channel, pressure); }
 }
 
 // The functions for the control panel (PRA32-U2/M/P, and PRA32-U2/M/P Web with the panel parameters), by the channel
