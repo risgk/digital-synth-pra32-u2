@@ -1,54 +1,28 @@
 ## Digital Synth PRA32-U2 Changelog
 
-- v3.23.0 (2026-??-??):
-    - Tested with Arduino-Pico version 6.3.0
 - v3.22.0 (2026-11-21):
-    - **CC #16-19** are now **General Purpose Controller 1-4**: each controls the parameter that **Assign #16-#19**
-      (#48-51) set for each program, by **Assign Mode** [Jmp|Cat|Rel] (#42): at once (Jmp),
-      from when the value comes to that of the parameter (Cat), or as relative values (Rel)
-        - In PRA32-U2 Editor and on the panel (Pages A-31 to A-33, B-24, and B-25; FX to Delay b are now A-34 to A-38)
-        - The Presets: Assign Mode Jmp, and Assign #16-#19 set to 74 (Filter Cutoff), 71 (Filter Resonance),
-          47 (Osc 1 Shape), and 20 (Osc 1 Morph)
-        - **Not compatible**: EG Att/Dec Key Track, LFO Depth, Voice Mode, and Osc 1 Shape moved from #16-19 to #44-47,
-          and EG Att/Dec Velo Sens from #51 to #43: send the new numbers (e.g. #47 for Osc 1 Shape);
-          in the user programs written to PRA32-U2 and the states of PRA32-U2 Native, set these 5 again
-    - **Osc 1 Tri** folds the wave: Osc 1 Shape sets the gain of the fold (x1 to x9),
-      and Osc 1 Morph the mix of the Triangle and the folded one; not in the Lite versions
-        - **Not compatible**: a user program with Osc 1 Wave Tri and Osc 1 Morph other than 0 sounds otherwise
-    - **Osc 1 Pls**: Osc 1 Shape is the pulse width 0% (0) to 50% (64) to 100% (127) (50% to 0% before),
-      the modulations staying within it
-        - **Not compatible**: a user program with Osc 1 Wave Pls sounds otherwise (set Osc 1 Shape to 64 - the value before / 2)
-    - EG Mod Amt and LFO Mod Amt to Osc 1 Shape (1S) are half as much (the full EG moves the Shape by its whole range)
-        - **Not compatible**: a user program with EG Mod Dst or LFO Mod Dst 1S moves the Shape half as much
-          (set the Amt to 64 + (the value before - 64) * 2)
-    - Osc 1 Saw: The Multi Saw Detune changes smoothly with Osc 1 Shape (in 33 steps before);
-      Filter Key Track in 65 steps (17 before)
-        - Not compatible: a user program may sound a little otherwise (the Presets the same)
-    - The Presets with the Multi Saw a little narrower (Osc 1 Shape 64 -> 48): only #17 M Saw Pad sounds otherwise
+    - **CC #16-19 are General Purpose Controller 1-4**: each controls the parameter that Assign #16-#19 (#48-51) set
+      for each program, by Assign Mode (#42) [Jmp|Cat|Rel]
+        - **Not compatible**: EG Att/Dec Key Track, LFO Depth, Voice Mode, and Osc 1 Shape moved to #44-47,
+          and EG Att/Dec Velo Sens to #43 (send the new numbers, and set them again in the user programs)
+    - **Osc 1 Tri** folds the wave (Osc 1 Shape: the gain, Osc 1 Morph: the mix); not in the Lite versions
+    - **Osc 1 Pls**: Osc 1 Shape is the pulse width 0% to 100% (64: 50%); EG/LFO Mod Amt to the Shape half as much
+    - **The values shown as they work** (e.g. "100" for 100 ms, "2k4" for 2.35 kHz) in the editor, PRA32-U2 Native, and the panel
+    - Finer steps of the Osc 1 Saw detune and Filter Key Track; the Multi Saw of the Presets a little narrower
     - The Note On Velocity at first is 64 (100 before): the panel, the Software Keyboard, and "pra32-u2-sample.mid"
-    - **The values shown as they work**, in 3 characters (e.g. "100" for 100 ms, "2k4" for 2.35 kHz, and "50%"),
-      in PRA32-U2 Editor, PRA32-U2 Native, and the panel (see "Values Shown" in the Parameter Guide)
-    - The user programs written to the flash without a copy in the RAM, and the program table shared by the synths:
-      about 3 KB (PRA32-U2) and 17 KB (PRA32-U2/M) more of the RAM free; the programs written before are read as they were
-    - Fix EG Mod Dst and LFO Mod Dst: 89 is 2P (Osc 2 Pitch) and 115 is F (Filter Cutoff), as shown
-    - PRA32-U2/M: Voice Group Mode: While the Main Synth is in Poly, the messages other than the notes go to all of the group
-    - PRA32-U2/P: Panel Play Mode [Key|K+S|Seq]: Add **K+S** (Key + Seq); Next Key + Play Key starts/stops the Step Sequencer
-        - **Not compatible**: Seq written before at 32-95 is now K+S (set it to 127)
-    - PRA32-U2/P: Add **Panel Key** (#110 on the Panel Channel), **Panel MIDI Tx** (#59), **Seq Ch Ofst** (#60),
-      **Seq Transpose** (#61), and **Seq Pattern** [Std|4x4] (#62); Seq Mode is now Seq Direction
-        - **Not compatible**: Seq Rx St/Sp (Seq T/Rx St/Sp before) no longer transmits Start and Stop (set Panel MIDI Tx to All)
-    - PRA32-U2/P: Seq Clock Src [Aut|Int|Ext]: Add **Aut** (the default: Internal, and External at a MIDI Clock)
-        - **Not compatible**: Int written before at 0-31 is now Aut (set it to 64), and Ext at 64-95 is now Int (set it to 127)
-    - PRA32-U2/P: The display: "#" and the program, and "S" and the channel of the Step Sequencer, on the top line;
-      "Ch" and the channel (e.g. "Ch 5 [Ly2]") below it; the pages without a 0 (e.g. "Page A-6"), and Group B reordered;
-      the ASCII symbols shown (e.g. "%" and "&"); see "GUI Pages" in README-PRA32-U2-P.md
-    - PRA32-U2/M/P: Prog - Key and Prog + Key go by 4 on the Layering of all, and by 2 on Ly2 and RLy
-    - PRA32-U2/P: Fix the wrong pitches of the Step Sequencer with Panel Pitch Ofst and Seq Pitch Ofst both near -60
-    - PRA32-U2 Editor: Assign #16-#19 selected by the names too, and the numbers that General Purpose Controller 1-4
-      control shown; Add the "Key" button (Panel Key); and no dark line between the keys of the soft keyboard
-        - **Not compatible**: the values of "Panel & Step Sequencer" kept before are not read (now kept by the names)
-    - The files renamed and moved: "CHANGELOG.md", "docs", "presets", "load-estimate", and "demo" (PRA32-U2 Demo)
-    - Tested with Arduino-Pico version 6.3.0
+    - About 3 KB (PRA32-U2) and 17 KB (PRA32-U2/M) more of the RAM free
+    - PRA32-U2/P: Panel Play Mode **K+S**, Seq Clock Src **Aut**, Panel Key, Panel MIDI Tx, Seq Ch Ofst, Seq Transpose, and Seq Pattern
+    - PRA32-U2/P: The display with the program and the channel (see "GUI Pages" in README-PRA32-U2-P.md);
+      Prog -/+ Key by 2 or 4 on the Layering
+    - **Not compatible** also, in the user programs and the panel parameters written before:
+        - Osc 1 Wave Tri: set Osc 1 Morph to 0; Osc 1 Wave Pls: set Osc 1 Shape to 64 - (the value before) / 2
+        - EG/LFO Mod Dst 1S: set the Amt to 64 + (the value before - 64) * 2
+        - Panel Play Mode Seq (32-95): set it to 127; Seq Clock Src Int (0-31): set it to 64, and Ext (64-95): to 127
+        - Seq T/Rx St/Sp no longer transmits Start and Stop: set Panel MIDI Tx to All
+        - PRA32-U2 Editor: the values of "Panel & Step Sequencer" kept before are not read
+    - Fixes: EG/LFO Mod Dst (89: 2P, 115: F), and the pitches of the Step Sequencer with Pitch Ofst near -60
+    - The files renamed and moved (e.g. "CHANGELOG.md" and "docs")
+    - Tested with Arduino-Pico version 6.4.0
 - v3.21.0 (2026-11-15):
     - **Filter Mode** [LP|BR|HP|BP|LP] changes smoothly: Low Pass (0 and 127), Band Reject (32), High Pass (64), and Band Pass (96), crossfaded in between
         - Not compatible: a user program with Filter Mode other than LP sounds otherwise (e.g. the High Pass, 127, is now LP: set it to 64); the Presets are LP, as before
