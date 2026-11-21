@@ -25,6 +25,7 @@ static int16_t  s_pending_program_change[4] = { -1, -1, -1, -1 };
 static uint8_t  s_pending_program_part[4]   = { 0, 0, 0, 0 };  // The parts of the program processed (see program_change_part())
 static int16_t  s_pending_next_program[4]   = { -1, -1, -1, -1 };  // The last program, after the one begun
 static boolean  s_pending_random_control[4] = { false, false, false, false };
+static boolean  s_pending_kept_for_now      = false;  // The programs not processed at once (when the waiting messages are full, see below)
 
 static void __not_in_flash_func(programChangeOf)(uint32_t synth, uint8_t program_number) {
   switch (synth) {
@@ -88,6 +89,9 @@ static boolean __not_in_flash_func(processPendingProgramChangeOf)(uint32_t synth
 
 // All the ones kept of the synths (not the messages waiting for them, see below)
 static void __not_in_flash_func(processAllPendingProgramChanges)() {
+  if (s_pending_kept_for_now) {
+    return;
+  }
   for (uint32_t i = 0; i < 4; ++i) {
     processPendingProgramChangeOf(i);
   }
@@ -658,8 +662,10 @@ static void __not_in_flash_func(handleAfterTouchChannelNow)(byte channel, byte p
 // arrived, after the programs (in the next loops, see processOnePendingProgramChange()), a few in a loop
 // (the latency of a message after a Program Change: up to about 8 loops, 11 ms, with the Layering); a Program Change
 // (or Program Change by CC) is kept at once if no message is waiting (the last of them kept, as before). If the
-// messages fill the space, the oldest of them is processed at once, after the programs (as before), so that none of
-// them is lost
+// messages fill the space (Program Changes faster than the programs are processed), the oldest of them is processed
+// at once, but without the programs kept (still half a program a loop), so that none of them is lost and a loop is
+// not loaded: a Program Change then keeps its program as the last one (those before it dropped), and a note goes to
+// the synth while its program is processed (in the parameters of the program set so far)
 static const uint32_t WAITING_MESSAGES_MAX    = 64;
 static const uint32_t WAITING_MESSAGES_A_LOOP = 4;  // About the messages that arrive in a loop (about 4 at most), not to load a loop more
 
@@ -737,9 +743,10 @@ static boolean __not_in_flash_func(waitForProgramChanges)(uint8_t type, byte cha
   }
   if (s_waiting_count >= WAITING_MESSAGES_MAX) {
     // Full (e.g. Program Changes and notes back to back faster than the programs are processed): the oldest
-    // message processed now, after the programs kept (as before), to make room for this one (none lost)
-    processAllPendingProgramChanges();
+    // message processed now, without the programs kept (see above), to make room for this one (none lost)
+    s_pending_kept_for_now = true;
     dispatchWaitingMessage();
+    s_pending_kept_for_now = false;
   }
   s_waiting_messages[(s_waiting_head + s_waiting_count) % WAITING_MESSAGES_MAX] = { type, channel, data_1, data_2 };
   ++s_waiting_count;

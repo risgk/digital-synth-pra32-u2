@@ -103,7 +103,10 @@ PROGRAM_CHANGES_16_RS="CF$(printf '00%.0s' $(seq 255))"
 PC_BY_CC_RS="B0$(printf '707F7000%.0s' $(seq 64))"  # Program Change by CC #112 (#0), the value 127 and 0 by turns
 PC_BY_CC_16_RS="BF$(printf '707F7000%.0s' $(seq 64))"
 # Program Change #0 and #16 (another program, #16 Synth Pad) by turns, each with a Note On and Off right after it, so that
-# the program is set in the loop of the note (a program kept is processed before the next message of the synth)
+# the program is set in the loop of the note (a program kept is processed before the next message of the synth);
+# measured longer (64 loops after the warm-up), so that the messages waiting on PRA32-U2/M/P fill the space (after about
+# 20 loops) and are processed one by one as more arrive
+PC_NOTE_LOOPS='--loops 72'
 PC_NOTE="$(printf 'C000904864804840C010904864804840%.0s' $(seq 16))"
 PC_NOTE_16="$(printf 'CF009F48648F4840CF109F48648F4840%.0s' $(seq 16))"
 row '#0 Synth Pad, 4 notes' "$ESTIMATED" --program 0
@@ -117,7 +120,7 @@ row 'Poly, with Program Change #0 (Poly itself) back to back by UART MIDI (Runni
 row 'Poly, with Program Change by CC #112 (#0) back to back by UART MIDI (Running Status) and USB MIDI' "$ESTIMATED" $POLY \
   --uart-midi $PC_BY_CC_RS --usb-midi B0707FB07000
 row 'Poly, with Program Change #0 and #16 by turns, each with Note On and Off right after it, by UART MIDI and USB MIDI' "$ESTIMATED" $POLY \
-  --uart-midi $PC_NOTE --usb-midi C000904864804840C010904864804840
+  $PC_NOTE_LOOPS --uart-midi $PC_NOTE --usb-midi C000904864804840C010904864804840
 MODULES_OF=mp
 row '4 Synths: #5 Sync Lead (Mono, and Delay Mode Rev) by MIDI Channel 16 (Layering), 4 notes' 'mp ml' $SYNTHS
 MODULES_OF=''
@@ -128,7 +131,7 @@ row '4 Synths, with Program Change #0 (4 Synths itself) by MIDI Channel 16 back 
 row '4 Synths, with Program Change by CC #112 (#0) by MIDI Channel 16 back to back by UART MIDI (Running Status) and USB MIDI' 'mp ml' $SYNTHS \
   --uart-midi $PC_BY_CC_16_RS --usb-midi BF707FBF7000
 row '4 Synths, with Program Change #0 and #16 by MIDI Channel 16 by turns, each with Note On and Off right after it, by UART MIDI and USB MIDI' 'mp ml' $SYNTHS \
-  --uart-midi $PC_NOTE_16 --usb-midi CF009F48648F4840CF109F48648F4840
+  $PC_NOTE_LOOPS --uart-midi $PC_NOTE_16 --usb-midi CF009F48648F4840CF109F48648F4840
 
 # The jobs, the longest first: those of PRA32-U2/M/P (the 4 Synths, queued last, first of them), then the others
 awk '{ a[NR] = $0 } END { for (i = NR; i >= 1; i--) if (a[i] ~ / build\/mp\//) print a[i]
