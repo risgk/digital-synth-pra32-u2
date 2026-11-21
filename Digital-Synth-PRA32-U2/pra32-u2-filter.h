@@ -553,8 +553,8 @@ public:
 #endif
 
     // The Drive's gain taken back off ahead of the output clip, with the output level by the Resonance; the output
-    // clipped at +-1.0 (a single instruction), as it rarely reaches 0.75 with the output level (the Presets: the peaks
-    // of #24 Synth Brs alone, up to about 1.03), so that a soft clip (soft_clip_output(), a knee from 0.75) is not
+    // clipped at +-1.0 (a single instruction), as it rarely reaches 0.75 with the output level (the Oscs stay below it,
+    // but e.g. the Noise at a high Resonance), so that a soft clip (soft_clip_output(), a knee from 0.75) is not
     // worth its load
     return saturate_output(multiply_shift_right(y_0, m_output_gain, 16 + FILTER_CALC_SCALING_BITS));
   }
