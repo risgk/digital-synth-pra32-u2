@@ -1,5 +1,7 @@
 ## Digital Synth PRA32-U2 Changelog
 
+- v3.23.0 (2026-??-??):
+    - Tested with Arduino-Pico version 6.3.0
 - v3.22.0 (2026-11-21):
     - **CC #16-19** are now **General Purpose Controller 1-4**: each works as the Control Change of the number that **Assign #16-#19** (#48-51) set
       (0, 16-19, 48-51, 64, 80, 106, and 111-127: Off), by **Assign Mode** [Jmp|Cat|Rel] (#42): at once (Jmp),
