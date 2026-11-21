@@ -2,18 +2,16 @@
 
 - v3.22.1 (2026-??-??):
     - PRA32-U2/M: A Program Change is processed over 2 loops for each synth, and the messages after it wait for it
-      (up to about 11 ms with the Layering), so that a Program Change and the notes right after it do not overload a loop;
-      if more wait than 64 (a flood of them), the oldest is processed at once without the programs (a note in the program
-      being set, and a Program Change as the last one); PRA32-U2/M/P Web too
-    - A program sets Voice Mode after the other parameters (the sound right after a Program Change of Voice Mode a little otherwise)
-    - Filter: The output is clipped at +-1.0 (a soft clip from 0.75 before), lighter (e.g. 2.4% less of a loop,
-      the 4 synths of PRA32-U2/M (Lite)); the Presets sound the same, and the Oscs stay below 0.75
-      (e.g. the Noise at a high Resonance goes over it)
+      (up to about 11 ms with the Layering), so that it does not overload a loop; PRA32-U2/M/P Web too
+        - With more than 64 of them waiting (a flood), the oldest is processed at once, in the program being set
+    - A program sets Voice Mode last (the sound right after a Program Change of Voice Mode a little otherwise)
+    - Filter: The output is clipped at +-1.0 (a soft clip from 0.75 before), a little lighter
+      (e.g. 1% less of a loop, PRA32-U2/M (Lite) on the device); the Presets sound the same
     - PRA32-U2/P: Seq Velo 4-7 of Seq Pattern 4x4 shift the velocity by -63 to +63 (-64 at 0 before)
-    - Fixes: PRA32-U2/M: a note right after a Program Change of more than one synth (e.g. by the Layering) processed
-      all the programs in one loop (over 100% estimated, even once), and so did a change of Voice Group Mode
-      or of Poly of the Main Synth (e.g. by a Program Change)
-    - PRA32-U2 Load Estimate: Add the cases of a Program Change with a note right after it (measured for 64 loops)
+    - Fixes: PRA32-U2/M: a Program Change of more than one synth (e.g. by the Layering) with a note right after it,
+      and a change of Voice Group Mode or of Poly of the Main Synth, processed all the programs in one loop
+      (over 100% estimated)
+    - PRA32-U2 Load Estimate: Add the cases of a Program Change with a note right after it
     - Tested with Arduino-Pico version 6.4.0
 - v3.22.0 (2026-11-21):
     - **CC #16-19 are General Purpose Controller 1-4**: each controls the parameter that Assign #16-#19 (#48-51) set
