@@ -58,10 +58,17 @@ static boolean __not_in_flash_func(processPendingProgramChangeStepOf)(uint32_t s
       s_pending_program_part[synth]   = 0;
       s_pending_next_program[synth]   = -1;
     }
-    do {
+    if (all && (s_pending_program_part[synth] == 0)) {  // (the whole program at once, as before)
+      programChangeOf(synth, static_cast<uint8_t>(program_number));
+      s_pending_program_part[synth] = g_synth.PROGRAM_CHANGE_PARTS;
+    }
+    while (s_pending_program_part[synth] < g_synth.PROGRAM_CHANGE_PARTS) {
       programChangePartOf(synth, static_cast<uint8_t>(program_number), s_pending_program_part[synth]);
       ++s_pending_program_part[synth];
-    } while (all && (s_pending_program_part[synth] < g_synth.PROGRAM_CHANGE_PARTS));
+      if (!all) {
+        break;
+      }
+    }
     if (s_pending_program_part[synth] >= g_synth.PROGRAM_CHANGE_PARTS) {
       s_pending_program_change[synth] = s_pending_next_program[synth];  // (the next, if any)
       s_pending_program_part[synth]   = 0;
