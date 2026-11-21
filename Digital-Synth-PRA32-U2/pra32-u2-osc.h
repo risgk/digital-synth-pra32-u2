@@ -93,6 +93,7 @@ class PRA32_U2_Osc {
   uint32_t       m_osc1_sqr_shape_offset[4][16];
   uint32_t       m_osc1_wt_shape_offset[4][16];
   uint16_t       m_osc1_phase_modulation_frequency_ratio[4];
+  uint16_t       m_osc1_phase_modulation_frequency_ratio_candidate;  // By m_osc1_morph_current
   uint8_t        m_osc1_coarse[4];               // Osc 1 Tri: the Note Number of the mipmap of Osc 1,
   int32_t        m_tri_fold_g[4];                // the gain g of the triangle fold (Q12, 1 to 9),
   int32_t        m_tri_fold_k[4];                // the jump of the slope at the peak of the Triangle Wave (per sample),
@@ -162,6 +163,7 @@ public:
   , m_osc1_sqr_shape_offset()
   , m_osc1_wt_shape_offset()
   , m_osc1_phase_modulation_frequency_ratio()
+  , m_osc1_phase_modulation_frequency_ratio_candidate(2)  // (((0 + 2) >> 2) << 1) + 2, at Morph 0
   , m_osc1_coarse()
   , m_tri_fold_g()
   , m_tri_fold_k()
@@ -612,7 +614,11 @@ private:
   // and written to BASE_1AND0 of INTERP0 at once, each half sign-extended (both lanes signed), and the
   // weight is written as it is, as the blend uses only its 8 LSBs: fewer instructions, the same result
   INLINE int16_t get_wave_level(const int16_t* wave_table, uint32_t phase_24) {
-    uint32_t samples_bits = static_cast<uint32_t>(wave_table[-1]);
+    return get_wave_level_of_bits(wave_table, phase_24, static_cast<uint32_t>(wave_table[-1]));
+  }
+
+  // The same, with the samples (bits) known (e.g. the Sine Wave, OSC_WAVE_TABLE_SAMPLES_BITS)
+  INLINE int16_t get_wave_level_of_bits(const int16_t* wave_table, uint32_t phase_24, uint32_t samples_bits) {
     uint32_t curr_index  = (phase_24 & 0xFFFFFF) >> (24 - samples_bits);
 #if defined(ARDUINO_ARCH_RP2040)
     uint32_t both_data;
@@ -671,15 +677,16 @@ private:
       uint16_t osc1_phase_modulation_depth = maximum(m_osc1_shape_current[N] - (128 << 8), 0);
 
       uint32_t phase_3 = (((osc1_phase >> 1) & 0x01FFFFFF) * m_osc1_phase_modulation_frequency_ratio[N]) >> 1;
-      const int16_t* wave_table_sine = get_wave_table(WAVEFORM_SINE, 60);
-      int16_t wave_3 = get_wave_level(wave_table_sine, phase_3);
+      // The one Sine table (the same for all the notes) and its samples, known at the compile time
+      const int16_t* wave_table_sine = g_osc_sine_wave_table_h1 + 1;
+      int16_t wave_3 = get_wave_level_of_bits(wave_table_sine, phase_3, OSC_WAVE_TABLE_SAMPLES_BITS);
 
       uint32_t phase_0 = osc1_phase + ((wave_3 * osc1_phase_modulation_depth) >> 4);
-      int32_t wave_0 = get_wave_level(wave_table_sine, phase_0);
+      int32_t wave_0 = get_wave_level_of_bits(wave_table_sine, phase_0, OSC_WAVE_TABLE_SAMPLES_BITS);
       result += (wave_0 * m_osc1_gain * OSC_LEVEL) >> 8;
 
-      int32_t phase_modulation_frequency_ratio_candidate = (((m_osc1_morph_current + 2) >> 2) << 1) + 2;
-      m_osc1_phase_modulation_frequency_ratio[N] = (m_osc1_phase_modulation_frequency_ratio[N] * (1 - new_period_osc1)) + (phase_modulation_frequency_ratio_candidate * new_period_osc1);
+      // The ratio by the Morph (see process_at_low_rate_global()), taken at the start of a period
+      m_osc1_phase_modulation_frequency_ratio[N] = (m_osc1_phase_modulation_frequency_ratio[N] * (1 - new_period_osc1)) + (m_osc1_phase_modulation_frequency_ratio_candidate * new_period_osc1);
     } else if ((m_waveform[0] == WAVEFORM_SAW) || (m_waveform[0] == WAVEFORM_SAW2)) {
 if constexpr (RESTRICT_SAW == false) {
       // The detune a sample, by update_multi_saw_detune() at the control rate
@@ -959,6 +966,7 @@ if constexpr (RESTRICT_SQR_WT == false) {  // the same load at any Morph, as the
     // does not move in steps while smoothed
     approach_exp_slow(m_osc1_morph_stage_1, m_osc1_morph_current_q16, static_cast<int32_t>(m_osc1_morph_target) << 16);
     m_osc1_morph_current = (m_osc1_morph_current_q16 + (1 << 15)) >> 16;
+    m_osc1_phase_modulation_frequency_ratio_candidate = (((m_osc1_morph_current + 2) >> 2) << 1) + 2;
 
     int32_t morph    = m_osc1_morph_current_q16 >> 16;
     int32_t fraction = m_osc1_morph_current_q16 & 0xFFFF;

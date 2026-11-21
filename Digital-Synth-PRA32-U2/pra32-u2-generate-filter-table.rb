@@ -138,37 +138,46 @@ def resonance_level_db(controller_value)
   end
 end
 
-def write_filter_table(file, name, comment, fraction_bits)
-  entries = controller_values_with_guard(FILTER_TABLE_LENGTH).each_with_index.map do |controller_value, index|
+def filter_table_entries(name, fraction_bits)
+  controller_values_with_guard(FILTER_TABLE_LENGTH).each_with_index.map do |controller_value, index|
     value = yield(controller_value)
     raise "#{name}[#{index}] out of range" if value.abs >= (2 ** (31 - fraction_bits))
     (value * (1 << fraction_bits)).round
   end
+end
+
+def write_filter_table(file, name, comment, fraction_bits, &block)
+  entries = filter_table_entries(name, fraction_bits, &block)
   file.print("// #{comment}\n")
   # Not const, so that the small tables are placed in the SRAM, not in the flash
   write_array(file, "int32_t #{name}[FILTER_TABLE_LENGTH]", entries, per_line: 8, format: "%+11d")
 end
 
 write_header("pra32-u2-filter-table.h") do |file|
-  write_filter_table(file, "g_filter_g_table", "g = tan(pi * f_0 / f_s)", FILTER_G_FRACTION_BITS) do |controller_value|
+  g_entries = filter_table_entries("g", FILTER_G_FRACTION_BITS) do |controller_value|
     g = cutoff_g(controller_value)
     printf("cutoff: %3d, f_0: %9.3f, g: %9.6f\n", controller_value, cutoff_f_0(controller_value), g)
     g
   end
 
   # The filter multiplies this by t * 5, so that t needs no division
-  write_filter_table(file, "g_filter_self_osc_table", "kappa / g / 5", FILTER_TABLE_FRACTION_BITS) do |controller_value|
+  self_osc_entries = filter_table_entries("kappa / g / 5", FILTER_TABLE_FRACTION_BITS) do |controller_value|
     h = SELF_OSC_KAPPA / cutoff_g(controller_value) / 5.0
     printf("cutoff: %3d, kappa / g / 5: %9.6f\n", controller_value, h)
     h
   end
 
   # The filter scales the Resonance above 122 by this
-  write_filter_table(file, "g_filter_self_osc_weight_table", "Weight of the self-oscillation (1 .. 0)", FILTER_TABLE_FRACTION_BITS) do |controller_value|
+  self_osc_weight_entries = filter_table_entries("self-oscillation weight", FILTER_TABLE_FRACTION_BITS) do |controller_value|
     w = self_osc_weight(controller_value)
     printf("cutoff: %3d, self-oscillation weight: %9.6f\n", controller_value, w)
     w
   end
+
+  # The three by the cutoff in a row each (FILTER_CUTOFF_TABLE_WIDTH), so that one index and one fraction serve them all
+  file.print("// By the cutoff: g = tan(pi * f_0 / f_s), kappa / g / 5, and the weight of the self-oscillation (1 .. 0)\n")
+  write_array(file, "int32_t g_filter_cutoff_table[FILTER_TABLE_LENGTH * FILTER_CUTOFF_TABLE_WIDTH]",
+              g_entries.zip(self_osc_entries, self_osc_weight_entries).flatten, per_line: 3, format: "%+11d")
 
   # k = 1 / Q, the damping of the ZDF/TPT State Variable Filter
   write_filter_table(file, "g_filter_k_table", "k = 1 / Q", FILTER_TABLE_FRACTION_BITS) do |controller_value|

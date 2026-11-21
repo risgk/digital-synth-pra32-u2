@@ -517,8 +517,9 @@ public:
     // predicted from the previous sample into the linear solve (which then
     // needs a division per sample): here the leak is evaluated at this
     // sample's linear solution, and taken off as the chord step says
-    int32_t high_pass_lin = multiply_shift_right(m_one_over_a_0,      x_0 - s_2, FILTER_TABLE_FRACTION_BITS)
-                          - multiply_shift_right(m_g_plus_k_over_a_0, s_1,       FILTER_TABLE_FRACTION_BITS);
+    // (the products summed in 64 bits, then shifted once)
+    int32_t high_pass_lin = static_cast<int32_t>(((static_cast<int64_t>(m_one_over_a_0) * (x_0 - s_2))
+                                                - (static_cast<int64_t>(m_g_plus_k_over_a_0) * s_1)) >> FILTER_TABLE_FRACTION_BITS);
     int32_t band_pass_lin = s_1 + multiply_shift_right(m_g, high_pass_lin, FILTER_G_FRACTION_BITS);
 
     int32_t leak_step_over_a_0;
@@ -541,9 +542,10 @@ public:
     // the exact one, x_0 - s_2 - (g + k) * band_pass, differs by (g + k) times the chord step's correction, which is
     // small at the levels the High Pass passes (and the Band Reject, the low pass plus the high pass,
     // x_0 - k * band_pass less the same difference, is slightly shallower at a high level)
-    int32_t y_0 = multiply_shift_right(low_pass,      m_mode_lp_gain, 16)
-                + multiply_shift_right(high_pass_lin, m_mode_hp_gain, 16)
-                + multiply_shift_right(band_pass,     m_mode_bp_gain, 16);
+    // (the products summed in 64 bits, then shifted once)
+    int32_t y_0 = static_cast<int32_t>(((static_cast<int64_t>(low_pass)      * m_mode_lp_gain)
+                                      + (static_cast<int64_t>(high_pass_lin) * m_mode_hp_gain)
+                                      + (static_cast<int64_t>(band_pass)     * m_mode_bp_gain)) >> 16);
 
     // Remove the DC from the biased leak of the band pass
     m_dc_blocker += (y_0 - m_dc_blocker) >> DC_BLOCKER_SHIFT;
@@ -593,15 +595,19 @@ private:
     int32_t drift_mod = multiply_shift_right((m_cutoff_drift_noise >> 14) * m_cutoff_drift, DRIFT_SCALE, 24);
     m_cutoff_current = clamp(smoothed.m_cutoff_base_current + lfo_mod_target + pitch_mod + eg_mod_target + drift_mod, 0, CONTROLLER_VALUE_Q16_MAX);
 
-    // 5. Interpolate the coefficient tables and solve the zero-delay feedback
-    int32_t g = interpolate_filter_table(g_filter_g_table, m_cutoff_current);
+    // 5. Interpolate the coefficient tables and solve the zero-delay feedback; the three by the cutoff are in
+    // a row each of g_filter_cutoff_table, by one index and one fraction
+    const int32_t* cutoff_row = &g_filter_cutoff_table[(static_cast<uint32_t>(m_cutoff_current) >> 16) * FILTER_CUTOFF_TABLE_WIDTH];
+    const int32_t  cutoff_fraction = m_cutoff_current & 0xFFFF;
+    int32_t g = cutoff_row[0] + multiply_shift_right(cutoff_row[FILTER_CUTOFF_TABLE_WIDTH + 0] - cutoff_row[0], cutoff_fraction, 16);
+    int32_t self_osc_h = cutoff_row[1] + multiply_shift_right(cutoff_row[FILTER_CUTOFF_TABLE_WIDTH + 1] - cutoff_row[1], cutoff_fraction, 16);
+    int32_t self_osc_weight = cutoff_row[2] + multiply_shift_right(cutoff_row[FILTER_CUTOFF_TABLE_WIDTH + 2] - cutoff_row[2], cutoff_fraction, 16);
 
     // At a high cutoff, the Resonance above 122 is scaled down toward 122, so
     // that the self-oscillation fades out before its 3rd harmonic folds back
     // into the audible range (see pra32-u2-generate-filter-table.rb for an
     // alternative that removes the 3rd harmonic in soft_clip() instead)
     int32_t self_osc_over = maximum(resonance_current - SELF_OSC_START_Q16, 0);
-    int32_t self_osc_weight = interpolate_filter_table(g_filter_self_osc_weight_table, m_cutoff_current);
     int32_t resonance = resonance_current - self_osc_over
                       + multiply_shift_right(self_osc_over, self_osc_weight, FILTER_TABLE_FRACTION_BITS);
     int32_t k = interpolate_filter_table(g_filter_k_table, resonance);
@@ -615,7 +621,7 @@ private:
     // k -= t * kappa / g, where t = (Resonance - 122) / 5, clamped to 0 .. 1,
     // and the table holds kappa / g / 5
     int32_t self_osc_t_times_5 = clamp(resonance - SELF_OSC_START_Q16, 0, SELF_OSC_RANGE_Q16);
-    int32_t self_osc_k = multiply_shift_right(interpolate_filter_table(g_filter_self_osc_table, m_cutoff_current), self_osc_t_times_5,
+    int32_t self_osc_k = multiply_shift_right(self_osc_h, self_osc_t_times_5,
                                               16 + FILTER_TABLE_FRACTION_BITS - FILTER_G_FRACTION_BITS);  // Q26
     k -= minimum(self_osc_k, SELF_OSC_K_FLOOR_Q26) << (FILTER_TABLE_FRACTION_BITS - FILTER_G_FRACTION_BITS);
 
