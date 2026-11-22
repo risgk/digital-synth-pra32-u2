@@ -98,7 +98,7 @@ node pra32-u2-web-test.js
     - "pra32-u2-web-build.js": the build script
     - "pra32-u2-web-test.js": the test of the built file with Node.js (plays the Factory Presets
       at 48 kHz, 44.1 kHz, and 96 kHz, and checks that they are silent after the note off; and PRA32-U2/M/P Web by the channels,
-      and its Step Sequencer by the Panel Channel)
+      its Step Sequencer by the Panel Channel, and a flood of Program Changes: no stuck notes, and the last program set)
 
 
 ## License
