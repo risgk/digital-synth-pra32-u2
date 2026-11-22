@@ -1335,7 +1335,84 @@ var transpose = 0;
 var fileReaderImportAll = new FileReader();
 var fileReaderImportCurrent = new FileReader();
 
+// The tooltips of the parameter names: the meanings of the choices shown in 3 characters, and the units of the values
+// shown (which are shown without them), at the least; see the Parameter Guide for more
+const PARAM_TOOLTIPS = [
+  [OSC_1_WAVE     , "Saw: Saw, Sqr: Square, Tri: Triangle, Sin: Sine, WT: Wave Tables, Pls: Pulse"],
+  [MIXER_SUB_OSC  , "N: Noise, S: Sub Osc (e.g. N64: Noise 100%)"],
+  [OSC_1_SHAPE    , "By Osc 1 Wave: Saw: the detune (cents), Sqr: the sync ratio, Tri: the fold gain, Sin: the FM depth (periods), WT: the Shape, Pls: the pulse width (%)"],
+  [OSC_1_MORPH    , "By Osc 1 Wave: Saw, Sqr, and Tri: the mix (%), Sin: the FM ratio, WT: the table, Pls: P (Pulse) to 0 (Saw) to S (2nd Saw)"],
+  [OSC_2_WAVE     , "Saw: Saw, Sqr: Square, Tri: Triangle, Sin: Sine, O1: as Osc 1 Wave, Nos: Noise"],
+  [MIXER_OSC_MIX  , "Osc 2 (%)"],
+  [OSC_2_COARSE   , "Semitones"],
+  [OSC_2_PITCH    , "Cents, and semitones above 50 cents (\".\": .5)"],
+  [FILTER_CUTOFF  , "Hz (e.g. 2k4: 2.4 kHz)"],
+  [FILTER_RESO    , "Q (Osc: self-oscillation)"],
+  [FILTER_EG_AMT  , "Semitones of the cutoff, at the full EG"],
+  [FILTER_KEY_TRK , "%"],
+  [EG_ATTACK      , "ms (s with \".\")"],
+  [EG_DECAY       , "ms (s with \".\")"],
+  [EG_SUSTAIN     , "%"],
+  [EG_RELEASE     , "ms (s with \".\")"],
+  [EG_OSC_AMT     , "By EG Mod Dst, at the full EG: P and 2P: cents, and semitones from 1, F: semitones of the cutoff, 1S: the Shape"],
+  [EG_OSC_DST     , "P: Osc 1 & 2 Pitch, 2P: Osc 2 Pitch, F: Filter Cutoff, 1S: Osc 1 Shape"],
+  [VOICE_MODE     , "Pol: Polyphonic, Mon: Monophonic, LP: Legato Portamento, Lgt: Legato"],
+  [PORTAMENTO     , "ms (s with \".\"); with Portamento Mode LSw and LAu, of an octave"],
+  [LFO_WAVE       , "Tri: Triangle, Sin: Sine, Nos: Red Noise, Saw: Saw, S&H: Sample & Hold, Sqr: Square"],
+  [LFO_FADE_TIME  , "ms (s with \".\")"],
+  [LFO_RATE       , "Hz (with LFO Wave Nos: the cutoff of the noise, Off: none)"],
+  [LFO_DEPTH      , "%"],
+  [LFO_OSC_AMT    , "By LFO Mod Dst, at the full LFO: P and 2P: cents, and semitones from 1, F: semitones of the cutoff, 1S: the Shape"],
+  [LFO_OSC_DST    , "P: Osc 1 & 2 Pitch, 2P: Osc 2 Pitch, F: Filter Cutoff, 1S: Osc 1 Shape"],
+  [LFO_FILTER_AMT , "Semitones of the cutoff, at the full LFO"],
+  [AMP_GAIN       , "dB (Off: silent)"],
+  [FILTER_MODE    , "LP: Low Pass, BR: Band Reject, HP: High Pass, BP: Band Pass; L-R, R-H, H-B, B-L: in between"],
+  [FILTER_DRIVE   , "dB"],
+  [AMP_ATTACK     , "ms (s with \".\")"],
+  [AMP_DECAY      , "ms (s with \".\")"],
+  [AMP_SUSTAIN    , "%"],
+  [AMP_RELEASE    , "ms (s with \".\")"],
+  [P_BEND_RANGE   , "Semitones"],
+  [COARSE_TUNE    , "Semitones"],
+  [FINE_TUNE      , "Cents"],
+  [A_D_VEL_SENS   , "%"],
+  [REL_VEL_SENS   , "%"],
+  [EG_VEL_SENS    , "%"],
+  [AMP_VEL_SENS   , "%"],
+  [A_D_KEY_TRK    , "% of +-12 / octave"],
+  [VOICE_ASGN_MODE, "1: Round Robin, 2: Smaller Number First, 3: 1 reusing the note-off voices, 4: 2 reusing the note-off voices"],
+  [VOICE_GRP_MODE , "Off, Ly2: Layering of 2 (x 2), RLy: Round Robin of 2, layered, RR2: Round Robin of 2 (x 2), RR4: Round Robin of 4, RR3: Round Robin of 3 (PRA32-U2/M)"],
+  [LFO_TRIG_MODE  , "Aut: Auto, Off, On, VOn: Voice On, VOf: Voice Off, VAu: Voice Auto (V: an LFO for each Voice)"],
+  [BTH_FILTER_AMT , "Semitones of the cutoff, at the full breath"],
+  [BTH_AMP_MOD    , "Off, Q: Quadratic, L: Linear, LO: Linear Open, QO: Quadratic Open, Opn: Open"],
+  [PORTA_MODE     , "ESw: Exponential Switch, LSw: Linear Switch, LAu: Linear Auto, EAu: Exponential Auto"],
+  [OSC_SAW_W_MODE , "Str: Straight, Cur: Curved"],
+  [STRETCH_TUNE   , "Cents at note 108"],
+  [PAN            , "L: Left, C: Center, R: Right"],
+  [ASSIGN_MODE    , "Jmp: Jump, Cat: Catch, Rel: Relative"],
+  [DISTORTION     , "dB"],
+  [FX_ROUTING     , "Dst: Distortion, Cho: Chorus, Dly: Delay, Cmp: Compressor (where the FX begin), Dry: none"],
+  [CHORUS_MIX     , "%"],
+  [CHORUS_RATE    , "Hz"],
+  [CHORUS_DEPTH   , "ms"],
+  [DELAY_LEVEL    , "%"],
+  [DELAY_MODE     , "Ste: Stereo Delay, PP: Ping Pong Delay, Rev: Reverb"],
+  [DELAY_TIME     , "ms"],
+  [DELAY_FEEDBACK , "%"],
+];
+
+function setParamTooltips() {
+  PARAM_TOOLTIPS.forEach(function([number, text]) {
+    var input = document.getElementById("input" + controlNumberToStringMap.get(number));
+    var name = input && input.parentElement.previousElementSibling;
+    if (name && name.classList.contains("param-name")) {
+      name.title = text;
+    }
+  });
+}
+
 window.onload = function() {
+  setParamTooltips();
   // "PRA32-U2 Editor" and "v3.23.0" apart, styled apart
   var nameEnd = APP_NAME_VERSION.lastIndexOf(" v");
   var appName = document.createElement("span");
@@ -2360,6 +2437,103 @@ function shapeAmtDispValue(value) {
   return (a == 0) ? "0" : (((a < 100) ? ((n > 0) ? "+" : "-") : "") + String(a));
 }
 
+// The tooltip of the value shown (e.g. "[LSw]" -> "Linear Switch", "[100]" -> "100 ms", "[2k4]" -> "2.4 kHz"): the
+// meaning of the choice, or the value with its unit (and its sign where it does not fit), at the least
+const VALUE_CHOICE_NAMES = {
+  "Saw": "Saw", "Sqr": "Square", "Tri": "Triangle", "Sin": "Sine", "WT": "Wave Tables", "Pls": "Pulse", "O1": "as Osc 1 Wave",
+  "Nos": "Noise", "P": "Osc 1 & 2 Pitch", "2P": "Osc 2 Pitch", "F": "Filter Cutoff", "1S": "Osc 1 Shape",
+  "Pol": "Polyphonic", "Mon": "Monophonic", "LP": "Low Pass", "Lgt": "Legato", "S&H": "Sample & Hold",
+  "BR": "Band Reject", "HP": "High Pass", "BP": "Band Pass", "L-R": "Low Pass to Band Reject", "R-H": "Band Reject to High Pass",
+  "H-B": "High Pass to Band Pass", "B-L": "Band Pass to Low Pass",
+  "Ly2": "Layering of 2 (x 2)", "RLy": "Round Robin of 2, layered", "RR2": "Round Robin of 2 (x 2)", "RR4": "Round Robin of 4",
+  "RR3": "Round Robin of 3", "Aut": "Auto", "VOn": "Voice On", "VOf": "Voice Off", "VAu": "Voice Auto",
+  "Q": "Quadratic", "L": "Linear", "LO": "Linear Open", "QO": "Quadratic Open", "Opn": "Open",
+  "ESw": "Exponential Switch", "LSw": "Linear Switch", "LAu": "Linear Auto", "EAu": "Exponential Auto",
+  "Str": "Straight", "Cur": "Curved", "Jmp": "Jump", "Cat": "Catch", "Rel": "Relative",
+  "Dst": "Distortion", "Cho": "Chorus", "Dly": "Delay", "Cmp": "Compressor", "Dry": "Dry",
+  "Ste": "Stereo Delay", "PP": "Ping Pong Delay", "Rev": "Reverb",
+};
+
+function valueTooltip(number, value, disp) {
+  var v = parseInt(value), d = String(disp);
+  var signed = function(text) {  // the sign where it does not fit (e.g. "100" for -100)
+    return (/^[0-9.]/.test(text) && (text != "0") && (v < 64)) ? "-" + text : (/^[0-9.]/.test(text) && (text != "0") && (v > 64)) ? "+" + text : text;
+  };
+  var num = function(text) { return text.replace(/^(-|\+)?\./, "$10.").replace(/\.$/, ".5"); };  // ".5" -> "0.5", "1." -> "1.5"
+  var time = function(text) { return (text == "0") ? "0 (none)" : (text.indexOf(".") >= 0) ? text.replace(/\.$/, "") + " s" : text + " ms"; };
+  var hz = function(text) { return /k/.test(text) ? text.replace(/k(\d)/, ".$1").replace(/k$/, "") + " kHz" : num(text) + " Hz"; };
+  var wave = function(n) { return Math.floor(((parseInt(localStorage.getItem("key" + controlNumberToStringMap.get(n))) || 0) * 10 + 128) >> 8); };
+  switch (number) {
+  case VOICE_MODE:
+    return (d == "LP") ? "Legato Portamento" : (VALUE_CHOICE_NAMES[d] || "");
+  case LFO_WAVE:
+    return (d == "Nos") ? "Red Noise" : (VALUE_CHOICE_NAMES[d] || "");
+  case OSC_2_WAVE:
+    return (d == "Nos") ? "White Noise" : (VALUE_CHOICE_NAMES[d] || "");
+  case OSC_1_WAVE: case EG_OSC_DST: case LFO_OSC_DST: case FILTER_MODE:
+  case VOICE_GRP_MODE: case LFO_TRIG_MODE: case BTH_AMP_MOD: case PORTA_MODE: case OSC_SAW_W_MODE: case ASSIGN_MODE:
+  case FX_ROUTING: case DELAY_MODE:
+    return VALUE_CHOICE_NAMES[d] || "";
+  case VOICE_ASGN_MODE:
+    return "Mode " + d;
+  case EG_ATTACK: case EG_DECAY: case EG_RELEASE: case AMP_ATTACK: case AMP_DECAY: case AMP_RELEASE: case LFO_FADE_TIME:
+    return time(d);
+  case PORTAMENTO:
+    return time(d) + (((wave(PORTA_MODE) >= 2) && (wave(PORTA_MODE) <= 4) && (d != "0")) ? " (an octave)" : "");
+  case FILTER_CUTOFF: case CHORUS_RATE:
+    return hz(d);
+  case LFO_RATE:
+    return (d == "Off") ? "Off (no low pass)" : hz(d) + ((wave(LFO_WAVE) == 2) ? ", the cutoff of the noise" : "");
+  case FILTER_RESO:
+    return (d == "Osc") ? "Self-oscillation" : "Q " + num(d);
+  case AMP_GAIN:
+    return (d == "Off") ? "Off (silent)" : d + " dB";
+  case FILTER_DRIVE: case DISTORTION:
+    return d + " dB";
+  case CHORUS_DEPTH: case DELAY_TIME:
+    return num(d) + " ms";
+  case OSC_2_COARSE: case COARSE_TUNE: case P_BEND_RANGE:
+    return d + " semitones";
+  case OSC_2_PITCH:
+    return (Math.abs(v - 64) <= 32) ? d + " cents" : num(signed(d)) + " semitones";
+  case FINE_TUNE:
+    return signed(d) + " cents";
+  case STRETCH_TUNE:
+    return d + " cents at note 108";
+  case FILTER_EG_AMT: case LFO_FILTER_AMT: case BTH_FILTER_AMT:
+    return signed(d) + " semitones of the cutoff";
+  case EG_OSC_AMT: case LFO_OSC_AMT:
+    {
+      var dst = wave((number == EG_OSC_AMT) ? EG_OSC_DST : LFO_OSC_DST);
+      if (dst <= 3) { return (Math.abs(v - 64) <= 31) ? d + " cents" : signed(d) + " semitones"; }
+      return signed(d) + ((dst == 4) ? " semitones of the cutoff" : " (the Shape)");
+    }
+  case EG_SUSTAIN: case AMP_SUSTAIN: case LFO_DEPTH: case CHORUS_MIX: case DELAY_LEVEL: case DELAY_FEEDBACK:
+  case EG_VEL_SENS: case AMP_VEL_SENS:
+    return d.replace(/%$/, "") + "%";
+  case MIXER_OSC_MIX:
+    return "Osc 2 " + d.replace(/%$/, "") + "%";
+  case FILTER_KEY_TRK: case A_D_VEL_SENS: case REL_VEL_SENS: case A_D_KEY_TRK:
+    return signed(d.replace(/%$/, "")) + "%";
+  case PAN:
+    return (d == "C") ? "Center" : ((d[0] == "L") ? "Left " : "Right ") + d.slice(1);
+  case MIXER_SUB_OSC:
+    return (d == "0") ? "None" : ((d[0] == "N") ? "Noise " : "Sub Osc ") + Math.round(parseInt(d.slice(1)) * 100 / 64) + "%";
+  case OSC_1_SHAPE:
+    return ["Detune " + num(d) + " cents", "Sync ratio " + num(d), "Fold gain " + num(d), "FM depth " + num(d) + " periods", "Shape " + d,
+            "Pulse width " + d.replace(/%$/, "") + "%"][wave(OSC_1_WAVE)] || "";
+  case OSC_1_MORPH:
+    {
+      var w = wave(OSC_1_WAVE);
+      if (w <= 2) { return ["Multi Saw ", "Sync Square ", "Folded Triangle "][w] + d.replace(/%$/, "") + "%"; }
+      if (w == 3) { return "FM ratio " + num(d); }
+      if (w == 4) { return "Wave Table " + d.replace(/^WT/, ""); }
+      return (d == "0") ? "Saw" : ((d[0] == "P") ? "Pulse " : "2nd Saw ") + Math.round(parseInt(d.slice(1)) * 100 / 64) + "%";
+    }
+  }
+  return "";
+}
+
 function updateDisplayOfControl(number, value) {
   var input = document.getElementById("input" + controlNumberToStringMap.get(number));
   input.value = parseInt(value);
@@ -2610,6 +2784,7 @@ function updateDisplayOfControl(number, value) {
   document.getElementById("span" + controlNumberToStringMap.get(number)).innerHTML = value;
   if (alwaysShown || (String(value) != dispValue)) {
     document.getElementById("span2" + controlNumberToStringMap.get(number)).innerHTML = "[" + dispValue + "]";
+    document.getElementById("span2" + controlNumberToStringMap.get(number)).title = valueTooltip(number, value, dispValue);
   } else {
     document.getElementById("span2" + controlNumberToStringMap.get(number)).innerHTML = "";
   }
