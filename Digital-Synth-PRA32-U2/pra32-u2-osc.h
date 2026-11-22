@@ -488,7 +488,7 @@ public:
 
   // Portamento Time (0-127), or PORTAMENTO_NONE for none (e.g. while Portamento Switch is off): the exponential one
   // (ESw and EAu) by the time constant of g_portamento_coef_table (0 for none, too), and the linear one (LSw and LAu)
-  // by the rate of g_portamento_rate_table, the cents per millisecond of GM2 (0 for none, too)
+  // by the rate of g_portamento_rate_table, in cents per millisecond (based on GM2; 0 for none, too)
   template <uint8_t N>
   INLINE void set_portamento(uint8_t controller_value) {
     set_portamento_of(N, controller_value);
