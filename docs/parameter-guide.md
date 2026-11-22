@@ -179,18 +179,18 @@
     - 64: 100 ms
     - 127: 9.31 s
     - Shown: the time (e.g. "0", "100", and "9.3")
-    - With Portamento Mode LSw and LAu (Linear): the rate of the pitch, as the recommended example of GM2 (General MIDI Level 2,
-      "Portamento Rate" of Portamento Time, in cents per millisecond), so that a wider interval takes longer
-        - 0: 1000 cents/ms (a semitone in 0.10 ms, almost at once)
-        - 16: 15.5 cents/ms (6.5 ms)
+    - With Portamento Mode LSw and LAu (Linear): the rate of the pitch (0: none), so that a wider interval takes longer, by the
+      recommended example of GM2 (General MIDI Level 2, "Portamento Rate" of Portamento Time, in cents per millisecond),
+      its straight part (in log scale) extended over the whole range
+        - 1: 28.0 cents/ms (a semitone in 3.6 ms, an octave in 43 ms)
+        - 16: 15.1 cents/ms (6.6 ms)
         - 64: 2.07 cents/ms (48 ms)
         - 80: 1.07 cents/ms (94 ms)
-        - 112: 0.277 cents/ms (361 ms)
-        - 127: 0.010 cents/ms (10.0 s)
-        - The rate: 10^(1.465 - 0.01795 * value + 1.535 * e^(-value / 3.25) - 1.185 * e^(-(127 - value) / 3.25)) cents/ms,
-          straight in log scale in the middle (a decade every 55.7 values, read from the graph of GM2), and bending steeply at the
-          ends, to 1000 at 0 and 0.01 at 127, as the graph
-        - Shown: the time of a semitone (e.g. ".10", "6.5", "48", and "1.7")
+        - 112: 0.285 cents/ms (351 ms)
+        - 127: 0.153 cents/ms (652 ms, an octave in 7.8 s)
+        - The rate: 10^(1.465 - 0.01795 * value) cents/ms, a decade every 55.7 values, as the straight part of the graph of GM2
+          (from about 16 to 112 there), without its steep bends at the ends (to 1000 at 0 and 0.01 at 127 there)
+        - Shown: the time of a semitone (e.g. "0", "3.6", "6.6", "48", and "652")
     - NOTE: The Portamento is turned on and off by "Portamento Mode" (and "Portamento Switch")
 - LFO Wave [Tri|Sin|Nos|Saw|S&H|Sqr]
     - 0 (0-12): Triangle Wave (Key Trigger Off, -0.5 to +0.5)

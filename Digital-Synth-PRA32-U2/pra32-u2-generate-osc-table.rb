@@ -144,23 +144,24 @@ def portamento_coef(time)
   (0.5 ** (1.0 / ((0.1 / 10.0) * (SAMPLING_RATE / 4) * (10.0 ** ((time - 64.0) / 32.0)))) * 0x40000000).round
 end
 
-# The rate of the linear Portamento (Portamento Mode LSw and LAu) in cents per millisecond, as the recommended example of
-# GM2 (General MIDI Level 2, RP-024: 3.3.3 cc#5 Portamento Time, the graph "Portamento Rate"): straight in log scale from
-# about 16 to 112 (a decade every 55.7 values, 1 cent/ms at 81.6), read from the graph, and bending steeply at the ends,
-# to 1000 cents/ms at 0 and 0.01 cents/ms at 127, as the graph does
-PORTAMENTO_RATE_LOG_0      = 1.465
-PORTAMENTO_RATE_LOG_SLOPE  = -0.01795
-PORTAMENTO_RATE_END_VALUES = 3.25
+# The rate of the linear Portamento (Portamento Mode LSw and LAu) in cents per millisecond: the straight part (in log
+# scale) of the recommended example of GM2 (General MIDI Level 2, RP-024: 3.3.3 cc#5 Portamento Time, the graph
+# "Portamento Rate"), a decade every 55.7 values and 1 cent/ms at 81.6, read from the graph (from about 16 to 112 there),
+# extended over the whole range (without the steep bends of the graph at the ends): 29.2 cents/ms at 0 and 0.153 at 127
+PORTAMENTO_RATE_LOG_0     = 1.465
+PORTAMENTO_RATE_LOG_SLOPE = -0.01795
 
 def portamento_rate(value)
-  ends_0   = 3.0 - PORTAMENTO_RATE_LOG_0
-  ends_127 = -2.0 - (PORTAMENTO_RATE_LOG_0 + (PORTAMENTO_RATE_LOG_SLOPE * 127))
-  10.0 ** (PORTAMENTO_RATE_LOG_0 + (PORTAMENTO_RATE_LOG_SLOPE * value) +
-           (ends_0 * Math.exp(-value / PORTAMENTO_RATE_END_VALUES)) + (ends_127 * Math.exp(-(127 - value) / PORTAMENTO_RATE_END_VALUES)))
+  10.0 ** (PORTAMENTO_RATE_LOG_0 + (PORTAMENTO_RATE_LOG_SLOPE * value))
 end
 
-# The step of the pitch (1 << 22 a semitone) per control period of a Voice (SAMPLING_RATE / 4) at the rate
+# The step of the pitch (1 << 22 a semitone) per control period of a Voice (SAMPLING_RATE / 4) at the rate; 0: none (at
+# once), as PORTAMENTO_STEP_NONE of PRA32_U2_Osc (beyond any pitch difference), as the exponential Portamento at 0
+PORTAMENTO_STEP_NONE = 0x40000000
+
 def portamento_rate_step(value)
+  return PORTAMENTO_STEP_NONE if value == 0
+
   (portamento_rate(value) / 100.0 * (1 << 22) / (SAMPLING_RATE / 4 / 1000.0)).round
 end
 

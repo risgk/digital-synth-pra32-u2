@@ -2219,16 +2219,16 @@ const LFO_RED_NOISE_CUTOFFS = [
 ];
 
 // The same as "pra32-u2-osc-table.h" (for the values shown): the steps of the linear Portamento (Portamento Mode LSw and
-// LAu, the rate of GM2) per control period of a Voice (12000 Hz), 1 << 22 a semitone
+// LAu, the rate of GM2 extended; 0: none) per control period of a Voice (12000 Hz), 1 << 22 a semitone
 const PORTAMENTO_RATE_STEPS = [
-  3495253, 1315137, 634079, 366839, 242663, 177137, 139017, 115066, 99042, 87738, 79386, 72954, 67814, 63569, 59958, 56810,
-  54007, 51468, 49138, 46975, 44951, 43045, 41242, 39530, 37899, 36344, 34857, 33435, 32074, 30770, 29521, 28323,
-  27174, 26073, 25016, 24003, 23030, 22098, 21203, 20344, 19520, 18730, 17971, 17244, 16546, 15876, 15233, 14616,
+  1073741824, 97843, 93881, 90080, 86433, 82933, 79575, 76353, 73262, 70296, 67449, 64719, 62098, 59584, 57171, 54857,
+  52635, 50504, 48459, 46497, 44615, 42808, 41075, 39412, 37816, 36285, 34816, 33406, 32054, 30756, 29511, 28316,
+  27169, 26069, 25014, 24001, 23029, 22097, 21202, 20344, 19520, 18730, 17971, 17244, 16545, 15876, 15233, 14616,
   14024, 13456, 12912, 12389, 11887, 11406, 10944, 10501, 10076, 9668, 9276, 8901, 8540, 8195, 7863, 7544,
   7239, 6946, 6665, 6395, 6136, 5887, 5649, 5420, 5201, 4990, 4788, 4594, 4408, 4230, 4059, 3894,
-  3737, 3585, 3440, 3301, 3167, 3039, 2916, 2798, 2685, 2576, 2472, 2371, 2275, 2183, 2095, 2010,
-  1928, 1850, 1775, 1703, 1634, 1567, 1503, 1442, 1383, 1325, 1270, 1217, 1165, 1115, 1066, 1017,
-  969, 921, 872, 822, 769, 714, 655, 591, 521, 446, 366, 285, 205, 133, 75, 35
+  3737, 3585, 3440, 3301, 3167, 3039, 2916, 2798, 2685, 2576, 2472, 2372, 2276, 2183, 2095, 2010,
+  1929, 1851, 1776, 1704, 1635, 1569, 1505, 1444, 1386, 1330, 1276, 1224, 1175, 1127, 1081, 1038,
+  996, 955, 917, 879, 844, 810, 777, 745, 715, 686, 659, 632, 606, 582, 558, 536
 ];
 
 // The time of a semitone (1 << 22) at the step in 0.001 ms (as the panel and PRA32-U2 Native): ".10" to "9.9" as the
@@ -2250,7 +2250,7 @@ function timeRateDispValue(number, value) {
   var v = parseInt(value);
   if (number == PORTAMENTO) {
     var portaMode = parseInt(localStorage.getItem("key" + controlNumberToStringMap.get(PORTA_MODE))) || 0;
-    if ((portaMode >= 39) && (portaMode < 116)) {  // LSw and LAu: the time of a semitone
+    if ((portaMode >= 39) && (portaMode < 116) && (v != 0)) {  // LSw and LAu: the time of a semitone (0: none, as the others)
       return portamentoSemitoneDispValue(PORTAMENTO_RATE_STEPS[v]);
     }
     return (v == 0) ? "0" : timeDispValue(v, false);
