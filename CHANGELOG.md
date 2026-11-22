@@ -2,7 +2,7 @@
 
 - v3.23.0 (2026-??-??):
     - **Portamento Mode [ESw|ESw|LSw|LSw|LAu|EAu]**: LSw (Linear Switch) and LAu (Linear Auto) move the pitch linearly,
-      at a rate by Portamento Time (cents/ms, based on the recommended example of GM2; an octave in 3.2 ms at 1 to 7.8 s at 127,
+      at a rate by Portamento Time (cents/ms, based on the recommended example of GM2; an octave in 3.5 ms at 1 to 5.8 s at 127,
       0 for none; shown as the time of a semitone); Sw and Aut renamed ESw (Exponential Switch) and EAu (Exponential Auto),
       working as before
         - Not compatible: Portamento Mode 39-89 is LSw (Sw at 39-63 and Aut at 64-89 before), and 90-115 is LAu (Aut before);
