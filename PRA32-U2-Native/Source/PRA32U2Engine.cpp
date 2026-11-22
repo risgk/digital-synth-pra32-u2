@@ -672,8 +672,7 @@ uint8_t PRA32U2Engine::getOsc1Wave() const {
 uint8_t PRA32U2Engine::getRelatedValue(uint8_t controlNumber) const {
   return (controlNumber == EG_OSC_AMT)  ? getControllerValue(EG_OSC_DST)  :
          (controlNumber == LFO_OSC_AMT) ? getControllerValue(LFO_OSC_DST) :
-         (controlNumber == LFO_RATE)    ? getControllerValue(LFO_WAVE)    :
-         (controlNumber == PORTAMENTO)  ? getControllerValue(PORTA_MODE)  : 0;
+         (controlNumber == LFO_RATE)    ? getControllerValue(LFO_WAVE)    : 0;
 }
 
 uint8_t PRA32U2Engine::getControllerValue(uint8_t controlNumber) const {

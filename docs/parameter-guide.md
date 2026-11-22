@@ -174,27 +174,17 @@
     - 102 (90-115): Legato Portamento (Monophonic, EG & LFO Single Trigger, Auto Portamento)
     - 127 (116-127): Legato (Monophonic, EG & LFO Single Trigger)
     - NOTE: The LFO triggers as above with "LFO Trig Mode" Aut; see it for the others
-- Portamento Time: as EG Attack (0: none), with Portamento Mode ESw and EAu (Exponential)
+- Portamento Time: as EG Attack (0: none)
     - 0: 0 ms
     - 64: 100 ms
     - 127: 9.31 s
     - Shown: the time (e.g. "0", "100", and "9.3")
-    - With Portamento Mode LSw and LAu (Linear): the rate of the pitch (0: none), so that a wider interval takes longer
-        - 1: 342 cents/ms (a semitone in 0.29 ms)
-        - 16: 11.6 cents/ms (8.6 ms)
-        - 64: 2.00 cents/ms (50 ms, an octave in 600 ms)
-        - 80: 1.12 cents/ms (89 ms)
-        - 112: 0.356 cents/ms (281 ms)
-        - 127: 0.207 cents/ms (482 ms, an octave in 5.8 s)
-        - The rate: 2 * 10^((64 - value) / 64 + 1.699 * e^(-value / 3.25)) cents/ms, a decade every 64 values from about 16,
-          and faster steeply at the low end
-        - Based on the recommended example of GM2 (General MIDI Level 2, "Portamento Rate" of Portamento Time): 2.07 cents/ms at 64
-          and a decade every 55.7 values from about 16 to 112 there; 0 is 1000 cents/ms (almost at once), and the rate falls steeply
-          above about 112 (to an octave in 2 minutes at 127)
-        - Shown: the time of a semitone (e.g. "0", ".29", "8.6", "50", and "482")
-    - NOTE: The same value works otherwise by the mode: the exponential one takes about the same time for any interval, and the
-      linear one a time by the interval (e.g. at 64, to within 1 cent: 66 ms for a semitone and 102 ms for an octave, and 50 ms and
-      600 ms); choose the value again after changing the mode
+    - With Portamento Mode ESw and EAu (Exponential): the time that the pitch takes to approach the note (exponentially)
+    - With Portamento Mode LSw and LAu (Linear): the time of an octave, at a constant rate (e.g. at 64, 12 cents/ms: an octave
+      in 100 ms, a semitone in 8.3 ms, and two octaves in 200 ms), so that a wider interval takes longer, as Portamento Time of GM2
+      (General MIDI Level 2) sets a rate
+    - NOTE: With the same value, an octave takes about the same time in both, and a narrower interval less time with the linear one
+      (e.g. at 64, to within 1 cent: a semitone in 66 ms, and in 8.3 ms with the linear one), a wider one more
     - NOTE: The Portamento is turned on and off by "Portamento Mode" (and "Portamento Switch")
 - LFO Wave [Tri|Sin|Nos|Saw|S&H|Sqr]
     - 0 (0-12): Triangle Wave (Key Trigger Off, -0.5 to +0.5)

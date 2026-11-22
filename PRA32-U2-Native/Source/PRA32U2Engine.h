@@ -29,15 +29,15 @@ public:
 
   // The text of a controller value, the same as PRA32-U2 Editor (e.g. "26 [Sqr]", "67 [+3]", or "100"); osc1Wave is
   // the value of Osc 1 Wave, by which Osc 1 Shape and Osc 1 Morph are shown (e.g. "64 [50%]" with Pls), and relatedValue
-  // that of EG Mod Dst (for EG Mod Amt), LFO Mod Dst (for LFO Mod Amt), LFO Wave (for LFO Rate), or Portamento Mode
-  // (for Portamento Time), by which they are shown (e.g. "97 [+2]" with P, "64 [189]" with Nos, and "64 [48]" with LSw)
+  // that of EG Mod Dst (for EG Mod Amt), LFO Mod Dst (for LFO Mod Amt), or LFO Wave (for LFO Rate), by which they are
+  // shown (e.g. "97 [+2]" with P, and "64 [189]" with Nos)
   static std::string getValueText(uint8_t controlNumber, uint8_t value, uint8_t osc1Wave = 0, uint8_t relatedValue = 0);
 
   // The value of Osc 1 Wave now (for getValueText())
   uint8_t getOsc1Wave() const;
 
-  // The value of EG Mod Dst (for EG Mod Amt), LFO Mod Dst (for LFO Mod Amt), LFO Wave (for LFO Rate), or Portamento Mode
-  // (for Portamento Time) now, 0 for the others (for getValueText())
+  // The value of EG Mod Dst (for EG Mod Amt), LFO Mod Dst (for LFO Mod Amt), or LFO Wave (for LFO Rate) now, 0 for the
+  // others (for getValueText())
   uint8_t getRelatedValue(uint8_t controlNumber) const;
 
   // m: PRA32-U2/M, the 4 synths by the MIDI channels (only if built with PRA32_U2_ENGINE_M, for PRA32-U2/M/P Web;

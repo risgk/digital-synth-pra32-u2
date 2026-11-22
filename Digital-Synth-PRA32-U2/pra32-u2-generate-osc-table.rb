@@ -144,19 +144,12 @@ def portamento_coef(time)
   (0.5 ** (1.0 / ((0.1 / 10.0) * (SAMPLING_RATE / 4) * (10.0 ** ((time - 64.0) / 32.0)))) * 0x40000000).round
 end
 
-# The rate of the linear Portamento (Portamento Mode LSw and LAu) in cents per millisecond: 2 cents/ms at 64, a decade
-# every 64 values from about 16, and faster steeply at the low end (342 cents/ms at 1, toward 1000 at 0; 0 for none), an
-# octave in 5.8 s at 127. Based on the recommended example of GM2 (General MIDI Level 2, RP-024: 3.3.3 cc#5 Portamento
-# Time, the graph "Portamento Rate"), read from the graph: 2.07 cents/ms at 64 and a decade every 55.7 values from about
-# 16 to 112 there (1000 cents/ms at 0, and falling steeply above about 112)
-PORTAMENTO_RATE_LOG_64     = Math.log10(2.0)
-PORTAMENTO_RATE_LOG_DECADE = 64.0
-PORTAMENTO_RATE_END_VALUES = 3.25
-
+# The rate of the linear Portamento (Portamento Mode LSw and LAu) in cents per millisecond: an octave (1200 cents) in the
+# time of Portamento Time, 1 ms * 10^(value / 32), as the exponential Portamento (as EG Attack: 1.00 ms at 1, 100 ms at
+# 64, and 9.31 s at 127), so that the time shown is that of an octave (a constant rate, as Portamento Time of GM2 sets a
+# rate: a wider interval takes longer, and a narrower one less)
 def portamento_rate(value)
-  log_0  = PORTAMENTO_RATE_LOG_64 + (64.0 / PORTAMENTO_RATE_LOG_DECADE)
-  ends_0 = 3.0 - log_0  # toward 1000 cents/ms at 0
-  10.0 ** (log_0 - (value / PORTAMENTO_RATE_LOG_DECADE) + (ends_0 * Math.exp(-value / PORTAMENTO_RATE_END_VALUES)))
+  1200.0 / (10.0 ** (value / 32.0))
 end
 
 # The step of the pitch (1 << 22 a semitone) per control period of a Voice (SAMPLING_RATE / 4) at the rate; 0: none (at
