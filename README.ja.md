@@ -173,6 +173,7 @@
     - 例: RR3 (プリセット) で Main Synth が Mono 系なら、Ch 1 でリード、Ch 5 で 3 音 (Sub Synth の Round Robin) を弾けます
     - 例: RR4 では、Ch 5 で 4 音の Round Robin、Ch 16 で 4 台重ねのリードを弾けます
     - PRA32-U2 Editor のスライダーは、"MIDI Ch" に関係なく Basic Channel (Panel & Step Sequencer の Basic Ch、初期値 1) で送ります
+- プログラム・チェンジは、1 台につき 2 ループ (約 2.7 ms) かけて処理され、その後のメッセージは処理を待ちます (4 台に読み込む Layering で最大約 11 ms)。64 個を超えて待つと (大量に送られたとき)、一番古いものを途中のプログラムのまま処理します
 - 改造するには、"Digital-Synth-PRA32-U2" フォルダーの "Digital-Synth-PRA32-U2.ino" 以外のすべてのファイルを "Digital-Synth-PRA32-U2-M" フォルダーにコピーし、"Digital-Synth-PRA32-U2-M.ino" をスケッチとして使います
 - 詳しくは英語版の [PRA32-U2/M](./README.md#pra32-u2m-pra32-u2-multi-timbre-edition) を参照してください
 

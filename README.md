@@ -250,6 +250,9 @@ graph LR
         - Basic Channel 1 (default): Channels 2-4 play 3 notes
         - Basic Channel 2: Channels 2-5 play 4 notes, and Channel 1 (the Layering of all, with Voice Group Mode not Off) works as the Master Channel
         - Set Pitch Bend Range to that of the controller (e.g. 48 semitones)
+    - Program Change: processed over 2 loops (about 2.7 ms) for each synth, and the messages after it wait for it
+      (up to about 11 ms with the Layering, which sets the 4 synths); with more than 64 of them waiting (a flood),
+      the oldest is processed at once, in the program being set
     - With the panel (PRA32-U2/M/P), the channels above can be selected (see [PRA32-U2/P](./README-PRA32-U2-P.md))
     - Not to use the Layering and the Round Robin, comment out `#define PRA32_U2_ENABLE_LAYERING` in "Digital-Synth-PRA32-U2-M.ino" (the Basic Channel + 4, + 5, and + 15 not used, with no Voice Group Mode)
 - How to modify (with Arduino IDE)
