@@ -191,6 +191,9 @@
         - The rate: 10^(1.465 - 0.01795 * value) cents/ms, a decade every 55.7 values, as the straight part of the graph of GM2
           (from about 16 to 112 there), without its steep bends at the ends (to 1000 at 0 and 0.01 at 127 there)
         - Shown: the time of a semitone (e.g. "0", "3.6", "6.6", "48", and "652")
+    - NOTE: The same value works otherwise by the mode: the exponential one takes about the same time for any interval, and the
+      linear one a time by the interval (e.g. at 64, to within 1 cent: 66 ms for a semitone and 102 ms for an octave, and 48 ms and
+      579 ms); choose the value again after changing the mode
     - NOTE: The Portamento is turned on and off by "Portamento Mode" (and "Portamento Switch")
 - LFO Wave [Tri|Sin|Nos|Saw|S&H|Sqr]
     - 0 (0-12): Triangle Wave (Key Trigger Off, -0.5 to +0.5)
