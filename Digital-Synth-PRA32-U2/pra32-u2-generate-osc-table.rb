@@ -144,15 +144,13 @@ def portamento_coef(time)
   (0.5 ** (1.0 / ((0.1 / 10.0) * (SAMPLING_RATE / 4) * (10.0 ** ((time - 64.0) / 32.0)))) * 0x40000000).round
 end
 
-# The rate of the linear Portamento (Portamento Mode LSw and LAu) in cents per millisecond: the straight part (in log
-# scale) of the recommended example of GM2 (General MIDI Level 2, RP-024: 3.3.3 cc#5 Portamento Time, the graph
-# "Portamento Rate"), a decade every 55.7 values and 1 cent/ms at 81.6, read from the graph (from about 16 to 112 there),
-# extended over the whole range (without the steep bends of the graph at the ends): 29.2 cents/ms at 0 and 0.153 at 127
-PORTAMENTO_RATE_LOG_0     = 1.465
-PORTAMENTO_RATE_LOG_SLOPE = -0.01795
-
+# The rate of the linear Portamento (Portamento Mode LSw and LAu) in cents per millisecond: 2 cents/ms at 64, a decade
+# every 64 values (20 cents/ms at 0, and 0.207 at 127), near the straight part (in log scale) of the recommended example
+# of GM2 (General MIDI Level 2, RP-024: 3.3.3 cc#5 Portamento Time, the graph "Portamento Rate": 2.07 cents/ms at 64 and
+# a decade every 55.7 values, read from the graph, from about 16 to 112 there), a little gentler, over the whole range
+# (without the steep bends of the graph at the ends)
 def portamento_rate(value)
-  10.0 ** (PORTAMENTO_RATE_LOG_0 + (PORTAMENTO_RATE_LOG_SLOPE * value))
+  2.0 * (10.0 ** ((64 - value) / 64.0))
 end
 
 # The step of the pitch (1 << 22 a semitone) per control period of a Voice (SAMPLING_RATE / 4) at the rate; 0: none (at

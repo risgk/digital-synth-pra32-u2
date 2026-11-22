@@ -103,7 +103,7 @@ static INLINE uint32_t PRA32_U2_ControlPanel_milli_hz_from_lfo_step(uint32_t ste
 }
 
 // The times and the rates: Portamento Time (0 for none; with Portamento Mode LSw and LAu, the time of a semitone at the
-// rate of the linear Portamento, e.g. "3.6", "6.6", "48", and "652"), LFO Fade Time (0 for none), LFO Rate (with LFO
+// rate of the linear Portamento, e.g. "5.2", "8.9", "50", and "482"), LFO Fade Time (0 for none), LFO Rate (with LFO
 // Wave Nos, the cutoff of the low-pass of the noise, "Off" for none), Chorus Rate, and Chorus Depth (the milliseconds, as
 // the frequency, e.g. ".04", "1.3", and "5.3"), by the tables (or the steps) that the synth uses, so that they are shown
 // as they work (Delay Time: the milliseconds, as before); related_value: Portamento Mode (for Portamento Time), or LFO
