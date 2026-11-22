@@ -208,7 +208,7 @@
     - FX Routing が Dry の場合は Output Compressor を通らないため、大きな音はソフトクリップで歪みます。Cmp などを選んでください
 - ポルタメントが掛からない
     - Portamento Time が 0 になっていないか確認してください
-    - Portamento Mode が Aut か、Sw の場合は Portamento Switch (コントロール・チェンジ #65) が On か確認してください
+    - Portamento Mode が EAu か LAu か、ESw か LSw の場合は Portamento Switch (コントロール・チェンジ #65) が On か確認してください
     - Legato Portamento (Voice Mode: LP) では、レガートで弾いたときだけポルタメントが掛かります
     - Polyphonic のときは、Voice Assign Mode が 2 か 4 のときだけポルタメントが掛かります
 

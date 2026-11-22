@@ -685,7 +685,7 @@ public:
           m_note_on_number[0] = note_number;
 
           if (m_voice_mode == VOICE_LEGATO_PORTA) {
-            m_osc.set_portamento<0>(0);
+            m_osc.set_portamento<0>(PRA32_U2_Osc::PORTAMENTO_NONE);
           } else {
             m_osc.set_portamento<0>(m_portamento);
           }
@@ -1311,7 +1311,10 @@ if constexpr (NO_FX == false) {
       update_portamento();
       break;
     case PORTA_MODE     :
-      m_portamento_mode_cc = (controller_value < 64);
+      // [ESw|ESw|LSw|LSw|LAu|EAu]: ESw (0-38) and LSw (39-89) by Portamento Switch, LAu (90-115) and EAu (116-127)
+      // always; LSw and LAu linear (as GM2), ESw and EAu exponential
+      m_portamento_mode_cc = (controller_value < 90);
+      m_osc.set_portamento_linear((controller_value >= 39) && (controller_value < 116));
       update_portamento();
       break;
 
@@ -2252,10 +2255,10 @@ if constexpr (RESTRICT_POLY_AND_CORES == false) {
   }
 
   INLINE void update_portamento() {
-    // Sw (0-63): Portamento is effective only while Portamento Switch (CC #65) is on (in LP, only for the legato notes)
-    // Aut (64-127): Portamento is always effective (in LP, only for the legato notes)
+    // ESw and LSw: Portamento is effective only while Portamento Switch (CC #65) is on (in LP, only for the legato notes)
+    // LAu and EAu: Portamento is always effective (in LP, only for the legato notes)
     if (m_portamento_mode_cc && (m_portamento_sw == false)) {
-      m_portamento = 0;
+      m_portamento = PRA32_U2_Osc::PORTAMENTO_NONE;
     } else {
       m_portamento = m_portamento_time;
     }

@@ -95,7 +95,7 @@
 |                            60 | x             | o             | Breath Filter Amt [- to +]            |
 |                            61 | x             | o             | Breath Amp Mode [Off|Q|L|LO|QO|Opn]   |
 |                            37 | x             | o             | After Touch LFO Amt                   |
-|                            34 | x             | o             | Portamento Mode [Sw|Aut]              |
+|                            34 | x             | o             | Portamento Mode [ESw|LSw|LAu|EAu]     |
 |                            83 | x             | o             | Osc Saw Wave Mode [Str|Cur]           |
 |                            22 | x             | o             | Stretch Tune [- to +]                 |
 |                            10 | x             | o             | Pan                                   |
@@ -161,7 +161,7 @@
 |                               |   (Start/Stop: by Seq Rx St/Sp On)                                    |
 |                               | $6 : Randomize the synth parameters (as "Randomize Synth" in          |
 |                               |   PRA32-U2 Editor) when changed from 0-63 to 64-127                   |
-|                               | $7 : Effective only if Portamento Mode is Sw                          |
+|                               | $7 : Effective only if Portamento Mode is ESw or LSw                  |
 |                               | $8 : Change to the program when changed from 0-63 to 64-127           |
 |                               | $9 : Not High Resolution Velocity Prefix: on a keyboard that sends    |
 |                               |   it (e.g. Hi-Res Velocity Out), turn it off                          |

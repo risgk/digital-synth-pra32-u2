@@ -144,6 +144,26 @@ def portamento_coef(time)
   (0.5 ** (1.0 / ((0.1 / 10.0) * (SAMPLING_RATE / 4) * (10.0 ** ((time - 64.0) / 32.0)))) * 0x40000000).round
 end
 
+# The rate of the linear Portamento (Portamento Mode LSw and LAu) in cents per millisecond, as the recommended example of
+# GM2 (General MIDI Level 2, RP-024: 3.3.3 cc#5 Portamento Time, the graph "Portamento Rate"): straight in log scale from
+# about 16 to 112 (a decade every 55.7 values, 1 cent/ms at 81.6), read from the graph, and bending steeply at the ends,
+# to 1000 cents/ms at 0 and 0.01 cents/ms at 127, as the graph does
+PORTAMENTO_RATE_LOG_0      = 1.465
+PORTAMENTO_RATE_LOG_SLOPE  = -0.01795
+PORTAMENTO_RATE_END_VALUES = 3.25
+
+def portamento_rate(value)
+  ends_0   = 3.0 - PORTAMENTO_RATE_LOG_0
+  ends_127 = -2.0 - (PORTAMENTO_RATE_LOG_0 + (PORTAMENTO_RATE_LOG_SLOPE * 127))
+  10.0 ** (PORTAMENTO_RATE_LOG_0 + (PORTAMENTO_RATE_LOG_SLOPE * value) +
+           (ends_0 * Math.exp(-value / PORTAMENTO_RATE_END_VALUES)) + (ends_127 * Math.exp(-(127 - value) / PORTAMENTO_RATE_END_VALUES)))
+end
+
+# The step of the pitch (1 << 22 a semitone) per control period of a Voice (SAMPLING_RATE / 4) at the rate
+def portamento_rate_step(value)
+  (portamento_rate(value) / 100.0 * (1 << 22) / (SAMPLING_RATE / 4 / 1000.0)).round
+end
+
 write_header("pra32-u2-osc-table.h") do |file|
   # Extended to NOTE_NUMBER_MAX + 1 (0..128) for safe linear interpolation (idx + 1): the index 128
   # duplicates the last frequency entry as a guard
@@ -191,4 +211,6 @@ write_header("pra32-u2-osc-table.h") do |file|
   write_osc_wave_tables_array(file, "sine", 1)
 
   write_array(file, "int32_t g_portamento_coef_table[]", (0..127).map { |i| portamento_coef(i) }, per_line: 8, format: "%10d")
+
+  write_array(file, "int32_t g_portamento_rate_table[]", (0..127).map { |i| portamento_rate_step(i) }, per_line: 8, format: "%10d")
 end

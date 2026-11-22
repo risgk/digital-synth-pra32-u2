@@ -174,11 +174,23 @@
     - 102 (90-115): Legato Portamento (Monophonic, EG & LFO Single Trigger, Auto Portamento)
     - 127 (116-127): Legato (Monophonic, EG & LFO Single Trigger)
     - NOTE: The LFO triggers as above with "LFO Trig Mode" Aut; see it for the others
-- Portamento Time: as EG Attack (0: none)
+- Portamento Time: as EG Attack (0: none), with Portamento Mode ESw and EAu (Exponential)
     - 0: 0 ms
     - 64: 100 ms
     - 127: 9.31 s
     - Shown: the time (e.g. "0", "100", and "9.3")
+    - With Portamento Mode LSw and LAu (Linear): the rate of the pitch, as the recommended example of GM2 (General MIDI Level 2,
+      "Portamento Rate" of Portamento Time, in cents per millisecond), so that a wider interval takes longer
+        - 0: 1000 cents/ms (a semitone in 0.10 ms, almost at once)
+        - 16: 15.5 cents/ms (6.5 ms)
+        - 64: 2.07 cents/ms (48 ms)
+        - 80: 1.07 cents/ms (94 ms)
+        - 112: 0.277 cents/ms (361 ms)
+        - 127: 0.010 cents/ms (10.0 s)
+        - The rate: 10^(1.465 - 0.01795 * value + 1.535 * e^(-value / 3.25) - 1.185 * e^(-(127 - value) / 3.25)) cents/ms,
+          straight in log scale in the middle (a decade every 55.7 values, read from the graph of GM2), and bending steeply at the
+          ends, to 1000 at 0 and 0.01 at 127, as the graph
+        - Shown: the time of a semitone (e.g. ".10", "6.5", "48", and "1.7")
     - NOTE: The Portamento is turned on and off by "Portamento Mode" (and "Portamento Switch")
 - LFO Wave [Tri|Sin|Nos|Saw|S&H|Sqr]
     - 0 (0-12): Triangle Wave (Key Trigger Off, -0.5 to +0.5)
@@ -316,10 +328,17 @@
     - 0: +0% (min)
     - 64: +50%
     - 127: +100% (max)
-- Portamento Mode [Sw|Aut]: What turns on and off the Portamento
-    - 0 (0-63): Switch (Sw), The Portamento is on only while Portamento Switch (Control Change #65) is On (64-127)
-    - 127 (64-127): Auto (Aut), The Portamento is always on
+- Portamento Mode [ESw|ESw|LSw|LSw|LAu|EAu]: What turns on and off the Portamento, and how the pitch moves
+    - 0 (0-12): Exponential Switch (ESw), The Portamento is on only while Portamento Switch (Control Change #65) is On (64-127);
+      the pitch approaches the note exponentially, by the time of "Portamento Time"
+    - 26 (13-38): Exponential Switch (ESw)
+    - 51 (39-63): Linear Switch (LSw), The Portamento is on only while Portamento Switch is On; the pitch moves linearly, at the rate
+      of "Portamento Time" (as GM2)
+    - 77 (64-89): Linear Switch (LSw)
+    - 102 (90-115): Linear Auto (LAu), The Portamento is always on; the pitch moves linearly
+    - 127 (116-127): Exponential Auto (EAu), The Portamento is always on; the pitch approaches the note exponentially
     - NOTE: In Legato Portamento (Voice Mode: LP), the Portamento is effective only for the legato notes, also while it is on
+      (exponential or linear, by this)
 - Osc Saw Wave Mode [Str|Cur]
     - 0 (0-63): Straight Saw Wave
     - 127 (64-127): Curved Saw Wave, This does not affect the Pulse Wave
@@ -401,7 +420,7 @@
 - Expression (Control Change #11): The level, in a quadratic curve (64: 25%, about -12 dB) (Reset: 127)
 - Sustain Pedal [Off|On] (Control Change #64): While it is On (64-127), the note offs are held, and they are released when it is turned Off (Reset: Off)
     - It is also turned Off by All Notes Off, All Sound Off, Omni Mode Off/On, and Mono/Poly Mode On
-- Portamento Switch [Off|On] (Control Change #65): While it is On (64-127), the Portamento is on, if "Portamento Mode" is Sw (Reset: Off)
+- Portamento Switch [Off|On] (Control Change #65): While it is On (64-127), the Portamento is on, if "Portamento Mode" is ESw or LSw (Reset: Off)
 - After Touch (Polyphonic Key Pressure and Channel Pressure): Adds to the LFO depth by "After Touch LFO Amt" (Reset: 0)
 - General Purpose Controller 1-4 (Control Change #16-19): Work as the Control Change of the number that "Assign #16-#19" set (e.g. a knob of a keyboard for
   a parameter of each program), at once (Assign Mode Jmp), from when the value comes to that of the parameter (Cat), or as relative values (Rel)

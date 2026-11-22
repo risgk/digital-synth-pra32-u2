@@ -49,14 +49,14 @@
     - "Poly": #5 Sync Lead in Poly (Voice Mode, CC #46 = 0), the heaviest for PRA32-U2
     - "4 Synths" (PRA32-U2/M/P only): the Main Synth and the 3 Sub Synths (Channels 1-4) with #5 Sync Lead in Mono, played together by MIDI Channel 16 (Layering, with Voice Group Mode Ly2, CC #80 = 26),
       the heaviest for PRA32-U2/M/P
-    - "by UART MIDI (Running Status) and USB MIDI": the bytes arrive over and over, with no gap, while the loops run, by UART MIDI at 31250 bps (about 4.2 bytes a loop, in the time of the loops as on the device, since v3.22.1)
+    - "by UART MIDI (Running Status) and USB MIDI": the bytes arrive over and over, with no gap, while the loops run, by UART MIDI at 31250 bps (about 4.2 bytes a loop, in the time of the loops as on the device, since v3.23.0)
       with Running Status (the status byte once, and a Note Off as a Note On of velocity 0), the most messages a loop, and by USB MIDI
       as fast as PRA32-U2 reads them (5 bytes a loop), whose packets have the status byte each
         - Note On and Off of the note 72 are what a player sends
         - A Program Change, which sets all the parameters (of the 4 Synths, by MIDI Channel 16), is the heaviest message: back to back, the heaviest case,
-          PRA32-U2 processes the last of them that arrive one after another, a loop (half a program of one synth a loop for PRA32-U2/M/P, since v3.22.1)
+          PRA32-U2 processes the last of them that arrive one after another, a loop (half a program of one synth a loop for PRA32-U2/M/P, since v3.23.0)
         - Program Change #0 and #16 (another program, #16 Synth Pad) by turns, each with Note On and Off right after it (without Running Status):
-          PRA32-U2 processes the program in the loop of the note, and PRA32-U2/M/P keeps the note waiting until the programs are processed (since v3.22.1);
+          PRA32-U2 processes the program in the loop of the note, and PRA32-U2/M/P keeps the note waiting until the programs are processed (since v3.23.0);
           measured for 64 loops after the warm-up, so that the messages waiting on PRA32-U2/M/P fill the space (after about 20 loops) and are processed one by one
         - Program Change by CC (#112-119, as the programs #0-7, when the value goes up to 64 or above), whose value goes 127 and 0 by turns,
           sets all the parameters too: PRA32-U2 processes it as a Program Change (since v3.17.5)

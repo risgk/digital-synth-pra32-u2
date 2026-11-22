@@ -301,7 +301,7 @@ graph LR
     - With FX Routing Dry, the output does not go through the Output Compressor, and loud sounds are distorted by the soft clipping; choose another FX Routing (e.g. Cmp)
 - No portamento
     - Check that Portamento Time is not 0
-    - Check that Portamento Mode is Aut, or that Portamento Switch (Control Change #65) is On if Portamento Mode is Sw
+    - Check that Portamento Mode is EAu or LAu, or that Portamento Switch (Control Change #65) is On if Portamento Mode is ESw or LSw
     - In Legato Portamento (Voice Mode: LP), the Portamento is effective only for the legato notes
     - In the Polyphonic Mode, the Portamento is effective only when Voice Assign Mode is 2 or 4
 

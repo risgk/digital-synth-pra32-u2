@@ -24,6 +24,11 @@
 
 
 class PRA32_U2_Osc {
+public:
+  static const uint8_t PORTAMENTO_NONE        = 255;  // For set_portamento(): none (at once), whatever the Portamento Mode
+private:
+  static const int32_t PORTAMENTO_STEP_NONE   = 0x40000000;  // The linear one at once (beyond any pitch difference)
+
   static const uint8_t OSC_MIX_TABLE_LENGTH   = 65;
 
   static const uint8_t PORTAMENTO_COEF_BASE   = 190;
@@ -46,6 +51,8 @@ class PRA32_U2_Osc {
   uint16_t       m_drift;
   boolean        m_saw_wave_mode_curved;
   int32_t        m_portamento_coef[4];
+  int32_t        m_portamento_step[4];    // The step of the linear Portamento per control period (see set_portamento())
+  boolean        m_portamento_linear;     // Portamento Mode LSw and LAu
   int16_t        m_pitch_eg_amt[2];
   int16_t        m_pitch_lfo_amt[2];
 
@@ -116,6 +123,8 @@ public:
   : m_drift()
   , m_saw_wave_mode_curved()
   , m_portamento_coef()
+  , m_portamento_step()
+  , m_portamento_linear()
   , m_pitch_eg_amt()
   , m_pitch_lfo_amt()
 
@@ -185,6 +194,10 @@ public:
     m_portamento_coef[1] = 0;
     m_portamento_coef[2] = 0;
     m_portamento_coef[3] = 0;
+    m_portamento_step[0] = PORTAMENTO_STEP_NONE;
+    m_portamento_step[1] = PORTAMENTO_STEP_NONE;
+    m_portamento_step[2] = PORTAMENTO_STEP_NONE;
+    m_portamento_step[3] = PORTAMENTO_STEP_NONE;
 
     set_mixer_osc_mix(0);
     set_osc2_coarse  (64);
@@ -473,18 +486,38 @@ public:
     }
   }
 
+  // Portamento Time (0-127), or PORTAMENTO_NONE for none (e.g. while Portamento Switch is off): the exponential one
+  // (ESw and EAu) by the time constant of g_portamento_coef_table (0 for none, too), and the linear one (LSw and LAu)
+  // by the rate of g_portamento_rate_table, the cents per millisecond of GM2 (0: 1000 cents/ms, almost at once)
   template <uint8_t N>
   INLINE void set_portamento(uint8_t controller_value) {
-    m_portamento_coef[N] = g_portamento_coef_table[controller_value];
+    set_portamento_of(N, controller_value);
+  }
+
+  // Not inlined (each synth calls it at many places of its note on, which is in the RAM)
+  __attribute__((noinline)) void __not_in_flash_func(set_portamento_of)(uint32_t n, uint8_t controller_value) {
+    boolean none = (controller_value > 127);
+    m_portamento_coef[n] = none ? 0 : g_portamento_coef_table[controller_value];
+    m_portamento_step[n] = none ? PORTAMENTO_STEP_NONE : g_portamento_rate_table[controller_value];
+  }
+
+  // Portamento Mode LSw and LAu (true), or ESw and EAu (false), for all the Voices (the glides under way too)
+  INLINE void set_portamento_linear(boolean linear) {
+    m_portamento_linear = linear;
   }
 
   template <uint8_t N>
   INLINE void note_on(uint8_t note_number) {
-    m_pitch_target[N] = clamp(note_number, NOTE_NUMBER_MIN, NOTE_NUMBER_MAX) << (24 - 2);
-    if (m_portamento_coef[N] == 0) {
-      m_pitch_current[N] = m_pitch_target[N];
+    note_on_of(N, note_number);
+  }
+
+  // Not inlined (each synth calls it at many places of its note on, which is in the RAM)
+  __attribute__((noinline)) void __not_in_flash_func(note_on_of)(uint32_t n, uint8_t note_number) {
+    m_pitch_target[n] = clamp(note_number, NOTE_NUMBER_MIN, NOTE_NUMBER_MAX) << (24 - 2);
+    if (m_portamento_linear ? (m_portamento_step[n] == PORTAMENTO_STEP_NONE) : (m_portamento_coef[n] == 0)) {
+      m_pitch_current[n] = m_pitch_target[n];
     }
-    m_osc_on[N] = true;
+    m_osc_on[n] = true;
   }
 
   template <uint8_t N>
@@ -855,14 +888,20 @@ if constexpr (RESTRICT_SQR_WT == false) {  // the same load at any Morph, as the
     return result;
   }
 
+  // The exponential Portamento and the linear one, both computed every time (the same load whichever is used): the
+  // linear one moves the pitch by the step at most (a constant rate, as GM2), landing on the target exactly
   template <uint8_t N>
   INLINE void update_pitch_current() {
     if (m_osc_on[N]) {
+      int32_t exponential;
       if (m_pitch_current[N] <= m_pitch_target[N]) {
-        m_pitch_current[N] = m_pitch_target[N]  - multiply_shift_right((m_pitch_target[N] - m_pitch_current[N]) << 2,             m_portamento_coef[N], 32);
+        exponential = m_pitch_target[N]  - multiply_shift_right((m_pitch_target[N] - m_pitch_current[N]) << 2,             m_portamento_coef[N], 32);
       } else {
-        m_pitch_current[N] = m_pitch_current[N] + multiply_shift_right((m_pitch_target[N] - m_pitch_current[N]) << 2, (1 << 30) - m_portamento_coef[N], 32);
+        exponential = m_pitch_current[N] + multiply_shift_right((m_pitch_target[N] - m_pitch_current[N]) << 2, (1 << 30) - m_portamento_coef[N], 32);
       }
+      int32_t step   = m_portamento_step[N];
+      int32_t linear = m_pitch_current[N] + clamp(m_pitch_target[N] - m_pitch_current[N], -step, step);
+      m_pitch_current[N] = branchless_conditional(m_portamento_linear, linear, exponential);
     }
   }
 

@@ -1423,7 +1423,8 @@ static __attribute__((noinline)) boolean __not_in_flash_func(PRA32_U2_ControlPan
   case CHORUS_RATE     :
   case CHORUS_DEPTH    :
     result = PRA32_U2_ControlPanel_calc_value_display_time_rate(control_target, controller_value,
-               getCurrentControllerValue(getTargetMIDICh(s_current_synth), LFO_WAVE), value_display_text);
+               getCurrentControllerValue(getTargetMIDICh(s_current_synth), (control_target == PORTAMENTO) ? PORTA_MODE : LFO_WAVE),
+               value_display_text);
     break;
   case MIXER_SUB_OSC   :  // N64 (Noise 100%) to 0 to S64 (Sub Osc 100%), as it works
     PRA32_U2_ControlPanel_calc_value_display_two_sides(controller_value, 'N', 'S', value_display_text);
@@ -1518,8 +1519,8 @@ static __attribute__((noinline)) boolean __not_in_flash_func(PRA32_U2_ControlPan
     break;
   case PORTA_MODE      :
     {
-      static const char ary[2][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {" Sw","Aut"};
-      uint32_t index = ((controller_value * 2) + 128) >> 8;
+      static const char ary[6][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"ESw","ESw","LSw","LSw","LAu","EAu"};
+      uint32_t index = ((controller_value * 10) + 128) >> 8;
       PRA32_U2_ControlPanel_copy_text(value_display_text, ary[index]);
       result = true;
     }

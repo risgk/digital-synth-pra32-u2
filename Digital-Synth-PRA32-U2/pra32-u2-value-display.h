@@ -102,14 +102,26 @@ static INLINE uint32_t PRA32_U2_ControlPanel_milli_hz_from_lfo_step(uint32_t ste
   return static_cast<uint32_t>((static_cast<uint64_t>(step) * ((SAMPLING_RATE / 4) * 1000)) >> 24);
 }
 
-// The times and the rates: Portamento Time (0 for none), LFO Fade Time (0 for none), LFO Rate (with LFO Wave Nos, the
-// cutoff of the low-pass of the noise, "Off" for none), Chorus Rate, and Chorus Depth (the milliseconds, as the frequency,
-// e.g. ".04", "1.3", and "5.3"), by the tables (or the steps) that the synth uses, so that they are shown as they work (Delay Time: the milliseconds, as before)
-static __attribute__((noinline)) boolean __not_in_flash_func(PRA32_U2_ControlPanel_calc_value_display_time_rate)(uint8_t control_target, uint8_t controller_value, uint8_t lfo_wave, char value_display_text[5]) {
+// The times and the rates: Portamento Time (0 for none; with Portamento Mode LSw and LAu, the time of a semitone at the
+// rate of the linear Portamento, e.g. ".10", "6.5", "48", and "1.7"), LFO Fade Time (0 for none), LFO Rate (with LFO
+// Wave Nos, the cutoff of the low-pass of the noise, "Off" for none), Chorus Rate, and Chorus Depth (the milliseconds, as
+// the frequency, e.g. ".04", "1.3", and "5.3"), by the tables (or the steps) that the synth uses, so that they are shown
+// as they work (Delay Time: the milliseconds, as before); related_value: Portamento Mode (for Portamento Time), or LFO
+// Wave (for LFO Rate)
+static __attribute__((noinline)) boolean __not_in_flash_func(PRA32_U2_ControlPanel_calc_value_display_time_rate)(uint8_t control_target, uint8_t controller_value, uint8_t related_value, char value_display_text[5]) {
   uint32_t v = controller_value;
+  uint8_t  lfo_wave = related_value;
 
   if (control_target == PORTAMENTO) {
-    if (v == 0) {
+    if ((related_value >= 39) && (related_value < 116)) {  // LSw and LAu
+      // The time of a semitone (1 << 22) in 0.001 ms, at the step per control period (SAMPLING_RATE / 4)
+      uint32_t micros = static_cast<uint32_t>((((static_cast<uint64_t>(1) << 22) * 4000000) / SAMPLING_RATE) / g_portamento_rate_table[v]);
+      if (micros < 9995) {  // below 9.995 ms: ".10" to "9.9", as the frequency
+        PRA32_U2_ControlPanel_format_frequency(micros, value_display_text);
+      } else {
+        PRA32_U2_ControlPanel_format_time(micros * 10, value_display_text);
+      }
+    } else if (v == 0) {
       PRA32_U2_ControlPanel_format_time(0, value_display_text);  // "0"
     } else {
       PRA32_U2_ControlPanel_calc_value_display_time(v, false, value_display_text);

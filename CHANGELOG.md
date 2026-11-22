@@ -1,6 +1,12 @@
 ## Digital Synth PRA32-U2 Changelog
 
-- v3.22.1 (2026-??-??):
+- v3.23.0 (2026-??-??):
+    - **Portamento Mode [ESw|ESw|LSw|LSw|LAu|EAu]**: LSw (Linear Switch) and LAu (Linear Auto) move the pitch linearly,
+      at the rate of Portamento Time as the recommended example of GM2 (cents/ms, shown as the time of a semitone);
+      Sw and Aut renamed ESw (Exponential Switch) and EAu (Exponential Auto), working as before
+        - Not compatible: Portamento Mode 39-89 is LSw (Sw at 39-63 and Aut at 64-89 before), and 90-115 is LAu (Aut before);
+          0 and 127 (e.g. the Presets) are the same
+    - About 1.5 KB more of the RAM free (PRA32-U2/M)
     - PRA32-U2/M: A Program Change is processed over 2 loops for each synth, and the messages after it wait for it
       (up to about 11 ms with the Layering), so that it does not overload a loop; PRA32-U2/M/P Web too
         - With more than 64 of them waiting (a flood), the oldest is processed at once, in the program being set
