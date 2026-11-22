@@ -179,9 +179,10 @@
     - 64: 100 ms
     - 127: 9.31 s
     - Shown: the time (e.g. "0", "100", and "9.3")
-    - With Portamento Mode LSw and LAu (Linear): the rate of the pitch, as the recommended example of GM2 (General MIDI Level 2,
-      "Portamento Rate" of Portamento Time, in cents per millisecond), so that a wider interval takes longer
-        - 0: 1000 cents/ms (a semitone in 0.10 ms, almost at once)
+    - With Portamento Mode LSw and LAu (Linear): the rate of the pitch (0: none), as the recommended example of GM2 (General MIDI
+      Level 2, "Portamento Rate" of Portamento Time, in cents per millisecond), so that a wider interval takes longer
+        - 0: none (1000 cents/ms in GM2, a semitone in 0.10 ms, almost at once)
+        - 1: 376 cents/ms (a semitone in 0.27 ms)
         - 16: 15.5 cents/ms (6.5 ms)
         - 64: 2.07 cents/ms (48 ms, an octave in 579 ms)
         - 80: 1.07 cents/ms (94 ms)
@@ -190,7 +191,7 @@
         - The rate: 10^(1.465 - 0.01795 * value + 1.535 * e^(-value / 3.25) - 1.185 * e^(-(127 - value) / 3.25)) cents/ms,
           straight in log scale in the middle (a decade every 55.7 values, read from the graph of GM2), and bending steeply at the
           ends, to 1000 at 0 and 0.01 at 127, as the graph
-        - Shown: the time of a semitone (e.g. ".10", "6.5", "48", and "10.")
+        - Shown: the time of a semitone (e.g. "0", ".27", "6.5", "48", and "10.")
     - NOTE: The same value works otherwise by the mode: the exponential one takes about the same time for any interval, and the
       linear one a time by the interval (e.g. at 64, to within 1 cent: 66 ms for a semitone and 102 ms for an octave, and 48 ms and
       579 ms); choose the value again after changing the mode

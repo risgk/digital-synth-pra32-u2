@@ -159,8 +159,13 @@ def portamento_rate(value)
            (ends_0 * Math.exp(-value / PORTAMENTO_RATE_END_VALUES)) + (ends_127 * Math.exp(-(127 - value) / PORTAMENTO_RATE_END_VALUES)))
 end
 
-# The step of the pitch (1 << 22 a semitone) per control period of a Voice (SAMPLING_RATE / 4) at the rate
+# The step of the pitch (1 << 22 a semitone) per control period of a Voice (SAMPLING_RATE / 4) at the rate; 0: none (at
+# once, as the exponential Portamento at 0), by PORTAMENTO_STEP_NONE of PRA32_U2_Osc (beyond any pitch difference)
+PORTAMENTO_STEP_NONE = 0x40000000
+
 def portamento_rate_step(value)
+  return PORTAMENTO_STEP_NONE if value == 0
+
   (portamento_rate(value) / 100.0 * (1 << 22) / (SAMPLING_RATE / 4 / 1000.0)).round
 end
 
