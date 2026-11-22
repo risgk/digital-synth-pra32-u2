@@ -4756,8 +4756,8 @@ const PANEL_SCALE_TABLES = [
 ];
 const PANEL_NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 // The pitch as PRA32-U2/P shows it (see PRA32_U2_ControlPanel_calc_value_display_pitch())
-// Seq Pattern 4x4 (#62 at 32 and more)
-function panelPattern4x4() { return (panelValues[62] !== undefined) && (panelValues[62] >= 32); }
+// Seq Pattern 4x4 (#62 at 64 and more, as PRA32-U2/P)
+function panelPattern4x4() { return (panelValues[62] !== undefined) && (panelValues[62] >= 64); }
 
 function panelPitchName(pitch) {
   if (pitch === 0) { return "Off"; }
@@ -4885,6 +4885,64 @@ function panelOnChangeBits(cc, prefix) {
   panelOnChangeValue(cc, bits);
 }
 
+// The tooltips (as those of the synth): of the names, the meanings of the choices and the units (at the least;
+// see README-PRA32-U2-P.md for more), and of the values shown, the meanings
+const PANEL_NAME_TOOLTIPS = {
+  53: "Key: Key Mode, K+S: Key + Seq Mode, Seq: Step Sequencer Mode",
+  51: "Maj: Major, Min: Natural Minor, Mel: Ascending Melodic Minor, MaP: Major Pentatonic, MiP: Minor Pentatonic, Chr: Chromatic",
+  56: "Added to Panel Play Pitch and Seq Pitch 0-7 (-60 to +60)",
+  52: "Semitones",
+  54: "The note (Off at 0)",
+  55: "The velocity",
+  59: "Off: none, Clk: MIDI Clock, All: Clock, Start, and Stop, Nte: the notes, C+N: Clk and the notes, A+N: All and the notes",
+  94: "Receive MIDI Start and Stop",
+  60: "The channel of the Step Sequencer, as the channel that the panel selects + the offset (mod 16)",
+  92: "4: Quarter Note, 8: Eighth Note, 16: Sixteenth Note",
+  86: "Aut: Auto, Int: Internal, Ext: External (MIDI Clock)",
+  85: "BPM",
+  87: "Of a step",
+  89: "Fwd: Forward, Rvs: Reverse, Bnc: Bounce",
+  88: "Steps (with Seq Pattern 4x4, the length of each shift)",
+  62: "Std: Standard, 4x4: Seq Pitch/Velo 0-3 as the pattern, and 4-7 as the shifts",
+  95: "Added to Seq Pitch 0-7 (-60 to +60), and to Panel Pitch Ofst",
+  61: "Semitones, added to Panel Transpose",
+  93: "Bit 0: Step 1 On, ..., bit 6: Step 7 On (Step 0 always On)",
+  90: "Bit 0: Step 1 Active, ..., bit 6: Step 7 Active (Step 0 always Active)",
+};
+[0, 1, 2, 3, 4, 5, 6, 7].forEach(i => {
+  PANEL_NAME_TOOLTIPS[16 + i] = "The note (Off at 0)" + ((i >= 4) ? "; with Seq Pattern 4x4, the shift (-60 to +60)" : "");
+  PANEL_NAME_TOOLTIPS[70 + i] = "The velocity" + ((i >= 4) ? "; with Seq Pattern 4x4, the shift (-63 to +63)" : "");
+});
+const PANEL_CHOICE_NAMES = {
+  "Key": "Key Mode", "K+S": "Key + Seq Mode", "Seq": "Step Sequencer Mode",
+  "Maj": "Major", "Min": "Natural Minor", "Mel": "Ascending Melodic Minor", "MaP": "Major Pentatonic", "MiP": "Minor Pentatonic",
+  "Chr": "Chromatic", "Off": "Off", "On": "On", "Clk": "MIDI Clock", "All": "MIDI Clock, Start, and Stop", "Nte": "The notes",
+  "C+N": "MIDI Clock and the notes", "A+N": "MIDI Clock, Start, Stop, and the notes",
+  "4": "Quarter Note", "8": "Eighth Note", "16": "Sixteenth Note", "Aut": "Auto", "Int": "Internal", "Ext": "External (MIDI Clock)",
+  "Fwd": "Forward", "Rvs": "Reverse", "Bnc": "Bounce", "Std": "Standard", "4x4": "The pattern and the shifts",
+};
+
+function panelValueTooltip(cc, value, text) {
+  switch (cc) {
+  case 53: case 51: case 59: case 94: case 92: case 86: case 89: case 62:
+    return PANEL_CHOICE_NAMES[text] || "";
+  case 52: case 61:
+    return text + " semitones";
+  case 85:
+    return text + " BPM";
+  case 87:
+    return text + " of a step";
+  case 88:
+    return text + ((text == "1") ? " step" : " steps");
+  case 93: case 90:
+    return ((cc == 93) ? "On: Step " : "Active: Step ") + [0, 1, 2, 3, 4, 5, 6, 7].filter(i => (i == 0) || ((value >> (i - 1)) & 1)).join(", ");
+  }
+  if ((cc >= 20 && cc <= 23) && panelPattern4x4()) { return "The shift " + text; }
+  if ((cc >= 74 && cc <= 77) && panelPattern4x4()) { return "The shift " + text + " of the velocity"; }
+  if ((cc >= 16 && cc <= 23) || (cc == 54)) { return (text == "Off") ? "No note" : ""; }
+  return "";
+}
+
 function panelUpdateDisplay() {
   PANEL_PARAMS.forEach(p => {
     const cc = p[3];
@@ -4894,6 +4952,7 @@ function panelUpdateDisplay() {
     const text = p[5](panelValues[cc]);
     document.getElementById("spanPanel" + cc).textContent = panelValues[cc];
     document.getElementById("span2Panel" + cc).textContent = (text === String(panelValues[cc])) ? "" : "[" + text + "]";
+    document.getElementById("span2Panel" + cc).title = (text === String(panelValues[cc])) ? "" : panelValueTooltip(cc, panelValues[cc], text);
   });
   for (let i = 1; i < 8; i++) {
     document.getElementById("panelOn" + i).checked = (panelValues[PANEL_ON_STEPS_CC] >> (i - 1)) & 1;
@@ -5121,6 +5180,7 @@ function setupPanel() {
       param.className = "param";
       param.innerHTML = `<div class="param-name"><b>${category}</b> ${name}${sup ? ` <span class="sup">${sup}</span>` : ""} <span class="cc">CC#${cc}</span></div>
         <div class="param-ctrl ${markers}"><input id="inputPanel${cc}" type="range" min="0" max="127" step="1" aria-label="${category} ${name}"><span id="spanPanel${cc}">-</span><span id="span2Panel${cc}">-</span></div>`;
+      if (PANEL_NAME_TOOLTIPS[cc]) { param.querySelector(".param-name").title = PANEL_NAME_TOOLTIPS[cc]; }
       const input = param.querySelector("input");
       input.addEventListener("input", () => {
         if (panelSliderBefore) { panelUndoStack.push(panelSliderBefore); panelRedoStack = []; panelSliderBefore = null; panelUpdateUndoButtons(); }
