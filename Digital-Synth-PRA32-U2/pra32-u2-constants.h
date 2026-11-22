@@ -33,6 +33,7 @@ const uint8_t   FILTER_CONTROL_INTERVAL      = 0x01 << FILTER_CONTROL_INTERVAL_B
 const int8_t    FILTER_TABLE_FRACTION_BITS   = 30;
 const int8_t    FILTER_G_FRACTION_BITS       = 26;
 const uint16_t  FILTER_TABLE_LENGTH          = 128 + 1;
+const uint8_t   FILTER_CUTOFF_TABLE_WIDTH    = 3;  // g_filter_cutoff_table: g, kappa / g / 5, and the self-oscillation weight
 const uint8_t   EG_CONTROL_INTERVAL          = 0x10;
 const int8_t    EG_LEVEL_MAX_BITS            = 30;
 const int32_t   EG_LEVEL_MAX                 = 0x01 << EG_LEVEL_MAX_BITS;

@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 v3.22.0
+# Digital Synth PRA32-U2 v3.23.0
 
-- 2026-11-21 ISGK Instruments
+- 2026-11-22 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 - [日本語版 README (抄訳)](./README.ja.md)
 
@@ -250,6 +250,9 @@ graph LR
         - Basic Channel 1 (default): Channels 2-4 play 3 notes
         - Basic Channel 2: Channels 2-5 play 4 notes, and Channel 1 (the Layering of all, with Voice Group Mode not Off) works as the Master Channel
         - Set Pitch Bend Range to that of the controller (e.g. 48 semitones)
+    - Program Change: processed over 2 loops (about 2.7 ms) for each synth, and the messages after it wait for it
+      (up to about 11 ms with the Layering, which sets the 4 synths); with more than 64 of them waiting (a flood),
+      the oldest is processed at once, in the program being set
     - With the panel (PRA32-U2/M/P), the channels above can be selected (see [PRA32-U2/P](./README-PRA32-U2-P.md))
     - Not to use the Layering and the Round Robin, comment out `#define PRA32_U2_ENABLE_LAYERING` in "Digital-Synth-PRA32-U2-M.ino" (the Basic Channel + 4, + 5, and + 15 not used, with no Voice Group Mode)
 - How to modify (with Arduino IDE)
@@ -274,6 +277,8 @@ graph LR
       with MIDI (USB MIDI and UART MIDI), the panel, and Debug Print, as the sketch; core 1 only updates the panel and prints the debug print
     - "Digital-Synth-PRA32-U2.ino.Lite-Core-1-Only.txt" and "Digital-Synth-PRA32-U2-M.ino.Lite-Core-1-Only.txt":
       only the synth and the audio output, without MIDI, the panel, and Debug Print (no sound as it is): a base to play the synth from code of your own, at `// TODO` in `loop()`
+    - PRA32-U2/M (Lite): with the 4 synths of heavy sounds (e.g. #18 FM Piano), the load is near the limit
+      (about 89% on the device, and below 100% even with Program Changes back to back: up to 93% estimated)
 
 
 ## Troubleshooting
@@ -296,7 +301,7 @@ graph LR
     - With FX Routing Dry, the output does not go through the Output Compressor, and loud sounds are distorted by the soft clipping; choose another FX Routing (e.g. Cmp)
 - No portamento
     - Check that Portamento Time is not 0
-    - Check that Portamento Mode is Aut, or that Portamento Switch (Control Change #65) is On if Portamento Mode is Sw
+    - Check that Portamento Mode is EAu or LAu, or that Portamento Switch (Control Change #65) is On if Portamento Mode is ESw or LSw
     - In Legato Portamento (Voice Mode: LP), the Portamento is effective only for the legato notes
     - In the Polyphonic Mode, the Portamento is effective only when Voice Assign Mode is 2 or 4
 
@@ -305,11 +310,11 @@ graph LR
 
 ![CC0](http://i.creativecommons.org/p/zero/1.0/88x31.png)
 
-**Digital Synth PRA32-U2 v3.22.0 by ISGK Instruments (Ryo Ishigaki)**
+**Digital Synth PRA32-U2 v3.23.0 by ISGK Instruments (Ryo Ishigaki)**
 
 To the extent possible under law, ISGK Instruments (Ryo Ishigaki)
 has waived all copyright and related or neighboring rights
-to Digital Synth PRA32-U2 v3.22.0.
+to Digital Synth PRA32-U2 v3.23.0.
 
 You should have received a copy of the CC0 legalcode along with this
 work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.

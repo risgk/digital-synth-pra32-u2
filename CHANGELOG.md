@@ -1,5 +1,29 @@
 ## Digital Synth PRA32-U2 Changelog
 
+- v3.23.0 (2026-11-22):
+    - **Portamento Mode [ESw|ESw|LSw|LSw|LAu|EAu]**: LSw (Linear Switch) and LAu (Linear Auto) move the pitch linearly,
+      an octave in Portamento Time (a constant rate, as GM2: a wider interval takes longer); Sw and Aut renamed ESw
+      and EAu (Exponential), working as before
+        - **Not compatible**: Portamento Mode 39-89 is LSw (Sw at 39-63 and Aut at 64-89 before), and 90-115 is LAu
+          (Aut before); 0 and 127 (e.g. the Presets) are the same
+    - LFO Trig Mode On: In Polyphonic and Legato, the first note on restarts the LFO (every wave), as Aut;
+      the LFO of the notes held no longer jumps at another note
+        - **Not compatible**: every note on before (VOn restarts the LFO of each Voice at its note on)
+    - About 1.5 KB more of the RAM free (PRA32-U2/M, and the Lite)
+    - PRA32-U2/M: A Program Change is processed over 2 loops for each synth, and the messages after it wait for it
+      (up to about 11 ms with the Layering), so that it does not overload a loop; PRA32-U2/M/P Web too
+        - With more than 64 of them waiting (a flood), the oldest is processed at once, in the program being set
+    - A program sets Voice Mode last (the sound right after a Program Change of Voice Mode a little otherwise)
+    - Lighter: the Filter (its output clipped at +-1.0, a soft clip from 0.75 before) and Osc 1 Sin,
+      e.g. 4% less of a loop on the device (#18 FM Piano, the 4 synths of PRA32-U2/M (Lite));
+      the Presets sound the same (the Filter within -109 dB)
+    - PRA32-U2/P: Seq Velo 4-7 of Seq Pattern 4x4 shift the velocity by -63 to +63 (-64 at 0 before)
+    - Fixes: PRA32-U2/M: a Program Change of more than one synth (e.g. by the Layering) with a note right after it,
+      and a change of Voice Group Mode or of Poly of the Main Synth, processed all the programs in one loop
+      (over 100% estimated)
+    - PRA32-U2 Load Estimate: Add the cases of a Program Change with a note right after it;
+      the bytes of UART MIDI arrive in the time of the loops as on the device (fewer a loop for a lighter loop before)
+    - Tested with Arduino-Pico version 6.4.0
 - v3.22.0 (2026-11-21):
     - **CC #16-19 are General Purpose Controller 1-4**: each controls the parameter that Assign #16-#19 (#48-51) set
       for each program, by Assign Mode (#42) [Jmp|Cat|Rel]

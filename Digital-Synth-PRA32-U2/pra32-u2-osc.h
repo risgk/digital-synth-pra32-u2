@@ -24,6 +24,11 @@
 
 
 class PRA32_U2_Osc {
+public:
+  static const uint8_t PORTAMENTO_NONE        = 255;  // For set_portamento(): none (at once), whatever the Portamento Mode
+private:
+  static const int32_t PORTAMENTO_STEP_NONE   = 0x40000000;  // The linear one at once (beyond any pitch difference)
+
   static const uint8_t OSC_MIX_TABLE_LENGTH   = 65;
 
   static const uint8_t PORTAMENTO_COEF_BASE   = 190;
@@ -46,6 +51,8 @@ class PRA32_U2_Osc {
   uint16_t       m_drift;
   boolean        m_saw_wave_mode_curved;
   int32_t        m_portamento_coef[4];
+  int32_t        m_portamento_step[4];    // The step of the linear Portamento per control period (see set_portamento())
+  boolean        m_portamento_linear;     // Portamento Mode LSw and LAu
   int16_t        m_pitch_eg_amt[2];
   int16_t        m_pitch_lfo_amt[2];
 
@@ -93,6 +100,7 @@ class PRA32_U2_Osc {
   uint32_t       m_osc1_sqr_shape_offset[4][16];
   uint32_t       m_osc1_wt_shape_offset[4][16];
   uint16_t       m_osc1_phase_modulation_frequency_ratio[4];
+  uint16_t       m_osc1_phase_modulation_frequency_ratio_candidate;  // By m_osc1_morph_current
   uint8_t        m_osc1_coarse[4];               // Osc 1 Tri: the Note Number of the mipmap of Osc 1,
   int32_t        m_tri_fold_g[4];                // the gain g of the triangle fold (Q12, 1 to 9),
   int32_t        m_tri_fold_k[4];                // the jump of the slope at the peak of the Triangle Wave (per sample),
@@ -115,6 +123,8 @@ public:
   : m_drift()
   , m_saw_wave_mode_curved()
   , m_portamento_coef()
+  , m_portamento_step()
+  , m_portamento_linear()
   , m_pitch_eg_amt()
   , m_pitch_lfo_amt()
 
@@ -162,6 +172,7 @@ public:
   , m_osc1_sqr_shape_offset()
   , m_osc1_wt_shape_offset()
   , m_osc1_phase_modulation_frequency_ratio()
+  , m_osc1_phase_modulation_frequency_ratio_candidate(2)  // (((0 + 2) >> 2) << 1) + 2, at Morph 0
   , m_osc1_coarse()
   , m_tri_fold_g()
   , m_tri_fold_k()
@@ -183,6 +194,10 @@ public:
     m_portamento_coef[1] = 0;
     m_portamento_coef[2] = 0;
     m_portamento_coef[3] = 0;
+    m_portamento_step[0] = PORTAMENTO_STEP_NONE;
+    m_portamento_step[1] = PORTAMENTO_STEP_NONE;
+    m_portamento_step[2] = PORTAMENTO_STEP_NONE;
+    m_portamento_step[3] = PORTAMENTO_STEP_NONE;
 
     set_mixer_osc_mix(0);
     set_osc2_coarse  (64);
@@ -471,18 +486,38 @@ public:
     }
   }
 
+  // Portamento Time (0-127), or PORTAMENTO_NONE for none (e.g. while Portamento Switch is off): the exponential one
+  // (ESw and EAu) by the time constant of g_portamento_coef_table (0 for none, too), and the linear one (LSw and LAu)
+  // by the rate of g_portamento_rate_table, an octave in the time (as the exponential one; 0 for none, too)
   template <uint8_t N>
   INLINE void set_portamento(uint8_t controller_value) {
-    m_portamento_coef[N] = g_portamento_coef_table[controller_value];
+    set_portamento_of(N, controller_value);
+  }
+
+  // Not inlined (each synth calls it at many places of its note on, which is in the RAM)
+  __attribute__((noinline)) void __not_in_flash_func(set_portamento_of)(uint32_t n, uint8_t controller_value) {
+    boolean none = (controller_value > 127);
+    m_portamento_coef[n] = none ? 0 : g_portamento_coef_table[controller_value];
+    m_portamento_step[n] = none ? PORTAMENTO_STEP_NONE : g_portamento_rate_table[controller_value];
+  }
+
+  // Portamento Mode LSw and LAu (true), or ESw and EAu (false), for all the Voices (the glides under way too)
+  INLINE void set_portamento_linear(boolean linear) {
+    m_portamento_linear = linear;
   }
 
   template <uint8_t N>
   INLINE void note_on(uint8_t note_number) {
-    m_pitch_target[N] = clamp(note_number, NOTE_NUMBER_MIN, NOTE_NUMBER_MAX) << (24 - 2);
-    if (m_portamento_coef[N] == 0) {
-      m_pitch_current[N] = m_pitch_target[N];
+    note_on_of(N, note_number);
+  }
+
+  // Not inlined (each synth calls it at many places of its note on, which is in the RAM)
+  __attribute__((noinline)) void __not_in_flash_func(note_on_of)(uint32_t n, uint8_t note_number) {
+    m_pitch_target[n] = clamp(note_number, NOTE_NUMBER_MIN, NOTE_NUMBER_MAX) << (24 - 2);
+    if (m_portamento_linear ? (m_portamento_step[n] == PORTAMENTO_STEP_NONE) : (m_portamento_coef[n] == 0)) {
+      m_pitch_current[n] = m_pitch_target[n];
     }
-    m_osc_on[N] = true;
+    m_osc_on[n] = true;
   }
 
   template <uint8_t N>
@@ -612,7 +647,11 @@ private:
   // and written to BASE_1AND0 of INTERP0 at once, each half sign-extended (both lanes signed), and the
   // weight is written as it is, as the blend uses only its 8 LSBs: fewer instructions, the same result
   INLINE int16_t get_wave_level(const int16_t* wave_table, uint32_t phase_24) {
-    uint32_t samples_bits = static_cast<uint32_t>(wave_table[-1]);
+    return get_wave_level_of_bits(wave_table, phase_24, static_cast<uint32_t>(wave_table[-1]));
+  }
+
+  // The same, with the samples (bits) known (e.g. the Sine Wave, OSC_WAVE_TABLE_SAMPLES_BITS)
+  INLINE int16_t get_wave_level_of_bits(const int16_t* wave_table, uint32_t phase_24, uint32_t samples_bits) {
     uint32_t curr_index  = (phase_24 & 0xFFFFFF) >> (24 - samples_bits);
 #if defined(ARDUINO_ARCH_RP2040)
     uint32_t both_data;
@@ -671,15 +710,16 @@ private:
       uint16_t osc1_phase_modulation_depth = maximum(m_osc1_shape_current[N] - (128 << 8), 0);
 
       uint32_t phase_3 = (((osc1_phase >> 1) & 0x01FFFFFF) * m_osc1_phase_modulation_frequency_ratio[N]) >> 1;
-      const int16_t* wave_table_sine = get_wave_table(WAVEFORM_SINE, 60);
-      int16_t wave_3 = get_wave_level(wave_table_sine, phase_3);
+      // The one Sine table (the same for all the notes) and its samples, known at the compile time
+      const int16_t* wave_table_sine = g_osc_sine_wave_table_h1 + 1;
+      int16_t wave_3 = get_wave_level_of_bits(wave_table_sine, phase_3, OSC_WAVE_TABLE_SAMPLES_BITS);
 
       uint32_t phase_0 = osc1_phase + ((wave_3 * osc1_phase_modulation_depth) >> 4);
-      int32_t wave_0 = get_wave_level(wave_table_sine, phase_0);
+      int32_t wave_0 = get_wave_level_of_bits(wave_table_sine, phase_0, OSC_WAVE_TABLE_SAMPLES_BITS);
       result += (wave_0 * m_osc1_gain * OSC_LEVEL) >> 8;
 
-      int32_t phase_modulation_frequency_ratio_candidate = (((m_osc1_morph_current + 2) >> 2) << 1) + 2;
-      m_osc1_phase_modulation_frequency_ratio[N] = (m_osc1_phase_modulation_frequency_ratio[N] * (1 - new_period_osc1)) + (phase_modulation_frequency_ratio_candidate * new_period_osc1);
+      // The ratio by the Morph (see process_at_low_rate_global()), taken at the start of a period
+      m_osc1_phase_modulation_frequency_ratio[N] = (m_osc1_phase_modulation_frequency_ratio[N] * (1 - new_period_osc1)) + (m_osc1_phase_modulation_frequency_ratio_candidate * new_period_osc1);
     } else if ((m_waveform[0] == WAVEFORM_SAW) || (m_waveform[0] == WAVEFORM_SAW2)) {
 if constexpr (RESTRICT_SAW == false) {
       // The detune a sample, by update_multi_saw_detune() at the control rate
@@ -848,14 +888,20 @@ if constexpr (RESTRICT_SQR_WT == false) {  // the same load at any Morph, as the
     return result;
   }
 
+  // The exponential Portamento and the linear one, both computed every time (the same load whichever is used): the
+  // linear one moves the pitch by the step at most (a constant rate, as GM2), landing on the target exactly
   template <uint8_t N>
   INLINE void update_pitch_current() {
     if (m_osc_on[N]) {
+      int32_t exponential;
       if (m_pitch_current[N] <= m_pitch_target[N]) {
-        m_pitch_current[N] = m_pitch_target[N]  - multiply_shift_right((m_pitch_target[N] - m_pitch_current[N]) << 2,             m_portamento_coef[N], 32);
+        exponential = m_pitch_target[N]  - multiply_shift_right((m_pitch_target[N] - m_pitch_current[N]) << 2,             m_portamento_coef[N], 32);
       } else {
-        m_pitch_current[N] = m_pitch_current[N] + multiply_shift_right((m_pitch_target[N] - m_pitch_current[N]) << 2, (1 << 30) - m_portamento_coef[N], 32);
+        exponential = m_pitch_current[N] + multiply_shift_right((m_pitch_target[N] - m_pitch_current[N]) << 2, (1 << 30) - m_portamento_coef[N], 32);
       }
+      int32_t step   = m_portamento_step[N];
+      int32_t linear = m_pitch_current[N] + clamp(m_pitch_target[N] - m_pitch_current[N], -step, step);
+      m_pitch_current[N] = branchless_conditional(m_portamento_linear, linear, exponential);
     }
   }
 
@@ -959,6 +1005,7 @@ if constexpr (RESTRICT_SQR_WT == false) {  // the same load at any Morph, as the
     // does not move in steps while smoothed
     approach_exp_slow(m_osc1_morph_stage_1, m_osc1_morph_current_q16, static_cast<int32_t>(m_osc1_morph_target) << 16);
     m_osc1_morph_current = (m_osc1_morph_current_q16 + (1 << 15)) >> 16;
+    m_osc1_phase_modulation_frequency_ratio_candidate = (((m_osc1_morph_current + 2) >> 2) << 1) + 2;
 
     int32_t morph    = m_osc1_morph_current_q16 >> 16;
     int32_t fraction = m_osc1_morph_current_q16 & 0xFFFF;

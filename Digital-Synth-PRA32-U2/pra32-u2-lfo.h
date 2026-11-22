@@ -22,7 +22,7 @@ public:
   // play Voice 0). The four in the middle mirror each other, as Breath Amp Mode [Off|Q|L|LO|QO|Opn]
   static const uint8_t LFO_TRIG_MODE_AUTO       = 0;  // as before: the phase of Saw, S&H, and Square, and the fade, restart at the first note on (Polyphonic and Legato) or every note on (Monophonic)
   static const uint8_t LFO_TRIG_MODE_OFF        = 1;  // free running; the fade restarts as in Aut
-  static const uint8_t LFO_TRIG_MODE_ON         = 2;  // every note on restarts the phase (of every wave) and the fade
+  static const uint8_t LFO_TRIG_MODE_ON         = 2;  // the phase (of every wave) and the fade restart at the first note on (Polyphonic and Legato) or every note on (Monophonic), as Aut
   static const uint8_t LFO_TRIG_MODE_VOICE_ON   = 3;  // the note on of each Voice restarts its phase (of every wave) and its fade
   static const uint8_t LFO_TRIG_MODE_VOICE_OFF  = 4;  // each Voice free running (a quarter apart at the start); its note on restarts its fade
   static const uint8_t LFO_TRIG_MODE_VOICE_AUTO = 5;  // the note on of each Voice restarts its phase of Saw, S&H, and Square, and its fade (Triangle and Sine run on)
@@ -165,7 +165,8 @@ public:
   }
 
   // A note on in the Monophonic modes (Voice 0), and the note ons of Polyphonic with the LFO of all
-  // the Voices (trigger: a note on that restarts the LFO in Aut, as before)
+  // the Voices (trigger: a note on that restarts the LFO in Aut and On: the first note on of Polyphonic
+  // and Legato, and every note on of Monophonic)
   __attribute__((noinline)) void __not_in_flash_func(note_on_monophonic)(boolean trigger) {
     switch (m_lfo_trig_mode) {
     case LFO_TRIG_MODE_OFF:
@@ -182,8 +183,10 @@ public:
       }
       break;
     default:  // LFO_TRIG_MODE_ON, LFO_TRIG_MODE_VOICE_ON
-      restart_phase(0);
-      restart_fade(0);
+      if (trigger) {
+        restart_phase(0);
+        restart_fade(0);
+      }
       break;
     }
   }

@@ -905,7 +905,7 @@ span.cc {
 }
 </style>
 <script>
-const APP_NAME_VERSION = "PRA32-U2 Editor v3.22.0";
+const APP_NAME_VERSION = "PRA32-U2 Editor v3.23.0";
 
 // localStorage that throws (e.g. disabled by the Web browser) is replaced by one in memory, as the start of the page
 // reads it without try / catch. The settings are then kept only until the page is closed
@@ -1336,7 +1336,7 @@ var fileReaderImportAll = new FileReader();
 var fileReaderImportCurrent = new FileReader();
 
 window.onload = function() {
-  // "PRA32-U2 Editor" and "v3.22.0" apart, styled apart
+  // "PRA32-U2 Editor" and "v3.23.0" apart, styled apart
   var nameEnd = APP_NAME_VERSION.lastIndexOf(" v");
   var appName = document.createElement("span");
   appName.className = "app-name";
@@ -1658,8 +1658,8 @@ function updateDimmedParameters() {
   setParameterDimmed(AMP_RELEASE, egAmpMod || relEqDecay);
   setParameterDimmed(EG_RELEASE , relEqDecay);
 
-  // Portamento Switch (a performance control): not effective if Portamento Mode is Aut
-  setDimmed(["spanPerfPORTAMENTO_SW", "span2PerfPORTAMENTO_SW"], (localStorage.getItem("keyPORTA_MODE     ") >= 64));
+  // Portamento Switch (a performance control): not effective if Portamento Mode is LAu or EAu
+  setDimmed(["spanPerfPORTAMENTO_SW", "span2PerfPORTAMENTO_SW"], (localStorage.getItem("keyPORTA_MODE     ") >= 90));
 }
 
 // Assign #16-#19: Off (0, 16-19: General Purpose Controller 1-4, 48-51: Assign #16-#19, 64: Sustain Pedal, 80:
@@ -2552,8 +2552,8 @@ function updateDisplayOfControl(number, value) {
     break;
   case PORTA_MODE      :
     {
-      var ary = ["Sw","Aut"];
-      var index = Math.floor(((value * 2) + 128) >> 8);
+      var ary = ["ESw","ESw","LSw","LSw","LAu","EAu"];
+      var index = Math.floor(((value * 10) + 128) >> 8);
       dispValue = ary[index];
     }
     break;
@@ -4302,8 +4302,8 @@ function getStoredCCValueString(index, number) {
   <div class="param-ctrl"><input  id="inputAFT_T_LFO_AMT  "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(AFT_T_LFO_AMT  , value)"><span    id="spanAFT_T_LFO_AMT  " >-</span><span   id="span2AFT_T_LFO_AMT  " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>Portamento</b> Mode <span class="sup">[Sw|Aut]</span> <span class="cc">CC#34</span></div>
-  <div class="param-ctrl soft-markers-2"><input  id="inputPORTA_MODE     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(PORTA_MODE     , value)"><span    id="spanPORTA_MODE     " >-</span><span   id="span2PORTA_MODE     " >-</span></div>
+  <div class="param-name"><b>Portamento</b> Mode <span class="sup">[ESw|ESw|LSw|LSw|LAu|EAu]</span> <span class="cc">CC#34</span></div>
+  <div class="param-ctrl soft-markers-6"><input  id="inputPORTA_MODE     "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(PORTA_MODE     , value)"><span    id="spanPORTA_MODE     " >-</span><span   id="span2PORTA_MODE     " >-</span></div>
 </div>
 <div class="param">
   <div class="param-name"><b>Osc</b> Saw Wave Mode <span class="sup">[Str|Cur]</span> <span class="cc">CC#83</span></div>
@@ -4548,7 +4548,7 @@ const PANEL_PARAM_GROUPS = [
   [0, 1, 2, 3, 4, 5, 6, 7].flatMap(i => [["Seq", "Pitch " + i, "", 16 + i, [4, 22, 37, 57, 72, 89, 107, 124][i],
                                           v => ((i >= 4) && panelPattern4x4()) ? panelSigned(panelClamp(v - 64, -60, 60)) : panelPitchName(v), ""],
                                          ["Seq", "Velo " + i,  "", 70 + i, 64,
-                                          v => ((i >= 4) && panelPattern4x4()) ? panelSigned(v - 64) : String(v), ""]]),
+                                          v => ((i >= 4) && panelPattern4x4()) ? panelSigned(Math.max(v - 64, -63)) : String(v), ""]]),
 ];
 const PANEL_PARAMS = PANEL_PARAM_GROUPS.flat().filter(p => p);
 const PANEL_ON_STEPS_CC = 93, PANEL_ACT_STEPS_CC = 90;

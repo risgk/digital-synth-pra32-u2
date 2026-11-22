@@ -1,6 +1,6 @@
-# Digital Synth PRA32-U2 v3.22.0
+# Digital Synth PRA32-U2 v3.23.0
 
-- 2026-11-21 ISGK Instruments
+- 2026-11-22 ISGK Instruments
 - <https://github.com/risgk/digital-synth-pra32-u2>
 - [English README](./README.md) の抄訳です (英語版が正です)。詳しい仕様は英語版を参照してください
     - 英語のドキュメントは、必要に応じて Web ブラウザーなどの自動翻訳を使ってお読みください
@@ -173,6 +173,7 @@
     - 例: RR3 (プリセット) で Main Synth が Mono 系なら、Ch 1 でリード、Ch 5 で 3 音 (Sub Synth の Round Robin) を弾けます
     - 例: RR4 では、Ch 5 で 4 音の Round Robin、Ch 16 で 4 台重ねのリードを弾けます
     - PRA32-U2 Editor のスライダーは、"MIDI Ch" に関係なく Basic Channel (Panel & Step Sequencer の Basic Ch、初期値 1) で送ります
+- プログラム・チェンジは、1 台につき 2 ループ (約 2.7 ms) かけて処理され、その後のメッセージは処理を待ちます (4 台に読み込む Layering で最大約 11 ms)。64 個を超えて待つと (大量に送られたとき)、一番古いものを途中のプログラムのまま処理します
 - 改造するには、"Digital-Synth-PRA32-U2" フォルダーの "Digital-Synth-PRA32-U2.ino" 以外のすべてのファイルを "Digital-Synth-PRA32-U2-M" フォルダーにコピーし、"Digital-Synth-PRA32-U2-M.ino" をスケッチとして使います
 - 詳しくは英語版の [PRA32-U2/M](./README.md#pra32-u2m-pra32-u2-multi-timbre-edition) を参照してください
 
@@ -183,6 +184,7 @@
 - **Digital Synth PRA32-U2 (Lite)** と **Digital Synth PRA32-U2/M (Lite)**: Saw、Sqr、Tri、WT で Osc 1 Shape と Morph が効かず、Distortion FX は入力をそのまま通し (Dst は Cho と同じ)、Delay Mode の Rev は Stereo Delay (Ste) になる代わりに、シンセを 1 つのコア (コア 0) で処理します
     - "...Lite-Core-0-Only.txt": 通常のスケッチと同じく、MIDI (USB MIDI と UART MIDI)、パネル、デバッグプリントがあります。コア 1 はパネルの更新とデバッグプリントだけを行います
     - "...Lite-Core-1-Only.txt": シンセと音声出力だけで、MIDI、パネル、デバッグプリントはありません (このままでは音が出ません)。`loop()` の `// TODO` に自分のコードを書いて、シンセを鳴らすための雛形です
+    - PRA32-U2/M (Lite): 4 つのシンセとも重い音色 (#18 FM Piano など) だと、負荷が限界に近くなります (実機で約 89%、Program Change の連打でも 100% 未満 (推定で最大 93%))
 - 詳しくは英語版の [Customization Examples](./README.md#customization-examples) を参照してください
 
 
@@ -206,7 +208,7 @@
     - FX Routing が Dry の場合は Output Compressor を通らないため、大きな音はソフトクリップで歪みます。Cmp などを選んでください
 - ポルタメントが掛からない
     - Portamento Time が 0 になっていないか確認してください
-    - Portamento Mode が Aut か、Sw の場合は Portamento Switch (コントロール・チェンジ #65) が On か確認してください
+    - Portamento Mode が EAu か LAu か、ESw か LSw の場合は Portamento Switch (コントロール・チェンジ #65) が On か確認してください
     - Legato Portamento (Voice Mode: LP) では、レガートで弾いたときだけポルタメントが掛かります
     - Polyphonic のときは、Voice Assign Mode が 2 か 4 のときだけポルタメントが掛かります
 

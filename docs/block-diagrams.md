@@ -76,7 +76,9 @@ does not change with the sampling rate. The low pass state stays linear, with a 
 a guard that ordinary use never reaches. The curve is biased by 1/8, so that the leak adds even
 harmonics as the band pass is driven (at a high Resonance or near the cutoff), with its
 small-signal gain made up for, so that the resonance is kept; a DC blocker on the output
-removes the DC that comes with it. The output clip comes last. Above the Filter
+removes the DC that comes with it. The output clip at +-1.0 comes last, a hard clip, as the output
+rarely reaches it (the Oscs stay below 0.75, but e.g. the peaks of the Noise at a high Resonance
+do reach it). Above the Filter
 Resonance 122, k turns negative and the loop oscillates. Filter Drive multiplies the input by
 2^(value / 24), 1.0 at 0, 4.0 at 48, 32.0 at 120, and 39.2 at 127, which drives the loop and its leak harder, and divides
 what leaves the loop by the same ahead of the output clip, so that the level stays and the Drive
@@ -96,7 +98,7 @@ flowchart LR
     I2 -->|LP| MS
     MS --> DC["DC blocker<br/>7.5 Hz"]
     DC --> DIV["÷ Drive<br/>× level by the Resonance"]
-    DIV --> OC["Output clip<br/>linear up to 0.75"]
+    DIV --> OC["Output clip<br/>at ±1.0 (hard)"]
     OC --> OUT([Output])
     SC["Nonlinear leak<br/>biased 1/8, ceiling 4.0, one-step simplified Newton"] -.- I1
     L2["s2 is linear<br/>guard clamp at 16"] -.- I2

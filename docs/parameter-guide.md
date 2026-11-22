@@ -179,6 +179,12 @@
     - 64: 100 ms
     - 127: 9.31 s
     - Shown: the time (e.g. "0", "100", and "9.3")
+    - With Portamento Mode ESw and EAu (Exponential): the time that the pitch takes to approach the note (exponentially)
+    - With Portamento Mode LSw and LAu (Linear): the time of an octave, at a constant rate (e.g. at 64, 12 cents/ms: an octave
+      in 100 ms, a semitone in 8.3 ms, and two octaves in 200 ms), so that a wider interval takes longer, as Portamento Time of GM2
+      (General MIDI Level 2) sets a rate
+    - NOTE: With the same value, an octave takes about the same time in both, and a narrower interval less time with the linear one
+      (e.g. at 64, to within 1 cent: a semitone in 66 ms, and in 8.3 ms with the linear one), a wider one more
     - NOTE: The Portamento is turned on and off by "Portamento Mode" (and "Portamento Switch")
 - LFO Wave [Tri|Sin|Nos|Saw|S&H|Sqr]
     - 0 (0-12): Triangle Wave (Key Trigger Off, -0.5 to +0.5)
@@ -286,7 +292,7 @@
 - LFO Trig Mode [Aut|Off|On|VOn|VOf|VAu]: How a note on restarts the LFO (its phase, and the LFO Fade Time), and whether the Voices share the LFO
     - 0 (0-12): Auto (Aut), The LFO of all the Voices; the phase of Saw, S&H, and Square, and the fade, restart at the first note on (Polyphonic, Legato Portamento, and Legato) or every note on (Monophonic) (see Voice Mode and LFO Wave)
     - 26 (13-38): Off, The LFO of all the Voices, free running; the fade restarts as in Aut
-    - 51 (39-63): On, The LFO of all the Voices; every note on restarts the phase (of every wave) and the fade
+    - 51 (39-63): On, The LFO of all the Voices; the phase (of every wave) and the fade restart at the first note on (Polyphonic, Legato Portamento, and Legato) or every note on (Monophonic), as Aut
     - 77 (64-89): Voice On (VOn), An LFO for each Voice; the note on of the Voice restarts its phase (of every wave) and its fade
     - 102 (90-115): Voice Off (VOf), An LFO for each Voice, free running; the note on of the Voice restarts its fade
     - 127 (116-127): Voice Auto (VAu), An LFO for each Voice; the note on of the Voice restarts its phase of Saw, S&H, and Square, and its fade (Triangle and Sine run on)
@@ -316,10 +322,17 @@
     - 0: +0% (min)
     - 64: +50%
     - 127: +100% (max)
-- Portamento Mode [Sw|Aut]: What turns on and off the Portamento
-    - 0 (0-63): Switch (Sw), The Portamento is on only while Portamento Switch (Control Change #65) is On (64-127)
-    - 127 (64-127): Auto (Aut), The Portamento is always on
+- Portamento Mode [ESw|ESw|LSw|LSw|LAu|EAu]: What turns on and off the Portamento, and how the pitch moves
+    - 0 (0-12): Exponential Switch (ESw), The Portamento is on only while Portamento Switch (Control Change #65) is On (64-127);
+      the pitch approaches the note exponentially, by the time of "Portamento Time"
+    - 26 (13-38): Exponential Switch (ESw)
+    - 51 (39-63): Linear Switch (LSw), The Portamento is on only while Portamento Switch is On; the pitch moves linearly, at the rate
+      of "Portamento Time" (as GM2)
+    - 77 (64-89): Linear Switch (LSw)
+    - 102 (90-115): Linear Auto (LAu), The Portamento is always on; the pitch moves linearly
+    - 127 (116-127): Exponential Auto (EAu), The Portamento is always on; the pitch approaches the note exponentially
     - NOTE: In Legato Portamento (Voice Mode: LP), the Portamento is effective only for the legato notes, also while it is on
+      (exponential or linear, by this)
 - Osc Saw Wave Mode [Str|Cur]
     - 0 (0-63): Straight Saw Wave
     - 127 (64-127): Curved Saw Wave, This does not affect the Pulse Wave
@@ -401,7 +414,7 @@
 - Expression (Control Change #11): The level, in a quadratic curve (64: 25%, about -12 dB) (Reset: 127)
 - Sustain Pedal [Off|On] (Control Change #64): While it is On (64-127), the note offs are held, and they are released when it is turned Off (Reset: Off)
     - It is also turned Off by All Notes Off, All Sound Off, Omni Mode Off/On, and Mono/Poly Mode On
-- Portamento Switch [Off|On] (Control Change #65): While it is On (64-127), the Portamento is on, if "Portamento Mode" is Sw (Reset: Off)
+- Portamento Switch [Off|On] (Control Change #65): While it is On (64-127), the Portamento is on, if "Portamento Mode" is ESw or LSw (Reset: Off)
 - After Touch (Polyphonic Key Pressure and Channel Pressure): Adds to the LFO depth by "After Touch LFO Amt" (Reset: 0)
 - General Purpose Controller 1-4 (Control Change #16-19): Work as the Control Change of the number that "Assign #16-#19" set (e.g. a knob of a keyboard for
   a parameter of each program), at once (Assign Mode Jmp), from when the value comes to that of the parameter (Cat), or as relative values (Rel)

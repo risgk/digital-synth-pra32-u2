@@ -113,7 +113,7 @@ const PRA32U2Engine::ParameterInfo s_parameter_names[] = {
   { BTH_FILTER_AMT , "Breath Filter Amt [- to +]"                },
   { BTH_AMP_MOD    , "Breath Amp Mode [Off|Q|L|LO|QO|Opn]"    },
   { AFT_T_LFO_AMT  , "After Touch LFO Amt"                    },
-  { PORTA_MODE     , "Portamento Mode [Sw|Aut]"               },
+  { PORTA_MODE     , "Portamento Mode [ESw|ESw|LSw|LSw|LAu|EAu]" },
   { OSC_SAW_W_MODE , "Osc Saw Wave Mode [Str|Cur]"            },
   { STRETCH_TUNE   , "Stretch Tune [- to +]"                     },
   { PAN            , "Pan"                                    },
@@ -231,6 +231,7 @@ int PRA32U2Engine::getMarkers(uint8_t controlNumber, const uint8_t** markerValue
   case VOICE_MODE      :
   case LFO_WAVE        :
   case LFO_TRIG_MODE   :
+  case PORTA_MODE      :
   case LFO_OSC_DST     :
   case VOICE_ASGN_MODE :
   case BTH_AMP_MOD     :
@@ -251,7 +252,6 @@ int PRA32U2Engine::getMarkers(uint8_t controlNumber, const uint8_t** markerValue
   case EG_AMP_MOD      :
   case REL_EQ_DECAY    :
   case OSC_SAW_W_MODE  :
-  case PORTA_MODE      :
     *markerValues = MARKERS_2;
     return 2;
   case OSC_1_SHAPE     :  // The center (e.g. the pulse width 50% with Pls)
@@ -319,7 +319,7 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value, ui
   static const char* const FILTER_MODES[9] = { "LP", "L-R", "BR", "R-H", "HP", "H-B", "BP", "B-L", "LP" };
   static const char* const OFF_ON[2]       = { "Off", "On" };
   static const char* const SAW_W_MODES[2]  = { "Str", "Cur" };
-  static const char* const PORTA_MODES[2]  = { "Sw", "Aut" };
+  static const char* const PORTA_MODES[6]  = { "ESw", "ESw", "LSw", "LSw", "LAu", "EAu" };
   static const char* const BTH_AMP_MODS[6] = { "Off", "Q", "L", "LO", "QO", "Opn" };
   static const char* const LFO_TRIG_MODES[6] = { "Aut", "Off", "On", "VOn", "VOf", "VAu" };
   static const char* const FX_ROUTINGS[6]  = { "Dst", "Cho", "Dly", "Dly", "Cmp", "Dry" };
@@ -494,7 +494,7 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value, ui
   case REL_EQ_DECAY    : dispValue = select2(v, OFF_ON);             break;
   case ASSIGN_MODE     : dispValue = select3(v, ASSIGN_MODES);       break;
   case OSC_SAW_W_MODE  : dispValue = select2(v, SAW_W_MODES);        break;
-  case PORTA_MODE      : dispValue = select2(v, PORTA_MODES);        break;
+  case PORTA_MODE      : dispValue = select6(v, PORTA_MODES);        break;
   case LFO_TRIG_MODE   : dispValue = select6(v, LFO_TRIG_MODES);      break;
   case BTH_AMP_MOD     : dispValue = select6(v, BTH_AMP_MODS);       break;
   case FX_ROUTING      : dispValue = select6(v, FX_ROUTINGS);        break;
