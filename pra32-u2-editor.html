@@ -4935,7 +4935,7 @@ function panelValueTooltip(cc, value, text) {
   case 88:
     return text + ((text == "1") ? " step" : " steps");
   case 93: case 90:
-    return ((cc == 93) ? "On: Step " : "Active: Step ") + [0, 1, 2, 3, 4, 5, 6, 7].filter(i => (i == 0) || ((value >> (i - 1)) & 1)).join(", ");
+    return ((cc == 93) ? "On: Steps " : "Active: Steps ") + [0, 1, 2, 3, 4, 5, 6, 7].filter(i => (i == 0) || ((value >> (i - 1)) & 1)).join(", ");
   }
   if ((cc >= 20 && cc <= 23) && panelPattern4x4()) { return "The shift " + text; }
   if ((cc >= 74 && cc <= 77) && panelPattern4x4()) { return "The shift " + text + " of the velocity"; }
