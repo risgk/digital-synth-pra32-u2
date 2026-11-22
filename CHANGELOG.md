@@ -6,6 +6,9 @@
       and EAu (Exponential), working as before
         - Not compatible: Portamento Mode 39-89 is LSw (Sw at 39-63 and Aut at 64-89 before), and 90-115 is LAu (Aut before);
           0 and 127 (e.g. the Presets) are the same
+    - LFO Trig Mode On: In Polyphonic (and Legato), the first note on restarts the LFO (every wave), as Aut, so that the LFO
+      of the notes held does not jump at another note
+        - Not compatible: every note on before (VOn restarts the LFO of each Voice at its note on)
     - About 1.5 KB more of the RAM free (PRA32-U2/M, and the Lite)
     - PRA32-U2/M: A Program Change is processed over 2 loops for each synth, and the messages after it wait for it
       (up to about 11 ms with the Layering), so that it does not overload a loop; PRA32-U2/M/P Web too

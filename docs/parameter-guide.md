@@ -292,7 +292,7 @@
 - LFO Trig Mode [Aut|Off|On|VOn|VOf|VAu]: How a note on restarts the LFO (its phase, and the LFO Fade Time), and whether the Voices share the LFO
     - 0 (0-12): Auto (Aut), The LFO of all the Voices; the phase of Saw, S&H, and Square, and the fade, restart at the first note on (Polyphonic, Legato Portamento, and Legato) or every note on (Monophonic) (see Voice Mode and LFO Wave)
     - 26 (13-38): Off, The LFO of all the Voices, free running; the fade restarts as in Aut
-    - 51 (39-63): On, The LFO of all the Voices; every note on restarts the phase (of every wave) and the fade
+    - 51 (39-63): On, The LFO of all the Voices; the phase (of every wave) and the fade restart at the first note on (Polyphonic, Legato Portamento, and Legato) or every note on (Monophonic), as Aut
     - 77 (64-89): Voice On (VOn), An LFO for each Voice; the note on of the Voice restarts its phase (of every wave) and its fade
     - 102 (90-115): Voice Off (VOf), An LFO for each Voice, free running; the note on of the Voice restarts its fade
     - 127 (116-127): Voice Auto (VAu), An LFO for each Voice; the note on of the Voice restarts its phase of Saw, S&H, and Square, and its fade (Triangle and Sine run on)
