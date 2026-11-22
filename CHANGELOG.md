@@ -1,6 +1,9 @@
 ## Digital Synth PRA32-U2 Changelog
 
 - v3.23.1 (2026-??-??):
+    - PRA32-U2 Editor: Tooltips of the parameter names (the meanings of the choices, and the units) and of the values shown
+      (the meanings), of the synth and of the panel; the CC# of Panel Key, Play, and Seq Randomize Pitch/Velo
+    - Fixes: PRA32-U2 Editor: The panel showed Seq Pitch 4-7 as the shifts at Seq Pattern 32-63 (Std)
     - Tested with Arduino-Pico version 6.4.0
 - v3.23.0 (2026-11-22):
     - **Portamento Mode [ESw|ESw|LSw|LSw|LAu|EAu]**: LSw (Linear Switch) and LAu (Linear Auto) move the pitch linearly,
