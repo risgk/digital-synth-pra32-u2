@@ -1,5 +1,7 @@
 ## Digital Synth PRA32-U2 Changelog
 
+- v3.23.1 (2026-??-??):
+    - Tested with Arduino-Pico version 6.4.0
 - v3.23.0 (2026-11-22):
     - **Portamento Mode [ESw|ESw|LSw|LSw|LAu|EAu]**: LSw (Linear Switch) and LAu (Linear Auto) move the pitch linearly,
       an octave in Portamento Time (a constant rate, as GM2: a wider interval takes longer); Sw and Aut renamed ESw
