@@ -1409,7 +1409,7 @@ function setParamTooltips() {
       name.title = text;
     }
   });
-  // Write and Program Change (to Device), as Write (to Device) and Read (on Device) of the panel
+  // Write (to Device) and Program Change (on Device), as Write (to Device) and Read (on Device) of the panel
   document.querySelectorAll("#writePCDetails button").forEach(function(button) {
     var m = /^(writeParameters|sendProgramChange)\((\d+)\)$/.exec(button.getAttribute("onclick") || "");
     if (m) {
@@ -4237,7 +4237,7 @@ function getStoredCCValueString(index, number) {
 
 <div class="section prog-row">
 <div class="prog-group">
-<div class="prog-label lbl-green" style="color:green"><span>Program Change</span> <span>(to Device)</span></div>
+<div class="prog-label lbl-green" style="color:green"><span>Program Change</span> <span>(on Device)</span></div>
 <div class="banks split-2">
 <div class="bank named">
   <button type="button" onclick="sendProgramChange(4)" style="color:green">#4</button>
