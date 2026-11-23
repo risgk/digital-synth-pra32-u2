@@ -3,6 +3,7 @@
 - v3.23.1 (2026-??-??):
     - PRA32-U2 Editor: Tooltips (the synth and the panel): on the names, the choices and the units; on the values, the meanings
     - PRA32-U2 Editor: Show the CC# of Panel Key, Play, and Seq Randomize Pitch/Velo
+    - PRA32-U2 Editor: Add Read (on Device) of the panel parameters (CC #103), to test Write (to Device)
     - Fixes: PRA32-U2 Editor: The panel showed Seq Pitch 4-7 as the shifts at Seq Pattern 32-63 (Std on the device)
     - Tested with Arduino-Pico version 6.4.0
 - v3.23.0 (2026-11-22):

@@ -4728,9 +4728,10 @@ const PANEL_PARAM_GROUPS = [
 const PANEL_PARAMS = PANEL_PARAM_GROUPS.flat().filter(p => p);
 const PANEL_ON_STEPS_CC = 93, PANEL_ACT_STEPS_CC = 90;
 const PANEL_OPERATIONS = [
-  // Write (and its Undo) only: Read and Init of PRA32-U2 would change the parameters there, not in the editor
+  // Write (and its Undo), and Read to test them; not Init: Read of PRA32-U2 changes the parameters there, not in the editor
   [102, "Write (to Device)", "Write the panel parameters of PRA32-U2 (or PRA32-U2/M/P Web, until the page is closed) to its flash", true],
   [105, "Undo Write", "Bring back what the last Write replaced in the flash of PRA32-U2", true],
+  [103, "Read (on Device)", "Read the panel parameters of PRA32-U2 from its flash (e.g. to test Write; the editor keeps its values)", false],
 ];
 // The channels that PRA32-U2/M/P (and PRA32-U2/M/P Web) selects (Panel Target Ch): [name, the Basic Channel + this]
 const PANEL_TARGETS = [
@@ -5211,6 +5212,7 @@ function setupPanel() {
     b.type = "button";
     b.textContent = name;
     b.style.color = "green";  // As Write (to Device) of the programs
+    b.title = title;
     b.addEventListener("click", () => {
       if (confirmIt && !confirm(title + "?")) { return; }
       panelSendCC(cc, 0);
