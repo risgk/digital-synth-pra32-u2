@@ -1409,6 +1409,15 @@ function setParamTooltips() {
       name.title = text;
     }
   });
+  // Write and Program Change (to Device), as Write (to Device) and Read (on Device) of the panel
+  document.querySelectorAll("#writePCDetails button").forEach(function(button) {
+    var m = /^(writeParameters|sendProgramChange)\((\d+)\)$/.exec(button.getAttribute("onclick") || "");
+    if (m) {
+      button.title = (m[1] == "writeParameters") ?
+        "Write the current parameters to the program #" + m[2] + " of PRA32-U2 (or PRA32-U2 Web, until the page is closed) in its flash" :
+        "Program Change #" + m[2] + ": Read the program #" + m[2] + " of PRA32-U2 from its flash (the editor keeps its values)";
+    }
+  });
 }
 
 window.onload = function() {
