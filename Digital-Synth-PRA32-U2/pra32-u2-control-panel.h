@@ -284,6 +284,20 @@ static void PRA32_U2_ControlPanel_keep_for_undo_write(byte channel, byte program
   s_undo_write.valid          = PRA32_U2_ControlPanel_get_program_values(channel, program_number, s_undo_write.values);
 }
 
+// A Write by MIDI (Write Parameters to Program, #106, on the channel of a synth; e.g. by PRA32-U2 Editor), before the
+// synth writes the program (255: none): kept for Undo Write too, as a Write of the panel (with the Layering, the last synth);
+// in the flash, out of line (rare)
+static __attribute__((noinline, unused)) void PRA32_U2_ControlPanel_on_write_by_midi(byte channel, uint8_t program_number) {
+#if defined(PRA32_U2_USE_CONTROL_PANEL)
+  if (program_number != 255) {
+    PRA32_U2_ControlPanel_keep_for_undo_write(channel, program_number);
+  }
+#else
+  (void) channel;
+  (void) program_number;
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
+}
+
 static void PRA32_U2_ControlPanel_undo_read() {
   if (s_undo_read.valid == false) {
     return;

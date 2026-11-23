@@ -1752,6 +1752,13 @@ if constexpr (NO_FX == false) {
     }
   }
 
+  // The program that a Control Change writes the parameters to (Write Parameters to Program, from 0-31 to 96-127), or 255:
+  // for Undo Write of the control panel (a Write by MIDI, e.g. by PRA32-U2 Editor), which keeps the program before it
+  INLINE uint8_t program_written_by(uint8_t control_number, uint8_t controller_value) {
+    return ((control_number == WRITE_P_TO_PROG) && m_ready_to_write_p_to_prog && (controller_value >= 96)) ?
+           m_program_number_to_write : 255;
+  }
+
   /* INLINE */ void __not_in_flash_func(write_parameters_to_program)(uint8_t program_number_to_write) {
     write_values_to_program(program_number_to_write, m_current_controller_value_table);
   }

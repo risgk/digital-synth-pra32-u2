@@ -131,6 +131,21 @@ static void __not_in_flash_func(programChange)(uint32_t synth, uint8_t program_n
 // stream of them does not overload a loop either; the synths do not get them
 static uint8_t s_special_cc_values[4][PC_BY_CC_7 - SP_RAND_CTRL + 1];
 
+#if defined(PRA32_U2_USE_CONTROL_PANEL)
+// A Write by MIDI (Write Parameters to Program) of a synth: kept for Undo Write of the control panel (see
+// PRA32_U2_ControlPanel_on_write_by_midi()); in the flash, out of line (rare)
+static __attribute__((noinline)) void onWriteByMIDI(uint32_t synth, uint8_t value) {
+  uint8_t program_number = 255;
+  switch (synth) {
+  case 0: program_number = g_synth      .program_written_by(WRITE_P_TO_PROG, value); break;
+  case 1: program_number = g_sub_1_synth.program_written_by(WRITE_P_TO_PROG, value); break;
+  case 2: program_number = g_sub_2_synth.program_written_by(WRITE_P_TO_PROG, value); break;
+  case 3: program_number = g_sub_3_synth.program_written_by(WRITE_P_TO_PROG, value); break;
+  }
+  PRA32_U2_ControlPanel_on_write_by_midi(getTargetMIDICh(synth), program_number);
+}
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
+
 static void __not_in_flash_func(controlChange)(uint32_t synth, uint8_t number, uint8_t value) {
   if ((number >= SP_RAND_CTRL) && (number <= PC_BY_CC_7)) {
     uint8_t old_value = s_special_cc_values[synth][number - SP_RAND_CTRL];
@@ -141,6 +156,11 @@ static void __not_in_flash_func(controlChange)(uint32_t synth, uint8_t number, u
     return;
   }
   processAllPendingProgramChanges();
+#if defined(PRA32_U2_USE_CONTROL_PANEL)
+  if (number == WRITE_P_TO_PROG) {
+    onWriteByMIDI(synth, value);
+  }
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
   switch (synth) {
   case 0: g_synth      .control_change(number, value); break;
   case 1: g_sub_1_synth.control_change(number, value); break;

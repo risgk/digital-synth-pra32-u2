@@ -152,7 +152,8 @@ graph LR
 - Sounds made with PRA32-U2 Editor can be written to PRA32-U2, and recalled later without PRA32-U2 Editor
     1. Write: press a Write button (#0-15, in "Write & Program Change") of PRA32-U2 Editor, to write the current parameters
        to the program of PRA32-U2 (also to the flash, so that they are kept after the power is turned off);
-       the parameters shown in PRA32-U2 Editor are sent again before writing
+       the parameters shown in PRA32-U2 Editor are sent again before writing; "Undo Write" (next to "Write (to Device)") brings
+       back what the last Write replaced, on PRA32-U2 with the panel parameters (PRA32-U2/P, PRA32-U2/M/P, and the Headless)
     2. Send Program Change #0-15 to PRA32-U2 directly (not via PRA32-U2 Editor) to recall the program
 - The Program Change buttons (in "Write & Program Change") of PRA32-U2 Editor also send Program Changes to PRA32-U2 directly
   (NOTE: The parameters shown in PRA32-U2 Editor are not updated)

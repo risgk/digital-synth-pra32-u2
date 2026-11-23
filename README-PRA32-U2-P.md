@@ -186,6 +186,7 @@
         - Read Panel Prms and Init Panel Prms are for the panel parameters, whatever synth (channel) the panel selects
 - Undo Operations (also on Page C-9, after the Write Operations)
     - Undo Write: Brings back the user program (or the panel parameters) in the flash that the last Write replaced
+      (the last Write by the panel, or by MIDI: Write Parameters to Program, CC #106, e.g. by Write (to Device) of PRA32-U2 Editor)
     - Undo Read: Brings back the parameters (or the panel parameters) that the last Read (or Init Panel Prms) replaced
         - Change the value from 0-31 [Rdy] to 96-127 [Exe] to undo; doing it again redoes it
         - Only the last Write and the last Read, of the synth selected then, until the power is turned off
