@@ -2613,7 +2613,11 @@ function valueTooltip(number, value, disp) {
       var w = wave(OSC_1_WAVE);
       if (w <= 2) { return ["Multi Saw ", "Sync Square ", "Folded Triangle "][w] + d.replace(/%$/, "") + "%"; }
       if (w == 3) { return "FM ratio " + num(d); }
-      if (w == 4) { return "Wave Table " + d.replace(/^WT/, ""); }
+      if (w == 4) {  // the names of the tables, as the Parameter Guide
+        var n = parseInt(d.replace(/^WT/, ""));
+        return "Wave Table " + n + " (" + ["Sync Pulse 1/8", "Sync Pulse 1/4", "Serial Sync 8/3", "Sync & Ring", "8+0 to 0+8",
+                                           "6+0 to 0+10"][n] + ")";
+      }
       return (d == "0") ? "Saw" : ((d[0] == "P") ? "Pulse " : "2nd Saw ") + Math.round(parseInt(d.slice(1)) * 100 / 64) + "%";
     }
   }
