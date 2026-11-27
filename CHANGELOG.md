@@ -1,6 +1,10 @@
 ## Digital Synth PRA32-U2 Changelog
 
 - v3.23.1 (2026-??-??):
+    - PRA32-U2/P: **Panel Play Mode [Key|Key|K+S|K+S|Drn|Seq]**: Drn (Drone Mode), Key Mode with the note always on
+      (Panel Play Pitch Off stops it; the Play Key, Panel Key, and Panel Play retrigger it)
+        - **Not compatible**: Panel Play Mode 0-38 is Key (0-31 before), 39-89 K+S (32-95), 90-115 Drn (K+S or Seq before),
+          and 116-127 Seq (96-127); 0, 64, and 127 are the same
     - **Assign Range (CC #41)**: The range of each of CC #16-19 (General Purpose Controller 1-4), Full (0-127),
       Low (0-64), or High (64-127), at half the resolution, e.g. for a modulation amount from the center up;
       GP1 + 3 x GP2 + 9 x GP3 + 27 x GP4 (0-80), 0 (all Full, as before) in the Presets; Rl2 and Rl1 keep the parameter

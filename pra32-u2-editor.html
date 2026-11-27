@@ -4680,8 +4680,8 @@ function getStoredCCValueString(index, number) {
 <summary>Panel &amp; Step Sequencer <span class="cc">for PRA32-U2/P and PRA32-U2/M/P</span></summary>
 <details class="section panel-sub" id="panelCtrlDetails" open>
 <summary>Panel &amp; Operations <span class="panel-summary-buttons" onclick="event.preventDefault()"><button type="button" onclick="sendPanelCurrent()">Send Panel</button>
-<button type="button" id="buttonPanelKey" title="Panel Key (CC#110): plays Panel Play Pitch while pressed (Key and K+S)">Key <span class="cc">CC#110</span></button>
-<button type="button" id="buttonPanelPlay" onclick="onClickPanelPlay()" title="Panel Play (CC#111): Key: holds the note; K+S and Seq: starts and stops the sequencer">Play <span class="cc">CC#111</span></button></span></summary>
+<button type="button" id="buttonPanelKey" title="Panel Key (CC#110): plays Panel Play Pitch while pressed (Key and K+S); retriggers it (Drn)">Key <span class="cc">CC#110</span></button>
+<button type="button" id="buttonPanelPlay" onclick="onClickPanelPlay()" title="Panel Play (CC#111): Key: holds the note; K+S and Seq: starts and stops the sequencer; Drn: retriggers the note">Play <span class="cc">CC#111</span></button></span></summary>
 <div class="section misc">
 <div class="misc-group"><span>Basic Ch</span><div class="misc-buttons">
 <select id="selectPanelCh" onchange="onChangePanelCh()" aria-label="Basic Ch"></select><span class="cc" id="spanPanelCCCh"></span>
@@ -4805,10 +4805,12 @@ function panelClamp(v, min, max) { return Math.min(Math.max(v, min), max); }
 function panelSigned(v) { return (v > 0 ? "+" : "") + v; }
 function panelHex2(v) { return "x" + v.toString(16).toUpperCase().padStart(2, "0"); }
 
+const PANEL_PLAY_MODES = ["Key", "Key", "K+S", "K+S", "Drn", "Seq"];
+
 // [category, name, supplement, CC#, default, display, markers (the class of PRA32-U2 Editor)], in groups (rows of 4)
 const PANEL_PARAM_GROUPS = [
   // In the order of the pages of the panel (B-0 to B-3), 2 a page (MIDI Basic Ch of B-3 is an empty cell here)
-  [["Panel", "Play Mode",  "[Key|K+S|Seq]",             53, 0,   v => ["Key", "K+S", "Seq"][(v * 4 + 128) >> 8], "soft-markers-3"],
+  [["Panel", "Play Mode",  "[Key|Key|K+S|K+S|Drn|Seq]", 53, 0,   v => PANEL_PLAY_MODES[(v * 10 + 128) >> 8],    "soft-markers-6"],
    ["Panel", "Scale",      "[Maj|Min|Mel|MaP|MiP|Chr]", 51, 0,   v => PANEL_SCALES[(v * 10 + 128) >> 8],        "soft-markers-6"],
    ["Panel", "Pitch Ofst", "[- to +]",                  56, 64,  v => panelSigned(panelClamp(v - 64, -60, 60)), "soft-marker-c"],
    ["Panel", "Transpose",  "[- to +]",                  52, 64,  v => panelSigned(v - 64),                      "soft-marker-c"],
@@ -5005,7 +5007,7 @@ function panelOnChangeBits(cc, prefix) {
 // The tooltips (as those of the synth): of the names, the meanings of the choices and the units (at the least;
 // see README-PRA32-U2-P.md for more), and of the values shown, the meanings
 const PANEL_NAME_TOOLTIPS = {
-  53: "Key: Key Mode, K+S: Key + Seq Mode, Seq: Step Sequencer Mode",
+  53: "Key: Key Mode, K+S: Key + Seq Mode, Drn: Drone Mode (Key Mode with the note always on; Off by Play Pitch 0, retriggered by Key and Play), Seq: Step Sequencer Mode",
   51: "Maj: Major, Min: Natural Minor, Mel: Ascending Melodic Minor, MaP: Major Pentatonic, MiP: Minor Pentatonic, Chr: Chromatic",
   56: "Added to Panel Play Pitch and Seq Pitch 0-7 (-60 to +60)",
   52: "Semitones",
@@ -5031,7 +5033,7 @@ const PANEL_NAME_TOOLTIPS = {
   PANEL_NAME_TOOLTIPS[70 + i] = "The velocity" + ((i >= 4) ? "; with Seq Pattern 4x4, the shift (-63 to +63)" : "");
 });
 const PANEL_CHOICE_NAMES = {
-  "Key": "Key Mode", "K+S": "Key + Seq Mode", "Seq": "Step Sequencer Mode",
+  "Key": "Key Mode", "K+S": "Key + Seq Mode", "Drn": "Drone Mode", "Seq": "Step Sequencer Mode",
   "Maj": "Major", "Min": "Natural Minor", "Mel": "Ascending Melodic Minor", "MaP": "Major Pentatonic", "MiP": "Minor Pentatonic",
   "Chr": "Chromatic", "Off": "Off", "On": "On", "Clk": "MIDI Clock", "All": "MIDI Clock, Start, and Stop", "Nte": "The notes",
   "C+N": "MIDI Clock and the notes", "A+N": "MIDI Clock, Start, Stop, and the notes",
@@ -5078,7 +5080,8 @@ function panelUpdateDisplay() {
   panelUpdateTargetSelected();
   const play = document.getElementById("buttonPanelPlay");
   play.classList.toggle("kbd-hold-on", panelPlaying);
-  const seqText = (panelValues[53] >= 32) ? "Seq " : "";  // K+S and Seq: the Step Sequencer
+  const mode = PANEL_PLAY_MODES[(panelValues[53] * 10 + 128) >> 8];
+  const seqText = ((mode == "K+S") || (mode == "Seq")) ? "Seq " : "";  // K+S and Seq: the Step Sequencer
   play.innerHTML = seqText + (panelPlaying ? "Stop" : "Play") + ' <span class="cc">CC#111</span>';
 }
 
@@ -5099,6 +5102,12 @@ function panelSetKey(on) {
 })();
 
 function onClickPanelPlay() {
+  if (PANEL_PLAY_MODES[(panelValues[53] * 10 + 128) >> 8] == "Drn") {  // Drn: retriggers the note (always on)
+    panelPlaying = false;
+    panelSendCC(111, 127);
+    panelUpdateDisplay();
+    return;
+  }
   panelPlaying = !panelPlaying;
   panelSendCC(111, panelPlaying ? 127 : 0);
   panelUpdateDisplay();

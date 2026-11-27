@@ -91,7 +91,9 @@
 #### Group B
 
 - Panel Parameters
-    - Panel Play Mode [Key|K+S|Seq]: Key Mode, Key + Seq Mode, Step Sequencer Mode
+    - Panel Play Mode [Key|Key|K+S|K+S|Drn|Seq]: Key Mode, Key + Seq Mode, Drone Mode, Step Sequencer Mode
+        - Drn: Key Mode with the note always on (from when selected), at Panel Play Pitch; Panel Play Pitch Off (0) stops it,
+          and the Play Key (and Panel Key and Panel Play) retriggers it (e.g. after Panic)
         - K+S: the Step Sequencer (started and stopped by Next Key + Play Key, Panel Play, or MIDI Start/Stop), and the Play Key that plays
           as in Key Mode (and Panel Key) (e.g. the Step Sequencer on a Sub Synth by Seq Ch Ofst, and the Play Key on the synth that the panel selects)
         - The display shows the step of the Step Sequencer at the right end of the top line, as in Seq Mode, and "*" on its left while the Play Key plays
@@ -205,7 +207,7 @@
       Export keeps the Basic Ch too, which Import sets on PRA32-U2 if asked
     - The values are kept (in the browser, and in the files of Export) by the names of the panel parameters (e.g. "SEQ_TEMPO"), as the synth parameters are
     - "Key" plays Panel Play Pitch while pressed (Panel Key, CC #110), as the Play Key in Key Mode and K+S; "Play" ("Seq Play" in K+S and Seq Mode)
-      starts and stops (Panel Play, CC #111) the note in Key Mode, or the Step Sequencer in K+S and Seq Mode
+      starts and stops (Panel Play, CC #111) the note in Key Mode, or the Step Sequencer in K+S and Seq Mode; in Drn, both retrigger the note
 
 ### PRA32-U2/P Headless
 
