@@ -4,8 +4,8 @@
     - **Assign Range (CC #41)**: The range of each of CC #16-19 (General Purpose Controller 1-4), Full (0-127),
       Low (0-64), or High (64-127), at half the resolution, e.g. for a modulation amount from the center up;
       GP1 + 3 x GP2 + 9 x GP3 + 27 x GP4 (0-80), 0 (all Full, as before) in the Presets; Rl2 and Rl1 keep the parameter
-      in the range; Assign Mode moved after Assign #19 (PRA32-U2 Editor, PRA32-U2 Native, the panel (Page A-33),
-      and the MIDI Implementation Chart)
+      in the range; the lists of #16-19 (F, L, or H) in PRA32-U2 Editor; Assign Mode moved after Assign #19
+      (PRA32-U2 Editor, PRA32-U2 Native, the panel (Page A-33), and the MIDI Implementation Chart)
     - **Assign Mode [Jmp|Jmp|Cat|Cat|Rl2|Rl1]**: Rl2 (Relative 2) takes the values of an endless encoder as two's
       complement (1 for +1, 127 for -1); Rel renamed Rl1 (Relative 1, 65 for +1, 63 for -1), working as before
         - **Not compatible**: Assign Mode 0-38 is Jmp (0-31 before), 39-89 Cat (32-95), 90-115 Rl2 (Cat or Rel before),

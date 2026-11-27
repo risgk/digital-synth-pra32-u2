@@ -461,6 +461,13 @@ span.cc {
   max-width: 132px;
   padding: 0;
 }
+/* Assign Range by the ranges of #16-#19 (F: Full, L: Low, H: High), in the line of the name */
+.asgn-rng-select {
+  font-size: 0.85em;
+  padding: 0 16px 0 3px;
+  background-position: right 3px center;
+  margin-left: 2px;
+}
 /* A break only in 2 or 1 column (MIDI In 1, 2 / MIDI In 3, 4) */
 .narrow-only {
   display: none;
@@ -1882,6 +1889,25 @@ function assignRangeText(value) {
   return texts.join(", ");
 }
 
+// The lists of Assign Range (#16-#19): the digits of the value (shown), and the value from them (selected)
+function updateAsgnRangeSelects(value) {
+  var v = Math.min(parseInt(value) || 0, 80);
+  for (var index = 0; index < 4; index++) {
+    var select = document.getElementById("selectASSIGN_RANGE_" + index);
+    if (select) {
+      select.value = String(Math.floor(v / Math.pow(3, index)) % 3);
+    }
+  }
+}
+
+function onChangeAsgnRangeSelect(index, value) {
+  var v = Math.min(parseInt(localStorage.getItem("key" + controlNumberToStringMap.get(ASSIGN_RANGE))) || 0, 80);
+  var weight = Math.pow(3, index);
+  v += (parseInt(value) - (Math.floor(v / weight) % 3)) * weight;
+  saveUndo();
+  onChangeControlChange(ASSIGN_RANGE, v);
+}
+
 // Assign Mode Rl2 and Rl1: the step that the value adds to the parameter, as PRA32_U2_assign_relative_step()
 function assignRelativeStep(mode, value) {
   return (mode == 2) ? ((value < 64) ? value : (value - 128)) : (value - 64);
@@ -2814,6 +2840,7 @@ function updateDisplayOfControl(number, value) {
     break;
   case ASSIGN_RANGE    :
     dispValue = String(Math.min(parseInt(value), 80));  // GP1 + 3 x GP2 + 9 x GP3 + 27 x GP4 (the tooltip tells them)
+    updateAsgnRangeSelects(value);  // the lists of #16-#19
     alwaysShown = true;
     break;
   case ASSIGN_MODE     :
@@ -4595,7 +4622,7 @@ function getStoredCCValueString(index, number) {
   <div class="param-ctrl soft-markers-6"><input  id="inputASSIGN_MODE    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(ASSIGN_MODE    , value)"><span    id="spanASSIGN_MODE    " >-</span><span   id="span2ASSIGN_MODE    " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>Assign</b> Range <span class="cc">CC#41</span></div>
+  <div class="param-name"><b>Assign</b> Range <select id="selectASSIGN_RANGE_0" class="asgn-rng-select" onchange="onChangeAsgnRangeSelect(0, value)" aria-label="Assign Range #16" title="The range of #16: F: Full (0-127), L: Low (0-64), H: High (64-127)"><option value="0">F</option><option value="1">L</option><option value="2">H</option></select><select id="selectASSIGN_RANGE_1" class="asgn-rng-select" onchange="onChangeAsgnRangeSelect(1, value)" aria-label="Assign Range #17" title="The range of #17: F: Full (0-127), L: Low (0-64), H: High (64-127)"><option value="0">F</option><option value="1">L</option><option value="2">H</option></select><select id="selectASSIGN_RANGE_2" class="asgn-rng-select" onchange="onChangeAsgnRangeSelect(2, value)" aria-label="Assign Range #18" title="The range of #18: F: Full (0-127), L: Low (0-64), H: High (64-127)"><option value="0">F</option><option value="1">L</option><option value="2">H</option></select><select id="selectASSIGN_RANGE_3" class="asgn-rng-select" onchange="onChangeAsgnRangeSelect(3, value)" aria-label="Assign Range #19" title="The range of #19: F: Full (0-127), L: Low (0-64), H: High (64-127)"><option value="0">F</option><option value="1">L</option><option value="2">H</option></select> <span class="cc">CC#41</span></div>
   <div class="param-ctrl"><input  id="inputASSIGN_RANGE   "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(ASSIGN_RANGE   , value)"><span    id="spanASSIGN_RANGE   " >-</span><span   id="span2ASSIGN_RANGE   " >-</span></div>
 </div>
 </div>
