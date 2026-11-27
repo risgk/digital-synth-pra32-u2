@@ -346,6 +346,10 @@
     - +0 (64): Center (L 0 dB, R 0 dB)
     - +63 (127): Right (L Off, R +3.0 dB) (max)
     - Shown: "L63" (0 and 1), ..., "C" (64), ..., "R63" (127)
+- Assign #16-#19: The parameter that General Purpose Controller 1-4 (Control Change #16-19) control, by its Control Change number (see Performance Controllers)
+    - 0, 16-19 (General Purpose Controller 1-4), 48-51 (Assign #16-#19), 64 (Sustain Pedal), 80 (Voice Group Mode), 106 (Write Parameters to Program), 111-119 (Randomize Synth and Program Change by CC), and 120-127 (the Channel Mode Messages): Off
+    - e.g. 74: Filter Cutoff, 71: Filter Resonance, 47: Osc 1 Shape, 20: Osc 1 Morph, and 1: Modulation Wheel
+    - Shown: the number, or "Off"
 - Assign Mode [Jmp|Jmp|Cat|Cat|Rl2|Rl1]: How General Purpose Controller 1-4 (Control Change #16-19) control the parameters of Assign #16-#19 (see Performance Controllers)
     - 0 (0-38): Jump (Jmp), At once, as the Control Change of the number (the parameter jumps to the value)
     - 64 (39-89): Catch (Cat), From when the value comes to that of the parameter (the same, or across it), as the VRs of the panel of PRA32-U2/P,
@@ -356,10 +360,15 @@
       that sends them
     - With Rl2 and Rl1, the sliders of PRA32-U2 Editor and the knobs of the panel (Performance Controls, and Pages B-24 and B-25) work as Jmp
     - **Not compatible** with v3.23.0 and before (Jmp 0-31, Cat 32-95, and Rel 96-127, Rel now Rl1): 0, 64, and 127 are the same
-- Assign #16-#19: The parameter that General Purpose Controller 1-4 (Control Change #16-19) control, by its Control Change number (see Performance Controllers)
-    - 0, 16-19 (General Purpose Controller 1-4), 48-51 (Assign #16-#19), 64 (Sustain Pedal), 80 (Voice Group Mode), 106 (Write Parameters to Program), 111-119 (Randomize Synth and Program Change by CC), and 120-127 (the Channel Mode Messages): Off
-    - e.g. 74: Filter Cutoff, 71: Filter Resonance, 47: Osc 1 Shape, 20: Osc 1 Morph, and 1: Modulation Wheel
-    - Shown: the number, or "Off"
+- Assign Range: The range of each of General Purpose Controller 1-4 (Control Change #16-19), in the base 3 digits of the value: GP1 + 3 x GP2 + 9 x GP3 + 27 x GP4 (0-80; 81-127 as 80),
+  each 0: Full, 1: Low, or 2: High, for a knob that controls a part of a parameter (e.g. from the center of a [- to +] modulation amount up), at half the resolution
+    - Full: 0-127 as it is
+    - Low: 0-64, (the value + 1) / 2 (0 at 0, 64 at 127, a step every other value)
+    - High: 64-127, 64 + (the value + 1) / 2 (64 at 0, 127 at 126 and 127)
+    - With Assign Mode Jmp and Cat, the value is taken in the range (Cat: from when it comes to that of the parameter, in the range); with Rl2 and Rl1,
+      the parameter is kept in the range (the first step brings it into the range if it is out of it)
+    - e.g. 0: all Full (the Presets), 1: GP1 Low, 2: GP1 High, 7 (1 + 3 x 2): GP1 Low and GP2 High, 80: all High
+    - Shown: the value (0-80); PRA32-U2 Editor tells the range of each in the tooltip of the value
 - Distortion Drive: The drive into the Distortion FX, 2^(value / 24) (6 dB every 24 values, as Filter Drive), for the synths whose FX Routing is Dst; the output is lowered by 15/16 of the drive in dB up to 96 (x 16), and by as much as there above it, where most of a sound is past the shoulder already, so that the level stays within about 2 dB as the drive goes up (a single quiet note gets a few dB louder at the top). The shoulder below zero is shorter than above (even harmonics too), the aliasing is reduced by ADAA (antiderivative anti-aliasing), and a tone (a 1-pole low pass) after it takes the edge off the harmonics, more with more drive (none at 0, about 10 kHz at 64, 5 kHz at 127)
     - 0: x 1.00 (0 dB, min: a sound below full scale passes as it is)
     - 48: x 4.00 (+12 dB)

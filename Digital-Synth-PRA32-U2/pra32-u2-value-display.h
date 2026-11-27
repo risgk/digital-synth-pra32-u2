@@ -363,6 +363,14 @@ static __attribute__((noinline)) boolean __not_in_flash_func(PRA32_U2_ControlPan
     return true;
   }
 
+  if (control_target == ASSIGN_RANGE) {  // 0-80 (81-127 as 80), the base 3 digits of the ranges of GP1-4 (see PRA32_U2_assign_range())
+    char     buff[4];
+    uint32_t length = 0;
+    PRA32_U2_ControlPanel_append_decimal(buff, length, (v < 80) ? v : 80);
+    PRA32_U2_ControlPanel_copy_right_aligned(value_display_text, buff, length);
+    return true;
+  }
+
   if ((control_target >= ASSIGN_16) && (control_target <= ASSIGN_19)) {  // The number of the Control Change, or Off
     if (PRA32_U2_assign_dst_off(v)) {
       value_display_text[0] = 'O';

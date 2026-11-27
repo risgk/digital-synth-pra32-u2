@@ -1025,6 +1025,7 @@ const GEN_PURPOSE_2   = 17;
 const GEN_PURPOSE_3   = 18;
 const GEN_PURPOSE_4   = 19;
 const ASSIGN_MODE     = 42;
+const ASSIGN_RANGE    = 41;
 const ASSIGN_16       = 48;
 const ASSIGN_17       = 49;
 const ASSIGN_18       = 50;
@@ -1136,11 +1137,12 @@ var controlNumberToStringMap = new Map([
   [ OSC_SAW_W_MODE , "OSC_SAW_W_MODE " ],
   [ STRETCH_TUNE   , "STRETCH_TUNE   " ],
   [ PAN            , "PAN            " ],
-  [ ASSIGN_MODE    , "ASSIGN_MODE    " ],
   [ ASSIGN_16      , "ASSIGN_16      " ],
   [ ASSIGN_17      , "ASSIGN_17      " ],
   [ ASSIGN_18      , "ASSIGN_18      " ],
   [ ASSIGN_19      , "ASSIGN_19      " ],
+  [ ASSIGN_MODE    , "ASSIGN_MODE    " ],
+  [ ASSIGN_RANGE   , "ASSIGN_RANGE   " ],
 
   [ DISTORTION     , "DISTORTION     " ],
   [ FX_ROUTING     , "FX_ROUTING     " ],
@@ -1223,12 +1225,13 @@ var controllersInLocalStorage = [
   OSC_SAW_W_MODE ,
   STRETCH_TUNE   ,
   PAN            ,
-  ASSIGN_MODE    ,
 
   ASSIGN_16      ,
   ASSIGN_17      ,
   ASSIGN_18      ,
   ASSIGN_19      ,
+  ASSIGN_MODE    ,
+  ASSIGN_RANGE   ,
 
   DISTORTION     ,
   FX_ROUTING     ,
@@ -1314,11 +1317,12 @@ presetControllers[OSC_SAW_W_MODE ] = [127, 127, 127, 127, 127, 127, 127, 127,   
 presetControllers[STRETCH_TUNE   ] = [72 , 72 , 72 , 72 , 72 , 72 , 72 , 72 ,   72 , 72 , 72 , 72 , 72 , 72 , 72 , 72 ];
 presetControllers[PAN            ] = [64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ,   64 , 64 , 64 , 64 , 64 , 64 , 64 , 64 ];
 
-presetControllers[ASSIGN_MODE    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 presetControllers[ASSIGN_16      ] = [74 , 74 , 74 , 74 , 74 , 74 , 74 , 0  ,   74 , 74 , 74 , 74 , 74 , 74 , 74 , 0  ];
 presetControllers[ASSIGN_17      ] = [71 , 71 , 71 , 71 , 71 , 71 , 71 , 0  ,   71 , 71 , 71 , 71 , 71 , 71 , 71 , 0  ];
 presetControllers[ASSIGN_18      ] = [47 , 47 , 47 , 47 , 47 , 47 , 47 , 0  ,   47 , 47 , 47 , 47 , 47 , 47 , 47 , 0  ];
 presetControllers[ASSIGN_19      ] = [20 , 20 , 20 , 20 , 20 , 20 , 20 , 0  ,   20 , 20 , 20 , 20 , 20 , 20 , 20 , 0  ];
+presetControllers[ASSIGN_MODE    ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
+presetControllers[ASSIGN_RANGE   ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 
 presetControllers[DISTORTION     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
 presetControllers[FX_ROUTING     ] = [0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ,   0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  ];
@@ -1396,6 +1400,7 @@ const PARAM_TOOLTIPS = [
   [STRETCH_TUNE   , "Cents at note 108"],
   [PAN            , "L: Left, C: Center, R: Right"],
   [ASSIGN_MODE    , "Jmp: Jump, Cat: Catch, Rl2: Relative 2 (two's complement: 1 for +1, 127 for -1), Rl1: Relative 1 (65 for +1, 63 for -1)"],
+  [ASSIGN_RANGE   , "The range of each of CC#16-19: GP1 + 3 x GP2 + 9 x GP3 + 27 x GP4 (0-80; 81-127 as 80), each 0: Full (0-127), 1: Low (0-64), 2: High (64-127)"],
   [DISTORTION     , "dB"],
   [FX_ROUTING     , "Dst: Distortion, Cho: Chorus, Dly: Delay, Cmp: Compressor (where the FX begin), Dry: none"],
   [CHORUS_MIX     , "%"],
@@ -1833,7 +1838,7 @@ function updateGeneralPurposeIndicators() {
     }
     var mark = "";
     if ((mode == 1) && (current != null)) {
-      var slider = parseInt(document.getElementById("inputPerfGEN_PURPOSE_" + (index + 1)).value);
+      var slider = assignRangeValue(assignRange(index), parseInt(document.getElementById("inputPerfGEN_PURPOSE_" + (index + 1)).value));
       if ((generalPurposeLastValues[index] == current) || (slider == current)) {
         mark = "=";
       } else {
@@ -1848,6 +1853,33 @@ function updateGeneralPurposeIndicators() {
 function assignMode() {
   var index = (((parseInt(localStorage.getItem("key" + controlNumberToStringMap.get(ASSIGN_MODE))) || 0) * 10) + 128) >> 8;
   return (index < 4) ? (index >> 1) : (index - 2);
+}
+
+// Assign Range: the range of General Purpose Controller 1-4 (index 0-3), as PRA32_U2_assign_range(): 0 Full (0-127),
+// 1 Low (0-64), and 2 High (64-127), the base 3 digits of the value (0-80, 81-127 as 80)
+function assignRange(index) {
+  var value = Math.min(parseInt(localStorage.getItem("key" + controlNumberToStringMap.get(ASSIGN_RANGE))) || 0, 80);
+  return Math.floor(value / Math.pow(3, index)) % 3;
+}
+
+// An absolute value in the range, as PRA32_U2_assign_range_value(): Low (v + 1) / 2 (0-64), and High 64 + that (127 at most)
+function assignRangeValue(range, value) {
+  if (range == 0) {
+    return value;
+  }
+  var half = (value + 1) >> 1;
+  return Math.min(((range == 1) ? half : (64 + half)), 127);
+}
+
+// The texts of Assign Range: "#16 Full, #17 Low (0-64), ..." (a tooltip)
+function assignRangeText(value) {
+  var names = ["Full", "Low (0-64)", "High (64-127)"];
+  var v = Math.min(parseInt(value) || 0, 80);
+  var texts = [];
+  for (var index = 0; index < 4; index++) {
+    texts.push("#" + (16 + index) + " " + names[Math.floor(v / Math.pow(3, index)) % 3]);
+  }
+  return texts.join(", ");
 }
 
 // Assign Mode Rl2 and Rl1: the step that the value adds to the parameter, as PRA32_U2_assign_relative_step()
@@ -1876,9 +1908,14 @@ function generalPurposeDst(index, value, absolute) {
     return { dst: 0, value: value };  // none that the editor shows
   }
   var mode = assignMode();
+  var range = assignRange(index);
   if ((mode >= 2) && !absolute) {
-    return { dst: dst, value: Math.min(Math.max(current + assignRelativeStep(mode, value), 0), 127) };
+    var low  = (range == 2) ? 64 : 0;
+    var high = (range == 1) ? 64 : 127;
+    return { dst: dst, value: Math.min(Math.max(current + assignRelativeStep(mode, value), low), high) };
   }
+  value = assignRangeValue(range, value);
+  generalPurposeLastValues[index] = value;
   if ((mode != 1) || (value == current) || (last == current) || ((last >= 0) && (last < current) && (value > current)) ||
       ((last > current) && (value < current))) {
     return { dst: dst, value: value };
@@ -2497,6 +2534,8 @@ function valueTooltip(number, value, disp) {
     return VALUE_CHOICE_NAMES[d] || "";
   case VOICE_ASGN_MODE:
     return "Mode " + d;
+  case ASSIGN_RANGE:
+    return assignRangeText(v);
   case EG_ATTACK: case EG_DECAY: case EG_RELEASE: case AMP_ATTACK: case AMP_DECAY: case AMP_RELEASE: case LFO_FADE_TIME:
     return time(d);
   case PORTAMENTO:
@@ -2773,6 +2812,10 @@ function updateDisplayOfControl(number, value) {
       dispValue = ary[index];
     }
     break;
+  case ASSIGN_RANGE    :
+    dispValue = String(Math.min(parseInt(value), 80));  // GP1 + 3 x GP2 + 9 x GP3 + 27 x GP4 (the tooltip tells them)
+    alwaysShown = true;
+    break;
   case ASSIGN_MODE     :
     {
       var ary = ["Jmp","Jmp","Cat","Cat","Rl2","Rl1"];
@@ -2884,6 +2927,7 @@ function setRandom() {
         (i != AMP_SUSTAIN    ) &&
         (i != AMP_RELEASE    ) &&
         (i != ASSIGN_MODE    ) &&
+        (i != ASSIGN_RANGE   ) &&
         (i != ASSIGN_16      ) &&
         (i != ASSIGN_17      ) &&
         (i != ASSIGN_18      ) &&
@@ -3657,18 +3701,22 @@ const PERFORMANCE_CONTROLS = new Map([
 function onChangePerformanceControl(number, value) {
   updateDisplayOfPerformanceControl(number, value);
   var numberToSend = number;
+  var valueToSend  = parseInt(value);
   if ((number >= GEN_PURPOSE_1) && (number <= GEN_PURPOSE_4)) {
     // The parameter of Assign #16-#19, as PRA32-U2 takes it (and as from MIDI In); with Assign Mode Rl2 or Rl1, the slider sends
     // the Control Change of the parameter itself (an absolute value, which PRA32-U2 would take as a relative one by the slider's)
-    var dst = generalPurposeDst(number - GEN_PURPOSE_1, parseInt(value), true).dst;
+    // (in the range of Assign Range, as PRA32-U2 takes the value of the General Purpose Controller in it)
+    var generalPurpose = generalPurposeDst(number - GEN_PURPOSE_1, parseInt(value), true);
+    var dst = generalPurpose.dst;
     if ((assignMode() >= 2) && (dst != 0)) {
       numberToSend = dst;
+      valueToSend = generalPurpose.value;
     }
     updateGeneralPurposeIndicators();
     if (PERFORMANCE_CONTROLS.has(dst)) {
-      updateDisplayOfPerformanceControl(dst, value);
+      updateDisplayOfPerformanceControl(dst, generalPurpose.value);
     } else if (dst != 0) {
-      updateDisplayOfControl(dst, value);
+      updateDisplayOfControl(dst, generalPurpose.value);
       if (DIMMING_CONTROLS.indexOf(dst) >= 0) {
         updateDimmedParameters();
       }
@@ -3681,7 +3729,7 @@ function onChangePerformanceControl(number, value) {
     } else if (number == CH_PRESSURE) {
       midiOutput.send([(CH_PRESSURE | midi_ch), parseInt(value)]);
     } else {
-      midiOutput.send([(CONTROL_CHANGE | midi_ch), numberToSend, parseInt(value)]);
+      midiOutput.send([(CONTROL_CHANGE | midi_ch), numberToSend, valueToSend]);
     }
     sleep(2);
   }
@@ -4002,12 +4050,13 @@ function fileExport() {
   str += fileExportOneLine(OSC_SAW_W_MODE );
   str += fileExportOneLine(STRETCH_TUNE   );
   str += fileExportOneLine(PAN            );
-  str += fileExportOneLine(ASSIGN_MODE    );
   str += "\n";
   str += fileExportOneLine(ASSIGN_16      );
   str += fileExportOneLine(ASSIGN_17      );
   str += fileExportOneLine(ASSIGN_18      );
   str += fileExportOneLine(ASSIGN_19      );
+  str += fileExportOneLine(ASSIGN_MODE    );
+  str += fileExportOneLine(ASSIGN_RANGE   );
   str += "\n";
   str += fileExportOneLine(DISTORTION     );
   str += fileExportOneLine(FX_ROUTING     );
@@ -4523,10 +4572,6 @@ function getStoredCCValueString(index, number) {
   <div class="param-name">Pan <span class="cc">CC#10</span></div>
   <div class="param-ctrl soft-marker-c"><input  id="inputPAN            "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(PAN            , value)"><span    id="spanPAN            " >-</span><span   id="span2PAN            " >-</span></div>
 </div>
-<div class="param">
-  <div class="param-name"><b>Assign</b> Mode <span class="sup">[Jmp|Jmp|Cat|Cat|Rl2|Rl1]</span> <span class="cc">CC#42</span></div>
-  <div class="param-ctrl soft-markers-6"><input  id="inputASSIGN_MODE    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(ASSIGN_MODE    , value)"><span    id="spanASSIGN_MODE    " >-</span><span   id="span2ASSIGN_MODE    " >-</span></div>
-</div>
 </div>
 <div class="param-group param-group-continuing">
 <div class="param">
@@ -4544,6 +4589,14 @@ function getStoredCCValueString(index, number) {
 <div class="param">
   <div class="param-name"><b>Assign</b> #19 <select id="selectASSIGN_19" class="asgn-dst-select" onchange="onChangeAsgnDstSelect(ASSIGN_19, value)" aria-label="Assign #19"></select> <span class="cc">CC#51</span></div>
   <div class="param-ctrl"><input  id="inputASSIGN_19      "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(ASSIGN_19      , value)"><span    id="spanASSIGN_19      " >-</span><span   id="span2ASSIGN_19      " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>Assign</b> Mode <span class="sup">[Jmp|Jmp|Cat|Cat|Rl2|Rl1]</span> <span class="cc">CC#42</span></div>
+  <div class="param-ctrl soft-markers-6"><input  id="inputASSIGN_MODE    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(ASSIGN_MODE    , value)"><span    id="spanASSIGN_MODE    " >-</span><span   id="span2ASSIGN_MODE    " >-</span></div>
+</div>
+<div class="param">
+  <div class="param-name"><b>Assign</b> Range <span class="cc">CC#41</span></div>
+  <div class="param-ctrl"><input  id="inputASSIGN_RANGE   "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(ASSIGN_RANGE   , value)"><span    id="spanASSIGN_RANGE   " >-</span><span   id="span2ASSIGN_RANGE   " >-</span></div>
 </div>
 </div>
 </div>

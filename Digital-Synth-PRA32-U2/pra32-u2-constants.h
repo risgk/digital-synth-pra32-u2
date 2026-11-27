@@ -139,6 +139,7 @@ const uint8_t   GEN_PURPOSE_1   = 16;
 const uint8_t   GEN_PURPOSE_2   = 17;
 const uint8_t   GEN_PURPOSE_3   = 18;
 const uint8_t   GEN_PURPOSE_4   = 19;
+const uint8_t   ASSIGN_RANGE    = 41;
 const uint8_t   ASSIGN_MODE     = 42;
 const uint8_t   ASSIGN_16       = 48;
 const uint8_t   ASSIGN_17       = 49;

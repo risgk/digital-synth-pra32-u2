@@ -1094,6 +1094,18 @@ static uint8_t PRA32_U2_ControlPanel_absolute_target(uint8_t control_target) {
   return control_target;
 }
 
+// The value of the knob that PRA32_U2_ControlPanel_absolute_target() sends: with Assign Mode Rl2 or Rl1, the value in the range
+// of Assign Range, as Jmp would take it; the others: the value itself (General Purpose Controller 1-4 take it in the range)
+static uint8_t PRA32_U2_ControlPanel_absolute_value(uint8_t control_target, uint8_t value) {
+  if ((control_target >= GEN_PURPOSE_1) && (control_target <= GEN_PURPOSE_4) &&
+      (PRA32_U2_ControlPanel_absolute_target(control_target) != control_target)) {
+    uint8_t channel = getTargetMIDICh(s_current_synth);
+    return PRA32_U2_assign_range_value(PRA32_U2_assign_range(getCurrentControllerValue(channel, ASSIGN_RANGE),
+                                                             control_target - GEN_PURPOSE_1), value);
+  }
+  return value;
+}
+
 static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_number) {
 #if !defined(PRA32_U2_KEY_INPUT_PLAY_KEY_PIN)
   if (adc_number == 2) {
@@ -1145,7 +1157,7 @@ static INLINE boolean PRA32_U2_ControlPanel_update_control_adc(uint32_t adc_numb
     if (s_adc_control_target[adc_number] < 128) {
       if (s_adc_control_catched[adc_number]) {
         handleControlChange(getTargetMIDICh(s_current_synth), PRA32_U2_ControlPanel_absolute_target(s_adc_control_target[adc_number]),
-                            adc_control_value_new);
+                            PRA32_U2_ControlPanel_absolute_value(s_adc_control_target[adc_number], adc_control_value_new));
       }
     } else if (s_adc_control_target[adc_number] < 128 + 64) {
       if (s_adc_control_catched[adc_number]) {
@@ -2374,12 +2386,17 @@ static __attribute__((noinline, unused)) uint8_t __not_in_flash_func(PRA32_U2_Co
 }
 
 // The value that the knob is compared with ("<", ">", or "="): with Assign Mode Jmp, Rl2, or Rl1, General Purpose Controller 1-4
-// control the parameters at once (as absolute values, see PRA32_U2_ControlPanel_absolute_target()), so the knob is always "="
+// control the parameters at once (as absolute values, see PRA32_U2_ControlPanel_absolute_target()), so the knob is always "=";
+// with Cat, the knob's value that Assign Range takes to the parameter's (see PRA32_U2_assign_range_inverse())
 static __attribute__((noinline, unused)) uint8_t __not_in_flash_func(PRA32_U2_ControlPanel_compared_value_of_target)(uint8_t control_target, uint8_t adc_control_value,
                                                                                                                    uint8_t current_controller_value) {
-  if ((control_target >= GEN_PURPOSE_1) && (control_target <= GEN_PURPOSE_4) &&
-      (PRA32_U2_assign_mode(getCurrentControllerValue(getTargetMIDICh(s_current_synth), ASSIGN_MODE)) != 1)) {
-    return adc_control_value;
+  if ((control_target >= GEN_PURPOSE_1) && (control_target <= GEN_PURPOSE_4)) {
+    uint8_t channel = getTargetMIDICh(s_current_synth);
+    if (PRA32_U2_assign_mode(getCurrentControllerValue(channel, ASSIGN_MODE)) != 1) {
+      return adc_control_value;
+    }
+    uint32_t range = PRA32_U2_assign_range(getCurrentControllerValue(channel, ASSIGN_RANGE), control_target - GEN_PURPOSE_1);
+    return PRA32_U2_assign_range_inverse(range, current_controller_value);
   }
   return current_controller_value;
 }

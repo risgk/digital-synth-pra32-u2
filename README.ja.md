@@ -136,6 +136,7 @@
 - General Purpose Controller 1-4 (CC #16-19) で、Assign #16-#19 (CC #48-51) で選んだパラメーターを操作できます (MIDI キーボードのつまみなど)
     - 選ぶパラメーターはプログラムごとです (プリセットでは Filter Cutoff、Filter Resonance、Osc 1 Shape、Osc 1 Morph)
     - すぐに効きます (Assign Mode Jmp)。Assign Mode (CC #42) を Cat にすると、パラメーターの今の値に届いてから効くので値が飛ばず (ライブなどに)、Rl2 (2 の補数: 1 で +1、127 で -1) か Rl1 (64 中心: 65 で +1、63 で -1) にするとエンドレス・エンコーダー向けの相対値として効きます (英語版の [Parameter Guide](./docs/parameter-guide.md#performance-controllers) を参照)
+    - Assign Range (CC #41) で、それぞれをパラメーターの全範囲、下半分 (0-64)、上半分 (64-127) のどれかにできます
     - v3.22.0 から、EG Att/Dec Key Track、LFO Depth、Voice Mode、Osc 1 Shape は CC #44-47 (以前は CC #16-19)、EG Att/Dec Velo Sens は CC #43 (以前は #51) です
 - プログラム #0-31 は "pra32-u2-program-table.h" を編集して変更できます
 

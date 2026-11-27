@@ -100,12 +100,13 @@ static uint8_t s_program_table_parameters[] = {
   OSC_SAW_W_MODE ,
   STRETCH_TUNE   ,
   PAN            ,
-  ASSIGN_MODE    ,
 
   ASSIGN_16      ,
   ASSIGN_17      ,
   ASSIGN_18      ,
   ASSIGN_19      ,
+  ASSIGN_MODE    ,
+  ASSIGN_RANGE   ,
 
   DISTORTION     ,
   FX_ROUTING     ,
@@ -315,11 +316,12 @@ static __attribute__((noinline)) void PRA32_U2_copy_presets_to_program_table(uin
   std::memcpy(program_table[STRETCH_TUNE   ], g_preset_table_STRETCH_TUNE   , sizeof(program_table[0]));
   std::memcpy(program_table[PAN            ], g_preset_table_PAN            , sizeof(program_table[0]));
 
-  std::memcpy(program_table[ASSIGN_MODE    ], g_preset_table_ASSIGN_MODE    , sizeof(program_table[0]));
   std::memcpy(program_table[ASSIGN_16      ], g_preset_table_ASSIGN_16      , sizeof(program_table[0]));
   std::memcpy(program_table[ASSIGN_17      ], g_preset_table_ASSIGN_17      , sizeof(program_table[0]));
   std::memcpy(program_table[ASSIGN_18      ], g_preset_table_ASSIGN_18      , sizeof(program_table[0]));
   std::memcpy(program_table[ASSIGN_19      ], g_preset_table_ASSIGN_19      , sizeof(program_table[0]));
+  std::memcpy(program_table[ASSIGN_MODE    ], g_preset_table_ASSIGN_MODE    , sizeof(program_table[0]));
+  std::memcpy(program_table[ASSIGN_RANGE   ], g_preset_table_ASSIGN_RANGE   , sizeof(program_table[0]));
 
   std::memcpy(program_table[DISTORTION     ], g_preset_table_DISTORTION     , sizeof(program_table[0]));
   std::memcpy(program_table[FX_ROUTING     ], g_preset_table_FX_ROUTING     , sizeof(program_table[0]));
@@ -349,6 +351,46 @@ static INLINE uint32_t PRA32_U2_assign_mode(uint8_t controller_value) {
   return (index < 4) ? (index >> 1) : (index - 2);
 }
 
+// Assign Range (0-80, 81-127 as 80): the range of each of General Purpose Controller 1-4, in the base 3 digits
+// (GP1 + 3 * GP2 + 9 * GP3 + 27 * GP4): 0 Full (0-127), 1 Low (0-64), and 2 High (64-127). Returns the digit of index (0-3)
+static INLINE uint32_t PRA32_U2_assign_range(uint8_t range_value, uint32_t index) {
+  uint32_t value = (range_value < 80) ? range_value : 80;
+  for (uint32_t i = 0; i < index; ++i) {
+    value /= 3;
+  }
+  return value % 3;
+}
+
+// The lower and the upper end of the range (Full 0-127, Low 0-64, and High 64-127)
+static INLINE int32_t PRA32_U2_assign_range_low(uint32_t range) {
+  return (range == 2) ? 64 : 0;
+}
+
+static INLINE int32_t PRA32_U2_assign_range_high(uint32_t range) {
+  return (range == 1) ? 64 : 127;
+}
+
+// An absolute value (0-127) in the range: Low (v + 1) / 2 (0-64), and High 64 + that (64-128, 127 at most), each at
+// the ends at 0 and 127, a step every other value
+static INLINE uint8_t PRA32_U2_assign_range_value(uint32_t range, uint8_t controller_value) {
+  if (range == 0) {
+    return controller_value;
+  }
+  uint32_t half  = (static_cast<uint32_t>(controller_value) + 1) >> 1;  // 0-64
+  uint32_t value = (range == 1) ? half : (64 + half);
+  return static_cast<uint8_t>((value < 127) ? value : 127);
+}
+
+// The value (0-127) that PRA32_U2_assign_range_value() takes to the value of the parameter (the nearest one if out of
+// the range), e.g. for the knob compared with the parameter
+static INLINE uint8_t PRA32_U2_assign_range_inverse(uint32_t range, uint8_t parameter_value) {
+  if (range == 0) {
+    return parameter_value;
+  }
+  int32_t value = (static_cast<int32_t>(parameter_value) - PRA32_U2_assign_range_low(range)) * 2 - 1;
+  return static_cast<uint8_t>((value < 0) ? 0 : ((value > 127) ? 127 : value));
+}
+
 // Assign Mode Rl2 and Rl1 (2 and 3): the step that the value adds to the parameter, for an endless encoder.
 // Rl2, two's complement: 1-63 for +1 to +63, and 64-127 for -64 to -1 (127 for -1); Rl1, the value - 64 (65 for +1, 63 for -1)
 static INLINE int32_t PRA32_U2_assign_relative_step(uint32_t mode, uint8_t controller_value) {
@@ -359,12 +401,19 @@ static INLINE int32_t PRA32_U2_assign_relative_step(uint32_t mode, uint8_t contr
 // By Assign Mode: Jmp, the value at once (the parameter jumps to it); Cat, only after the value comes to that of the parameter
 // (the same, or across it), so that it does not jump (e.g. after a Program Change, or the parameter changed otherwise), and
 // the parameter follows it from there, while the last value of it is that of the parameter; Rl2 and Rl1, a relative value
-// added to that of the parameter (for an endless encoder; see PRA32_U2_assign_relative_step()), within 0-127. Returns the number to control now (or 0),
+// added to that of the parameter (for an endless encoder; see PRA32_U2_assign_relative_step()). By Assign Range, Jmp and Cat
+// take the value in the range (see PRA32_U2_assign_range_value()), and Rl2 and Rl1 keep the parameter in the range
+// (the first step brings it into the range if it is out of it). Returns the number to control now (or 0),
 // with the value to set; shared by the synths (not inlined into each of them, in the RAM)
 static __attribute__((noinline)) uint8_t __not_in_flash_func(PRA32_U2_general_purpose_dst)(const uint8_t controller_value_table[128 + 128],
                                                                                             uint8_t last_values[4], uint32_t index,
                                                                                             uint8_t& controller_value) {
-  uint8_t dst  = controller_value_table[ASSIGN_16  + index];
+  uint8_t  dst   = controller_value_table[ASSIGN_16  + index];
+  uint32_t mode  = PRA32_U2_assign_mode(controller_value_table[ASSIGN_MODE]);
+  uint32_t range = PRA32_U2_assign_range(controller_value_table[ASSIGN_RANGE], index);
+  if (mode < 2) {
+    controller_value = PRA32_U2_assign_range_value(range, controller_value);
+  }
   uint8_t last = last_values[index];
   last_values[index] = controller_value;
 
@@ -372,11 +421,12 @@ static __attribute__((noinline)) uint8_t __not_in_flash_func(PRA32_U2_general_pu
     return 0;
   }
 
-  uint8_t  current = controller_value_table[dst];
-  uint32_t mode    = PRA32_U2_assign_mode(controller_value_table[ASSIGN_MODE]);
+  uint8_t current = controller_value_table[dst];
   if (mode >= 2) {
     int32_t value = static_cast<int32_t>(current) + PRA32_U2_assign_relative_step(mode, controller_value);
-    controller_value = static_cast<uint8_t>((value < 0) ? 0 : ((value > 127) ? 127 : value));
+    int32_t low   = PRA32_U2_assign_range_low(range);
+    int32_t high  = PRA32_U2_assign_range_high(range);
+    controller_value = static_cast<uint8_t>((value < low) ? low : ((value > high) ? high : value));
     return dst;
   }
 
@@ -1751,6 +1801,7 @@ if constexpr (NO_FX == false) {
           (control_number != AMP_SUSTAIN    ) &&
           (control_number != AMP_RELEASE    ) &&
           (control_number != ASSIGN_MODE    ) &&
+          (control_number != ASSIGN_RANGE   ) &&
           (control_number != ASSIGN_16      ) &&
           (control_number != ASSIGN_17      ) &&
           (control_number != ASSIGN_18      ) &&

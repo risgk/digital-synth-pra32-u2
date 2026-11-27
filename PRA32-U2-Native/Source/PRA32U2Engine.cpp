@@ -117,12 +117,13 @@ const PRA32U2Engine::ParameterInfo s_parameter_names[] = {
   { OSC_SAW_W_MODE , "Osc Saw Wave Mode [Str|Cur]"            },
   { STRETCH_TUNE   , "Stretch Tune [- to +]"                     },
   { PAN            , "Pan"                                    },
-  { ASSIGN_MODE    , "Assign Mode [Jmp|Jmp|Cat|Cat|Rl2|Rl1]"  },
 
   { ASSIGN_16      , "Assign #16"                         },
   { ASSIGN_17      , "Assign #17"                         },
   { ASSIGN_18      , "Assign #18"                         },
   { ASSIGN_19      , "Assign #19"                         },
+  { ASSIGN_MODE    , "Assign Mode [Jmp|Jmp|Cat|Cat|Rl2|Rl1]"  },
+  { ASSIGN_RANGE   , "Assign Range"                           },
 
   { DISTORTION     , "Distortion Drive"                       },
   { FX_ROUTING     , "FX Routing [Dst|Cho|Dly|Dly|Cmp|Dry]"   },
@@ -493,6 +494,7 @@ std::string PRA32U2Engine::getValueText(uint8_t controlNumber, uint8_t value, ui
   case EG_AMP_MOD      :
   case REL_EQ_DECAY    : dispValue = select2(v, OFF_ON);             break;
   case ASSIGN_MODE     : dispValue = select6(v, ASSIGN_MODES);       break;
+  case ASSIGN_RANGE    : dispValue = std::to_string((v < 80) ? v : 80); break;  // GP1 + 3 * GP2 + 9 * GP3 + 27 * GP4 (0: Full, 1: Low, 2: High)
   case OSC_SAW_W_MODE  : dispValue = select2(v, SAW_W_MODES);        break;
   case PORTA_MODE      : dispValue = select6(v, PORTA_MODES);        break;
   case LFO_TRIG_MODE   : dispValue = select6(v, LFO_TRIG_MODES);      break;

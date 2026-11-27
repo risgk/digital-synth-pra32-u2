@@ -99,12 +99,13 @@
 |                            83 | x             | o             | Osc Saw Wave Mode [Str|Cur]           |
 |                            22 | x             | o             | Stretch Tune [- to +]                 |
 |                            10 | x             | o             | Pan                                   |
-|                            42 | x             | o             | Assign Mode [Jmp|Cat|Rl2|Rl1] $12     |
 |                               |               |               |                                       |
 |                            48 | x             | o             | Assign #16 $12                        |
 |                            49 | x             | o             | Assign #17 $12                        |
 |                            50 | x             | o             | Assign #18 $12                        |
 |                            51 | x             | o             | Assign #19 $12                        |
+|                            42 | x             | o             | Assign Mode [Jmp|Cat|Rl2|Rl1] $12     |
+|                            41 | x             | o             | Assign Range $12                      |
 |                               |               |               |                                       |
 |                            95 | x             | o             | Distortion Drive                      |
 |                            77 | x             | o             | FX Routing [Dst|Cho|Dly|Dly|Cmp|Dry]  |
@@ -174,6 +175,8 @@
 |                               |   80, 106, and 111-127), by Assign Mode: at once (Jmp), after the     |
 |                               |   value comes to that of the parameter (Cat), or as relative values   |
 |                               |   (Rl2, two's complement: n or 128 - n: +n or -n; Rl1, 64 + n: +n)    |
+|                               |   In the range of Assign Range for each (GP1 + 3 x GP2 + 9 x GP3      |
+|                               |   + 27 x GP4; 0: Full 0-127, 1: Low 0-64, 2: High 64-127)             |
 +-------------------------------+-----------------------------------------------------------------------+
   Mode 1: Omni On,  Poly          Mode 2: Omni On,  Mono          o: Yes                                 
   Mode 3: Omni Off, Poly          Mode 4: Omni Off, Mono          x: No                                  

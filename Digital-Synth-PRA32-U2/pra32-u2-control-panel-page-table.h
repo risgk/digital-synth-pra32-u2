@@ -58,7 +58,7 @@ static const PRA32_U2_ControlPanelPage g_control_panel_page_table_a[] = {
   { "Page A-30 ", "Aft Touch ",   "Aft Touch ", "LFO Amt   ", AFT_T_LFO_AMT  ,   "          ", "          ", 0xFF           ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page A-31 ", "Assign a  ",   "Assign    ", "#16       ", ASSIGN_16      ,   "Assign    ", "#17       ", ASSIGN_17      ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page A-32 ", "Assign b  ",   "Assign    ", "#18       ", ASSIGN_18      ,   "Assign    ", "#19       ", ASSIGN_19      ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page A-33 ", "Assign c  ",   "Assign    ", "Mode      ", ASSIGN_MODE    ,   "          ", "          ", 0xFF           ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page A-33 ", "Assign c  ",   "Assign    ", "Mode      ", ASSIGN_MODE    ,   "Assign    ", "Range     ", ASSIGN_RANGE   ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page A-34 ", "FX        ",   "Distortion", "Drive     ", DISTORTION     ,   "FX        ", "Routing   ", FX_ROUTING     ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page A-35 ", "Chorus a  ",   "Chorus    ", "Level     ", CHORUS_MIX     ,   "          ", "          ", 0xFF           ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page A-36 ", "Chorus b  ",   "Chorus    ", "Rate      ", CHORUS_RATE    ,   "Chorus    ", "Depth     ", CHORUS_DEPTH   ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },

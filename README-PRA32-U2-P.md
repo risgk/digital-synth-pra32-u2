@@ -281,7 +281,7 @@
 | A-30 Aft Touch | Aft Touch LFO Amt    |                      |
 | A-31 Assign a  | Assign #16           | Assign #17           |
 | A-32 Assign b  | Assign #18           | Assign #19           |
-| A-33 Assign c  | Assign Mode          |                      |
+| A-33 Assign c  | Assign Mode          | Assign Range         |
 | A-34 FX        | Distortion Drive     | FX Routing           |
 | A-35 Chorus a  | Chorus Level         |                      |
 | A-36 Chorus b  | Chorus Rate          | Chorus Depth         |
