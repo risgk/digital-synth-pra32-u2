@@ -4961,7 +4961,16 @@ function panelPushUndo() {
   panelUpdateUndoButtons();
 }
 
+// Panel Play Mode changed (to another of Key, K+S, Drn, and Seq): PRA32-U2 stops the note and the Step Sequencer (Play
+// as not playing)
+function panelPlayModeChanged(oldValue, newValue) {
+  if (PANEL_PLAY_MODES[(oldValue * 10 + 128) >> 8] !== PANEL_PLAY_MODES[(newValue * 10 + 128) >> 8]) {
+    panelPlaying = false;
+  }
+}
+
 function panelSetValues(newValues) {
+  panelPlayModeChanged(panelValues[53], newValues[53]);
   for (const cc in newValues) {
     if (panelValues[cc] !== newValues[cc]) { panelSendCC(Number(cc), newValues[cc]); }
   }
@@ -4990,6 +4999,7 @@ function panelUpdateUndoButtons() {
 }
 
 function panelOnChangeValue(cc, value) {
+  if (cc == 53) { panelPlayModeChanged(panelValues[53], value); }
   panelValues[cc] = value;
   panelSendCC(cc, value);
   panelUpdateDisplay();
@@ -5122,6 +5132,7 @@ function sendPanelCurrent() {
 
 function panelInitValues() {
   panelPushUndo();
+  panelPlayModeChanged(panelValues[53], panelDefaultValues()[53]);
   panelValues = panelDefaultValues();
   panelUpdateDisplay();
   panelSave();
