@@ -165,7 +165,7 @@
     - Channel Pressure
     - General Purpose Controller 1-4 (Pages B-24 and B-25): the knobs control them at once (without the catch of the knobs), and the display shows
       the parameter that they control (Assign #16-#19): its value, "<" or ">" until the knob comes to it with Assign Mode Cat (from then,
-      it follows the knob; always "=" with Jmp and Rel, as the knobs work as Jmp with Rel too), and its number (e.g. "A>112[ 74]", "A=112[ 74]"); with "[Off]", their own values
+      it follows the knob; always "=" with Jmp, Rl2, and Rl1, as the knobs work as Jmp with Rl2 and Rl1 too), and its number (e.g. "A>112[ 74]", "A=112[ 74]"); with "[Off]", their own values
 - Control Operations
     - Panic: Change the value from 0-31 [Rdy] to 96-127 [Exe]
     - Randomize Synth (Randomize Synth Parameters, as Program Change #127): Change the value from 0-31 [Rdy] to 96-127 [Exe]

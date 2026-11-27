@@ -1,6 +1,10 @@
 ## Digital Synth PRA32-U2 Changelog
 
 - v3.23.1 (2026-??-??):
+    - **Assign Mode [Jmp|Jmp|Cat|Cat|Rl2|Rl1]**: Rl2 (Relative 2) takes the values of an endless encoder as two's
+      complement (1 for +1, 127 for -1); Rel renamed Rl1 (Relative 1, 65 for +1, 63 for -1), working as before
+        - **Not compatible**: Assign Mode 0-38 is Jmp (0-31 before), 39-89 Cat (32-95), 90-115 Rl2 (Cat or Rel before),
+          and 116-127 Rl1 (Rel at 96-127 before); 0, 64, and 127 (e.g. the Presets) are the same
     - Undo Write (of the panel) also brings back a program written by MIDI (CC #106, e.g. by PRA32-U2 Editor)
     - PRA32-U2 Editor: Add Undo Write in the heading of "Write & Program Change" (for PRA32-U2 with the panel parameters),
       and Read (on Device) and Undo Read of the panel parameters (to test Write); "Program Change (on Device)"

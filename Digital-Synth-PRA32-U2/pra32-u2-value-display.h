@@ -354,8 +354,8 @@ static __attribute__((noinline)) boolean __not_in_flash_func(PRA32_U2_ControlPan
   uint32_t percent;
   int32_t  n = 0;  // the sign (of the ones with the sign)
 
-  if (control_target == ASSIGN_MODE) {  // [Jmp|Cat|Rel] (here, not in the switch of the panel)
-    static const char ary[3][4] PRA32_U2_TABLE_IN_RAM(panel_text) = {"Jmp", "Cat", "Rel"};
+  if (control_target == ASSIGN_MODE) {  // [Jmp|Jmp|Cat|Cat|Rl2|Rl1] (here, not in the switch of the panel)
+    static const char ary[4][4] PRA32_U2_TABLE_IN_RAM(panel_text) = {"Jmp", "Cat", "Rl2", "Rl1"};
     const char* text = ary[PRA32_U2_assign_mode(v)];
     value_display_text[0] = text[0];
     value_display_text[1] = text[1];

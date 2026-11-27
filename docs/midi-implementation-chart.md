@@ -99,7 +99,7 @@
 |                            83 | x             | o             | Osc Saw Wave Mode [Str|Cur]           |
 |                            22 | x             | o             | Stretch Tune [- to +]                 |
 |                            10 | x             | o             | Pan                                   |
-|                            42 | x             | o             | Assign Mode [Jmp|Cat|Rel] $12         |
+|                            42 | x             | o             | Assign Mode [Jmp|Cat|Rl2|Rl1] $12     |
 |                               |               |               |                                       |
 |                            48 | x             | o             | Assign #16 $12                        |
 |                            49 | x             | o             | Assign #17 $12                        |
@@ -173,7 +173,7 @@
 |                               |   the number that Assign #16-#19 set (Off: 0, 16-19, 48-51, 64,       |
 |                               |   80, 106, and 111-127), by Assign Mode: at once (Jmp), after the     |
 |                               |   value comes to that of the parameter (Cat), or as relative values   |
-|                               |   (Rel, 64 + n: +n)                                                   |
+|                               |   (Rl2, two's complement: n or 128 - n: +n or -n; Rl1, 64 + n: +n)    |
 +-------------------------------+-----------------------------------------------------------------------+
   Mode 1: Omni On,  Poly          Mode 2: Omni On,  Mono          o: Yes                                 
   Mode 3: Omni Off, Poly          Mode 4: Omni Off, Mono          x: No                                  

@@ -1395,7 +1395,7 @@ const PARAM_TOOLTIPS = [
   [OSC_SAW_W_MODE , "Str: Straight, Cur: Curved"],
   [STRETCH_TUNE   , "Cents at note 108"],
   [PAN            , "L: Left, C: Center, R: Right"],
-  [ASSIGN_MODE    , "Jmp: Jump, Cat: Catch, Rel: Relative"],
+  [ASSIGN_MODE    , "Jmp: Jump, Cat: Catch, Rl2: Relative 2 (two's complement: 1 for +1, 127 for -1), Rl1: Relative 1 (65 for +1, 63 for -1)"],
   [DISTORTION     , "dB"],
   [FX_ROUTING     , "Dst: Distortion, Cho: Chorus, Dly: Delay, Cmp: Compressor (where the FX begin), Dry: none"],
   [CHORUS_MIX     , "%"],
@@ -1844,15 +1844,21 @@ function updateGeneralPurposeIndicators() {
   }
 }
 
-// Assign Mode [Jmp|Cat|Rel]: 0, 1, and 2
+// Assign Mode [Jmp|Jmp|Cat|Cat|Rl2|Rl1]: 0 (Jmp), 1 (Cat), 2 (Rl2), and 3 (Rl1), as PRA32_U2_assign_mode()
 function assignMode() {
-  return (((parseInt(localStorage.getItem("key" + controlNumberToStringMap.get(ASSIGN_MODE))) || 0) * 4) + 128) >> 8;
+  var index = (((parseInt(localStorage.getItem("key" + controlNumberToStringMap.get(ASSIGN_MODE))) || 0) * 10) + 128) >> 8;
+  return (index < 4) ? (index >> 1) : (index - 2);
+}
+
+// Assign Mode Rl2 and Rl1: the step that the value adds to the parameter, as PRA32_U2_assign_relative_step()
+function assignRelativeStep(mode, value) {
+  return (mode == 2) ? ((value < 64) ? value : (value - 128)) : (value - 64);
 }
 
 // General Purpose Controller 1-4 (from MIDI In, or the sliders), as PRA32-U2: the parameter (or the performance control) of
 // Assign #16-#19, and the value to set, by Assign Mode: Jmp, the value at once; Cat, only after the value comes to that of
-// the parameter (the same, or across it), so that it does not jump; Rel, the value - 64 added to that of the parameter (the
-// sliders of the editor: absolute values, as Jmp); { dst: 0 } if none now. The value of the parameter here is that of the
+// the parameter (the same, or across it), so that it does not jump; Rl2 and Rl1, a relative value added to that of the
+// parameter (the sliders of the editor: absolute values, as Jmp); { dst: 0 } if none now. The value of the parameter here is that of the
 // editor (as PRA32-U2 has it, unless it was changed on PRA32-U2 alone, e.g. by the panel)
 var generalPurposeLastValues = [-1, -1, -1, -1];
 function generalPurposeDst(index, value, absolute) {
@@ -1870,8 +1876,8 @@ function generalPurposeDst(index, value, absolute) {
     return { dst: 0, value: value };  // none that the editor shows
   }
   var mode = assignMode();
-  if ((mode == 2) && !absolute) {
-    return { dst: dst, value: Math.min(Math.max(current + value - 64, 0), 127) };
+  if ((mode >= 2) && !absolute) {
+    return { dst: dst, value: Math.min(Math.max(current + assignRelativeStep(mode, value), 0), 127) };
   }
   if ((mode != 1) || (value == current) || (last == current) || ((last >= 0) && (last < current) && (value > current)) ||
       ((last > current) && (value < current))) {
@@ -2464,7 +2470,7 @@ const VALUE_CHOICE_NAMES = {
   "RR3": "Round Robin of 3", "Aut": "Auto", "VOn": "Voice On", "VOf": "Voice Off", "VAu": "Voice Auto",
   "Q": "Quadratic", "L": "Linear", "LO": "Linear Open", "QO": "Quadratic Open", "Opn": "Open",
   "ESw": "Exponential Switch", "LSw": "Linear Switch", "LAu": "Linear Auto", "EAu": "Exponential Auto",
-  "Str": "Straight", "Cur": "Curved", "Jmp": "Jump", "Cat": "Catch", "Rel": "Relative",
+  "Str": "Straight", "Cur": "Curved", "Jmp": "Jump", "Cat": "Catch", "Rl2": "Relative 2 (two's complement)", "Rl1": "Relative 1 (64 + n)",
   "Dst": "Distortion", "Cho": "Chorus", "Dly": "Delay", "Cmp": "Compressor", "Dry": "Dry",
   "Ste": "Stereo Delay", "PP": "Ping Pong Delay", "Rev": "Reverb",
 };
@@ -2769,8 +2775,8 @@ function updateDisplayOfControl(number, value) {
     break;
   case ASSIGN_MODE     :
     {
-      var ary = ["Jmp","Cat","Rel"];
-      var index = ((value * 4) + 128) >> 8;
+      var ary = ["Jmp","Jmp","Cat","Cat","Rl2","Rl1"];
+      var index = ((value * 10) + 128) >> 8;
       dispValue = ary[index];
     }
     break;
@@ -3652,10 +3658,10 @@ function onChangePerformanceControl(number, value) {
   updateDisplayOfPerformanceControl(number, value);
   var numberToSend = number;
   if ((number >= GEN_PURPOSE_1) && (number <= GEN_PURPOSE_4)) {
-    // The parameter of Assign #16-#19, as PRA32-U2 takes it (and as from MIDI In); with Assign Mode Rel, the slider sends
+    // The parameter of Assign #16-#19, as PRA32-U2 takes it (and as from MIDI In); with Assign Mode Rl2 or Rl1, the slider sends
     // the Control Change of the parameter itself (an absolute value, which PRA32-U2 would take as a relative one by the slider's)
     var dst = generalPurposeDst(number - GEN_PURPOSE_1, parseInt(value), true).dst;
-    if ((assignMode() == 2) && (dst != 0)) {
+    if ((assignMode() >= 2) && (dst != 0)) {
       numberToSend = dst;
     }
     updateGeneralPurposeIndicators();
@@ -4518,8 +4524,8 @@ function getStoredCCValueString(index, number) {
   <div class="param-ctrl soft-marker-c"><input  id="inputPAN            "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(PAN            , value)"><span    id="spanPAN            " >-</span><span   id="span2PAN            " >-</span></div>
 </div>
 <div class="param">
-  <div class="param-name"><b>Assign</b> Mode <span class="sup">[Jmp|Cat|Rel]</span> <span class="cc">CC#42</span></div>
-  <div class="param-ctrl soft-markers-3"><input  id="inputASSIGN_MODE    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(ASSIGN_MODE    , value)"><span    id="spanASSIGN_MODE    " >-</span><span   id="span2ASSIGN_MODE    " >-</span></div>
+  <div class="param-name"><b>Assign</b> Mode <span class="sup">[Jmp|Jmp|Cat|Cat|Rl2|Rl1]</span> <span class="cc">CC#42</span></div>
+  <div class="param-ctrl soft-markers-6"><input  id="inputASSIGN_MODE    "  type="range" min="0" max="127" step="1" oninput="onChangeControlChange(ASSIGN_MODE    , value)"><span    id="spanASSIGN_MODE    " >-</span><span   id="span2ASSIGN_MODE    " >-</span></div>
 </div>
 </div>
 <div class="param-group param-group-continuing">

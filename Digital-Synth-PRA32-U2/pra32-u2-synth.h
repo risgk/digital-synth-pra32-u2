@@ -342,15 +342,24 @@ static INLINE boolean PRA32_U2_assign_dst_off(uint8_t dst) {
          (dst == SUSTAIN_PEDAL) || (dst == VOICE_GRP_MODE) || (dst == WRITE_P_TO_PROG) || (dst >= SP_RAND_CTRL);
 }
 
-// Assign Mode [Jmp|Cat|Rel]: 0 (0-31), 1 (32-95), and 2 (96-127)
+// Assign Mode [Jmp|Jmp|Cat|Cat|Rl2|Rl1], 6 ways as the other parameters of 6 choices: 0 Jmp (0-38), 1 Cat (39-89),
+// 2 Rl2 (90-115), and 3 Rl1 (116-127)
 static INLINE uint32_t PRA32_U2_assign_mode(uint8_t controller_value) {
-  return ((controller_value * 4) + 128) >> 8;
+  uint32_t index = ((controller_value * 10) + 128) >> 8;  // 0-5
+  return (index < 4) ? (index >> 1) : (index - 2);
+}
+
+// Assign Mode Rl2 and Rl1 (2 and 3): the step that the value adds to the parameter, for an endless encoder.
+// Rl2, two's complement: 1-63 for +1 to +63, and 64-127 for -64 to -1 (127 for -1); Rl1, the value - 64 (65 for +1, 63 for -1)
+static INLINE int32_t PRA32_U2_assign_relative_step(uint32_t mode, uint8_t controller_value) {
+  int32_t value = controller_value;
+  return (mode == 2) ? ((value < 64) ? value : (value - 128)) : (value - 64);
 }
 
 // By Assign Mode: Jmp, the value at once (the parameter jumps to it); Cat, only after the value comes to that of the parameter
 // (the same, or across it), so that it does not jump (e.g. after a Program Change, or the parameter changed otherwise), and
-// the parameter follows it from there, while the last value of it is that of the parameter; Rel, the value - 64 added to that
-// of the parameter (e.g. +1 by 65, -1 by 63, for an endless encoder), within 0-127. Returns the number to control now (or 0),
+// the parameter follows it from there, while the last value of it is that of the parameter; Rl2 and Rl1, a relative value
+// added to that of the parameter (for an endless encoder; see PRA32_U2_assign_relative_step()), within 0-127. Returns the number to control now (or 0),
 // with the value to set; shared by the synths (not inlined into each of them, in the RAM)
 static __attribute__((noinline)) uint8_t __not_in_flash_func(PRA32_U2_general_purpose_dst)(const uint8_t controller_value_table[128 + 128],
                                                                                             uint8_t last_values[4], uint32_t index,
@@ -365,8 +374,8 @@ static __attribute__((noinline)) uint8_t __not_in_flash_func(PRA32_U2_general_pu
 
   uint8_t  current = controller_value_table[dst];
   uint32_t mode    = PRA32_U2_assign_mode(controller_value_table[ASSIGN_MODE]);
-  if (mode == 2) {
-    int32_t value = static_cast<int32_t>(current) + static_cast<int32_t>(controller_value) - 64;
+  if (mode >= 2) {
+    int32_t value = static_cast<int32_t>(current) + PRA32_U2_assign_relative_step(mode, controller_value);
     controller_value = static_cast<uint8_t>((value < 0) ? 0 : ((value > 127) ? 127 : value));
     return dst;
   }

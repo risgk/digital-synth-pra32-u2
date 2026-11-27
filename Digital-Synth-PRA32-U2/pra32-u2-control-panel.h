@@ -1081,13 +1081,13 @@ static __attribute__((noinline, unused)) void PRA32_U2_ControlPanel_execute_oper
   }
 }
 
-// The knobs of General Purpose Controller 1-4 (Pages B-24 and B-25), with Assign Mode Rel: the parameter of Assign #16-#19
+// The knobs of General Purpose Controller 1-4 (Pages B-24 and B-25), with Assign Mode Rl2 or Rl1: the parameter of Assign #16-#19
 // at once (the knob as an absolute value, not as a relative one); the others: the control target itself
 static uint8_t PRA32_U2_ControlPanel_absolute_target(uint8_t control_target) {
   if ((control_target >= GEN_PURPOSE_1) && (control_target <= GEN_PURPOSE_4)) {
     uint8_t channel = getTargetMIDICh(s_current_synth);
     uint8_t dst     = getCurrentControllerValue(channel, ASSIGN_16  + (control_target - GEN_PURPOSE_1));
-    if ((PRA32_U2_assign_mode(getCurrentControllerValue(channel, ASSIGN_MODE)) == 2) && !PRA32_U2_assign_dst_off(dst)) {
+    if ((PRA32_U2_assign_mode(getCurrentControllerValue(channel, ASSIGN_MODE)) >= 2) && !PRA32_U2_assign_dst_off(dst)) {
       return dst;
     }
   }
@@ -2373,7 +2373,7 @@ static __attribute__((noinline, unused)) uint8_t __not_in_flash_func(PRA32_U2_Co
   return value;
 }
 
-// The value that the knob is compared with ("<", ">", or "="): with Assign Mode Jmp or Rel, General Purpose Controller 1-4
+// The value that the knob is compared with ("<", ">", or "="): with Assign Mode Jmp, Rl2, or Rl1, General Purpose Controller 1-4
 // control the parameters at once (as absolute values, see PRA32_U2_ControlPanel_absolute_target()), so the knob is always "="
 static __attribute__((noinline, unused)) uint8_t __not_in_flash_func(PRA32_U2_ControlPanel_compared_value_of_target)(uint8_t control_target, uint8_t adc_control_value,
                                                                                                                    uint8_t current_controller_value) {
