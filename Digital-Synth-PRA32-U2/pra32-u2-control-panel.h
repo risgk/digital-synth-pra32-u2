@@ -35,8 +35,9 @@ static          uint32_t s_prog_minus_key_current_value;
 static          uint32_t s_prog_plus_key_current_value;
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL_KEY_INPUT)
 
-// Panel Play Mode [Key|K+S|Seq] (index 0-2): s_play_mode 0: Key (Key Mode), 1: Seq (Seq Mode), 2: K+S (Key + Seq Mode:
-// the Step Sequencer, and the Play key that plays as in Key Mode)
+// Panel Play Mode [Key|Key|K+S|K+S|Drn|Seq] (index 0-5): s_play_mode 0: Key (Key Mode), 1: Seq (Seq Mode), 2: K+S (Key + Seq
+// Mode: the Step Sequencer, and the Play key that plays as in Key Mode), 3: Drn (Drone Mode: Key Mode with the note always
+// on, which Panel Play Pitch Off stops, and the Play key retriggers)
 static          uint8_t  s_play_mode                = 0;
 static          boolean  s_key_held                 = false;  // the Play key (or Panel Play) playing, in Key and K+S
 static          int8_t   s_panel_transpose          = 0;
@@ -449,8 +450,9 @@ static INLINE uint32_t PRA32_U2_ControlPanel_calc_bpm(uint8_t tempo_control_valu
 }
 
 
-static INLINE boolean PRA32_U2_ControlPanel_mode_has_seq() { return s_play_mode != 0; }  // Seq and K+S
-static INLINE boolean PRA32_U2_ControlPanel_mode_has_key() { return s_play_mode != 1; }  // Key and K+S
+static INLINE boolean PRA32_U2_ControlPanel_mode_has_seq() { return (s_play_mode == 1) || (s_play_mode == 2); }  // Seq and K+S
+static INLINE boolean PRA32_U2_ControlPanel_mode_has_key() { return s_play_mode != 1; }  // Key, K+S, and Drn
+static INLINE boolean PRA32_U2_ControlPanel_mode_is_key()  { return (s_play_mode == 0) || (s_play_mode == 3); }  // Key and Drn
 
 // The channel of the Step Sequencer: the channel that the panel selects + Seq Ch Ofst [+0-+F] (mod 16)
 static INLINE uint8_t PRA32_U2_ControlPanel_seq_ch() {
@@ -770,7 +772,7 @@ static __attribute__((noinline)) void __not_in_flash_func(PRA32_U2_ControlPanel_
   int8_t   panel_pit_ofst    = g_synth.current_controller_value(PANEL_PIT_OFST ) - 64;
   int8_t   panel_transpose   = g_synth.current_controller_value(PANEL_TRANSPOSE) - 64;
 
-  if (s_play_mode == 0) {  // Key Mode
+  if (PRA32_U2_ControlPanel_mode_is_key()) {  // Key and Drn
     s_index_scale     = index_scale;
     s_panel_pit_ofst  = panel_pit_ofst;
     s_panel_transpose = panel_transpose;
@@ -1008,10 +1010,15 @@ static INLINE void PRA32_U2_ControlPanel_seq_start_stop() {
   }
 }
 
-// The Play key (or Panel Play) in Key and K+S: the note on while pressed
+// The Play key (or Panel Play) in Key and K+S: the note on while pressed; in Drn, always on (retriggered when pressed)
 static INLINE void PRA32_U2_ControlPanel_key_play(boolean on) {
+  if (s_play_mode == 3) {  // Drn
+    if (!on) {
+      return;
+    }
+  }
   s_key_held = on;
-  if (s_play_mode == 0) {  // Key Mode
+  if (PRA32_U2_ControlPanel_mode_is_key()) {  // Key and Drn
     s_playing_status = on ? PlayingStatus_Playing : PlayingStatus_Stop;
   }
   PRA32_U2_ControlPanel_update_play_display();
@@ -1732,8 +1739,8 @@ static __attribute__((noinline)) boolean __not_in_flash_func(PRA32_U2_ControlPan
     break;
   case PANEL_PLAY_MODE:
     {
-      static const char ary[3][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"Key","K+S","Seq"};
-      uint32_t index = ((controller_value * 4) + 128) >> 8;
+      static const char ary[6][5] PRA32_U2_TABLE_IN_RAM(panel_text) = {"Key","Key","K+S","K+S","Drn","Seq"};
+      uint32_t index = ((controller_value * 10) + 128) >> 8;
       PRA32_U2_ControlPanel_copy_text(value_display_text, ary[index]);
       result = true;
     }
@@ -2643,8 +2650,8 @@ static void PRA32_U2_ControlPanel_select_target(uint8_t offset) {
     PRA32_U2_ControlPanel_update_pitch(false);
   } else if (control_number == PANEL_PLAY_MODE) {
     uint8_t controller_value = g_synth.current_controller_value(PANEL_PLAY_MODE);
-    static const uint8_t modes[3] = { 0, 2, 1 };  // Key, K+S, and Seq
-    uint8_t mode = modes[((controller_value * 4) + 128) >> 8];
+    static const uint8_t modes[6] = { 0, 0, 2, 2, 3, 1 };  // Key, Key, K+S, K+S, Drn, and Seq
+    uint8_t mode = modes[((controller_value * 10) + 128) >> 8];
 
     if (s_play_mode != mode) {
       s_play_mode = mode;
@@ -2657,6 +2664,10 @@ static void PRA32_U2_ControlPanel_select_target(uint8_t offset) {
 
       PRA32_U2_ControlPanel_update_pitch(false);
       PRA32_U2_ControlPanel_update_page();
+
+      if (s_play_mode == 3) {  // Drn: the note on now
+        PRA32_U2_ControlPanel_key_play(true);
+      }
     }
   } else if (control_number == SEQ_TEMPO      ) {
     uint8_t tempo = g_synth.current_controller_value(SEQ_TEMPO      );
@@ -2731,9 +2742,9 @@ static void PRA32_U2_ControlPanel_select_target(uint8_t offset) {
 // - Operations (#102-106, #112, and #113, ready at 0-31, and done at 96-127, as by the panel [Rdy] and [Exe]); not the
 //   Read and Write of the programs, which the editor does
 // - Panel Key (#110): 64-127 as the Play key pressed, and 0-63 as released, in Key Mode and K+S (Key + Seq Mode);
-//   nothing in Seq Mode
+//   in Drn (Drone Mode), 64-127 retriggers the note (always on); nothing in Seq Mode
 // - Panel Play (#111): 64-127 as the Play key pressed (Key Mode) or the Step Sequencer started (Seq and K+S),
-//   and 0-63 as released or stopped
+//   and 0-63 as released or stopped; in Drn, 64-127 retriggers the note
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
 static uint8_t s_panel_ch_basic_ch = 0xFF;  // MIDI Basic Ch (#57) to set by Set Basic Ch (#114), none at first
 
@@ -2800,7 +2811,7 @@ void PRA32_U2_ControlPanel_on_panel_ch_control_change(uint8_t number, uint8_t va
 
   if (number == 110) {  // Panel Key: compared with the state now, so that a value repeated does nothing
     boolean on = (value >= 64);
-    if (PRA32_U2_ControlPanel_mode_has_key() && (on != s_key_held)) {  // Key and K+S
+    if (PRA32_U2_ControlPanel_mode_has_key() && ((on != s_key_held) || (s_play_mode == 3))) {  // Key, K+S, and Drn (retriggered)
       PRA32_U2_ControlPanel_key_play(on);
     }
     return;
@@ -2809,9 +2820,12 @@ void PRA32_U2_ControlPanel_on_panel_ch_control_change(uint8_t number, uint8_t va
   if (number == 111) {  // Panel Play: compared with the state now (which the Play key, Panel Play Mode, or
                         // MIDI Start/Stop may have changed), so that a value repeated does nothing
     boolean on = (value >= 64);
-    boolean playing = (s_play_mode == 0) ? s_key_held : (s_playing_status != PlayingStatus_Stop);
+    boolean playing = PRA32_U2_ControlPanel_mode_is_key() ? s_key_held : (s_playing_status != PlayingStatus_Stop);
+    if (s_play_mode == 3) {  // Drn: retriggered by 64-127
+      playing = !on;
+    }
     if (on != playing) {
-      if (s_play_mode == 0) {  // Key Mode
+      if (PRA32_U2_ControlPanel_mode_is_key()) {  // Key and Drn
         PRA32_U2_ControlPanel_key_play(on);
       } else {  // Seq and K+S: the Step Sequencer
         if (on) {
