@@ -5016,7 +5016,7 @@ function panelUpdateUndoButtons() {
 let dumpWaiting = null;  // "synth" or "panel", until the first value comes
 let dumpWaitingTimer = null;
 
-function dumpRequest(kind, number, value) {
+function dumpRequest(kind, number, value, noAnswer) {
   if (!midiOutput || !(midiInput1 || midiInput2 || midiInput3 || midiInput4)) {
     alert("Select MIDI In and MIDI Out of PRA32-U2/P or PRA32-U2/M/P.");
     return false;
@@ -5026,7 +5026,7 @@ function dumpRequest(kind, number, value) {
   dumpWaitingTimer = setTimeout(function() {
     if (dumpWaiting) {
       dumpWaiting = null;
-      alert("No answer from PRA32-U2/P or PRA32-U2/M/P: check MIDI In, Basic Ch (of Panel & Operations), MIDI Ch, and Voice Group Mode.");
+      alert(noAnswer || "No answer from PRA32-U2/P or PRA32-U2/M/P: check MIDI In and Basic Ch (of Panel & Operations).");
     }
   }, 1000);
   panelSendCC(number, value);
@@ -5040,7 +5040,9 @@ function onClickGetCurrent() {
     return;
   }
   saveUndo();
-  dumpRequest("synth", 115, offset);
+  dumpRequest("synth", 115, offset, (offset == 0) ?
+              "No answer from PRA32-U2/P or PRA32-U2/M/P: check MIDI In, Basic Ch (of Panel & Operations), and MIDI Ch." :
+              "No answer: for MIDI Ch of the Basic Ch + 1 to + 3 (the Sub Synths), Voice Group Mode of the Main Synth must not be Off (see also MIDI In and Basic Ch).");
 }
 
 function onClickGetPanel() {
