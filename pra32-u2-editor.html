@@ -4165,7 +4165,7 @@ function getStoredCCValueString(index, number) {
 <details class="section" id="midiDetails" open>
 <summary class="midi-bar"><span class="midi-bar-items"><span>MIDI</span>
 <span class="midi-buttons" onclick="event.preventDefault()"><button type="button" onclick="sendCurrentParameters()">Send Current</button>
-<button type="button" onclick="onClickGetCurrent()" title="Gets the parameters now of the synth of MIDI Ch from PRA32-U2/P or PRA32-U2/M/P by MIDI In (Dump Synth, CC#115 on the Panel Channel): only the synths of the Basic Ch + 0 to + 3 (+ 1 to + 3 with Voice Group Mode not Off), not the groups nor the Layering; not the Performance Controls. Undo goes back (and sends it)">Get Current</button></span></span></summary>
+<button type="button" onclick="onClickGetCurrent()" title="Gets the parameters of the synth of MIDI Ch from PRA32-U2/P or /M/P by MIDI In (Dump Synth, CC#115): Basic Ch + 0 to + 3 only. Undo goes back (and sends it)">Get Current</button></span></span></summary>
 <div class="section midi">
 <div class="midi-item"><span class="lbl-midi">MIDI Ch</span>
 <select id="selectMIDICh" size="1" onchange="onChangeMIDICh()">
@@ -4690,7 +4690,7 @@ function getStoredCCValueString(index, number) {
 <summary>Panel &amp; Step Sequencer <span class="cc">for PRA32-U2/P and PRA32-U2/M/P</span></summary>
 <details class="section panel-sub" id="panelCtrlDetails" open>
 <summary>Panel &amp; Operations <span class="panel-summary-buttons" onclick="event.preventDefault()"><button type="button" onclick="sendPanelCurrent()">Send Panel</button>
-<button type="button" onclick="onClickGetPanel()" title="Gets the panel parameters now from PRA32-U2/P or PRA32-U2/M/P by MIDI In (Dump Panel, CC#116 on the Panel Channel): not Basic Ch, Panel Target Ch, nor Panel MIDI Tx, which the editor keeps. Undo goes back (and sends them)">Get Panel</button>
+<button type="button" onclick="onClickGetPanel()" title="Gets the panel parameters from PRA32-U2/P or /M/P by MIDI In (Dump Panel, CC#116): not Basic Ch, Panel Target Ch, nor Panel MIDI Tx. Undo goes back (and sends them)">Get Panel</button>
 <button type="button" id="buttonPanelKey" title="Panel Key (CC#110): plays Panel Play Pitch while pressed (Key and K+S); retriggers it (Drn)">Key <span class="cc">CC#110</span></button>
 <button type="button" id="buttonPanelPlay" onclick="onClickPanelPlay()" title="Panel Play (CC#111): Key: holds the note; K+S and Seq: starts and stops the sequencer; Drn: retriggers the note">Play <span class="cc">CC#111</span></button></span></summary>
 <div class="section misc">
