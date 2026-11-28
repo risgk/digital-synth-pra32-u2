@@ -1,9 +1,9 @@
 ## Digital Synth PRA32-U2 Changelog
 
 - v3.23.1 (2026-??-??):
-    - MIDI: Read 8 bytes per loop in all, UART MIDI first and USB MIDI in the rest (all 8 without UART MIDI, from 5),
-      as the sender of USB MIDI waits while it is not read, so that USB MIDI and UART MIDI at the same time load a loop
-      no more than UART MIDI alone (also in the Customization Examples)
+    - MIDI: Read 5 bytes per loop in all, UART MIDI first and USB MIDI in the rest (all 5 without UART MIDI, as before;
+      UART MIDI 8 before), as the sender of USB MIDI waits while it is not read, so that USB MIDI and UART MIDI at the same
+      time load a loop about as much as UART MIDI alone (also in the Customization Examples)
     - PRA32-U2/P: **Dump Synth and Dump Panel** (Page C-9, and CC #115 and #116 on the Panel Channel): the values now of the synth
       parameters (of a synth, on its channel) or of the panel parameters (on the Panel Channel) as Control Changes;
       **Get Current and Get Panel** of PRA32-U2 Editor get them by MIDI In (Undo Write and Undo Read moved to Page C-10)

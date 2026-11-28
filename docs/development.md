@@ -58,9 +58,9 @@
           (`s_sub_frames_pending`), so a Note On takes effect on all of the synths from the first frame of the loop, as before; and it ends the loop
           before it tells the last front done, after which core 0 may start the next one
     - The Customization Examples (Lite) process all of it on one core, with `process_fx()` (the front and the back in one)
-- MIDI is read at the start of each loop: 8 bytes in all, more than the about 4.2 bytes that 31250 bps brings in a loop, UART MIDI first,
-  and USB MIDI in the rest (all 8 without UART MIDI), as the sender of USB MIDI waits while it is not read (the flow control of USB);
-  the messages are processed there, so a burst of MIDI makes that loop a little longer, but USB MIDI and UART MIDI at the same time no longer than UART MIDI alone
+- MIDI is read at the start of each loop: 5 bytes in all, more than the about 4.2 bytes that 31250 bps brings in a loop, UART MIDI first,
+  and USB MIDI in the rest (all 5 without UART MIDI), as the sender of USB MIDI waits while it is not read (the flow control of USB);
+  the messages are processed there, so a burst of MIDI makes that loop a little longer, but USB MIDI and UART MIDI at the same time about as long as UART MIDI alone
 - The output buffer is a ring buffer read by DMA without interrupts ("pra32-u2-audio-ring-buffer.h"): 2 * 64 frames (2.7 ms) by default
 - The code that runs while playing is put in RAM (`__not_in_flash_func`), so that an XIP cache miss (e.g. after a burst of MIDI or USB) does not delay it
 

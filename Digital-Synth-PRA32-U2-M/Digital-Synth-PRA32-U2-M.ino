@@ -558,11 +558,11 @@ void __not_in_flash_func(loop)() {
   mutex_enter_blocking(&__usb_mutex);
 #endif  // defined(PRA32_U2_USE_USB_MIDI)
 
-  // The MIDI Library parses 1 byte per read(): 8 bytes per 64 frames in all, UART MIDI first (up to about 4.2 bytes
-  // arrive per 64 frames at 31250 bps, so 8 bytes do not let the receive FIFO overflow), and then USB MIDI in the rest
-  // (all 8 without UART MIDI, more than about 4.2, to be at least as fast as UART MIDI), as its sender waits while
-  // it is not read (the flow control of USB), so that both together cost a loop no more than UART MIDI alone
-  const uint32_t midi_bytes_max = (PRA32_U2_I2S_BUFFER_WORDS + 7) / 8;
+  // The MIDI Library parses 1 byte per read(): 5 bytes per 64 frames in all, more than about 4.2 bytes that arrive
+  // per 64 frames at 31250 bps, UART MIDI first (so that the receive FIFO does not overflow), and then USB MIDI in
+  // the rest (all 5 without UART MIDI, to be at least as fast as UART MIDI), as its sender waits while it is not read
+  // (the flow control of USB), so that both together cost a loop about as much as UART MIDI alone
+  const uint32_t midi_bytes_max = ((PRA32_U2_I2S_BUFFER_WORDS + 15) / 16) + 1;
   uint32_t midi_bytes = 0;
   static_cast<void>(midi_bytes_max);
   static_cast<void>(midi_bytes);
