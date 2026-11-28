@@ -218,6 +218,7 @@
       gets those of the synth of "MIDI Ch" (Dump Synth, CC #115; the Basic Channel + 0 to + 3)
         - Undo (and Redo) brings back the values before them, and sends them to PRA32-U2 (as Undo does): Write or Export to keep those got
         - The values that come by MIDI In on the Panel Channel (e.g. by Dump Panel on the panel) are taken too
+        - MIDI In goes on to MIDI Out (as the other messages), so the values go back to PRA32-U2, the same (nothing changes)
     - The values are kept (in the browser, and in the files of Export) by the names of the panel parameters (e.g. "SEQ_TEMPO"), as the synth parameters are
     - "Key" plays Panel Play Pitch while pressed (Panel Key, CC #110), as the Play Key in Key Mode and K+S; "Play" ("Seq Play" in K+S and Seq Mode)
       starts and stops (Panel Play, CC #111) the note in Key Mode, or the Step Sequencer in K+S and Seq Mode; in Drn, both retrigger the note

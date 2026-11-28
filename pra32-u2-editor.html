@@ -5048,8 +5048,9 @@ function onClickGetPanel() {
   dumpRequest("panel", 116, 0);
 }
 
-// A value of the panel parameters from MIDI In on the Panel Channel (e.g. by Get Panel): shown and kept, not sent back;
-// not Basic Ch (#57), Panel Target Ch (#58), nor Panel MIDI Tx (#59), which the editor keeps
+// A value of the panel parameters from MIDI In on the Panel Channel (e.g. by Get Panel): shown and kept (not sent by
+// panelSendCC(); MIDI In goes on to MIDI Out as the other messages, back to PRA32-U2 with the same values, which change
+// nothing); not Basic Ch (#57), Panel Target Ch (#58), nor Panel MIDI Tx (#59), which the editor keeps
 let panelReceiveTimer = null;
 
 function panelOnReceiveValue(cc, value) {
