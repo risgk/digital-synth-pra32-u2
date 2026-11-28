@@ -106,7 +106,8 @@ static const PRA32_U2_ControlPanelPage g_control_panel_page_table_c[] = {
   { "Page C-6  ", "Write 12  ",   "Write #12 ", "User      ", WR_PROGRAM_12  ,   "Write #13 ", "User      ", WR_PROGRAM_13  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page C-7  ", "Write 14  ",   "Write #14 ", "User      ", WR_PROGRAM_14  ,   "Write #15 ", "User      ", WR_PROGRAM_15  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
   { "Page C-8  ", "Write a   ",   "Write     ", "Panel Prms", WR_PANEL_PRMS  ,   "          ", "          ", 0xFF           ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
-  { "Page C-9  ", "Undo      ",   "Undo      ", "Write     ", UNDO_WRITE     ,   "Undo      ", "Read      ", UNDO_READ      ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page C-9  ", "Dump      ",   "Dump      ", "Synth     ", DUMP_SYNTH_OP  ,   "Dump      ", "Panel     ", DUMP_PANEL_OP  ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
+  { "Page C-10 ", "Undo      ",   "Undo      ", "Write     ", UNDO_WRITE     ,   "Undo      ", "Read      ", UNDO_READ      ,   "Panel     ", "Play Pitch", PANEL_PLAY_PIT , },
 };
 
 static const PRA32_U2_ControlPanelPage g_control_panel_page_table_d[] = {

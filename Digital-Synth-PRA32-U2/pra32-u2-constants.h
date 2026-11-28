@@ -354,6 +354,8 @@ const uint8_t   UNDO_READ       = 128 + 114;
 const uint8_t   UNDO_WRITE      = 128 + 115;
 
 const uint8_t   WR_PANEL_PRMS   = 128 + 116;
+const uint8_t   DUMP_SYNTH_OP   = 128 + 117;
+const uint8_t   DUMP_PANEL_OP   = 128 + 118;
 
 const uint8_t   SEQ_RAND_PITCH  = 128 + 120;
 const uint8_t   SEQ_RAND_VELO   = 128 + 121;

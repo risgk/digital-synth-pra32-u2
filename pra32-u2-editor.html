@@ -1959,6 +1959,10 @@ function onMIDIMessage(event) {
     return;
   }
 
+  if ((event.data[0] == (CONTROL_CHANGE | panelCCCh())) && (event.data.length >= 3)) {
+    panelOnReceiveValue(event.data[1], event.data[2]);  // the panel parameters (e.g. by Get Panel)
+  }
+
   if (event.data[0] == (CONTROL_CHANGE | midi_ch)) {
     var number = event.data[1];
     var value = event.data[2];
@@ -1979,6 +1983,7 @@ function onMIDIMessage(event) {
       updateDisplayOfPerformanceControl(SUSTAIN_PEDAL, 0);
     }
     if (controllersInLocalStorage.indexOf(number) >= 0) {
+      if (dumpWaiting == "synth") { dumpWaiting = null; }
       updateDisplayOfControl(number, value);
       if (DIMMING_CONTROLS.indexOf(number) >= 0) {
         updateDimmedParameters();
@@ -4159,7 +4164,8 @@ function getStoredCCValueString(index, number) {
 
 <details class="section" id="midiDetails" open>
 <summary class="midi-bar"><span class="midi-bar-items"><span>MIDI</span>
-<span class="midi-buttons" onclick="event.preventDefault()"><button type="button" onclick="sendCurrentParameters()">Send Current</button></span></span></summary>
+<span class="midi-buttons" onclick="event.preventDefault()"><button type="button" onclick="sendCurrentParameters()">Send Current</button>
+<button type="button" onclick="onClickGetCurrent()" title="Gets the parameters now of the synth of MIDI Ch from PRA32-U2/P or PRA32-U2/M/P by MIDI In (Dump Synth, CC#115 on the Panel Channel): only the synths of the Basic Ch + 0 to + 3 (+ 1 to + 3 with Voice Group Mode not Off), not the groups nor the Layering; not the Performance Controls. Undo goes back (and sends it)">Get Current</button></span></span></summary>
 <div class="section midi">
 <div class="midi-item"><span class="lbl-midi">MIDI Ch</span>
 <select id="selectMIDICh" size="1" onchange="onChangeMIDICh()">
@@ -4684,6 +4690,7 @@ function getStoredCCValueString(index, number) {
 <summary>Panel &amp; Step Sequencer <span class="cc">for PRA32-U2/P and PRA32-U2/M/P</span></summary>
 <details class="section panel-sub" id="panelCtrlDetails" open>
 <summary>Panel &amp; Operations <span class="panel-summary-buttons" onclick="event.preventDefault()"><button type="button" onclick="sendPanelCurrent()">Send Panel</button>
+<button type="button" onclick="onClickGetPanel()" title="Gets the panel parameters now from PRA32-U2/P or PRA32-U2/M/P by MIDI In (Dump Panel, CC#116 on the Panel Channel): not Basic Ch, Panel Target Ch, nor Panel MIDI Tx, which the editor keeps. Undo goes back (and sends them)">Get Panel</button>
 <button type="button" id="buttonPanelKey" title="Panel Key (CC#110): plays Panel Play Pitch while pressed (Key and K+S); retriggers it (Drn)">Key <span class="cc">CC#110</span></button>
 <button type="button" id="buttonPanelPlay" onclick="onClickPanelPlay()" title="Panel Play (CC#111): Key: holds the note; K+S and Seq: starts and stops the sequencer; Drn: retriggers the note">Play <span class="cc">CC#111</span></button></span></summary>
 <div class="section misc">
@@ -5000,6 +5007,60 @@ function panelRedo() {
 function panelUpdateUndoButtons() {
   document.getElementById("buttonPanelUndo").disabled = (panelUndoStack.length === 0);
   document.getElementById("buttonPanelRedo").disabled = (panelRedoStack.length === 0);
+}
+
+// Get Current and Get Panel: Dump Synth (CC#115, the synth of MIDI Ch as the Basic Ch + 0 to + 3) and Dump Panel (CC#116)
+// asked on the Panel Channel; PRA32-U2/P and PRA32-U2/M/P answer by the port that they came from, with the values now as
+// Control Changes, which MIDI In takes (as those of the synth of MIDI Ch, and below, of the Panel Channel); a message if
+// none come in a second (e.g. another Basic Ch, or + 1 to + 3 with Voice Group Mode Off)
+let dumpWaiting = null;  // "synth" or "panel", until the first value comes
+let dumpWaitingTimer = null;
+
+function dumpRequest(kind, number, value) {
+  if (!midiOutput || !(midiInput1 || midiInput2 || midiInput3 || midiInput4)) {
+    alert("Select MIDI In and MIDI Out of PRA32-U2/P or PRA32-U2/M/P.");
+    return false;
+  }
+  dumpWaiting = kind;
+  clearTimeout(dumpWaitingTimer);
+  dumpWaitingTimer = setTimeout(function() {
+    if (dumpWaiting) {
+      dumpWaiting = null;
+      alert("No answer from PRA32-U2/P or PRA32-U2/M/P: check MIDI In, Basic Ch (of Panel & Operations), MIDI Ch, and Voice Group Mode.");
+    }
+  }, 1000);
+  panelSendCC(number, value);
+  return true;
+}
+
+function onClickGetCurrent() {
+  const offset = (midi_ch - panelSettings.basicCh + 16) & 0x0F;
+  if (offset > 3) {
+    alert("Get Current is for MIDI Ch of the Basic Ch + 0 to + 3 (the Main Synth and the Sub Synths 1-3).");
+    return;
+  }
+  saveUndo();
+  dumpRequest("synth", 115, offset);
+}
+
+function onClickGetPanel() {
+  panelPushUndo();
+  dumpRequest("panel", 116, 0);
+}
+
+// A value of the panel parameters from MIDI In on the Panel Channel (e.g. by Get Panel): shown and kept, not sent back;
+// not Basic Ch (#57), Panel Target Ch (#58), nor Panel MIDI Tx (#59), which the editor keeps
+let panelReceiveTimer = null;
+
+function panelOnReceiveValue(cc, value) {
+  if ((cc == 58) || (cc == 59) || !PANEL_PARAM_NAMES.some(function(p) { return p[0] == cc; })) {
+    return;
+  }
+  if (dumpWaiting == "panel") { dumpWaiting = null; }
+  if (cc == 53) { panelPlayModeChanged(panelValues[53], value); }
+  panelValues[cc] = value;
+  clearTimeout(panelReceiveTimer);
+  panelReceiveTimer = setTimeout(function() { panelUpdateDisplay(); panelSave(); }, 50);  // once, after a dump
 }
 
 function panelOnChangeValue(cc, value) {

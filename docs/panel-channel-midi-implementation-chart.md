@@ -22,34 +22,34 @@
 +-------------------------------+---------------+---------------+---------------------------------------+
 | Pitch Bend                    | x             | x             |                                       |
 +-------------------------------+---------------+---------------+---------------------------------------+
-| Control                 16-23 | x             | o             | Seq Pitch 0-7                         |
+| Control                 16-23 | x $9          | o             | Seq Pitch 0-7                         |
 |                               |               |               |                                       |
-| Change                     51 | x             | o             | Panel Scale [Maj|Min|Mel|MaP|MiP|Chr] |
-|                            52 | x             | o             | Panel Transpose [- to +]              |
-|                            53 | x             | o             | Panel Play Mode [Key|K+S|Drn|Seq] $8  |
-|                            54 | x             | o             | Panel Play Pitch                      |
-|                            55 | x             | o             | Panel Play Velo                       |
-|                            56 | x             | o             | Panel Pitch Ofst [- to +]             |
+| Change                     51 | x $9          | o             | Panel Scale [Maj|Min|Mel|MaP|MiP|Chr] |
+|                            52 | x $9          | o             | Panel Transpose [- to +]              |
+|                            53 | x $9          | o             | Panel Play Mode [Key|K+S|Drn|Seq] $8  |
+|                            54 | x $9          | o             | Panel Play Pitch                      |
+|                            55 | x $9          | o             | Panel Play Velo                       |
+|                            56 | x $9          | o             | Panel Pitch Ofst [- to +]             |
 |                            57 | x             | o             | MIDI Basic Ch (0-15) $5               |
 |                               |               |               |                                       |
 |                            58 | x             | o             | Panel Target Ch $2                    |
 |                            59 | x             | o             | Panel MIDI Tx $6                      |
-|                            60 | x             | o             | Seq Ch Ofst [+0 to +15]               |
-|                            61 | x             | o             | Seq Transpose [- to +]                |
-|                            62 | x             | o             | Seq Pattern [Std|4x4]                 |
+|                            60 | x $9          | o             | Seq Ch Ofst [+0 to +15]               |
+|                            61 | x $9          | o             | Seq Transpose [- to +]                |
+|                            62 | x $9          | o             | Seq Pattern [Std|4x4]                 |
 |                               |               |               |                                       |
-|                         70-77 | x             | o             | Seq Velo 0-7                          |
+|                         70-77 | x $9          | o             | Seq Velo 0-7                          |
 |                               |               |               |                                       |
-|                            85 | x             | o             | Seq Tempo                             |
-|                            86 | x             | o             | Seq Clock Src [Aut|Int|Ext]           |
-|                            87 | x             | o             | Seq Gate Time [1/6|...|6/6]           |
-|                            88 | x             | o             | Seq Num Steps                         |
-|                            89 | x             | o             | Seq Direction [Fwd|Rvs|Bnc]           |
-|                            90 | x             | o             | Seq Act Steps                         |
-|                            92 | x             | o             | Seq Step Note [4|8|16]                |
-|                            93 | x             | o             | Seq On Steps                          |
-|                            94 | x             | o             | Seq Rx St/Sp [Off|On]                 |
-|                            95 | x             | o             | Seq Pitch Ofst [- to +]               |
+|                            85 | x $9          | o             | Seq Tempo                             |
+|                            86 | x $9          | o             | Seq Clock Src [Aut|Int|Ext]           |
+|                            87 | x $9          | o             | Seq Gate Time [1/6|...|6/6]           |
+|                            88 | x $9          | o             | Seq Num Steps                         |
+|                            89 | x $9          | o             | Seq Direction [Fwd|Rvs|Bnc]           |
+|                            90 | x $9          | o             | Seq Act Steps                         |
+|                            92 | x $9          | o             | Seq Step Note [4|8|16]                |
+|                            93 | x $9          | o             | Seq On Steps                          |
+|                            94 | x $9          | o             | Seq Rx St/Sp [Off|On]                 |
+|                            95 | x $9          | o             | Seq Pitch Ofst [- to +]               |
 |                               |               |               |                                       |
 |                           102 | x             | o             | Write Panel Prms $3                   |
 |                           103 | x             | o             | Read Panel Prms $3                    |
@@ -62,6 +62,8 @@
 |                           112 | x             | o             | Seq Rand Pitch $3                     |
 |                           113 | x             | o             | Seq Rand Velo $3                      |
 |                           114 | x             | o             | Set Basic Ch $3 $5                    |
+|                           115 | x             | o             | Dump Synth $10                        |
+|                           116 | x             | o             | Dump Panel $10                        |
 +-------------------------------+---------------+---------------+---------------------------------------+
 | Program                       | x             | x             |                                       |
 | Change       : True #         | ************* | x             |                                       |
@@ -106,6 +108,12 @@
 |                               | $8 : [Key|Key|K+S|K+S|Drn|Seq]: Key 0-38, K+S 39-89, Drn 90-115, and  |
 |                               |   Seq 116-127; Drn (Drone Mode): Key Mode with the note always on     |
 |                               |   (Panel Play Pitch Off stops it; the Play key retriggers it)         |
+|                               | $9 : o by Dump Panel (the values now)                                 |
+|                               | $10: The values now as Control Changes, by the port that it came from |
+|                               |   (USB MIDI or UART MIDI), at once: Dump Synth: those of the synth of |
+|                               |   the Basic Channel + the value (0-3, a synth that the channel goes   |
+|                               |   to), on the channel; Dump Panel: those of the Panel and Step        |
+|                               |   Sequencer Parameters, on the Panel Channel (not #57-59)             |
 +-------------------------------+-----------------------------------------------------------------------+
   Mode 1: Omni On,  Poly          Mode 2: Omni On,  Mono          o: Yes                                 
   Mode 3: Omni Off, Poly          Mode 4: Omni Off, Mono          x: No                                  

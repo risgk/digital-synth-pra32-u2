@@ -447,6 +447,18 @@ void __not_in_flash_func(loop1)() {
   }
 }
 
+// Control Changes by USB MIDI and by UART MIDI: Dump Synth (#115) and Dump Panel (#116) on the Panel Channel of PRA32-U2/P
+// are answered by the port that they came from (see PRA32_U2_ControlPanel_on_dump_request())
+static void handleControlChangeUSB(byte channel, byte number, byte value) {
+  if (PRA32_U2_ControlPanel_on_dump_request(channel, number, value, 0x01)) { return; }
+  handleControlChange(channel, number, value);
+}
+
+static void handleControlChangeUART(byte channel, byte number, byte value) {
+  if (PRA32_U2_ControlPanel_on_dump_request(channel, number, value, 0x02)) { return; }
+  handleControlChange(channel, number, value);
+}
+
 void __not_in_flash_func(setup)() {
 #if defined(PRA32_U2_USE_PWM_AUDIO_INSTEAD_OF_I2S)
   g_pwm_output.setSysClk(SAMPLING_RATE);
@@ -479,7 +491,7 @@ void __not_in_flash_func(setup)() {
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
   USB_MIDI.setHandleNoteOn(handleNoteOn);
   USB_MIDI.setHandleNoteOff(handleNoteOff);
-  USB_MIDI.setHandleControlChange(handleControlChange);
+  USB_MIDI.setHandleControlChange(handleControlChangeUSB);
   USB_MIDI.setHandleProgramChange(handleProgramChange);
   USB_MIDI.setHandlePitchBend(handlePitchBend);
   USB_MIDI.setHandleAfterTouchPoly(handleAfterTouchPoly);
@@ -498,7 +510,7 @@ void __not_in_flash_func(setup)() {
   PRA32_U2_UART_MIDI_SERIAL.setFIFOSize(256);  // To absorb bursts (default: 32 bytes)
   UART_MIDI.setHandleNoteOn(handleNoteOn);
   UART_MIDI.setHandleNoteOff(handleNoteOff);
-  UART_MIDI.setHandleControlChange(handleControlChange);
+  UART_MIDI.setHandleControlChange(handleControlChangeUART);
   UART_MIDI.setHandleProgramChange(handleProgramChange);
   UART_MIDI.setHandlePitchBend(handlePitchBend);
   UART_MIDI.setHandleAfterTouchPoly(handleAfterTouchPoly);

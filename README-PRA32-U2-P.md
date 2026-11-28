@@ -178,6 +178,15 @@
 - Write Operations
     - Write #0-15 (User), Write Panel Prms (Write Panel and Step Sequencer Parameters)
         - Change the value from 0-31 [Rdy] to 96-127 [Exe] to write to the flash
+- Dump Operations (Page C-9)
+    - Dump Synth: Sends the values now of the parameters of the synth (channel) that the panel selects (those of the programs),
+      as Control Changes on its channel; only the Basic Channel + 0 to + 3 (not the groups nor the Layering)
+    - Dump Panel: Sends the values now of the Panel and Step Sequencer Parameters as Control Changes on the Panel Channel
+      (by the CC numbers of the Panel Channel; not MIDI Basic Ch, Panel Target Ch, nor Panel MIDI Tx)
+        - Change the value from 0-31 [Rdy] to 96-127 [Exe] to send them, by USB MIDI and UART MIDI (whatever Panel MIDI Tx is),
+          one about every 1.3 ms (e.g. for Get Current and Get Panel of PRA32-U2 Editor, or to record them in a DAW)
+        - Also by Dump Synth (CC #115, the value: the Basic Channel + 0 to + 3) and Dump Panel (CC #116) on the Panel Channel,
+          answered by the port that they came from (USB MIDI or UART MIDI)
 
 
 #### Group D
@@ -186,7 +195,7 @@
     - Read #0-15 (User), #16-31 (Factory Presets), Read Panel Prms, Init Panel Prms
         - Change the value from 0-31 [Rdy] to 96-127 [Exe] to read from the flash
         - Read Panel Prms and Init Panel Prms are for the panel parameters, whatever synth (channel) the panel selects
-- Undo Operations (also on Page C-9, after the Write Operations)
+- Undo Operations (also on Page C-10, after the Write Operations)
     - Undo Write: Brings back the user program (or the panel parameters) in the flash that the last Write replaced
       (the last Write by the panel, or by MIDI: Write Parameters to Program, CC #106, e.g. by Write (to Device) of PRA32-U2 Editor)
     - Undo Read: Brings back the parameters (or the panel parameters) that the last Read (or Init Panel Prms) replaced
@@ -203,8 +212,12 @@
 - "Panel & Step Sequencer" of [PRA32-U2 Editor](./README.md#pra32-u2-editor) (hidden by default) edits them by the Panel Channel
   (also those of PRA32-U2/M/P Web (Built-in))
     - "Basic Ch": that of PRA32-U2 (not "MIDI Ch" of the editor); "Set Basic Ch (to Device)" changes it on PRA32-U2 too (kept by Write)
-    - PRA32-U2 sends nothing back: "Send Panel" sends the values that the editor keeps ("presets/pra32-u2-panel-initial.json": the initial ones);
+    - "Send Panel" sends the values that the editor keeps ("presets/pra32-u2-panel-initial.json": the initial ones);
       Export keeps the Basic Ch too, which Import sets on PRA32-U2 if asked
+    - "Get Panel" gets the values now from PRA32-U2 by MIDI In (Dump Panel, CC #116); "Get Current" (on the heading of "MIDI")
+      gets those of the synth of "MIDI Ch" (Dump Synth, CC #115; the Basic Channel + 0 to + 3)
+        - Undo (and Redo) brings back the values before them, and sends them to PRA32-U2 (as Undo does): Write or Export to keep those got
+        - The values that come by MIDI In on the Panel Channel (e.g. by Dump Panel on the panel) are taken too
     - The values are kept (in the browser, and in the files of Export) by the names of the panel parameters (e.g. "SEQ_TEMPO"), as the synth parameters are
     - "Key" plays Panel Play Pitch while pressed (Panel Key, CC #110), as the Play Key in Key Mode and K+S; "Play" ("Seq Play" in K+S and Seq Mode)
       starts and stops (Panel Play, CC #111) the note in Key Mode, or the Step Sequencer in K+S and Seq Mode; in Drn, both retrigger the note
@@ -325,7 +338,8 @@
 | C-6 Write 12   | Write #12 User       | Write #13 User       |
 | C-7 Write 14   | Write #14 User       | Write #15 User       |
 | C-8 Write a    | Write Panel Prms     |                      |
-| C-9 Undo       | Undo Write           | Undo Read            |
+| C-9 Dump       | Dump Synth           | Dump Panel           |
+| C-10 Undo      | Undo Write           | Undo Read            |
 | D-0 Read 0     | Read #0 User         | Read #1 User         |
 | D-1 Read 2     | Read #2 User         | Read #3 User         |
 | D-2 Read 4     | Read #4 User         | Read #5 User         |

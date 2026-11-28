@@ -1038,6 +1038,99 @@ static INLINE void PRA32_U2_ControlPanel_update_control_seq() {
   }
 }
 
+// Dump Synth and Dump Panel: the values now of the parameters of a synth (those of the programs, on the channel of the
+// synth), or of the panel parameters (on the Panel Channel, by the numbers of the Panel Channel; not MIDI Basic Ch #57,
+// Panel Target Ch #58, nor Panel MIDI Tx #59), as Control Changes, one per loop (e.g. for PRA32-U2 Editor to get them),
+// by USB MIDI and UART MIDI (whatever Panel MIDI Tx is); a dump asked while one is sent is ignored
+#if defined(PRA32_U2_USE_CONTROL_PANEL)
+static          uint8_t  s_dump_kind    = 0;  // 0: none, 1: Synth, 2: Panel
+static          uint8_t  s_dump_ports   = 0;  // bit 0: USB MIDI, bit 1: UART MIDI
+static          uint8_t  s_dump_channel = 1;
+static          uint8_t  s_dump_index   = 0;
+
+static const uint8_t s_dump_panel_numbers[] = {  // in the order that PRA32-U2 Editor sends them (Send Panel)
+  51, 52, 53, 54, 55, 56, 60, 61, 62, 85, 86, 87, 88, 89, 90, 92, 93, 94, 95,
+  16, 17, 18, 19, 20, 21, 22, 23, 70, 71, 72, 73, 74, 75, 76, 77,
+};
+
+static uint8_t PRA32_U2_ControlPanel_panel_ch_target(uint8_t number);
+
+// synth: 0-3 (the Main Synth and the Sub Synths 1-3, the Basic Channel + 0 to + 3), only one that a channel goes to now
+// (e.g. only 0 while Voice Group Mode is Off); not the groups nor the Layering
+static void PRA32_U2_ControlPanel_start_dump(uint8_t kind, uint32_t synth, uint8_t ports) {
+  if (s_dump_kind != 0) {
+    return;
+  }
+  if (kind == 1) {
+    if ((synth >= 4) || (synth >= PRA32_U2_NUMBER_OF_SYNTHS) || !PRA32_U2_ControlPanel_target_usable(synth)) {
+      return;
+    }
+    s_dump_channel = getTargetMIDICh(synth);
+  } else {
+    s_dump_channel = ((g_midi_ch + 14) & 0x0F) + 1;
+  }
+  s_dump_ports = ports;
+  s_dump_index = 0;
+  s_dump_kind  = kind;
+}
+
+static INLINE void PRA32_U2_ControlPanel_process_dump() {
+  if (s_dump_kind == 0) {
+    return;
+  }
+
+  uint8_t number;
+  uint8_t value;
+  if (s_dump_kind == 1) {
+    if (s_dump_index >= sizeof(s_program_table_parameters)) {
+      s_dump_kind = 0;
+      return;
+    }
+    number = s_program_table_parameters[s_dump_index];
+    value  = getCurrentControllerValue(s_dump_channel, number);
+  } else {
+    if (s_dump_index >= sizeof(s_dump_panel_numbers)) {
+      s_dump_kind = 0;
+      return;
+    }
+    number = s_dump_panel_numbers[s_dump_index];
+    value  = g_synth.current_controller_value(PRA32_U2_ControlPanel_panel_ch_target(number));
+  }
+  ++s_dump_index;
+
+#if defined(PRA32_U2_USE_USB_MIDI) && !defined(PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION)
+  if (s_dump_ports & 0x01) {
+    USB_MIDI.sendControlChange(number, value, s_dump_channel);
+  }
+#endif  // defined(PRA32_U2_USE_USB_MIDI) && !defined(PRA32_U2_DISABLE_USB_MIDI_TRANSMITTION)
+
+#if defined(PRA32_U2_USE_UART_MIDI)
+  if (s_dump_ports & 0x02) {
+    UART_MIDI.sendControlChange(number, value, s_dump_channel);
+  }
+#endif  // defined(PRA32_U2_USE_UART_MIDI)
+}
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
+
+// Dump Synth (#115, the value: the synth, 0-3) and Dump Panel (#116) on the Panel Channel, asked by MIDI: answered by the
+// port that it came from (port: 0x01 USB MIDI, 0x02 UART MIDI), at once (not waiting, as the other messages may); true if
+// it is one of them
+
+boolean PRA32_U2_ControlPanel_on_dump_request(uint8_t channel, uint8_t number, uint8_t value, uint8_t port) {
+#if defined(PRA32_U2_USE_CONTROL_PANEL) && defined(PRA32_U2_USE_PANEL_CHANNEL)
+  if (((channel - 1) == ((g_midi_ch + 14) & 0x0F)) && ((number == 115) || (number == 116))) {
+    PRA32_U2_ControlPanel_start_dump((number == 115) ? 1 : 2, value, port);
+    return true;
+  }
+#else  // defined(PRA32_U2_USE_CONTROL_PANEL) && defined(PRA32_U2_USE_PANEL_CHANNEL)
+  static_cast<void>(channel);
+  static_cast<void>(number);
+  static_cast<void>(value);
+  static_cast<void>(port);
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL) && defined(PRA32_U2_USE_PANEL_CHANNEL)
+  return false;
+}
+
 // Does an operation (128 + 64 and on: Read, Write, Undo, etc.), from the panel or from the Panel Channel
 static __attribute__((noinline, unused)) void PRA32_U2_ControlPanel_execute_operation(uint8_t control_target) {
   if        ((control_target >= RD_PROGRAM_0) && (control_target <= RD_PROGRAM_31)) {
@@ -1085,6 +1178,12 @@ static __attribute__((noinline, unused)) void PRA32_U2_ControlPanel_execute_oper
     }
   } else if (control_target == RAND_SYNTH_OP) {
     handleProgramChange(getTargetMIDICh(s_current_synth), 127);
+#if defined(PRA32_U2_USE_CONTROL_PANEL)
+  } else if (control_target == DUMP_SYNTH_OP) {  // the synth that the panel selects, by USB MIDI and UART MIDI
+    PRA32_U2_ControlPanel_start_dump(1, s_current_synth, 0x03);
+  } else if (control_target == DUMP_PANEL_OP) {
+    PRA32_U2_ControlPanel_start_dump(2, 0, 0x03);
+#endif  // defined(PRA32_U2_USE_CONTROL_PANEL)
   }
 }
 
@@ -1672,6 +1771,8 @@ static __attribute__((noinline)) boolean __not_in_flash_func(PRA32_U2_ControlPan
   case  SEQ_RAND_VELO  :
   case  PANIC_OP       :
   case  RAND_SYNTH_OP  :
+  case  DUMP_SYNTH_OP  :
+  case  DUMP_PANEL_OP  :
     {
       if        (controller_value <= 31) {
         value_display_text[0] = 'R';
@@ -2003,6 +2104,8 @@ INLINE void PRA32_U2_ControlPanel_update_control() {
 #endif  // defined(PRA32_U2_USE_CONTROL_PANEL_ANALOG_INPUT)
     return;
   }
+
+  PRA32_U2_ControlPanel_process_dump();
 
   if (s_program_display_requested) {
     s_program_display_requested = false;

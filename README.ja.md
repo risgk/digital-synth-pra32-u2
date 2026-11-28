@@ -108,6 +108,7 @@
         - Basic Channel は最初は 1 です。編集するシンセは "MIDI Ch" で選んでください (チャンネルは PRA32-U2/M の説明を参照。2-4 は Voice Group Mode が Off 以外のとき。プリセットは RR3)
         - PRA32-U2/M と同じく、Main Synth はプログラム #0、Sub Synth 1-3 は #1-3 で始まります。Sub Synth は Main Synth が Poly でないときだけ鳴ります
     - 出力を選んでも何も送りません (PRA32-U2 Web も同じ)。"MIDI" の見出しの "Send Current" で PRA32-U2 Editor のパラメーター (1 組) を "MIDI Ch" のシンセに送ります
+    - "Get Current" で、PRA32-U2/P と PRA32-U2/M/P から "MIDI Ch" のシンセの今のパラメーターを MIDI In で取り込みます ([README-PRA32-U2-P.md](./README-PRA32-U2-P.md) の Dump Synth を参照)
 
 
 ### プログラムとプリセット

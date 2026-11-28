@@ -134,6 +134,7 @@ graph LR
         - The Main Synth starts with the program #0 and the Sub Synths 1-3 with #1-3, as PRA32-U2/M does;
           the Sub Synths sound only while the Main Synth is not in Poly
     - Nothing is sent when an output is selected (PRA32-U2 Web too): "Send Current" (on the heading of "MIDI") sends the parameters of PRA32-U2 Editor (one set) to the synth of "MIDI Ch"
+    - "Get Current" gets the parameters now of the synth of "MIDI Ch" from PRA32-U2/P and PRA32-U2/M/P by MIDI In (see Dump Synth in [README-PRA32-U2-P.md](./README-PRA32-U2-P.md))
 
 
 ### Programs and Presets
