@@ -325,8 +325,9 @@ def midi_read(port):
     return fn
 for n, fn in [('_ZN10SerialUART9availableEv', midi_available('uart')), ('_ZN10SerialUART4readEv', midi_read('uart')),
               ('_ZN18Adafruit_USBD_MIDI9availableEv', midi_available('usb')), ('_ZN18Adafruit_USBD_MIDI4readEv', midi_read('usb'))]:
-    if n in func_names:
-        stubs[func_names[n][0]] = fn
+    for name in (n, '__' + n + '_veneer'):  # and the veneer of a direct call from the RAM (e.g. Serial2.available() in loop())
+        if name in func_names:
+            stubs[func_names[name][0]] = fn
 
 SPIN_CYCLES = 400
 taken_from = [None, None]  # where a branch just run goes on if not taken
