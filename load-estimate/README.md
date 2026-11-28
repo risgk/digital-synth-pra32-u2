@@ -51,7 +51,7 @@
       the heaviest for PRA32-U2/M/P
     - "by UART MIDI (Running Status) and USB MIDI": the bytes arrive over and over, with no gap, while the loops run, by UART MIDI at 31250 bps (about 4.2 bytes a loop, in the time of the loops as on the device, since v3.23.0)
       with Running Status (the status byte once, and a Note Off as a Note On of velocity 0), the most messages a loop, and by USB MIDI
-      as fast as PRA32-U2 reads them (5 bytes a loop), whose packets have the status byte each
+      as fast as PRA32-U2 reads them (the rest of 8 bytes a loop after UART MIDI, since v3.23.1), whose packets have the status byte each
         - Note On and Off of the note 72 are what a player sends
         - A Program Change, which sets all the parameters (of the 4 Synths, by MIDI Channel 16), is the heaviest message: back to back, the heaviest case,
           PRA32-U2 processes the last of them that arrive one after another, a loop (half a program of one synth a loop for PRA32-U2/M/P, since v3.23.0)
