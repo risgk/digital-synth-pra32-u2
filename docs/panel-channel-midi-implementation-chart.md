@@ -109,12 +109,12 @@
 |                               |   Seq 116-127; Drn (Drone Mode): Key Mode with the note always on     |
 |                               |   (Panel Play Pitch Off stops it; the Play key retriggers it)         |
 |                               | $9 : Transmitted by Dump Panel: the values now of the Panel and Step  |
-|                               |   Sequencer Parameters (all but #57-59, 102-106, and 110-116)         |
+|                               |   Sequencer Parameters (all but the operations, #102-106 and #110-116)|
 |                               | $10: The values now as Control Changes, by the port that it came from |
 |                               |   (USB MIDI or UART MIDI), at once: Dump Synth: those of the synth of |
 |                               |   the Basic Channel + the value (0-3, a synth that the channel goes   |
 |                               |   to), on the channel; Dump Panel: those of the Panel and Step        |
-|                               |   Sequencer Parameters, on the Panel Channel (not #57-59)             |
+|                               |   Sequencer Parameters, on the Panel Channel                          |
 +-------------------------------+-----------------------------------------------------------------------+
   Mode 1: Omni On,  Poly          Mode 2: Omni On,  Mono          o: Yes                                 
   Mode 3: Omni Off, Poly          Mode 4: Omni Off, Mono          x: No                                  

@@ -182,7 +182,7 @@
     - Dump Synth: Sends the values now of the parameters of the synth (channel) that the panel selects (those of the programs),
       as Control Changes on its channel; only the Basic Channel + 0 to + 3 (not the groups nor the Layering)
     - Dump Panel: Sends the values now of the Panel and Step Sequencer Parameters as Control Changes on the Panel Channel
-      (by the CC numbers of the Panel Channel; not MIDI Basic Ch, Panel Target Ch, nor Panel MIDI Tx)
+      (by the CC numbers of the Panel Channel)
         - Change the value from 0-31 [Rdy] to 96-127 [Exe] to send them, by USB MIDI and UART MIDI (whatever Panel MIDI Tx is),
           one about every 1.3 ms (e.g. for Get Current and Get Panel of PRA32-U2 Editor, or to record them in a DAW)
         - Also by Dump Synth (CC #115, the value: the Basic Channel + 0 to + 3) and Dump Panel (CC #116) on the Panel Channel,

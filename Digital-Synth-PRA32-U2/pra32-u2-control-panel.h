@@ -1039,8 +1039,8 @@ static INLINE void PRA32_U2_ControlPanel_update_control_seq() {
 }
 
 // Dump Synth and Dump Panel: the values now of the parameters of a synth (those of the programs, on the channel of the
-// synth), or of the panel parameters (on the Panel Channel, by the numbers of the Panel Channel; not MIDI Basic Ch #57,
-// Panel Target Ch #58, nor Panel MIDI Tx #59), as Control Changes, one per loop (e.g. for PRA32-U2 Editor to get them),
+// synth), or of the panel parameters (on the Panel Channel, by the numbers of the Panel Channel, MIDI Basic Ch #57 too,
+// which is only kept there), as Control Changes, one per loop (e.g. for PRA32-U2 Editor to get them),
 // by USB MIDI and UART MIDI (whatever Panel MIDI Tx is); a dump asked while one is sent is ignored
 #if defined(PRA32_U2_USE_CONTROL_PANEL)
 static          uint8_t  s_dump_kind    = 0;  // 0: none, 1: Synth, 2: Panel
@@ -1049,7 +1049,7 @@ static          uint8_t  s_dump_channel = 1;
 static          uint8_t  s_dump_index   = 0;
 
 static const uint8_t s_dump_panel_numbers[] = {  // in the order that PRA32-U2 Editor sends them (Send Panel)
-  51, 52, 53, 54, 55, 56, 60, 61, 62, 85, 86, 87, 88, 89, 90, 92, 93, 94, 95,
+  57, 58, 51, 52, 53, 54, 55, 56, 59, 60, 61, 62, 85, 86, 87, 88, 89, 90, 92, 93, 94, 95,
   16, 17, 18, 19, 20, 21, 22, 23, 70, 71, 72, 73, 74, 75, 76, 77,
 };
 
@@ -1094,7 +1094,13 @@ static INLINE void PRA32_U2_ControlPanel_process_dump() {
       return;
     }
     number = s_dump_panel_numbers[s_dump_index];
-    value  = g_synth.current_controller_value(PRA32_U2_ControlPanel_panel_ch_target(number));
+    if        (number == 57) {  // MIDI Basic Ch (0-15)
+      value = g_midi_ch;
+    } else if (number == 58) {  // Panel Target Ch
+      value = g_synth.current_controller_value(PANEL_TARGET_CH);
+    } else {
+      value = g_synth.current_controller_value(PRA32_U2_ControlPanel_panel_ch_target(number));
+    }
   }
   ++s_dump_index;
 

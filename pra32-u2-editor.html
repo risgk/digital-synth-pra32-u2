@@ -4690,7 +4690,7 @@ function getStoredCCValueString(index, number) {
 <summary>Panel &amp; Step Sequencer <span class="cc">for PRA32-U2/P and PRA32-U2/M/P</span></summary>
 <details class="section panel-sub" id="panelCtrlDetails" open>
 <summary>Panel &amp; Operations <span class="panel-summary-buttons" onclick="event.preventDefault()"><button type="button" onclick="sendPanelCurrent()">Send Panel</button>
-<button type="button" onclick="onClickGetPanel()" title="Gets the panel parameters from PRA32-U2/P or /M/P by MIDI In (Dump Panel, CC#116): not Basic Ch, Panel Target Ch, nor Panel MIDI Tx. Undo goes back (and sends them)">Get Panel</button>
+<button type="button" onclick="onClickGetPanel()" title="Gets the panel parameters from PRA32-U2/P or /M/P by MIDI In (Dump Panel, CC#116). Undo goes back (and sends them)">Get Panel</button>
 <button type="button" id="buttonPanelKey" title="Panel Key (CC#110): plays Panel Play Pitch while pressed (Key and K+S); retriggers it (Drn)">Key <span class="cc">CC#110</span></button>
 <button type="button" id="buttonPanelPlay" onclick="onClickPanelPlay()" title="Panel Play (CC#111): Key: holds the note; K+S and Seq: starts and stops the sequencer; Drn: retriggers the note">Play <span class="cc">CC#111</span></button></span></summary>
 <div class="section misc">
@@ -5052,11 +5052,11 @@ function onClickGetPanel() {
 
 // A value of the panel parameters from MIDI In on the Panel Channel (e.g. by Get Panel): shown and kept (not sent by
 // panelSendCC(); MIDI In goes on to MIDI Out as the other messages, back to PRA32-U2 with the same values, which change
-// nothing); not Basic Ch (#57), Panel Target Ch (#58), nor Panel MIDI Tx (#59), which the editor keeps
+// nothing); not Basic Ch (#57), which the editor keeps as a setting (the same as that of PRA32-U2, as it comes)
 let panelReceiveTimer = null;
 
 function panelOnReceiveValue(cc, value) {
-  if ((cc == 58) || (cc == 59) || !PANEL_PARAM_NAMES.some(function(p) { return p[0] == cc; })) {
+  if (!PANEL_PARAM_NAMES.some(function(p) { return p[0] == cc; })) {
     return;
   }
   if (dumpWaiting == "panel") { dumpWaiting = null; }
